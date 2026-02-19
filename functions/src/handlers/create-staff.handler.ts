@@ -1,52 +1,39 @@
 import { CallableRequest, HttpsError } from 'firebase-functions/https';
 import { firestore } from 'firebase-admin';
-import { hashPin } from '../tools/hash-pin';
-import { generateStaffUid } from '../tools/generate-staff-uid';
+import { generateStaffUid } from '../tools/generate-staff-uid.tool';
+import { createSaltAndHash } from '../tools/hash-pin.tool';
 
 const db = firestore();
 
-export const createStaffHandler = async (request: CallableRequest) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'USER_NOT_AUTHENTICATED');
-  }
-
-  if (request.auth.token['role'] !== 'owner') {
-    throw new HttpsError('unauthenticated', 'USER_NOT_AUTHENTICATED');
+export const createStaffHandler = async (request: CallableRequest<any>) => {
+  if (!request.auth || request.auth.token['role'] !== 'owner') {
+    throw new HttpsError('permission-denied', 'OWNER_REQUIRED');
   }
 
   const { name, pin } = request.data;
   const barId = request.auth.token['barId'];
 
-  if (!name || !pin || pin.length !== 4 || !/^[0-9]{4}$/.test(pin)) {
-    throw new HttpsError('invalid-argument', 'MISSING_REQUIRED_FIELDS');
-  }
+  if (!name || !pin || pin.length < 4)
+    throw new HttpsError('invalid-argument', 'STAFF_NAME_REQUIRED');
 
-  const hashedPin = hashPin(pin);
   const staffUid = generateStaffUid();
+  const { salt, hash } = createSaltAndHash(pin);
 
   try {
     const batch = db.batch();
-    const secureRef = db.collection('sys_secure').doc(barId);
 
+    const secureRef = db.collection('sys_secure').doc(barId);
     batch.update(secureRef, {
-      [`pins.${hashedPin}`]: {
-        name,
-        role: 'staff',
-        uid: staffUid,
-      },
+      [`staffAuth.${staffUid}`]: { name, role: 'staff', hash, salt },
     });
 
     const publicRef = db.collection('bars').doc(barId);
     batch.update(publicRef, {
-      staffList: firestore.FieldValue.arrayUnion({
-        uid: staffUid,
-        name,
-      }),
+      staffList: firestore.FieldValue.arrayUnion({ uid: staffUid, name }),
     });
 
     await batch.commit();
-
-    return { success: true };
+    return { success: true, staffUid };
   } catch (error) {
     throw new HttpsError('internal', 'ERROR_CREATING_STAFF');
   }

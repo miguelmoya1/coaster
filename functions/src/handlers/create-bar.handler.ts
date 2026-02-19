@@ -2,15 +2,15 @@ import { auth, firestore } from 'firebase-admin';
 import { CallableRequest, HttpsError } from 'firebase-functions/https';
 
 const db = firestore();
-
 export const createBarHandler = async (request: CallableRequest) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'USER_NOT_AUTHENTICATED');
   }
 
   const { name } = request.data;
+  const ownerUid = request.auth.uid;
 
-  if (!name) {
+  if (!name || name.length < 3) {
     throw new HttpsError('invalid-argument', 'BAR_NAME_REQUIRED');
   }
 
@@ -22,29 +22,18 @@ export const createBarHandler = async (request: CallableRequest) => {
 
     batch.set(barRef, {
       id: barId,
-      info: {
-        name,
-        ownerUid: request.auth.uid,
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      },
-      menu: {
-        categories: [],
-      },
+      info: { name, ownerUid, createdAt: firestore.FieldValue.serverTimestamp() },
+      menu: { categories: [] },
       staffList: [],
     });
 
     batch.set(secureRef, {
       barId,
-      ownerUid: request.auth.uid,
-      pins: {},
-      createdAt: firestore.FieldValue.serverTimestamp(),
+      ownerUid,
+      staffAuth: {},
     });
 
-    await auth().setCustomUserClaims(request.auth.uid, {
-      barId,
-      role: 'owner',
-    });
-
+    await auth().setCustomUserClaims(ownerUid, { barId, role: 'owner' });
     await batch.commit();
 
     return { success: true, barId };
