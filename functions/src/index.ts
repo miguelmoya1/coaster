@@ -1,6 +1,6 @@
-import { setGlobalOptions } from 'firebase-functions';
-import { onCall } from 'firebase-functions/https';
-import { initializeApp } from 'firebase-admin';
+import { setGlobalOptions } from 'firebase-functions/v2';
+import { onCall } from 'firebase-functions/v2/https';
+import { initializeApp } from 'firebase-admin/app';
 
 initializeApp();
 setGlobalOptions({ maxInstances: 10 });
