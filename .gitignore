@@ -50,4 +50,4 @@ vitest.config.*.timestamp*
 
 .env
 
-prisma-client
+apps/api/src/app/core/prisma/client

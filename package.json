@@ -7,9 +7,8 @@
     "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio",
     "db:nuke": "docker-compose down -v && docker-compose up -d && npm run db:push",
-    "start": "nx serve",
-    "build": "nx build",
-    "test": "nx test"
+    "start:api": "nx serve api",
+    "start:web": "nx serve coaster"
   },
   "private": true,
   "dependencies": {
@@ -22,10 +21,16 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.1",
+    "@tailwindcss/postcss": "^4.2.1",
     "axios": "^1.6.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "postcss": "^8.5.6",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@angular-devkit/core": "~21.1.0",
