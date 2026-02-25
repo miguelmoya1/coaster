@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+:root {
+  color-scheme: light dark;
+
+  --color-bg-primary: light-dark(#ffffff, #0f172a);
+  --color-text-primary: light-dark(#1e293b, #f8fafc);
+  --color-brand: light-dark(#3b82f6, #60a5fa);
+}
+
+@theme {
+  --color-surface: var(--color-bg-primary);
+  --color-txt: var(--color-text-primary);
+  --color-accent: var(--color-brand);
+}

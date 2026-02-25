@@ -2,7 +2,15 @@
   "name": "@coaster/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "db:gen": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:studio": "npx prisma studio",
+    "db:nuke": "docker-compose down -v && docker-compose up -d && npm run db:push",
+    "start": "nx serve",
+    "build": "nx build",
+    "test": "nx test"
+  },
   "private": true,
   "dependencies": {
     "@angular/common": "~21.1.0",
@@ -11,6 +19,7 @@
     "@angular/forms": "~21.1.0",
     "@angular/platform-browser": "~21.1.0",
     "@angular/router": "~21.1.0",
+    "@prisma/client": "^7.4.1",
     "rxjs": "~7.8.0"
   },
   "devDependencies": {
@@ -49,6 +58,7 @@
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "22.5.2",
     "prettier": "~3.6.2",
+    "prisma": "^7.4.1",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",

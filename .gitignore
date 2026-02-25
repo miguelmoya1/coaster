@@ -46,3 +46,8 @@ Thumbs.db
 __screenshots__/
 
 vitest.config.*.timestamp*
+/generated/prisma
+
+.env
+
+prisma-client

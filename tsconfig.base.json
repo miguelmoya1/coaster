@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@coaster/interfaces": ["libs/interfaces/src/index.ts"],
-      "@coaster/logic": ["libs/logic/src/index.ts"]
+      "@coaster/logic": ["libs/logic/src/index.ts"],
+      "@coaster/db": ["libs/db/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

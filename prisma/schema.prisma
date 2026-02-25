@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../libs/db/src/lib/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum ShiftType {
+  MORNING
+  AFTERNOON
+  NIGHT
+  SPLIT
+}
+
+enum ProductStatus {
+  OK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  pin            String
+  name           String
+  role           Role            @default(STAFF)
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  shifts         Shift[]
+  shiftRequests  ShiftExchange[] @relation("Requester")
+  shiftApprovals ShiftExchange[] @relation("Target")
+}
+
+model Shift {
+  id   String    @id @default(uuid())
+  date DateTime
+  type ShiftType
+
+  userId   String
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes    String?
+  exchange ShiftExchange?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShiftExchange {
+  id          String   @id @default(uuid())
+  shiftId     String   @unique
+  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  requesterId String
+  requester   User     @relation("Requester", fields: [requesterId], references: [id])
+  targetId    String?
+  target      User?    @relation("Target", fields: [targetId], references: [id])
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String
+  icon     String?
+  products Product[]
+}
+
+model Product {
+  id         String        @id @default(uuid())
+  name       String
+  categoryId String
+  category   Category      @relation(fields: [categoryId], references: [id])
+  status     ProductStatus @default(OK)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
