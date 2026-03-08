@@ -1,4 +1,4 @@
-import { AuthResponse, User, UserRole } from '@coaster/interfaces';
+import { asUserId, asUserRole, AuthResponse, User } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../crypto/crypto.service';
@@ -24,7 +24,8 @@ export class AuthService {
 
       return {
         ...userWithoutPin,
-        role: user.role as UserRole,
+        id: asUserId(userWithoutPin.id),
+        role: asUserRole(user.role),
       };
     }
 
@@ -32,7 +33,7 @@ export class AuthService {
   }
 
   public async login(user: User): Promise<AuthResponse> {
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, id: user.id };
     return {
       user,
       accessToken: this._jwtService.sign(payload),

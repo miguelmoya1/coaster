@@ -1,11 +1,19 @@
+import { Brand } from './brand.type';
 import { ShiftType } from './enums';
-import { User } from './user.interface';
+import { User, UserId } from './user.interface';
+
+export type ShiftId = Brand<string, 'ShiftId'>;
+export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
+
+export const asShiftId = (id: string): ShiftId => id as ShiftId;
+export const asShiftExchangeId = (id: string): ShiftExchangeId =>
+  id as ShiftExchangeId;
 
 export interface Shift {
-  id: string;
+  id: ShiftId;
   date: string; // ISO String (YYYY-MM-DD)
   type: ShiftType;
-  userId: string;
+  userId: UserId;
   user?: User;
   notes?: string;
 }
@@ -13,14 +21,14 @@ export interface Shift {
 export interface CreateShiftDto {
   date: string;
   type: ShiftType;
-  userId: string;
+  userId: UserId;
   notes?: string;
 }
 
 export interface ShiftExchange {
-  id: string;
-  shiftId: string;
-  requesterId: string;
-  targetId?: string;
+  id: ShiftExchangeId;
+  shiftId: ShiftId;
+  requesterId: UserId;
+  targetId?: UserId;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }

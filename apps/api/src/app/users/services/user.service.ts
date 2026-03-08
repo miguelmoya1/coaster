@@ -1,4 +1,4 @@
-import { User, UserRole } from '@coaster/interfaces';
+import { asUserId, asUserRole, User, UserId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import {
   ConflictException,
@@ -15,8 +15,28 @@ export class UserService {
     private readonly cryptoService: CryptoService,
   ) {}
 
+  public async getById(id: UserId) {
+    const user = await this.userRepository.getById(id);
+
+    if (!user) {
+      return null;
+    }
+
+    return this.#mapToDomain(user);
+  }
+
+  public async getByEmail(email: string) {
+    const user = await this.userRepository.getByEmail(email);
+
+    if (!user) {
+      return null;
+    }
+
+    return this.#mapToDomain(user);
+  }
+
   public async create(dto: UserCreateInput) {
-    const existsUser = await this.userRepository.findByEmail(dto.email);
+    const existsUser = await this.userRepository.getByEmail(dto.email);
 
     if (existsUser) {
       throw new ConflictException(ErrorCodes.USER_ALREADY_EXISTS);
@@ -33,22 +53,12 @@ export class UserService {
     return this.#mapToDomain(userCreated);
   }
 
-  public async findByEmail(email: string) {
-    const user = await this.userRepository.findByEmail(email);
-
-    if (!user) {
-      return null;
-    }
-
-    return this.#mapToDomain(user);
-  }
-
   #mapToDomain(dbUser: UserDb): User {
     return {
-      id: dbUser.id,
+      id: asUserId(dbUser.id),
       email: dbUser.email,
       name: dbUser.name,
-      role: dbUser.role as UserRole,
+      role: asUserRole(dbUser.role),
       active: dbUser.active,
     };
   }
