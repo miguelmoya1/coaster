@@ -1,5 +1,6 @@
 import { asUserId, asUserRole, AuthResponse, User } from '@coaster/interfaces';
-import { Injectable } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/logic';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../crypto/crypto.service';
 import { AuthRepository } from '../data-access/auth.repository';
@@ -12,10 +13,25 @@ export class AuthService {
     private readonly _jwtService: JwtService,
   ) {}
 
-  public async validateUser(
-    email: string,
-    password: string,
-  ): Promise<User | null> {
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    const user = await this.#validateUser(email, password);
+
+    if (!user) {
+      throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
+    }
+
+    return this.#prepareSignIn(user);
+  }
+
+  async #prepareSignIn(user: User): Promise<AuthResponse> {
+    const payload = { email: user.email, sub: user.id, id: user.id };
+    return {
+      user,
+      accessToken: this._jwtService.sign(payload),
+    };
+  }
+
+  async #validateUser(email: string, password: string): Promise<User | null> {
     const user = await this._authRepository.findUserForAuthentication(email);
 
     if (user && (await this._cryptoService.compare(password, user.pin))) {
@@ -30,13 +46,5 @@ export class AuthService {
     }
 
     return null;
-  }
-
-  public async login(user: User): Promise<AuthResponse> {
-    const payload = { email: user.email, sub: user.id, id: user.id };
-    return {
-      user,
-      accessToken: this._jwtService.sign(payload),
-    };
   }
 }
