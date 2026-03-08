@@ -5,14 +5,6 @@ export type UserId = Brand<string, 'UserId'>;
 
 export const asUserId = (id: string): UserId => id as UserId;
 
-export const asUserRole = (role: string): UserRole => {
-  if (Object.values(UserRole).includes(role as UserRole)) {
-    return role as UserRole;
-  }
-  console.warn(`Invalid UserRole mapping: ${role}, defaulting to STAFF`);
-  return UserRole.STAFF;
-};
-
 export interface User {
   id: UserId;
   email: string;
@@ -33,11 +25,11 @@ export interface CreateUserDto {
   role: UserRole;
 }
 
-export interface CurrentUserLogged {
+export type CurrentUserLogged = {
   id: UserId;
   email: string;
   sub: string;
-}
+} | null;
 
 export interface AuthResponse {
   user: User;
