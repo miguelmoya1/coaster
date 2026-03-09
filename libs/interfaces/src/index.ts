@@ -1,3 +1,5 @@
+export * from './lib/auth.interface';
+export * from './lib/bar.interface';
 export * from './lib/brand.type';
 export * from './lib/enums';
 export * from './lib/product.interface';

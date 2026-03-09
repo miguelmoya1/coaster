@@ -1,38 +1,21 @@
 import { Global, Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { AuthRepository } from './auth/data-access/auth.repository';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './auth/guards/optional-jwt-auth.guard';
-import { AuthService } from './auth/services/auth.service';
+import { GoogleOAuthService } from './auth/services/google-oauth.service';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
-import { CryptoService } from './crypto/crypto.service';
 import { PrismaService } from './prisma/services/prisma.service';
 
 @Global()
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1d' },
-    }),
-  ],
+  imports: [PassportModule],
   providers: [
     PrismaService,
-    CryptoService,
-    AuthService,
-    AuthRepository,
+    GoogleOAuthService,
     JwtStrategy,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
   ],
-  exports: [
-    PrismaService,
-    CryptoService,
-    AuthService,
-    JwtAuthGuard,
-    OptionalJwtAuthGuard,
-  ],
+  exports: [PrismaService, JwtAuthGuard, OptionalJwtAuthGuard],
 })
 export class CoreModule {}

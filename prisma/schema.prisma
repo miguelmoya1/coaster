@@ -13,7 +13,7 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
+enum BarRole {
   OWNER
   STAFF
 }
@@ -34,15 +34,39 @@ enum ProductStatus {
 model User {
   id             String          @id @default(uuid())
   email          String          @unique
-  pin            String
+  googleId       String?         @unique
   name           String
-  role           Role            @default(STAFF)
   active         Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  memberships    BarMember[]
   shifts         Shift[]
   shiftRequests  ShiftExchange[] @relation("Requester")
   shiftApprovals ShiftExchange[] @relation("Target")
+}
+
+model Bar {
+  id         String      @id @default(uuid())
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  members    BarMember[]
+  shifts     Shift[]
+  categories Category[]
+}
+
+model BarMember {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId     String
+  bar       Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
+  role      BarRole  @default(STAFF)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, barId])
 }
 
 model Shift {
@@ -52,6 +76,8 @@ model Shift {
 
   userId   String
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId    String
+  bar      Bar            @relation(fields: [barId], references: [id], onDelete: Cascade)
   notes    String?
   exchange ShiftExchange?
 
@@ -73,6 +99,8 @@ model ShiftExchange {
 
 model Category {
   id       String    @id @default(uuid())
+  barId    String
+  bar      Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
   name     String
   icon     String?
   products Product[]
