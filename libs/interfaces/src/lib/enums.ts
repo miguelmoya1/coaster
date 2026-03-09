@@ -1,4 +1,4 @@
-export enum UserRole {
+export enum BarRole {
   OWNER = 'OWNER',
   STAFF = 'STAFF',
 }
@@ -16,12 +16,12 @@ export enum ProductStatus {
   OUT_OF_STOCK = 'OUT_OF_STOCK',
 }
 
-export const asUserRole = (role: string): UserRole => {
-  if (Object.values(UserRole).includes(role as UserRole)) {
-    return role as UserRole;
+export const asBarRole = (role: string): BarRole => {
+  if (Object.values(BarRole).includes(role as BarRole)) {
+    return role as BarRole;
   }
-  console.warn(`Invalid UserRole mapping: ${role}, defaulting to STAFF`);
-  return UserRole.STAFF;
+  console.warn(`Invalid BarRole mapping: ${role}, defaulting to STAFF`);
+  return BarRole.STAFF;
 };
 
 export const asShiftType = (type: string): ShiftType => {

@@ -7,8 +7,12 @@ export type CategoryId = Brand<string, 'CategoryId'>;
 export const asProductId = (id: string): ProductId => id as ProductId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
 
+import { Bar, BarId } from './bar.interface';
+
 export interface Category {
   id: CategoryId;
+  barId: BarId;
+  bar?: Bar;
   name: string;
   icon?: string;
 }

@@ -1,5 +1,4 @@
 import { Brand } from './brand.type';
-import { UserRole } from './enums';
 
 export type UserId = Brand<string, 'UserId'>;
 
@@ -9,29 +8,12 @@ export interface User {
   id: UserId;
   email: string;
   name: string;
-  role: UserRole;
+  googleId?: string;
   active: boolean;
-}
-
-export interface LoginDto {
-  email: string;
-  pin: string;
 }
 
 export interface CreateUserDto {
   name: string;
   email: string;
-  pin: string;
-  role: UserRole;
-}
-
-export type CurrentUserLogged = {
-  id: UserId;
-  email: string;
-  sub: string;
-} | null;
-
-export interface AuthResponse {
-  user: User;
-  accessToken: string;
+  googleId?: string;
 }
