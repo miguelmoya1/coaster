@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { OptionalJwtAuthGuard } from './auth/guards/optional-jwt-auth.guard';
+import { FirebaseAuthGuard } from './auth/guards/firebase-auth.guard';
+import { OptionalFirebaseAuthGuard } from './auth/guards/optional-firebase-auth.guard';
 import { GoogleOAuthService } from './auth/services/google-oauth.service';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { PrismaService } from './prisma/services/prisma.service';
@@ -13,9 +13,9 @@ import { PrismaService } from './prisma/services/prisma.service';
     PrismaService,
     GoogleOAuthService,
     JwtStrategy,
-    JwtAuthGuard,
-    OptionalJwtAuthGuard,
+    FirebaseAuthGuard,
+    OptionalFirebaseAuthGuard,
   ],
-  exports: [PrismaService, JwtAuthGuard, OptionalJwtAuthGuard],
+  exports: [PrismaService, FirebaseAuthGuard, OptionalFirebaseAuthGuard],
 })
 export class CoreModule {}
