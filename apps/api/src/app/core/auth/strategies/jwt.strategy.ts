@@ -2,8 +2,8 @@ import { ErrorCodes } from '@coaster/logic';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
+import { PrismaService } from '../../prisma/services/prisma.service';
 import { GoogleOAuthService } from '../services/google-oauth.service';
-import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
@@ -33,13 +33,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         update: {
           googleId: payload.sub,
           name: payload.name || undefined,
-          avatarUrl: payload.picture || undefined,
         },
         create: {
           email: payload.email,
           googleId: payload.sub,
           name: payload.name || payload.email.split('@')[0],
-          avatarUrl: payload.picture,
         },
       });
 

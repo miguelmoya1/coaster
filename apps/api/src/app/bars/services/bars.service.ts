@@ -1,35 +1,30 @@
-import {
-  asBarId,
-  Bar,
-  BarRole,
-  CreateBarDto,
-  UserId,
-} from '@coaster/interfaces';
+import { asBarId, Bar, CreateBarDto, UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
+import { Bar as BarDb } from '../../core';
 import { BarRepository } from '../data-access/bar.repository';
 
 @Injectable()
 export class BarsService {
   constructor(private readonly barRepository: BarRepository) {}
 
-  async createBar(userId: UserId, dto: CreateBarDto): Promise<Bar> {
-    const bar = await this.barRepository.createBar(dto.name);
-    await this.barRepository.addMember(bar.id, userId, BarRole.OWNER);
+  async create(userId: UserId, dto: CreateBarDto) {
+    const bar = await this.barRepository.create(dto.name, userId);
 
-    return {
-      id: asBarId(bar.id),
-      name: bar.name,
-      createdAt: bar.createdAt.toISOString(),
-      updatedAt: bar.updatedAt.toISOString(),
-    };
+    return this.#mapToDomain(bar);
   }
 
-  async getUserBars(userId: UserId) {
-    const memberships = await this.barRepository.getBarsForUser(userId);
-    return memberships.map((m) => ({
-      id: asBarId(m.bar.id),
-      name: m.bar.name,
-      role: m.role as BarRole,
-    }));
+  async getForUser(userId: UserId) {
+    const memberships = await this.barRepository.findByUserId(userId);
+
+    return memberships.map((m) => this.#mapToDomain(m));
+  }
+
+  #mapToDomain(dbBar: BarDb): Bar {
+    return {
+      id: asBarId(dbBar.id),
+      name: dbBar.name,
+      createdAt: dbBar.createdAt.toISOString(),
+      updatedAt: dbBar.updatedAt.toISOString(),
+    };
   }
 }
