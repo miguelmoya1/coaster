@@ -11,6 +11,8 @@
     "jest.config.cts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
-, "src/app/users/data-access/user.repository.spec.ts"  ]
+    "src/**/*.d.ts",
+    "src/app/users/data-access/user.repository.spec.ts",
+    "src/app/bar-members/data-access/bar-members.repository.spec.ts"
+  ]
 }
