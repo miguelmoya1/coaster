@@ -18,3 +18,9 @@ export interface Product {
 export interface UpdateProductStatusDto {
   status: ProductStatus;
 }
+
+export interface CreateProductDto {
+  name: string;
+  categoryId: CategoryId;
+  status?: ProductStatus;
+}

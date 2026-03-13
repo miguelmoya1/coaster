@@ -5,6 +5,7 @@ import { BarMembersModule } from './bar-members/bar-members.module';
 import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CoreModule } from './core/core.module';
+import { ProductsModule } from './products/products.module';
 import { UserModule } from './users/user.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { UserModule } from './users/user.module';
     BarsModule,
     BarMembersModule,
     CategoriesModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
