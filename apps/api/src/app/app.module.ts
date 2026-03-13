@@ -6,6 +6,7 @@ import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CoreModule } from './core/core.module';
 import { ProductsModule } from './products/products.module';
+import { ShiftsModule } from './shifts/shifts.module';
 import { UserModule } from './users/user.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { UserModule } from './users/user.module';
     BarMembersModule,
     CategoriesModule,
     ProductsModule,
+    ShiftsModule,
   ],
 })
 export class AppModule {}

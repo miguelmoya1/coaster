@@ -26,7 +26,6 @@ export interface CreateShiftDto {
   date: string;
   type: ShiftType;
   userId: UserId;
-  barId: BarId;
   notes?: string;
 }
 
