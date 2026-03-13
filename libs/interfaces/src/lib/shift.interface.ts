@@ -1,5 +1,6 @@
+import { Bar, BarId } from './bar.interface';
 import { Brand } from './brand.type';
-import { ShiftType } from './enums';
+import { ShiftExchangeStatus, ShiftType } from './enums';
 import { User, UserId } from './user.interface';
 
 export type ShiftId = Brand<string, 'ShiftId'>;
@@ -8,8 +9,6 @@ export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
 export const asShiftExchangeId = (id: string): ShiftExchangeId =>
   id as ShiftExchangeId;
-
-import { Bar, BarId } from './bar.interface';
 
 export interface Shift {
   id: ShiftId;
@@ -29,10 +28,14 @@ export interface CreateShiftDto {
   notes?: string;
 }
 
+export interface CreateShiftExchangeDto {
+  targetId?: UserId;
+}
+
 export interface ShiftExchange {
   id: ShiftExchangeId;
   shiftId: ShiftId;
   requesterId: UserId;
   targetId?: UserId;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: ShiftExchangeStatus;
 }

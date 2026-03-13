@@ -16,6 +16,12 @@ export enum ProductStatus {
   OUT_OF_STOCK = 'OUT_OF_STOCK',
 }
 
+export enum ShiftExchangeStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export const asBarRole = (role: string): BarRole => {
   if (Object.values(BarRole).includes(role as BarRole)) {
     return role as BarRole;
@@ -38,4 +44,12 @@ export const asProductStatus = (status: string): ProductStatus => {
   }
   console.warn(`Invalid ProductStatus mapping: ${status}, defaulting to OK`);
   return ProductStatus.OK;
+};
+
+export const asShiftExchangeStatus = (status: string): ShiftExchangeStatus => {
+  if (Object.values(ShiftExchangeStatus).includes(status as ShiftExchangeStatus)) {
+    return status as ShiftExchangeStatus;
+  }
+  console.warn(`Invalid ShiftExchangeStatus mapping: ${status}, defaulting to PENDING`);
+  return ShiftExchangeStatus.PENDING;
 };

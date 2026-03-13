@@ -6,6 +6,7 @@ import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CoreModule } from './core/core.module';
 import { ProductsModule } from './products/products.module';
+import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
 import { ShiftsModule } from './shifts/shifts.module';
 import { UserModule } from './users/user.module';
 
@@ -22,6 +23,7 @@ import { UserModule } from './users/user.module';
     CategoriesModule,
     ProductsModule,
     ShiftsModule,
+    ShiftExchangesModule,
   ],
 })
 export class AppModule {}
