@@ -1,8 +1,3 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
@@ -12,7 +7,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -50,10 +45,20 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
 
+  const config = new DocumentBuilder()
+    .setTitle('BarTeam API')
+    .setDescription('API Multi-Tenant para la gestión de bares y turnos')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
   await app.listen(port, '0.0.0.0');
 
   Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}/v1`,
+    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
 }
 

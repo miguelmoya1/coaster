@@ -1,4 +1,11 @@
-import { asUserId, BarId, BarRole, ShiftExchangeId, ShiftId } from '@coaster/interfaces';
+import {
+  asUserId,
+  BarId,
+  BarRole,
+  ShiftExchangeId,
+  ShiftId,
+  User,
+} from '@coaster/interfaces';
 import {
   Body,
   Controller,
@@ -8,13 +15,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import {
-  CurrentUser,
-  FirebaseAuthGuard,
-  Roles,
-  RolesGuard,
-  User,
-} from '../../core';
+import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 import { ShiftExchangesService } from '../services/shift-exchanges.service';
 
@@ -37,7 +38,12 @@ export class ShiftExchangesController {
     @Body() dto: CreateShiftExchangeDto,
     @CurrentUser() user: User,
   ) {
-    return this._shiftExchangesService.requestExchange(barId, shiftId, asUserId(user.id), dto);
+    return this._shiftExchangesService.requestExchange(
+      barId,
+      shiftId,
+      asUserId(user.id),
+      dto,
+    );
   }
 
   @Patch('exchanges/:exchangeId/accept')
@@ -47,6 +53,10 @@ export class ShiftExchangesController {
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
   ) {
-    return this._shiftExchangesService.acceptExchange(barId, exchangeId, asUserId(user.id));
+    return this._shiftExchangesService.acceptExchange(
+      barId,
+      exchangeId,
+      asUserId(user.id),
+    );
   }
 }

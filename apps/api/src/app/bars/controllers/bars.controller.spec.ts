@@ -1,0 +1,55 @@
+import { asUserId, User } from '@coaster/interfaces';
+import { CanActivate } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { FirebaseAuthGuard } from '../../core';
+import { BarsService } from '../services/bars.service';
+import { BarsController } from './bars.controller';
+
+describe('BarsController', () => {
+  let controller: BarsController;
+  let service: jest.Mocked<BarsService>;
+
+  const mockGuard: CanActivate = { canActivate: () => true };
+
+  const fakeUser: User = {
+    id: asUserId('user-1'),
+    email: 'test@mail.com',
+    name: 'Test',
+    active: true,
+  };
+
+  beforeEach(async () => {
+    const mockService = {
+      create: jest.fn(),
+      getForUser: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [BarsController],
+      providers: [{ provide: BarsService, useValue: mockService }],
+    })
+      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
+      .compile();
+
+    controller = module.get<BarsController>(BarsController);
+    service = module.get(BarsService);
+  });
+
+  it('createBar debería delegar al servicio', async () => {
+    service.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' } as any);
+
+    const result = await controller.createBar(fakeUser, { name: 'Mi Bar' } as any);
+
+    expect(service.create).toHaveBeenCalledWith('user-1', { name: 'Mi Bar' });
+    expect(result).toEqual({ id: 'bar-1', name: 'Mi Bar' });
+  });
+
+  it('getMyBars debería delegar al servicio', async () => {
+    service.getForUser.mockResolvedValue([]);
+
+    const result = await controller.getMyBars(fakeUser);
+
+    expect(service.getForUser).toHaveBeenCalledWith('user-1');
+    expect(result).toEqual([]);
+  });
+});
