@@ -4,4 +4,5 @@ export * from './lib/category.interface';
 export * from './lib/enums';
 export * from './lib/product.interface';
 export * from './lib/shift.interface';
+export * from './lib/socket-events.enum';
 export * from './lib/user.interface';

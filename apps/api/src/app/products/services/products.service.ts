@@ -6,16 +6,20 @@ import {
   CreateProductDto,
   Product,
   ProductId,
+  SocketEvents,
   UpdateProductStatusDto,
 } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Product as ProductDb } from '../../core';
+import { BarGateway, Product as ProductDb } from '../../core';
 import { ProductsRepository } from '../data-access/products.repository';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly _productsRepository: ProductsRepository) {}
+  constructor(
+    private readonly _productsRepository: ProductsRepository,
+    private readonly _barGateway: BarGateway,
+  ) {}
 
   async createProduct(barId: BarId, productDto: CreateProductDto) {
     const validCategoryId = asCategoryId(productDto.categoryId);
@@ -35,10 +39,15 @@ export class ProductsService {
       productDto.status,
     );
 
-    return this.#mapToDomain(product);
+    const mapped = this.#mapToDomain(product);
+
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_CREATED, mapped);
+
+    return mapped;
   }
 
   async updateProductStatus(
+    barId: BarId,
     productId: ProductId,
     productDto: UpdateProductStatusDto,
   ) {
@@ -47,7 +56,11 @@ export class ProductsService {
       productDto.status,
     );
 
-    return this.#mapToDomain(product);
+    const mapped = this.#mapToDomain(product);
+
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STATUS_CHANGED, mapped);
+
+    return mapped;
   }
 
   #mapToDomain(dbProduct: ProductDb): Product {
@@ -60,3 +73,4 @@ export class ProductsService {
     };
   }
 }
+

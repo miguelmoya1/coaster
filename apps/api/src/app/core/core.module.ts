@@ -6,6 +6,7 @@ import { GoogleOAuthService } from './auth/services/google-oauth.service';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { EmailService } from './email/email.service';
 import { PrismaService } from './prisma/services/prisma.service';
+import { BarGateway } from './websockets/bar.gateway';
 
 @Global()
 @Module({
@@ -17,12 +18,14 @@ import { PrismaService } from './prisma/services/prisma.service';
     FirebaseAuthGuard,
     OptionalFirebaseAuthGuard,
     EmailService,
+    BarGateway,
   ],
   exports: [
     PrismaService,
     FirebaseAuthGuard,
     OptionalFirebaseAuthGuard,
     EmailService,
+    BarGateway,
   ],
 })
 export class CoreModule {}

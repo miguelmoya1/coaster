@@ -26,9 +26,10 @@ export class ProductsController {
   @Patch(':productId/status')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   updateStatus(
+    @Param('barId') barId: BarId,
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductStatusDto,
   ) {
-    return this._productsService.updateProductStatus(productId, dto);
+    return this._productsService.updateProductStatus(barId, productId, dto);
   }
 }
