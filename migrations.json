@@ -1,0 +1,11 @@
+{
+  "migrations": [],
+  "nx-console": {
+    "initialGitRef": {
+      "ref": "24f190f8126b8851e737df4bd60cde244c410536",
+      "subject": "feat: introduce shift exchange functionality with new API endpoints, services, data access, and related interfaces and error codes."
+    },
+    "targetVersion": "latest",
+    "confirmedPackageUpdates": true
+  }
+}
