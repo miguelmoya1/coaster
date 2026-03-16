@@ -1,11 +1,6 @@
-import {
-  BarId,
-  CategoryId,
-  ProductId,
-  ProductStatus,
-} from '@coaster/interfaces';
+import { BarId, CategoryId, ProductId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
+import { Prisma, PrismaService } from '../../core';
 
 @Injectable()
 export class ProductsRepository {
@@ -20,22 +15,23 @@ export class ProductsRepository {
 
   async create(
     categoryId: CategoryId,
-    name: string,
-    status: ProductStatus = ProductStatus.OK,
+    createProductDto: Omit<Prisma.ProductCreateInput, 'category'>,
   ) {
     return this._prisma.product.create({
       data: {
-        name,
-        categoryId,
-        status,
+        ...createProductDto,
+        category: { connect: { id: categoryId } },
       },
     });
   }
 
-  async updateStatus(productId: ProductId, status: ProductStatus) {
+  async updateStatus(
+    productId: ProductId,
+    productUpdateDto: Prisma.ProductUpdateInput,
+  ) {
     return this._prisma.product.update({
       where: { id: productId },
-      data: { status },
+      data: { ...productUpdateDto },
     });
   }
 }

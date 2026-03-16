@@ -9,10 +9,10 @@ export class UserRepository {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  public async update(id: string, data: Prisma.UserUpdateInput) {
+  public async update(id: string, updateUserDto: Prisma.UserUpdateInput) {
     return this.prisma.user.update({
       where: { id },
-      data,
+      data: { ...updateUserDto },
     });
   }
 }

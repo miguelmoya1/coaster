@@ -1,12 +1,12 @@
+import { BarId, UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
-import { BarId, ShiftType, UserId } from '@coaster/interfaces';
+import { Prisma, PrismaService } from '../../core';
 
 @Injectable()
 export class ShiftsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async isUserMemberOfBar(userId: UserId, barId: BarId): Promise<boolean> {
+  async isUserMemberOfBar(userId: UserId, barId: BarId) {
     const member = await this.prisma.barMember.findUnique({
       where: {
         userId_barId: { userId, barId },
@@ -19,17 +19,13 @@ export class ShiftsRepository {
   async create(
     barId: BarId,
     userId: UserId,
-    date: Date,
-    type: ShiftType,
-    notes?: string,
+    createShiftDto: Omit<Prisma.ShiftCreateInput, 'bar' | 'user'>,
   ) {
     return this.prisma.shift.create({
       data: {
-        barId,
-        userId,
-        date,
-        type,
-        notes,
+        ...createShiftDto,
+        bar: { connect: { id: barId } },
+        user: { connect: { id: userId } },
       },
       include: {
         user: { select: { id: true, name: true } },

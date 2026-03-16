@@ -35,13 +35,14 @@ export class ProductsService {
 
     const product = await this._productsRepository.create(
       validCategoryId,
-      productDto.name,
-      productDto.status,
+      productDto,
     );
 
     const mapped = this.#mapToDomain(product);
 
-    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_CREATED, mapped);
+    this._barGateway.server
+      .to(barId)
+      .emit(SocketEvents.PRODUCT_CREATED, mapped);
 
     return mapped;
   }
@@ -53,12 +54,14 @@ export class ProductsService {
   ) {
     const product = await this._productsRepository.updateStatus(
       productId,
-      productDto.status,
+      productDto,
     );
 
     const mapped = this.#mapToDomain(product);
 
-    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STATUS_CHANGED, mapped);
+    this._barGateway.server
+      .to(barId)
+      .emit(SocketEvents.PRODUCT_STATUS_CHANGED, mapped);
 
     return mapped;
   }
@@ -73,4 +76,3 @@ export class ProductsService {
     };
   }
 }
-

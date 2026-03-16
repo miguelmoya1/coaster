@@ -49,7 +49,7 @@ export class ShiftExchangesService {
     return this._shiftExchangesRepository.createExchange(
       shiftId,
       requesterId,
-      dto.targetId,
+      dto.targetId
     );
   }
 

@@ -32,17 +32,21 @@ export class ShiftsService {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    const shiftDate = new Date(dto.date);
+    const {date, userId, ...rest} = dto;
+
+    const shiftDate = new Date(date);
+
     if (isNaN(shiftDate.getTime())) {
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
     const shift = await this._shiftsRepository.create(
       barId,
-      dto.userId,
-      shiftDate,
-      dto.type,
-      dto.notes,
+      userId,
+      {
+        date: shiftDate,
+        ...rest,
+      },
     );
 
     return this.#mapToDomain(shift);

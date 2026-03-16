@@ -1,17 +1,19 @@
 import { BarId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
+import { Prisma, PrismaService } from '../../core';
 
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
-  async create(barId: BarId, name: string, icon?: string) {
+  async create(
+    barId: BarId,
+    createCategoryDto: Omit<Prisma.CategoryCreateInput, 'bar'>,
+  ) {
     return this._prisma.category.create({
       data: {
-        barId,
-        name,
-        icon,
+        bar: { connect: { id: barId } },
+        ...createCategoryDto,
       },
       include: {
         products: {

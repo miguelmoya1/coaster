@@ -8,7 +8,7 @@ export class BarsService {
   constructor(private readonly barRepository: BarRepository) {}
 
   async create(userId: UserId, dto: CreateBarDto) {
-    const bar = await this.barRepository.create(dto.name, userId);
+    const bar = await this.barRepository.create(userId, dto);
 
     return this.#mapToDomain(bar);
   }

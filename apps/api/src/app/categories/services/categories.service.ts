@@ -5,6 +5,7 @@ import {
   asProductStatus,
   BarId,
   Category,
+  CreateCategoryDto,
   Product,
 } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
@@ -15,8 +16,8 @@ import { CategoriesRepository } from '../data-access/categories.repository';
 export class CategoriesService {
   constructor(private readonly _categoriesRepository: CategoriesRepository) {}
 
-  async createCategory(barId: BarId, name: string, icon?: string) {
-    const category = await this._categoriesRepository.create(barId, name, icon);
+  async createCategory(barId: BarId, createCategoryDto: CreateCategoryDto) {
+    const category = await this._categoriesRepository.create(barId, createCategoryDto);
 
     return this.#mapToDomain(category);
   }

@@ -26,13 +26,13 @@ export class ShiftExchangesRepository {
   async createExchange(
     shiftId: ShiftId,
     requesterId: UserId,
-    targetId?: UserId,
+    targetId: string,
   ) {
     return this.prisma.shiftExchange.create({
       data: {
-        shiftId,
-        requesterId,
-        targetId,
+        shift: { connect: { id: shiftId } },
+        requester: { connect: { id: requesterId } },
+        target: { connect: { id: targetId } },
         status: ShiftExchangeStatus.PENDING,
       },
     });

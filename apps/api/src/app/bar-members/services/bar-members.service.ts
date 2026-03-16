@@ -26,7 +26,9 @@ export class BarMembersService {
     }
 
     try {
-      const membership = await this.repository.inviteMember(barId, email, role);
+      const membership = await this.repository.inviteMember(barId, email, {
+        role,
+      });
 
       await this.emailService.sendInviteEmail(email, bar.name, user.name);
 

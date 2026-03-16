@@ -1,14 +1,17 @@
 import { UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { BarRole, PrismaService } from '../../core';
+import { BarRole, Prisma, PrismaService } from '../../core';
 
 @Injectable()
 export class BarRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
-  async create(name: string, userId: UserId) {
+  async create(userId: UserId, createBarDto: Prisma.BarCreateInput) {
     return this._prisma.bar.create({
-      data: { name, members: { create: { userId, role: BarRole.OWNER } } },
+      data: {
+        ...createBarDto,
+        members: { create: { userId, role: BarRole.OWNER } },
+      },
     });
   }
 

@@ -1,6 +1,6 @@
-import { BarId, BarRole } from '@coaster/interfaces';
+import { BarId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
+import { Prisma, PrismaService } from '../../core';
 
 @Injectable()
 export class BarMembersRepository {
@@ -10,7 +10,11 @@ export class BarMembersRepository {
     return this.prisma.bar.findUnique({ where: { id: barId } });
   }
 
-  async inviteMember(barId: BarId, email: string, role: BarRole) {
+  async inviteMember(
+    barId: BarId,
+    email: string,
+    createBarMemberDto: Omit<Prisma.BarMemberCreateInput, 'bar' | 'user'>,
+  ) {
     const user = await this.prisma.user.upsert({
       where: { email },
       update: {},
@@ -22,9 +26,9 @@ export class BarMembersRepository {
 
     return this.prisma.barMember.create({
       data: {
-        userId: user.id,
-        barId: barId,
-        role: role,
+        ...createBarMemberDto,
+        bar: { connect: { id: barId } },
+        user: { connect: { id: user.id } },
       },
       include: {
         user: {

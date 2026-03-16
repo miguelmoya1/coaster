@@ -18,6 +18,6 @@ export class CategoriesController {
   @Post()
   @Roles(BarRole.OWNER)
   createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
-    return this._categoriesService.createCategory(barId, dto.name, dto.icon);
+    return this._categoriesService.createCategory(barId, dto);
   }
 }
