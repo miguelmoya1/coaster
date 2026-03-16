@@ -8,6 +8,12 @@ import {
   signOut,
 } from '@angular/fire/auth';
 
+export type UserProfile = {
+  name: string;
+  email: string;
+  photo: string;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,9 +30,18 @@ export class Auth {
 
   public readonly userProfile = computed(() => {
     const user = this.#currentUser();
-    return user
-      ? { name: user.displayName, email: user.email, photo: user.photoURL }
-      : null;
+
+    if (!user) {
+      return null;
+    }
+
+    const userReturn: UserProfile = {
+      name: user.displayName ?? '',
+      email: user.email ?? '',
+      photo: user.photoURL ?? '',
+    };
+
+    return userReturn;
   });
 
   public async loginWithGoogle() {

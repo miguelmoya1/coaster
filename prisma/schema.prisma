@@ -36,6 +36,7 @@ model User {
   email          String          @unique
   googleId       String?         @unique
   name           String
+  photoUrl       String?
   active         Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt

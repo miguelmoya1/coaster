@@ -1,13 +1,16 @@
-import { httpResource } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { User } from '@coaster/interfaces';
+import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
-import { Auth } from './auth';
+import { Auth, UserProfile } from './auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CurrentUser {
   readonly #auth = inject(Auth);
+  readonly #http = inject(HttpClient);
 
   readonly #current = httpResource(
     () => {
@@ -43,8 +46,18 @@ export class CurrentUser {
       return;
     }
 
-    if (user.email !== firebaseProfile.email || user.name !== firebaseProfile.name || firebaseProfile.photo ) {
-      await this.#auth.logout();
+    if (this.#checkIfUserNeedToUpdate(user, firebaseProfile)) {
+      return firstValueFrom(this.#http.patch('users/me', firebaseProfile));
     }
+
+    return user;
+  }
+
+  #checkIfUserNeedToUpdate(user: User, firebaseProfile: UserProfile) {
+    return (
+      user.email !== firebaseProfile.email ||
+      user.name !== firebaseProfile.name ||
+      user.photoUrl !== firebaseProfile.photo
+    );
   }
 }

@@ -10,10 +10,17 @@ export interface User {
   name: string;
   googleId?: string;
   active: boolean;
+  photoUrl?: string;
 }
 
 export interface CreateUserDto {
   name: string;
   email: string;
+  photoUrl?: string;
   googleId?: string;
+}
+
+export interface UpdateUserDto {
+  name?: string;
+  photoUrl?: string;
 }
