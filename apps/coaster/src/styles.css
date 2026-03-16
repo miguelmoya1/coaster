@@ -13,3 +13,7 @@
   --color-txt: var(--color-text-primary);
   --color-accent: var(--color-brand);
 }
+
+@view-transition {
+  navigation: auto;
+}
