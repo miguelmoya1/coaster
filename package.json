@@ -25,7 +25,7 @@
     "@fastify/compress": "^8.3.1",
     "@fastify/helmet": "^13.0.2",
     "@fastify/static": "^9.0.0",
-    "@nestjs/common": "^11.0.15",
+    "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.16",
     "@nestjs/passport": "^11.0.5",
