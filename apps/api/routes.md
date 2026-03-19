@@ -37,12 +37,13 @@ Gestiona la plantilla dentro de un local específico.
 **Categories:**
 | Método | Ruta | DTO Entrada | Roles Validados | Descripción |
 | ------- | ----------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------- |
-| `GET` | `/bars/:barId/categories` | - | `OWNER, STAFF` | Obtiene todas las categorías junto a sus productos |
+| `GET` | `/bars/:barId/categories` | - | `OWNER, STAFF` | Obtiene todas las categorías planas (sin subproductos). |
 | `POST` | `/bars/:barId/categories` | `CreateCategoryDto` | `OWNER` | Crea una nueva agrupación de stock (p. ej: "Cervezas"). |
 
 **Products:**
 | Método | Ruta | DTO Entrada | Roles Validados| Descripción |
 | ------- | -------------------------------------------- | -------------------------- | -------------- | --------------------------------------------- |
+| `GET` | `/bars/:barId/products` | - | `OWNER, STAFF` | Obtiene el array plano con todos los productos del bar. |
 | `POST` | `/bars/:barId/products` | `CreateProductDto` | `OWNER` | Registra un nuevo producto (ítem) en un Bar. |
 | `PATCH` | `/bars/:barId/products/:productId/status` | `UpdateProductStatusDto` | `OWNER, STAFF` | Botón visual: cambia el estado del stock. |
 
