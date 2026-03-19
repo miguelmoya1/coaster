@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   imports: [RouterModule],
-  selector: 'app-root',
+  selector: 'coaster-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

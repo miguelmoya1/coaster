@@ -1,17 +1,53 @@
 @import 'tailwindcss';
 
 :root {
-  color-scheme: light dark;
+  --color-surface-lowest: #000000;
+  --color-surface-base: #0e0e0e;
+  --color-surface-container-low: #131313;
+  --color-surface-container: #1a1a1a;
+  --color-surface-container-high: #20201f;
+  --color-surface-highest: #262626;
+  --color-surface-bright: #2c2c2c;
 
-  --color-bg-primary: light-dark(#ffffff, #0f172a);
-  --color-text-primary: light-dark(#1e293b, #f8fafc);
-  --color-brand: light-dark(#3b82f6, #60a5fa);
+  --color-primary: #ff9159;
+  --color-primary-dim: #ff7a2f;
+  --color-secondary: #f59e0b;
+  --color-error: #ff7351;
+  --color-success: #10b981;
+
+  --color-text-main: #ffffff;
+  --color-text-muted: #adaaaa;
+  --color-text-on-primary: #000000;
+
+  --color-border-ghost: #484847;
+  --color-border-strong: #767575;
 }
 
 @theme {
-  --color-surface: var(--color-bg-primary);
-  --color-txt: var(--color-text-primary);
-  --color-accent: var(--color-brand);
+  --color-bg-base: var(--color-surface-base);
+  --color-bg-panel: var(--color-surface-container);
+  --color-bg-panel-hover: var(--color-surface-container-high);
+  --color-bg-modal: var(--color-surface-highest);
+
+  --color-brand: var(--color-primary);
+  --color-brand-dim: var(--color-primary-dim);
+
+  --color-txt: var(--color-text-main);
+  --color-txt-muted: var(--color-text-muted);
+  --color-txt-inverse: var(--color-text-on-primary);
+
+  --color-status-error: var(--color-error);
+  --color-status-warn: var(--color-secondary);
+  --color-status-ok: var(--color-success);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-surface-base);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 @view-transition {
