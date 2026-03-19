@@ -12,13 +12,13 @@ describe('ProductsRepository', () => {
   let repository: ProductsRepository;
   let prisma: {
     category: { findUnique: jest.Mock };
-    product: { create: jest.Mock; update: jest.Mock };
+    product: { create: jest.Mock; update: jest.Mock; findMany: jest.Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
       category: { findUnique: jest.fn() },
-      product: { create: jest.fn(), update: jest.fn() },
+      product: { create: jest.fn(), update: jest.fn(), findMany: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -62,8 +62,7 @@ describe('ProductsRepository', () => {
 
       const result = await repository.create(
         asCategoryId('cat-1'),
-        'Coca Cola',
-        ProductStatus.OK,
+        { name: 'Coca Cola', status: ProductStatus.OK },
       );
 
       expect(prisma.product.create).toHaveBeenCalled();
@@ -80,11 +79,25 @@ describe('ProductsRepository', () => {
 
       const result = await repository.updateStatus(
         asProductId('prod-1'),
-        ProductStatus.OUT_OF_STOCK,
+        { status: ProductStatus.OUT_OF_STOCK },
       );
 
       expect(prisma.product.update).toHaveBeenCalled();
       expect(result).toEqual({ id: 'prod-1', status: 'OUT_OF_STOCK' });
+    });
+  });
+
+  describe('findByBarId', () => {
+    it('debería buscar los productos asociados a la categoría de un bar', async () => {
+      prisma.product.findMany.mockResolvedValue([{ id: 'prod-1' }]);
+
+      const result = await repository.findByBarId(asBarId('bar-1'));
+
+      expect(prisma.product.findMany).toHaveBeenCalledWith({
+        where: { category: { barId: 'bar-1' } },
+        orderBy: { name: 'asc' },
+      });
+      expect(result).toEqual([{ id: 'prod-1' }]);
     });
   });
 });

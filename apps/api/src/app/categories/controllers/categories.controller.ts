@@ -12,7 +12,7 @@ export class CategoriesController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   getCategories(@Param('barId') barId: BarId) {
-    return this._categoriesService.getCategoriesWithProducts(barId);
+    return this._categoriesService.getCategories(barId);
   }
 
   @Post()

@@ -42,11 +42,10 @@ describe('CategoriesService', () => {
 
       const result = await service.createCategory(
         asBarId('bar-1'),
-        'Bebidas',
-        'beer',
+        { name: 'Bebidas', icon: 'beer' },
       );
 
-      expect(repository.create).toHaveBeenCalledWith('bar-1', 'Bebidas', 'beer');
+      expect(repository.create).toHaveBeenCalledWith('bar-1', { name: 'Bebidas', icon: 'beer' });
       expect(result).toEqual({
         id: asCategoryId('cat-1'),
         barId: asBarId('bar-1'),
@@ -56,28 +55,18 @@ describe('CategoriesService', () => {
     });
   });
 
-  describe('getCategoriesWithProducts', () => {
-    it('debería mapear categorías y sus productos anidados', async () => {
+  describe('getCategories', () => {
+    it('debería mapear categorías planas', async () => {
       repository.findByBarId.mockResolvedValue([
         {
           id: 'cat-1',
           barId: 'bar-1',
           name: 'Bebidas',
           icon: 'beer',
-          products: [
-            {
-              id: 'prod-1',
-              categoryId: 'cat-1',
-              name: 'Coca Cola',
-              status: 'OK',
-              createdAt: FAKE_DATE,
-              updatedAt: FAKE_DATE,
-            },
-          ],
         } as any,
       ]);
 
-      const result = await service.getCategoriesWithProducts(asBarId('bar-1'));
+      const result = await service.getCategories(asBarId('bar-1'));
 
       expect(repository.findByBarId).toHaveBeenCalledWith('bar-1');
       expect(result).toEqual([
@@ -86,20 +75,11 @@ describe('CategoriesService', () => {
           barId: asBarId('bar-1'),
           name: 'Bebidas',
           icon: 'beer',
-          products: [
-            {
-              id: asProductId('prod-1'),
-              categoryId: asCategoryId('cat-1'),
-              name: 'Coca Cola',
-              status: asProductStatus('OK'),
-              lastUpdated: FAKE_DATE.toISOString(),
-            },
-          ],
         },
       ]);
     });
 
-    it('debería mapear categoría sin productos como undefined', async () => {
+    it('debería mapear categoría sin icon', async () => {
       repository.findByBarId.mockResolvedValue([
         {
           id: 'cat-1',
@@ -109,7 +89,7 @@ describe('CategoriesService', () => {
         } as any,
       ]);
 
-      const result = await service.getCategoriesWithProducts(asBarId('bar-1'));
+      const result = await service.getCategories(asBarId('bar-1'));
 
       expect(result).toEqual([
         {
@@ -117,7 +97,6 @@ describe('CategoriesService', () => {
           barId: asBarId('bar-1'),
           name: 'Bebidas',
           icon: undefined,
-          products: undefined,
         },
       ]);
     });

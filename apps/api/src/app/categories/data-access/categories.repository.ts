@@ -15,22 +15,12 @@ export class CategoriesRepository {
         bar: { connect: { id: barId } },
         ...createCategoryDto,
       },
-      include: {
-        products: {
-          orderBy: { name: 'asc' },
-        },
-      },
     });
   }
 
   async findByBarId(barId: BarId) {
     return this._prisma.category.findMany({
       where: { barId },
-      include: {
-        products: {
-          orderBy: { name: 'asc' },
-        },
-      },
       orderBy: { name: 'asc' },
     });
   }

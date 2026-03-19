@@ -18,6 +18,7 @@ describe('ProductsController', () => {
 
   beforeEach(async () => {
     const mockService = {
+      getProductsByBarId: jest.fn(),
       createProduct: jest.fn(),
       updateProductStatus: jest.fn(),
     };
@@ -34,6 +35,14 @@ describe('ProductsController', () => {
 
     controller = module.get<ProductsController>(ProductsController);
     service = module.get(ProductsService);
+  });
+
+  it('getProducts debería delegar al servicio', async () => {
+    service.getProductsByBarId.mockResolvedValue([]);
+
+    await controller.getProducts(asBarId('bar-1'));
+
+    expect(service.getProductsByBarId).toHaveBeenCalledWith('bar-1');
   });
 
   it('createProduct debería delegar al servicio', async () => {

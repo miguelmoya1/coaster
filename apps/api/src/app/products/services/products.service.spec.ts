@@ -24,6 +24,7 @@ describe('ProductsService', () => {
   beforeEach(async () => {
     const mockRepo = {
       checkCategoryBelongsToBar: jest.fn(),
+      findByBarId: jest.fn(),
       create: jest.fn(),
       updateStatus: jest.fn(),
     };
@@ -144,6 +145,34 @@ describe('ProductsService', () => {
         SocketEvents.PRODUCT_STATUS_CHANGED,
         expectedDomain,
       );
+    });
+  });
+
+  describe('getProductsByBarId', () => {
+    it('debería devolver y mapear los productos del bar', async () => {
+      repository.findByBarId.mockResolvedValue([
+        {
+          id: 'prod-1',
+          categoryId: 'cat-1',
+          name: 'Coca Cola',
+          status: 'OK',
+          createdAt: FAKE_DATE,
+          updatedAt: FAKE_DATE,
+        } as any,
+      ]);
+
+      const result = await service.getProductsByBarId(asBarId('bar-1'));
+
+      expect(repository.findByBarId).toHaveBeenCalledWith('bar-1');
+      expect(result).toEqual([
+        {
+          id: asProductId('prod-1'),
+          categoryId: asCategoryId('cat-1'),
+          name: 'Coca Cola',
+          status: ProductStatus.OK,
+          lastUpdated: FAKE_DATE.toISOString(),
+        },
+      ]);
     });
   });
 });

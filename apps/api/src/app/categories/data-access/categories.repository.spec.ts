@@ -29,11 +29,10 @@ describe('CategoriesRepository', () => {
     it('debería crear una categoría con productos incluidos', async () => {
       prisma.category.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
 
-      const result = await repository.create(asBarId('bar-1'), 'Bebidas', 'beer');
+      const result = await repository.create(asBarId('bar-1'), { name: 'Bebidas', icon: 'beer' });
 
       expect(prisma.category.create).toHaveBeenCalledWith({
-        data: { barId: 'bar-1', name: 'Bebidas', icon: 'beer' },
-        include: { products: { orderBy: { name: 'asc' } } },
+        data: { bar: { connect: { id: 'bar-1' } }, name: 'Bebidas', icon: 'beer' },
       });
       expect(result).toEqual({ id: 'cat-1', name: 'Bebidas' });
     });
@@ -47,7 +46,6 @@ describe('CategoriesRepository', () => {
 
       expect(prisma.category.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
-        include: { products: { orderBy: { name: 'asc' } } },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual([{ id: 'cat-1' }]);

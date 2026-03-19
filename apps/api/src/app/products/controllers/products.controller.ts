@@ -2,6 +2,7 @@ import { BarId, BarRole, ProductId } from '@coaster/interfaces';
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
@@ -16,6 +17,12 @@ import { ProductsService } from '../services/products.service';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private readonly _productsService: ProductsService) {}
+
+  @Get()
+  @Roles(BarRole.OWNER, BarRole.STAFF)
+  getProducts(@Param('barId') barId: BarId) {
+    return this._productsService.getProductsByBarId(barId);
+  }
 
   @Post()
   @Roles(BarRole.OWNER)

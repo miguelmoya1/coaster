@@ -66,6 +66,12 @@ export class ProductsService {
     return mapped;
   }
 
+  async getProductsByBarId(barId: BarId) {
+    const products = await this._productsRepository.findByBarId(barId);
+
+    return products.map((p) => this.#mapToDomain(p));
+  }
+
   #mapToDomain(dbProduct: ProductDb): Product {
     return {
       id: asProductId(dbProduct.id),

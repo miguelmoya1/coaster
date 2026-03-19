@@ -34,4 +34,11 @@ export class ProductsRepository {
       data: { ...productUpdateDto },
     });
   }
+
+  async findByBarId(barId: BarId) {
+    return this._prisma.product.findMany({
+      where: { category: { barId } },
+      orderBy: { name: 'asc' },
+    });
+  }
 }

@@ -13,7 +13,7 @@ describe('CategoriesController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getCategoriesWithProducts: jest.fn(),
+      getCategories: jest.fn(),
       createCategory: jest.fn(),
     };
 
@@ -30,11 +30,11 @@ describe('CategoriesController', () => {
   });
 
   it('getCategories debería delegar al servicio', () => {
-    service.getCategoriesWithProducts.mockResolvedValue([]);
+    service.getCategories.mockResolvedValue([]);
 
     controller.getCategories(asBarId('bar-1'));
 
-    expect(service.getCategoriesWithProducts).toHaveBeenCalledWith('bar-1');
+    expect(service.getCategories).toHaveBeenCalledWith('bar-1');
   });
 
   it('createCategory debería delegar al servicio', () => {
