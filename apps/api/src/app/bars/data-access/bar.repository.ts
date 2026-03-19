@@ -1,4 +1,4 @@
-import { UserId } from '@coaster/interfaces';
+import { BarId, UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
 import { BarRole, Prisma, PrismaService } from '../../core';
 
@@ -22,5 +22,9 @@ export class BarRepository {
     });
 
     return barMembers.map((barMember) => barMember.bar);
+  }
+
+  async findById(barId: BarId) {
+    return this._prisma.bar.findUnique({ where: { id: barId } });
   }
 }

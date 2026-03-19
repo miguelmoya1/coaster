@@ -1,101 +1,83 @@
-# Coaster
+# 🍺 Coaster (BarTeam)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## 📖 What is Coaster?
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+Coaster is an internal operational tool tailored for small service businesses like hospitality venues (bars, restaurants, cafes), workshops, and clinics.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+**Main Goal:** To eliminate the chaos of WhatsApp groups and paper-based tracking in Human Resources and Inventory Management.
 
-## Run tasks
+**Philosophy:** _"No Billing"_. Coaster does not handle billing, payments, or final customers. It is strictly designed for internal operational management and team coordination.
 
-To run the dev server for your app, use:
+## ✨ What Can Coaster Do?
+
+### 📅 HR Module (The Roster)
+
+Manages who works and when, keeping the entire team on the same page.
+
+- **Multi-view Calendar:** Users can seamlessly toggle between Daily, Weekly, and Monthly shift views.
+- **Shift Assignment:** Admins/Owners can create shifts and assign them to staff members.
+- **Shift Marketplace:** Staff members can "drop" a shift for someone else to "pick up" via the shift exchange system.
+- **Staff Management:** Role-based access control (`OWNER` vs `STAFF`) to manage operations securely.
+- **Time Tracking (Upcoming):** Geolocation-based clock-in and clock-out functionality.
+
+### 📦 Logistics & Inventory Module (The Pantry)
+
+Tracks what items are missing and swiftly generates supply orders.
+
+- **Visual Catalog:** Designed with large icons/visuals to facilitate rapid use on touch screens.
+- **Traffic Light System:** Instant visual recognition of stock state — "OK" (Green), "Low Stock" (Yellow), or "Out of Stock" (Red).
+- **Smart Ordering:** Automatically groups missing items and generates a pre-formatted text message ready to be forwarded to suppliers via WhatsApp.
+
+### 🔔 Mobile-First & Real-Time Alerts
+
+- **Push Notifications:** Deep integration with Firebase Cloud Messaging (FCM) to deliver mobile push notifications to staff for important occurrences (e.g., requested shift changes, newly assigned shifts).
+
+---
+
+## 🛠️ The Golden Stack (Architecture)
+
+Coaster is built using a modern, scalable, and robust technological stack:
+
+- **Monorepo Strategy:** Nx (Integrated).
+- **Backend:** NestJS + Prisma ORM + PostgreSQL.
+- **Frontend:** Angular 21 + Tailwind CSS v4 + Signals.
+- **Testing:** Jest (Unit Tests) + Supertest/Playwright (E2E).
+- **Infrastructure:** Docker (Local Development) / Google Cloud Run + Neon (Production Environment).
+
+---
+
+## 🚀 Getting Started & Running Tasks
+
+This project is an [Nx workspace](https://nx.dev).
+
+### Run the Dev Servers
+
+To run the frontend/backend servers for your app, use:
 
 ```sh
+# Run the Backend API
+npx nx serve api
+
+# Run the Frontend App
 npx nx serve coaster
 ```
+
+### Build for Production
 
 To create a production bundle:
 
 ```sh
+npx nx build api
 npx nx build coaster
 ```
 
-To see all available targets to run for a project, run:
+### Useful Commands
 
-```sh
-npx nx show project coaster
-```
+- Run Unit Tests: `npx nx test api` / `npx nx test coaster`
+- Explore Workspace: `npx nx graph`
+- Generate new code using Nx plugins: `npx nx g @nx/angular:component my-component`
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 🤝 Support & Nx Resources
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/angular:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Learn more about Nx Workspaces](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial)
+- [Nx Console for your IDE](https://nx.dev/getting-started/editor-setup)

@@ -1,50 +1,64 @@
-# 🧑‍🤝‍🧑 Módulo: Users (Ya empezado)
+# 📍 API Routes Overview
 
-Gestiona los empleados y sus perfiles.
+Esta es la documentación actualizada de todas las rutas de la API, extraída directamente de los controladores existentes en el backend. Todas las llamadas a APIs relativas a bares (`/bars/:barId/...`) validan adicionalmente el `Role` del usuario en ese Bar específico (`OWNER` o `STAFF`). Todos los endpoints, excepto donde se especifique lo contrario, están protegidos por `FirebaseAuthGuard`.
 
-| Método  | Ruta         | DTO Entrada     | Retorno  | Descripción                                            |
-| ------- | ------------ | --------------- | -------- | ------------------------------------------------------ |
-| `GET`   | `/users`     | -               | `User[]` | Listar todos los empleados (Para el Admin/Calendario). |
-| `GET`   | `/users/me`  | -               | `User`   | (Vital) Obtener mi propio perfil usando el Token.      |
-| `POST`  | `/users`     | `CreateUserDto` | `User`   | Crear un nuevo empleado (Admin).                       |
-| `PATCH` | `/users/:id` | `UpdateUserDto` | `User`   | Editar nombre, rol o desactivarlo (Soft Delete).       |
+## 🧑‍🤝‍🧑 Módulo: Users (`/users`)
 
-# 🔐 Módulo: Auth (Próximo paso crítico)
+Gestiona la cuenta global del profesional/administrador en la plataforma.
 
-Gestiona el login y los tokens JWT.
+| Método  | Ruta        | DTO Entrada     | Guard/Role                  | Descripción                                         |
+| ------- | ----------- | --------------- | --------------------------- | --------------------------------------------------- |
+| `GET`   | `/users/me` | -               | `OptionalFirebaseAuthGuard` | Obtiene el perfil actual (`User`) usando el Token.  |
+| `PATCH` | `/users/me` | `UpdateUserDto` | `FirebaseAuthGuard`         | Actualiza parcialmente los datos del perfil actual. |
 
-| Método | Ruta            | DTO Entrada | Retorno        | Descripción                                |
-| ------ | --------------- | ----------- | -------------- | ------------------------------------------ |
-| `POST` | `/auth/login`   | `LoginDto`  | `AuthResponse` | Enviar Email + PIN y recibir Token + User. |
-| `POST` | `/auth/refresh` | -           | `Token`        | (Opcional) Refrescar sesión sin pedir PIN. |
+## 🍺 Módulo: Bars (`/bars`)
 
-# 📅 Módulo: Shifts (El corazón de la App)
+Gestiona los bares a los que el trabajador tiene acceso, ya sea como Administrador (`OWNER`) o Empleado (`STAFF`).
 
-Gestiona el calendario y los turnos.
+| Método | Ruta           | DTO Entrada    | Guard/Role          | Descripción                                          |
+| ------ | -------------- | -------------- | ------------------- | ---------------------------------------------------- |
+| `GET`  | `/bars`        | -              | `FirebaseAuthGuard` | Devuelve los bares en los que el usuario es miembro. |
+| `GET`  | `/bars/:barId` | -              | `FirebaseAuthGuard` | Devuelve los bares en los que el usuario es miembro. |
+| `POST` | `/bars`        | `CreateBarDto` | `FirebaseAuthGuard` | Crea un nuevo negocio asumiendo el rol de `OWNER`.   |
 
-| Método   | Ruta                        | DTO Entrada         | Retorno         | Descripción                                   |
-| -------- | --------------------------- | ------------------- | --------------- | --------------------------------------------- |
-| `GET`    | `/shifts?from=Date&to=Date` | -                   | `Shift[]`       | Obtener turnos de un rango (ej: esta semana). |
-| `POST`   | `/shifts`                   | `CreateShiftDto`    | `Shift`         | Crear un turno (Admin asigna a alguien).      |
-| `DELETE` | `/shifts/:id`               | -                   | `boolean`       | Borrar un turno.                              |
-| `POST`   | `/shifts/exchange`          | `CreateExchangeDto` | `ShiftExchange` | "Oye, te cambio el turno".                    |
-| `PATCH`  | `/shifts/exchange/:id`      | `UpdateExchangeDto` | `ShiftExchange` | Aceptar o Rechazar el cambio.                 |
+## 👥 Módulo: Bar Members (`/bars/:barId/members`)
 
-# 📦 Módulo: Products (Inventario Rápido)
+Gestiona la plantilla dentro de un local específico.
 
-Gestiona el estado del stock (Rojo/Amarillo/Verde).
+| Método | Ruta                   | DTO Entrada          | Roles Validados | Descripción                                        |
+| ------ | ---------------------- | -------------------- | --------------- | -------------------------------------------------- |
+| `GET`  | `/bars/:barId/members` | -                    | `OWNER, STAFF`  | Devuelve todos los miembros asigados a este Bar.   |
+| `POST` | `/bars/:barId/members` | `InviteBarMemberDto` | `OWNER`         | Invita a una persona (crea el perfil y le asocia). |
 
-| Método  | Ruta                   | DTO Entrada              | Retorno      | Descripción                               |
-| ------- | ---------------------- | ------------------------ | ------------ | ----------------------------------------- |
-| `GET`   | `/products`            | -                        | `Product[]`  | Listar carta con sus estados.             |
-| `GET`   | `/products/categories` | -                        | `Category[]` | Listar categorías (Bebidas, Limpieza...). |
-| `PATCH` | `/products/:id/status` | `UpdateProductStatusDto` | `Product`    | (El botón clave) Cambiar a "AGOTADO".     |
+## 📦 Módulo: Categories & Products (`/bars/:barId/...`)
 
-# ⚔️ Tu plan de ataque
+"La Despensa": Control de Stock e ítems de la carta.
 
-1. Ya tienes el Controller y Service de Users medio montados (solo el create y findAll).
-2. Arregla el comando (`npx nx serve api`) y comprueba que arranca.
-3. Verifica que puedes crear un usuario (`POST /users`) con Postman/Curl.
-4. Siguiente paso lógico: Crear el módulo Auth para poder hacer Login y proteger las rutas, o seguir con Shifts si prefieres ver datos en pantalla antes que seguridad.
+**Categories:**
+| Método | Ruta | DTO Entrada | Roles Validados | Descripción |
+| ------- | ----------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------- |
+| `GET` | `/bars/:barId/categories` | - | `OWNER, STAFF` | Obtiene todas las categorías junto a sus productos |
+| `POST` | `/bars/:barId/categories` | `CreateCategoryDto` | `OWNER` | Crea una nueva agrupación de stock (p. ej: "Cervezas"). |
 
-¿Te ha arrancado bien la API? ¿Por cuál módulo quieres seguir?
+**Products:**
+| Método | Ruta | DTO Entrada | Roles Validados| Descripción |
+| ------- | -------------------------------------------- | -------------------------- | -------------- | --------------------------------------------- |
+| `POST` | `/bars/:barId/products` | `CreateProductDto` | `OWNER` | Registra un nuevo producto (ítem) en un Bar. |
+| `PATCH` | `/bars/:barId/products/:productId/status` | `UpdateProductStatusDto` | `OWNER, STAFF` | Botón visual: cambia el estado del stock. |
+
+## 📅 Módulo: Shifts & Exchanges (`/bars/:barId/...`)
+
+"El Cuadrante": Horarios y turnos de los empleados.
+
+**Shifts:**
+| Método | Ruta | DTO Entrada | Roles Validados | Descripción |
+| -------- | --------------------------------------- | ------------------- | --------------- | ----------------------------------------------------------- |
+| `GET` | `/bars/:barId/shifts?startDate=&endDate=`| - | `OWNER, STAFF` | Devuelve los turnos situados en ese rango de fechas. |
+| `POST` | `/bars/:barId/shifts` | `CreateShiftDto` | `OWNER` | Registra la creación de un turno en el calendario. |
+
+**Shift Exchanges:**
+| Método | Ruta | DTO Entrada | Roles Validados| Descripción |
+| -------- | ----------------------------------------------------- | ------------------------ | -------------- | --------------------------------------------- |
+| `GET` | `/bars/:barId/exchanges` | - | `OWNER, STAFF` | Devuelve cambios propuestos pendientes. |
+| `POST` | `/bars/:barId/shifts/:shiftId/exchanges` | `CreateShiftExchangeDto` | `OWNER, STAFF` | Alguien solicita un intercambio de su turno. |
+| `PATCH` | `/bars/:barId/exchanges/:exchangeId/accept` | - | `OWNER, STAFF` | Proceso por el que alguien acepta la cesión. |
