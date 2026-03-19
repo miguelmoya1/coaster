@@ -11,7 +11,7 @@ import { Auth } from './auth';
 })
 export class CurrentUser {
   readonly #auth = inject(Auth);
-  readonly #http = inject(HttpClient);s
+  readonly #http = inject(HttpClient);
 
   readonly #current = httpResource(
     () => {
