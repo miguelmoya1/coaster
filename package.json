@@ -34,6 +34,8 @@
     "@nestjs/platform-socket.io": "^11.1.16",
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/websockets": "^11.1.16",
+    "@ng-icons/core": "^33.1.0",
+    "@ng-icons/lucide": "^33.1.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@tailwindcss/postcss": "^4.2.1",

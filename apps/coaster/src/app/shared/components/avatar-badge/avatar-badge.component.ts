@@ -1,10 +1,25 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'coaster-avatar-badge',
-  template: `<p>avatar-badge works!</p>`,
+  template: `
+    <div
+      [class]="
+        'rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden ' +
+        sizeClass()
+      "
+    >
+      <img
+        [src]="imageSrc()"
+        [alt]="altText()"
+        class="w-full h-full object-cover"
+      />
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
 })
 export class AvatarBadgeComponent {
+  readonly imageSrc = input.required<string>();
+  readonly altText = input('Avatar');
+  readonly sizeClass = input('w-10 h-10');
 }

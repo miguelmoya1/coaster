@@ -24,23 +24,48 @@
 }
 
 @theme {
-  --color-bg-base: var(--color-surface-base);
-  --color-bg-panel: var(--color-surface-container);
-  --color-bg-panel-hover: var(--color-surface-container-high);
-  --color-bg-modal: var(--color-surface-highest);
+  /* Surfaces */
+  --color-surface: var(--color-surface-base);
+  --color-surface-container-lowest: var(--color-surface-lowest);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-highest);
+  --color-surface-bright: var(--color-surface-bright);
 
-  --color-brand: var(--color-primary);
-  --color-brand-dim: var(--color-primary-dim);
+  /* Brand / Primary */
+  --color-primary: var(--color-primary);
+  --color-primary-container: var(--color-primary-dim);
+  --color-on-primary: var(--color-text-on-primary);
+  --color-on-primary-fixed: var(--color-text-on-primary);
 
-  --color-txt: var(--color-text-main);
-  --color-txt-muted: var(--color-text-muted);
-  --color-txt-inverse: var(--color-text-on-primary);
+  /* Secondary & Tertiary */
+  --color-secondary: var(--color-secondary);
+  --color-tertiary: #facc15;
 
-  --color-status-error: var(--color-error);
-  --color-status-warn: var(--color-secondary);
-  --color-status-ok: var(--color-success);
+  /* Status */
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+
+  /* Texts */
+  --color-on-surface: var(--color-text-main);
+  --color-on-surface-variant: var(--color-text-muted);
+
+  /* Outlines */
+  --color-outline: var(--color-border-strong);
+  --color-outline-variant: var(--color-border-ghost);
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Custom design system scales to avoid [] arbitrary values */
+  --shadow-elevated: 0px 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-elevated-primary: 0px 20px 40px rgba(255, 145, 89, 0.3);
+  --shadow-nav: 0px -10px 30px rgba(0, 0, 0, 0.5);
+  
+  --radius-nav: 2rem;
+  
+  --text-xxs: 0.6rem;
+  --text-xxs-plus: 0.6875rem;
 }
 
 body {
@@ -52,4 +77,12 @@ body {
 
 @view-transition {
   navigation: auto;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

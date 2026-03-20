@@ -1,11 +1,32 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
 
 @Component({
   selector: 'coaster-status-card',
-  template: `<p>status-card works!</p>\n  <ng-content></ng-content>`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  template: `
+    <div [class]="'bg-surface-container-high p-6 flex flex-col justify-between rounded-xl relative overflow-hidden ' + classes()">
+      @if (status() !== 'none') {
+        <div class="absolute top-0 left-0 w-1 h-full" [ngClass]="statusColorClass()"></div>
+      }
+      <ng-content></ng-content>
+    </div>
+  `,
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusCardComponent {
-  @Input() statusLevel: string = 'info';
+  readonly status = input<StatusLevel>('none');
+  readonly classes = input<string>('');
+
+  readonly statusColorClass = computed(() => {
+    switch (this.status()) {
+      case 'error': return 'bg-error';
+      case 'warning': return 'bg-tertiary';
+      case 'success': return 'bg-secondary';
+      case 'primary': return 'bg-primary';
+      default: return '';
+    }
+  });
 }
