@@ -188,7 +188,16 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
           <div
             class="relative h-64 border border-outline border-dashed rounded-xl overflow-hidden"
           >
-            <coaster-bottom-sheet></coaster-bottom-sheet>
+            <coaster-bottom-sheet>
+              <h3 class="text-xl font-bold mb-2">Acciones Disponibles</h3>
+              <p class="text-on-surface-variant text-sm mb-6">Selecciona una de las siguientes opciones para continuar con la gestión de este turno.</p>
+              
+              <div class="flex flex-col gap-3">
+                <coaster-primary-button icon="lucideCheck" customClass="w-full">
+                  Confirmar Asignación
+                </coaster-primary-button>
+              </div>
+            </coaster-bottom-sheet>
           </div>
         </section>
       </div>
