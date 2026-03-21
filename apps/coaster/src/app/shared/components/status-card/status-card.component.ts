@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
 
@@ -8,12 +7,11 @@ export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
   template: `
     <div [class]="'bg-surface-container-high p-6 flex flex-col justify-between rounded-xl relative overflow-hidden ' + classes()">
       @if (status() !== 'none') {
-        <div class="absolute top-0 left-0 w-1 h-full" [ngClass]="statusColorClass()"></div>
+        <div [class]="'absolute top-0 left-0 w-1 h-full ' + statusColorClass()"></div>
       }
       <ng-content></ng-content>
     </div>
   `,
-  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusCardComponent {
