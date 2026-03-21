@@ -4,10 +4,10 @@ export const checkIsProduct = (product: unknown): product is Product => {
   return (
     typeof product === 'object' &&
     product !== null &&
-    'id' in product &&
-    'categoryId' in product &&
-    'name' in product &&
-    'status' in product
+    typeof (product as any).id === 'string' &&
+    typeof (product as any).categoryId === 'string' &&
+    typeof (product as any).name === 'string' &&
+    typeof (product as any).status === 'string'
   );
 };
 

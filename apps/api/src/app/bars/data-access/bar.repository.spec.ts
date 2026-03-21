@@ -31,7 +31,7 @@ describe('BarRepository', () => {
     it('debería crear un bar con un miembro OWNER', async () => {
       prisma.bar.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
 
-      const result = await repository.create('Mi Bar', asUserId('user-1'));
+      const result = await repository.create(asUserId('user-1'), { name: 'Mi Bar' });
 
       expect(prisma.bar.create).toHaveBeenCalledWith({
         data: {

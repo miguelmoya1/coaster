@@ -1,7 +1,7 @@
 import { asUserId, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { FirebaseAuthGuard } from '../../core';
+import { FirebaseAuthGuard, PrismaService, RolesGuard } from '../../core';
 import { BarsService } from '../services/bars.service';
 import { BarsController } from './bars.controller';
 
@@ -26,9 +26,13 @@ describe('BarsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BarsController],
-      providers: [{ provide: BarsService, useValue: mockService }],
+      providers: [
+        { provide: BarsService, useValue: mockService },
+        { provide: PrismaService, useValue: {} },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
+      .overrideGuard(RolesGuard).useValue(mockGuard)
       .compile();
 
     controller = module.get<BarsController>(BarsController);
@@ -40,7 +44,7 @@ describe('BarsController', () => {
 
     const result = await controller.createBar(fakeUser, { name: 'Mi Bar' } as any);
 
-    expect(service.create).toHaveBeenCalledWith('user-1', { name: 'Mi Bar' });
+    expect(service.create).toHaveBeenCalledWith({ name: 'Mi Bar' }, fakeUser);
     expect(result).toEqual({ id: 'bar-1', name: 'Mi Bar' });
   });
 
@@ -49,7 +53,7 @@ describe('BarsController', () => {
 
     const result = await controller.getMyBars(fakeUser);
 
-    expect(service.getForUser).toHaveBeenCalledWith('user-1');
+    expect(service.getForUser).toHaveBeenCalledWith(fakeUser);
     expect(result).toEqual([]);
   });
 });

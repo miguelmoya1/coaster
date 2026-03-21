@@ -70,15 +70,17 @@ describe('ShiftsRepository', () => {
       const result = await repository.create(
         asBarId('bar-1'),
         asUserId('u1'),
-        date,
-        ShiftType.MORNING,
-        'notas',
+        {
+          date,
+          type: ShiftType.MORNING,
+          notes: 'notas',
+        }
       );
 
       expect(prisma.shift.create).toHaveBeenCalledWith({
         data: {
-          barId: 'bar-1',
-          userId: 'u1',
+          bar: { connect: { id: 'bar-1' } },
+          user: { connect: { id: 'u1' } },
           date,
           type: ShiftType.MORNING,
           notes: 'notas',

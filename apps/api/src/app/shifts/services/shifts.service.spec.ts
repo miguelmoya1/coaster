@@ -64,9 +64,7 @@ describe('ShiftsService', () => {
       expect(repository.create).toHaveBeenCalledWith(
         'bar-1',
         'user-id',
-        FAKE_DATE,
-        ShiftType.NIGHT,
-        'Test notes',
+        { date: FAKE_DATE, type: ShiftType.NIGHT, notes: 'Test notes' },
       );
 
       expect(result).toEqual({

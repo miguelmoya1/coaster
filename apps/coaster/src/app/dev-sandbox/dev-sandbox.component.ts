@@ -23,6 +23,8 @@ import {
   TextareaInputComponent,
   TextInputComponent,
   ToggleInputComponent,
+  SelectInputComponent,
+  MultiSelectInputComponent,
 } from '../shared/forms';
 import { HorizontalDateScrollerComponent } from '../shifts/components/horizontal-date-scroller/horizontal-date-scroller.component';
 import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.component';
@@ -47,6 +49,8 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
     NumberInputComponent,
     TextareaInputComponent,
     ToggleInputComponent,
+    SelectInputComponent,
+    MultiSelectInputComponent,
   ],
   providers: [
     provideIcons({
@@ -115,6 +119,29 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
               >
               </coaster-toggle-input>
             </div>
+
+            <coaster-select-input
+              label="User Role"
+              placeholder="Select role..."
+              hint="Pick the main role for this user"
+              [options]="[
+                { value: 'admin', label: 'Administrator' },
+                { value: 'manager', label: 'Bar Manager' },
+                { value: 'staff', label: 'Regular Staff' },
+                { value: 'banned', label: 'Banned User', disabled: true }
+              ]"
+            ></coaster-select-input>
+
+            <coaster-multi-select-input
+              label="Assigned Venues"
+              placeholder="Select venues to grant access..."
+              hint="You can select multiple venues"
+              [options]="[
+                { value: 'v1', label: 'Downtown Lounge' },
+                { value: 'v2', label: 'Rooftop Bar' },
+                { value: 'v3', label: 'Underground Club' }
+              ]"
+            ></coaster-multi-select-input>
           </div>
         </section>
 

@@ -13,6 +13,8 @@ describe('AvatarBadgeComponent', () => {
     
     fixture = TestBed.createComponent(AvatarBadgeComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('imageSrc', 'test.jpg');
+    fixture.componentRef.setInput('altText', 'Test');
     fixture.detectChanges();
   });
 

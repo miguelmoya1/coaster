@@ -13,6 +13,9 @@ describe('StaffMemberCardComponent', () => {
     
     fixture = TestBed.createComponent(StaffMemberCardComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('staffName', 'Test Name');
+    fixture.componentRef.setInput('staffImage', 'test.jpg');
+    fixture.componentRef.setInput('roleName', 'Test Role');
     fixture.detectChanges();
   });
 

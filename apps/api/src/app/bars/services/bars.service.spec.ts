@@ -32,11 +32,11 @@ describe('BarsService', () => {
         updatedAt: FAKE_DATE,
       } as any);
 
-      const result = await service.create(asUserId('user-id'), {
+      const result = await service.create({
         name: 'Nuevo Bar',
-      });
+      }, { id: 'user-id' } as any);
 
-      expect(repository.create).toHaveBeenCalledWith('Nuevo Bar', 'user-id');
+      expect(repository.create).toHaveBeenCalledWith('user-id', { name: 'Nuevo Bar' });
       expect(result).toEqual({
         id: 'bar-123',
         name: 'Nuevo Bar',
@@ -57,7 +57,7 @@ describe('BarsService', () => {
         } as any,
       ]);
 
-      const result = await service.getForUser(asUserId('user-id'));
+      const result = await service.getForUser({ id: 'user-id' } as any);
 
       expect(repository.findByUserId).toHaveBeenCalledWith('user-id');
       expect(result).toEqual([
@@ -73,7 +73,7 @@ describe('BarsService', () => {
     it('debería devolver un array vacío si no tiene bares', async () => {
       repository.findByUserId.mockResolvedValue([]);
 
-      const result = await service.getForUser(asUserId('user-id'));
+      const result = await service.getForUser({ id: 'user-id' } as any);
 
       expect(result).toEqual([]);
     });

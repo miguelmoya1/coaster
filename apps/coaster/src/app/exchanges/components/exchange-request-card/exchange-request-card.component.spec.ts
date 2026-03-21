@@ -13,6 +13,12 @@ describe('ExchangeRequestCardComponent', () => {
     
     fixture = TestBed.createComponent(ExchangeRequestCardComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('month', 'Jan');
+    fixture.componentRef.setInput('day', '1');
+    fixture.componentRef.setInput('shiftPeriod', 'Morning');
+    fixture.componentRef.setInput('roleName', 'Bartender');
+    fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
+    fixture.componentRef.setInput('offeredBy', 'John Doe');
     fixture.detectChanges();
   });
 

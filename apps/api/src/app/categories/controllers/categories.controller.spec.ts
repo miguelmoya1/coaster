@@ -43,6 +43,6 @@ describe('CategoriesController', () => {
 
     controller.createCategory(asBarId('bar-1'), dto as any);
 
-    expect(service.createCategory).toHaveBeenCalledWith('bar-1', 'Bebidas', 'beer');
+    expect(service.createCategory).toHaveBeenCalledWith('bar-1', { name: 'Bebidas', icon: 'beer' });
   });
 });

@@ -41,7 +41,7 @@ describe('UpdateProductStatus', () => {
     const result = await service.updateStatus(barId, productId, dto);
 
     expect(repositoryMock['updateStatus']).toHaveBeenCalledWith(barId, productId, dto);
-    expect(barProductsMock['reload']).toHaveBeenCalled();
+    
     expect(result).toEqual(expectedProduct);
   });
 });

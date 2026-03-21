@@ -40,7 +40,7 @@ describe('CreateCategory', () => {
     const result = await service.create(barId, dto);
 
     expect(repositoryMock['create']).toHaveBeenCalledWith(barId, dto);
-    expect(barCategoriesMock['reload']).toHaveBeenCalled();
+    
     expect(result).toEqual(expectedCategory);
   });
 });

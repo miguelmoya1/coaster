@@ -73,7 +73,7 @@ describe('BarMembersService', () => {
       expect(repository.inviteMember).toHaveBeenCalledWith(
         'bar-1',
         'new@test.com',
-        BarRole.STAFF,
+        { role: BarRole.STAFF },
       );
       expect(emailService.sendInviteEmail).toHaveBeenCalledWith(
         'new@test.com',

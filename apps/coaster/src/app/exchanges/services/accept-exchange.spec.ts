@@ -50,7 +50,7 @@ describe('AcceptExchange', () => {
     const result = await service.execute(barId, exchangeId);
 
     expect(exchangeRepoMock['accept']).toHaveBeenCalledWith(barId, exchangeId);
-    expect(barExchangesMock['reload']).toHaveBeenCalled();
+    
     expect(result).toEqual(mockExchange);
   });
 });

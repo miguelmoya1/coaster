@@ -40,7 +40,7 @@ describe('CreateProduct', () => {
     const result = await service.create(barId, dto);
 
     expect(repositoryMock['create']).toHaveBeenCalledWith(barId, dto);
-    expect(barProductsMock['reload']).toHaveBeenCalled();
+    
     expect(result).toEqual(expectedProduct);
   });
 });

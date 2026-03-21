@@ -48,7 +48,7 @@ describe('BarMembersRepository', () => {
       const result = await repository.inviteMember(
         asBarId('bar-1'),
         'new@test.com',
-        BarRole.STAFF,
+        { role: BarRole.STAFF },
       );
 
       expect(prisma.user.upsert).toHaveBeenCalledWith({
@@ -57,7 +57,7 @@ describe('BarMembersRepository', () => {
         create: { email: 'new@test.com', name: 'NEW_EMPLOYEE' },
       });
       expect(prisma.barMember.create).toHaveBeenCalledWith({
-        data: { userId: 'new-user', barId: 'bar-1', role: BarRole.STAFF },
+        data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: BarRole.STAFF },
         include: { user: { select: { id: true, name: true, email: true } } },
       });
       expect(result).toEqual({ id: 'member-1' });

@@ -13,6 +13,10 @@ describe('InventoryItemCardComponent', () => {
     
     fixture = TestBed.createComponent(InventoryItemCardComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('itemName', 'Test Item');
+    fixture.componentRef.setInput('locationText', 'Test Location');
+    fixture.componentRef.setInput('qty', 10);
+    fixture.componentRef.setInput('statusLevel', 'good');
     fixture.detectChanges();
   });
 

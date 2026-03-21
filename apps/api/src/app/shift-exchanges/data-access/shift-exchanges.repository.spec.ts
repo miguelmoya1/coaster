@@ -77,9 +77,9 @@ describe('ShiftExchangesRepository', () => {
 
       expect(prisma.shiftExchange.create).toHaveBeenCalledWith({
         data: {
-          shiftId: 'shift-1',
-          requesterId: 'requester',
-          targetId: 'target',
+          shift: { connect: { id: 'shift-1' } },
+          requester: { connect: { id: 'requester' } },
+          target: { connect: { id: 'target' } },
           status: ShiftExchangeStatus.PENDING,
         },
       });

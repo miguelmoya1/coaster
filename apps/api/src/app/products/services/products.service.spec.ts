@@ -84,8 +84,7 @@ describe('ProductsService', () => {
 
       expect(repository.create).toHaveBeenCalledWith(
         'cat-1',
-        'Coca Cola',
-        'OK',
+        { categoryId: 'cat-1', name: 'Coca Cola', status: 'OK' },
       );
 
       const expectedDomain = {
@@ -128,7 +127,7 @@ describe('ProductsService', () => {
 
       expect(repository.updateStatus).toHaveBeenCalledWith(
         'prod-1',
-        ProductStatus.OUT_OF_STOCK,
+        { status: ProductStatus.OUT_OF_STOCK },
       );
 
       const expectedDomain = {

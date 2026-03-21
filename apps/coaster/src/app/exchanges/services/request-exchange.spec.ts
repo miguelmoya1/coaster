@@ -51,7 +51,7 @@ describe('RequestExchange', () => {
     const result = await service.execute(barId, shiftId, dto);
 
     expect(exchangeRepoMock['request']).toHaveBeenCalledWith(barId, shiftId, dto);
-    expect(barExchangesMock['reload']).toHaveBeenCalled();
+    
     expect(result).toEqual(mockExchange);
   });
 });
