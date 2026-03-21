@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucidePlus, lucideWine } from '@ng-icons/lucide';
+import {
+  lucideCheck,
+  lucideLock,
+  lucideMail,
+  lucidePlus,
+  lucideWine,
+} from '@ng-icons/lucide';
 import { CategoryTabsComponent } from '../categories/components/category-tabs/category-tabs.component';
 import { ExchangeRequestCardComponent } from '../exchanges/components/exchange-request-card/exchange-request-card.component';
 import { StaffMemberCardComponent } from '../members/components/staff-member-card/staff-member-card.component';
@@ -12,6 +18,12 @@ import { FabComponent } from '../shared/components/fab/fab.component';
 import { PrimaryButtonComponent } from '../shared/components/primary-button/primary-button.component';
 import { StatusCardComponent } from '../shared/components/status-card/status-card.component';
 import { TopAppBarComponent } from '../shared/components/top-app-bar/top-app-bar.component';
+import {
+  NumberInputComponent,
+  TextareaInputComponent,
+  TextInputComponent,
+  ToggleInputComponent,
+} from '../shared/forms';
 import { HorizontalDateScrollerComponent } from '../shifts/components/horizontal-date-scroller/horizontal-date-scroller.component';
 import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.component';
 
@@ -31,8 +43,20 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
     HorizontalDateScrollerComponent,
     InventoryItemCardComponent,
     CategoryTabsComponent,
+    TextInputComponent,
+    NumberInputComponent,
+    TextareaInputComponent,
+    ToggleInputComponent,
   ],
-  providers: [provideIcons({ lucideCheck, lucidePlus, lucideWine })],
+  providers: [
+    provideIcons({
+      lucideCheck,
+      lucidePlus,
+      lucideWine,
+      lucideMail,
+      lucideLock,
+    }),
+  ],
   template: `
     <div class="mt-24"></div>
     <div class="bg-surface pb-24 min-h-screen text-on-surface font-sans">
@@ -42,6 +66,58 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
       ></coaster-top-app-bar>
 
       <div class="p-6 flex flex-col gap-10">
+        <!-- Form Controls -->
+        <section class="flex flex-col gap-4">
+          <h2
+            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
+          >
+            Form Controls (Signal Forms)
+          </h2>
+
+          <div class="flex flex-col gap-6">
+            <coaster-text-input
+              label="Email Address"
+              placeholder="Enter your email..."
+              icon="lucideMail"
+              hint="We will never share your email with anyone else."
+            >
+            </coaster-text-input>
+
+            <coaster-text-input
+              label="Password"
+              type="password"
+              placeholder="Enter password..."
+              icon="lucideLock"
+            >
+            </coaster-text-input>
+
+            <coaster-number-input
+              label="Storage Quantity"
+              [showControls]="true"
+              [step]="1"
+              hint="Adjust the number of items in stock"
+            >
+            </coaster-number-input>
+
+            <coaster-textarea-input
+              label="Order Notes"
+              placeholder="Any special requests? (e.g. Allergy info)"
+              [rows]="4"
+            >
+            </coaster-textarea-input>
+
+            <div
+              class="bg-surface-container/50 p-4 rounded-xl border border-outline-variant"
+            >
+              <coaster-toggle-input
+                label="Enable Push Notifications"
+                hint="You will receive alerts when inventory is low"
+              >
+              </coaster-toggle-input>
+            </div>
+          </div>
+        </section>
+
         <!-- Shared components -->
         <section class="flex flex-col gap-4">
           <h2
@@ -190,8 +266,11 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
           >
             <coaster-bottom-sheet>
               <h3 class="text-xl font-bold mb-2">Acciones Disponibles</h3>
-              <p class="text-on-surface-variant text-sm mb-6">Selecciona una de las siguientes opciones para continuar con la gestión de este turno.</p>
-              
+              <p class="text-on-surface-variant text-sm mb-6">
+                Selecciona una de las siguientes opciones para continuar con la
+                gestión de este turno.
+              </p>
+
               <div class="flex flex-col gap-3">
                 <coaster-primary-button icon="lucideCheck" customClass="w-full">
                   Confirmar Asignación

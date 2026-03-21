@@ -5,3 +5,4 @@ export * from './components/fab/fab.component';
 export * from './components/primary-button/primary-button.component';
 export * from './components/status-card/status-card.component';
 export * from './components/top-app-bar/top-app-bar.component';
+export * from './forms';
