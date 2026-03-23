@@ -1,3 +1,5 @@
+import { Listbox, Option } from '@angular/aria/listbox';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -18,8 +20,6 @@ import {
   lucideCheck,
   lucideChevronDown,
 } from '@ng-icons/lucide';
-import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
-import { Listbox, Option } from '@angular/aria/listbox';
 
 export interface SelectOption {
   value: string | number;
@@ -66,7 +66,10 @@ export interface SelectOption {
           (click)="toggleOpen($event)"
           (blur)="onBlur()"
         >
-          <span class="truncate block" [class.text-on-surface-variant]="!hasValue()">
+          <span
+            class="truncate block"
+            [class.text-on-surface-variant]="!hasValue()"
+          >
             {{ displayValue() || placeholder() }}
           </span>
           <div class="flex items-center gap-2 shrink-0">
@@ -94,7 +97,7 @@ export interface SelectOption {
           cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
         >
           <div
-            class="bg-surface-container-high rounded-xl border border-outline shadow-xl mt-2 overflow-hidden flex flex-col max-h-64 py-1"
+            class="bg-surface-container-high rounded-xl border border-outline shadow-xl mt-2 overflow-hidden flex flex-col max-h-72 py-1 w-full"
           >
             <ul
               ngListbox
@@ -104,7 +107,9 @@ export interface SelectOption {
               class="overflow-y-auto outline-none"
             >
               @if (options().length === 0) {
-                <li class="px-4 py-3 text-on-surface-variant text-sm flex items-center justify-center italic">
+                <li
+                  class="px-4 py-4 text-on-surface-variant text-base flex items-center justify-center italic"
+                >
                   No options available
                 </li>
               }
@@ -113,13 +118,18 @@ export interface SelectOption {
                   ngOption
                   [value]="opt.value"
                   [disabled]="opt.disabled || false"
-                  class="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-bright transition-colors aria-disabled:opacity-50 aria-disabled:cursor-not-allowed outline-none"
+                  class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-surface-bright transition-colors aria-disabled:opacity-50 aria-disabled:cursor-not-allowed outline-none"
                   [class.bg-primary-container]="isSelected(opt.value)"
                   [class.text-on-primary-container]="isSelected(opt.value)"
                 >
-                  <span class="font-medium text-sm truncate">{{ opt.label }}</span>
+                  <span class="font-medium text-base truncate">{{
+                    opt.label
+                  }}</span>
                   @if (isSelected(opt.value)) {
-                    <ng-icon name="lucideCheck" class="text-primary text-lg"></ng-icon>
+                    <ng-icon
+                      name="lucideCheck"
+                      class="text-primary text-xl"
+                    ></ng-icon>
                   }
                 </li>
               }
@@ -155,21 +165,19 @@ export interface SelectOption {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectInputComponent implements FormValueControl<string | number | null> {
-  // Required
+export class SelectInputComponent implements FormValueControl<
+  string | number | null
+> {
   readonly value = model<string | number | null>(null);
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly placeholder = input<string>('Select an option...');
   readonly hint = input<string>('');
   readonly options = input<SelectOption[]>([]);
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<
     readonly WithOptionalFieldTree<DisabledReason>[]
@@ -182,19 +190,19 @@ export class SelectInputComponent implements FormValueControl<string | number | 
   );
   readonly required = input<boolean>(false);
 
-  // Component state
   readonly isOpen = signal(false);
   readonly triggerWidth = signal<number | string>('auto');
 
-  // Computed state
-  readonly hasValue = computed(() => this.value() !== null && this.value() !== undefined);
+  readonly hasValue = computed(
+    () => this.value() !== null && this.value() !== undefined,
+  );
   readonly displayValue = computed(() => {
     const val = this.value();
     if (val === null || val === undefined) return '';
     const option = this.options().find((o) => o.value === val);
     return option ? option.label : String(val);
   });
-  
+
   readonly listboxValues = computed(() => {
     const val = this.value();
     return val !== null && val !== undefined ? [val] : [];
@@ -203,7 +211,7 @@ export class SelectInputComponent implements FormValueControl<string | number | 
   toggleOpen(event: MouseEvent) {
     if (this.disabled() || this.readonly()) return;
     this.isOpen.update((v) => !v);
-    
+
     if (this.isOpen()) {
       const target = event.currentTarget as HTMLElement;
       this.triggerWidth.set(target.offsetWidth);
@@ -216,8 +224,6 @@ export class SelectInputComponent implements FormValueControl<string | number | 
   }
 
   onBlur() {
-    // Only mark as touched if we didn't open the popup. 
-    // If we opened the popup, clicking outside will trigger close() which marks touched.
     if (!this.isOpen()) {
       this.touched.set(true);
     }

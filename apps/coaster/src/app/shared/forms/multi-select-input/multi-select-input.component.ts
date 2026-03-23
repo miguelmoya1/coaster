@@ -71,7 +71,7 @@ export interface MultiSelectOption {
               <span class="text-on-surface-variant">{{ placeholder() }}</span>
             } @else {
               @for (item of selectedDisplayItems(); track item.value) {
-                <span class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-2.5 py-1 rounded-lg text-xs font-medium border border-outline-variant">
+                <span class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-3 py-1.5 rounded-lg text-sm font-medium border border-outline-variant">
                   {{ item.label }}
                 </span>
               }
@@ -102,7 +102,7 @@ export interface MultiSelectOption {
           cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
         >
           <div
-            class="bg-surface-container-high rounded-xl border border-outline shadow-xl mt-2 overflow-hidden flex flex-col max-h-64 py-1"
+            class="bg-surface-container-high rounded-xl border border-outline shadow-xl mt-2 overflow-hidden flex flex-col max-h-72 py-1 w-full"
           >
             <ul
               ngListbox
@@ -112,7 +112,7 @@ export interface MultiSelectOption {
               class="overflow-y-auto outline-none"
             >
               @if (options().length === 0) {
-                <li class="px-4 py-3 text-on-surface-variant text-sm flex items-center justify-center italic">
+                <li class="px-4 py-4 text-on-surface-variant text-base flex items-center justify-center italic">
                   No options available
                 </li>
               }
@@ -121,14 +121,30 @@ export interface MultiSelectOption {
                   ngOption
                   [value]="opt.value"
                   [disabled]="opt.disabled || false"
-                  class="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-bright transition-colors aria-disabled:opacity-50 aria-disabled:cursor-not-allowed outline-none"
-                  [class.bg-primary-container]="isSelected(opt.value)"
-                  [class.text-on-primary-container]="isSelected(opt.value)"
+                  class="outline-none block w-full"
+                  (keydown.space)="toggleOption(opt.value, $event)"
+                  (keydown.enter)="toggleOption(opt.value, $event)"
                 >
-                  <span class="font-medium text-sm truncate">{{ opt.label }}</span>
-                  @if (isSelected(opt.value)) {
-                    <ng-icon name="lucideCheck" class="text-primary text-lg"></ng-icon>
-                  }
+                  <div
+                    class="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-bright transition-colors aria-disabled:opacity-50 aria-disabled:cursor-not-allowed outline-none w-full"
+                    [class.bg-primary-container]="isSelected(opt.value)"
+                    [class.text-on-primary-container]="isSelected(opt.value)"
+                    (click)="toggleOption(opt.value, $event)"
+                    (pointerdown)="$event.stopPropagation()"
+                    (mousedown)="$event.stopPropagation()"
+                    (keydown.space)="$event.preventDefault()"
+                    tabindex="-1"
+                  >
+                    <div class="w-6 h-6 shrink-0 rounded border-2 flex items-center justify-center transition-colors"
+                         [class.bg-primary]="isSelected(opt.value)"
+                         [class.border-primary]="isSelected(opt.value)"
+                         [class.border-outline-variant]="!isSelected(opt.value)">
+                      @if (isSelected(opt.value)) {
+                        <ng-icon name="lucideCheck" class="text-on-primary text-xl"></ng-icon>
+                      }
+                    </div>
+                    <span class="font-medium text-base truncate">{{ opt.label }}</span>
+                  </div>
                 </li>
               }
             </ul>
@@ -236,8 +252,22 @@ export class MultiSelectInputComponent implements FormValueControl<(string | num
     return this.value()?.includes(val) || false;
   }
 
+
   onSelectionChange(newValues: (string | number)[]) {
     this.value.set(newValues);
-    // Unlike single select, multi select stays open until clicked outside
+  }
+
+  toggleOption(val: string | number, event: Event) {
+    if (this.disabled() || this.readonly()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    
+    const current = this.value() || [];
+    if (current.includes(val)) {
+      this.value.set(current.filter((v) => v !== val));
+    } else {
+      this.value.set([...current, val]);
+    }
   }
 }
