@@ -22,7 +22,10 @@ export default class Login {
 
   public async signIn() {
     this.isLoading.set(true);
-    await this.#auth.loginWithGoogle();
-    this.isLoading.set(false);
+    try {
+      await this.#auth.loginWithGoogle();
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }

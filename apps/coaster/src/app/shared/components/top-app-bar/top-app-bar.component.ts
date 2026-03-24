@@ -30,7 +30,8 @@ import { lucideSearch } from '@ng-icons/lucide';
         <button
           ngToolbarWidget
           value="search"
-          class="p-2 rounded-full hover:bg-surface-bright transition-colors active:scale-95 duration-200 text-on-surface-variant flex items-center justify-center cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+          [disabled]="disabled()"
+          class="p-2 rounded-full hover:bg-surface-bright transition-colors active:scale-95 duration-200 text-on-surface-variant flex items-center justify-center cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
         >
           <ng-icon name="lucideSearch" class="text-xl"></ng-icon>
         </button>
@@ -41,4 +42,5 @@ import { lucideSearch } from '@ng-icons/lucide';
 export class TopAppBarComponent {
   readonly title = input('');
   readonly userImage = input<string>();
+  readonly disabled = input(false);
 }

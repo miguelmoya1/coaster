@@ -11,7 +11,7 @@ export interface ScrollerDay {
   selector: 'coaster-horizontal-date-scroller',
   imports: [Listbox, Option],
   template: `
-    <div ngListbox orientation="horizontal" class="flex gap-3 overflow-x-auto hide-scrollbar py-2 -mx-4 px-4 outline-none">
+    <div [attr.aria-disabled]="disabled()" [class.opacity-50]="disabled()" [class.pointer-events-none]="disabled()" ngListbox orientation="horizontal" class="flex gap-3 overflow-x-auto hide-scrollbar py-2 -mx-4 px-4 outline-none">
       @for (day of days(); track day.dayNumber) {
         @if (day.isActive) {
           <div ngOption [value]="day.dayNumber" class="shrink-0 w-16 h-24 rounded-2xl bg-primary-container text-on-primary-fixed flex flex-col items-center justify-center gap-1 shadow-lg shadow-primary/20 scale-105 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
@@ -31,4 +31,5 @@ export interface ScrollerDay {
 })
 export class HorizontalDateScrollerComponent {
   readonly days = input<ScrollerDay[]>([]);
+  readonly disabled = input(false);
 }

@@ -8,7 +8,12 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
 @Component({
   selector: 'coaster-inventory-item-card',
   template: `
-    <div [class]="'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer ' + borderColorClass()">
+    <div 
+      [class.opacity-50]="disabled()"
+      [class.cursor-not-allowed]="disabled()"
+      [class.pointer-events-none]="disabled()"
+      [attr.aria-disabled]="disabled()"
+      [class]="'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer ' + borderColorClass()">
       
       <div class="w-14 h-14 bg-surface-container-highest rounded-lg flex items-center justify-center mr-4 shrink-0">
         <ng-icon [name]="icon()!" [class]="'text-3xl ' + textColorClass()"></ng-icon>
@@ -38,6 +43,7 @@ export class InventoryItemCardComponent {
   readonly qty = input.required<number>();
   readonly icon = input('lucidePackage');
   readonly statusLevel = input<InventoryStatus>('good');
+  readonly disabled = input(false);
 
   readonly borderColorClass = computed(() => {
     switch(this.statusLevel()) {

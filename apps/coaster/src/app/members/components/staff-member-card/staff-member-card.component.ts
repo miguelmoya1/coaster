@@ -7,7 +7,11 @@ import { lucidePhone, lucideMessageSquare } from '@ng-icons/lucide';
   imports: [NgIcon],
   viewProviders: [provideIcons({ lucidePhone, lucideMessageSquare })],
   template: `
-    <div [class]="'rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden ' + (isOffDuty() ? 'bg-surface-container-low opacity-60' : 'bg-surface-container')">
+    <div 
+      [class.opacity-50]="disabled()"
+      [class.pointer-events-none]="disabled()"
+      [attr.aria-disabled]="disabled()"
+      [class]="'rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden ' + (isOffDuty() ? 'bg-surface-container-low opacity-60' : 'bg-surface-container')">
       <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
       
       <div [class]="'w-16 h-16 rounded-xl overflow-hidden shrink-0 ' + (isOffDuty() ? 'grayscale' : '')">
@@ -32,10 +36,10 @@ import { lucidePhone, lucideMessageSquare } from '@ng-icons/lucide';
       </div>
       
       <div class="flex gap-2">
-        <button [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
+        <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
           <ng-icon name="lucidePhone" class="text-xl"></ng-icon>
         </button>
-        <button [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
+        <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
           <ng-icon name="lucideMessageSquare" class="text-xl"></ng-icon>
         </button>
       </div>
@@ -48,4 +52,5 @@ export class StaffMemberCardComponent {
   readonly staffImage = input.required<string>();
   readonly roleName = input.required<string>();
   readonly isOffDuty = input(false);
+  readonly disabled = input(false);
 }

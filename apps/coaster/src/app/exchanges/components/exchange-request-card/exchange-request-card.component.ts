@@ -25,7 +25,7 @@ import { lucideSend } from '@ng-icons/lucide';
           <p class="label-sm text-on-surface-variant uppercase font-bold">Offered by</p>
           <p class="body-md font-semibold">{{ offeredBy() }}</p>
         </div>
-        <button class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer">
+        <button [disabled]="disabled()" class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100">
           Request <ng-icon name="lucideSend" class="text-lg"></ng-icon>
         </button>
       </div>
@@ -40,4 +40,5 @@ export class ExchangeRequestCardComponent {
   readonly roleName = input.required<string>();
   readonly timeRange = input.required<string>();
   readonly offeredBy = input.required<string>();
+  readonly disabled = input(false);
 }
