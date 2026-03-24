@@ -9,7 +9,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'dev-sandbox',
-    loadComponent: () => import('./pages/dev-sandbox/dev-sandbox.component'),
+    loadComponent: () => import('./pages/dev-sandbox/dev-sandbox'),
   },
   {
     path: '',

@@ -1,10 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { Auth } from '../../core/services/auth';
-import { PrimaryButtonComponent } from '../../shared';
+import { PrimaryButton } from '../../shared';
 
 @Component({
   selector: 'coaster-login',
-  imports: [PrimaryButtonComponent],
+  imports: [PrimaryButton],
   template: `
     <coaster-primary-button (click)="signIn()" [disabled]="isLoading()">
       {{ 'Login with Google' }}
