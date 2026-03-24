@@ -4,8 +4,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   imports: [RouterModule],
   selector: 'coaster-root',
-  templateUrl: './app.html',
-  styleUrl: './app.css',
+  template: `<router-outlet />`
 })
 export class App {
   protected title = 'coaster';

@@ -1,11 +1,12 @@
-import { Route } from '@angular/router';
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth-guard';
 import { noAuthGuard } from './core/guards/no-auth-guard';
 
-export const appRoutes: Route[] = [
+export const appRoutes: Routes = [
   {
     path: 'login',
     canActivate: [noAuthGuard],
-    loadComponent: () => import('./pages/login/login'),
+    loadChildren: () => import('./pages/login/auth.routes'),
   },
   {
     path: 'dev-sandbox',
@@ -13,7 +14,12 @@ export const appRoutes: Route[] = [
   },
   {
     path: '',
-    redirectTo: 'dev-sandbox',
+    canActivate: [authGuard],
+    loadChildren: () => import('./pages/main/main.routes'),
+  },
+  {
+    path: '**',
+    redirectTo: '',
     pathMatch: 'full',
   },
 ];

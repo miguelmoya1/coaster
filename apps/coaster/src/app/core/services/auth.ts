@@ -21,6 +21,7 @@ export class Auth {
   readonly #auth = inject(FirebaseAuth);
   readonly #currentUser = toSignal(authState(this.#auth), {
     initialValue: undefined,
+    requireSync: false,
   });
 
   public readonly isAuthLoaded = computed(

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { filter, map, take } from 'rxjs';
 import { Auth } from '../services/auth';
 
 export const authGuard: CanActivateFn = () => {
@@ -10,7 +10,9 @@ export const authGuard: CanActivateFn = () => {
 
   return toObservable(authService.isAuthLoaded).pipe(
     filter((isLoaded) => isLoaded),
+    take(1),
     map(() => {
+      console.log('auth guard', authService.isAuthenticated());
       if (authService.isAuthenticated()) {
         return true;
       }
