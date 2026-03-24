@@ -7,27 +7,27 @@ import {
   lucidePlus,
   lucideWine,
 } from '@ng-icons/lucide';
-import { CategoryTabsComponent } from '../categories/components/category-tabs/category-tabs.component';
-import { ExchangeRequestCardComponent } from '../exchanges/components/exchange-request-card/exchange-request-card.component';
-import { StaffMemberCardComponent } from '../members/components/staff-member-card/staff-member-card.component';
-import { InventoryItemCardComponent } from '../products/components/inventory-item-card/inventory-item-card.component';
-import { AvatarBadgeComponent } from '../shared/components/avatar-badge/avatar-badge.component';
-import { BottomNavComponent } from '../shared/components/bottom-nav/bottom-nav.component';
-import { BottomSheetComponent } from '../shared/components/bottom-sheet/bottom-sheet.component';
-import { FabComponent } from '../shared/components/fab/fab.component';
-import { PrimaryButtonComponent } from '../shared/components/primary-button/primary-button.component';
-import { StatusCardComponent } from '../shared/components/status-card/status-card.component';
-import { TopAppBarComponent } from '../shared/components/top-app-bar/top-app-bar.component';
+import { CategoryTabsComponent } from '../../categories/components/category-tabs/category-tabs.component';
+import { ExchangeRequestCardComponent } from '../../exchanges/components/exchange-request-card/exchange-request-card.component';
+import { StaffMemberCardComponent } from '../../members/components/staff-member-card/staff-member-card.component';
+import { InventoryItemCardComponent } from '../../products/components/inventory-item-card/inventory-item-card.component';
+import { AvatarBadgeComponent } from '../../shared/components/avatar-badge/avatar-badge.component';
+import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
+import { BottomSheetComponent } from '../../shared/components/bottom-sheet/bottom-sheet.component';
+import { FabComponent } from '../../shared/components/fab/fab.component';
+import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
+import { StatusCardComponent } from '../../shared/components/status-card/status-card.component';
+import { TopAppBarComponent } from '../../shared/components/top-app-bar/top-app-bar.component';
 import {
+  MultiSelectInputComponent,
   NumberInputComponent,
+  SelectInputComponent,
   TextareaInputComponent,
   TextInputComponent,
   ToggleInputComponent,
-  SelectInputComponent,
-  MultiSelectInputComponent,
-} from '../shared/forms';
-import { HorizontalDateScrollerComponent } from '../shifts/components/horizontal-date-scroller/horizontal-date-scroller.component';
-import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.component';
+} from '../../shared/forms';
+import { HorizontalDateScrollerComponent } from '../../shifts/components/horizontal-date-scroller/horizontal-date-scroller.component';
+import { ShiftCardComponent } from '../../shifts/components/shift-card/shift-card.component';
 
 @Component({
   selector: 'coaster-dev-sandbox',
@@ -128,7 +128,7 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
                 { value: 'admin', label: 'Administrator' },
                 { value: 'manager', label: 'Bar Manager' },
                 { value: 'staff', label: 'Regular Staff' },
-                { value: 'banned', label: 'Banned User', disabled: true }
+                { value: 'banned', label: 'Banned User', disabled: true },
               ]"
             ></coaster-select-input>
 
@@ -139,7 +139,7 @@ import { ShiftCardComponent } from '../shifts/components/shift-card/shift-card.c
               [options]="[
                 { value: 'v1', label: 'Downtown Lounge' },
                 { value: 'v2', label: 'Rooftop Bar' },
-                { value: 'v3', label: 'Underground Club' }
+                { value: 'v3', label: 'Underground Club' },
               ]"
             ></coaster-multi-select-input>
           </div>
