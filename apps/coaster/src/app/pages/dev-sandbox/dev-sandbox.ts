@@ -16,6 +16,7 @@ import { BottomNav } from '../../shared/components/bottom-nav/bottom-nav';
 import { BottomSheet } from '../../shared/components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../shared/components/fab/fab';
 import { PrimaryButton } from '../../shared/components/primary-button/primary-button';
+import { SectionTitle } from '../../shared/components/section-title/section-title';
 import { StatusCard } from '../../shared/components/status-card/status-card';
 import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
 import {
@@ -38,6 +39,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
     TopAppBar,
     PrimaryButton,
     Fab,
+    SectionTitle,
     StatusCard,
     BottomNav,
     ShiftCard,
@@ -72,11 +74,10 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
       <div class="p-6 flex flex-col gap-10">
         <!-- Form Controls -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Form Controls (Signal Forms)
-          </h2>
+          <coaster-section-title 
+            heading="Form Controls (Signal Forms)"
+            description="A collection of reusable input controls integrated natively with Angular's Signal Forms."
+          ></coaster-section-title>
 
           <div class="flex flex-col gap-6">
             <coaster-text-input
@@ -147,11 +148,10 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Shared components -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Shared Components
-          </h2>
+          <coaster-section-title 
+            heading="Shared Components"
+            description="Common UI elements like buttons, badges, and cards used across the entire application workspace."
+          ></coaster-section-title>
           <div class="flex flex-wrap gap-6 items-center">
             <coaster-avatar-badge
               imageSrc="https://i.pravatar.cc/150?img=12"
@@ -184,11 +184,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Categories -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Categories Components
-          </h2>
+          <coaster-section-title heading="Categories Components"></coaster-section-title>
           <coaster-category-tabs
             [tabs]="[
               { id: '1', label: 'All' },
@@ -203,11 +199,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Shifts -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Shifts Components
-          </h2>
+          <coaster-section-title heading="Shifts Components"></coaster-section-title>
           <coaster-horizontal-date-scroller
             [days]="[
               { dayName: 'MON', dayNumber: 20, isActive: false },
@@ -228,11 +220,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Members -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Members Components
-          </h2>
+          <coaster-section-title heading="Members Components"></coaster-section-title>
           <coaster-staff-member-card
             staffName="Bob Builder"
             staffImage="https://i.pravatar.cc/150?img=8"
@@ -250,11 +238,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Products -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Products Components
-          </h2>
+          <coaster-section-title heading="Products Components"></coaster-section-title>
           <coaster-inventory-item-card
             itemName="Craft Beer IPA"
             locationText="Main Fridge"
@@ -266,11 +250,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Exchanges -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Exchanges Components
-          </h2>
+          <coaster-section-title heading="Exchanges Components"></coaster-section-title>
           <coaster-exchange-request-card
             month="APR"
             day="15"
@@ -283,11 +263,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
 
         <!-- Bottom Sheet standalone test -->
         <section class="flex flex-col gap-4">
-          <h2
-            class="text-2xl font-black text-primary uppercase tracking-wider border-b border-outline-variant pb-2"
-          >
-            Bottom Sheet (Inline Test)
-          </h2>
+          <coaster-section-title heading="Bottom Sheet (Inline Test)"></coaster-section-title>
           <div
             class="relative h-64 border border-outline border-dashed rounded-xl overflow-hidden"
           >
