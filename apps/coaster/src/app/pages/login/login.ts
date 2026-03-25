@@ -1,15 +1,33 @@
 import { Component, inject, signal } from '@angular/core';
 import { Auth } from '../../core/services/auth';
-import { PrimaryButton, StatusCard } from '../../shared';
+import { PrimaryButton, SectionTitle, StatusCard } from '../../shared';
 
 @Component({
   selector: 'coaster-login',
-  imports: [PrimaryButton, StatusCard],
+  imports: [PrimaryButton, StatusCard, SectionTitle],
   template: `
-    <coaster-status-card status="success">
-      <h3 class="font-bold text-on-surface text-lg">Login</h3>
-      <p class="text-on-surface-variant">Login with Google</p>
-      <coaster-primary-button (click)="signIn()" [disabled]="isLoading()">
+    <coaster-section-title
+      heading="COASTER"
+      description="Tactical edge for modern bar management"
+      isH1
+    />
+
+    <coaster-status-card
+      status="success"
+      class="min-w-52 max-w-xl w-full gap-4 h-96 justify-evenly items-center"
+    >
+      <div class="flex flex-col gap-2 justify-center items-center mb-8">
+        <h2 class="text-2xl font-bold">Secure Access</h2>
+        <p class="text-on-surface-variant text-sm">
+          Authorizaton required for terminal operations.
+        </p>
+      </div>
+
+      <coaster-primary-button
+        (click)="signIn()"
+        [disabled]="isLoading()"
+        class="w-full"
+      >
         {{ 'Login with Google' }}
       </coaster-primary-button>
     </coaster-status-card>
