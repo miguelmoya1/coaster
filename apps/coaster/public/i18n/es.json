@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "login": {
+      "brand": "COASTER",
+      "tagline": "Ventaja táctica para la gestión moderna de bares",
+      "heading": "Acceso Seguro",
+      "subtitle": "Autorización requerida para operaciones de terminal.",
+      "google_button": "Iniciar sesión con Google"
+    }
+  }
+}

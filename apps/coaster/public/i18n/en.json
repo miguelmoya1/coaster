@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "login": {
+      "brand": "COASTER",
+      "tagline": "Tactical edge for modern bar management",
+      "heading": "Secure Access",
+      "subtitle": "Authorization required for terminal operations.",
+      "google_button": "Login with Google"
+    }
+  }
+}

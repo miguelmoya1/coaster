@@ -1,14 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Auth } from '../../../core/services/auth';
 import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
 
 @Component({
   selector: 'coaster-login',
-  imports: [PrimaryButton, StatusCard, SectionTitle],
+  imports: [PrimaryButton, StatusCard, SectionTitle, TranslatePipe],
   template: `
     <coaster-section-title
-      heading="COASTER"
-      description="Tactical edge for modern bar management"
+      [heading]="'auth.login.brand' | translate"
+      [description]="'auth.login.tagline' | translate"
       class="mb-16"
       isH1
     />
@@ -18,9 +20,11 @@ import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
       class="min-w-52 max-w-96 w-full gap-4 h-64 justify-evenly items-center"
     >
       <div class="flex flex-col gap-2 justify-center items-center mb-8">
-        <h2 class="text-2xl font-bold">Secure Access</h2>
+        <h2 class="text-2xl font-bold">
+          {{ 'auth.login.heading' | translate }}
+        </h2>
         <p class="text-on-surface-variant text-sm">
-          Authorizaton required for terminal operations.
+          {{ 'auth.login.subtitle' | translate }}
         </p>
       </div>
 
@@ -29,7 +33,7 @@ import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
         [disabled]="isLoading()"
         class="w-full"
       >
-        {{ 'Login with Google' }}
+        {{ 'auth.login.google_button' | translate }}
       </coaster-primary-button>
     </coaster-status-card>
   `,
@@ -39,12 +43,16 @@ import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
 })
 export default class Login {
   readonly #auth = inject(Auth);
+  readonly #router = inject(Router);
+
   protected readonly isLoading = signal(false);
 
   public async signIn() {
     this.isLoading.set(true);
+
     try {
       await this.#auth.loginWithGoogle();
+      await this.#router.navigate(['/dashboard']);
     } finally {
       this.isLoading.set(false);
     }

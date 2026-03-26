@@ -37,6 +37,8 @@
     "@nestjs/websockets": "^11.1.16",
     "@ng-icons/core": "^33.1.0",
     "@ng-icons/lucide": "^33.1.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@tailwindcss/postcss": "^4.2.1",

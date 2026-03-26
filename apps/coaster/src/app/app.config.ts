@@ -4,6 +4,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
@@ -12,6 +13,8 @@ import {
   withComponentInputBinding,
   withViewTransitions,
 } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appRoutes } from './app.routes';
 
 const firebaseConfig = {
@@ -27,11 +30,18 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
+    provideHttpClient(),
     provideRouter(
       appRoutes,
       withViewTransitions(),
       withComponentInputBinding(),
     ),
+    provideTranslateService({
+      lang: 'en',
+      loader: provideTranslateHttpLoader({
+        prefix: './i18n/',
+      }),
+    }),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => {
       const auth = getAuth();
