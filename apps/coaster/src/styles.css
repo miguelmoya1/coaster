@@ -61,9 +61,9 @@
   --shadow-elevated: 0px 20px 40px rgba(0, 0, 0, 0.4);
   --shadow-elevated-primary: 0px 20px 40px rgba(255, 145, 89, 0.3);
   --shadow-nav: 0px -10px 30px rgba(0, 0, 0, 0.5);
-  
+
   --radius-nav: 2rem;
-  
+
   --text-xxs: 0.6rem;
   --text-xxs-plus: 0.6875rem;
 }
@@ -85,4 +85,9 @@ body {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+html,
+body {
+  height: 100%;
 }

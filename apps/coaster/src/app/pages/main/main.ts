@@ -5,7 +5,6 @@ import { RouterOutlet } from '@angular/router';
   selector: 'coaster-main',
   imports: [RouterOutlet],
   template: `
-    hola
     <router-outlet />
   `,
   styles: `

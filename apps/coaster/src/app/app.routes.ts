@@ -6,7 +6,7 @@ export const appRoutes: Routes = [
   {
     path: 'login',
     canActivate: [noAuthGuard],
-    loadChildren: () => import('./pages/login/auth.routes'),
+    loadChildren: () => import('./pages/auth/auth.routes'),
   },
   {
     path: 'dev-sandbox',
