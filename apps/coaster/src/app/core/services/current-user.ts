@@ -2,7 +2,6 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from '@coaster/interfaces';
 import { firstValueFrom } from 'rxjs';
-import { ApiRoutes } from '../constants/api-routes';
 import { userMapper } from '../mappers/user.mapper';
 import { Auth } from './auth';
 
@@ -12,6 +11,9 @@ import { Auth } from './auth';
 export class CurrentUser {
   readonly #auth = inject(Auth);
   readonly #http = inject(HttpClient);
+  readonly #routes = {
+    me: '/users/me',
+  };
 
   readonly #current = httpResource(
     () => {
@@ -19,7 +21,7 @@ export class CurrentUser {
         return undefined;
       }
 
-      return ApiRoutes.USERS.ME;
+      return this.#routes.me;
     },
     {
       parse: userMapper,
@@ -30,7 +32,7 @@ export class CurrentUser {
 
   public async syncUser(user: User) {
     if (this.#checkIfUserNeedToUpdate(user)) {
-      return firstValueFrom(this.#http.patch(ApiRoutes.USERS.ME, user));
+      return firstValueFrom(this.#http.patch(this.#routes.me, user));
     }
 
     return user;
