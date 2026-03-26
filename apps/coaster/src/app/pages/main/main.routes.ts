@@ -15,6 +15,18 @@ const mainRoutes: Routes = [
         loadComponent: () => import('./dashboard/dashboard'),
       },
       {
+        path: 'pantry',
+        loadComponent: () => import('./pantry/pantry'),
+      },
+      {
+        path: 'roster',
+        loadComponent: () => import('./roster/roster'),
+      },
+      {
+        path: 'staff',
+        loadComponent: () => import('./staff/staff'),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },

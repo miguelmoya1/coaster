@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BottomNav, TopAppBar } from '../../shared';
 
 @Component({
   selector: 'coaster-main',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TopAppBar, BottomNav],
   template: `
+    <coaster-top-app-bar />
+    <coaster-bottom-nav />
     <router-outlet />
   `,
   styles: `
