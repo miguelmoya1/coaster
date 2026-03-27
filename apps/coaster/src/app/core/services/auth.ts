@@ -4,6 +4,7 @@ import {
   authState,
   Auth as FirebaseAuth,
   GoogleAuthProvider,
+  idToken,
   signInWithPopup,
   signOut,
 } from '@angular/fire/auth';
@@ -24,11 +25,14 @@ export class Auth {
     requireSync: false,
   });
 
+  public readonly idToken = toSignal(idToken(this.#auth), {
+    initialValue: undefined,
+    requireSync: false,
+  });
   public readonly isAuthLoaded = computed(
     () => this.#currentUser() !== undefined,
   );
   public readonly isAuthenticated = computed(() => !!this.#currentUser());
-
   public readonly userProfile = computed(() => {
     const user = this.#currentUser();
 

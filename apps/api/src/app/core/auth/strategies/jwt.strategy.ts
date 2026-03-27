@@ -18,15 +18,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
 
   public async validate(token: string) {
     try {
+      console.log('token', token);
       const ticket = await this._googleOAuthService.client.verifyIdToken({
         idToken: token,
       });
 
+      console.log('ticket', ticket);
+
       const payload = ticket.getPayload();
+
+      console.log('payload', payload);
 
       if (!payload || !payload.sub || !payload.email) {
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
+
+      console.log('payload 2', payload);
 
       const user = await this._prisma.user.upsert({
         where: { email: payload.email },
@@ -43,8 +50,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         },
       });
 
+      console.log('user', user);
+
       return user;
-    } catch {
+    } catch (error) {
+      console.log('error', error);
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
   }

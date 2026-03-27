@@ -19,6 +19,11 @@ import {
       lucideUsers,
     }),
   ],
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
   template: `
     <nav
       ngToolbar
