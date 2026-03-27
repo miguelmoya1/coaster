@@ -1,19 +1,20 @@
-import { ErrorCodes } from '@coaster/logic';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../prisma/services/prisma.service';
-import { GoogleOAuthService } from '../services/google-oauth.service';
 import { JwtStrategy } from './jwt.strategy';
+import * as admin from 'firebase-admin';
+
+jest.mock('firebase-admin', () => ({
+  auth: jest.fn().mockReturnValue({
+    verifyIdToken: jest.fn(),
+  }),
+}));
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let googleOAuth: { client: { verifyIdToken: jest.Mock } };
   let prisma: { user: { upsert: jest.Mock } };
 
   beforeEach(async () => {
-    const mockGoogleOAuth = {
-      client: { verifyIdToken: jest.fn() },
-    };
     const mockPrisma = {
       user: { upsert: jest.fn() },
     };
@@ -21,13 +22,11 @@ describe('JwtStrategy', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
-        { provide: GoogleOAuthService, useValue: mockGoogleOAuth },
         { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
 
     strategy = module.get<JwtStrategy>(JwtStrategy);
-    googleOAuth = module.get(GoogleOAuthService);
     prisma = module.get(PrismaService);
   });
 
@@ -40,10 +39,9 @@ describe('JwtStrategy', () => {
       sub: 'google-123',
       email: 'test@mail.com',
       name: 'Test User',
+      picture: 'http://photo.url',
     };
-    googleOAuth.client.verifyIdToken.mockResolvedValue({
-      getPayload: () => fakePayload,
-    });
+    (admin.auth().verifyIdToken as jest.Mock).mockResolvedValue(fakePayload);
     prisma.user.upsert.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -53,13 +51,11 @@ describe('JwtStrategy', () => {
 
     const result = await strategy.validate('fake-token');
 
-    expect(googleOAuth.client.verifyIdToken).toHaveBeenCalledWith({
-      idToken: 'fake-token',
-    });
+    expect(admin.auth().verifyIdToken).toHaveBeenCalledWith('fake-token');
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { email: 'test@mail.com' },
-      update: { googleId: 'google-123', name: 'Test User' },
-      create: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User' },
+      update: { googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
+      create: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
     });
     expect(result).toEqual({
       id: 'user-1',
@@ -70,9 +66,7 @@ describe('JwtStrategy', () => {
   });
 
   it('debería lanzar UnauthorizedException si el payload no tiene sub', async () => {
-    googleOAuth.client.verifyIdToken.mockResolvedValue({
-      getPayload: () => ({ email: 'test@mail.com' }),
-    });
+    (admin.auth().verifyIdToken as jest.Mock).mockResolvedValue({ email: 'test@mail.com' });
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(
       UnauthorizedException,
@@ -80,7 +74,7 @@ describe('JwtStrategy', () => {
   });
 
   it('debería lanzar UnauthorizedException si verifyIdToken falla', async () => {
-    googleOAuth.client.verifyIdToken.mockRejectedValue(new Error('bad'));
+    (admin.auth().verifyIdToken as jest.Mock).mockRejectedValue(new Error('bad'));
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(
       UnauthorizedException,

@@ -8,9 +8,14 @@ import {
 } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as admin from 'firebase-admin';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp({ projectId: 'coaster-437f2' });
+  }
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
