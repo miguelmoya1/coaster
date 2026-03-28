@@ -15,7 +15,7 @@ import { AvatarBadge } from '../../shared/components/avatar-badge/avatar-badge';
 import { BottomNav } from '../../shared/components/bottom-nav/bottom-nav';
 import { BottomSheet } from '../../shared/components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../shared/components/fab/fab';
-import { PrimaryButton } from '../../shared/components/primary-button/primary-button';
+import { Button } from '../../shared/components/button/button';
 import { SectionTitle } from '../../shared/components/section-title/section-title';
 import { StatusCard } from '../../shared/components/status-card/status-card';
 import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
@@ -37,7 +37,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
     StaffMemberCard,
     AvatarBadge,
     TopAppBar,
-    PrimaryButton,
+    Button,
     Fab,
     SectionTitle,
     StatusCard,
@@ -152,12 +152,12 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
               imageSrc="https://i.pravatar.cc/150?img=12"
               altText="Avatar"
             />
-            <coaster-primary-button
+            <coaster-button
               icon="lucideCheck"
               customClass="w-auto px-6"
             >
               Primary Button
-            </coaster-primary-button>
+            </coaster-button>
             <coaster-fab icon="lucidePlus" />
           </div>
 
@@ -272,9 +272,9 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
               </p>
 
               <div class="flex flex-col gap-3">
-                <coaster-primary-button icon="lucideCheck" customClass="w-full">
+                <coaster-button icon="lucideCheck" customClass="w-full">
                   Confirmar Asignación
-                </coaster-primary-button>
+                </coaster-button>
               </div>
             </coaster-bottom-sheet>
           </div>

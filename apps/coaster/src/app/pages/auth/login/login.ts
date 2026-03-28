@@ -2,11 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Auth } from '../../../core/services/auth';
-import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
+import { Button, SectionTitle, StatusCard } from '../../../shared';
 
 @Component({
   selector: 'coaster-login',
-  imports: [PrimaryButton, StatusCard, SectionTitle, TranslatePipe],
+  imports: [Button, StatusCard, SectionTitle, TranslatePipe],
   template: `
     <coaster-section-title
       [heading]="'auth.login.brand' | translate"
@@ -28,13 +28,13 @@ import { PrimaryButton, SectionTitle, StatusCard } from '../../../shared';
         </p>
       </div>
 
-      <coaster-primary-button
+      <coaster-button
         (click)="signIn()"
         [disabled]="isLoading()"
         class="w-full"
       >
         {{ 'auth.login.google_button' | translate }}
-      </coaster-primary-button>
+      </coaster-button>
     </coaster-status-card>
   `,
   host: {
@@ -52,7 +52,7 @@ export default class Login {
 
     try {
       await this.#auth.loginWithGoogle();
-      await this.#router.navigate(['/dashboard']);
+      await this.#router.navigate(['/bars/select']);
     } finally {
       this.isLoading.set(false);
     }

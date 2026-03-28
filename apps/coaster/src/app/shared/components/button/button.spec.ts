@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PrimaryButton } from './primary-button';
+import { Button } from './button';
 
-describe('PrimaryButton', () => {
-  let component: PrimaryButton;
-  let fixture: ComponentFixture<PrimaryButton>;
+describe('Button', () => {
+  let component: Button;
+  let fixture: ComponentFixture<Button>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PrimaryButton]
+      imports: [CoasterButton]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(PrimaryButton);
+    fixture = TestBed.createComponent(CoasterButton);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
+  }); 
 });
