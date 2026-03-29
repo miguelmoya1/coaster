@@ -1,5 +1,10 @@
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -33,7 +38,7 @@ import {
       <a
         ngToolbarWidget
         value="dashboard"
-        routerLink="/dashboard"
+        [routerLink]="dashboardLink()"
         routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-110"
         class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
       >
@@ -45,7 +50,7 @@ import {
       <a
         ngToolbarWidget
         value="pantry"
-        routerLink="/pantry"
+        [routerLink]="pantryLink()"
         routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-110"
         class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
       >
@@ -57,7 +62,7 @@ import {
       <a
         ngToolbarWidget
         value="roster"
-        routerLink="/roster"
+        [routerLink]="rosterLink()"
         routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-110"
         class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
       >
@@ -69,7 +74,7 @@ import {
       <a
         ngToolbarWidget
         value="staff"
-        routerLink="/staff"
+        [routerLink]="staffLink()"
         routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-110"
         class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
       >
@@ -82,4 +87,17 @@ import {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BottomNav {}
+export class BottomNav {
+  public readonly barId = input.required<string>();
+
+  protected readonly dashboardLink = computed(
+    () => `/bars/${this.barId()}/dashboard`,
+  );
+  protected readonly pantryLink = computed(
+    () => `/bars/${this.barId()}/pantry`,
+  );
+  protected readonly rosterLink = computed(
+    () => `/bars/${this.barId()}/roster`,
+  );
+  protected readonly staffLink = computed(() => `/bars/${this.barId()}/staff`);
+}

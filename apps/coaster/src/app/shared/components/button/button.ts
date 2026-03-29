@@ -14,13 +14,13 @@ export type ButtonVariant = 'primary' | 'outline' | 'dashed';
   template: `
     <button [type]="type()" [disabled]="disabled()" [class]="computedClasses()">
       @if (icon() && iconPos() === 'left') {
-        <ng-icon [name]="icon()!" [class]="iconClasses()"></ng-icon>
+        <ng-icon [name]="icon()!" [class]="iconClasses()" />
       }
       <span [class]="textClasses()">
-        <ng-content></ng-content>
+        <ng-content />
       </span>
       @if (icon() && iconPos() === 'right') {
-        <ng-icon [name]="icon()!" [class]="iconClasses()"></ng-icon>
+        <ng-icon [name]="icon()!" [class]="iconClasses()" />
       }
     </button>
   `,
@@ -31,15 +31,12 @@ export class Button {
   readonly type = input<'button' | 'submit' | 'reset'>('button');
   readonly icon = input<string>();
   readonly iconPos = input<'left' | 'right'>('right');
-  readonly customClass = input('');
   readonly disabled = input(false);
 
   readonly computedClasses = computed(() => {
-    // Base styles all buttons share
     const base =
       'w-full rounded-xl flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:hover:brightness-100 active:scale-[0.98]';
 
-    // Variant specific styles
     let variantStyles = '';
     switch (this.variant()) {
       case 'primary':
@@ -56,7 +53,7 @@ export class Button {
         break;
     }
 
-    return `${base} ${variantStyles} ${this.customClass()}`;
+    return `${base} ${variantStyles}`;
   });
 
   readonly textClasses = computed(() => {

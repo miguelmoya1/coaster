@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { checkParamIdGuard } from '../../core/guards/check-param-id-guard';
 
 const routes: Routes = [
   {
@@ -19,6 +20,11 @@ const routes: Routes = [
         pathMatch: 'full',
       },
     ]
+  },
+  {
+    path: ':barId',
+    canActivate: [checkParamIdGuard('barId')],
+    loadChildren: () => import('./main/main.routes'),
   },
   {
     path: '**',

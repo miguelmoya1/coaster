@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CurrentUser } from '../../core/services/current-user';
-import { BottomNav, TopAppBar } from '../../shared';
+import { CurrentUser } from '../../../core/services/current-user';
+import { BottomNav, TopAppBar } from '../../../shared';
 
 @Component({
   selector: 'coaster-main',
@@ -18,9 +18,10 @@ import { BottomNav, TopAppBar } from '../../shared';
       <router-outlet />
     </main>
 
-    <coaster-bottom-nav />
+    <coaster-bottom-nav [barId]="barId()" />
   `,
 })
 export default class Main {
-  readonly currentUser = inject(CurrentUser).current;
+  public readonly barId = input.required<string>();
+  public readonly currentUser = inject(CurrentUser).current;
 }

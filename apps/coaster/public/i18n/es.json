@@ -9,6 +9,10 @@
     }
   },
   "bars": {
+    "role": {
+      "owner": "Propietario",
+      "staff": "Staff"
+    },
     "select": {
       "title": "Selecciona tu Bar Activo",
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
