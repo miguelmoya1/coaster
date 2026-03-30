@@ -1,4 +1,10 @@
 {
+  "staff": {
+    "duty": {
+      "on": "On Duty",
+      "off": "Off Duty"
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "pantry": "Pantry",

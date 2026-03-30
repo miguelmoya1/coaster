@@ -17,17 +17,11 @@ export class CurrentUser {
 
   readonly #current = httpResource(
     () => {
-      console.log(
-        'current user',
-        this.#auth.isAuthLoaded(),
-        this.#auth.isAuthenticated(),
-      );
+      
       if (!this.#auth.isAuthLoaded() || !this.#auth.isAuthenticated()) {
-        console.log('current user', 'undefined');
         return undefined;
       }
 
-      console.log('current user', this.#routes.me);
       return this.#routes.me;
     },
     {

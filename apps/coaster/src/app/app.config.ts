@@ -11,6 +11,7 @@ import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
 import {
   provideRouter,
   withComponentInputBinding,
+  withRouterConfig,
   withViewTransitions,
 } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -37,6 +38,7 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withViewTransitions(),
       withComponentInputBinding(),
+      withRouterConfig({ paramsInheritanceStrategy: 'always' }),
     ),
     provideTranslateService({
       lang: 'en',

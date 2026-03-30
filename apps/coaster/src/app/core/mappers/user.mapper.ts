@@ -12,7 +12,6 @@ const checkIsUser = (user: unknown): user is User => {
 };
 
 export const userMapper = (user: unknown): User => {
-  console.log('user', user);
   if (!checkIsUser(user)) {
     throw new Error('Invalid user');
   }

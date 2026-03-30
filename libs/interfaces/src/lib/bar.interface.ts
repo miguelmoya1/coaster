@@ -1,6 +1,6 @@
 import { Brand } from './brand.type';
 import { BarRole } from './enums';
-import { UserId } from './user.interface';
+import { User, UserId } from './user.interface';
 
 export type BarId = Brand<string, 'BarId'>;
 export type BarMemberId = Brand<string, 'BarMemberId'>;
@@ -23,6 +23,10 @@ export interface BarMember {
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
+
+  userName: string;
+  userImage: string;
+  userEmail: string;
 }
 
 export interface CreateBarDto {
@@ -31,5 +35,5 @@ export interface CreateBarDto {
 
 export interface InviteBarMemberDto {
   email: string;
-  role: BarRole;
+  role?: BarRole;
 }

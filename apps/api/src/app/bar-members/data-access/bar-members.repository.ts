@@ -38,12 +38,12 @@ export class BarMembersRepository {
     });
   }
 
-  async getMembersByBar(barId: string) {
+  async getMembersByBar(barId: BarId) {
     return this.prisma.barMember.findMany({
       where: { barId, active: true },
       include: {
         user: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, photoUrl: true },
         },
       },
     });

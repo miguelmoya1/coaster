@@ -1,4 +1,12 @@
-import { BarId, BarRole, User } from '@coaster/interfaces';
+import {
+  asBarId,
+  asBarMemberId,
+  asUserId,
+  BarId,
+  BarMember,
+  BarRole,
+  User,
+} from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import {
   ConflictException,
@@ -16,10 +24,17 @@ export class BarMembersService {
   ) {}
 
   async getMembers(barId: BarId) {
-    return this.repository.getMembersByBar(barId);
+    const members = await this.repository.getMembersByBar(barId);
+
+    return members.map(this.#mapToBarMember);
   }
 
-  async invite(barId: BarId, email: string, role: BarRole, user: User) {
+  async invite(
+    barId: BarId,
+    email: string,
+    role: BarRole = BarRole.STAFF,
+    user: User,
+  ) {
     const bar = await this.repository.findBarById(barId);
     if (!bar) {
       throw new NotFoundException(ErrorCodes.BAR_NOT_FOUND);
@@ -39,5 +54,35 @@ export class BarMembersService {
       }
       throw error;
     }
+  }
+
+  #mapToBarMember(
+    member: {
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        photoUrl: string;
+      };
+    } & {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role: BarRole;
+      active: boolean;
+      userId: string;
+      barId: string;
+    },
+  ): BarMember {
+    return {
+      id: asBarMemberId(member.id),
+      userId: asUserId(member.userId),
+      barId: asBarId(member.barId),
+      role: member.role,
+      active: member.active,
+      userName: member.user.name,
+      userImage: member.user.photoUrl,
+      userEmail: member.user.email,
+    };
   }
 }

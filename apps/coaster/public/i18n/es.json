@@ -1,4 +1,10 @@
 {
+  "staff": {
+    "duty": {
+      "on": "En Turno",
+      "off": "Fuera de Servicio"
+    }
+  },
   "nav": {
     "dashboard": "Panel",
     "pantry": "Despensa",

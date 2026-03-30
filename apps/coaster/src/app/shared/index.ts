@@ -6,4 +6,5 @@ export * from './components/button/button';
 export * from './components/section-title/section-title';
 export * from './components/status-card/status-card';
 export * from './components/top-app-bar/top-app-bar';
+export * from './components/loading/loading';
 export * from './forms';

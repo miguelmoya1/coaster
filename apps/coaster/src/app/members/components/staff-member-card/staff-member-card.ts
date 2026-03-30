@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePhone, lucideMessageSquare } from '@ng-icons/lucide';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [NgIcon],
+  imports: [NgIcon, TranslatePipe],
   viewProviders: [provideIcons({ lucidePhone, lucideMessageSquare })],
   template: `
     <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
@@ -20,24 +21,24 @@ import { lucidePhone, lucideMessageSquare } from '@ng-icons/lucide';
           <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
         }
       </div>
-      <p class="text-on-surface-variant body-md">{{ roleName() }}</p>
+      <p class="text-on-surface-variant body-md">{{ 'bars.role.' + roleName().toLowerCase() | translate }}</p>
       <div class="mt-2 flex items-center gap-2">
         @if (isOffDuty()) {
-          <span class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-on-surface-variant uppercase tracking-widest">Off Duty</span>
+          <span class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-on-surface-variant uppercase tracking-widest">{{ 'staff.duty.off' | translate }}</span>
         } @else {
-          <span class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-primary uppercase tracking-widest">On Duty</span>
+          <span class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-primary uppercase tracking-widest">{{ 'staff.duty.on' | translate }}</span>
         }
       </div>
     </div>
     
-    <div class="flex gap-2">
+    <!-- <div class="flex gap-2">
       <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
         <ng-icon name="lucidePhone" class="text-xl"></ng-icon>
       </button>
       <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
         <ng-icon name="lucideMessageSquare" class="text-xl"></ng-icon>
       </button>
-    </div>
+    </div> -->
   `,
   host: {
     '[class.opacity-50]': 'disabled()',

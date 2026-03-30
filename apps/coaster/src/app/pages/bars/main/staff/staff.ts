@@ -1,14 +1,54 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
+import { BarId } from '@coaster/interfaces';
+import { BarMembers, InviteMember, StaffMemberCard } from '../../../../members';
+import { Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
-  imports: [],
-  template: `<p>staff works!</p>`,
-  styles: `
-    :host {
-      display: block;
+  imports: [Loading, StaffMemberCard, SectionTitle, ],
+  template: `
+    <coaster-section-title heading="Staff Roster" [description]="totalMembers() + ' team members'" class="mb-8" />
+
+    @if (list.isLoading()) {
+      <coaster-loading />
+    }
+
+    @if(list.hasValue()) {
+      @for (member of list.value(); track member.id) {
+        <coaster-staff-member-card 
+        [staffName]="member.userName" 
+        [staffImage]="member.userImage || 'https://ui-avatars.com/api/?name=' + member.userName" 
+        [roleName]="member.role" 
+        />
+        <!-- [isOffDuty]="!member.active" -->
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class Staff {}
+export default class Staff {
+  public readonly barId = input.required<BarId>();
+  readonly #barMembers = inject(BarMembers);
+  readonly #inviteMember = inject(InviteMember);
+
+  protected readonly list = this.#barMembers.list;
+
+  protected inviteMember(email: string) {
+    this.#inviteMember.invite(this.barId(), { email });
+  }
+
+  protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
+
+  constructor() {
+    effect(() => {
+      this.#barMembers.selectBar(this.barId());
+    });
+  }
+}
