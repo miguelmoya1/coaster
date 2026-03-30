@@ -1,4 +1,10 @@
 {
+  "nav": {
+    "dashboard": "Panel",
+    "pantry": "Despensa",
+    "roster": "Turnos",
+    "staff": "Equipo"
+  },
   "auth": {
     "login": {
       "brand": "COASTER",

@@ -1,4 +1,10 @@
 {
+  "nav": {
+    "dashboard": "Dashboard",
+    "pantry": "Pantry",
+    "roster": "Roster",
+    "staff": "Staff"
+  },
   "auth": {
     "login": {
       "brand": "COASTER",

@@ -14,8 +14,8 @@ import { InventoryItemCard } from '../../products/components/inventory-item-card
 import { AvatarBadge } from '../../shared/components/avatar-badge/avatar-badge';
 import { BottomNav } from '../../shared/components/bottom-nav/bottom-nav';
 import { BottomSheet } from '../../shared/components/bottom-sheet/bottom-sheet';
-import { Fab } from '../../shared/components/fab/fab';
 import { Button } from '../../shared/components/button/button';
+import { Fab } from '../../shared/components/fab/fab';
 import { SectionTitle } from '../../shared/components/section-title/section-title';
 import { StatusCard } from '../../shared/components/status-card/status-card';
 import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
@@ -152,10 +152,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
               imageSrc="https://i.pravatar.cc/150?img=12"
               altText="Avatar"
             />
-            <coaster-button
-              icon="lucideCheck"
-              customClass="w-auto px-6"
-            >
+            <coaster-button icon="lucideCheck" customClass="w-auto px-6">
               Primary Button
             </coaster-button>
             <coaster-fab icon="lucidePlus" />
@@ -281,7 +278,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
         </section>
       </div>
 
-      <coaster-bottom-nav />
+      <coaster-bottom-nav [barId]="'1'" />
     </div>
   `,
 })
