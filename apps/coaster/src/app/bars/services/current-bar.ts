@@ -10,27 +10,25 @@ import { barMapper } from '../mappers/bar.mapper';
 export class CurrentBar {
   readonly #barRepository = inject(BarRepository);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentId = signal<BarId | undefined>(undefined);
   readonly #current = httpResource(
     () => {
-      const currentBarId = this.#currentBarId();
-      return currentBarId
-        ? this.#barRepository.routes.bar(currentBarId)
-        : undefined;
+      const currentId = this.#currentId();
+      return currentId ? this.#barRepository.routes.bar(currentId) : undefined;
     },
     {
       parse: barMapper,
     },
   );
 
-  readonly currentBar = this.#current.asReadonly();
+  readonly current = this.#current.asReadonly();
 
-  public selectBar(barId: BarId) {
-    this.#currentBarId.set(barId);
+  public select(barId: BarId) {
+    this.#currentId.set(barId);
   }
 
-  public clearBar() {
-    this.#currentBarId.set(undefined);
+  public clear() {
+    this.#currentId.set(undefined);
   }
 
   public reload() {

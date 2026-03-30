@@ -1,5 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BarId } from '@coaster/interfaces';
+import { CurrentBar } from '../../../bars/services/current-bar';
 import { CurrentUser } from '../../../core/services/current-user';
 import { BottomNav, TopAppBar } from '../../../shared';
 
@@ -22,6 +24,19 @@ import { BottomNav, TopAppBar } from '../../../shared';
   `,
 })
 export default class Main {
-  public readonly barId = input.required<string>();
+  public readonly barId = input.required<BarId>();
   public readonly currentUser = inject(CurrentUser).current;
+
+  readonly #currentBar = inject(CurrentBar);
+
+  constructor() {
+    effect((cleanup) => {
+      const barId = this.barId();
+      this.#currentBar.select(barId);
+
+      cleanup(() => {
+        this.#currentBar.clear();
+      });
+    });
+  }
 }

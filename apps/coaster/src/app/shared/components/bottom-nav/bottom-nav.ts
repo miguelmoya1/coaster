@@ -33,11 +33,6 @@ import { TranslatePipe } from '@ngx-translate/core';
       lucideUsers,
     }),
   ],
-  styles: `
-    :host {
-      display: block;
-    }
-  `,
   template: `
     <nav
       ngToolbar
