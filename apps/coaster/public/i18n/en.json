@@ -1,5 +1,9 @@
 {
-  "staff": {
+  "common": {
+    "role": {
+      "owner": "Owner",
+      "staff": "Staff"
+    },
     "duty": {
       "on": "On Duty",
       "off": "Off Duty"
@@ -21,10 +25,6 @@
     }
   },
   "bars": {
-    "role": {
-      "owner": "Owner",
-      "staff": "Staff"
-    },
     "select": {
       "title": "Select Your Active Bar",
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",

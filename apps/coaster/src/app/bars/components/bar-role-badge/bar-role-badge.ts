@@ -37,9 +37,9 @@ export class BarRoleBadge {
   readonly labelKey = computed(() => {
     switch (this.role()) {
       case BarRole.OWNER:
-        return 'bars.role.owner';
+        return 'common.role.owner';
       case BarRole.STAFF:
-        return 'bars.role.staff';
+        return 'common.role.staff';
       default:
         return 'bars.select.operational';
     }

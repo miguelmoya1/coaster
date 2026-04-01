@@ -8,28 +8,47 @@ import {
 } from '@angular/core';
 import { BarId } from '@coaster/interfaces';
 import { BarMembers, InviteMember, StaffMemberCard } from '../../../../members';
-import { Loading, SectionTitle } from '../../../../shared';
+import {
+  BottomSheet,
+  Loading,
+  SectionTitle,
+  TextInput,
+} from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, SectionTitle, ],
+  imports: [Loading, StaffMemberCard, SectionTitle, BottomSheet, TextInput],
   template: `
-    <coaster-section-title heading="Staff Roster" [description]="totalMembers() + ' team members'" class="mb-8" />
+    <coaster-section-title
+      heading="Staff Roster"
+      [description]="totalMembers() + ' team members'"
+      class="mb-8"
+    />
 
     @if (list.isLoading()) {
       <coaster-loading />
     }
 
-    @if(list.hasValue()) {
+    @if (list.hasValue()) {
       @for (member of list.value(); track member.id) {
-        <coaster-staff-member-card 
-        [staffName]="member.userName" 
-        [staffImage]="member.userImage || 'https://ui-avatars.com/api/?name=' + member.userName" 
-        [roleName]="member.role" 
+        <coaster-staff-member-card
+          [staffName]="member.userName"
+          [staffEmail]="member.userEmail"
+          [staffImage]="
+            member.userImage ||
+            'https://ui-avatars.com/api/?name=' + member.userName
+          "
+          [roleName]="member.role"
         />
         <!-- [isOffDuty]="!member.active" -->
       }
     }
+
+    <!-- <coasterb -->
+
+    <coaster-bottom-sheet>
+      <coaster-text-input label="Email" placeholder="Enter email..." />
+    </coaster-bottom-sheet>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -44,7 +63,9 @@ export default class Staff {
     this.#inviteMember.invite(this.barId(), { email });
   }
 
-  protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
+  protected readonly totalMembers = computed(
+    () => this.list.value()?.length ?? 0,
+  );
 
   constructor() {
     effect(() => {

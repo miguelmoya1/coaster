@@ -56,24 +56,7 @@ export class BarMembersService {
     }
   }
 
-  #mapToBarMember(
-    member: {
-      user: {
-        id: string;
-        name: string;
-        email: string;
-        photoUrl: string;
-      };
-    } & {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      role: BarRole;
-      active: boolean;
-      userId: string;
-      barId: string;
-    },
-  ): BarMember {
+  #mapToBarMember(member: any): BarMember {
     return {
       id: asBarMemberId(member.id),
       userId: asUserId(member.userId),

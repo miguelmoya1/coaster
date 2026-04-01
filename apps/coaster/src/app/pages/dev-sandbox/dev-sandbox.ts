@@ -218,6 +218,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
           <coaster-staff-member-card
             staffName="Bob Builder"
             staffImage="https://i.pravatar.cc/150?img=8"
+            staffEmail="[EMAIL_ADDRESS]"
             roleName="Security"
             [isOffDuty]="false"
           />
@@ -225,6 +226,7 @@ import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
           <coaster-staff-member-card
             staffName="Charlie Chaplin"
             staffImage="https://i.pravatar.cc/150?img=9"
+            staffEmail="[EMAIL_ADDRESS]"
             roleName="Waiter"
             [isOffDuty]="true"
           />
