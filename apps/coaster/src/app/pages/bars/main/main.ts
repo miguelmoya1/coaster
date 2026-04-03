@@ -25,9 +25,11 @@ import { BottomNav, TopAppBar } from '../../../shared';
 })
 export default class Main {
   public readonly barId = input.required<BarId>();
-  public readonly currentUser = inject(CurrentUser).current;
 
+  readonly #currentUser = inject(CurrentUser);
   readonly #currentBar = inject(CurrentBar);
+
+  protected readonly currentUser = this.#currentUser.current;
 
   constructor() {
     effect((cleanup) => {

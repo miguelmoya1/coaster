@@ -16,17 +16,17 @@ import {
 export class CreateShiftDto implements ICreateShiftDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  userId: UserId;
+  declare userId: UserId;
 
   @IsDateString({}, { message: ErrorCodes.INVALID_DATE })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  date: string; // ISO 8601 string
+  declare date: string; // ISO 8601 string
 
   @IsEnum(ShiftType, { message: ErrorCodes.INVALID_TYPE })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  type: ShiftType;
+  declare type: ShiftType;
 
   @IsString({ message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
-  notes?: string;
+  declare notes?: string;
 }

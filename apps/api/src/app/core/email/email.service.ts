@@ -17,10 +17,16 @@ export class EmailService {
     try {
       const template = await this.#resend.templates.get('invite-email');
 
+      const templateId = template.data?.id;
+
+      if (!templateId) {
+        throw new Error('Template not found');
+      }
+
       await this.#resend.emails.send({
         to,
         template: {
-          id: template.data.id,
+          id: templateId,
           variables: {
             barName,
             inviterName,

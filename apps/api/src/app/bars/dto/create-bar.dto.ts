@@ -7,5 +7,5 @@ export class CreateBarDto implements ICreateBarDto {
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
   @MinLength(3, { message: ErrorCodes.MIN_LENGTH })
   @MaxLength(50, { message: ErrorCodes.MAX_LENGTH })
-  name: string;
+  declare name: string;
 }

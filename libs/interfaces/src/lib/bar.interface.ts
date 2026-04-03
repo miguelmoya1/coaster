@@ -1,6 +1,6 @@
 import { Brand } from './brand.type';
 import { BarRole } from './enums';
-import { User, UserId } from './user.interface';
+import { UserId } from './user.interface';
 
 export type BarId = Brand<string, 'BarId'>;
 export type BarMemberId = Brand<string, 'BarMemberId'>;

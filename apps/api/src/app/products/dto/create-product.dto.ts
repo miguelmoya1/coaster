@@ -15,13 +15,13 @@ import {
 export class CreateProductDto implements ICreateProductDto {
   @IsString({ message: ErrorCodes.INVALID_TYPE })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  name: string;
+  declare name: string;
 
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  categoryId: CategoryId;
+  declare categoryId: CategoryId;
 
   @IsEnum(ProductStatus, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
-  status?: ProductStatus;
+  declare status?: ProductStatus;
 }

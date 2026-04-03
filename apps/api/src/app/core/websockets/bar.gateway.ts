@@ -16,7 +16,7 @@ import { Server, Socket } from 'socket.io';
 @WebSocketGateway({ cors: { origin: '*' } })
 export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  declare server: Server;
 
   private readonly _logger = new Logger(BarGateway.name);
 

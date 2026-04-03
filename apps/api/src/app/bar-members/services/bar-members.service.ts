@@ -48,7 +48,7 @@ export class BarMembersService {
       await this.emailService.sendInviteEmail(email, bar.name, user.name);
 
       return membership;
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'P2002') {
         throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
       }

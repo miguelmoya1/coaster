@@ -26,7 +26,7 @@ export class ShiftExchangesRepository {
   async createExchange(
     shiftId: ShiftId,
     requesterId: UserId,
-    targetId: string,
+    targetId?: UserId,
   ) {
     return this.prisma.shiftExchange.create({
       data: {

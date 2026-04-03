@@ -8,9 +8,9 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 export class InviteBarMemberDto implements IInviteBarMemberDto {
   @IsEmail({}, { message: ErrorCodes.INVALID_EMAIL })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  email: string;
+  declare email: string;
 
   @IsOptional()
   @IsEnum(BarRole, { message: ErrorCodes.INVALID_ROLE })
-  role: BarRole;
+  declare role: BarRole;
 }
