@@ -1,0 +1,11 @@
+{
+  "migrations": [],
+  "nx-console": {
+    "initialGitRef": {
+      "ref": "f2579501d6e7bf6ed6495ffef8e162ec2a5428e5",
+      "subject": "refactor: apply declare keyword to DTO properties, improve email template safety, and update UI component state management"
+    },
+    "targetVersion": "latest",
+    "confirmedPackageUpdates": true
+  }
+}
