@@ -1,8 +1,8 @@
 import { Component, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarId } from '@coaster/interfaces';
-import { CurrentBar } from '../../../bars/services/current-bar';
-import { CurrentUser } from '../../../core/services/current-user';
+import { CurrentBar } from '../../../bars';
+import { CurrentUser } from '../../../core';
 import { BottomNav, TopAppBar } from '../../../shared';
 
 @Component({
@@ -16,7 +16,7 @@ import { BottomNav, TopAppBar } from '../../../shared';
       />
     }
 
-    <main class="py-18">
+    <main class="py-20 px-4">
       <router-outlet />
     </main>
 

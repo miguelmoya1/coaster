@@ -7,28 +7,27 @@ import {
   lucidePlus,
   lucideWine,
 } from '@ng-icons/lucide';
-import { CategoryTabs } from '../../categories/components/category-tabs/category-tabs';
-import { ExchangeRequestCard } from '../../exchanges/components/exchange-request-card/exchange-request-card';
-import { StaffMemberCard } from '../../members/components/staff-member-card/staff-member-card';
-import { InventoryItemCard } from '../../products/components/inventory-item-card/inventory-item-card';
-import { AvatarBadge } from '../../shared/components/avatar-badge/avatar-badge';
-import { BottomNav } from '../../shared/components/bottom-nav/bottom-nav';
-import { BottomSheet } from '../../shared/components/bottom-sheet/bottom-sheet';
-import { Button } from '../../shared/components/button/button';
-import { Fab } from '../../shared/components/fab/fab';
-import { SectionTitle } from '../../shared/components/section-title/section-title';
-import { StatusCard } from '../../shared/components/status-card/status-card';
-import { TopAppBar } from '../../shared/components/top-app-bar/top-app-bar';
+import { CategoryTabs } from '../../categories';
+import { ExchangeRequestCard } from '../../exchanges';
+import { StaffMemberCard } from '../../members';
+import { InventoryItemCard } from '../../products';
+import { AvatarBadge } from '../../shared';
 import {
+  BottomNav,
+  BottomSheet,
+  Button,
+  Fab,
   MultiSelectInput,
   NumberInput,
+  SectionTitle,
   SelectInput,
+  StatusCard,
   TextareaInput,
   TextInput,
+  TopAppBar,
   ToggleInput,
-} from '../../shared/forms';
-import { HorizontalDateScroller } from '../../shifts/components/horizontal-date-scroller/horizontal-date-scroller';
-import { ShiftCard } from '../../shifts/components/shift-card/shift-card';
+} from '../../shared';
+import { HorizontalDateScroller, ShiftCard } from '../../shifts';
 
 @Component({
   selector: 'coaster-dev-sandbox',

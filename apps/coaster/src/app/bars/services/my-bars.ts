@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Auth } from '../../core/services/auth';
+import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
 import { barArrayMapper } from '../mappers/bar.mapper';
 

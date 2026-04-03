@@ -5,23 +5,36 @@ import {
   effect,
   inject,
   input,
+  signal,
 } from '@angular/core';
-import { BarId } from '@coaster/interfaces';
-import { BarMembers, InviteMember, StaffMemberCard } from '../../../../members';
+import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import {
-  BottomSheet,
-  Loading,
-  SectionTitle,
-  TextInput,
-} from '../../../../shared';
+  BarMembers,
+  InviteMember,
+  InviteMemberForm,
+  StaffMemberCard,
+} from '../../../../members';
+import { TranslatePipe } from '@ngx-translate/core';
+import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, SectionTitle, BottomSheet, TextInput],
+  imports: [
+    Loading,
+    StaffMemberCard,
+    SectionTitle,
+    BottomSheet,
+    Fab,
+    InviteMemberForm,
+    TranslatePipe,
+  ],
+  host: {
+    class: 'flex flex-col gap-2',
+  },
   template: `
     <coaster-section-title
-      heading="Staff Roster"
-      [description]="totalMembers() + ' team members'"
+      [heading]="'members.staff.title' | translate"
+      [description]="'members.staff.description' | translate: { count: totalMembers() }"
       class="mb-8"
     />
 
@@ -40,15 +53,18 @@ import {
           "
           [roleName]="member.role"
         />
-        <!-- [isOffDuty]="!member.active" -->
       }
     }
 
-    <!-- <coasterb -->
+    <coaster-fab (click)="openBottomSheet()" />
 
-    <coaster-bottom-sheet>
-      <coaster-text-input label="Email" placeholder="Enter email..." />
-    </coaster-bottom-sheet>
+    @defer (when isSheetOpen()) {
+      @if (isSheetOpen()) {
+        <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+          <coaster-invite-member-form (inviteMember)="inviteMember($event)" />
+        </coaster-bottom-sheet>
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -57,10 +73,13 @@ export default class Staff {
   readonly #barMembers = inject(BarMembers);
   readonly #inviteMember = inject(InviteMember);
 
+  protected readonly isSheetOpen = signal(false);
   protected readonly list = this.#barMembers.list;
 
-  protected inviteMember(email: string) {
-    this.#inviteMember.invite(this.barId(), { email });
+  protected async inviteMember(payload: InviteBarMemberDto) {
+    await this.#inviteMember.invite(this.barId(), payload);
+    this.#barMembers.reload();
+    this.isSheetOpen.set(false);
   }
 
   protected readonly totalMembers = computed(
@@ -71,5 +90,9 @@ export default class Staff {
     effect(() => {
       this.#barMembers.selectBar(this.barId());
     });
+  }
+
+  protected openBottomSheet() {
+    this.isSheetOpen.set(true);
   }
 }

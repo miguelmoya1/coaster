@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { checkParamIdGuard } from '../../core/guards/check-param-id-guard';
+import { checkParamIdGuard } from '../../core';
 
 const routes: Routes = [
   {

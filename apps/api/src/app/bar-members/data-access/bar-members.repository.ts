@@ -15,12 +15,14 @@ export class BarMembersRepository {
     email: string,
     createBarMemberDto: Omit<Prisma.BarMemberCreateInput, 'bar' | 'user'>,
   ) {
+    const nameFromEmail = email.split('@')[0];
+
     const user = await this.prisma.user.upsert({
       where: { email },
       update: {},
       create: {
         email,
-        name: 'NEW_EMPLOYEE',
+        name: nameFromEmail,
       },
     });
 

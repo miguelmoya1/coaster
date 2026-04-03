@@ -1,0 +1,2 @@
+ - Cambiar el enlace que apunta el boton del correo para unirse a la aplicación.
+ - 

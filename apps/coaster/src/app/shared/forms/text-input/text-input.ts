@@ -39,7 +39,7 @@ import { lucideAlertCircle } from '@ng-icons/lucide';
               [name]="icon()!"
               class="absolute left-4 text-on-surface-variant text-xl z-10"
               [class.text-error]="invalid()"
-            ></ng-icon>
+            />
           }
 
           <input
@@ -59,7 +59,7 @@ import { lucideAlertCircle } from '@ng-icons/lucide';
             [attr.aria-invalid]="invalid()"
           />
 
-          @if (invalid()) {
+          @if (invalid() && !disabled() && touched()) {
             <ng-icon
               name="lucideAlertCircle"
               class="absolute right-4 text-error text-xl"
@@ -78,9 +78,9 @@ import { lucideAlertCircle } from '@ng-icons/lucide';
         @if (disabled() && disabledReasons().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1">
             @for (reason of disabledReasons(); track reason) {
-              <span class="text-on-surface-variant text-xs">{{
-                reason.message
-              }}</span>
+              <span class="text-on-surface-variant text-xs">
+                {{ reason.message }}
+              </span>
             }
           </div>
         }

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Auth } from '../../../core/services/auth';
+import { Auth } from '../../../core';
 import { Button, SectionTitle, StatusCard } from '../../../shared';
 
 @Component({

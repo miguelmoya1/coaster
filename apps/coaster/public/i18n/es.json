@@ -55,5 +55,15 @@
         "latency": "Latencia"
       }
     }
+  },
+  "members": {
+    "staff": {
+      "title": "Equipo",
+      "description": "{{count}} miembros del equipo"
+    },
+    "invite": {
+      "cancel_btn": "Cancelar",
+      "invite_btn": "Invitar"
+    }
   }
 }

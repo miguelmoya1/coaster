@@ -55,5 +55,15 @@
         "latency": "Latency"
       }
     }
+  },
+  "members": {
+    "staff": {
+      "title": "Staff Roster",
+      "description": "{{count}} team members"
+    },
+    "invite": {
+      "cancel_btn": "Cancel",
+      "invite_btn": "Invite"
+    }
   }
 }

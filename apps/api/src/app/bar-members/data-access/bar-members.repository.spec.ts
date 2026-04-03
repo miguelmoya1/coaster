@@ -68,7 +68,7 @@ describe('BarMembersRepository', () => {
     it('debería buscar miembros activos', async () => {
       prisma.barMember.findMany.mockResolvedValue([{ id: 'm1' }]);
 
-      const result = await repository.getMembersByBar('bar-1');
+      const result = await repository.getMembersByBar(asBarId('bar-1'));
 
       expect(prisma.barMember.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1', active: true },

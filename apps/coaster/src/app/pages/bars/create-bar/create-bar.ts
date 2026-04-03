@@ -17,8 +17,7 @@ import { CreateBarDto } from '@coaster/interfaces';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CreateBar as CreateBarService } from '../../../bars/services/create-bar';
-import { MyBars } from '../../../bars/services/my-bars';
+import { CreateBar as CreateBarService, MyBars } from '../../../bars';
 import { Button, SectionTitle, TextInput } from '../../../shared';
 
 @Component({
@@ -110,9 +109,9 @@ export default class CreateBar {
     {
       submission: {
         action: async (form) => {
-          const payload = form().value;
+          const payload = form().value();
           try {
-            await this.#createBarService.create({ name: payload().name || '' });
+            await this.#createBarService.create({ name: payload.name || '' });
             this.#myBars.reload();
             this.#router.navigate(['/bars/select']);
             return undefined;

@@ -17,8 +17,7 @@ import {
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appRoutes } from './app.routes';
-import { idTokenInterceptor } from './core/interceptors/id-token-interceptor';
-import { urlInterceptor } from './core/interceptors/url-interceptor';
+import { idTokenInterceptor, urlInterceptor } from './core';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBtGgtVUIZBfRuItAZWk1gM_t1cJ19I2Yc',

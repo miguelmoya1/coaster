@@ -3,10 +3,8 @@ import { Router } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarCard } from '../../../bars/components/bar-card/bar-card';
-import { MyBars } from '../../../bars/services/my-bars';
-import { Button } from '../../../shared/components/button/button';
-import { SectionTitle } from '../../../shared/components/section-title/section-title';
+import { BarCard, MyBars } from '../../../bars';
+import { Button, SectionTitle } from '../../../shared';
 
 @Component({
   selector: 'coaster-select-bar',
