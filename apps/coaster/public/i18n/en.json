@@ -65,5 +65,7 @@
       "cancel_btn": "Cancel",
       "invite_btn": "Invite"
     }
-  }
+  },
+  "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
+  "USER_NOT_FOUND": "No user registered with that email address."
 }
