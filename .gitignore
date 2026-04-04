@@ -51,3 +51,5 @@ vitest.config.*.timestamp*
 .env
 
 apps/api/src/app/core/prisma/client
+.nx/polygraph
+.nx/self-healing

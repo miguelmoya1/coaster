@@ -10,9 +10,11 @@ import {
   ValidationError,
   WithOptionalFieldTree,
 } from '@angular/forms/signals';
+import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 @Component({
   selector: 'coaster-toggle-input',
+  imports: [FormFieldMessages],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
@@ -56,29 +58,16 @@ import {
                 }
               </span>
             }
-            @if (hint()) {
-              <span class="text-on-surface-variant text-xs">{{ hint() }}</span>
-            }
           </div>
         </label>
 
-        @if (invalid() && errors().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of errors(); track error) {
-              <span class="text-error text-xs">{{ error.message }}</span>
-            }
-          </div>
-        }
-
-        @if (disabled() && disabledReasons().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1">
-            @for (reason of disabledReasons(); track reason) {
-              <span class="text-on-surface-variant text-xs">{{
-                reason.message
-              }}</span>
-            }
-          </div>
-        }
+        <coaster-form-field-messages
+          [invalid]="invalid()"
+          [disabled]="disabled()"
+          [errors]="errors()"
+          [disabledReasons]="disabledReasons()"
+          [hint]="hint()"
+        />
       </div>
     }
   `,

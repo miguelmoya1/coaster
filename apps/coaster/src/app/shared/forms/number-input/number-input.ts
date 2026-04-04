@@ -12,10 +12,11 @@ import {
 } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle, lucideMinus, lucidePlus } from '@ng-icons/lucide';
+import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [NgIcon],
+  imports: [NgIcon, FormFieldMessages],
   providers: [provideIcons({ lucideAlertCircle, lucideMinus, lucidePlus })],
   template: `
     @if (!hidden()) {
@@ -102,17 +103,13 @@ import { lucideAlertCircle, lucideMinus, lucidePlus } from '@ng-icons/lucide';
           }
         </div>
 
-        @if (invalid() && errors().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of errors(); track error) {
-              <span class="text-error text-xs">{{ error.message }}</span>
-            }
-          </div>
-        }
-
-        @if (hint() && !invalid()) {
-          <span class="text-on-surface-variant text-xs ml-1">{{ hint() }}</span>
-        }
+        <coaster-form-field-messages
+          [invalid]="invalid()"
+          [disabled]="disabled()"
+          [errors]="errors()"
+          [disabledReasons]="disabledReasons()"
+          [hint]="hint()"
+        />
       </div>
     }
   `,

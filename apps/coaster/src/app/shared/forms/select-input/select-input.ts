@@ -20,6 +20,7 @@ import {
   lucideCheck,
   lucideChevronDown,
 } from '@ng-icons/lucide';
+import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 export interface SelectOption {
   value: string | number;
@@ -29,7 +30,7 @@ export interface SelectOption {
 
 @Component({
   selector: 'coaster-select-input',
-  imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option],
+  imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, FormFieldMessages],
   providers: [
     provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle }),
   ],
@@ -137,29 +138,13 @@ export interface SelectOption {
           </div>
         </ng-template>
 
-        @if (disabled() && disabledReasons().length > 0) {
-          <div class="flex flex-col gap-1 mt-1 ml-1">
-            @for (reason of disabledReasons(); track reason) {
-              <span class="text-on-surface-variant text-xs">{{
-                reason.message
-              }}</span>
-            }
-          </div>
-        }
-
-        @if (hint() && !invalid()) {
-          <span class="text-on-surface-variant text-xs ml-1">{{ hint() }}</span>
-        }
-
-        @if (invalid()) {
-          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
-            @for (error of errors(); track error) {
-              <span class="text-error text-xs font-medium">{{
-                error.message
-              }}</span>
-            }
-          </div>
-        }
+        <coaster-form-field-messages
+          [invalid]="invalid()"
+          [disabled]="disabled()"
+          [errors]="errors()"
+          [disabledReasons]="disabledReasons()"
+          [hint]="hint()"
+        />
       </div>
     }
   `,

@@ -8,13 +8,14 @@ import {
   signal,
 } from '@angular/core';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
+import { TranslatePipe } from '@ngx-translate/core';
+import { isBaseError } from '../../../../core';
 import {
   BarMembers,
   InviteMember,
   InviteMemberForm,
   StaffMemberCard,
 } from '../../../../members';
-import { TranslatePipe } from '@ngx-translate/core';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
@@ -34,7 +35,9 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
   template: `
     <coaster-section-title
       [heading]="'members.staff.title' | translate"
-      [description]="'members.staff.description' | translate: { count: totalMembers() }"
+      [description]="
+        'members.staff.description' | translate: { count: totalMembers() }
+      "
       class="mb-8"
     />
 
@@ -61,7 +64,12 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
     @defer (when isSheetOpen()) {
       @if (isSheetOpen()) {
         <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
-          <coaster-invite-member-form (inviteMember)="inviteMember($event)" />
+          <coaster-invite-member-form
+            (inviteMember)="inviteMember($event)"
+            [disabled]="list.isLoading() || isLoading()"
+            [(error)]="error"
+            (canceled)="isSheetOpen.set(false)"
+          />
         </coaster-bottom-sheet>
       }
     }
@@ -75,11 +83,27 @@ export default class Staff {
 
   protected readonly isSheetOpen = signal(false);
   protected readonly list = this.#barMembers.list;
+  protected readonly isLoading = signal(false);
+  protected readonly error = signal<string | undefined>(undefined);
 
   protected async inviteMember(payload: InviteBarMemberDto) {
-    await this.#inviteMember.invite(this.barId(), payload);
-    this.#barMembers.reload();
-    this.isSheetOpen.set(false);
+    try {
+      this.isLoading.set(true);
+      await this.#inviteMember.invite(this.barId(), payload);
+      this.#barMembers.reload();
+      this.isSheetOpen.set(false);
+    } catch (error: unknown) {
+      if (error['error']) {
+        console.error(error);
+        if (isBaseError(error.error)) {
+          this.error.set(error.error.message);
+        }
+      } else {
+        this.error.set('An unexpected error occurred');
+      }
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   protected readonly totalMembers = computed(
