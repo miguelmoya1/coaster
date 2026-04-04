@@ -17,7 +17,7 @@ import {
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appRoutes } from './app.routes';
-import { idTokenInterceptor, urlInterceptor } from './core';
+import { errorInterceptor, idTokenInterceptor, urlInterceptor } from './core';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBtGgtVUIZBfRuItAZWk1gM_t1cJ19I2Yc',
@@ -32,7 +32,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withInterceptors([urlInterceptor, idTokenInterceptor])),
+    provideHttpClient(
+      withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor]),
+    ),
     provideRouter(
       appRoutes,
       withViewTransitions(),

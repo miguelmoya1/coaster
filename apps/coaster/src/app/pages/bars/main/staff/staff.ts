@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { isBaseError } from '../../../../core';
+import { ApiError } from '../../../../core';
 import {
   BarMembers,
   InviteMember,
@@ -87,17 +87,16 @@ export default class Staff {
   protected readonly error = signal<string | undefined>(undefined);
 
   protected async inviteMember(payload: InviteBarMemberDto) {
+    this.error.set(undefined);
+
     try {
       this.isLoading.set(true);
       await this.#inviteMember.invite(this.barId(), payload);
       this.#barMembers.reload();
       this.isSheetOpen.set(false);
     } catch (error: unknown) {
-      if (error['error']) {
-        console.error(error);
-        if (isBaseError(error.error)) {
-          this.error.set(error.error.message);
-        }
+      if (error instanceof ApiError) {
+        this.error.set(error.message);
       } else {
         this.error.set('An unexpected error occurred');
       }
