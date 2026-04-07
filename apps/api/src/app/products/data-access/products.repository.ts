@@ -25,7 +25,7 @@ export class ProductsRepository {
     });
   }
 
-  async updateStatus(
+  async updateStock(
     productId: ProductId,
     productUpdateDto: Prisma.ProductUpdateInput,
   ) {

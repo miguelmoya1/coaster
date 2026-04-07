@@ -4,7 +4,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, Product, ProductStatus } from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, Product } from '@coaster/interfaces';
 import { ProductRepository } from './product-repository';
 
 describe('ProductRepository', () => {
@@ -15,7 +15,8 @@ describe('ProductRepository', () => {
     id: asProductId('1'),
     categoryId: asCategoryId('cat-1'),
     name: 'Test Product',
-    status: ProductStatus.OK,
+    currentStock: 10,
+    minStockAlert: 5,
     lastUpdated: new Date().toISOString(),
   };
 
@@ -47,16 +48,16 @@ describe('ProductRepository', () => {
     expect(result).toEqual(mockProduct);
   });
 
-  it('should call update status endpoint', async () => {
+  it('should call update stock endpoint', async () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('1');
-    const promise = service.updateStatus(barId, productId, { status: ProductStatus.OUT_OF_STOCK });
+    const promise = service.updateStock(barId, productId, { currentStock: 2, minStockAlert: 5 });
 
-    const req = httpMock.expectOne(service.routes.updateStatus(barId, productId));
-    expect(req.request.method).toBe('PUT');
-    req.flush({ ...mockProduct, status: ProductStatus.OUT_OF_STOCK });
+    const req = httpMock.expectOne(service.routes.updateStock(barId, productId));
+    expect(req.request.method).toBe('PATCH');
+    req.flush({ ...mockProduct, currentStock: 2, minStockAlert: 5 });
 
     const result = await promise;
-    expect(result).toEqual({ ...mockProduct, status: ProductStatus.OUT_OF_STOCK });
+    expect(result).toEqual({ ...mockProduct, currentStock: 2, minStockAlert: 5 });
   });
 });

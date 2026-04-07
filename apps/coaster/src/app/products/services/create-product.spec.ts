@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, ProductStatus } from '@coaster/interfaces';
+import { asBarId, asCategoryId } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { BarProducts } from './bar-products';
@@ -34,7 +34,7 @@ describe('CreateProduct', () => {
   it('should call repository.create and reload state on create', async () => {
     const barId = asBarId('bar-1');
     const dto = { name: 'New Product', categoryId: asCategoryId('cat-1') };
-    const expectedProduct = { id: 'prod-1', ...dto, status: ProductStatus.OK, lastUpdated: new Date().toISOString() };
+    const expectedProduct = { id: 'prod-1', ...dto, currentStock: 0, minStockAlert: 0, lastUpdated: new Date().toISOString() };
     repositoryMock['create'].mockResolvedValue(expectedProduct);
 
     const result = await service.create(barId, dto);

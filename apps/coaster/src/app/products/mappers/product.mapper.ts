@@ -1,4 +1,4 @@
-import { asProductStatus, Product } from '@coaster/interfaces';
+import { Product } from '@coaster/interfaces';
 
 export const checkIsProduct = (product: unknown): product is Product => {
   return (
@@ -7,7 +7,8 @@ export const checkIsProduct = (product: unknown): product is Product => {
     typeof (product as any).id === 'string' &&
     typeof (product as any).categoryId === 'string' &&
     typeof (product as any).name === 'string' &&
-    typeof (product as any).status === 'string'
+    typeof (product as any).currentStock === 'number' &&
+    typeof (product as any).minStockAlert === 'number'
   );
 };
 
@@ -15,7 +16,7 @@ export const productMapper = (product: unknown): Product => {
   if (!checkIsProduct(product)) {
     throw new Error('Invalid Product payload');
   }
-  return { ...product, status: asProductStatus(product.status as string) };
+  return product;
 };
 
 export const productArrayMapper = (products: unknown): Product[] => {

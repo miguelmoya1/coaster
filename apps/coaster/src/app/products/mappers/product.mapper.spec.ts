@@ -1,12 +1,17 @@
-import { asCategoryId, asProductId, Product, ProductStatus } from '@coaster/interfaces';
-import { checkIsProduct, productArrayMapper, productMapper } from './product.mapper';
+import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import {
+  checkIsProduct,
+  productArrayMapper,
+  productMapper,
+} from './product.mapper';
 
 describe('Product Mapper', () => {
   const validProduct: Product = {
     id: asProductId('1'),
     categoryId: asCategoryId('cat-1'),
     name: 'Test Product',
-    status: ProductStatus.OK,
+    currentStock: 10,
+    minStockAlert: 5,
     lastUpdated: new Date().toISOString(),
   };
 

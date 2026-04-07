@@ -1,15 +1,14 @@
 import {
   CategoryId,
   CreateProductDto as ICreateProductDto,
-  ProductStatus,
 } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import {
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
+  IsNumber,
 } from 'class-validator';
 
 export class CreateProductDto implements ICreateProductDto {
@@ -21,7 +20,11 @@ export class CreateProductDto implements ICreateProductDto {
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
   declare categoryId: CategoryId;
 
-  @IsEnum(ProductStatus, { message: ErrorCodes.INVALID_TYPE })
+  @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
-  declare status?: ProductStatus;
+  declare currentStock?: number;
+
+  @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare minStockAlert?: number;
 }

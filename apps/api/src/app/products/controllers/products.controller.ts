@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductStatusDto } from '../dto/update-product-status.dto';
+import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
 import { ProductsService } from '../services/products.service';
 
 @Controller('bars/:barId/products')
@@ -30,13 +30,13 @@ export class ProductsController {
     return this._productsService.createProduct(barId, dto);
   }
 
-  @Patch(':productId/status')
+  @Patch(':productId/stock')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  updateStatus(
+  updateStock(
     @Param('barId') barId: BarId,
     @Param('productId') productId: ProductId,
-    @Body() dto: UpdateProductStatusDto,
+    @Body() dto: UpdateProductStockDto,
   ) {
-    return this._productsService.updateProductStatus(barId, productId, dto);
+    return this._productsService.updateProductStock(barId, productId, dto);
   }
 }

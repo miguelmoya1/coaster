@@ -25,11 +25,7 @@ enum ShiftType {
   SPLIT
 }
 
-enum ProductStatus {
-  OK
-  LOW_STOCK
-  OUT_OF_STOCK
-}
+
 
 model User {
   id             String          @id @default(uuid())
@@ -112,7 +108,8 @@ model Product {
   name       String
   categoryId String
   category   Category      @relation(fields: [categoryId], references: [id])
-  status     ProductStatus @default(OK)
+  currentStock  Int           @default(0)
+  minStockAlert Int           @default(0)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 }

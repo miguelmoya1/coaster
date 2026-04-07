@@ -1,13 +1,12 @@
 import {
   asCategoryId,
   asProductId,
-  asProductStatus,
   BarId,
   CreateProductDto,
   Product,
   ProductId,
   SocketEvents,
-  UpdateProductStatusDto,
+  UpdateProductStockDto,
 } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
@@ -47,12 +46,12 @@ export class ProductsService {
     return mapped;
   }
 
-  async updateProductStatus(
+  async updateProductStock(
     barId: BarId,
     productId: ProductId,
-    productDto: UpdateProductStatusDto,
+    productDto: UpdateProductStockDto,
   ) {
-    const product = await this._productsRepository.updateStatus(
+    const product = await this._productsRepository.updateStock(
       productId,
       productDto,
     );
@@ -61,7 +60,7 @@ export class ProductsService {
 
     this._barGateway.server
       .to(barId)
-      .emit(SocketEvents.PRODUCT_STATUS_CHANGED, mapped);
+      .emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
 
     return mapped;
   }
@@ -77,7 +76,8 @@ export class ProductsService {
       id: asProductId(dbProduct.id),
       categoryId: asCategoryId(dbProduct.categoryId),
       name: dbProduct.name,
-      status: asProductStatus(dbProduct.status),
+      currentStock: dbProduct.currentStock,
+      minStockAlert: dbProduct.minStockAlert,
       lastUpdated: dbProduct.updatedAt.toISOString(),
     };
   }

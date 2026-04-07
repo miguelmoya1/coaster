@@ -4,5 +4,5 @@ export enum SocketEvents {
   JOINED = 'joined',
   LEFT = 'left',
   PRODUCT_CREATED = 'productCreated',
-  PRODUCT_STATUS_CHANGED = 'productStatusChanged',
+  PRODUCT_STOCK_CHANGED = 'productStockChanged',
 }

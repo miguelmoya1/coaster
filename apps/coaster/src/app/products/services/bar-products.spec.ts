@@ -3,8 +3,13 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { TestBed,  } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, Product, ProductStatus } from '@coaster/interfaces';
+import { TestBed } from '@angular/core/testing';
+import {
+  asBarId,
+  asCategoryId,
+  asProductId,
+  Product,
+} from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
 import { BarProducts } from './bar-products';
 
@@ -39,24 +44,37 @@ describe('BarProducts', () => {
   it('should fetch list of products when barId is set', async () => {
     const barId = asBarId('bar-1');
     const mockProducts: Product[] = [
-      { id: asProductId('prod-1'), categoryId: asCategoryId('cat-1'), name: 'Test Product', status: ProductStatus.OK, lastUpdated: new Date().toISOString() },
+      {
+        id: asProductId('prod-1'),
+        categoryId: asCategoryId('cat-1'),
+        name: 'Test Product',
+        currentStock: 10,
+        minStockAlert: 5,
+        lastUpdated: new Date().toISOString(),
+      },
     ];
 
     service.setBarContext(barId);
-    try { (service as any).all?.value(); } catch(e){} try { (service as any).list?.value(); } catch(e){} try { (service as any).pending?.value(); } catch(e){} 
- TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0)); 
- const req = httpMock.expectOne(`/bars/${barId}/products`);
+    try {
+      (service as any).all?.value();
+    } catch (e) {}
+    try {
+      (service as any).list?.value();
+    } catch (e) {}
+    try {
+      (service as any).pending?.value();
+    } catch (e) {}
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
+    const req = httpMock.expectOne(`/bars/${barId}/products`);
     expect(req.request.method).toBe('GET');
     req.flush(mockProducts);
-
-    
   });
 
   it('should not fetch anything if barId is undefined', async () => {
-    TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0));
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
     httpMock.expectNone(`/bars/undefined/products`);
     service.all.value();
   });
-  
-  
 });

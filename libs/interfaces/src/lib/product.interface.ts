@@ -1,9 +1,7 @@
 import { Brand } from './brand.type';
 import { Category, CategoryId } from './category.interface';
-import { ProductStatus } from './enums';
 
 export type ProductId = Brand<string, 'ProductId'>;
-
 export const asProductId = (id: string): ProductId => id as ProductId;
 
 export interface Product {
@@ -11,16 +9,19 @@ export interface Product {
   name: string;
   categoryId: CategoryId;
   category?: Category;
-  status: ProductStatus;
+  currentStock: number;
+  minStockAlert: number;
   lastUpdated: string;
 }
 
-export interface UpdateProductStatusDto {
-  status: ProductStatus;
+export interface UpdateProductStockDto {
+  currentStock: number;
+  minStockAlert: number;
 }
 
 export interface CreateProductDto {
   name: string;
   categoryId: CategoryId;
-  status?: ProductStatus;
+  currentStock?: number;
+  minStockAlert?: number;
 }

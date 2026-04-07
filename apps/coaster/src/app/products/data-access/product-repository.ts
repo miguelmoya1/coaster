@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateProductDto, Product, ProductId, UpdateProductStatusDto } from '@coaster/interfaces';
+import { BarId, CreateProductDto, Product, ProductId, UpdateProductStockDto } from '@coaster/interfaces';
 import { firstValueFrom, map } from 'rxjs';
 import { productMapper } from '../mappers/product.mapper';
 
@@ -13,7 +13,7 @@ export class ProductRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/products`,
     create: (barId: BarId) => `/bars/${barId}/products`,
-    updateStatus: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}/status`,
+    updateStock: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}/stock`,
   };
 
   public async create(barId: BarId, createProductDto: CreateProductDto) {
@@ -24,10 +24,10 @@ export class ProductRepository {
     );
   }
 
-  public async updateStatus(barId: BarId, productId: ProductId, updateProductStatusDto: UpdateProductStatusDto) {
+  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
     return firstValueFrom(
       this.#http
-        .put<Product>(this.routes.updateStatus(barId, productId), updateProductStatusDto)
+        .patch<Product>(this.routes.updateStock(barId, productId), updateProductStockDto)
         .pipe(map(productMapper)),
     );
   }

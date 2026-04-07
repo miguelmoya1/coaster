@@ -2,7 +2,6 @@ import {
   asBarId,
   asCategoryId,
   asProductId,
-  ProductStatus,
 } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -20,7 +19,7 @@ describe('ProductsController', () => {
     const mockService = {
       getProductsByBarId: jest.fn(),
       createProduct: jest.fn(),
-      updateProductStatus: jest.fn(),
+      updateProductStock: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -54,13 +53,13 @@ describe('ProductsController', () => {
     expect(service.createProduct).toHaveBeenCalledWith('bar-1', dto);
   });
 
-  it('updateProductStatus debería delegar al servicio', async () => {
-    service.updateProductStatus.mockResolvedValue({} as any);
-    const dto = { status: ProductStatus.OUT_OF_STOCK };
+  it('updateProductStock debería delegar al servicio', async () => {
+    service.updateProductStock.mockResolvedValue({} as any);
+    const dto = { currentStock: 2, minStockAlert: 5 };
 
-    await controller.updateStatus(asBarId('bar-1'), asProductId('prod-1'), dto);
+    await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);
 
-    expect(service.updateProductStatus).toHaveBeenCalledWith(
+    expect(service.updateProductStock).toHaveBeenCalledWith(
       'bar-1',
       'prod-1',
       dto,

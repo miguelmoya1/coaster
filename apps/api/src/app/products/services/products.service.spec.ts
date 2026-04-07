@@ -3,9 +3,8 @@ import {
   asCategoryId,
   asProductId,
   CreateProductDto,
-  ProductStatus,
   SocketEvents,
-  UpdateProductStatusDto,
+  UpdateProductStockDto,
 } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ForbiddenException } from '@nestjs/common';
@@ -26,7 +25,7 @@ describe('ProductsService', () => {
       checkCategoryBelongsToBar: jest.fn(),
       findByBarId: jest.fn(),
       create: jest.fn(),
-      updateStatus: jest.fn(),
+      updateStock: jest.fn(),
     };
     const mockGateway = {
       server: {
@@ -52,7 +51,8 @@ describe('ProductsService', () => {
     const createDto: CreateProductDto = {
       name: 'Coca Cola',
       categoryId: asCategoryId('cat-1'),
-      status: ProductStatus.OK,
+      currentStock: 10,
+      minStockAlert: 5,
     };
 
     it('debería bloquear creación si la categoría no es del bar', async () => {
@@ -75,7 +75,8 @@ describe('ProductsService', () => {
         id: 'prod-1',
         categoryId: 'cat-1',
         name: 'Coca Cola',
-        status: 'OK',
+        currentStock: 10,
+        minStockAlert: 5,
         createdAt: FAKE_DATE,
         updatedAt: FAKE_DATE,
       } as any);
@@ -84,14 +85,15 @@ describe('ProductsService', () => {
 
       expect(repository.create).toHaveBeenCalledWith(
         'cat-1',
-        { categoryId: 'cat-1', name: 'Coca Cola', status: 'OK' },
+        { categoryId: 'cat-1', name: 'Coca Cola', currentStock: 10, minStockAlert: 5 },
       );
 
       const expectedDomain = {
         id: asProductId('prod-1'),
         categoryId: asCategoryId('cat-1'),
         name: 'Coca Cola',
-        status: ProductStatus.OK,
+        currentStock: 10,
+        minStockAlert: 5,
         lastUpdated: FAKE_DATE.toISOString(),
       };
 
@@ -104,44 +106,47 @@ describe('ProductsService', () => {
     });
   });
 
-  describe('updateProductStatus', () => {
-    const updateDto: UpdateProductStatusDto = {
-      status: ProductStatus.OUT_OF_STOCK,
+  describe('updateProductStock', () => {
+    const updateDto: UpdateProductStockDto = {
+      currentStock: 2,
+      minStockAlert: 5,
     };
 
     it('debería actualizar estado, mapear y emitir evento WebSocket', async () => {
-      repository.updateStatus.mockResolvedValue({
+      repository.updateStock.mockResolvedValue({
         id: 'prod-1',
         categoryId: 'cat-1',
         name: 'Coca Cola',
-        status: 'OUT_OF_STOCK',
+        currentStock: 2,
+        minStockAlert: 5,
         createdAt: FAKE_DATE,
         updatedAt: FAKE_DATE,
       } as any);
 
-      const result = await service.updateProductStatus(
+      const result = await service.updateProductStock(
         asBarId('bar-1'),
         asProductId('prod-1'),
         updateDto,
       );
 
-      expect(repository.updateStatus).toHaveBeenCalledWith(
+      expect(repository.updateStock).toHaveBeenCalledWith(
         'prod-1',
-        { status: ProductStatus.OUT_OF_STOCK },
+        { currentStock: 2, minStockAlert: 5 },
       );
 
       const expectedDomain = {
         id: asProductId('prod-1'),
         categoryId: asCategoryId('cat-1'),
         name: 'Coca Cola',
-        status: ProductStatus.OUT_OF_STOCK,
+        currentStock: 2,
+        minStockAlert: 5,
         lastUpdated: FAKE_DATE.toISOString(),
       };
 
       expect(result).toEqual(expectedDomain);
       expect(gateway.server.to).toHaveBeenCalledWith('bar-1');
       expect(gateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_STATUS_CHANGED,
+        SocketEvents.PRODUCT_STOCK_CHANGED,
         expectedDomain,
       );
     });
@@ -154,7 +159,8 @@ describe('ProductsService', () => {
           id: 'prod-1',
           categoryId: 'cat-1',
           name: 'Coca Cola',
-          status: 'OK',
+          currentStock: 10,
+          minStockAlert: 5,
           createdAt: FAKE_DATE,
           updatedAt: FAKE_DATE,
         } as any,
@@ -168,7 +174,8 @@ describe('ProductsService', () => {
           id: asProductId('prod-1'),
           categoryId: asCategoryId('cat-1'),
           name: 'Coca Cola',
-          status: ProductStatus.OK,
+          currentStock: 10,
+          minStockAlert: 5,
           lastUpdated: FAKE_DATE.toISOString(),
         },
       ]);
