@@ -1,0 +1,11 @@
+{
+  "migrations": [],
+  "nx-console": {
+    "initialGitRef": {
+      "ref": "b85838745ee06098bcb08c27f946fde0c58baf0d",
+      "subject": "refactor: replace product status with stock management system including database migration and API updates"
+    },
+    "targetVersion": "next",
+    "confirmedPackageUpdates": true
+  }
+}
