@@ -78,6 +78,7 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 })
 export default class Staff {
   public readonly barId = input.required<BarId>();
+
   readonly #barMembers = inject(BarMembers);
   readonly #inviteMember = inject(InviteMember);
 
@@ -85,6 +86,10 @@ export default class Staff {
   protected readonly list = this.#barMembers.list;
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | undefined>(undefined);
+
+  protected readonly totalMembers = computed(
+    () => this.list.value()?.length ?? 0,
+  );
 
   protected async inviteMember(payload: InviteBarMemberDto) {
     this.error.set(undefined);
@@ -95,19 +100,13 @@ export default class Staff {
       this.#barMembers.reload();
       this.isSheetOpen.set(false);
     } catch (error: unknown) {
-      if (error instanceof ApiError) {
-        this.error.set(error.message);
-      } else {
-        this.error.set('An unexpected error occurred');
-      }
+      this.error.set(
+        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
+      );
     } finally {
       this.isLoading.set(false);
     }
   }
-
-  protected readonly totalMembers = computed(
-    () => this.list.value()?.length ?? 0,
-  );
 
   constructor() {
     effect(() => {

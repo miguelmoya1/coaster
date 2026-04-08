@@ -67,5 +67,6 @@
     }
   },
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
-  "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email."
+  "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
+  "UNEXPECTED_ERROR": "Ocurrió un error inesperado"
 }
