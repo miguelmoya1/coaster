@@ -14,7 +14,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
     
     <div class="grow min-w-0 mr-4">
       <h3 class="font-bold text-on-surface title-lg tracking-tight truncate">{{ itemName() }}</h3>
-      <p class="text-on-surface-variant text-xs truncate">{{ locationText() }}</p>
+      <!-- <p class="text-on-surface-variant text-xs truncate">{{ locationText() }}</p> -->
     </div>
     
     <div class="flex flex-col items-end gap-1 shrink-0">
@@ -38,7 +38,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
 })
 export class InventoryItemCard {
   readonly itemName = input.required<string>();
-  readonly locationText = input.required<string>();
+  // readonly locationText = input.required<string>();
   readonly qty = input.required<number>();
   readonly icon = input('lucidePackage');
   readonly statusLevel = input<InventoryStatus>('good');
