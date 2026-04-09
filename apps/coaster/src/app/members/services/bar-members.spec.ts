@@ -1,16 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
-import { TestBed,  } from '@angular/core/testing';
-import {
-  asBarId,
-  asBarMemberId,
-  asUserId,
-  BarMember,
-  BarRole,
-} from '@coaster/interfaces';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
 import { MemberRepository } from '../data-access/member-repository';
 import { BarMembers } from './bar-members';
 
@@ -57,11 +48,21 @@ describe('BarMembers', () => {
       },
     ];
 
-    TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0));
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
     service.selectBar(asBarId('bar-1'));
-    try { (service as any).all?.value(); } catch(e){} try { (service as any).list?.value(); } catch(e){} try { (service as any).pending?.value(); } catch(e){} 
- TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0)); 
- const req = httpMock.expectOne('/bars/bar-1/members');
+    try {
+      (service as any).all?.value();
+    } catch (e) {}
+    try {
+      (service as any).list?.value();
+    } catch (e) {}
+    try {
+      (service as any).pending?.value();
+    } catch (e) {}
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
+    const req = httpMock.expectOne('/bars/bar-1/members');
     expect(req.request.method).toBe('GET');
     req.flush(mockMembers);
 
@@ -70,13 +71,23 @@ describe('BarMembers', () => {
 
   it('should clear list when bar is cleared', async () => {
     service.selectBar(asBarId('bar-1'));
-    try { (service as any).all?.value(); } catch(e){} try { (service as any).list?.value(); } catch(e){} try { (service as any).pending?.value(); } catch(e){} 
- TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0)); 
- const req = httpMock.expectOne('/bars/bar-1/members');
+    try {
+      (service as any).all?.value();
+    } catch (e) {}
+    try {
+      (service as any).list?.value();
+    } catch (e) {}
+    try {
+      (service as any).pending?.value();
+    } catch (e) {}
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
+    const req = httpMock.expectOne('/bars/bar-1/members');
     req.flush([]);
 
     service.clearBar();
-    TestBed.flushEffects(); await new Promise(r => setTimeout(r, 0));
+    TestBed.flushEffects();
+    await new Promise((r) => setTimeout(r, 0));
     service.list.value();
   });
 });

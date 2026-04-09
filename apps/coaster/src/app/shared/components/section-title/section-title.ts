@@ -1,10 +1,4 @@
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'coaster-section-title',

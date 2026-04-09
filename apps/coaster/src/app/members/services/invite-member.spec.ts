@@ -36,10 +36,7 @@ describe('InviteMember', () => {
 
     const result = await service.invite(asBarId('bar-1'), dto);
 
-    expect(repositoryMock['invite']).toHaveBeenCalledWith(
-      asBarId('bar-1'),
-      dto,
-    );
+    expect(repositoryMock['invite']).toHaveBeenCalledWith(asBarId('bar-1'), dto);
     expect(result).toEqual(mockMember);
   });
 });

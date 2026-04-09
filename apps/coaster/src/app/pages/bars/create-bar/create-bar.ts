@@ -1,17 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
-import {
-  form,
-  FormField,
-  FormRoot,
-  maxLength,
-  minLength,
-  required,
-} from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { CreateBarDto } from '@coaster/interfaces';
 import { provideIcons } from '@ng-icons/core';
@@ -22,23 +10,15 @@ import { Button, SectionTitle, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-bar',
-  imports: [
-    SectionTitle,
-    TextInput,
-    Button,
-    FormRoot,
-    FormField,
-    TranslatePipe,
-  ],
+  imports: [SectionTitle, TextInput, Button, FormRoot, FormField, TranslatePipe],
   providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight })],
   template: `
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-4 mb-2">
         <div class="h-0.5 w-12 bg-primary"></div>
-        <span
-          class="text-primary font-bold tracking-[0.25em] uppercase text-sm"
-          >{{ 'bars.create.badge' | translate }}</span
-        >
+        <span class="text-primary font-bold tracking-[0.25em] uppercase text-sm">
+          {{ 'bars.create.badge' | translate }}
+        </span>
       </div>
       <coaster-section-title [heading]="'bars.create.title' | translate" isH1 />
       <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">
@@ -73,20 +53,14 @@ import { Button, SectionTitle, TextInput } from '../../../shared';
         <coaster-button variant="outline" type="button" (click)="cancel()">
           {{ 'bars.create.cancel_btn' | translate }}
         </coaster-button>
-        <coaster-button
-          type="submit"
-          variant="primary"
-          icon="lucideArrowRight"
-          [disabled]="barForm().invalid()"
-        >
+        <coaster-button type="submit" variant="primary" icon="lucideArrowRight" [disabled]="barForm().invalid()">
           {{ 'bars.create.register_btn' | translate }}
         </coaster-button>
       </div>
     </form>
   `,
   host: {
-    class:
-      'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
+    class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

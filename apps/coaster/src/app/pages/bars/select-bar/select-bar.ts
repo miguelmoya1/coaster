@@ -32,20 +32,13 @@ import { Button, SectionTitle } from '../../../shared';
         </div>
       }
 
-      <coaster-button
-        variant="dashed"
-        icon="lucidePlusCircle"
-        iconPos="left"
-        (click)="navigateToCreate()"
-        class="mt-2"
-      >
+      <coaster-button variant="dashed" icon="lucidePlusCircle" iconPos="left" (click)="navigateToCreate()" class="mt-2">
         {{ 'bars.select.create_btn' | translate }}
       </coaster-button>
     </div>
   `,
   host: {
-    class:
-      'flex flex-col gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
+    class: 'flex flex-col gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

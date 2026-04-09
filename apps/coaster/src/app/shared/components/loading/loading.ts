@@ -7,15 +7,8 @@ import { lucideLoaderCircle } from '@ng-icons/lucide';
   imports: [NgIcon],
   viewProviders: [provideIcons({ lucideLoaderCircle })],
   template: `
-    <div
-      class="flex flex-col items-center justify-center gap-4 w-full h-full p-8"
-      [class]="containerClasses()"
-    >
-      <ng-icon
-        name="lucideLoaderCircle"
-        [class]="iconClasses()"
-        class="animate-spin"
-      />
+    <div class="flex flex-col items-center justify-center gap-4 w-full h-full p-8" [class]="containerClasses()">
+      <ng-icon name="lucideLoaderCircle" [class]="iconClasses()" class="animate-spin" />
       @if (text()) {
         <p [class]="textClasses()">
           {{ text() }}

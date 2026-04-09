@@ -17,10 +17,6 @@ export class BarRepository {
   };
 
   public async create(createBarDto: CreateBarDto) {
-    return firstValueFrom(
-      this.#http
-        .post<Bar>(this.routes.create, createBarDto)
-        .pipe(map(barMapper)),
-    );
+    return firstValueFrom(this.#http.post<Bar>(this.routes.create, createBarDto).pipe(map(barMapper)));
   }
 }

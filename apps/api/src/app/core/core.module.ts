@@ -10,20 +10,7 @@ import { BarGateway } from './websockets/bar.gateway';
 @Global()
 @Module({
   imports: [PassportModule],
-  providers: [
-    PrismaService,
-    JwtStrategy,
-    FirebaseAuthGuard,
-    OptionalFirebaseAuthGuard,
-    EmailService,
-    BarGateway,
-  ],
-  exports: [
-    PrismaService,
-    FirebaseAuthGuard,
-    OptionalFirebaseAuthGuard,
-    EmailService,
-    BarGateway,
-  ],
+  providers: [PrismaService, JwtStrategy, FirebaseAuthGuard, OptionalFirebaseAuthGuard, EmailService, BarGateway],
+  exports: [PrismaService, FirebaseAuthGuard, OptionalFirebaseAuthGuard, EmailService, BarGateway],
 })
 export class CoreModule {}

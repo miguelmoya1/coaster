@@ -1,10 +1,4 @@
-import {
-  asBarId,
-  asCategoryId,
-  BarId,
-  Category,
-  CreateCategoryDto,
-} from '@coaster/interfaces';
+import { asBarId, asCategoryId, BarId, Category, CreateCategoryDto } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
 import { Category as CategoryDb } from '../../core';
 import { CategoriesRepository } from '../data-access/categories.repository';

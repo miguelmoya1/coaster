@@ -21,8 +21,10 @@ describe('ShiftsController', () => {
       controllers: [ShiftsController],
       providers: [{ provide: ShiftsService, useValue: mockService }],
     })
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(RolesGuard).useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<ShiftsController>(ShiftsController);

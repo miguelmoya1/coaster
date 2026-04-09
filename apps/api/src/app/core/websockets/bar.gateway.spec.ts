@@ -51,12 +51,8 @@ describe('BarGateway', () => {
     it('debería lanzar WsException si el barId es inválido (nulo)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(
-        WsException,
-      );
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(
-        ErrorCodes.INVALID_BAR_ID,
-      );
+      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(WsException);
+      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.join).not.toHaveBeenCalled();
     });
 
@@ -81,12 +77,8 @@ describe('BarGateway', () => {
     it('debería lanzar WsException si el barId es inválido (nulo)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(
-        WsException,
-      );
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(
-        ErrorCodes.INVALID_BAR_ID,
-      );
+      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(WsException);
+      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.leave).not.toHaveBeenCalled();
     });
   });

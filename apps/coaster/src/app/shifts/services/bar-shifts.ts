@@ -26,7 +26,7 @@ export class BarShifts {
     },
     {
       parse: shiftArrayMapper,
-    }
+    },
   );
 
   readonly all = this.#all.asReadonly();

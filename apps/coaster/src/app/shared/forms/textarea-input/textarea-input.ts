@@ -1,15 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  model,
-} from '@angular/core';
-import {
-  DisabledReason,
-  FormValueControl,
-  ValidationError,
-  WithOptionalFieldTree,
-} from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle } from '@ng-icons/lucide';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
@@ -52,10 +42,7 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
           ></textarea>
 
           @if (invalid()) {
-            <ng-icon
-              name="lucideAlertCircle"
-              class="absolute right-4 top-4 text-error text-xl"
-            ></ng-icon>
+            <ng-icon name="lucideAlertCircle" class="absolute right-4 top-4 text-error text-xl"></ng-icon>
           }
         </div>
 
@@ -87,14 +74,10 @@ export class TextareaInput implements FormValueControl<string> {
 
   // Read-only state from form system
   readonly disabled = input<boolean>(false);
-  readonly disabledReasons = input<
-    readonly WithOptionalFieldTree<DisabledReason>[]
-  >([]);
+  readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
   readonly hidden = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>(
-    [],
-  );
+  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 }

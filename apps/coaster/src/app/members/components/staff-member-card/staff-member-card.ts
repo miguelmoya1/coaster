@@ -8,24 +8,10 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [NgIcon, TranslatePipe],
   viewProviders: [provideIcons({ lucideMail })],
   template: `
-    <div
-      [class]="
-        'absolute left-0 top-0 bottom-0 w-1 ' +
-        (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')
-      "
-    ></div>
+    <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
 
-    <div
-      [class]="
-        'w-16 h-16 rounded-xl overflow-hidden shrink-0 ' +
-        (isOffDuty() ? 'grayscale' : '')
-      "
-    >
-      <img
-        [src]="staffImage()"
-        class="w-full h-full object-cover"
-        alt="Staff Member"
-      />
+    <div [class]="'w-16 h-16 rounded-xl overflow-hidden shrink-0 ' + (isOffDuty() ? 'grayscale' : '')">
+      <img [src]="staffImage()" class="w-full h-full object-cover" alt="Staff Member" />
     </div>
 
     <div class="flex-1 min-w-0">
@@ -44,13 +30,15 @@ import { TranslatePipe } from '@ngx-translate/core';
         @if (isOffDuty()) {
           <span
             class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-on-surface-variant uppercase tracking-widest"
-            >{{ 'common.duty.off' | translate }}</span
           >
+            {{ 'common.duty.off' | translate }}
+          </span>
         } @else {
           <span
             class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-primary uppercase tracking-widest"
-            >{{ 'common.duty.on' | translate }}</span
           >
+            {{ 'common.duty.on' | translate }}
+          </span>
         }
       </div>
     </div>

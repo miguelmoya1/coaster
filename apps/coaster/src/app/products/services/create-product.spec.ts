@@ -34,13 +34,19 @@ describe('CreateProduct', () => {
   it('should call repository.create and reload state on create', async () => {
     const barId = asBarId('bar-1');
     const dto = { name: 'New Product', categoryId: asCategoryId('cat-1') };
-    const expectedProduct = { id: 'prod-1', ...dto, currentStock: 0, minStockAlert: 0, lastUpdated: new Date().toISOString() };
+    const expectedProduct = {
+      id: 'prod-1',
+      ...dto,
+      currentStock: 0,
+      minStockAlert: 0,
+      lastUpdated: new Date().toISOString(),
+    };
     repositoryMock['create'].mockResolvedValue(expectedProduct);
 
     const result = await service.create(barId, dto);
 
     expect(repositoryMock['create']).toHaveBeenCalledWith(barId, dto);
-    
+
     expect(result).toEqual(expectedProduct);
   });
 });

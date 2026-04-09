@@ -17,10 +17,7 @@ describe('ShiftsRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ShiftsRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [ShiftsRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<ShiftsRepository>(ShiftsRepository);
@@ -31,10 +28,7 @@ describe('ShiftsRepository', () => {
     it('debería devolver true si el miembro está activo', async () => {
       prisma.barMember.findUnique.mockResolvedValue({ active: true });
 
-      const result = await repository.isUserMemberOfBar(
-        asUserId('u1'),
-        asBarId('bar-1'),
-      );
+      const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
       expect(result).toBe(true);
     });
@@ -42,10 +36,7 @@ describe('ShiftsRepository', () => {
     it('debería devolver false si no existe', async () => {
       prisma.barMember.findUnique.mockResolvedValue(null);
 
-      const result = await repository.isUserMemberOfBar(
-        asUserId('u1'),
-        asBarId('bar-1'),
-      );
+      const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
       expect(result).toBe(false);
     });
@@ -53,10 +44,7 @@ describe('ShiftsRepository', () => {
     it('debería devolver false si está inactivo', async () => {
       prisma.barMember.findUnique.mockResolvedValue({ active: false });
 
-      const result = await repository.isUserMemberOfBar(
-        asUserId('u1'),
-        asBarId('bar-1'),
-      );
+      const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
       expect(result).toBe(false);
     });
@@ -67,15 +55,11 @@ describe('ShiftsRepository', () => {
       const date = new Date('2026-03-20');
       prisma.shift.create.mockResolvedValue({ id: 'shift-1' });
 
-      const result = await repository.create(
-        asBarId('bar-1'),
-        asUserId('u1'),
-        {
-          date,
-          type: ShiftType.MORNING,
-          notes: 'notas',
-        }
-      );
+      const result = await repository.create(asBarId('bar-1'), asUserId('u1'), {
+        date,
+        type: ShiftType.MORNING,
+        notes: 'notas',
+      });
 
       expect(prisma.shift.create).toHaveBeenCalledWith({
         data: {

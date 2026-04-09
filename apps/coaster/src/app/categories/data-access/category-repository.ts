@@ -17,9 +17,7 @@ export class CategoryRepository {
 
   public async create(barId: BarId, createCategoryDto: CreateCategoryDto) {
     return firstValueFrom(
-      this.#http
-        .post<Category>(this.routes.create(barId), createCategoryDto)
-        .pipe(map(categoryMapper)),
+      this.#http.post<Category>(this.routes.create(barId), createCategoryDto).pipe(map(categoryMapper)),
     );
   }
 }

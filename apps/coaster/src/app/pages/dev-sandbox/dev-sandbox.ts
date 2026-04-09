@@ -1,12 +1,6 @@
 import { Component } from '@angular/core';
 import { provideIcons } from '@ng-icons/core';
-import {
-  lucideCheck,
-  lucideLock,
-  lucideMail,
-  lucidePlus,
-  lucideWine,
-} from '@ng-icons/lucide';
+import { lucideCheck, lucideLock, lucideMail, lucidePlus, lucideWine } from '@ng-icons/lucide';
 import { CategoryTabs } from '../../categories';
 import { ExchangeRequestCard } from '../../exchanges';
 import { StaffMemberCard } from '../../members';
@@ -65,10 +59,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
   template: `
     <div class="mt-24"></div>
     <div class="bg-surface pb-24 min-h-screen text-on-surface font-sans">
-      <coaster-top-app-bar
-        [label]="'Dev Sandbox'"
-        [image]="'https://i.pravatar.cc/150?img=11'"
-      />
+      <coaster-top-app-bar [label]="'Dev Sandbox'" [image]="'https://i.pravatar.cc/150?img=11'" />
 
       <div class="p-6 flex flex-col gap-10">
         <!-- Form Controls -->
@@ -86,12 +77,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
               hint="We will never share your email with anyone else."
             />
 
-            <coaster-text-input
-              label="Password"
-              type="password"
-              placeholder="Enter password..."
-              icon="lucideLock"
-            />
+            <coaster-text-input label="Password" type="password" placeholder="Enter password..." icon="lucideLock" />
 
             <coaster-number-input
               label="Storage Quantity"
@@ -106,9 +92,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
               [rows]="4"
             />
 
-            <div
-              class="bg-surface-container/50 p-4 rounded-xl border border-outline-variant"
-            >
+            <div class="bg-surface-container/50 p-4 rounded-xl border border-outline-variant">
               <coaster-toggle-input
                 label="Enable Push Notifications"
                 hint="You will receive alerts when inventory is low"
@@ -147,32 +131,19 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
             description="Common UI elements like buttons, badges, and cards used across the entire application workspace."
           />
           <div class="flex flex-wrap gap-6 items-center">
-            <coaster-avatar-badge
-              imageSrc="https://i.pravatar.cc/150?img=12"
-              altText="Avatar"
-            />
-            <coaster-button icon="lucideCheck" customClass="w-auto px-6">
-              Primary Button
-            </coaster-button>
+            <coaster-avatar-badge imageSrc="https://i.pravatar.cc/150?img=12" altText="Avatar" />
+            <coaster-button icon="lucideCheck" customClass="w-auto px-6">Primary Button</coaster-button>
             <coaster-fab icon="lucidePlus" />
           </div>
 
           <coaster-status-card status="success" classes="w-full">
-            <h3 class="font-bold text-on-surface text-lg">
-              Status Card (Success)
-            </h3>
-            <p class="text-on-surface-variant">
-              This is a success status card displaying normal operation.
-            </p>
+            <h3 class="font-bold text-on-surface text-lg">Status Card (Success)</h3>
+            <p class="text-on-surface-variant">This is a success status card displaying normal operation.</p>
           </coaster-status-card>
 
           <coaster-status-card status="error" classes="w-full">
-            <h3 class="font-bold text-on-surface text-lg">
-              Status Card (Error)
-            </h3>
-            <p class="text-on-surface-variant">
-              This is an error status card for alerts.
-            </p>
+            <h3 class="font-bold text-on-surface text-lg">Status Card (Error)</h3>
+            <p class="text-on-surface-variant">This is an error status card for alerts.</p>
           </coaster-status-card>
         </section>
 
@@ -259,20 +230,15 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
         <!-- Bottom Sheet standalone test -->
         <section class="flex flex-col gap-4">
           <coaster-section-title heading="Bottom Sheet (Inline Test)" />
-          <div
-            class="relative h-64 border border-outline border-dashed rounded-xl overflow-hidden"
-          >
+          <div class="relative h-64 border border-outline border-dashed rounded-xl overflow-hidden">
             <coaster-bottom-sheet>
               <h3 class="text-xl font-bold mb-2">Acciones Disponibles</h3>
               <p class="text-on-surface-variant text-sm mb-6">
-                Selecciona una de las siguientes opciones para continuar con la
-                gestión de este turno.
+                Selecciona una de las siguientes opciones para continuar con la gestión de este turno.
               </p>
 
               <div class="flex flex-col gap-3">
-                <coaster-button icon="lucideCheck" customClass="w-full">
-                  Confirmar Asignación
-                </coaster-button>
+                <coaster-button icon="lucideCheck" customClass="w-full">Confirmar Asignación</coaster-button>
               </div>
             </coaster-bottom-sheet>
           </div>

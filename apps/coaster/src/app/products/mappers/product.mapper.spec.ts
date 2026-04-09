@@ -1,9 +1,5 @@
 import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
-import {
-  checkIsProduct,
-  productArrayMapper,
-  productMapper,
-} from './product.mapper';
+import { checkIsProduct, productArrayMapper, productMapper } from './product.mapper';
 
 describe('Product Mapper', () => {
   const validProduct: Product = {

@@ -26,15 +26,12 @@
     (click)="onProductClicked(product)"
   />
   } @empty {
-  <div class="text-center text-on-surface-variant mt-10">
-    {{ 'pantry.empty' | translate }}
-  </div>
+  <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
   }
 </div>
 } @if (currentUserRole() === 'OWNER') {
 <coaster-fab (click)="openBottomSheet()" />
-} @defer (when isSheetOpen()) { @let tab = currentFormTab(); @if (isSheetOpen())
-{
+} @defer (when isSheetOpen()) { @let tab = currentFormTab(); @if (isSheetOpen()) {
 <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
   <div class="flex flex-col px-6 pb-6 pt-2">
     <div class="flex bg-surface-container rounded-lg p-1 mb-6">

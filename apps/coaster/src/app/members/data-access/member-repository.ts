@@ -14,10 +14,6 @@ export class MemberRepository {
   };
 
   public async invite(barId: BarId, dto: InviteBarMemberDto) {
-    return firstValueFrom(
-      this.#http
-        .post<BarMember>(this.routes.invite(barId), dto)
-        .pipe(map(memberMapper))
-    );
+    return firstValueFrom(this.#http.post<BarMember>(this.routes.invite(barId), dto).pipe(map(memberMapper)));
   }
 }

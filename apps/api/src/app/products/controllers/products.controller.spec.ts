@@ -1,8 +1,4 @@
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-} from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
@@ -59,10 +55,6 @@ describe('ProductsController', () => {
 
     await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);
 
-    expect(service.updateProductStock).toHaveBeenCalledWith(
-      'bar-1',
-      'prod-1',
-      dto,
-    );
+    expect(service.updateProductStock).toHaveBeenCalledWith('bar-1', 'prod-1', dto);
   });
 });

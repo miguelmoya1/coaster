@@ -7,10 +7,9 @@ describe('Button', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CoasterButton]
-    })
-    .compileComponents();
-    
+      imports: [CoasterButton],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(CoasterButton);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -18,5 +17,5 @@ describe('Button', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  }); 
+  });
 });

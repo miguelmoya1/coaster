@@ -32,9 +32,12 @@ describe('BarsService', () => {
         updatedAt: FAKE_DATE,
       } as any);
 
-      const result = await service.create({
-        name: 'Nuevo Bar',
-      }, { id: 'user-id' } as any);
+      const result = await service.create(
+        {
+          name: 'Nuevo Bar',
+        },
+        { id: 'user-id' } as any,
+      );
 
       expect(repository.create).toHaveBeenCalledWith('user-id', { name: 'Nuevo Bar' });
       expect(result).toEqual({

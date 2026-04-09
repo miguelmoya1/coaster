@@ -1,10 +1,4 @@
-import {
-  asBarId,
-  asShiftExchangeId,
-  asShiftId,
-  asUserId,
-  ShiftExchangeStatus,
-} from '@coaster/interfaces';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../core';
 import { ShiftExchangesRepository } from './shift-exchanges.repository';
@@ -30,10 +24,7 @@ describe('ShiftExchangesRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ShiftExchangesRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [ShiftExchangesRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<ShiftExchangesRepository>(ShiftExchangesRepository);
@@ -69,11 +60,7 @@ describe('ShiftExchangesRepository', () => {
     it('debería crear con estado PENDING', async () => {
       prisma.shiftExchange.create.mockResolvedValue({ id: 'exc-1' });
 
-      const result = await repository.createExchange(
-        asShiftId('shift-1'),
-        asUserId('requester'),
-        asUserId('target'),
-      );
+      const result = await repository.createExchange(asShiftId('shift-1'), asUserId('requester'), asUserId('target'));
 
       expect(prisma.shiftExchange.create).toHaveBeenCalledWith({
         data: {

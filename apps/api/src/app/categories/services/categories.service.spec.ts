@@ -1,9 +1,4 @@
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  asProductStatus,
-} from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, asProductStatus } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesRepository } from '../data-access/categories.repository';
 import { CategoriesService } from './categories.service';
@@ -21,10 +16,7 @@ describe('CategoriesService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CategoriesService,
-        { provide: CategoriesRepository, useValue: mockRepo },
-      ],
+      providers: [CategoriesService, { provide: CategoriesRepository, useValue: mockRepo }],
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
@@ -40,10 +32,7 @@ describe('CategoriesService', () => {
         icon: 'beer',
       } as any);
 
-      const result = await service.createCategory(
-        asBarId('bar-1'),
-        { name: 'Bebidas', icon: 'beer' },
-      );
+      const result = await service.createCategory(asBarId('bar-1'), { name: 'Bebidas', icon: 'beer' });
 
       expect(repository.create).toHaveBeenCalledWith('bar-1', { name: 'Bebidas', icon: 'beer' });
       expect(result).toEqual({

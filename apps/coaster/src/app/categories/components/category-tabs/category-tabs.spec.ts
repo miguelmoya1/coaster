@@ -7,10 +7,9 @@ describe('CategoryTabs', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategoryTabs]
-    })
-    .compileComponents();
-    
+      imports: [CategoryTabs],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(CategoryTabs);
     component = fixture.componentInstance;
     fixture.detectChanges();

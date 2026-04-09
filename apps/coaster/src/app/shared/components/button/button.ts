@@ -1,9 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 
 export type ButtonVariant = 'primary' | 'outline' | 'dashed';
@@ -44,12 +39,10 @@ export class Button {
           'h-16 bg-linear-to-br from-primary to-primary-container shadow-elevated-primary hover:brightness-110';
         break;
       case 'outline':
-        variantStyles =
-          'h-16 border border-outline-variant hover:bg-surface-container';
+        variantStyles = 'h-16 border border-outline-variant hover:bg-surface-container';
         break;
       case 'dashed':
-        variantStyles =
-          'h-24 border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5';
+        variantStyles = 'h-24 border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5';
         break;
     }
 

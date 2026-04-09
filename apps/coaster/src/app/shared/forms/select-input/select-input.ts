@@ -1,25 +1,9 @@
 import { Listbox, Option } from '@angular/aria/listbox';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  model,
-  signal,
-} from '@angular/core';
-import {
-  DisabledReason,
-  FormValueControl,
-  ValidationError,
-  WithOptionalFieldTree,
-} from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
+import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideAlertCircle,
-  lucideCheck,
-  lucideChevronDown,
-} from '@ng-icons/lucide';
+import { lucideAlertCircle, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 export interface SelectOption {
@@ -31,9 +15,7 @@ export interface SelectOption {
 @Component({
   selector: 'coaster-select-input',
   imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, FormFieldMessages],
-  providers: [
-    provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle }),
-  ],
+  providers: [provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
@@ -67,18 +49,12 @@ export interface SelectOption {
           (click)="toggleOpen($event)"
           (blur)="onBlur()"
         >
-          <span
-            class="truncate block"
-            [class.text-on-surface-variant]="!hasValue()"
-          >
+          <span class="truncate block" [class.text-on-surface-variant]="!hasValue()">
             {{ displayValue() || placeholder() }}
           </span>
           <div class="flex items-center gap-2 shrink-0">
             @if (invalid()) {
-              <ng-icon
-                name="lucideAlertCircle"
-                class="text-error text-xl"
-              ></ng-icon>
+              <ng-icon name="lucideAlertCircle" class="text-error text-xl"></ng-icon>
             }
             <ng-icon
               name="lucideChevronDown"
@@ -108,9 +84,7 @@ export interface SelectOption {
               class="overflow-y-auto outline-none"
             >
               @if (options().length === 0) {
-                <li
-                  class="px-4 py-4 text-on-surface-variant text-base flex items-center justify-center italic"
-                >
+                <li class="px-4 py-4 text-on-surface-variant text-base flex items-center justify-center italic">
                   No options available
                 </li>
               }
@@ -123,14 +97,9 @@ export interface SelectOption {
                   [class.bg-primary-container]="isSelected(opt.value)"
                   [class.text-on-primary-container]="isSelected(opt.value)"
                 >
-                  <span class="font-medium text-base truncate">{{
-                    opt.label
-                  }}</span>
+                  <span class="font-medium text-base truncate">{{ opt.label }}</span>
                   @if (isSelected(opt.value)) {
-                    <ng-icon
-                      name="lucideCheck"
-                      class="text-primary text-xl"
-                    ></ng-icon>
+                    <ng-icon name="lucideCheck" class="text-primary text-xl"></ng-icon>
                   }
                 </li>
               }
@@ -150,9 +119,7 @@ export interface SelectOption {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectInput implements FormValueControl<
-  string | number | null
-> {
+export class SelectInput implements FormValueControl<string | number | null> {
   readonly value = model<string | number | null>(null);
   readonly id = input<string>(crypto.randomUUID());
 
@@ -164,23 +131,17 @@ export class SelectInput implements FormValueControl<
   readonly touched = model<boolean>(false);
 
   readonly disabled = input<boolean>(false);
-  readonly disabledReasons = input<
-    readonly WithOptionalFieldTree<DisabledReason>[]
-  >([]);
+  readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
   readonly hidden = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>(
-    [],
-  );
+  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
   readonly isOpen = signal(false);
   readonly triggerWidth = signal<number | string>('auto');
 
-  readonly hasValue = computed(
-    () => this.value() !== null && this.value() !== undefined,
-  );
+  readonly hasValue = computed(() => this.value() !== null && this.value() !== undefined);
   readonly displayValue = computed(() => {
     const val = this.value();
     if (val === null || val === undefined) return '';

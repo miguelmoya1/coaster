@@ -16,11 +16,7 @@ export class ShiftsRepository {
     return !!member && member.active;
   }
 
-  async create(
-    barId: BarId,
-    userId: UserId,
-    createShiftDto: Omit<Prisma.ShiftCreateInput, 'bar' | 'user'>,
-  ) {
+  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Prisma.ShiftCreateInput, 'bar' | 'user'>) {
     return this.prisma.shift.create({
       data: {
         ...createShiftDto,
@@ -37,9 +33,7 @@ export class ShiftsRepository {
     return this.prisma.shift.findMany({
       where: {
         barId,
-        ...(startDate && endDate
-          ? { date: { gte: startDate, lte: endDate } }
-          : {}),
+        ...(startDate && endDate ? { date: { gte: startDate, lte: endDate } } : {}),
       },
       include: {
         user: { select: { id: true, name: true } },

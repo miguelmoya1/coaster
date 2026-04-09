@@ -1,11 +1,6 @@
 import { asBarRole, BarRole } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { ROLES_KEY } from '../decorators/roles.decorator';
@@ -18,10 +13,10 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this._reflector.getAllAndOverride<BarRole[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredRoles = this._reflector.getAllAndOverride<BarRole[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (!requiredRoles) {
       return true;

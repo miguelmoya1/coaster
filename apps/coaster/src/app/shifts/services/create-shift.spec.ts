@@ -44,7 +44,7 @@ describe('CreateShift', () => {
     const result = await service.execute(barId, dto);
 
     expect(shiftRepoMock['create']).toHaveBeenCalledWith(barId, dto);
-    
+
     expect(result).toEqual(mockShift);
   });
 });

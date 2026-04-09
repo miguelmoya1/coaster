@@ -1,13 +1,7 @@
 import { Shift } from '@coaster/interfaces';
 
 export const checkIsShift = (shift: unknown): shift is Shift => {
-  return (
-    typeof shift === 'object' &&
-    shift !== null &&
-    'id' in shift &&
-    'date' in shift &&
-    'type' in shift
-  );
+  return typeof shift === 'object' && shift !== null && 'id' in shift && 'date' in shift && 'type' in shift;
 };
 
 export const shiftMapper = (shift: unknown): Shift => {

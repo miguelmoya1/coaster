@@ -13,12 +13,12 @@ describe('CreateProductForm', () => {
 
     fixture = TestBed.createComponent(CreateProductForm);
     component = fixture.componentInstance;
-    
+
     // Set required inputs
     fixture.componentRef.setInput('disabled', false);
     fixture.componentRef.setInput('error', undefined);
     fixture.componentRef.setInput('categories', []);
-    
+
     await fixture.whenStable();
   });
 

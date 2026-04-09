@@ -28,8 +28,10 @@ describe('BarMembersController', () => {
       controllers: [BarMembersController],
       providers: [{ provide: BarMembersService, useValue: mockService }],
     })
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(RolesGuard).useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<BarMembersController>(BarMembersController);
@@ -50,11 +52,6 @@ describe('BarMembersController', () => {
 
     controller.inviteMember(asBarId('bar-1'), dto as any, fakeUser);
 
-    expect(service.invite).toHaveBeenCalledWith(
-      'bar-1',
-      'new@mail.com',
-      BarRole.STAFF,
-      fakeUser,
-    );
+    expect(service.invite).toHaveBeenCalledWith('bar-1', 'new@mail.com', BarRole.STAFF, fakeUser);
   });
 });

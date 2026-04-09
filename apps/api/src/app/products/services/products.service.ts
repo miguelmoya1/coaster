@@ -22,11 +22,7 @@ export class ProductsService {
 
   async createProduct(barId: BarId, productDto: CreateProductDto) {
     const validCategoryId = asCategoryId(productDto.categoryId);
-    const isValidCategory =
-      await this._productsRepository.checkCategoryBelongsToBar(
-        validCategoryId,
-        barId,
-      );
+    const isValidCategory = await this._productsRepository.checkCategoryBelongsToBar(validCategoryId, barId);
 
     if (!isValidCategory) {
       throw new ForbiddenException(ErrorCodes.CATEGORY_NOT_FOUND);
@@ -38,35 +34,21 @@ export class ProductsService {
       minStockAlert: productDto.minStockAlert,
     };
 
-    const product = await this._productsRepository.create(
-      validCategoryId,
-      createData,
-    );
+    const product = await this._productsRepository.create(validCategoryId, createData);
 
     const mapped = this.#mapToDomain(product);
 
-    this._barGateway.server
-      .to(barId)
-      .emit(SocketEvents.PRODUCT_CREATED, mapped);
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_CREATED, mapped);
 
     return mapped;
   }
 
-  async updateProductStock(
-    barId: BarId,
-    productId: ProductId,
-    productDto: UpdateProductStockDto,
-  ) {
-    const product = await this._productsRepository.updateStock(
-      productId,
-      productDto,
-    );
+  async updateProductStock(barId: BarId, productId: ProductId, productDto: UpdateProductStockDto) {
+    const product = await this._productsRepository.updateStock(productId, productDto);
 
     const mapped = this.#mapToDomain(product);
 
-    this._barGateway.server
-      .to(barId)
-      .emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
 
     return mapped;
   }

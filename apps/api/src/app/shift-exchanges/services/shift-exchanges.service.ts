@@ -1,26 +1,12 @@
-import {
-  BarId,
-  ShiftExchangeId,
-  ShiftExchangeStatus,
-  ShiftId,
-  UserId,
-  asShiftId,
-} from '@coaster/interfaces';
+import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 
 @Injectable()
 export class ShiftExchangesService {
-  constructor(
-    private readonly _shiftExchangesRepository: ShiftExchangesRepository,
-  ) {}
+  constructor(private readonly _shiftExchangesRepository: ShiftExchangesRepository) {}
 
   async getPendingExchanges(barId: BarId) {
     // Optional: We can map to Domain here if needed, but returning raw objects
@@ -28,12 +14,7 @@ export class ShiftExchangesService {
     return this._shiftExchangesRepository.findPendingByBarId(barId);
   }
 
-  async requestExchange(
-    barId: BarId,
-    shiftId: ShiftId,
-    requesterId: UserId,
-    dto: CreateShiftExchangeDto,
-  ) {
+  async requestExchange(barId: BarId, shiftId: ShiftId, requesterId: UserId, dto: CreateShiftExchangeDto) {
     const shift = await this._shiftExchangesRepository.getShiftById(shiftId);
 
     if (!shift) {
@@ -46,20 +27,11 @@ export class ShiftExchangesService {
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_SHIFT);
     }
 
-    return this._shiftExchangesRepository.createExchange(
-      shiftId,
-      requesterId,
-      dto.targetId
-    );
+    return this._shiftExchangesRepository.createExchange(shiftId, requesterId, dto.targetId);
   }
 
-  async acceptExchange(
-    barId: BarId,
-    exchangeId: ShiftExchangeId,
-    acceptingUserId: UserId,
-  ) {
-    const exchange =
-      await this._shiftExchangesRepository.getExchangeById(exchangeId);
+  async acceptExchange(barId: BarId, exchangeId: ShiftExchangeId, acceptingUserId: UserId) {
+    const exchange = await this._shiftExchangesRepository.getExchangeById(exchangeId);
 
     if (!exchange) {
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
@@ -77,12 +49,11 @@ export class ShiftExchangesService {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
-    const [updatedExchange] =
-      await this._shiftExchangesRepository.acceptExchangeAndSwapShift(
-        exchangeId,
-        asShiftId(exchange.shiftId),
-        acceptingUserId,
-      );
+    const [updatedExchange] = await this._shiftExchangesRepository.acceptExchangeAndSwapShift(
+      exchangeId,
+      asShiftId(exchange.shiftId),
+      acceptingUserId,
+    );
 
     return updatedExchange;
   }

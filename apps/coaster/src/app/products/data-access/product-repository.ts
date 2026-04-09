@@ -18,9 +18,7 @@ export class ProductRepository {
 
   public async create(barId: BarId, createProductDto: CreateProductDto) {
     return firstValueFrom(
-      this.#http
-        .post<Product>(this.routes.create(barId), createProductDto)
-        .pipe(map(productMapper)),
+      this.#http.post<Product>(this.routes.create(barId), createProductDto).pipe(map(productMapper)),
     );
   }
 

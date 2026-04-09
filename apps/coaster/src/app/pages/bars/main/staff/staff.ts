@@ -1,43 +1,20 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ApiError } from '../../../../core';
-import {
-  BarMembers,
-  InviteMember,
-  InviteMemberForm,
-  StaffMemberCard,
-} from '../../../../members';
+import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard } from '../../../../members';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
-  imports: [
-    Loading,
-    StaffMemberCard,
-    SectionTitle,
-    BottomSheet,
-    Fab,
-    InviteMemberForm,
-    TranslatePipe,
-  ],
+  imports: [Loading, StaffMemberCard, SectionTitle, BottomSheet, Fab, InviteMemberForm, TranslatePipe],
   host: {
     class: 'flex flex-col gap-2',
   },
   template: `
     <coaster-section-title
       [heading]="'members.staff.title' | translate"
-      [description]="
-        'members.staff.description' | translate: { count: totalMembers() }
-      "
+      [description]="'members.staff.description' | translate: { count: totalMembers() }"
       class="mb-8"
     />
 
@@ -50,10 +27,7 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
         <coaster-staff-member-card
           [staffName]="member.userName"
           [staffEmail]="member.userEmail"
-          [staffImage]="
-            member.userImage ||
-            'https://ui-avatars.com/api/?name=' + member.userName
-          "
+          [staffImage]="member.userImage || 'https://ui-avatars.com/api/?name=' + member.userName"
           [roleName]="member.role"
         />
       }
@@ -87,9 +61,7 @@ export default class Staff {
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | undefined>(undefined);
 
-  protected readonly totalMembers = computed(
-    () => this.list.value()?.length ?? 0,
-  );
+  protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
 
   protected async inviteMember(payload: InviteBarMemberDto) {
     this.error.set(undefined);
@@ -100,9 +72,7 @@ export default class Staff {
       this.#barMembers.reload();
       this.isSheetOpen.set(false);
     } catch (error: unknown) {
-      this.error.set(
-        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
-      );
+      this.error.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
     } finally {
       this.isLoading.set(false);
     }

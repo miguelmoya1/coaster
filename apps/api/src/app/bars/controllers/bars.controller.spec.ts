@@ -31,8 +31,10 @@ describe('BarsController', () => {
         { provide: PrismaService, useValue: {} },
       ],
     })
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(RolesGuard).useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<BarsController>(BarsController);

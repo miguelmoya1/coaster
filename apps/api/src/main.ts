@@ -2,10 +2,7 @@ import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
@@ -16,10 +13,7 @@ async function bootstrap() {
     admin.initializeApp({ projectId: 'coaster-437f2' });
   }
 
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
 
   app.useWebSocketAdapter(new IoAdapter(app));
 
@@ -62,9 +56,7 @@ async function bootstrap() {
 
   await app.listen(port, '0.0.0.0');
 
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
-  );
+  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
 bootstrap();

@@ -10,10 +10,7 @@ import { BottomNav, TopAppBar } from '../../../shared';
   imports: [RouterOutlet, TopAppBar, BottomNav],
   template: `
     @if (currentUser.hasValue()) {
-      <coaster-top-app-bar
-        [label]="currentUser.value()!.name"
-        [image]="currentUser.value()!.photoUrl!"
-      />
+      <coaster-top-app-bar [label]="currentUser.value()!.name" [image]="currentUser.value()!.photoUrl!" />
     }
 
     <main class="py-20 px-4">

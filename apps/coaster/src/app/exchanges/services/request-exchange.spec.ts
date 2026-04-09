@@ -1,5 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, asShiftExchangeId, CreateShiftExchangeDto, ShiftExchange, ShiftExchangeStatus, asUserId } from '@coaster/interfaces';
+import {
+  asBarId,
+  asShiftId,
+  asShiftExchangeId,
+  CreateShiftExchangeDto,
+  ShiftExchange,
+  ShiftExchangeStatus,
+  asUserId,
+} from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { BarExchanges } from './bar-exchanges';
@@ -38,12 +46,12 @@ describe('RequestExchange', () => {
     const barId = asBarId('bar-1');
     const shiftId = asShiftId('shift-1');
     const dto: CreateShiftExchangeDto = { targetId: asUserId('target-1') };
-    const mockExchange: ShiftExchange = { 
-      id: asShiftExchangeId('exchange-1'), 
-      shiftId, 
-      requesterId: asUserId('requester-1'), 
+    const mockExchange: ShiftExchange = {
+      id: asShiftExchangeId('exchange-1'),
+      shiftId,
+      requesterId: asUserId('requester-1'),
       targetId: asUserId('target-1'),
-      status: ShiftExchangeStatus.PENDING 
+      status: ShiftExchangeStatus.PENDING,
     };
 
     exchangeRepoMock['request'].mockResolvedValue(mockExchange);
@@ -51,7 +59,7 @@ describe('RequestExchange', () => {
     const result = await service.execute(barId, shiftId, dto);
 
     expect(exchangeRepoMock['request']).toHaveBeenCalledWith(barId, shiftId, dto);
-    
+
     expect(result).toEqual(mockExchange);
   });
 });

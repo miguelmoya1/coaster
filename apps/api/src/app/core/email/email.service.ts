@@ -8,9 +8,7 @@ export class EmailService {
   #logger = new Logger(EmailService.name);
 
   constructor(private readonly _configService: ConfigService) {
-    this.#resend = new Resend(
-      this._configService.get<string>('RESEND_API_KEY'),
-    );
+    this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY'));
   }
 
   async sendInviteEmail(to: string, barName: string, inviterName: string) {

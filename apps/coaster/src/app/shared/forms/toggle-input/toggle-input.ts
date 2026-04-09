@@ -1,15 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  model,
-} from '@angular/core';
-import {
-  DisabledReason,
-  FormCheckboxControl,
-  ValidationError,
-  WithOptionalFieldTree,
-} from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { DisabledReason, FormCheckboxControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 @Component({
@@ -42,16 +32,12 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
               [class.translate-x-5]="checked()"
               [class.translate-x-0]="!checked()"
               class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-            >
-            </span>
+            ></span>
           </button>
 
           <div class="flex flex-col gap-0.5">
             @if (label()) {
-              <span
-                class="text-sm font-medium text-on-surface"
-                [class.text-error]="invalid()"
-              >
+              <span class="text-sm font-medium text-on-surface" [class.text-error]="invalid()">
                 {{ label() }}
                 @if (required()) {
                   <span class="text-error">*</span>
@@ -87,15 +73,11 @@ export class ToggleInput implements FormCheckboxControl {
 
   // Read-only state from form system
   readonly disabled = input<boolean>(false);
-  readonly disabledReasons = input<
-    readonly WithOptionalFieldTree<DisabledReason>[]
-  >([]);
+  readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
   readonly hidden = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>(
-    [],
-  );
+  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
   toggle() {

@@ -35,13 +35,20 @@ describe('UpdateProductStock', () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('prod-1');
     const dto = { currentStock: 2, minStockAlert: 5 };
-    const expectedProduct = { id: productId, name: 'Product 1', currentStock: 2, minStockAlert: 5, lastUpdated: new Date().toISOString(), categoryId: 'cat-1' };
+    const expectedProduct = {
+      id: productId,
+      name: 'Product 1',
+      currentStock: 2,
+      minStockAlert: 5,
+      lastUpdated: new Date().toISOString(),
+      categoryId: 'cat-1',
+    };
     repositoryMock['updateStock'].mockResolvedValue(expectedProduct);
 
     const result = await service.updateStock(barId, productId, dto);
 
     expect(repositoryMock['updateStock']).toHaveBeenCalledWith(barId, productId, dto);
-    
+
     expect(result).toEqual(expectedProduct);
   });
 });

@@ -1,17 +1,6 @@
-import {
-  CreateShiftDto as ICreateShiftDto,
-  ShiftType,
-  UserId,
-} from '@coaster/interfaces';
+import { CreateShiftDto as ICreateShiftDto, ShiftType, UserId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
-import {
-  IsDateString,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateShiftDto implements ICreateShiftDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })

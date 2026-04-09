@@ -1,30 +1,13 @@
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideCalendar,
-  lucideLayoutDashboard,
-  lucidePackage,
-  lucideUsers,
-} from '@ng-icons/lucide';
+import { lucideCalendar, lucideLayoutDashboard, lucidePackage, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-bottom-nav',
-  imports: [
-    NgIcon,
-    Toolbar,
-    ToolbarWidget,
-    RouterLink,
-    RouterLinkActive,
-    TranslatePipe,
-  ],
+  imports: [NgIcon, Toolbar, ToolbarWidget, RouterLink, RouterLinkActive, TranslatePipe],
   viewProviders: [
     provideIcons({
       lucideLayoutDashboard,

@@ -1,10 +1,4 @@
-import {
-  asBarId,
-  asShiftExchangeId,
-  asShiftId,
-  asUserId,
-  User,
-} from '@coaster/interfaces';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
@@ -38,8 +32,10 @@ describe('ShiftExchangesController', () => {
       controllers: [ShiftExchangesController],
       providers: [{ provide: ShiftExchangesService, useValue: mockService }],
     })
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(RolesGuard).useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<ShiftExchangesController>(ShiftExchangesController);
@@ -58,29 +54,15 @@ describe('ShiftExchangesController', () => {
     service.requestExchange.mockResolvedValue({} as any);
     const dto = { targetId: asUserId('target-1') };
 
-    controller.createExchange(
-      asBarId('bar-1'),
-      asShiftId('shift-1'),
-      dto as any,
-      fakeUser,
-    );
+    controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto as any, fakeUser);
 
-    expect(service.requestExchange).toHaveBeenCalledWith(
-      'bar-1',
-      'shift-1',
-      'user-1',
-      dto,
-    );
+    expect(service.requestExchange).toHaveBeenCalledWith('bar-1', 'shift-1', 'user-1', dto);
   });
 
   it('acceptExchange debería delegar al servicio con userId del user autenticado', () => {
     service.acceptExchange.mockResolvedValue({} as any);
 
-    controller.acceptExchange(
-      asBarId('bar-1'),
-      asShiftExchangeId('exc-1'),
-      fakeUser,
-    );
+    controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), fakeUser);
 
     expect(service.acceptExchange).toHaveBeenCalledWith('bar-1', 'exc-1', 'user-1');
   });

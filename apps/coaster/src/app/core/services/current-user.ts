@@ -17,7 +17,6 @@ export class CurrentUser {
 
   readonly #current = httpResource(
     () => {
-      
       if (!this.#auth.isAuthLoaded() || !this.#auth.isAuthenticated()) {
         return undefined;
       }
@@ -46,9 +45,6 @@ export class CurrentUser {
       return false;
     }
 
-    return (
-      user.name !== firebaseProfile.name ||
-      user.photoUrl !== firebaseProfile.photo
-    );
+    return user.name !== firebaseProfile.name || user.photoUrl !== firebaseProfile.photo;
   }
 }

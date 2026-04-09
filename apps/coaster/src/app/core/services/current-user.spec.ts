@@ -8,7 +8,12 @@ describe('CurrentUser', () => {
   let service: CurrentUser;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [{ provide: FirebaseAuth, useValue: { currentUser: null, updateCurrentUser: () => {} } }, { provide: Auth, useValue: { isAuthenticated: () => true, userProfile: () => null } }] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FirebaseAuth, useValue: { currentUser: null, updateCurrentUser: () => {} } },
+        { provide: Auth, useValue: { isAuthenticated: () => true, userProfile: () => null } },
+      ],
+    });
     service = TestBed.inject(CurrentUser);
   });
 

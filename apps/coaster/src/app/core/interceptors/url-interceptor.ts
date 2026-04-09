@@ -1,9 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { isDevMode } from '@angular/core';
 
-const API_URL = isDevMode()
-  ? 'http://localhost:3000'
-  : 'https://api.coaster.app';
+const API_URL = isDevMode() ? 'http://localhost:3000' : 'https://api.coaster.app';
 
 const API_VERSION = 'api/v1';
 

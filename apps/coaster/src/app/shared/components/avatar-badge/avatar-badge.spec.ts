@@ -7,10 +7,9 @@ describe('AvatarBadge', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AvatarBadge]
-    })
-    .compileComponents();
-    
+      imports: [AvatarBadge],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(AvatarBadge);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('imageSrc', 'test.jpg');

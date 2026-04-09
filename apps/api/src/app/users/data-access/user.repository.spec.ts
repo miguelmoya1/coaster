@@ -10,10 +10,7 @@ describe('UserRepository', () => {
     const mockPrisma = { user: { findUnique: jest.fn() } };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [UserRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<UserRepository>(UserRepository);

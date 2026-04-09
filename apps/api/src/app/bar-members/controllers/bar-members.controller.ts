@@ -17,11 +17,7 @@ export class BarMembersController {
 
   @Post()
   @Roles(BarRole.OWNER)
-  inviteMember(
-    @Param('barId') barId: BarId,
-    @Body() dto: InviteBarMemberDto,
-    @CurrentUser() user: User,
-  ) {
+  inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
     return this._barMembersService.invite(barId, dto.email, dto.role, user);
   }
 }

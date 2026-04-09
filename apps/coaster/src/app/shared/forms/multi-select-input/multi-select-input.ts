@@ -1,23 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  model,
-  signal,
-} from '@angular/core';
-import {
-  DisabledReason,
-  FormValueControl,
-  ValidationError,
-  WithOptionalFieldTree,
-} from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
+import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideAlertCircle,
-  lucideCheck,
-  lucideChevronDown,
-} from '@ng-icons/lucide';
+import { lucideAlertCircle, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { Listbox, Option } from '@angular/aria/listbox';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
@@ -31,9 +15,7 @@ export interface MultiSelectOption {
 @Component({
   selector: 'coaster-multi-select-input',
   imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, FormFieldMessages],
-  providers: [
-    provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle }),
-  ],
+  providers: [provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
@@ -72,7 +54,9 @@ export interface MultiSelectOption {
               <span class="text-on-surface-variant">{{ placeholder() }}</span>
             } @else {
               @for (item of selectedDisplayItems(); track item.value) {
-                <span class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-3 py-1.5 rounded-lg text-sm font-medium border border-outline-variant">
+                <span
+                  class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-3 py-1.5 rounded-lg text-sm font-medium border border-outline-variant"
+                >
                   {{ item.label }}
                 </span>
               }
@@ -80,10 +64,7 @@ export interface MultiSelectOption {
           </div>
           <div class="flex items-center gap-2 shrink-0">
             @if (invalid()) {
-              <ng-icon
-                name="lucideAlertCircle"
-                class="text-error text-xl"
-              ></ng-icon>
+              <ng-icon name="lucideAlertCircle" class="text-error text-xl"></ng-icon>
             }
             <ng-icon
               name="lucideChevronDown"
@@ -136,10 +117,12 @@ export interface MultiSelectOption {
                     (keydown.space)="$event.preventDefault()"
                     tabindex="-1"
                   >
-                    <div class="w-6 h-6 shrink-0 rounded border-2 flex items-center justify-center transition-colors"
-                         [class.bg-primary]="isSelected(opt.value)"
-                         [class.border-primary]="isSelected(opt.value)"
-                         [class.border-outline-variant]="!isSelected(opt.value)">
+                    <div
+                      class="w-6 h-6 shrink-0 rounded border-2 flex items-center justify-center transition-colors"
+                      [class.bg-primary]="isSelected(opt.value)"
+                      [class.border-primary]="isSelected(opt.value)"
+                      [class.border-outline-variant]="!isSelected(opt.value)"
+                    >
                       @if (isSelected(opt.value)) {
                         <ng-icon name="lucideCheck" class="text-on-primary text-xl"></ng-icon>
                       }
@@ -180,15 +163,11 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
 
   // Read-only state from form system
   readonly disabled = input<boolean>(false);
-  readonly disabledReasons = input<
-    readonly WithOptionalFieldTree<DisabledReason>[]
-  >([]);
+  readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
   readonly hidden = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>(
-    [],
-  );
+  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
   // Component state
@@ -197,17 +176,17 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
 
   // Computed state
   readonly hasValue = computed(() => this.value() && this.value().length > 0);
-  
+
   readonly selectedDisplayItems = computed(() => {
     const vals = this.value();
     if (!vals || vals.length === 0) return [];
-    
+
     // Map values to display objects
-    return vals.map(val => {
-      const option = this.options().find(o => o.value === val);
+    return vals.map((val) => {
+      const option = this.options().find((o) => o.value === val);
       return {
         value: val,
-        label: option ? option.label : String(val)
+        label: option ? option.label : String(val),
       };
     });
   });
@@ -215,7 +194,7 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
   toggleOpen(event: MouseEvent) {
     if (this.disabled() || this.readonly()) return;
     this.isOpen.update((v) => !v);
-    
+
     if (this.isOpen()) {
       const target = event.currentTarget as HTMLElement;
       this.triggerWidth.set(target.offsetWidth);
@@ -237,7 +216,6 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
     return this.value()?.includes(val) || false;
   }
 
-
   onSelectionChange(newValues: (string | number)[]) {
     this.value.set(newValues);
   }
@@ -247,7 +225,7 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    
+
     const current = this.value() || [];
     if (current.includes(val)) {
       this.value.set(current.filter((v) => v !== val));

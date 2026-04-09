@@ -1,15 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  Product,
-} from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, Product } from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
 import { BarProducts } from './bar-products';
 

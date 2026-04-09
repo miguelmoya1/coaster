@@ -1,10 +1,4 @@
-import {
-  BarId,
-  ShiftExchangeId,
-  ShiftExchangeStatus,
-  ShiftId,
-  UserId,
-} from '@coaster/interfaces';
+import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core';
 
@@ -23,11 +17,7 @@ export class ShiftExchangesRepository {
     });
   }
 
-  async createExchange(
-    shiftId: ShiftId,
-    requesterId: UserId,
-    targetId?: UserId,
-  ) {
+  async createExchange(shiftId: ShiftId, requesterId: UserId, targetId?: UserId) {
     return this.prisma.shiftExchange.create({
       data: {
         shift: { connect: { id: shiftId } },
@@ -51,11 +41,7 @@ export class ShiftExchangesRepository {
     });
   }
 
-  async acceptExchangeAndSwapShift(
-    exchangeId: ShiftExchangeId,
-    shiftId: ShiftId,
-    newUserId: UserId,
-  ) {
+  async acceptExchangeAndSwapShift(exchangeId: ShiftExchangeId, shiftId: ShiftId, newUserId: UserId) {
     return this.prisma.$transaction([
       this.prisma.shiftExchange.update({
         where: { id: exchangeId },

@@ -1,25 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
-import {
-  BarId,
-  CreateCategoryDto,
-  CreateProductDto,
-  Product,
-} from '@coaster/interfaces';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { BarId, CreateCategoryDto, CreateProductDto, Product } from '@coaster/interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import {
-  BarCategories,
-  CategoryTabs,
-  CreateCategory,
-  CreateCategoryForm,
-} from '../../../../categories';
+import { BarCategories, CategoryTabs, CreateCategory, CreateCategoryForm } from '../../../../categories';
 import { ApiError, CurrentUser } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import {
@@ -72,9 +54,7 @@ export default class Pantry {
   protected readonly products = this.#productsService.all;
 
   protected readonly currentUserRole = computed(() => {
-    const barMember = this.#barMembers.list
-      .value()
-      ?.find((m) => m.userId === this.#currentUser.current.value()?.id);
+    const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     console.log(barMember);
     return barMember?.role;
   });
@@ -107,11 +87,7 @@ export default class Pantry {
 
   protected getProductStatus(product: Product): InventoryStatus {
     if (product.currentStock <= 0) return 'critical';
-    if (
-      product.minStockAlert !== undefined &&
-      product.currentStock <= product.minStockAlert
-    )
-      return 'low';
+    if (product.minStockAlert !== undefined && product.currentStock <= product.minStockAlert) return 'low';
     return 'good';
   }
 
@@ -134,9 +110,7 @@ export default class Pantry {
       this.#productsService.reload();
       this.isSheetOpen.set(false);
     } catch (error: unknown) {
-      this.formError.set(
-        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
-      );
+      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
     } finally {
       this.isSubmitting.set(false);
     }
@@ -151,9 +125,7 @@ export default class Pantry {
       this.#categoriesService.reload();
       this.isSheetOpen.set(false);
     } catch (error: unknown) {
-      this.formError.set(
-        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
-      );
+      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
     } finally {
       this.isSubmitting.set(false);
     }

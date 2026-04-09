@@ -1,13 +1,5 @@
 import { BarId, BarRole, ProductId } from '@coaster/interfaces';
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductStockDto } from '../dto/update-product-stock.dto';

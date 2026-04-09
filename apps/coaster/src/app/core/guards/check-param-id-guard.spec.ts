@@ -5,9 +5,7 @@ import { checkParamIdGuard } from './check-param-id-guard';
 
 describe('checkParamIdGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() =>
-      checkParamIdGuard('barId')(...guardParameters),
-    );
+    TestBed.runInInjectionContext(() => checkParamIdGuard('barId')(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

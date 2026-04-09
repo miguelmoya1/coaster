@@ -15,10 +15,7 @@ describe('CategoriesRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CategoriesRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [CategoriesRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<CategoriesRepository>(CategoriesRepository);

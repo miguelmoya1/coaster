@@ -7,8 +7,7 @@ export type ShiftId = Brand<string, 'ShiftId'>;
 export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
 
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
-export const asShiftExchangeId = (id: string): ShiftExchangeId =>
-  id as ShiftExchangeId;
+export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
 
 export interface Shift {
   id: ShiftId;

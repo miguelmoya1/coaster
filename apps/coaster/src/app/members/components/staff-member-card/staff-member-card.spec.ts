@@ -7,10 +7,9 @@ describe('StaffMemberCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StaffMemberCard]
-    })
-    .compileComponents();
-    
+      imports: [StaffMemberCard],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(StaffMemberCard);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('staffName', 'Test Name');

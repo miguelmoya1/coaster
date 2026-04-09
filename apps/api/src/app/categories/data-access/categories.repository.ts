@@ -6,10 +6,7 @@ import { Prisma, PrismaService } from '../../core';
 export class CategoriesRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
-  async create(
-    barId: BarId,
-    createCategoryDto: Omit<Prisma.CategoryCreateInput, 'bar'>,
-  ) {
+  async create(barId: BarId, createCategoryDto: Omit<Prisma.CategoryCreateInput, 'bar'>) {
     return this._prisma.category.create({
       data: {
         bar: { connect: { id: barId } },

@@ -20,10 +20,7 @@ describe('JwtStrategy', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        JwtStrategy,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [JwtStrategy, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     strategy = module.get<JwtStrategy>(JwtStrategy);
@@ -68,16 +65,12 @@ describe('JwtStrategy', () => {
   it('debería lanzar UnauthorizedException si el payload no tiene sub', async () => {
     (admin.auth().verifyIdToken as jest.Mock).mockResolvedValue({ email: 'test@mail.com' });
 
-    await expect(strategy.validate('bad-token')).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 
   it('debería lanzar UnauthorizedException si verifyIdToken falla', async () => {
     (admin.auth().verifyIdToken as jest.Mock).mockRejectedValue(new Error('bad'));
 
-    await expect(strategy.validate('bad-token')).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 });

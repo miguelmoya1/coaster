@@ -1,18 +1,6 @@
-import {
-  asBarId,
-  asBarMemberId,
-  asUserId,
-  BarId,
-  BarMember,
-  BarRole,
-  User,
-} from '@coaster/interfaces';
+import { asBarId, asBarMemberId, asUserId, BarId, BarMember, BarRole, User } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 
@@ -29,12 +17,7 @@ export class BarMembersService {
     return members.map(this.#mapToBarMember);
   }
 
-  async invite(
-    barId: BarId,
-    email: string,
-    role: BarRole = BarRole.STAFF,
-    user: User,
-  ) {
+  async invite(barId: BarId, email: string, role: BarRole = BarRole.STAFF, user: User) {
     const bar = await this.repository.findBarById(barId);
     if (!bar) {
       throw new NotFoundException(ErrorCodes.BAR_NOT_FOUND);

@@ -29,35 +29,25 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(SocketEvents.JOIN_BAR)
-  handleJoinBar(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() barId: string,
-  ) {
+  handleJoinBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
     client.join(barId);
-    this._logger.debug(
-      `Cliente ${client.id} se unió a la sala del bar: ${barId}`,
-    );
+    this._logger.debug(`Cliente ${client.id} se unió a la sala del bar: ${barId}`);
 
     return { event: SocketEvents.JOINED, data: barId };
   }
 
   @SubscribeMessage(SocketEvents.LEAVE_BAR)
-  handleLeaveBar(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() barId: string,
-  ) {
+  handleLeaveBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
     client.leave(barId);
-    this._logger.debug(
-      `Cliente ${client.id} abandonó la sala del bar: ${barId}`,
-    );
+    this._logger.debug(`Cliente ${client.id} abandonó la sala del bar: ${barId}`);
 
     return { event: SocketEvents.LEFT, data: barId };
   }

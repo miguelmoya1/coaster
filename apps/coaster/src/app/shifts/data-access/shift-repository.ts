@@ -17,10 +17,6 @@ export class ShiftRepository {
   };
 
   public async create(barId: BarId, createShiftDto: CreateShiftDto) {
-    return firstValueFrom(
-      this.#http
-        .post<Shift>(this.routes.create(barId), createShiftDto)
-        .pipe(map(shiftMapper)),
-    );
+    return firstValueFrom(this.#http.post<Shift>(this.routes.create(barId), createShiftDto).pipe(map(shiftMapper)));
   }
 }

@@ -1,13 +1,6 @@
 import { CdkDrag, CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
 import { isPlatformBrowser } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  output,
-  PLATFORM_ID,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, PLATFORM_ID, signal } from '@angular/core';
 
 @Component({
   selector: 'coaster-bottom-sheet',
@@ -74,7 +67,6 @@ export class BottomSheet {
   protected minHeight = 200;
   protected maxHeight = 600;
   protected readonly sheetHeight = signal(200);
-
 
   #initialHeight = 0;
 

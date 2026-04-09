@@ -10,7 +10,6 @@ export enum ShiftType {
   SPLIT = 'SPLIT',
 }
 
-
 export enum ShiftExchangeStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -32,7 +31,6 @@ export const asShiftType = (type: string): ShiftType => {
   console.warn(`Invalid ShiftType mapping: ${type}, defaulting to MORNING`);
   return ShiftType.MORNING;
 };
-
 
 export const asShiftExchangeStatus = (status: string): ShiftExchangeStatus => {
   if (Object.values(ShiftExchangeStatus).includes(status as ShiftExchangeStatus)) {

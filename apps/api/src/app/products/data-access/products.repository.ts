@@ -13,10 +13,7 @@ export class ProductsRepository {
     return category?.barId === barId;
   }
 
-  async create(
-    categoryId: CategoryId,
-    createProductDto: Omit<Prisma.ProductCreateInput, 'category'>,
-  ) {
+  async create(categoryId: CategoryId, createProductDto: Omit<Prisma.ProductCreateInput, 'category'>) {
     return this._prisma.product.create({
       data: {
         ...createProductDto,
@@ -25,10 +22,7 @@ export class ProductsRepository {
     });
   }
 
-  async updateStock(
-    productId: ProductId,
-    productUpdateDto: Prisma.ProductUpdateInput,
-  ) {
+  async updateStock(productId: ProductId, productUpdateDto: Prisma.ProductUpdateInput) {
     return this._prisma.product.update({
       where: { id: productId },
       data: { ...productUpdateDto },

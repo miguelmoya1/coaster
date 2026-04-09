@@ -1,17 +1,6 @@
-import {
-  BarId,
-  Shift as IShift,
-  asBarId,
-  asShiftId,
-  asShiftType,
-  asUserId,
-} from '@coaster/interfaces';
+import { BarId, Shift as IShift, asBarId, asShiftId, asShiftType, asUserId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { Shift as ShiftDb } from '../../core';
 import { ShiftsRepository } from '../data-access/shifts.repository';
 import { CreateShiftDto } from '../dto/create-shift.dto';
@@ -23,16 +12,13 @@ export class ShiftsService {
   constructor(private readonly _shiftsRepository: ShiftsRepository) {}
 
   async createShift(barId: BarId, dto: CreateShiftDto) {
-    const isMember = await this._shiftsRepository.isUserMemberOfBar(
-      dto.userId,
-      barId,
-    );
+    const isMember = await this._shiftsRepository.isUserMemberOfBar(dto.userId, barId);
 
     if (!isMember) {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    const {date, userId, ...rest} = dto;
+    const { date, userId, ...rest } = dto;
 
     const shiftDate = new Date(date);
 
@@ -40,14 +26,10 @@ export class ShiftsService {
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const shift = await this._shiftsRepository.create(
-      barId,
-      userId,
-      {
-        date: shiftDate,
-        ...rest,
-      },
-    );
+    const shift = await this._shiftsRepository.create(barId, userId, {
+      date: shiftDate,
+      ...rest,
+    });
 
     return this.#mapToDomain(shift);
   }

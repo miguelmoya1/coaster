@@ -21,8 +21,10 @@ describe('CategoriesController', () => {
       controllers: [CategoriesController],
       providers: [{ provide: CategoriesService, useValue: mockService }],
     })
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(RolesGuard).useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<CategoriesController>(CategoriesController);

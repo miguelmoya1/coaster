@@ -1,7 +1,4 @@
-import {
-  BarRole,
-  InviteBarMemberDto as IInviteBarMemberDto,
-} from '@coaster/interfaces';
+import { BarRole, InviteBarMemberDto as IInviteBarMemberDto } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 

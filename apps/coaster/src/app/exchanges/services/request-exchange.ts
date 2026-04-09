@@ -8,11 +8,7 @@ import { ExchangeRepository } from '../data-access/exchange-repository';
 export class RequestExchange {
   readonly #exchangeRepository = inject(ExchangeRepository);
 
-  public async execute(
-    barId: BarId,
-    shiftId: ShiftId,
-    dto: CreateShiftExchangeDto,
-  ) {
+  public async execute(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto) {
     return await this.#exchangeRepository.request(barId, shiftId, dto);
   }
 }

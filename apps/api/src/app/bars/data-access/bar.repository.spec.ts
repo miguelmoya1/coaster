@@ -17,10 +17,7 @@ describe('BarRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BarRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [BarRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<BarRepository>(BarRepository);

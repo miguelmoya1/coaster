@@ -12,13 +12,9 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
       class="cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200"
     >
       <div class="flex items-center gap-5">
-        <div
-          class="w-16 h-16 rounded-xl bg-surface overflow-hidden shrink-0 shadow-inner"
-        ></div>
+        <div class="w-16 h-16 rounded-xl bg-surface overflow-hidden shrink-0 shadow-inner"></div>
         <div class="flex flex-col py-1">
-          <h3
-            class="font-bold text-lg leading-tight text-on-surface tracking-wide"
-          >
+          <h3 class="font-bold text-lg leading-tight text-on-surface tracking-wide">
             {{ bar().name }}
           </h3>
           <coaster-bar-role-badge />

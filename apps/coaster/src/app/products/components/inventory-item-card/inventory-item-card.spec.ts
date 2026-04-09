@@ -7,10 +7,9 @@ describe('InventoryItemCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InventoryItemCard]
-    })
-    .compileComponents();
-    
+      imports: [InventoryItemCard],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(InventoryItemCard);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('itemName', 'Test Item');

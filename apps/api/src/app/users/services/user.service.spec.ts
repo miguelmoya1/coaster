@@ -11,10 +11,7 @@ describe('UserService', () => {
     const mockRepo = { getById: jest.fn(), update: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserService,
-        { provide: UserRepository, useValue: mockRepo },
-      ],
+      providers: [UserService, { provide: UserRepository, useValue: mockRepo }],
     }).compile();
 
     service = module.get<UserService>(UserService);

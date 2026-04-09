@@ -15,10 +15,7 @@ import { Button, SectionTitle, StatusCard } from '../../../shared';
       isH1
     />
 
-    <coaster-status-card
-      status="success"
-      class="min-w-52 max-w-96 w-full gap-4 h-64 justify-evenly items-center"
-    >
+    <coaster-status-card status="success" class="min-w-52 max-w-96 w-full gap-4 h-64 justify-evenly items-center">
       <div class="flex flex-col gap-2 justify-center items-center mb-8">
         <h2 class="text-2xl font-bold">
           {{ 'auth.login.heading' | translate }}
@@ -28,11 +25,7 @@ import { Button, SectionTitle, StatusCard } from '../../../shared';
         </p>
       </div>
 
-      <coaster-button
-        (click)="signIn()"
-        [disabled]="isLoading()"
-        class="w-full"
-      >
+      <coaster-button (click)="signIn()" [disabled]="isLoading()" class="w-full">
         {{ 'auth.login.google_button' | translate }}
       </coaster-button>
     </coaster-status-card>

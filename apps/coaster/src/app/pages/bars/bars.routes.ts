@@ -19,7 +19,7 @@ const routes: Routes = [
         redirectTo: 'select',
         pathMatch: 'full',
       },
-    ]
+    ],
   },
   {
     path: ':barId',

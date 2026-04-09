@@ -1,9 +1,7 @@
 import { Bar } from '@coaster/interfaces';
 
 export const checkIsBar = (bar: unknown): bar is Bar => {
-  return (
-    typeof bar === 'object' && bar !== null && 'id' in bar && 'name' in bar
-  );
+  return typeof bar === 'object' && bar !== null && 'id' in bar && 'name' in bar;
 };
 
 export const barMapper = (bar: unknown): Bar => {

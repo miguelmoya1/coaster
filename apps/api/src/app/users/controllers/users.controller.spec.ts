@@ -18,12 +18,12 @@ describe('UsersController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [
-        { provide: UserService, useValue: mockUserService },
-      ],
+      providers: [{ provide: UserService, useValue: mockUserService }],
     })
-      .overrideGuard(OptionalFirebaseAuthGuard).useValue(mockGuard)
-      .overrideGuard(FirebaseAuthGuard).useValue(mockGuard)
+      .overrideGuard(OptionalFirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
       .compile();
 
     controller = module.get<UsersController>(UsersController);

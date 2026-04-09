@@ -1,43 +1,13 @@
-import {
-  Component,
-  computed,
-  input,
-  model,
-  output,
-  signal,
-} from '@angular/core';
-import {
-  form,
-  FormField,
-  FormRoot,
-  maxLength,
-  min,
-  minLength,
-  required,
-} from '@angular/forms/signals';
+import { Component, computed, input, model, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { asCategoryId, Category, CreateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  Button,
-  FormFieldMessages,
-  NumberInput,
-  SelectInput,
-  TextInput,
-} from '../../../shared';
+import { Button, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-product-form',
   standalone: true,
-  imports: [
-    FormRoot,
-    TextInput,
-    NumberInput,
-    SelectInput,
-    FormField,
-    Button,
-    TranslatePipe,
-    FormFieldMessages,
-  ],
+  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, Button, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -67,10 +37,7 @@ import {
         />
 
         @if (error(); as error) {
-          <coaster-form-field-messages
-            [invalid]="true"
-            [errors]="[{ message: error | translate, kind: '' }]"
-          />
+          <coaster-form-field-messages [invalid]="true" [errors]="[{ message: error | translate, kind: '' }]" />
         }
 
         <div class="flex justify-end mt-4 gap-2">
@@ -84,12 +51,7 @@ import {
             {{ 'pantry.create_product.cancel_btn' | translate }}
           </coaster-button>
 
-          <coaster-button
-            class="w-full"
-            type="submit"
-            variant="primary"
-            [disabled]="disabled()"
-          >
+          <coaster-button class="w-full" type="submit" variant="primary" [disabled]="disabled()">
             {{ 'pantry.create_product.submit_btn' | translate }}
           </coaster-button>
         </div>

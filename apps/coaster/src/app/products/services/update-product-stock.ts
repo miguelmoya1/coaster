@@ -8,15 +8,7 @@ import { ProductRepository } from '../data-access/product-repository';
 export class UpdateProductStock {
   readonly #productRepository = inject(ProductRepository);
 
-  public async updateStock(
-    barId: BarId,
-    productId: ProductId,
-    updateProductStockDto: UpdateProductStockDto,
-  ) {
-    return await this.#productRepository.updateStock(
-      barId,
-      productId,
-      updateProductStockDto,
-    );
+  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
+    return await this.#productRepository.updateStock(barId, productId, updateProductStockDto);
   }
 }

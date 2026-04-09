@@ -19,10 +19,7 @@ describe('BarMembersRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BarMembersRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [BarMembersRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<BarMembersRepository>(BarMembersRepository);
@@ -45,11 +42,7 @@ describe('BarMembersRepository', () => {
       prisma.user.upsert.mockResolvedValue({ id: 'new-user' });
       prisma.barMember.create.mockResolvedValue({ id: 'member-1' });
 
-      const result = await repository.inviteMember(
-        asBarId('bar-1'),
-        'new@test.com',
-        { role: BarRole.STAFF },
-      );
+      const result = await repository.inviteMember(asBarId('bar-1'), 'new@test.com', { role: BarRole.STAFF });
 
       expect(prisma.user.upsert).toHaveBeenCalledWith({
         where: { email: 'new@test.com' },

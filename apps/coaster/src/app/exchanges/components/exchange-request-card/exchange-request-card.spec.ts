@@ -7,10 +7,9 @@ describe('ExchangeRequestCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExchangeRequestCard]
-    })
-    .compileComponents();
-    
+      imports: [ExchangeRequestCard],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ExchangeRequestCard);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('month', 'Jan');

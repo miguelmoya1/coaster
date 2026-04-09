@@ -58,12 +58,8 @@ describe('ProductsService', () => {
     it('debería bloquear creación si la categoría no es del bar', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
-      await expect(
-        service.createProduct(asBarId('bar-1'), createDto),
-      ).rejects.toThrow(ForbiddenException);
-      await expect(
-        service.createProduct(asBarId('bar-1'), createDto),
-      ).rejects.toThrow(ErrorCodes.CATEGORY_NOT_FOUND);
+      await expect(service.createProduct(asBarId('bar-1'), createDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.createProduct(asBarId('bar-1'), createDto)).rejects.toThrow(ErrorCodes.CATEGORY_NOT_FOUND);
 
       expect(repository.create).not.toHaveBeenCalled();
       expect(gateway.server.emit).not.toHaveBeenCalled();
@@ -83,10 +79,12 @@ describe('ProductsService', () => {
 
       const result = await service.createProduct(asBarId('bar-1'), createDto);
 
-      expect(repository.create).toHaveBeenCalledWith(
-        'cat-1',
-        { categoryId: 'cat-1', name: 'Coca Cola', currentStock: 10, minStockAlert: 5 },
-      );
+      expect(repository.create).toHaveBeenCalledWith('cat-1', {
+        categoryId: 'cat-1',
+        name: 'Coca Cola',
+        currentStock: 10,
+        minStockAlert: 5,
+      });
 
       const expectedDomain = {
         id: asProductId('prod-1'),
@@ -99,10 +97,7 @@ describe('ProductsService', () => {
 
       expect(result).toEqual(expectedDomain);
       expect(gateway.server.to).toHaveBeenCalledWith('bar-1');
-      expect(gateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_CREATED,
-        expectedDomain,
-      );
+      expect(gateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, expectedDomain);
     });
   });
 
@@ -123,16 +118,9 @@ describe('ProductsService', () => {
         updatedAt: FAKE_DATE,
       } as any);
 
-      const result = await service.updateProductStock(
-        asBarId('bar-1'),
-        asProductId('prod-1'),
-        updateDto,
-      );
+      const result = await service.updateProductStock(asBarId('bar-1'), asProductId('prod-1'), updateDto);
 
-      expect(repository.updateStock).toHaveBeenCalledWith(
-        'prod-1',
-        { currentStock: 2, minStockAlert: 5 },
-      );
+      expect(repository.updateStock).toHaveBeenCalledWith('prod-1', { currentStock: 2, minStockAlert: 5 });
 
       const expectedDomain = {
         id: asProductId('prod-1'),
@@ -145,10 +133,7 @@ describe('ProductsService', () => {
 
       expect(result).toEqual(expectedDomain);
       expect(gateway.server.to).toHaveBeenCalledWith('bar-1');
-      expect(gateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_STOCK_CHANGED,
-        expectedDomain,
-      );
+      expect(gateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, expectedDomain);
     });
   });
 

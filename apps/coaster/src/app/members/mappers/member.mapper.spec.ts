@@ -1,15 +1,5 @@
-import {
-  asBarId,
-  asBarMemberId,
-  asUserId,
-  BarMember,
-  BarRole,
-} from '@coaster/interfaces';
-import {
-  checkIsMember,
-  memberArrayMapper,
-  memberMapper,
-} from './member.mapper';
+import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
+import { checkIsMember, memberArrayMapper, memberMapper } from './member.mapper';
 
 describe('Member Mapper', () => {
   const validMember: BarMember = {

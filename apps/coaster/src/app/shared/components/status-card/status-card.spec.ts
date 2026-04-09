@@ -7,10 +7,9 @@ describe('StatusCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StatusCard]
-    })
-    .compileComponents();
-    
+      imports: [StatusCard],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(StatusCard);
     component = fixture.componentInstance;
     fixture.detectChanges();
