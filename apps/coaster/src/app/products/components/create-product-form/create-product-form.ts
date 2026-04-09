@@ -54,21 +54,17 @@ import {
           [placeholder]="'pantry.create_product.category_placeholder' | translate"
         />
 
-        <div class="flex gap-4">
-          <coaster-number-input
-            [formField]="form.currentStock"
-            [label]="'pantry.create_product.current_stock_label' | translate"
-            [showControls]="true"
-            class="flex-1"
-          />
+        <coaster-number-input
+          [formField]="form.currentStock"
+          [label]="'pantry.create_product.current_stock_label' | translate"
+          [showControls]="true"
+        />
 
-          <coaster-number-input
-            [formField]="form.minStockAlert"
-            [label]="'pantry.create_product.min_stock_label' | translate"
-            [showControls]="true"
-            class="flex-1"
-          />
-        </div>
+        <coaster-number-input
+          [formField]="form.minStockAlert"
+          [label]="'pantry.create_product.min_stock_label' | translate"
+          [showControls]="true"
+        />
 
         @if (error(); as error) {
           <coaster-form-field-messages

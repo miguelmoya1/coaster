@@ -32,9 +32,15 @@ export class ProductsService {
       throw new ForbiddenException(ErrorCodes.CATEGORY_NOT_FOUND);
     }
 
+    const createData = {
+      name: productDto.name,
+      currentStock: productDto.currentStock,
+      minStockAlert: productDto.minStockAlert,
+    };
+
     const product = await this._productsRepository.create(
       validCategoryId,
-      productDto,
+      createData,
     );
 
     const mapped = this.#mapToDomain(product);
