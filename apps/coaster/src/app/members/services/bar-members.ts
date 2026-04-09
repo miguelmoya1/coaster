@@ -22,11 +22,11 @@ export class BarMembers {
 
   public readonly list = this.#list.asReadonly();
 
-  public selectBar(barId: BarId) {
+  public setBarContext(barId: BarId) {
     this.#currentBarId.set(barId);
   }
 
-  public clearBar() {
+  public clearBarContext() {
     this.#currentBarId.set(undefined);
   }
 

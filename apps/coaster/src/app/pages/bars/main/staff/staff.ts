@@ -110,7 +110,7 @@ export default class Staff {
 
   constructor() {
     effect(() => {
-      this.#barMembers.selectBar(this.barId());
+      this.#barMembers.setBarContext(this.barId());
     });
   }
 

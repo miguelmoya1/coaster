@@ -7,13 +7,28 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { BarId, BarRole, Product } from '@coaster/interfaces';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CategoryTabs } from '../../../../categories';
+import {
+  BarId,
+  CreateCategoryDto,
+  CreateProductDto,
+  Product,
+} from '@coaster/interfaces';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import {
+  CategoryTabs,
+  CreateCategory,
+  CreateCategoryForm,
+} from '../../../../categories';
 import { BarCategories } from '../../../../categories/services/bar-categories';
+import { ApiError } from '../../../../core';
 import { CurrentUser } from '../../../../core/services/current-user';
 import { BarMembers } from '../../../../members';
-import { BarProducts, InventoryItemCard } from '../../../../products';
+import {
+  BarProducts,
+  CreateProduct,
+  CreateProductForm,
+  InventoryItemCard,
+} from '../../../../products';
 import { InventoryStatus } from '../../../../products/components/inventory-item-card/inventory-item-card';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
@@ -23,6 +38,8 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
   imports: [
     CategoryTabs,
     InventoryItemCard,
+    CreateCategoryForm,
+    CreateProductForm,
     Loading,
     SectionTitle,
     BottomSheet,
@@ -62,7 +79,6 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
             [statusLevel]="getProductStatus(product)"
             (click)="onProductClicked(product)"
           />
-          <!-- [locationText]="$any(product).location || ''" -->
         } @empty {
           <div class="text-center text-on-surface-variant mt-10">
             {{ 'pantry.empty' | translate }}
@@ -71,15 +87,59 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
       </div>
     }
 
-    @if (showCreateButton()) {
+    @if (currentUserRole() === 'OWNER') {
       <coaster-fab (click)="openBottomSheet()" />
     }
 
     @defer (when isSheetOpen()) {
+      @let tab = currentFormTab();
+
       @if (isSheetOpen()) {
         <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
-          <div class="p-6 text-on-surface">
-            Formulario para crear/editar productos (Próximamente)
+          <div class="flex flex-col px-6 pb-6 pt-2">
+            <div class="flex bg-surface-container rounded-lg p-1 mb-6">
+              <button
+                class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
+                [class.bg-surface-container-high]="tab === 'PRODUCT'"
+                [class.text-on-surface]="tab === 'PRODUCT'"
+                [class.text-on-surface-variant]="tab !== 'PRODUCT'"
+                (click)="currentFormTab.set('PRODUCT')"
+              >
+                {{ 'pantry.product' | translate }}
+              </button>
+              <button
+                class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
+                [class.bg-surface-container-high]="tab === 'CATEGORY'"
+                [class.text-on-surface]="tab === 'CATEGORY'"
+                [class.text-on-surface-variant]="tab !== 'CATEGORY'"
+                (click)="currentFormTab.set('CATEGORY')"
+              >
+                {{ 'pantry.category' | translate }}
+              </button>
+            </div>
+
+            @switch (tab) {
+              @case ('PRODUCT') {
+                <coaster-create-product-form
+                  [categories]="categories.value() ?? []"
+                  [disabled]="isSubmitting() || products.isLoading()"
+                  [(error)]="formError"
+                  (createProduct)="onProductSubmit($event)"
+                  (canceled)="isSheetOpen.set(false)"
+                />
+              }
+
+              @case ('CATEGORY') {
+                <coaster-create-category-form
+                  [disabled]="isSubmitting() || categories.isLoading()"
+                  [(error)]="formError"
+                  (createCategory)="onCategorySubmit($event)"
+                  (canceled)="isSheetOpen.set(false)"
+                />
+              }
+
+              @default never;
+            }
           </div>
         </coaster-bottom-sheet>
       }
@@ -92,38 +152,33 @@ export default class Pantry {
 
   readonly #productsService = inject(BarProducts);
   readonly #categoriesService = inject(BarCategories);
+  readonly #createProduct = inject(CreateProduct);
+  readonly #createCategory = inject(CreateCategory);
   readonly #currentUser = inject(CurrentUser);
+  readonly #translate = inject(TranslateService);
   readonly #barMembers = inject(BarMembers);
+
+  protected readonly isSheetOpen = signal(false);
+  protected readonly currentFormTab = signal<'PRODUCT' | 'CATEGORY'>('PRODUCT');
+  protected readonly isSubmitting = signal(false);
+  protected readonly formError = signal<string | undefined>(undefined);
+  protected readonly selectedCategoryId = signal<string>('ALL');
 
   protected readonly categories = this.#categoriesService.all;
   protected readonly products = this.#productsService.all;
-  protected readonly isSheetOpen = signal(false);
-  protected readonly selectedCategoryId = signal<string>('ALL');
 
-  readonly #currentUserMember = computed(() => {
-    if (!this.#currentUser.current.hasValue()) {
-      return null;
-    }
-    const user = this.#currentUser.current.value();
-
-    if (!this.#barMembers.list.hasValue()) {
-      return null;
-    }
-
-    const members = this.#barMembers.list.value();
-
-    return members?.find((m) => m.userId === user.id);
-  });
-
-  protected readonly showCreateButton = computed(() => {
-    const member = this.#currentUserMember();
-    return member?.role === BarRole.OWNER;
+  protected readonly currentUserRole = computed(() => {
+    const barMember = this.#barMembers.list
+      .value()
+      ?.find((m) => m.userId === this.#currentUser.current.value()?.id);
+    console.log(barMember);
+    return barMember?.role;
   });
 
   protected readonly tabs = computed(() => {
     const rawCategories = this.categories.value() ?? [];
     return [
-      { id: 'ALL', label: 'All' },
+      { id: 'ALL', label: this.#translate.instant('pantry.all') },
       ...rawCategories.map((c) => ({ id: c.id, label: c.name })),
     ];
   });
@@ -142,7 +197,7 @@ export default class Pantry {
     effect(() => {
       this.#productsService.setBarContext(this.barId());
       this.#categoriesService.setBarContext(this.barId());
-      this.#barMembers.selectBar(this.barId());
+      this.#barMembers.setBarContext(this.barId());
     });
   }
 
@@ -161,6 +216,42 @@ export default class Pantry {
   }
 
   protected openBottomSheet() {
+    this.formError.set(undefined);
+    this.currentFormTab.set('PRODUCT');
     this.isSheetOpen.set(true);
+  }
+
+  protected async onProductSubmit(payload: CreateProductDto) {
+    this.formError.set(undefined);
+
+    try {
+      this.isSubmitting.set(true);
+      await this.#createProduct.create(this.barId(), payload);
+      this.#productsService.reload();
+      this.isSheetOpen.set(false);
+    } catch (error: unknown) {
+      this.formError.set(
+        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
+      );
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  protected async onCategorySubmit(payload: CreateCategoryDto) {
+    this.formError.set(undefined);
+
+    try {
+      this.isSubmitting.set(true);
+      await this.#createCategory.create(this.barId(), payload);
+      this.#categoriesService.reload();
+      this.isSheetOpen.set(false);
+    } catch (error: unknown) {
+      this.formError.set(
+        error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR',
+      );
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
 }

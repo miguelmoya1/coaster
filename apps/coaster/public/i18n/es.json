@@ -69,7 +69,28 @@
   "pantry": {
     "title": "Almacén",
     "description": "{{count}} productos en inventario",
-    "empty": "No se encontraron productos."
+    "empty": "No se encontraron productos.",
+    "all": "Todos",
+    "product": "Producto",
+    "category": "Categoría",
+    "create_product": {
+      "name_label": "Nombre del Producto",
+      "name_placeholder": "Ej. Absolut Vodka",
+      "category_label": "Categoría",
+      "category_placeholder": "Selecciona una categoría",
+      "current_stock_label": "Stock Actual",
+      "min_stock_label": "Alerta de Stock Mínimo",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Crear Producto"
+    },
+    "create_category": {
+      "name_label": "Nombre de la Categoría",
+      "name_placeholder": "Ej. Licores",
+      "icon_label": "Icono (Opcional)",
+      "icon_placeholder": "Ej. lucideGlass",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Crear Categoría"
+    }
   },
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
