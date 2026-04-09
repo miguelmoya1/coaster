@@ -2,15 +2,15 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { CreateBarDto } from '@coaster/interfaces';
-import { provideIcons } from '@ng-icons/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CreateBar as CreateBarService, MyBars } from '../../../bars';
-import { Button, SectionTitle, TextInput } from '../../../shared';
+import { CoasterBtn, SectionTitle, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-bar',
-  imports: [SectionTitle, TextInput, Button, FormRoot, FormField, TranslatePipe],
+  imports: [SectionTitle, TextInput, CoasterBtn, NgIcon, FormRoot, FormField, TranslatePipe],
   providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight })],
   template: `
     <div class="flex flex-col gap-2">
@@ -50,12 +50,13 @@ import { Button, SectionTitle, TextInput } from '../../../shared';
       /> -->
 
       <div class="grid grid-cols-2 gap-4 mt-4">
-        <coaster-button variant="outline" type="button" (click)="cancel()">
+        <button coaster-btn variant="outline" type="button" (click)="cancel()">
           {{ 'bars.create.cancel_btn' | translate }}
-        </coaster-button>
-        <coaster-button type="submit" variant="primary" icon="lucideArrowRight" [disabled]="barForm().invalid()">
+        </button>
+        <button coaster-btn type="submit" variant="primary" [disabled]="barForm().invalid()">
           {{ 'bars.create.register_btn' | translate }}
-        </coaster-button>
+          <ng-icon name="lucideArrowRight" class="text-on-primary-fixed text-xl" />
+        </button>
       </div>
     </form>
   `,

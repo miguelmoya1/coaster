@@ -9,7 +9,7 @@ import { AvatarBadge } from '../../shared';
 import {
   BottomNav,
   BottomSheet,
-  Button,
+  CoasterBtn,
   Fab,
   MultiSelectInput,
   NumberInput,
@@ -30,7 +30,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
     StaffMemberCard,
     AvatarBadge,
     TopAppBar,
-    Button,
+    CoasterBtn,
     Fab,
     SectionTitle,
     StatusCard,
@@ -132,7 +132,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
           />
           <div class="flex flex-wrap gap-6 items-center">
             <coaster-avatar-badge imageSrc="https://i.pravatar.cc/150?img=12" altText="Avatar" />
-            <coaster-button icon="lucideCheck" customClass="w-auto px-6">Primary Button</coaster-button>
+            <button coaster-btn class="w-auto px-6" type="button">Primary Button</button>
             <coaster-fab icon="lucidePlus" />
           </div>
 
@@ -238,7 +238,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
               </p>
 
               <div class="flex flex-col gap-3">
-                <coaster-button icon="lucideCheck" customClass="w-full">Confirmar Asignación</coaster-button>
+                <button coaster-btn class="w-full" type="button">Confirmar Asignación</button>
               </div>
             </coaster-bottom-sheet>
           </div>

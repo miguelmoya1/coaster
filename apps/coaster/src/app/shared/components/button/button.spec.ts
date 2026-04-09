@@ -1,21 +1,33 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Button } from './button';
+import { CoasterBtn } from './button';
 
-describe('Button', () => {
-  let component: Button;
-  let fixture: ComponentFixture<Button>;
+@Component({
+  standalone: true,
+  imports: [CoasterBtn],
+  template: `<button coaster-btn>Test</button>`,
+})
+class TestHost {}
+
+describe('CoasterBtn', () => {
+  let fixture: ComponentFixture<TestHost>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CoasterButton],
+      imports: [TestHost],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CoasterButton);
-    component = fixture.componentInstance;
+    fixture = TestBed.createComponent(TestHost);
     fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+    expect(button).toBeTruthy();
+  });
+
+  it('should apply primary classes by default', () => {
+    const button = fixture.nativeElement.querySelector('button[coaster-btn]') as HTMLElement;
+    expect(button.classList.contains('from-primary')).toBe(true);
   });
 });

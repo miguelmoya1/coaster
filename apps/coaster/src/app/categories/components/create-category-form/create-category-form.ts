@@ -2,12 +2,12 @@ import { Component, input, model, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { CreateCategoryDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Button, FormFieldMessages, TextInput } from '../../../shared';
+import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-category-form',
   standalone: true,
-  imports: [FormRoot, TextInput, FormField, Button, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -28,19 +28,13 @@ import { Button, FormFieldMessages, TextInput } from '../../../shared';
         }
 
         <div class="flex justify-end mt-4 gap-2">
-          <coaster-button
-            class="w-full"
-            type="button"
-            variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
-          >
+          <button coaster-btn class="w-full" type="button" variant="outline" [disabled]="disabled()" (click)="canceled.emit()">
             {{ 'pantry.create_category.cancel_btn' | translate }}
-          </coaster-button>
+          </button>
 
-          <coaster-button class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
             {{ 'pantry.create_category.submit_btn' | translate }}
-          </coaster-button>
+          </button>
         </div>
       </div>
     </form>

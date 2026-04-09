@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarCard, MyBars } from '../../../bars';
-import { Button, SectionTitle } from '../../../shared';
+import { CoasterBtn, SectionTitle } from '../../../shared';
 
 @Component({
   selector: 'coaster-select-bar',
-  imports: [SectionTitle, BarCard, TranslatePipe, Button],
+  imports: [SectionTitle, BarCard, TranslatePipe, CoasterBtn, NgIcon],
   providers: [provideIcons({ lucidePlusCircle })],
   template: `
     <coaster-section-title
@@ -32,9 +32,10 @@ import { Button, SectionTitle } from '../../../shared';
         </div>
       }
 
-      <coaster-button variant="dashed" icon="lucidePlusCircle" iconPos="left" (click)="navigateToCreate()" class="mt-2">
+      <button coaster-btn variant="dashed" type="button" (click)="navigateToCreate()" class="mt-2">
+        <ng-icon name="lucidePlusCircle" class="text-on-surface-variant text-xl hover:text-primary" />
         {{ 'bars.select.create_btn' | translate }}
-      </coaster-button>
+      </button>
     </div>
   `,
   host: {

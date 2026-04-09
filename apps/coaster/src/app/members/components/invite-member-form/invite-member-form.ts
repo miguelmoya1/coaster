@@ -2,11 +2,11 @@ import { Component, input, model, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Button, FormFieldMessages, TextInput } from '../../../shared';
+import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, TextInput, FormField, Button, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <coaster-text-input [formField]="form.email" label="Email" placeholder="Email" />
@@ -16,19 +16,13 @@ import { Button, FormFieldMessages, TextInput } from '../../../shared';
       }
 
       <div class="flex justify-end mt-4 gap-2">
-        <coaster-button
-          class="w-full"
-          type="button"
-          variant="outline"
-          [disabled]="disabled()"
-          (click)="canceled.emit()"
-        >
+        <button coaster-btn class="w-full" type="button" variant="outline" [disabled]="disabled()" (click)="canceled.emit()">
           {{ 'members.invite.cancel_btn' | translate }}
-        </coaster-button>
+        </button>
 
-        <coaster-button class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+        <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
           {{ 'members.invite.invite_btn' | translate }}
-        </coaster-button>
+        </button>
       </div>
     </form>
   `,

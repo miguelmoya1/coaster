@@ -2,12 +2,12 @@ import { Component, computed, input, model, output, signal } from '@angular/core
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { asCategoryId, Category, CreateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Button, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
+import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-product-form',
   standalone: true,
-  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, Button, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -41,19 +41,13 @@ import { Button, FormFieldMessages, NumberInput, SelectInput, TextInput } from '
         }
 
         <div class="flex justify-end mt-4 gap-2">
-          <coaster-button
-            class="w-full"
-            type="button"
-            variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
-          >
+          <button coaster-btn class="w-full" type="button" variant="outline" [disabled]="disabled()" (click)="canceled.emit()">
             {{ 'pantry.create_product.cancel_btn' | translate }}
-          </coaster-button>
+          </button>
 
-          <coaster-button class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
             {{ 'pantry.create_product.submit_btn' | translate }}
-          </coaster-button>
+          </button>
         </div>
       </div>
     </form>
