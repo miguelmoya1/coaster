@@ -1,15 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  model,
-} from '@angular/core';
-import {
-  DisabledReason,
-  FormValueControl,
-  ValidationError,
-  WithOptionalFieldTree,
-} from '@angular/forms/signals';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle, lucideMinus, lucidePlus } from '@ng-icons/lucide';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
@@ -40,11 +30,7 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
               type="button"
               class="h-14 w-14 flex items-center justify-center bg-surface-container rounded-xl border border-outline text-on-surface active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-bright"
               (click)="decrement()"
-              [disabled]="
-                disabled() ||
-                readonly() ||
-                (min() !== undefined && value() <= min()!)
-              "
+              [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
             >
               <ng-icon name="lucideMinus" class="text-xl"></ng-icon>
             </button>
@@ -92,11 +78,7 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
               type="button"
               class="h-14 w-14 flex items-center justify-center bg-surface-container rounded-xl border border-outline text-on-surface active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-bright"
               (click)="increment()"
-              [disabled]="
-                disabled() ||
-                readonly() ||
-                (max() !== undefined && value() >= max()!)
-              "
+              [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
             >
               <ng-icon name="lucidePlus" class="text-xl"></ng-icon>
             </button>
@@ -125,7 +107,7 @@ export class NumberInput implements FormValueControl<number> {
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
   readonly icon = input<string>();
-  readonly showControls = input<boolean>(false);
+  readonly showControls = input(false, { transform: booleanAttribute });
   readonly step = input<number>(1);
 
   // Validation constraints (provided by form if defined in schema, or manually)
@@ -137,15 +119,11 @@ export class NumberInput implements FormValueControl<number> {
 
   // Read-only state from form system
   readonly disabled = input<boolean>(false);
-  readonly disabledReasons = input<
-    readonly WithOptionalFieldTree<DisabledReason>[]
-  >([]);
+  readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
   readonly hidden = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>(
-    [],
-  );
+  readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
   onInput(event: Event) {

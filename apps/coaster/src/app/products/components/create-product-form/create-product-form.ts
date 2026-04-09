@@ -57,13 +57,13 @@ import {
         <coaster-number-input
           [formField]="form.currentStock"
           [label]="'pantry.create_product.current_stock_label' | translate"
-          [showControls]="true"
+          showControls
         />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
           [label]="'pantry.create_product.min_stock_label' | translate"
-          [showControls]="true"
+          showControls
         />
 
         @if (error(); as error) {
