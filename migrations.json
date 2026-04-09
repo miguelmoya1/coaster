@@ -2,8 +2,8 @@
   "migrations": [],
   "nx-console": {
     "initialGitRef": {
-      "ref": "b85838745ee06098bcb08c27f946fde0c58baf0d",
-      "subject": "refactor: replace product status with stock management system including database migration and API updates"
+      "ref": "c6f0a2d69199e4278fb6b724413c8c61310c4a3e",
+      "subject": "refactor: standardize error handling in staff component and update i18n translations"
     },
     "targetVersion": "next",
     "confirmedPackageUpdates": true
