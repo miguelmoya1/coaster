@@ -2,21 +2,18 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle } from '@ng-icons/lucide';
+import { CoasterLabel } from '../../components/typography/typography';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 @Component({
   selector: 'coaster-textarea-input',
-  imports: [NgIcon, FormFieldMessages],
+  imports: [NgIcon, CoasterLabel, FormFieldMessages],
   providers: [provideIcons({ lucideAlertCircle })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
         @if (label()) {
-          <label
-            [for]="id()"
-            class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1"
-            [class.text-error]="invalid()"
-          >
+          <label [for]="id()" coaster-label class="ml-1" [class.text-error]="invalid()">
             {{ label() }}
             @if (required()) {
               <span class="text-error">*</span>

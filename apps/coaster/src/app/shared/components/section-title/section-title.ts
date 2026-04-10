@@ -1,12 +1,14 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { CoasterTitle } from '../typography/typography';
 
 @Component({
   selector: 'coaster-section-title',
+  imports: [CoasterTitle],
   template: `
     @if (isH1()) {
-      <h1 [class]="titleClasses()">{{ heading() }}</h1>
+      <h1 coaster-title [class]="structuralClasses()">{{ heading() }}</h1>
     } @else {
-      <h2 [class]="titleClasses()">{{ heading() }}</h2>
+      <h2 coaster-title [class]="structuralClasses()">{{ heading() }}</h2>
     }
 
     @if (description()) {
@@ -32,19 +34,10 @@ export class SectionTitle {
     return base;
   });
 
-  protected titleClasses = computed(() => {
-    let base = 'font-black text-primary uppercase tracking-wider';
-
-    if (this.isH1()) {
-      base += ' text-3xl';
-    } else {
-      base += ' text-2xl';
-    }
-
+  protected structuralClasses = computed(() => {
     if (!this.description()) {
-      base += ' border-b border-outline-variant pb-2';
+      return 'border-b border-outline-variant pb-2';
     }
-
-    return base;
+    return '';
   });
 }

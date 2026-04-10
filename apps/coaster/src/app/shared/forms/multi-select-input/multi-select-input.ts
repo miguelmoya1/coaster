@@ -4,6 +4,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { Listbox, Option } from '@angular/aria/listbox';
+import { CoasterLabel } from '../../components/typography/typography';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
 export interface MultiSelectOption {
@@ -14,17 +15,13 @@ export interface MultiSelectOption {
 
 @Component({
   selector: 'coaster-multi-select-input',
-  imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, FormFieldMessages],
+  imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, CoasterLabel, FormFieldMessages],
   providers: [provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
         @if (label()) {
-          <label
-            [for]="id()"
-            class="text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1"
-            [class.text-error]="invalid()"
-          >
+          <label [for]="id()" coaster-label class="ml-1" [class.text-error]="invalid()">
             {{ label() }}
             @if (required()) {
               <span class="text-error">*</span>

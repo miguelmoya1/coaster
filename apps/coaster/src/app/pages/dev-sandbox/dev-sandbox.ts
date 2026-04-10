@@ -5,7 +5,7 @@ import { CategoryTabs } from '../../categories';
 import { ExchangeRequestCard } from '../../exchanges';
 import { StaffMemberCard } from '../../members';
 import { InventoryItemCard } from '../../products';
-import { AvatarBadge } from '../../shared';
+import { AvatarBadge, CoasterTitle } from '../../shared';
 import {
   BottomNav,
   BottomSheet,
@@ -31,6 +31,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
     StaffMemberCard,
     AvatarBadge,
     TopAppBar,
+    CoasterTitle,
     CoasterBadge,
     CoasterBtn,
     Fab,
@@ -146,12 +147,12 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
           </div>
 
           <coaster-status-card status="success" classes="w-full">
-            <h3 class="font-bold text-on-surface text-lg">Status Card (Success)</h3>
+            <h3 coaster-title>Status Card (Success)</h3>
             <p class="text-on-surface-variant">This is a success status card displaying normal operation.</p>
           </coaster-status-card>
 
           <coaster-status-card status="error" classes="w-full">
-            <h3 class="font-bold text-on-surface text-lg">Status Card (Error)</h3>
+            <h3 coaster-title>Status Card (Error)</h3>
             <p class="text-on-surface-variant">This is an error status card for alerts.</p>
           </coaster-status-card>
         </section>
@@ -241,7 +242,7 @@ import { HorizontalDateScroller, ShiftCard } from '../../shifts';
           <coaster-section-title heading="Bottom Sheet (Inline Test)" />
           <div class="relative h-64 border border-outline border-dashed rounded-xl overflow-hidden">
             <coaster-bottom-sheet>
-              <h3 class="text-xl font-bold mb-2">Acciones Disponibles</h3>
+              <h3 coaster-title class="mb-2">Acciones Disponibles</h3>
               <p class="text-on-surface-variant text-sm mb-6">
                 Selecciona una de las siguientes opciones para continuar con la gestión de este turno.
               </p>

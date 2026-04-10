@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMail } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBadge } from '../../../shared';
+import { CoasterBadge, CoasterTitle } from '../../../shared';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [NgIcon, TranslatePipe, CoasterBadge],
+  imports: [NgIcon, TranslatePipe, CoasterBadge, CoasterTitle],
   viewProviders: [provideIcons({ lucideMail })],
   template: `
     <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
@@ -17,7 +17,7 @@ import { CoasterBadge } from '../../../shared';
 
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
-        <h3 class="font-bold text-lg tracking-tight truncate">
+        <h3 coaster-title class="truncate">
           {{ staffName() }}
         </h3>
         @if (!isOffDuty()) {

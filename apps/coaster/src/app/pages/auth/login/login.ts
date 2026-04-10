@@ -2,11 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Auth } from '../../../core';
-import { CoasterBtn, SectionTitle, StatusCard } from '../../../shared';
+import { CoasterBtn, CoasterTitle, SectionTitle, StatusCard } from '../../../shared';
 
 @Component({
   selector: 'coaster-login',
-  imports: [CoasterBtn, StatusCard, SectionTitle, TranslatePipe],
+  imports: [CoasterBtn, CoasterTitle, StatusCard, SectionTitle, TranslatePipe],
   template: `
     <coaster-section-title
       [heading]="'auth.login.brand' | translate"
@@ -17,7 +17,7 @@ import { CoasterBtn, SectionTitle, StatusCard } from '../../../shared';
 
     <coaster-status-card status="success" class="min-w-52 max-w-96 w-full gap-4 h-64 justify-evenly items-center">
       <div class="flex flex-col gap-2 justify-center items-center mb-8">
-        <h2 class="text-2xl font-bold">
+        <h2 coaster-title>
           {{ 'auth.login.heading' | translate }}
         </h2>
         <p class="text-on-surface-variant text-sm">

@@ -3,10 +3,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSearch } from '@ng-icons/lucide';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
+import { CoasterTitle } from '../typography/typography';
 
 @Component({
   selector: 'coaster-top-app-bar',
-  imports: [AvatarBadge, NgIcon, Toolbar, ToolbarWidget],
+  imports: [AvatarBadge, NgIcon, Toolbar, ToolbarWidget, CoasterTitle],
   viewProviders: [provideIcons({ lucideSearch })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
@@ -23,7 +24,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
         @if (image(); as image) {
           <coaster-avatar-badge [imageSrc]="image" altText="User profile" />
         }
-        <h1 class="text-primary font-black italic tracking-tighter headline-lg">
+        <h1 coaster-title>
           {{ label() }}
         </h1>
       </div>

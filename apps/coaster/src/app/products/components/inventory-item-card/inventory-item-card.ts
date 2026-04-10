@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage } from '@ng-icons/lucide';
-import { BadgeVariant, CoasterBadge } from '../../../shared';
+import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
 
 export type InventoryStatus = 'critical' | 'low' | 'good';
 
@@ -14,7 +14,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
     </div>
 
     <div class="grow min-w-0 mr-4">
-      <h3 class="font-bold text-on-surface title-lg tracking-tight truncate">{{ itemName() }}</h3>
+      <h3 coaster-title class="truncate">{{ itemName() }}</h3>
       <!-- <p class="text-on-surface-variant text-xs truncate">{{ locationText() }}</p> -->
     </div>
 
@@ -36,7 +36,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
     '[class]':
       "'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer block ' + borderColorClass()",
   },
-  imports: [CommonModule, NgIcon, CoasterBadge],
+  imports: [CommonModule, NgIcon, CoasterBadge, CoasterTitle],
   viewProviders: [provideIcons({ lucidePackage })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
