@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMail } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBadge } from '../../../shared';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [NgIcon, TranslatePipe],
+  imports: [NgIcon, TranslatePipe, CoasterBadge],
   viewProviders: [provideIcons({ lucideMail })],
   template: `
     <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
@@ -28,15 +29,11 @@ import { TranslatePipe } from '@ngx-translate/core';
       </p>
       <div class="mt-2 flex items-center gap-2">
         @if (isOffDuty()) {
-          <span
-            class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-on-surface-variant uppercase tracking-widest"
-          >
+          <span coaster-badge variant="neutral">
             {{ 'common.duty.off' | translate }}
           </span>
         } @else {
-          <span
-            class="bg-surface-container-highest px-2 py-0.5 rounded text-xxs font-bold text-primary uppercase tracking-widest"
-          >
+          <span coaster-badge variant="success">
             {{ 'common.duty.on' | translate }}
           </span>
         }

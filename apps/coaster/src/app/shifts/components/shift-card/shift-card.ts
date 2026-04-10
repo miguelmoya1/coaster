@@ -1,7 +1,9 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { CoasterBadge } from '../../../shared';
 
 @Component({
   selector: 'coaster-shift-card',
+  imports: [CoasterBadge],
   template: `
     <div [class]="'absolute left-0 top-0 w-1 h-full ' + roleColorClass()"></div>
 
@@ -9,9 +11,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
       <span class="text-primary font-black text-2xl tracking-tighter uppercase">{{ timeRange() }}</span>
       <span class="text-white font-bold title-lg">{{ staffName() }}</span>
       <div class="flex items-center gap-2 mt-1">
-        <span
-          class="label-sm bg-on-primary-container text-white px-2 py-0.5 rounded font-bold uppercase tracking-tighter"
-        >
+        <span coaster-badge variant="neutral">
           {{ roleName() }}
         </span>
       </div>

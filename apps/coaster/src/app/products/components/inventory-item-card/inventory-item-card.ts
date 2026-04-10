@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage } from '@ng-icons/lucide';
+import { BadgeVariant, CoasterBadge } from '../../../shared';
 
 export type InventoryStatus = 'critical' | 'low' | 'good';
 
@@ -24,7 +25,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
         ></span>
         <span class="text-2xl font-black text-on-surface">{{ (qty() < 10 && qty() > 0 ? '0' : '') + qty() }}</span>
       </div>
-      <span [class]="'label-sm font-bold uppercase ' + textColorClass()">{{ statusText() }}</span>
+      <span coaster-badge [variant]="badgeVariant()">{{ statusText() }}</span>
     </div>
   `,
   host: {
@@ -35,7 +36,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
     '[class]':
       "'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer block ' + borderColorClass()",
   },
-  imports: [CommonModule, NgIcon],
+  imports: [CommonModule, NgIcon, CoasterBadge],
   viewProviders: [provideIcons({ lucidePackage })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -88,6 +89,17 @@ export class InventoryItemCard {
         return 'Low Stock';
       case 'good':
         return 'Good';
+    }
+  });
+
+  readonly badgeVariant = computed((): BadgeVariant => {
+    switch (this.statusLevel()) {
+      case 'critical':
+        return 'error';
+      case 'low':
+        return 'warning';
+      case 'good':
+        return 'success';
     }
   });
 }
