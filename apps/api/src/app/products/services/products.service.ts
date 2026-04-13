@@ -7,6 +7,7 @@ import {
   ProductId,
   SocketEvents,
   UpdateProductStockDto,
+  UpdateProductDto,
 } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
@@ -44,7 +45,26 @@ export class ProductsService {
   }
 
   async updateProductStock(barId: BarId, productId: ProductId, productDto: UpdateProductStockDto) {
-    const product = await this._productsRepository.updateStock(productId, productDto);
+    const product = await this._productsRepository.update(productId, productDto);
+
+    const mapped = this.#mapToDomain(product);
+
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
+
+    return mapped;
+  }
+
+  async updateProduct(barId: BarId, productId: ProductId, productDto: UpdateProductDto) {
+    if (productDto.categoryId) {
+      const validCategoryId = asCategoryId(productDto.categoryId);
+      const isValidCategory = await this._productsRepository.checkCategoryBelongsToBar(validCategoryId, barId);
+
+      if (!isValidCategory) {
+        throw new ForbiddenException(ErrorCodes.CATEGORY_NOT_FOUND);
+      }
+    }
+
+    const product = await this._productsRepository.update(productId, productDto);
 
     const mapped = this.#mapToDomain(product);
 

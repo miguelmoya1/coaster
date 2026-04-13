@@ -22,10 +22,10 @@ export class ProductsRepository {
     });
   }
 
-  async updateStock(productId: ProductId, productUpdateDto: Prisma.ProductUpdateInput) {
+  async update(productId: ProductId, updateData: Prisma.ProductUpdateInput) {
     return this._prisma.product.update({
       where: { id: productId },
-      data: { ...productUpdateDto },
+      data: { ...updateData },
     });
   }
 

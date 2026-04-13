@@ -29,7 +29,12 @@ async function bootstrap() {
 
   await app.register(compression, { encodings: ['gzip', 'deflate'] });
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
