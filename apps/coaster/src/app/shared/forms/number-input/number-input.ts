@@ -95,11 +95,9 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NumberInput implements FormValueControl<number> {
-  // Required for FormValueControl
   readonly value = model<number>(0);
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
@@ -107,14 +105,11 @@ export class NumberInput implements FormValueControl<number> {
   readonly showControls = input(false, { transform: booleanAttribute });
   readonly step = input<number>(1);
 
-  // Validation constraints (provided by form if defined in schema, or manually)
   readonly min = input<number>();
   readonly max = input<number>();
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);

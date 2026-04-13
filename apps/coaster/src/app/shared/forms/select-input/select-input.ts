@@ -148,7 +148,9 @@ export class SelectInput implements FormValueControl<string | number | null> {
 
   readonly listboxValues = computed(() => {
     const val = this.value();
-    return val !== null && val !== undefined ? [val] : [];
+    if (val === null || val === undefined) return [];
+    const exists = this.options().some((o) => o.value === val);
+    return exists ? [val] : [];
   });
 
   toggleOpen(event: MouseEvent) {
@@ -178,7 +180,15 @@ export class SelectInput implements FormValueControl<string | number | null> {
 
   onSelectionChange(newValues: (string | number)[]) {
     const newVal = newValues.length > 0 ? newValues[0] : null;
+
+    // Automatically correcting an invalid/stale initial value sets the selection to null.
+    // We shouldn't close the dropdown when this background correction happens.
+    const isAutoCorrection = newVal === null && this.value() !== null;
+
     this.value.set(newVal);
-    this.close();
+
+    if (!isAutoCorrection) {
+      this.close();
+    }
   }
 }
