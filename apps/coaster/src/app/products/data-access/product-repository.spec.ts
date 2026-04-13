@@ -48,7 +48,7 @@ describe('ProductRepository', () => {
   it('should call update stock endpoint', async () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('1');
-    const promise = service.updateStock(barId, productId, { currentStock: 2, minStockAlert: 5 });
+    const promise = service.updateStock(barId, productId, { currentStock: 2 });
 
     const req = httpMock.expectOne(service.routes.updateStock(barId, productId));
     expect(req.request.method).toBe('PATCH');

@@ -35,12 +35,12 @@ describe('CurrentBar', () => {
 
   it('should initially have undefined currentBar', async () => {});
 
-  it('should fetch bar when selectBar is called', async () => {
+  it('should fetch bar when select is called', async () => {
     const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
     TestBed.flushEffects();
     await new Promise((r) => setTimeout(r, 0));
-    service.selectBar(asBarId('bar-1'));
+    service.select(asBarId('bar-1'));
     try {
       (service as any).all?.value();
     } catch (e) {}
@@ -58,7 +58,7 @@ describe('CurrentBar', () => {
   });
 
   it('should clear bar state', async () => {
-    service.clearBar();
+    service.clear();
     TestBed.flushEffects();
     await new Promise((r) => setTimeout(r, 0));
   });

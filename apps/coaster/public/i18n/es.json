@@ -67,8 +67,6 @@
     }
   },
   "pantry": {
-    "title": "Almacén",
-    "description": "{{count}} productos en inventario",
     "empty": "No se encontraron productos.",
     "all": "Todos",
     "product": "Producto",
@@ -90,7 +88,14 @@
       "icon_placeholder": "Ej. lucideGlass",
       "cancel_btn": "Cancelar",
       "submit_btn": "Crear Categoría"
-    }
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Críticos",
+      "alerts": "Alertas"
+    },
+    "update_stock": "Actualizar Stock",
+    "inventory_title": "Inventario Activo"
   },
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",

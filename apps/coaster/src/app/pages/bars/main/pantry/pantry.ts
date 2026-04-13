@@ -15,7 +15,7 @@ import {
   UpdateProduct,
   UpdateProductForm,
 } from '../../../../products';
-import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
+import { BottomSheet, Fab, Loading, StatusCard, CoasterTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-pantry',
@@ -25,13 +25,14 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
     CreateCategoryForm,
     CreateProductForm,
     Loading,
-    SectionTitle,
     BottomSheet,
     Fab,
     TranslatePipe,
     UpdateProductForm,
     EditProductForm,
-  ],
+    StatusCard,
+    CoasterTitle
+],
   host: {
     class: 'flex flex-col gap-2 h-full',
   },
@@ -61,6 +62,9 @@ export default class Pantry {
 
   protected readonly categories = this.#categoriesService.all;
   protected readonly products = this.#productsService.all;
+  protected readonly totalProductsCount = this.#productsService.total;
+  protected readonly criticalProductsCount = this.#productsService.criticalStock;
+  protected readonly alertProductsCount = this.#productsService.lowStock;
 
   protected readonly currentUserRole = computed(() => {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);

@@ -40,17 +40,20 @@ describe('BarMembers', () => {
   it('should fetch members when selectBar is called', async () => {
     const mockMembers: BarMember[] = [
       {
-        id: asBarMemberId('member-1'),
-        userId: asUserId('user-1'),
+        id: asBarMemberId('1'),
+        userId: asUserId('1'),
         barId: asBarId('bar-1'),
         role: BarRole.OWNER,
         active: true,
+        userName: 'A',
+        userEmail: 'a@a.com',
+        userImage: '',
       },
     ];
 
     TestBed.flushEffects();
     await new Promise((r) => setTimeout(r, 0));
-    service.selectBar(asBarId('bar-1'));
+    service.setBarContext(asBarId('bar-1'));
     try {
       (service as any).all?.value();
     } catch (e) {}
@@ -70,7 +73,7 @@ describe('BarMembers', () => {
   });
 
   it('should clear list when bar is cleared', async () => {
-    service.selectBar(asBarId('bar-1'));
+    service.setBarContext(asBarId('bar-1'));
     try {
       (service as any).all?.value();
     } catch (e) {}
@@ -85,7 +88,7 @@ describe('BarMembers', () => {
     const req = httpMock.expectOne('/bars/bar-1/members');
     req.flush([]);
 
-    service.clearBar();
+    service.clearBarContext();
     TestBed.flushEffects();
     await new Promise((r) => setTimeout(r, 0));
     service.list.value();

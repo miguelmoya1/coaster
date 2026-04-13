@@ -8,6 +8,9 @@ describe('Member Mapper', () => {
     barId: asBarId('bar-1'),
     role: BarRole.OWNER,
     active: true,
+    userName: 'John',
+    userEmail: 'john@example.com',
+    userImage: '',
   };
 
   describe('checkIsMember', () => {

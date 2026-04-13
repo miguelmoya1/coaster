@@ -67,8 +67,6 @@
     }
   },
   "pantry": {
-    "title": "Pantry",
-    "description": "{{count}} products in inventory",
     "empty": "No products found.",
     "all": "All",
     "product": "Product",
@@ -90,7 +88,14 @@
       "icon_placeholder": "e.g. lucideGlass",
       "cancel_btn": "Cancel",
       "submit_btn": "Create Category"
-    }
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Critical",
+      "alerts": "Alerts"
+    },
+    "update_stock": "Update Stock",
+    "inventory_title": "Active Inventory"
   },
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_NOT_FOUND": "No user registered with that email address.",

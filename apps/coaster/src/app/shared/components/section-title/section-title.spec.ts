@@ -70,7 +70,7 @@ describe('SectionTitle', () => {
     fixture.componentRef.setInput('centered', true);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const wrapper = compiled.querySelector('div');
+    const wrapper = compiled;
     expect(wrapper?.classList.contains('items-center')).toBe(true);
     expect(wrapper?.classList.contains('text-center')).toBe(true);
   });

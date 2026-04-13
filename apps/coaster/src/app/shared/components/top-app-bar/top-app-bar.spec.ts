@@ -11,6 +11,8 @@ describe('TopAppBar', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TopAppBar);
+    fixture.componentRef.setInput('image', 'mock-url');
+    fixture.componentRef.setInput('label', 'T');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

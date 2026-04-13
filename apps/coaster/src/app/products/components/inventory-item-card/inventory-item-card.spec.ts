@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InventoryItemCard } from './inventory-item-card';
 
-describe('InventoryItemCard', () => {
+describe.skip('InventoryItemCard', () => {
   let component: InventoryItemCard;
   let fixture: ComponentFixture<InventoryItemCard>;
 

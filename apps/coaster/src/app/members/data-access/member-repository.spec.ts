@@ -31,6 +31,9 @@ describe('MemberRepository', () => {
       barId: asBarId('bar-1'),
       role: BarRole.STAFF,
       active: true,
+      userName: 'John Doe',
+      userEmail: 'john@example.com',
+      userImage: '',
     };
 
     const promise = service.invite(asBarId('bar-1'), {

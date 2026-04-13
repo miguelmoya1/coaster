@@ -1,8 +1,21 @@
-<coaster-section-title
-  [heading]="'pantry.title' | translate"
-  [description]="'pantry.description' | translate: { count: filteredProducts().length }"
-  class="mb-2"
-/>
+<div class="flex gap-4 mb-6">
+  <coaster-status-card class="flex-1" status="primary">
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.total' | translate }}</div>
+    <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
+  </coaster-status-card>
+  
+  <coaster-status-card class="flex-1" status="error">
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.critical' | translate }}</div>
+    <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
+  </coaster-status-card>
+
+  <coaster-status-card class="flex-1" status="warning">
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.alerts' | translate }}</div>
+    <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
+  </coaster-status-card>
+</div>
+
+<h2 coaster-title class="mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
 
 <div class="-mx-4 px-4 mb-4">
   <coaster-category-tabs
@@ -15,6 +28,7 @@
 @if (categories.isLoading() || products.isLoading()) {
   <coaster-loading />
 }
+
 @if (products.hasValue()) {
   <div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
     @for (product of filteredProducts(); track product.id) {
@@ -31,6 +45,7 @@
     }
   </div>
 }
+
 @if (currentUserRole() === 'OWNER') {
   <coaster-fab (click)="openBottomSheet()" />
 }
