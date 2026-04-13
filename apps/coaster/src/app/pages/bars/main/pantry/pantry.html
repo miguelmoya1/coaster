@@ -22,7 +22,9 @@
         [itemName]="product.name"
         [qty]="product.currentStock"
         [statusLevel]="getProductStatus(product)"
+        [showEditButton]="currentUserRole() === 'OWNER'"
         (click)="onProductClicked(product)"
+        (editClicked)="onEditProductClicked(product)"
       />
     } @empty {
       <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
@@ -35,7 +37,29 @@
 
 @if (productSelected(); as product) {
   <coaster-bottom-sheet (closed)="unselectProduct()">
-    <coaster-update-product-form [product]="product" />
+    <coaster-update-product-form
+      [product]="product"
+      [disabled]="isSubmitting()"
+      [error]="formError()"
+      (updateStock)="onUpdateStockSubmit($event)"
+      (canceled)="unselectProduct()"
+    />
+  </coaster-bottom-sheet>
+}
+
+@if (productToEdit(); as product) {
+  <coaster-bottom-sheet (closed)="unselectProductToEdit()">
+    <div class="px-6 pb-6 pt-6">
+      <h2 class="text-xl font-bold mb-4 text-on-surface">{{ 'pantry.product' | translate }}</h2>
+      <coaster-edit-product-form
+        [product]="product"
+        [categories]="categories.value() ?? []"
+        [disabled]="isSubmitting()"
+        [error]="formError()"
+        (editProduct)="onEditProductSubmit($event)"
+        (canceled)="unselectProductToEdit()"
+      />
+    </div>
   </coaster-bottom-sheet>
 }
 

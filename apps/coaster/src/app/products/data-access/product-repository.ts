@@ -1,6 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateProductDto, Product, ProductId, UpdateProductDto } from '@coaster/interfaces';
+import {
+  BarId,
+  CreateProductDto,
+  Product,
+  ProductId,
+  UpdateProductDto,
+  UpdateProductStockDto,
+} from '@coaster/interfaces';
 import { firstValueFrom, map } from 'rxjs';
 import { productMapper } from '../mappers/product.mapper';
 
@@ -13,7 +20,8 @@ export class ProductRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/products`,
     create: (barId: BarId) => `/bars/${barId}/products`,
-    updateStock: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
+    update: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
+    updateStock: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}/stock`,
   };
 
   public async create(barId: BarId, createProductDto: CreateProductDto) {
@@ -24,7 +32,15 @@ export class ProductRepository {
 
   public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto) {
     return firstValueFrom(
-      this.#http.patch<Product>(this.routes.updateStock(barId, productId), updateProductDto).pipe(map(productMapper)),
+      this.#http.patch<Product>(this.routes.update(barId, productId), updateProductDto).pipe(map(productMapper)),
+    );
+  }
+
+  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
+    return firstValueFrom(
+      this.#http
+        .patch<Product>(this.routes.updateStock(barId, productId), updateProductStockDto)
+        .pipe(map(productMapper)),
     );
   }
 }

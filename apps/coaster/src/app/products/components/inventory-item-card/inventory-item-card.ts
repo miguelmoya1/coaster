@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePackage } from '@ng-icons/lucide';
+import { lucidePackage, lucidePencil } from '@ng-icons/lucide';
 import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
 
 export type InventoryStatus = 'critical' | 'low' | 'good';
@@ -10,7 +10,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
   selector: 'coaster-inventory-item-card',
   template: `
     <div class="w-14 h-14 bg-surface-container-highest rounded-lg flex items-center justify-center mr-4 shrink-0">
-      <ng-icon [name]="icon()!" [class]="'text-3xl ' + textColorClass()"></ng-icon>
+      <ng-icon [name]="icon()!" [class]="'text-3xl ' + textColorClass()" />
     </div>
 
     <div class="grow min-w-0 mr-4">
@@ -27,6 +27,15 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
       </div>
       <span coaster-badge [variant]="badgeVariant()">{{ statusText() }}</span>
     </div>
+
+    @if (showEditButton()) {
+      <button
+        class="ml-4 w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"
+        (click)="onEditClick($event)"
+      >
+        <ng-icon name="lucidePencil" class="text-xl" />
+      </button>
+    }
   `,
   host: {
     '[class.opacity-50]': 'disabled()',
@@ -37,7 +46,7 @@ export type InventoryStatus = 'critical' | 'low' | 'good';
       "'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer block ' + borderColorClass()",
   },
   imports: [CommonModule, NgIcon, CoasterBadge, CoasterTitle],
-  viewProviders: [provideIcons({ lucidePackage })],
+  viewProviders: [provideIcons({ lucidePackage, lucidePencil })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryItemCard {
@@ -47,6 +56,13 @@ export class InventoryItemCard {
   readonly icon = input('lucidePackage');
   readonly statusLevel = input<InventoryStatus>('good');
   readonly disabled = input(false);
+  readonly showEditButton = input(false);
+  readonly editClicked = output<void>();
+
+  onEditClick(event: Event) {
+    event.stopPropagation();
+    this.editClicked.emit();
+  }
 
   readonly borderColorClass = computed(() => {
     switch (this.statusLevel()) {

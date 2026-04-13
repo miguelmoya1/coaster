@@ -15,8 +15,13 @@ export interface Product {
 }
 
 export interface UpdateProductDto {
-  currentStock?: number;
+  name?: string;
+  categoryId?: CategoryId;
   minStockAlert?: number;
+}
+
+export interface UpdateProductStockDto {
+  currentStock: number;
 }
 
 export interface CreateProductDto {
