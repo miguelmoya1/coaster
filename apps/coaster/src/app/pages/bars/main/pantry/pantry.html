@@ -1,8 +1,6 @@
 <coaster-section-title
   [heading]="'pantry.title' | translate"
-  [description]="
-        'pantry.description' | translate: { count: filteredProducts().length }
-      "
+  [description]="'pantry.description' | translate: { count: filteredProducts().length }"
   class="mb-2"
 />
 
@@ -15,62 +13,77 @@
 </div>
 
 @if (categories.isLoading() || products.isLoading()) {
-<coaster-loading />
-} @if (products.hasValue()) {
-<div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
-  @for (product of filteredProducts(); track product.id) {
-  <coaster-inventory-item-card
-    [itemName]="product.name"
-    [qty]="product.currentStock"
-    [statusLevel]="getProductStatus(product)"
-    (click)="onProductClicked(product)"
-  />
-  } @empty {
-  <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
-  }
-</div>
-} @if (currentUserRole() === 'OWNER') {
-<coaster-fab (click)="openBottomSheet()" />
-} @defer (when isSheetOpen()) { @let tab = currentFormTab(); @if (isSheetOpen()) {
-<coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
-  <div class="flex flex-col px-6 pb-6 pt-2">
-    <div class="flex bg-surface-container rounded-lg p-1 mb-6">
-      <button
-        class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
-        [class.bg-surface-container-high]="tab === 'PRODUCT'"
-        [class.text-on-surface]="tab === 'PRODUCT'"
-        [class.text-on-surface-variant]="tab !== 'PRODUCT'"
-        (click)="currentFormTab.set('PRODUCT')"
-      >
-        {{ 'pantry.product' | translate }}
-      </button>
-      <button
-        class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
-        [class.bg-surface-container-high]="tab === 'CATEGORY'"
-        [class.text-on-surface]="tab === 'CATEGORY'"
-        [class.text-on-surface-variant]="tab !== 'CATEGORY'"
-        (click)="currentFormTab.set('CATEGORY')"
-      >
-        {{ 'pantry.category' | translate }}
-      </button>
-    </div>
-
-    @switch (tab) { @case ('PRODUCT') {
-    <coaster-create-product-form
-      [categories]="categories.value() ?? []"
-      [disabled]="isSubmitting() || products.isLoading()"
-      [(error)]="formError"
-      (createProduct)="onProductSubmit($event)"
-      (canceled)="isSheetOpen.set(false)"
-    />
-    } @case ('CATEGORY') {
-    <coaster-create-category-form
-      [disabled]="isSubmitting() || categories.isLoading()"
-      [(error)]="formError"
-      (createCategory)="onCategorySubmit($event)"
-      (canceled)="isSheetOpen.set(false)"
-    />
-    } @default never; }
+  <coaster-loading />
+}
+@if (products.hasValue()) {
+  <div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
+    @for (product of filteredProducts(); track product.id) {
+      <coaster-inventory-item-card
+        [itemName]="product.name"
+        [qty]="product.currentStock"
+        [statusLevel]="getProductStatus(product)"
+        (click)="onProductClicked(product)"
+      />
+    } @empty {
+      <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
+    }
   </div>
-</coaster-bottom-sheet>
-} }
+}
+@if (currentUserRole() === 'OWNER') {
+  <coaster-fab (click)="openBottomSheet()" />
+}
+
+@if (productSelected(); as product) {
+  <coaster-bottom-sheet (closed)="unselectProduct()">
+    <coaster-update-product-form [product]="product" />
+  </coaster-bottom-sheet>
+}
+
+@if (isSheetOpen()) {
+  @let tab = currentFormTab();
+  <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+    <div class="flex flex-col px-6 pb-6 pt-2">
+      <div class="flex bg-surface-container rounded-lg p-1 mb-6">
+        <button
+          class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
+          [class.bg-surface-container-high]="tab === 'PRODUCT'"
+          [class.text-on-surface]="tab === 'PRODUCT'"
+          [class.text-on-surface-variant]="tab !== 'PRODUCT'"
+          (click)="currentFormTab.set('PRODUCT')"
+        >
+          {{ 'pantry.product' | translate }}
+        </button>
+        <button
+          class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
+          [class.bg-surface-container-high]="tab === 'CATEGORY'"
+          [class.text-on-surface]="tab === 'CATEGORY'"
+          [class.text-on-surface-variant]="tab !== 'CATEGORY'"
+          (click)="currentFormTab.set('CATEGORY')"
+        >
+          {{ 'pantry.category' | translate }}
+        </button>
+      </div>
+
+      @switch (tab) {
+        @case ('PRODUCT') {
+          <coaster-create-product-form
+            [categories]="categories.value() ?? []"
+            [disabled]="isSubmitting() || products.isLoading()"
+            [(error)]="formError"
+            (createProduct)="onProductSubmit($event)"
+            (canceled)="isSheetOpen.set(false)"
+          />
+        }
+        @case ('CATEGORY') {
+          <coaster-create-category-form
+            [disabled]="isSubmitting() || categories.isLoading()"
+            [(error)]="formError"
+            (createCategory)="onCategorySubmit($event)"
+            (canceled)="isSheetOpen.set(false)"
+          />
+        }
+        <!-- @default never; -->
+      }
+    </div>
+  </coaster-bottom-sheet>
+}

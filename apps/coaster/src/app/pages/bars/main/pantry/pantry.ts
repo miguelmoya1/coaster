@@ -4,18 +4,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BarCategories, CategoryTabs, CreateCategory, CreateCategoryForm } from '../../../../categories';
 import { ApiError, CurrentUser } from '../../../../core';
 import { BarMembers } from '../../../../members';
-import {
-  BarProducts,
-  CreateProduct,
-  CreateProductForm,
-  InventoryItemCard,
-  InventoryStatus,
-} from '../../../../products';
+import { BarProducts, CreateProduct, CreateProductForm, InventoryItemCard, InventoryStatus, UpdateProductForm } from '../../../../products';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-pantry',
-  standalone: true,
   imports: [
     CategoryTabs,
     InventoryItemCard,
@@ -26,7 +19,8 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
     BottomSheet,
     Fab,
     TranslatePipe,
-  ],
+    UpdateProductForm
+],
   host: {
     class: 'flex flex-col gap-2 h-full',
   },
@@ -49,6 +43,7 @@ export default class Pantry {
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
   protected readonly selectedCategoryId = signal<string>('ALL');
+  protected readonly productSelected = signal<Product | null>(null);
 
   protected readonly categories = this.#categoriesService.all;
   protected readonly products = this.#productsService.all;
@@ -92,7 +87,11 @@ export default class Pantry {
   }
 
   protected onProductClicked(product: Product) {
-    console.log('Update stock for item:', product);
+    this.productSelected.set(product);
+  }
+
+  protected unselectProduct() {
+    this.productSelected.set(null);
   }
 
   protected openBottomSheet() {

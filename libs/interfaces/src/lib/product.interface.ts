@@ -14,9 +14,9 @@ export interface Product {
   lastUpdated: string;
 }
 
-export interface UpdateProductStockDto {
-  currentStock: number;
-  minStockAlert: number;
+export interface UpdateProductDto {
+  currentStock?: number;
+  minStockAlert?: number;
 }
 
 export interface CreateProductDto {

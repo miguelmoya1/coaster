@@ -3,9 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 @Component({
   selector: 'coaster-roster',
   imports: [],
-  template: `
-    <p>roster works!</p>
-  `,
+  template: ` <p>roster works!</p> `,
   styles: `
     :host {
       display: block;

@@ -14,9 +14,7 @@ const VARIANT_CLASSES: Record<BadgeVariant, string> = {
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'span[coaster-badge]',
-  template: `
-    <ng-content />
-  `,
+  template: ` <ng-content /> `,
   host: {
     '[class]': 'computedClasses()',
   },
@@ -25,7 +23,5 @@ const VARIANT_CLASSES: Record<BadgeVariant, string> = {
 export class CoasterBadge {
   readonly variant = input<BadgeVariant>('neutral');
 
-  readonly computedClasses = computed(
-    () => `${BASE_CLASSES} ${VARIANT_CLASSES[this.variant()]}`,
-  );
+  readonly computedClasses = computed(() => `${BASE_CLASSES} ${VARIANT_CLASSES[this.variant()]}`);
 }

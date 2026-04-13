@@ -2,9 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'coaster-avatar-badge',
-  template: `
-    <img [src]="imageSrc()" [alt]="altText()" class="w-full h-full object-cover" />
-  `,
+  template: ` <img [src]="imageSrc()" [alt]="altText()" class="w-full h-full object-cover" /> `,
   host: {
     '[class]':
       "'rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden block ' + sizeClass()",

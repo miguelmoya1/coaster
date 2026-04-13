@@ -20,9 +20,7 @@ const TEXT_CLASSES: Record<ButtonVariant, string> = {
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'button[coaster-btn], a[coaster-btn]',
-  template: `
-    <ng-content />
-  `,
+  template: ` <ng-content /> `,
   host: {
     '[class]': 'computedClasses()',
   },

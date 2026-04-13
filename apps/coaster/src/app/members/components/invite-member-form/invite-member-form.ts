@@ -16,7 +16,14 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
       }
 
       <div class="flex justify-end mt-4 gap-2">
-        <button coaster-btn class="w-full" type="button" variant="outline" [disabled]="disabled()" (click)="canceled.emit()">
+        <button
+          coaster-btn
+          class="w-full"
+          type="button"
+          variant="outline"
+          [disabled]="disabled()"
+          (click)="canceled.emit()"
+        >
           {{ 'members.invite.cancel_btn' | translate }}
         </button>
 
