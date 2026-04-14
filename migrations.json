@@ -1,0 +1,19 @@
+{
+  "migrations": [
+    {
+      "version": "22.7.0-beta.12",
+      "description": "Add missing inputs to @nx/eslint:lint executor target defaults",
+      "implementation": "./src/migrations/update-21-6-0/update-executor-lint-inputs",
+      "package": "@nx/eslint",
+      "name": "update-executor-lint-inputs"
+    }
+  ],
+  "nx-console": {
+    "initialGitRef": {
+      "ref": "d8cb03e17d047fba20aa95995f0e9ca66a6948e5",
+      "subject": "refactor: migrate unit tests to zoneless change detection and improve async test stability"
+    },
+    "targetVersion": "next",
+    "confirmedPackageUpdates": true
+  }
+}
