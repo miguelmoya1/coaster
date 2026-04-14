@@ -1,14 +1,15 @@
 import { Product } from '@coaster/interfaces';
 
 export const checkIsProduct = (product: unknown): product is Product => {
+  const p = product as Record<string, unknown>;
   return (
     typeof product === 'object' &&
     product !== null &&
-    typeof (product as any).id === 'string' &&
-    typeof (product as any).categoryId === 'string' &&
-    typeof (product as any).name === 'string' &&
-    typeof (product as any).currentStock === 'number' &&
-    typeof (product as any).minStockAlert === 'number'
+    typeof p['id'] === 'string' &&
+    typeof p['categoryId'] === 'string' &&
+    typeof p['name'] === 'string' &&
+    typeof p['currentStock'] === 'number' &&
+    typeof p['minStockAlert'] === 'number'
   );
 };
 

@@ -10,7 +10,7 @@ describe('CurrentUser', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: FirebaseAuth, useValue: { currentUser: null, updateCurrentUser: () => {} } },
+        { provide: FirebaseAuth, useValue: { currentUser: null, updateCurrentUser: vi.fn() } },
         { provide: Auth, useValue: { isAuthenticated: () => true, userProfile: () => null } },
       ],
     });

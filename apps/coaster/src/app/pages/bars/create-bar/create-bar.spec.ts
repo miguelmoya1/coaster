@@ -15,7 +15,7 @@ describe('CreateBar', () => {
       imports: [CreateBar, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: FirebaseAuth, useValue: { onAuthStateChanged: (cb: any) => { cb(null); return () => undefined; }, onIdTokenChanged: (cb: any) => { cb(null); return () => undefined; } } }
+        { provide: FirebaseAuth, useValue: { onAuthStateChanged: (cb: (user: unknown) => void) => { cb(null); return () => undefined; }, onIdTokenChanged: (cb: (user: unknown) => void) => { cb(null); return () => undefined; } } }
       ]
     }).compileComponents();
 

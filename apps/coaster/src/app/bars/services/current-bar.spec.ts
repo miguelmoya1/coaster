@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, Bar } from '@coaster/interfaces';
 import { BarRepository } from '../data-access/bar-repository';
 import { CurrentBar } from './current-bar';
@@ -13,6 +16,7 @@ describe('CurrentBar', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -29,37 +33,34 @@ describe('CurrentBar', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initially have undefined currentBar', async () => {});
+  it('should initially have undefined currentBar', () => {
+    expect(service.current.value()).toBeUndefined();
+  });
 
   it('should fetch bar when select is called', async () => {
     const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
+    service.current.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     service.select(asBarId('bar-1'));
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.current.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne('/bars/bar-1');
     expect(req.request.method).toBe('GET');
     req.flush(mockBar);
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.current.value)));
+    expect(service.current.value()).toEqual(mockBar);
   });
 
   it('should clear bar state', async () => {
     service.clear();
+    service.current.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+    expect(service.current.value()).toBeUndefined();
   });
 });

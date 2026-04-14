@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
 import { MemberRepository } from '../data-access/member-repository';
 import { BarMembers } from './bar-members';
@@ -13,6 +16,7 @@ describe('BarMembers', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -29,15 +33,15 @@ describe('BarMembers', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initially have undefined list', async () => {
-    service.list.value();
+  it('should initially have undefined list', () => {
+    expect(service.list.value()).toBeUndefined();
   });
 
-  it('should fetch members when selectBar is called', async () => {
+  it('should fetch members when setBarContext is called', async () => {
     const mockMembers: BarMember[] = [
       {
         id: asBarMemberId('1'),
@@ -52,45 +56,29 @@ describe('BarMembers', () => {
     ];
 
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     service.setBarContext(asBarId('bar-1'));
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.list.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+
     const req = httpMock.expectOne('/bars/bar-1/members');
     expect(req.request.method).toBe('GET');
     req.flush(mockMembers);
 
-    service.list.value();
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.list.value)));
+    expect(service.list.value()).toEqual(mockMembers);
   });
 
   it('should clear list when bar is cleared', async () => {
     service.setBarContext(asBarId('bar-1'));
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.list.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne('/bars/bar-1/members');
     req.flush([]);
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.list.value)));
 
     service.clearBarContext();
-    TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     service.list.value();
+    TestBed.flushEffects();
+    expect(service.list.value()).toBeUndefined();
   });
 });

@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
 import { CategoryRepository } from '../data-access/category-repository';
 import { BarCategories } from './bar-categories';
@@ -13,6 +16,7 @@ describe('BarCategories', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -29,7 +33,7 @@ describe('BarCategories', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
@@ -38,26 +42,18 @@ describe('BarCategories', () => {
     const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), barId, name: 'Test Category' }];
 
     service.setBarContext(barId);
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.all.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne(`/bars/${barId}/categories`);
     expect(req.request.method).toBe('GET');
     req.flush(mockCategories);
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockCategories);
   });
 
-  it('should not fetch anything if barId is undefined', async () => {
-    TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+  it('should not fetch anything if barId is undefined', () => {
+    TestBed.tick();
     httpMock.expectNone(`/bars/undefined/categories`);
-    service.all.value();
   });
 });

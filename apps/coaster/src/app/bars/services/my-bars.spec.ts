@@ -1,7 +1,10 @@
 import { Auth } from '../../core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, Bar } from '@coaster/interfaces';
 import { BarRepository } from '../data-access/bar-repository';
 import { MyBars } from './my-bars';
@@ -14,6 +17,7 @@ describe('MyBars', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: Auth, useValue: { isAuthenticated: () => true } },
@@ -31,22 +35,20 @@ describe('MyBars', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
   it('should fetch list of bars automatically', async () => {
     const mockBars: Bar[] = [{ id: asBarId('bar-1'), name: 'Test Bar' }];
 
-    try {
-      service.all.value();
-    } catch {
-      /* ignore */
-    }
+    service.all.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne('/bars');
     expect(req.request.method).toBe('GET');
     req.flush(mockBars);
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockBars);
   });
 });

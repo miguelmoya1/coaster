@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed, tick } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, asShiftId, asUserId, Shift, ShiftType } from '@coaster/interfaces';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { BarShifts } from './bar-shifts';
@@ -17,6 +20,7 @@ describe('BarShifts', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -33,7 +37,7 @@ describe('BarShifts', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
@@ -49,20 +53,22 @@ describe('BarShifts', () => {
     service.setContext(barId);
     service.setDateRange(startDate, endDate);
 
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    // Trigger resource read
+    service.all.value();
+    TestBed.flushEffects();
+    
     const req = httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`);
     expect(req.request.method).toBe('GET');
     req.flush(mockShifts);
 
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockShifts);
   });
 
-  it('should not fetch anything if any signal is undefined', async () => {
+  it('should not fetch anything if any signal is undefined', () => {
     service.setContext(asBarId('bar-1'));
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    service.all.value();
+    TestBed.flushEffects();
     httpMock.expectNone((req) => req.url.includes('/shifts'));
   });
 
@@ -70,26 +76,24 @@ describe('BarShifts', () => {
     const barId = asBarId('bar-1');
     const startDate = '2026-03-01';
     const endDate = '2026-03-31';
-
-    const mockShifts: Shift[] = [
-      { id: asShiftId('shift-1'), barId, date: '2026-03-15', type: ShiftType.MORNING, userId: asUserId('user-1') },
-    ];
+    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, date: '2026-03-15', type: ShiftType.MORNING, userId: asUserId('user-1') }];
 
     service.setContext(barId);
     service.setDateRange(startDate, endDate);
 
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    TestBed.flushEffects();
     httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`).flush(mockShifts);
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockShifts);
 
     service.reload();
-
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
-    httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`).flush(mockShifts);
-    tick();
-    await new Promise((r) => setTimeout(r, 0));
+    TestBed.flushEffects();
+    
+    const req = httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`);
+    req.flush(mockShifts);
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockShifts);
   });
 });

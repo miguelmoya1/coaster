@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import {
   asBarId,
   asShiftId,
@@ -23,6 +26,7 @@ describe('BarExchanges', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -39,7 +43,7 @@ describe('BarExchanges', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
@@ -56,28 +60,18 @@ describe('BarExchanges', () => {
     ];
 
     service.setBarContext(barId);
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.pending.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne(`/bars/${barId}/exchanges`);
     expect(req.request.method).toBe('GET');
     req.flush(mockExchanges);
 
-    service.pending.value();
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.pending.value)));
+    expect(service.pending.value()).toEqual(mockExchanges);
   });
 
-  it('should not fetch anything if barId is undefined', async () => {
-    TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+  it('should not fetch anything if barId is undefined', () => {
+    TestBed.tick();
     httpMock.expectNone((req) => req.url.includes('/exchanges'));
-    service.pending.value();
   });
 });

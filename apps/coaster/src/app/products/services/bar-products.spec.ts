@@ -1,6 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { asBarId, asCategoryId, asProductId, Product } from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
 import { BarProducts } from './bar-products';
@@ -13,6 +16,7 @@ describe('BarProducts', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
@@ -29,7 +33,7 @@ describe('BarProducts', () => {
     httpMock.verify();
   });
 
-  it('should be created', async () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
@@ -47,26 +51,19 @@ describe('BarProducts', () => {
     ];
 
     service.setBarContext(barId);
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
+    service.all.value();
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+
     const req = httpMock.expectOne(`/bars/${barId}/products`);
     expect(req.request.method).toBe('GET');
     req.flush(mockProducts);
+    
+    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
+    expect(service.all.value()).toEqual(mockProducts);
   });
 
-  it('should not fetch anything if barId is undefined', async () => {
-    TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+  it('should not fetch anything if barId is undefined', () => {
+    TestBed.tick();
     httpMock.expectNone(`/bars/undefined/products`);
-    service.all.value();
   });
 });

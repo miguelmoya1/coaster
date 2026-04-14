@@ -11,7 +11,6 @@ describe('App', () => {
   it('should render title', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
     expect(fixture.componentInstance).toBeTruthy();
   });
 });
