@@ -1,13 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import SelectBar from './select-bar';
 
+import { Auth as FirebaseAuth } from '@angular/fire/auth';
+import { provideRouter } from '@angular/router';
+
+import { TranslateModule } from '@ngx-translate/core';
+
 describe('SelectBar', () => {
   let component: SelectBar;
   let fixture: ComponentFixture<SelectBar>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SelectBar],
+      imports: [SelectBar, TranslateModule.forRoot()],
+      providers: [
+        provideRouter([]),
+        { provide: FirebaseAuth, useValue: { onAuthStateChanged: (cb: any) => { cb(null); return () => undefined; }, onIdTokenChanged: (cb: any) => { cb(null); return () => undefined; } } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SelectBar);

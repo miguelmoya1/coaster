@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, Shift, ShiftType, asUserId } from '@coaster/interfaces';
+import { TestBed, tick } from '@angular/core/testing';
+import { asBarId, asShiftId, asUserId, Shift, ShiftType } from '@coaster/interfaces';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { BarShifts } from './bar-shifts';
 
@@ -48,31 +48,22 @@ describe('BarShifts', () => {
 
     service.setContext(barId);
     service.setDateRange(startDate, endDate);
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
-    TestBed.flushEffects();
+
+    tick();
     await new Promise((r) => setTimeout(r, 0));
     const req = httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`);
     expect(req.request.method).toBe('GET');
     req.flush(mockShifts);
 
-    TestBed.flushEffects();
+    tick();
     await new Promise((r) => setTimeout(r, 0));
   });
 
   it('should not fetch anything if any signal is undefined', async () => {
     service.setContext(asBarId('bar-1'));
-    TestBed.flushEffects();
+    tick();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.expectNone((req) => req.url.includes('/shifts'));
-    service.all.value();
   });
 
   it('should reload data', async () => {
@@ -86,35 +77,19 @@ describe('BarShifts', () => {
 
     service.setContext(barId);
     service.setDateRange(startDate, endDate);
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
-    TestBed.flushEffects();
+
+    tick();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`).flush(mockShifts);
-    TestBed.flushEffects();
+    tick();
     await new Promise((r) => setTimeout(r, 0));
 
     service.reload();
-    try {
-      (service as any).all?.value();
-    } catch (e) {}
-    try {
-      (service as any).list?.value();
-    } catch (e) {}
-    try {
-      (service as any).pending?.value();
-    } catch (e) {}
-    TestBed.flushEffects();
+
+    tick();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`).flush(mockShifts);
-    TestBed.flushEffects();
+    tick();
     await new Promise((r) => setTimeout(r, 0));
   });
 });

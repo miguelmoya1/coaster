@@ -1,8 +1,8 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarId } from '@coaster/interfaces';
 import { CurrentBar } from '../../../bars';
-import { CurrentUser } from '../../../core';
+import { CurrentUser, prepareDefaultProfileImage } from '../../../core';
 import { BottomNav, TopAppBar } from '../../../shared';
 
 @Component({
@@ -10,7 +10,7 @@ import { BottomNav, TopAppBar } from '../../../shared';
   imports: [RouterOutlet, TopAppBar, BottomNav],
   template: `
     @if (currentUser.hasValue()) {
-      <coaster-top-app-bar [label]="currentUser.value()!.name" [image]="currentUser.value()!.photoUrl!" />
+      <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
 
     <main class="py-20 px-4">
@@ -27,6 +27,23 @@ export default class Main {
   readonly #currentBar = inject(CurrentBar);
 
   protected readonly currentUser = this.#currentUser.current;
+  protected readonly currentBar = this.#currentBar.current;
+
+  protected readonly titleToShow = computed(() => {
+    if (!this.currentBar.hasValue() || !this.currentUser.hasValue()) {
+      return '';
+    }
+
+    return `${this.currentUser.value().name} (${this.currentBar.value().name})`;
+  });
+
+  protected readonly photoUrlToShow = computed(() => {
+    if (!this.currentUser.hasValue()) {
+      return '';
+    }
+
+    return prepareDefaultProfileImage(this.currentUser.value().photoUrl, this.currentUser.value().name);
+  });
 
   constructor() {
     effect((cleanup) => {

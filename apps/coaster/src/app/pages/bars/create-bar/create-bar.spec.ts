@@ -1,13 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import CreateBar from './create-bar';
 
+import { Auth as FirebaseAuth } from '@angular/fire/auth';
+import { provideRouter } from '@angular/router';
+
+import { TranslateModule } from '@ngx-translate/core';
+
 describe('CreateBar', () => {
   let component: CreateBar;
   let fixture: ComponentFixture<CreateBar>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateBar],
+      imports: [CreateBar, TranslateModule.forRoot()],
+      providers: [
+        provideRouter([]),
+        { provide: FirebaseAuth, useValue: { onAuthStateChanged: (cb: any) => { cb(null); return () => undefined; }, onIdTokenChanged: (cb: any) => { cb(null); return () => undefined; } } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateBar);

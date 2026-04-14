@@ -8,7 +8,7 @@ import { BarCategories, CreateCategory } from '../../../../categories';
 import { BarMembers } from '../../../../members';
 import { signal } from '@angular/core';
 
-describe.skip('Pantry', () => {
+describe('Pantry', () => {
   let component: Pantry;
   let fixture: ComponentFixture<Pantry>;
 

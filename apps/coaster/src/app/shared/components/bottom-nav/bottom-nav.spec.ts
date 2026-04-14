@@ -1,16 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { BottomNav } from './bottom-nav';
 
-describe.skip('BottomNav', () => {
+describe('BottomNav', () => {
   let component: BottomNav;
   let fixture: ComponentFixture<BottomNav>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BottomNav],
+      imports: [BottomNav, TranslateModule.forRoot()],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(BottomNav);
+    fixture.componentRef.setInput('barId', 'bar-1');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -19,3 +23,4 @@ describe.skip('BottomNav', () => {
     expect(component).toBeTruthy();
   });
 });
+

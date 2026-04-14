@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiError } from '../../../../core';
+import { ApiError, prepareDefaultProfileImage } from '../../../../core';
 import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard } from '../../../../members';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
@@ -27,7 +27,7 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
         <coaster-staff-member-card
           [staffName]="member.userName"
           [staffEmail]="member.userEmail"
-          [staffImage]="member.userImage || 'https://ui-avatars.com/api/?name=' + member.userName"
+          [staffImage]="getProfileImage(member.userImage, member.userName)"
           [roleName]="member.role"
         />
       }
@@ -86,5 +86,9 @@ export default class Staff {
 
   protected openBottomSheet() {
     this.isSheetOpen.set(true);
+  }
+
+  protected getProfileImage(profileImage: string, userName: string) {
+    return prepareDefaultProfileImage(profileImage, userName);
   }
 }
