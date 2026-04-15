@@ -49,6 +49,8 @@ fi
 # --- CUSTOM CONFIGURATION ---
 # ==============================================================================
 
+export COLORTERM=truecolor
+
 prompt_mem() {
     local mem_info=$(free -m | awk '/Mem:/ {
         used=$3; total=$2;

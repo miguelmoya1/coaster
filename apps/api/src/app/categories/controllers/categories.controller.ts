@@ -1,7 +1,8 @@
 import { BarId, BarRole } from '@coaster/interfaces';
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateCategoryDto } from '../dto/create-category.dto';
+import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { CategoriesService } from '../services/categories.service';
 
 @Controller('bars/:barId/categories')
@@ -19,5 +20,15 @@ export class CategoriesController {
   @Roles(BarRole.OWNER)
   createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
     return this._categoriesService.createCategory(barId, dto);
+  }
+
+  @Patch(':categoryId')
+  @Roles(BarRole.OWNER)
+  updateCategory(
+    @Param('barId') barId: BarId,
+    @Param('categoryId') categoryId: string,
+    @Body() dto: UpdateCategoryDto,
+  ) {
+    return this._categoriesService.updateCategory(barId, categoryId, dto);
   }
 }

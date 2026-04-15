@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, BarId, Category, CreateCategoryDto } from '@coaster/interfaces';
+import { asBarId, asCategoryId, BarId, Category, CreateCategoryDto, UpdateCategoryDto } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
 import { Category as CategoryDb } from '../../core';
 import { CategoriesRepository } from '../data-access/categories.repository';
@@ -17,6 +17,12 @@ export class CategoriesService {
     const categories = await this._categoriesRepository.findByBarId(barId);
 
     return categories.map((c) => this.#mapToDomain(c));
+  }
+
+  async updateCategory(barId: BarId, categoryId: string, dtos: UpdateCategoryDto) {
+    const category = await this._categoriesRepository.update(barId, categoryId, dtos);
+
+    return this.#mapToDomain(category);
   }
 
   #mapToDomain(dbCategory: CategoryDb): Category {

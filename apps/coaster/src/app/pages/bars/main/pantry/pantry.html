@@ -3,7 +3,7 @@
     <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.total' | translate }}</div>
     <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
   </coaster-status-card>
-  
+
   <coaster-status-card class="flex-1" status="error">
     <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.critical' | translate }}</div>
     <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
@@ -17,12 +17,22 @@
 
 <h2 coaster-title class="mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
 
-<div class="-mx-4 px-4 mb-4">
-  <coaster-category-tabs
-    [tabs]="tabs()"
-    [selectedTabId]="selectedCategoryId()"
-    (tabSelected)="selectedCategoryId.set($event)"
-  />
+<div class="-mx-4 px-4 mb-4 flex items-center gap-4 overflow-hidden">
+  <div class="min-w-0 flex-1">
+    <coaster-category-tabs
+      [tabs]="tabs()"
+      [selectedTabId]="selectedCategoryId()"
+      (tabSelected)="selectedCategoryId.set($event)"
+    />
+  </div>
+  @if (currentUserRole() === 'OWNER' && selectedCategoryId() !== 'ALL') {
+    <button
+      class="shrink-0 w-11 h-11 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      (click)="onEditCategoryClicked()"
+    >
+      <ng-icon name="lucidePencil" class="text-xl" />
+    </button>
+  }
 </div>
 
 @if (categories.isLoading() || products.isLoading()) {
@@ -73,6 +83,21 @@
         [error]="formError()"
         (editProduct)="onEditProductSubmit($event)"
         (canceled)="unselectProductToEdit()"
+      />
+    </div>
+  </coaster-bottom-sheet>
+}
+
+@if (categoryToEdit(); as category) {
+  <coaster-bottom-sheet (closed)="unselectCategoryToEdit()">
+    <div class="px-6 pb-6 pt-6">
+      <h2 class="text-xl font-bold mb-4 text-on-surface">{{ 'pantry.category' | translate }}</h2>
+      <coaster-edit-category-form
+        [category]="category"
+        [disabled]="isSubmitting()"
+        [(error)]="formError"
+        (editCategory)="onEditCategorySubmit($event)"
+        (canceled)="unselectCategoryToEdit()"
       />
     </div>
   </coaster-bottom-sheet>

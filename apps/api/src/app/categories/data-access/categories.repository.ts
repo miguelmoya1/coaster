@@ -21,4 +21,11 @@ export class CategoriesRepository {
       orderBy: { name: 'asc' },
     });
   }
+
+  async update(barId: BarId, categoryId: string, dtos: Prisma.CategoryUpdateInput) {
+    return this._prisma.category.update({
+      where: { id: categoryId, barId },
+      data: dtos,
+    });
+  }
 }
