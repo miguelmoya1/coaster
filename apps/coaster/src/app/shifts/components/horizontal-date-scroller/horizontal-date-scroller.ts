@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { Listbox, Option } from '@angular/aria/listbox';
 
 export interface ScrollerDay {
@@ -24,6 +24,9 @@ export interface ScrollerDay {
           <div
             ngOption
             [value]="day.dayNumber"
+            (click)="daySelected.emit(day.dayNumber)"
+            (keydown.enter)="daySelected.emit(day.dayNumber)"
+            tabindex="0"
             class="shrink-0 w-16 h-24 rounded-2xl bg-primary-container text-on-primary-fixed flex flex-col items-center justify-center gap-1 shadow-lg shadow-primary/20 scale-105 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <span class="label-sm font-black uppercase">{{ day.dayName }}</span>
@@ -33,6 +36,9 @@ export interface ScrollerDay {
           <div
             ngOption
             [value]="day.dayNumber"
+            (click)="daySelected.emit(day.dayNumber)"
+            (keydown.enter)="daySelected.emit(day.dayNumber)"
+            tabindex="0"
             class="shrink-0 w-16 h-24 rounded-2xl bg-surface-container-low flex flex-col items-center justify-center gap-1 hover:bg-surface-container transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <span class="label-sm text-on-surface-variant font-bold uppercase">{{ day.dayName }}</span>
@@ -46,5 +52,7 @@ export interface ScrollerDay {
 })
 export class HorizontalDateScroller {
   readonly days = input<ScrollerDay[]>([]);
+  readonly selectedDay = input<number>();
+  readonly daySelected = output<number>();
   readonly disabled = input(false);
 }

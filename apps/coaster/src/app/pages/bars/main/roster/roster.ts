@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+
 import { BarId } from '@coaster/interfaces';
 import { format } from 'date-fns';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -12,7 +12,7 @@ import { RosterStateService } from '../../../../roster';
 
 @Component({
   selector: 'coaster-roster',
-  imports: [Loading, Fab, HorizontalDateScroller, ShiftCard, FormsModule, CoasterTitle, NgIcon, TranslatePipe],
+  imports: [Loading, Fab, HorizontalDateScroller, ShiftCard, CoasterTitle, NgIcon, TranslatePipe],
   providers: [RosterStateService],
   viewProviders: [provideIcons({ lucideClock })],
   host: {
@@ -28,15 +28,17 @@ import { RosterStateService } from '../../../../roster';
       </div>
 
       <div class="flex flex-col items-end gap-0.5 opacity-80">
-        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">{{ 'roster.today' | translate }}</span>
+        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">{{
+          'roster.today' | translate
+        }}</span>
         <span class="text-white font-bold text-sm">{{ state.displayToday() }}</span>
       </div>
     </div>
 
     <coaster-horizontal-date-scroller
       [days]="state.scrollerDays()"
-      [ngModel]="state.selectedDate().getDate()"
-      (ngModelChange)="onDaySelected($event)"
+      [selectedDay]="state.selectedDate().getDate()"
+      (daySelected)="onDaySelected($event)"
       class="mb-6"
     />
 
@@ -60,7 +62,9 @@ import { RosterStateService } from '../../../../roster';
             />
           }
         } @else {
-          <div class="text-center py-10 opacity-50 text-white font-bold my-auto">{{ 'roster.no_shifts' | translate }}</div>
+          <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
+            {{ 'roster.no_shifts' | translate }}
+          </div>
         }
       </div>
     }
@@ -79,20 +83,14 @@ export default class Roster {
   protected readonly list = this.barShifts.all;
 
   constructor() {
-    effect(
-      () => {
-        this.barShifts.setContext(this.barId());
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.barShifts.setContext(this.barId());
+    });
 
-    effect(
-      () => {
-        const range = this.state.dailyShiftsRange();
-        this.barShifts.setDateRange(range.startIso, range.endIso);
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      const range = this.state.dailyShiftsRange();
+      this.barShifts.setDateRange(range.startIso, range.endIso);
+    });
   }
 
   protected onDaySelected(dayNumber: number) {
