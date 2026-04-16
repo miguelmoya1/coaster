@@ -1,4 +1,4 @@
-import { asBarId, asUserId, ShiftType } from '@coaster/interfaces';
+import { asBarId, asUserId } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../core';
 import { ShiftsRepository } from './shifts.repository';
@@ -52,12 +52,13 @@ describe('ShiftsRepository', () => {
 
   describe('create', () => {
     it('debería crear un turno con include de user', async () => {
-      const date = new Date('2026-03-20');
+      const startTime = new Date('2026-03-20T08:00:00Z');
+      const endTime = new Date('2026-03-20T16:00:00Z');
       prisma.shift.create.mockResolvedValue({ id: 'shift-1' });
 
       const result = await repository.create(asBarId('bar-1'), asUserId('u1'), {
-        date,
-        type: ShiftType.MORNING,
+        startTime,
+        endTime,
         notes: 'notas',
       });
 
@@ -65,8 +66,8 @@ describe('ShiftsRepository', () => {
         data: {
           bar: { connect: { id: 'bar-1' } },
           user: { connect: { id: 'u1' } },
-          date,
-          type: ShiftType.MORNING,
+          startTime,
+          endTime,
           notes: 'notas',
         },
         include: { user: { select: { id: true, name: true } } },
@@ -86,10 +87,10 @@ describe('ShiftsRepository', () => {
       expect(prisma.shift.findMany).toHaveBeenCalledWith({
         where: {
           barId: 'bar-1',
-          date: { gte: startDate, lte: endDate },
+          startTime: { gte: startDate, lte: endDate },
         },
         include: { user: { select: { id: true, name: true } } },
-        orderBy: { date: 'asc' },
+        orderBy: { startTime: 'asc' },
       });
       expect(result).toEqual([{ id: 'shift-1' }]);
     });
@@ -102,7 +103,7 @@ describe('ShiftsRepository', () => {
       expect(prisma.shift.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
         include: { user: { select: { id: true, name: true } } },
-        orderBy: { date: 'asc' },
+        orderBy: { startTime: 'asc' },
       });
     });
   });

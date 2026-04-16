@@ -33,12 +33,12 @@ export class ShiftsRepository {
     return this.prisma.shift.findMany({
       where: {
         barId,
-        ...(startDate && endDate ? { date: { gte: startDate, lte: endDate } } : {}),
+        ...(startDate && endDate ? { startTime: { gte: startDate, lte: endDate } } : {}),
       },
       include: {
         user: { select: { id: true, name: true } },
       },
-      orderBy: { date: 'asc' },
+      orderBy: { startTime: 'asc' },
     });
   }
 }

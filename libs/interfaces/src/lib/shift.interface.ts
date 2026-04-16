@@ -1,6 +1,6 @@
 import { Bar, BarId } from './bar.interface';
 import { Brand } from './brand.type';
-import { ShiftExchangeStatus, ShiftType } from './enums';
+import { ShiftExchangeStatus } from './enums';
 import { User, UserId } from './user.interface';
 
 export type ShiftId = Brand<string, 'ShiftId'>;
@@ -11,8 +11,8 @@ export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExc
 
 export interface Shift {
   id: ShiftId;
-  date: string; // ISO String (YYYY-MM-DD)
-  type: ShiftType;
+  startTime: string; // ISO String
+  endTime: string; // ISO String
   userId: UserId;
   user?: User;
   barId: BarId;
@@ -21,8 +21,8 @@ export interface Shift {
 }
 
 export interface CreateShiftDto {
-  date: string;
-  type: ShiftType;
+  startTime: string;
+  endTime: string;
   userId: UserId;
   notes?: string;
 }

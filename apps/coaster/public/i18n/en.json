@@ -99,5 +99,12 @@
   },
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_NOT_FOUND": "No user registered with that email address.",
-  "UNEXPECTED_ERROR": "An unexpected error occurred"
+  "UNEXPECTED_ERROR": "An unexpected error occurred",
+  "roster": {
+    "title": "Shift Roster",
+    "today": "Today",
+    "daily_assignments": "Daily Assignments",
+    "no_shifts": "No shifts selected for this day",
+    "unassigned": "Unassigned"
+  }
 }

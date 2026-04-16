@@ -2,9 +2,9 @@
 // Este mock evita que Jest intente importar client.ts y models.ts de Prisma
 // los cuales usan ESM (`import.meta.url`) que falla con ts-jest.
 
-import { BarRole, ShiftExchangeStatus, ShiftType } from '@coaster/interfaces';
+import { BarRole, ShiftExchangeStatus } from '@coaster/interfaces';
 
-export { BarRole, ShiftExchangeStatus, ShiftType };
+export { BarRole, ShiftExchangeStatus };
 
 export class PrismaClient {
   user = {

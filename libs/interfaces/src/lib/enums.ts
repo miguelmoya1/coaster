@@ -3,12 +3,7 @@ export enum BarRole {
   STAFF = 'STAFF',
 }
 
-export enum ShiftType {
-  MORNING = 'MORNING',
-  AFTERNOON = 'AFTERNOON',
-  NIGHT = 'NIGHT',
-  SPLIT = 'SPLIT',
-}
+
 
 export enum ShiftExchangeStatus {
   PENDING = 'PENDING',
@@ -24,13 +19,7 @@ export const asBarRole = (role: string): BarRole => {
   return BarRole.STAFF;
 };
 
-export const asShiftType = (type: string): ShiftType => {
-  if (Object.values(ShiftType).includes(type as ShiftType)) {
-    return type as ShiftType;
-  }
-  console.warn(`Invalid ShiftType mapping: ${type}, defaulting to MORNING`);
-  return ShiftType.MORNING;
-};
+
 
 export const asShiftExchangeStatus = (status: string): ShiftExchangeStatus => {
   if (Object.values(ShiftExchangeStatus).includes(status as ShiftExchangeStatus)) {

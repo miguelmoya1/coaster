@@ -36,7 +36,7 @@ describe('BarMembersService', () => {
 
   describe('getMembers', () => {
     it('debería devolver los miembros del bar', async () => {
-      repository.getMembersByBar.mockResolvedValue([{ id: 'member-1' }] as any);
+      repository.getMembersByBar.mockResolvedValue([{ id: 'member-1', user: { name: 'admin', photoUrl: '', email: '' } }] as any);
 
       const result = await service.getMembers(asBarId('bar-1'));
 

@@ -4,7 +4,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
-import { asBarId, asShiftId, asUserId, Shift, ShiftType } from '@coaster/interfaces';
+import { asBarId, asShiftId, asUserId, Shift } from '@coaster/interfaces';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { BarShifts } from './bar-shifts';
 
@@ -47,7 +47,7 @@ describe('BarShifts', () => {
     const endDate = '2026-03-31';
 
     const mockShifts: Shift[] = [
-      { id: asShiftId('shift-1'), barId, date: '2026-03-15', type: ShiftType.MORNING, userId: asUserId('user-1') },
+      { id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1') },
     ];
 
     service.setContext(barId);
@@ -76,7 +76,7 @@ describe('BarShifts', () => {
     const barId = asBarId('bar-1');
     const startDate = '2026-03-01';
     const endDate = '2026-03-31';
-    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, date: '2026-03-15', type: ShiftType.MORNING, userId: asUserId('user-1') }];
+    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1') }];
 
     service.setContext(barId);
     service.setDateRange(startDate, endDate);

@@ -1,4 +1,4 @@
-import { asBarId, asUserId, CreateShiftDto, ShiftType } from '@coaster/interfaces';
+import { asBarId, asUserId, CreateShiftDto } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -29,8 +29,8 @@ describe('ShiftsService', () => {
 
   describe('createShift', () => {
     const createDto: CreateShiftDto = {
-      date: VALID_DATE,
-      type: ShiftType.NIGHT,
+      startTime: VALID_DATE,
+      endTime: VALID_DATE,
       userId: asUserId('user-id'),
       notes: 'Test notes',
     };
@@ -41,8 +41,8 @@ describe('ShiftsService', () => {
         id: 'shift-1',
         barId: 'bar-1',
         userId: 'user-id',
-        date: FAKE_DATE,
-        type: 'NIGHT',
+        startTime: FAKE_DATE,
+        endTime: FAKE_DATE,
         notes: 'Test notes',
         user: { id: 'user-id', name: 'User Name' },
       } as any);
@@ -51,15 +51,15 @@ describe('ShiftsService', () => {
 
       expect(repository.isUserMemberOfBar).toHaveBeenCalledWith('user-id', 'bar-1');
       expect(repository.create).toHaveBeenCalledWith('bar-1', 'user-id', {
-        date: FAKE_DATE,
-        type: ShiftType.NIGHT,
+        startTime: FAKE_DATE,
+        endTime: FAKE_DATE,
         notes: 'Test notes',
       });
 
       expect(result).toEqual({
         id: 'shift-1',
-        date: '2026-03-20', // ISO YYYY-MM-DD
-        type: ShiftType.NIGHT,
+        startTime: '2026-03-20T10:00:00.000Z',
+        endTime: '2026-03-20T10:00:00.000Z',
         userId: 'user-id',
         barId: 'bar-1',
         notes: 'Test notes',
@@ -81,7 +81,7 @@ describe('ShiftsService', () => {
 
       const invalidDto: CreateShiftDto = {
         ...createDto,
-        date: 'fecha-invalida',
+        startTime: 'fecha-invalida',
       };
 
       await expect(service.createShift(asBarId('bar-1'), invalidDto)).rejects.toThrow(BadRequestException);
@@ -98,8 +98,8 @@ describe('ShiftsService', () => {
           id: 'shift-1',
           barId: 'bar-1',
           userId: 'user-id',
-          date: FAKE_DATE,
-          type: 'NIGHT',
+          startTime: FAKE_DATE,
+          endTime: FAKE_DATE,
           notes: null,
           user: null,
         } as any,
@@ -115,8 +115,8 @@ describe('ShiftsService', () => {
       expect(result).toEqual([
         {
           id: 'shift-1',
-          date: '2026-03-20',
-          type: ShiftType.NIGHT,
+          startTime: '2026-03-20T10:00:00.000Z',
+          endTime: '2026-03-20T10:00:00.000Z',
           userId: 'user-id',
           barId: 'bar-1',
           notes: undefined,

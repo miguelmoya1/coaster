@@ -1,12 +1,12 @@
-import { asBarId, asShiftId, Shift, ShiftType, asUserId } from '@coaster/interfaces';
+import { asBarId, asShiftId, Shift, asUserId } from '@coaster/interfaces';
 import { shiftArrayMapper, shiftMapper, checkIsShift } from './shift.mapper';
 
 describe('Shift Mapper', () => {
   const validShift: Shift = {
     id: asShiftId('shift-1'),
     barId: asBarId('bar-1'),
-    date: '2026-03-20',
-    type: ShiftType.MORNING,
+    startTime: '2026-03-20T08:00:00Z',
+    endTime: '2026-03-20T16:00:00Z',
     userId: asUserId('user-1'),
   };
 

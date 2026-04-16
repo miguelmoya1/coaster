@@ -18,12 +18,6 @@ enum BarRole {
   STAFF
 }
 
-enum ShiftType {
-  MORNING
-  AFTERNOON
-  NIGHT
-  SPLIT
-}
 
 
 
@@ -68,8 +62,8 @@ model BarMember {
 
 model Shift {
   id   String    @id @default(uuid())
-  date DateTime
-  type ShiftType
+  startTime DateTime
+  endTime   DateTime
 
   userId   String
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)

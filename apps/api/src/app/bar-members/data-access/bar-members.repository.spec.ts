@@ -51,7 +51,7 @@ describe('BarMembersRepository', () => {
       });
       expect(prisma.barMember.create).toHaveBeenCalledWith({
         data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: BarRole.STAFF },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
       });
       expect(result).toEqual({ id: 'member-1' });
     });
@@ -65,7 +65,7 @@ describe('BarMembersRepository', () => {
 
       expect(prisma.barMember.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1', active: true },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
       });
       expect(result).toEqual([{ id: 'm1' }]);
     });

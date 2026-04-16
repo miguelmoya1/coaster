@@ -1,4 +1,4 @@
-import { asBarId, asUserId, ShiftType } from '@coaster/interfaces';
+import { asBarId, asUserId } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
@@ -42,8 +42,8 @@ describe('ShiftsController', () => {
   it('createShift debería delegar al servicio', () => {
     service.createShift.mockResolvedValue({} as any);
     const dto = {
-      date: '2026-03-20T00:00:00Z',
-      type: ShiftType.MORNING,
+      startTime: '2026-03-20T08:00:00Z',
+      endTime: '2026-03-20T16:00:00Z',
       userId: asUserId('u1'),
     };
 

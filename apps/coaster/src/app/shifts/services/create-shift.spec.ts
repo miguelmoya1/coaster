@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, CreateShiftDto, Shift, ShiftType, asUserId } from '@coaster/interfaces';
+import { asBarId, asShiftId, CreateShiftDto, Shift, asUserId } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { BarShifts } from './bar-shifts';
@@ -36,7 +36,7 @@ describe('CreateShift', () => {
 
   it('should create a shift and reload bar shifts', async () => {
     const barId = asBarId('bar-1');
-    const dto: CreateShiftDto = { date: '2026-03-20', type: ShiftType.NIGHT, userId: asUserId('user-1') };
+    const dto: CreateShiftDto = { startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1') };
     const mockShift: Shift = { id: asShiftId('shift-1'), barId, ...dto };
 
     shiftRepoMock['create'].mockResolvedValue(mockShift);

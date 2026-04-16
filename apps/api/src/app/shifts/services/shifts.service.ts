@@ -1,4 +1,4 @@
-import { BarId, Shift as IShift, asBarId, asShiftId, asShiftType, asUserId } from '@coaster/interfaces';
+import { BarId, Shift as IShift, asBarId, asShiftId, asUserId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { Shift as ShiftDb } from '../../core';
@@ -18,16 +18,18 @@ export class ShiftsService {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    const { date, userId, ...rest } = dto;
+    const { startTime, endTime, userId, ...rest } = dto;
 
-    const shiftDate = new Date(date);
+    const shiftStartTime = new Date(startTime);
+    const shiftEndTime = new Date(endTime);
 
-    if (isNaN(shiftDate.getTime())) {
+    if (isNaN(shiftStartTime.getTime()) || isNaN(shiftEndTime.getTime())) {
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
     const shift = await this._shiftsRepository.create(barId, userId, {
-      date: shiftDate,
+      startTime: shiftStartTime,
+      endTime: shiftEndTime,
       ...rest,
     });
 
@@ -53,8 +55,8 @@ export class ShiftsService {
   #mapToDomain(dbShift: ShiftWithUser): IShift {
     return {
       id: asShiftId(dbShift.id),
-      date: dbShift.date.toISOString().split('T')[0],
-      type: asShiftType(dbShift.type),
+      startTime: dbShift.startTime.toISOString(),
+      endTime: dbShift.endTime.toISOString(),
       userId: asUserId(dbShift.userId),
       barId: asBarId(dbShift.barId),
       notes: dbShift.notes ?? undefined,
