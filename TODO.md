@@ -36,3 +36,19 @@ Este módulo ahora incluye las vistas de productividad que solicitaste.
     - [ ] **Resolución (OWNER):**
         - [ ] Sección de alertas/notificaciones para el dueño con los cambios pendientes.
         - [ ] Sistema de "Aprobar / Rechazar" el cambio (que actualice automáticamente el `userId` del turno en la base de datos si se aprueba).
+
+## 🧪 Testing: Adoptar nuevos Test Harnesses de `@angular/aria`
+> **Requiere:** Actualizar `@angular/aria` a `>=22.0.0` (actualmente en `next`, esperar a stable).
+
+Los nuevos harnesses ofrecen una API semántica para testear componentes aria (`isSelected()`, `isDisabled()`, `getOptions()`, etc.) en lugar de acceder al DOM con `querySelector`.
+
+- [ ] **Actualizar `@angular/aria`** cuando salga la versión stable con harnesses.
+- [ ] **`ListboxHarness`** (`@angular/aria/listbox-testing`):
+  - [ ] `select-input.spec.ts` — Sustituir `querySelector('button')` por harness.
+  - [ ] `multi-select-input.spec.ts` — Sustituir `querySelector('button')` por harness.
+  - [ ] `horizontal-date-scroller.spec.ts` — Enriquecer tests (orientación, selección de día).
+- [ ] **`TabsHarness`** (`@angular/aria/tabs-testing`):
+  - [ ] `category-tabs.spec.ts` — Testear selección de tabs, `getTitle()`, `isDisabled()`.
+- [ ] **`ToolbarHarness`** (`@angular/aria/toolbar-testing`):
+  - [ ] `bottom-nav.spec.ts` — Testear widgets de navegación, orientación.
+  - [ ] `top-app-bar.spec.ts` — Testear widget de búsqueda, `isDisabled()`.

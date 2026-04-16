@@ -97,7 +97,7 @@ export default class Roster {
     this.state.selectDay(dayNumber);
   }
 
-  protected formatTimeRange(startIso: string, endIso: string): string {
+  protected formatTimeRange(startIso: string, endIso: string) {
     try {
       const start = new Date(startIso);
       const end = new Date(endIso);
