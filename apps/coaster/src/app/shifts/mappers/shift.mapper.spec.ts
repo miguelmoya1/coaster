@@ -8,6 +8,8 @@ describe('Shift Mapper', () => {
     startTime: '2026-03-20T08:00:00Z',
     endTime: '2026-03-20T16:00:00Z',
     userId: asUserId('user-1'),
+    userName: 'Test User',
+    userImage: 'https://photo.url/test.jpg',
   };
 
   it('should validate correctly', () => {

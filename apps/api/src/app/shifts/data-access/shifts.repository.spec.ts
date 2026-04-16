@@ -70,7 +70,7 @@ describe('ShiftsRepository', () => {
           endTime,
           notes: 'notas',
         },
-        include: { user: { select: { id: true, name: true } } },
+        include: { user: { select: { id: true, name: true, photoUrl: true } } },
       });
       expect(result).toEqual({ id: 'shift-1' });
     });
@@ -89,7 +89,7 @@ describe('ShiftsRepository', () => {
           barId: 'bar-1',
           startTime: { gte: startDate, lte: endDate },
         },
-        include: { user: { select: { id: true, name: true } } },
+        include: { user: { select: { id: true, name: true, photoUrl: true } } },
         orderBy: { startTime: 'asc' },
       });
       expect(result).toEqual([{ id: 'shift-1' }]);
@@ -102,7 +102,7 @@ describe('ShiftsRepository', () => {
 
       expect(prisma.shift.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
-        include: { user: { select: { id: true, name: true } } },
+        include: { user: { select: { id: true, name: true, photoUrl: true } } },
         orderBy: { startTime: 'asc' },
       });
     });

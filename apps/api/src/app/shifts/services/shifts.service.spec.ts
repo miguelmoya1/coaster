@@ -44,7 +44,7 @@ describe('ShiftsService', () => {
         startTime: FAKE_DATE,
         endTime: FAKE_DATE,
         notes: 'Test notes',
-        user: { id: 'user-id', name: 'User Name' },
+        user: { id: 'user-id', name: 'User Name', photoUrl: 'https://photo.url/user.jpg' },
       } as any);
 
       const result = await service.createShift(asBarId('bar-1'), createDto);
@@ -61,9 +61,10 @@ describe('ShiftsService', () => {
         startTime: '2026-03-20T10:00:00.000Z',
         endTime: '2026-03-20T10:00:00.000Z',
         userId: 'user-id',
+        userName: 'User Name',
+        userImage: 'https://photo.url/user.jpg',
         barId: 'bar-1',
         notes: 'Test notes',
-        user: { id: 'user-id', name: 'User Name', email: '', active: true },
       });
     });
 
@@ -118,9 +119,10 @@ describe('ShiftsService', () => {
           startTime: '2026-03-20T10:00:00.000Z',
           endTime: '2026-03-20T10:00:00.000Z',
           userId: 'user-id',
+          userName: '',
+          userImage: undefined,
           barId: 'bar-1',
           notes: undefined,
-          user: undefined,
         },
       ]);
     });

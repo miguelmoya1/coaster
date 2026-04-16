@@ -5,7 +5,7 @@ import { Shift as ShiftDb } from '../../core';
 import { ShiftsRepository } from '../data-access/shifts.repository';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 
-type ShiftWithUser = ShiftDb & { user?: { id: string; name: string } };
+type ShiftWithUser = ShiftDb & { user?: { id: string; name: string; photoUrl: string | null } };
 
 @Injectable()
 export class ShiftsService {
@@ -58,16 +58,10 @@ export class ShiftsService {
       startTime: dbShift.startTime.toISOString(),
       endTime: dbShift.endTime.toISOString(),
       userId: asUserId(dbShift.userId),
+      userName: dbShift.user?.name ?? '',
+      userImage: dbShift.user?.photoUrl ?? undefined,
       barId: asBarId(dbShift.barId),
       notes: dbShift.notes ?? undefined,
-      user: dbShift.user
-        ? {
-            id: asUserId(dbShift.user.id),
-            name: dbShift.user.name,
-            email: '',
-            active: true,
-          }
-        : undefined,
     };
   }
 }

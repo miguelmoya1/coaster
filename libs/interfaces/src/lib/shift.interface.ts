@@ -1,7 +1,7 @@
-import { Bar, BarId } from './bar.interface';
+import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ShiftExchangeStatus } from './enums';
-import { User, UserId } from './user.interface';
+import { UserId } from './user.interface';
 
 export type ShiftId = Brand<string, 'ShiftId'>;
 export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
@@ -14,9 +14,9 @@ export interface Shift {
   startTime: string; // ISO String
   endTime: string; // ISO String
   userId: UserId;
-  user?: User;
+  userName: string;
+  userImage?: string;
   barId: BarId;
-  bar?: Bar;
   notes?: string;
 }
 

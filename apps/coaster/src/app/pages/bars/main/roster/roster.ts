@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
 
 import { BarId } from '@coaster/interfaces';
-import { format } from 'date-fns';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { prepareDefaultProfileImage } from '../../../../core';
+import { RosterStateService } from '../../../../roster';
 import { CoasterTitle, Fab, Loading } from '../../../../shared';
 import { BarShifts, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
-import { RosterStateService } from '../../../../roster';
 
 @Component({
   selector: 'coaster-roster',
@@ -21,17 +21,17 @@ import { RosterStateService } from '../../../../roster';
   template: `
     <div class="flex items-center justify-between mb-4 mt-2">
       <div class="flex flex-col gap-0.5">
-        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-sm">{{
-          state.displayMonthYear()
-        }}</span>
+        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-sm">
+          {{ state.displayMonthYear() }}
+        </span>
         <h1 coaster-title>{{ 'roster.title' | translate }}</h1>
       </div>
 
       <div class="flex flex-col items-end gap-0.5 opacity-80">
-        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">{{
-          'roster.today' | translate
-        }}</span>
-        <span class="text-white font-bold text-sm">{{ state.displayToday() }}</span>
+        <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">
+          {{ 'roster.today' | translate }}
+        </span>
+        <span class="text-white font-bold text-sm"> {{ state.displayToday() }} </span>
       </div>
     </div>
 
@@ -55,9 +55,9 @@ import { RosterStateService } from '../../../../roster';
           @for (shift of list.value(); track shift.id) {
             <coaster-shift-card
               [timeRange]="formatTimeRange(shift.startTime, shift.endTime)"
-              [staffName]="shift.user?.name ?? ('roster.unassigned' | translate)"
-              [roleName]="shift.user ? 'STAFF' : 'N/A'"
-              [staffImage]="getProfileImage(shift.user?.name)"
+              [staffName]="shift.userName || ('roster.unassigned' | translate)"
+              [roleName]="'STAFF'"
+              [staffImage]="shift.userImage || getProfileImage(shift.userName)"
               roleColorClass="bg-primary text-primary"
             />
           }

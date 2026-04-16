@@ -24,7 +24,7 @@ export class ShiftsRepository {
         user: { connect: { id: userId } },
       },
       include: {
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, photoUrl: true } },
       },
     });
   }
@@ -36,7 +36,7 @@ export class ShiftsRepository {
         ...(startDate && endDate ? { startTime: { gte: startDate, lte: endDate } } : {}),
       },
       include: {
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, photoUrl: true } },
       },
       orderBy: { startTime: 'asc' },
     });

@@ -47,7 +47,7 @@ describe('BarShifts', () => {
     const endDate = '2026-03-31';
 
     const mockShifts: Shift[] = [
-      { id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1') },
+      { id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1'), userName: 'User 1', userImage: 'https://photo.url/u1.jpg' },
     ];
 
     service.setContext(barId);
@@ -76,7 +76,7 @@ describe('BarShifts', () => {
     const barId = asBarId('bar-1');
     const startDate = '2026-03-01';
     const endDate = '2026-03-31';
-    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1') }];
+    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1'), userName: 'User 1', userImage: 'https://photo.url/u1.jpg' }];
 
     service.setContext(barId);
     service.setDateRange(startDate, endDate);
