@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { BottomNav } from './bottom-nav';
 
+// TODO: (@angular/aria >=22) Testear con ToolbarHarness de @angular/aria/toolbar-testing (widgets de navegación, orientación)
 describe('BottomNav', () => {
   let component: BottomNav;
   let fixture: ComponentFixture<BottomNav>;

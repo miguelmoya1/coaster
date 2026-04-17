@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { MultiSelectInput } from './multi-select-input';
 
+// TODO: (@angular/aria >=22) Sustituir querySelector('button') por ListboxHarness de @angular/aria/listbox-testing
 describe('MultiSelectInput', () => {
   let component: MultiSelectInput;
   let fixture: ComponentFixture<MultiSelectInput>;
