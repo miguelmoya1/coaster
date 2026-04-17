@@ -105,6 +105,16 @@
     "today": "Hoy",
     "daily_assignments": "Asignaciones Diarias",
     "no_shifts": "No hay turnos seleccionados para este día",
-    "unassigned": "Sin Asignar"
+    "unassigned": "Sin Asignar",
+    "create_shift": {
+      "staff_label": "Miembro del Equipo",
+      "staff_placeholder": "Selecciona un miembro",
+      "start_time_label": "Hora de Inicio",
+      "end_time_label": "Hora de Fin",
+      "notes_label": "Notas (Opcional)",
+      "notes_placeholder": "Ej. Cubrir hora punta de la noche",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Crear Turno"
+    }
   }
 }

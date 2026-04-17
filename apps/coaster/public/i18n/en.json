@@ -105,6 +105,16 @@
     "today": "Today",
     "daily_assignments": "Daily Assignments",
     "no_shifts": "No shifts selected for this day",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "create_shift": {
+      "staff_label": "Staff Member",
+      "staff_placeholder": "Select a team member",
+      "start_time_label": "Start Time",
+      "end_time_label": "End Time",
+      "notes_label": "Notes (Optional)",
+      "notes_placeholder": "e.g. Cover for evening rush",
+      "cancel_btn": "Cancel",
+      "submit_btn": "Create Shift"
+    }
   }
 }

@@ -1,18 +1,29 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 
-import { BarId } from '@coaster/interfaces';
+import { BarId, CreateShiftDto } from '@coaster/interfaces';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
-import { prepareDefaultProfileImage } from '../../../../core';
+import { ApiError, CurrentUser, prepareDefaultProfileImage } from '../../../../core';
+import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
-import { CoasterTitle, Fab, Loading } from '../../../../shared';
-import { BarShifts, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
+import { BottomSheet, CoasterTitle, Fab, Loading } from '../../../../shared';
+import { BarShifts, CreateShift, CreateShiftForm, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
 
 @Component({
   selector: 'coaster-roster',
-  imports: [Loading, Fab, HorizontalDateScroller, ShiftCard, CoasterTitle, NgIcon, TranslatePipe],
+  imports: [
+    Loading,
+    Fab,
+    HorizontalDateScroller,
+    ShiftCard,
+    CoasterTitle,
+    NgIcon,
+    TranslatePipe,
+    BottomSheet,
+    CreateShiftForm,
+  ],
   providers: [RosterStateService],
   viewProviders: [provideIcons({ lucideClock })],
   host: {
@@ -37,7 +48,7 @@ import { BarShifts, HorizontalDateScroller, ShiftCard } from '../../../../shifts
 
     <coaster-horizontal-date-scroller
       [days]="state.scrollerDays()"
-      [selectedDay]="state.selectedDate().getDate()"
+      [selectedDay]="selectedDayId()"
       (daySelected)="onDaySelected($event)"
       class="mb-6"
     />
@@ -69,7 +80,21 @@ import { BarShifts, HorizontalDateScroller, ShiftCard } from '../../../../shifts
       </div>
     }
 
-    <coaster-fab />
+    @if (currentUserRole() === 'OWNER') {
+      <coaster-fab (click)="openBottomSheet()" />
+    }
+
+    @if (isSheetOpen()) {
+      <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+          <coaster-create-shift-form
+            [members]="membersList() ?? []"
+            [disabled]="isSubmitting() || list.isLoading()"
+            [(error)]="formError"
+            (createShift)="onShiftSubmit($event)"
+            (canceled)="isSheetOpen.set(false)"
+          />
+      </coaster-bottom-sheet>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -80,11 +105,27 @@ export default class Roster {
   protected readonly barShifts = inject(BarShifts);
   protected readonly translate = inject(TranslateService);
 
+  readonly #barMembers = inject(BarMembers);
+  readonly #currentUser = inject(CurrentUser);
+  readonly #createShift = inject(CreateShift);
+
   protected readonly list = this.barShifts.all;
+  protected readonly isSheetOpen = signal(false);
+  protected readonly isSubmitting = signal(false);
+  protected readonly formError = signal<string | undefined>(undefined);
+
+  protected readonly membersList = computed(() => this.#barMembers.list.value());
+
+  protected readonly currentUserRole = computed(() => {
+    const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
+    return barMember?.role;
+  });
 
   constructor() {
     effect(() => {
-      this.barShifts.setContext(this.barId());
+      const barId = this.barId();
+      this.barShifts.setContext(barId);
+      this.#barMembers.setBarContext(barId);
     });
 
     effect(() => {
@@ -93,8 +134,35 @@ export default class Roster {
     });
   }
 
-  protected onDaySelected(dayNumber: number) {
-    this.state.selectDay(dayNumber);
+  protected readonly selectedDayId = computed(() => format(this.state.selectedDate(), 'yyyy-MM-dd'));
+
+  protected onDaySelected(dayId: string) {
+    this.state.selectDay(dayId);
+  }
+
+  protected openBottomSheet() {
+    this.formError.set(undefined);
+    this.isSheetOpen.set(true);
+  }
+
+  protected async onShiftSubmit(payload: CreateShiftDto) {
+    const selectedDate = this.state.selectedDate();
+
+    const fullPayload: CreateShiftDto = {
+      ...payload,
+      startTime: this.#buildIso(selectedDate, payload.startTime),
+      endTime: this.#buildIso(selectedDate, payload.endTime),
+    };
+
+    await this.#handleFormSubmission(
+      async () => {
+        await this.#createShift.execute(this.barId(), fullPayload);
+      },
+      () => {
+        this.barShifts.reload();
+        this.isSheetOpen.set(false);
+      },
+    );
   }
 
   protected formatTimeRange(startIso: string, endIso: string) {
@@ -109,5 +177,27 @@ export default class Roster {
 
   protected getProfileImage(name?: string) {
     return prepareDefaultProfileImage(undefined, name ?? this.translate.instant('roster.unassigned'));
+  }
+
+  #buildIso(date: Date, timeString: string): string {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const result = new Date(date);
+    result.setHours(hours, minutes, 0, 0);
+    return result.toISOString();
+  }
+
+  async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
+    this.formError.set(undefined);
+
+    try {
+      this.isSubmitting.set(true);
+      await action();
+      onSuccess();
+    } catch (error: unknown) {
+      console.log(error);
+      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
 }

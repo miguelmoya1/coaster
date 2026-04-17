@@ -3,7 +3,9 @@ import Roster from './roster';
 import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
-import { BarShifts } from '../../../../shifts';
+import { BarShifts, CreateShift } from '../../../../shifts';
+import { BarMembers } from '../../../../members';
+import { CurrentUser } from '../../../../core';
 
 describe('Roster', () => {
   let component: Roster;
@@ -22,6 +24,9 @@ describe('Roster', () => {
             reload: vi.fn(),
           },
         },
+        { provide: BarMembers, useValue: { list: { value: signal([]) }, setBarContext: vi.fn(), reload: vi.fn() } },
+        { provide: CurrentUser, useValue: { current: { value: signal(null) } } },
+        { provide: CreateShift, useValue: { execute: vi.fn() } },
       ],
     }).compileComponents();
 

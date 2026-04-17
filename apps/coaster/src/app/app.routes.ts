@@ -13,10 +13,6 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./pages/auth/auth.routes'),
   },
   {
-    path: 'dev-sandbox',
-    loadComponent: () => import('./pages/dev-sandbox/dev-sandbox'),
-  },
-  {
     path: 'bars',
     canActivate: [authGuard],
     loadChildren: () => import('./pages/bars/bars.routes'),

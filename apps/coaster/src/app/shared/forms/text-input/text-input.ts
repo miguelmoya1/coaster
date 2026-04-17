@@ -74,7 +74,7 @@ export class TextInput implements FormValueControl<string> {
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
   readonly icon = input<string>();
-  readonly type = input<'text' | 'email' | 'password' | 'tel' | 'url'>('text');
+  readonly type = input<'text' | 'email' | 'password' | 'tel' | 'url' | 'time' | 'datetime-local'>('text');
 
   // Writable interaction state
   readonly touched = model<boolean>(false);

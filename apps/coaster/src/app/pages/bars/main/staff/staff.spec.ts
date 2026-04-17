@@ -4,6 +4,7 @@ import Staff from './staff';
 import { TranslateModule } from '@ngx-translate/core';
 import { BarMembers } from '../../../../members';
 import { signal } from '@angular/core';
+import { CurrentUser } from '../../../../core';
 
 import { vi } from 'vitest';
 
@@ -15,7 +16,8 @@ describe('Staff', () => {
     await TestBed.configureTestingModule({
       imports: [Staff, TranslateModule.forRoot()],
       providers: [
-        { provide: BarMembers, useValue: { list: { value: signal([]), isLoading: signal(false), hasValue: signal(true) }, setBarContext: vi.fn(), reload: vi.fn() } }
+        { provide: BarMembers, useValue: { list: { value: signal([]), isLoading: signal(false), hasValue: signal(true) }, setBarContext: vi.fn(), reload: vi.fn() } },
+        { provide: CurrentUser, useValue: { current: { value: signal(null) } } },
       ]
     }).compileComponents();
 
