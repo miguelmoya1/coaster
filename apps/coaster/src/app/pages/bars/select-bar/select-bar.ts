@@ -10,34 +10,7 @@ import { CoasterBtn, SectionTitle } from '../../../shared';
   selector: 'coaster-select-bar',
   imports: [SectionTitle, BarCard, TranslatePipe, CoasterBtn, NgIcon],
   providers: [provideIcons({ lucidePlusCircle })],
-  template: `
-    <coaster-section-title
-      [heading]="'bars.select.title' | translate"
-      [description]="'bars.select.subtitle' | translate"
-      centered
-      isH1
-      class="mb-6"
-    />
-
-    <div class="flex flex-col gap-4">
-      @for (bar of bars.value() ?? []; track bar.id) {
-        <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
-      } @empty {
-        <div
-          class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
-        >
-          <span class="text-on-surface-variant font-medium">
-            {{ 'bars.select.empty' | translate }}
-          </span>
-        </div>
-      }
-
-      <button coaster-btn variant="dashed" type="button" (click)="navigateToCreate()" class="mt-2">
-        <ng-icon name="lucidePlusCircle" class="text-on-surface-variant text-xl hover:text-primary" />
-        {{ 'bars.select.create_btn' | translate }}
-      </button>
-    </div>
-  `,
+  templateUrl: './select-bar.html',
   host: {
     class: 'flex flex-col gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },

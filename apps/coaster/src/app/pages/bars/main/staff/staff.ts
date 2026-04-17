@@ -11,43 +11,7 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
   host: {
     class: 'flex flex-col gap-2',
   },
-  template: `
-    <coaster-section-title
-      [heading]="'members.staff.title' | translate"
-      [description]="'members.staff.description' | translate: { count: totalMembers() }"
-      class="mb-8"
-    />
-
-    @if (list.isLoading()) {
-      <coaster-loading />
-    }
-
-    @if (list.hasValue()) {
-      @for (member of list.value(); track member.id) {
-        <coaster-staff-member-card
-          [staffName]="member.userName"
-          [staffEmail]="member.userEmail"
-          [staffImage]="getProfileImage(member.userImage, member.userName)"
-          [roleName]="member.role"
-        />
-      }
-    }
-
-    @if (currentUserRole() === 'OWNER') {
-      <coaster-fab (click)="openBottomSheet()" />
-    }
-
-    @if (isSheetOpen()) {
-      <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
-        <coaster-invite-member-form
-          (inviteMember)="inviteMember($event)"
-          [disabled]="list.isLoading() || isSubmitting()"
-          [(error)]="formError"
-          (canceled)="isSheetOpen.set(false)"
-        />
-      </coaster-bottom-sheet>
-    }
-  `,
+  templateUrl: './staff.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Staff {

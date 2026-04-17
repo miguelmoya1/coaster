@@ -1,0 +1,96 @@
+<div class="flex items-center justify-between mb-4 mt-2">
+  <div class="flex flex-col gap-0.5">
+    <span class="text-on-surface-variant font-bold uppercase tracking-widest text-sm">
+      {{ state.displayMonthYear() }}
+    </span>
+    <h1 coaster-title>{{ 'roster.title' | translate }}</h1>
+  </div>
+
+  <div class="flex flex-col items-end gap-0.5 opacity-80">
+    <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">
+      {{ 'roster.today' | translate }}
+    </span>
+    <span class="text-white font-bold text-sm"> {{ state.displayToday() }} </span>
+  </div>
+</div>
+
+<coaster-horizontal-date-scroller
+  [days]="state.scrollerDays()"
+  [selectedDay]="selectedDayId()"
+  (daySelected)="onDaySelected($event)"
+  class="mb-6"
+/>
+
+<h2 coaster-title class="mb-4 flex items-center gap-2 text-on-surface">
+  <ng-icon name="lucideClock" class="text-primary text-xl" />
+  {{ 'roster.daily_assignments' | translate }}
+</h2>
+
+@if (list.isLoading()) {
+  <coaster-loading />
+} @else {
+  <div class="flex flex-col gap-3">
+    @if (list.hasValue() && list.value().length) {
+      @for (shift of list.value(); track shift.id) {
+        <coaster-shift-card
+          [timeRange]="formatTimeRange(shift.startTime, shift.endTime)"
+          [staffName]="shift.userName || ('roster.unassigned' | translate)"
+          [roleName]="'STAFF'"
+          [staffImage]="shift.userImage || getProfileImage(shift.userName)"
+          [isOwn]="shift.userId === currentUserId()"
+          [hasPendingExchange]="pendingShiftIds().has(shift.id)"
+          roleColorClass="bg-primary text-primary"
+          (offerExchange)="onOfferExchange(shift.id)"
+        />
+      }
+    } @else {
+      <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
+        {{ 'roster.no_shifts' | translate }}
+      </div>
+    }
+  </div>
+}
+
+@if (pendingExchanges.hasValue() && pendingExchanges.value().length) {
+  <h2 coaster-title class="mt-8 mb-4 flex items-center gap-2 text-on-surface">
+    <ng-icon name="lucideRepeat2" class="text-tertiary text-xl" />
+    {{ 'roster.exchanges.title' | translate }}
+    <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
+      {{ pendingExchanges.value().length }}
+    </span>
+  </h2>
+
+  <div class="flex flex-col gap-3 pb-24">
+    @for (exchange of pendingExchanges.value(); track exchange.id) {
+      <coaster-exchange-request-card
+        [month]="formatMonth(exchange.shiftStartTime)"
+        [day]="formatDay(exchange.shiftStartTime)"
+        [shiftPeriod]="formatShiftPeriod(exchange.shiftStartTime)"
+        [roleName]="'STAFF'"
+        [timeRange]="formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
+        [offeredBy]="exchange.requesterName"
+        [disabled]="isSubmitting()"
+        [isOwnRequest]="exchange.requesterId === currentUserId()"
+        (accepted)="onAcceptExchange(exchange.id)"
+      />
+    }
+  </div>
+} @else {
+  <div class="pb-24"></div>
+}
+
+@if (currentUserRole() === 'OWNER') {
+  <coaster-fab (click)="openBottomSheet()" />
+}
+
+@if (isSheetOpen()) {
+  <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+      <coaster-create-shift-form
+        [members]="membersList() ?? []"
+        [disabled]="isSubmitting() || list.isLoading()"
+        [(error)]="formError"
+        (createShift)="onShiftSubmit($event)"
+        (canceled)="isSheetOpen.set(false)"
+      />
+  </coaster-bottom-sheet>
+}
