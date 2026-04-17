@@ -22,22 +22,29 @@ export class ShiftExchangesRepository {
       data: {
         shift: { connect: { id: shiftId } },
         requester: { connect: { id: requesterId } },
-        target: { connect: { id: targetId } },
+        ...(targetId ? { target: { connect: { id: targetId } } } : {}),
         status: ShiftExchangeStatus.PENDING,
       },
     });
   }
 
   async findPendingByBarId(barId: BarId) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return this.prisma.shiftExchange.findMany({
       where: {
         status: ShiftExchangeStatus.PENDING,
-        shift: { barId: barId },
+        shift: {
+          barId: barId,
+          startTime: { gte: today },
+        },
       },
       include: {
         shift: true,
         requester: { select: { id: true, name: true } },
       },
+      orderBy: { shift: { startTime: 'asc' } },
     });
   }
 

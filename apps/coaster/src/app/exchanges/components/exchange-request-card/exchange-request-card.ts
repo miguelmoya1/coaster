@@ -1,10 +1,12 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSend } from '@ng-icons/lucide';
+import { lucideRepeat2 } from '@ng-icons/lucide';
+import { TranslatePipe } from '@ngx-translate/core';
+
 @Component({
   selector: 'coaster-exchange-request-card',
-  imports: [NgIcon],
-  viewProviders: [provideIcons({ lucideSend })],
+  imports: [NgIcon, TranslatePipe],
+  viewProviders: [provideIcons({ lucideRepeat2 })],
   template: `
     <div class="flex gap-4">
       <div
@@ -23,16 +25,19 @@ import { lucideSend } from '@ng-icons/lucide';
 
     <div class="flex items-center gap-3">
       <div class="text-right hidden sm:block">
-        <p class="label-sm text-on-surface-variant uppercase font-bold">Offered by</p>
+        <p class="label-sm text-on-surface-variant uppercase font-bold">{{ 'roster.exchanges.offered_by' | translate }}</p>
         <p class="body-md font-semibold">{{ offeredBy() }}</p>
       </div>
-      <button
-        [disabled]="disabled()"
-        class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
-      >
-        Request
-        <ng-icon name="lucideSend" class="text-lg"></ng-icon>
-      </button>
+      @if (!isOwnRequest()) {
+        <button
+          [disabled]="disabled()"
+          (click)="accepted.emit(); $event.stopPropagation()"
+          class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
+        >
+          {{ 'roster.exchanges.accept_btn' | translate }}
+          <ng-icon name="lucideRepeat2" class="text-lg"></ng-icon>
+        </button>
+      }
     </div>
   `,
   host: {
@@ -49,4 +54,6 @@ export class ExchangeRequestCard {
   readonly timeRange = input.required<string>();
   readonly offeredBy = input.required<string>();
   readonly disabled = input(false);
+  readonly isOwnRequest = input(false);
+  readonly accepted = output<void>();
 }

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { ExchangeRequestCard } from './exchange-request-card';
 
 describe('ExchangeRequestCard', () => {
@@ -7,7 +8,7 @@ describe('ExchangeRequestCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExchangeRequestCard],
+      imports: [ExchangeRequestCard, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ExchangeRequestCard);

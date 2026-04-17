@@ -106,6 +106,8 @@
     "daily_assignments": "Daily Assignments",
     "no_shifts": "No shifts selected for this day",
     "unassigned": "Unassigned",
+    "offer_exchange": "Offer",
+    "exchange_pending": "Pending",
     "create_shift": {
       "staff_label": "Staff Member",
       "staff_placeholder": "Select a team member",
@@ -115,6 +117,15 @@
       "notes_placeholder": "e.g. Cover for evening rush",
       "cancel_btn": "Cancel",
       "submit_btn": "Create Shift"
+    },
+    "exchanges": {
+      "title": "Pending Exchanges",
+      "offered_by": "Offered by",
+      "accept_btn": "Accept",
+      "period_morning": "Morning Shift",
+      "period_afternoon": "Afternoon Shift",
+      "period_evening": "Evening Shift",
+      "your_request": "Your request"
     }
   }
 }

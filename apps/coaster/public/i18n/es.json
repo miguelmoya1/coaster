@@ -106,6 +106,8 @@
     "daily_assignments": "Asignaciones Diarias",
     "no_shifts": "No hay turnos seleccionados para este día",
     "unassigned": "Sin Asignar",
+    "offer_exchange": "Ofrecer",
+    "exchange_pending": "Pendiente",
     "create_shift": {
       "staff_label": "Miembro del Equipo",
       "staff_placeholder": "Selecciona un miembro",
@@ -115,6 +117,15 @@
       "notes_placeholder": "Ej. Cubrir hora punta de la noche",
       "cancel_btn": "Cancelar",
       "submit_btn": "Crear Turno"
+    },
+    "exchanges": {
+      "title": "Intercambios Pendientes",
+      "offered_by": "Ofrecido por",
+      "accept_btn": "Aceptar",
+      "period_morning": "Turno de Mañana",
+      "period_afternoon": "Turno de Tarde",
+      "period_evening": "Turno de Noche",
+      "your_request": "Tu petición"
     }
   }
 }

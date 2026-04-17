@@ -37,4 +37,7 @@ export interface ShiftExchange {
   requesterId: UserId;
   targetId?: UserId;
   status: ShiftExchangeStatus;
+  requesterName: string;
+  shiftStartTime: string;
+  shiftEndTime: string;
 }

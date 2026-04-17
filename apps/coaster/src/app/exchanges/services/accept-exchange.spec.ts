@@ -50,6 +50,9 @@ describe('AcceptExchange', () => {
       requesterId: asUserId('requester-1'),
       targetId: asUserId('target-1'),
       status: ShiftExchangeStatus.APPROVED,
+      requesterName: 'John',
+      shiftStartTime: '2026-04-17T09:00:00.000Z',
+      shiftEndTime: '2026-04-17T17:00:00.000Z',
     };
 
     exchangeRepoMock['accept'].mockResolvedValue(mockExchange);

@@ -83,12 +83,16 @@ describe('ShiftExchangesRepository', () => {
       expect(prisma.shiftExchange.findMany).toHaveBeenCalledWith({
         where: {
           status: ShiftExchangeStatus.PENDING,
-          shift: { barId: 'bar-1' },
+          shift: {
+            barId: 'bar-1',
+            startTime: { gte: expect.any(Date) },
+          },
         },
         include: {
           shift: true,
           requester: { select: { id: true, name: true } },
         },
+        orderBy: { shift: { startTime: 'asc' } },
       });
       expect(result).toEqual([{ id: 'exc-1' }]);
     });

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { ShiftCard } from './shift-card';
 
 describe('ShiftCard', () => {
@@ -7,7 +8,7 @@ describe('ShiftCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShiftCard],
+      imports: [ShiftCard, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShiftCard);

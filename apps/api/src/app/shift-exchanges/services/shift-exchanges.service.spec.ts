@@ -183,12 +183,33 @@ describe('ShiftExchangesService', () => {
 
   describe('getPendingExchanges', () => {
     it('debería llamar al repositorio', async () => {
-      repository.findPendingByBarId.mockResolvedValue([{ id: 'exc-1' }] as any);
+      repository.findPendingByBarId.mockResolvedValue([
+        {
+          id: 'exc-1',
+          shiftId: 'shift-1',
+          requesterId: 'user-1',
+          targetId: null,
+          status: ShiftExchangeStatus.PENDING,
+          shift: { startTime: new Date('2026-04-17T09:00:00.000Z'), endTime: new Date('2026-04-17T17:00:00.000Z') },
+          requester: { id: 'user-1', name: 'John' },
+        },
+      ] as any);
 
       const result = await service.getPendingExchanges(asBarId('bar-1'));
 
       expect(repository.findPendingByBarId).toHaveBeenCalledWith('bar-1');
-      expect(result).toEqual([{ id: 'exc-1' }]);
+      expect(result).toEqual([
+        {
+          id: 'exc-1',
+          shiftId: 'shift-1',
+          requesterId: 'user-1',
+          targetId: undefined,
+          status: ShiftExchangeStatus.PENDING,
+          requesterName: 'John',
+          shiftStartTime: '2026-04-17T09:00:00.000Z',
+          shiftEndTime: '2026-04-17T17:00:00.000Z',
+        },
+      ]);
     });
   });
 });

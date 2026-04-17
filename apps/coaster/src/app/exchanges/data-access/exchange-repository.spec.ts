@@ -42,6 +42,9 @@ describe('ExchangeRepository', () => {
       requesterId: asUserId('user-1'),
       targetId: asUserId('user-2'),
       status: ShiftExchangeStatus.PENDING,
+      requesterName: 'John',
+      shiftStartTime: '2026-04-17T09:00:00.000Z',
+      shiftEndTime: '2026-04-17T17:00:00.000Z',
     };
 
     const promise = service.request(barId, shiftId, dto);
@@ -62,12 +65,15 @@ describe('ExchangeRepository', () => {
       shiftId: asShiftId('shift-1'),
       requesterId: asUserId('user-1'),
       status: ShiftExchangeStatus.APPROVED,
+      requesterName: 'John',
+      shiftStartTime: '2026-04-17T09:00:00.000Z',
+      shiftEndTime: '2026-04-17T17:00:00.000Z',
     };
 
     const promise = service.accept(barId, exchangeId);
 
     const req = httpMock.expectOne(service.routes.accept(barId, exchangeId));
-    expect(req.request.method).toBe('POST');
+    expect(req.request.method).toBe('PATCH');
     req.flush(mockExchange);
 
     const result = await promise;

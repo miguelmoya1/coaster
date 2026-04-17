@@ -6,7 +6,10 @@ export const checkIsExchange = (exchange: unknown): exchange is ShiftExchange =>
     exchange !== null &&
     'id' in exchange &&
     'shiftId' in exchange &&
-    'status' in exchange
+    'status' in exchange &&
+    'requesterName' in exchange &&
+    'shiftStartTime' in exchange &&
+    'shiftEndTime' in exchange
   );
 };
 
