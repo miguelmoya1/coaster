@@ -1,12 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { Injectable } from '@angular/core';
 import { format } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DateFormatterService {
-  private readonly translate = inject(TranslateService);
 
   public formatTimeRange(startIso: string, endIso: string): string {
     try {
@@ -26,11 +24,11 @@ export class DateFormatterService {
     return format(new Date(iso), 'd');
   }
 
-  public formatShiftPeriod(iso: string): string {
+  public formatShiftPeriod(iso: string): 'morning' | 'afternoon' | 'evening' {
     const hour = new Date(iso).getHours();
-    if (hour < 12) return this.translate.instant('roster.exchanges.period_morning');
-    if (hour < 18) return this.translate.instant('roster.exchanges.period_afternoon');
-    return this.translate.instant('roster.exchanges.period_evening');
+    if (hour < 12) return 'morning';
+    if (hour < 18) return 'afternoon';
+    return 'evening';
   }
 
   public formatDayId(date: Date): string {

@@ -65,7 +65,7 @@
       <coaster-exchange-request-card
         [month]="dateFormatter.formatMonth(exchange.shiftStartTime)"
         [day]="dateFormatter.formatDay(exchange.shiftStartTime)"
-        [shiftPeriod]="dateFormatter.formatShiftPeriod(exchange.shiftStartTime)"
+        [shiftPeriod]="'roster.exchanges.period_' + dateFormatter.formatShiftPeriod(exchange.shiftStartTime) | translate"
         [roleName]="'STAFF'"
         [timeRange]="dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
         [offeredBy]="exchange.requesterName"
