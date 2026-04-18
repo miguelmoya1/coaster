@@ -16,9 +16,9 @@ import { BarRole } from '@coaster/interfaces';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BarRoleBadge {
-  readonly role = input<BarRole | undefined>(undefined);
+  public readonly role = input<BarRole | undefined>(undefined);
 
-  readonly dotColorClass = computed(() => {
+  public readonly dotColorClass = computed(() => {
     switch (this.role()) {
       case BarRole.OWNER:
         return 'bg-primary text-primary';
@@ -29,7 +29,7 @@ export class BarRoleBadge {
     }
   });
 
-  readonly labelKey = computed(() => {
+  public readonly labelKey = computed(() => {
     switch (this.role()) {
       case BarRole.OWNER:
         return 'common.role.owner';

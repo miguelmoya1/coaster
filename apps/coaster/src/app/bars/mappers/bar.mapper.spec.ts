@@ -8,6 +8,7 @@ describe('Bar Mapper', () => {
     it('should return true for valid bar', () => {
       expect(checkIsBar({ id: '1', name: 'Bar' })).toBe(true);
     });
+
     it('should return false for invalid objects', () => {
       expect(checkIsBar(null)).toBe(false);
       expect(checkIsBar({ name: 'Bar' })).toBe(false);
@@ -19,6 +20,7 @@ describe('Bar Mapper', () => {
     it('should map a valid bar', () => {
       expect(barMapper(validBar)).toEqual(validBar);
     });
+
     it('should throw Error for invalid bar', () => {
       expect(() => barMapper({ id: '1' })).toThrow('Invalid Bar payload');
     });
@@ -28,6 +30,7 @@ describe('Bar Mapper', () => {
     it('should map an array of valid bars', () => {
       expect(barArrayMapper([validBar])).toEqual([validBar]);
     });
+
     it('should throw an array for non-array input', () => {
       expect(() => barArrayMapper({})).toThrow('Expected array of Bars');
     });

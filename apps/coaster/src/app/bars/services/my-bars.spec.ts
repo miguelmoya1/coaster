@@ -9,6 +9,7 @@ import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
 import { MyBars } from './my-bars';
 
+// TODO: Revisar
 describe('MyBars', () => {
   let service: MyBars;
   let httpMock: HttpTestingController;

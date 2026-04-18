@@ -8,7 +8,7 @@ import { BarRepository } from '../data-access/bar-repository';
 export class CreateBar {
   readonly #barRepository = inject(BarRepository);
 
-  public async create(createBarDto: CreateBarDto) {
+  public async execute(createBarDto: CreateBarDto) {
     return this.#barRepository.create(createBarDto);
   }
 }

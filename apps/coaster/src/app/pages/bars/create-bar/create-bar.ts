@@ -39,7 +39,7 @@ export default class CreateBar {
         action: async (form) => {
           const payload = form().value();
           try {
-            await this.#createBarService.create({ name: payload.name || '' });
+            await this.#createBarService.execute({ name: payload.name || '' });
             this.#myBars.reload();
             this.#router.navigate(['/bars/select']);
             return undefined;

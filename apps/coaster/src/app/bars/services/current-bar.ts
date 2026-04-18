@@ -9,7 +9,6 @@ import { barMapper } from '../mappers/bar.mapper';
 })
 export class CurrentBar {
   readonly #barRepository = inject(BarRepository);
-
   readonly #currentId = signal<BarId | undefined>(undefined);
   readonly #current = httpResource(
     () => {
@@ -24,12 +23,8 @@ export class CurrentBar {
 
   readonly current = this.#current.asReadonly();
 
-  public select(barId: BarId) {
+  public setBarContext(barId: BarId) {
     this.#currentId.set(barId);
-  }
-
-  public clear() {
-    this.#currentId.set(undefined);
   }
 
   public reload() {

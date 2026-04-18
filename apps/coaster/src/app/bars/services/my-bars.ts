@@ -10,7 +10,6 @@ import { barArrayMapper } from '../mappers/bar.mapper';
 export class MyBars {
   readonly #barRepository = inject(BarRepository);
   readonly #auth = inject(Auth);
-
   readonly #all = httpResource(
     () => {
       if (!this.#auth.isAuthenticated()) {
@@ -24,7 +23,7 @@ export class MyBars {
     },
   );
 
-  readonly all = this.#all.asReadonly();
+  public readonly all = this.#all.asReadonly();
 
   public reload() {
     this.#all.reload();

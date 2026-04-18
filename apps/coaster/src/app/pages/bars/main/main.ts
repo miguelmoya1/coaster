@@ -46,13 +46,9 @@ export default class Main {
   });
 
   constructor() {
-    effect((cleanup) => {
+    effect(() => {
       const barId = this.barId();
-      this.#currentBar.select(barId);
-
-      cleanup(() => {
-        this.#currentBar.clear();
-      });
+      this.#currentBar.setBarContext(barId);
     });
   }
 }

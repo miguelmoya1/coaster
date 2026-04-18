@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
-import { Tabs, TabList, Tab } from '@angular/aria/tabs';
+import { Tab, TabList, Tabs } from '@angular/aria/tabs';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 export interface CategoryTab {
   id: string;
@@ -46,7 +46,7 @@ export class CategoryTabs {
   readonly disabled = input(false);
   readonly tabSelected = output<string>();
 
-  selectTab(id: string) {
+  public selectTab(id: string) {
     this.tabSelected.emit(id);
   }
 }

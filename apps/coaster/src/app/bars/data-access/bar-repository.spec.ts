@@ -24,15 +24,39 @@ describe('BarRepository', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call create bar endpoint', async () => {
-    const mockBar: Bar = { id: asBarId('1'), name: 'Test Bar' };
-    const promise = service.create({ name: 'Test Bar' });
+  describe('routes', () => {
+    it('should have the public routes', () => {
+      expect(service.routes).toBeTruthy();
+    });
 
-    const req = httpMock.expectOne(service.routes.create);
-    expect(req.request.method).toBe('POST');
-    req.flush(mockBar);
+    it('should have the my bars route', () => {
+      expect(service.routes.myBars).toBe('/bars');
+    });
 
-    const result = await promise;
-    expect(result).toEqual(mockBar);
+    it('should have the bar route', () => {
+      expect(service.routes.bar(asBarId('1'))).toBe('/bars/1');
+    });
+
+    it('should have the create route', () => {
+      expect(service.routes.create).toBe('/bars');
+    });
+  });
+
+  describe('create function', () => {
+    it('should be created', () => {
+      expect(service.create).toBeTruthy();
+    });
+
+    it('should call create bar endpoint', async () => {
+      const mockBar: Bar = { id: asBarId('1'), name: 'Test Bar' };
+      const promise = service.create({ name: 'Test Bar' });
+
+      const req = httpMock.expectOne(service.routes.create);
+      expect(req.request.method).toBe('POST');
+      req.flush(mockBar);
+
+      const result = await promise;
+      expect(result).toEqual(mockBar);
+    });
   });
 });

@@ -1,20 +1,30 @@
 import { TestBed } from '@angular/core/testing';
-import { Mock, vi } from 'vitest';
+import { asBarId, BarId } from '@coaster/interfaces';
+import { vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { CreateBar } from './create-bar';
 
 describe('CreateBar', () => {
   let service: CreateBar;
-  let repositoryMock: Record<string, Mock>;
+  const repositoryMock = {
+    create: vi.fn(),
+    routes: {
+      myBars: '/bars',
+      bar: (barId: BarId) => `/bars/${barId}`,
+      create: '/bars',
+    },
+  };
 
-  beforeEach(() => {
-    repositoryMock = {
-      create: vi.fn(),
-    };
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: BarRepository,
+          useValue: repositoryMock,
+        },
+      ],
+    }).compileComponents();
 
-    TestBed.configureTestingModule({
-      providers: [{ provide: BarRepository, useValue: repositoryMock }],
-    });
     service = TestBed.inject(CreateBar);
   });
 
@@ -22,13 +32,15 @@ describe('CreateBar', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.create on create', async () => {
-    const dto = { name: 'New Bar' };
-    repositoryMock['create'].mockResolvedValue({ id: '1', name: 'New Bar' });
+  describe('execute function', () => {
+    it('should call repository.create on execute', async () => {
+      const dto = { name: 'New Bar' };
+      repositoryMock.create.mockResolvedValue({ id: asBarId('1'), name: 'New Bar' });
 
-    const result = await service.create(dto);
+      const result = await service.execute(dto);
 
-    expect(repositoryMock['create']).toHaveBeenCalledWith(dto);
-    expect(result).toEqual({ id: '1', name: 'New Bar' });
+      expect(repositoryMock.create).toHaveBeenCalledWith(dto);
+      expect(result).toEqual({ id: '1', name: 'New Bar' });
+    });
   });
 });

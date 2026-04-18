@@ -20,8 +20,8 @@ describe('Pantry', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { url: [], params: {}, queryParams: {}, data: {} },
-            parent: { snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }] } },
+            snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
+            parent: { snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] } },
           },
         },
         { provide: BarProducts, useValue: { setBarContext: vi.fn(), reload: vi.fn(), all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) }, total: signal(0), criticalStock: signal(0), lowStock: signal(0) } },

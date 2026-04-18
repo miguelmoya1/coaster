@@ -26,5 +26,5 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BarCard {
-  readonly bar = input.required<Bar>();
+  public readonly bar = input.required<Bar>();
 }
