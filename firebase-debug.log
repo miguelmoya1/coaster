@@ -4956,3 +4956,1046 @@ Issues? Report them at https://github.com/firebase/firebase-tools/issues and att
  
 [debug] [2026-04-18T08:30:41.273Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
 [debug] [2026-04-18T08:30:41.274Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-04-18T11:23:24.891Z] Received signal SIGHUP 1
+[info]  
+[info] i  emulators: Received SIGHUP for the first time. Starting a clean shutdown. 
+[info] i  emulators: Please wait for a clean shutdown or send the SIGHUP signal again to stop right now. 
+[debug] [2026-04-18T11:23:24.933Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.936Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.938Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.939Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.941Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.946Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.947Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.949Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.951Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.954Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.956Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.959Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.961Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.963Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.988Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.989Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.990Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.991Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:24.993Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.020Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.020Z] Received signal SIGHUP 2
+[info]  
+[debug] [2026-04-18T11:23:25.020Z] Skipping clean onExit() and cleanShutdown()
+[warn] ⚠  emulators: Received SIGHUP 2 times. You have forced the Emulator Suite to exit without waiting for 0 subprocess to finish. These processes may still be running on your machine:  
+[info] 
+┌──────────┬───────────┬─────┐
+│ Emulator │ Host:Port │ PID │
+└──────────┴───────────┴─────┘
+
+To force them to exit run:
+
+[info] kill 
+
+[debug] [2026-04-18T11:23:25.035Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.037Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.038Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.039Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.040Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.041Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.042Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.043Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.044Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.045Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.047Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.048Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.049Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.049Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.050Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.051Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.052Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.053Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.054Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.055Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.061Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.062Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.062Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.063Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.063Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.064Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.064Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.065Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.065Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.066Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.067Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.068Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.068Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.069Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.069Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.070Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.070Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.070Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.071Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.071Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.071Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.072Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.072Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.073Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.079Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.079Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.080Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.081Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.081Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.082Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.082Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.083Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.083Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.084Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.085Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.085Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.086Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.087Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-18T11:23:25.089Z] Error: write EIO
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (/home/miguel/projects/coaster/node_modules/winston/lib/winston/transports/console.js:87:23)
+    at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
+    at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
+[error] 
