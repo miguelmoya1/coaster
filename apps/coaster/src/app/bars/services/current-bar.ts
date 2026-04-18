@@ -14,6 +14,7 @@ export class CurrentBar {
   readonly #current = httpResource(
     () => {
       const currentId = this.#currentId();
+
       return currentId ? this.#barRepository.routes.bar(currentId) : undefined;
     },
     {

@@ -1,11 +1,11 @@
-import { Auth } from '../../core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { TestBed, tick } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
+import { firstValueFrom } from 'rxjs';
+import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
 import { MyBars } from './my-bars';
 
@@ -43,11 +43,11 @@ describe('MyBars', () => {
     const mockBars: Bar[] = [{ id: asBarId('bar-1'), name: 'Test Bar' }];
 
     service.all.value();
-    TestBed.flushEffects();
+    tick();
     const req = httpMock.expectOne('/bars');
     expect(req.request.method).toBe('GET');
     req.flush(mockBars);
-    
+
     await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
     expect(service.all.value()).toEqual(mockBars);
   });

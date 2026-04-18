@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Bar } from '@coaster/interfaces';
-import { StatusCard } from '../../../shared/components/status-card/status-card';
-import { CoasterTitle } from '../../../shared/components/typography/typography';
+import { CoasterTitle, StatusCard } from '../../../shared';
 import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
 
 @Component({
@@ -18,6 +17,7 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
           <h3 coaster-title>
             {{ bar().name }}
           </h3>
+
           <coaster-bar-role-badge />
         </div>
       </div>

@@ -1,10 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { TestBed, tick } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
+import { firstValueFrom } from 'rxjs';
 import { BarRepository } from '../data-access/bar-repository';
 import { CurrentBar } from './current-bar';
 
@@ -45,14 +45,14 @@ describe('CurrentBar', () => {
     const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
     service.current.value();
-    TestBed.flushEffects();
+    tick();
     service.select(asBarId('bar-1'));
     service.current.value();
-    TestBed.flushEffects();
+    tick();
     const req = httpMock.expectOne('/bars/bar-1');
     expect(req.request.method).toBe('GET');
     req.flush(mockBar);
-    
+
     await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.current.value)));
     expect(service.current.value()).toEqual(mockBar);
   });
@@ -60,7 +60,7 @@ describe('CurrentBar', () => {
   it('should clear bar state', async () => {
     service.clear();
     service.current.value();
-    TestBed.flushEffects();
+    tick();
     expect(service.current.value()).toBeUndefined();
   });
 });
