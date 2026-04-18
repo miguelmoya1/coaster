@@ -1,18 +1,19 @@
 import { asUserId } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { BarRepository } from '../data-access/bar.repository';
 import { BarsService } from './bars.service';
 
 describe('BarsService', () => {
   let service: BarsService;
-  let repository: jest.Mocked<BarRepository>;
+  let repository: Mocked<BarRepository>;
 
   const FAKE_DATE = new Date('2026-01-01T10:00:00Z');
 
   beforeEach(async () => {
     const mockRepo = {
-      create: jest.fn(),
-      findByUserId: jest.fn(),
+      create: vi.fn(),
+      findByUserId: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

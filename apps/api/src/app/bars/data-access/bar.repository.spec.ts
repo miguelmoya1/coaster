@@ -1,19 +1,20 @@
 import { asUserId } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PrismaService } from '../../core';
 import { BarRepository } from './bar.repository';
 
 describe('BarRepository', () => {
   let repository: BarRepository;
   let prisma: {
-    bar: { create: jest.Mock };
-    barMember: { findMany: jest.Mock };
+    bar: { create: Mock };
+    barMember: { findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      bar: { create: jest.fn() },
-      barMember: { findMany: jest.fn() },
+      bar: { create: vi.fn() },
+      barMember: { findMany: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({

@@ -1,14 +1,15 @@
 import { asUserId } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { UserRepository } from '../data-access/user.repository';
 import { UserService } from './user.service';
 
 describe('UserService', () => {
   let service: UserService;
-  let repository: jest.Mocked<UserRepository>;
+  let repository: Mocked<UserRepository>;
 
   beforeEach(async () => {
-    const mockRepo = { getById: jest.fn(), update: jest.fn() };
+    const mockRepo = { getById: vi.fn(), update: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [UserService, { provide: UserRepository, useValue: mockRepo }],

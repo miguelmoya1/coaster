@@ -1,26 +1,27 @@
 import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PrismaService } from '../../core';
 import { ShiftExchangesRepository } from './shift-exchanges.repository';
 
 describe('ShiftExchangesRepository', () => {
   let repository: ShiftExchangesRepository;
   let prisma: {
-    shift: { findUnique: jest.Mock };
-    shiftExchange: { findUnique: jest.Mock; create: jest.Mock; findMany: jest.Mock; update: jest.Mock };
-    $transaction: jest.Mock;
+    shift: { findUnique: Mock };
+    shiftExchange: { findUnique: Mock; create: Mock; findMany: Mock; update: Mock };
+    $transaction: Mock;
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      shift: { findUnique: jest.fn(), update: jest.fn() },
+      shift: { findUnique: vi.fn(), update: vi.fn() },
       shiftExchange: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        findMany: jest.fn(),
-        update: jest.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        findMany: vi.fn(),
+        update: vi.fn(),
       },
-      $transaction: jest.fn(),
+      $transaction: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

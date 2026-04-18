@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PrismaService } from '../../core';
 import { UserRepository } from './user.repository';
 
 describe('UserRepository', () => {
   let repository: UserRepository;
-  let prisma: { user: { findUnique: jest.Mock } };
+  let prisma: { user: { findUnique: Mock } };
 
   beforeEach(async () => {
-    const mockPrisma = { user: { findUnique: jest.fn() } };
+    const mockPrisma = { user: { findUnique: vi.fn() } };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [UserRepository, { provide: PrismaService, useValue: mockPrisma }],

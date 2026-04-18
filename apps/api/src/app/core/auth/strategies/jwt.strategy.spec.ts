@@ -1,29 +1,30 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { JwtStrategy } from './jwt.strategy';
 import * as admin from 'firebase-admin';
 
-jest.mock('firebase-admin', () => ({
-  auth: jest.fn().mockReturnValue({
-    verifyIdToken: jest.fn(),
+vi.mock('firebase-admin', () => ({
+  auth: vi.fn().mockReturnValue({
+    verifyIdToken: vi.fn(),
   }),
 }));
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let prisma: { user: { upsert: jest.Mock } };
+  let prisma: { user: { upsert: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      user: { upsert: jest.fn() },
+      user: { upsert: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [JwtStrategy, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
-    strategy = module.get<JwtStrategy>(JwtStrategy);
+     strategy = module.get<JwtStrategy>(JwtStrategy);
     prisma = module.get(PrismaService);
   });
 
@@ -38,7 +39,7 @@ describe('JwtStrategy', () => {
       name: 'Test User',
       picture: 'http://photo.url',
     };
-    (admin.auth().verifyIdToken as jest.Mock).mockResolvedValue(fakePayload);
+    (admin.auth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
     prisma.user.upsert.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -63,13 +64,13 @@ describe('JwtStrategy', () => {
   });
 
   it('debería lanzar UnauthorizedException si el payload no tiene sub', async () => {
-    (admin.auth().verifyIdToken as jest.Mock).mockResolvedValue({ email: 'test@mail.com' });
+    (admin.auth().verifyIdToken as Mock).mockResolvedValue({ email: 'test@mail.com' });
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 
   it('debería lanzar UnauthorizedException si verifyIdToken falla', async () => {
-    (admin.auth().verifyIdToken as jest.Mock).mockRejectedValue(new Error('bad'));
+    (admin.auth().verifyIdToken as Mock).mockRejectedValue(new Error('bad'));
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });

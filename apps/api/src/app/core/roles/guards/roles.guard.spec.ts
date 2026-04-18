@@ -3,24 +3,25 @@ import { ErrorCodes } from '@coaster/logic';
 import { ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked, Mock } from 'vitest';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RolesGuard } from './roles.guard';
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
-  let reflector: jest.Mocked<Reflector>;
-  let prisma: { barMember: { findUnique: jest.Mock } };
+  let reflector: Mocked<Reflector>;
+  let prisma: { barMember: { findUnique: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      barMember: { findUnique: jest.fn() },
+      barMember: { findUnique: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RolesGuard,
-        { provide: Reflector, useValue: { getAllAndOverride: jest.fn() } },
+        { provide: Reflector, useValue: { getAllAndOverride: vi.fn() } },
         { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
@@ -32,8 +33,8 @@ describe('RolesGuard', () => {
 
   const mockContext = (user?: unknown, barId?: string) =>
     ({
-      getHandler: jest.fn(),
-      getClass: jest.fn(),
+      getHandler: vi.fn(),
+      getClass: vi.fn(),
       switchToHttp: () => ({
         getRequest: () => ({ user, params: { barId } }),
       }),

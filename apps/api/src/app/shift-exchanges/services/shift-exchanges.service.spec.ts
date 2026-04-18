@@ -9,20 +9,21 @@ import {
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
 import { ShiftExchangesService } from './shift-exchanges.service';
 
 describe('ShiftExchangesService', () => {
   let service: ShiftExchangesService;
-  let repository: jest.Mocked<ShiftExchangesRepository>;
+  let repository: Mocked<ShiftExchangesRepository>;
 
   beforeEach(async () => {
     const mockRepo = {
-      getShiftById: jest.fn(),
-      getExchangeById: jest.fn(),
-      createExchange: jest.fn(),
-      findPendingByBarId: jest.fn(),
-      acceptExchangeAndSwapShift: jest.fn(),
+      getShiftById: vi.fn(),
+      getExchangeById: vi.fn(),
+      createExchange: vi.fn(),
+      findPendingByBarId: vi.fn(),
+      acceptExchangeAndSwapShift: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

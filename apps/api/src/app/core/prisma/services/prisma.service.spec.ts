@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PrismaService } from './prisma.service';
 
 describe('PrismaService', () => {
@@ -12,7 +13,7 @@ describe('PrismaService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('postgresql://fake:5432/test'),
+            get: vi.fn().mockReturnValue('postgresql://fake:5432/test'),
           },
         },
       ],

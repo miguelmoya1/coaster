@@ -1,20 +1,21 @@
 import { asBarId } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { CategoriesService } from '../services/categories.service';
 import { CategoriesController } from './categories.controller';
 
 describe('CategoriesController', () => {
   let controller: CategoriesController;
-  let service: jest.Mocked<CategoriesService>;
+  let service: Mocked<CategoriesService>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
   beforeEach(async () => {
     const mockService = {
-      getCategories: jest.fn(),
-      createCategory: jest.fn(),
+      getCategories: vi.fn(),
+      createCategory: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

@@ -1,13 +1,14 @@
 import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { ShiftExchangesService } from '../services/shift-exchanges.service';
 import { ShiftExchangesController } from './shift-exchanges.controller';
 
 describe('ShiftExchangesController', () => {
   let controller: ShiftExchangesController;
-  let service: jest.Mocked<ShiftExchangesService>;
+  let service: Mocked<ShiftExchangesService>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
@@ -23,9 +24,9 @@ describe('ShiftExchangesController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getPendingExchanges: jest.fn(),
-      requestExchange: jest.fn(),
-      acceptExchange: jest.fn(),
+      getPendingExchanges: vi.fn(),
+      requestExchange: vi.fn(),
+      acceptExchange: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

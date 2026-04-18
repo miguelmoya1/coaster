@@ -2,21 +2,22 @@ import { asBarId, asUserId, CreateShiftDto } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { ShiftsRepository } from '../data-access/shifts.repository';
 import { ShiftsService } from './shifts.service';
 
 describe('ShiftsService', () => {
   let service: ShiftsService;
-  let repository: jest.Mocked<ShiftsRepository>;
+  let repository: Mocked<ShiftsRepository>;
 
   const VALID_DATE = '2026-03-20T10:00:00.000Z';
   const FAKE_DATE = new Date(VALID_DATE);
 
   beforeEach(async () => {
     const mockRepo = {
-      isUserMemberOfBar: jest.fn(),
-      create: jest.fn(),
-      findByBarId: jest.fn(),
+      isUserMemberOfBar: vi.fn(),
+      create: vi.fn(),
+      findByBarId: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

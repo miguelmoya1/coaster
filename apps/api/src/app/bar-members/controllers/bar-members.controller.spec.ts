@@ -1,13 +1,14 @@
 import { asBarId, asUserId, BarRole, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { BarMembersService } from '../services/bar-members.service';
 import { BarMembersController } from './bar-members.controller';
 
 describe('BarMembersController', () => {
   let controller: BarMembersController;
-  let service: jest.Mocked<BarMembersService>;
+  let service: Mocked<BarMembersService>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
@@ -20,8 +21,8 @@ describe('BarMembersController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getMembers: jest.fn(),
-      invite: jest.fn(),
+      getMembers: vi.fn(),
+      invite: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

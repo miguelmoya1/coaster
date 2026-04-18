@@ -3,6 +3,7 @@ import { ErrorCodes } from '@coaster/logic';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BarGateway } from './bar.gateway';
 
 describe('BarGateway', () => {
@@ -14,18 +15,18 @@ describe('BarGateway', () => {
     }).compile();
 
     gateway = module.get<BarGateway>(BarGateway);
-    gateway.server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+    gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() } as any;
 
     // Suppress logger outputs during tests
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => {});
+    vi.spyOn(Logger.prototype, 'debug').mockImplementation(() => {});
   });
 
   const createSocketMock = () =>
     ({
       id: 'mock-socket-id',
-      join: jest.fn(),
-      leave: jest.fn(),
+      join: vi.fn(),
+      leave: vi.fn(),
     }) as any;
 
   describe('handleConnection / handleDisconnect', () => {

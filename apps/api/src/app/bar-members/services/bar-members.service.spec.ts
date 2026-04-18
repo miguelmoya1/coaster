@@ -2,23 +2,24 @@ import { asBarId, asUserId, BarRole } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
 import { EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersService } from './bar-members.service';
 
 describe('BarMembersService', () => {
   let service: BarMembersService;
-  let repository: jest.Mocked<BarMembersRepository>;
-  let emailService: jest.Mocked<EmailService>;
+  let repository: Mocked<BarMembersRepository>;
+  let emailService: Mocked<EmailService>;
 
   beforeEach(async () => {
     const mockRepo = {
-      findBarById: jest.fn(),
-      inviteMember: jest.fn(),
-      getMembersByBar: jest.fn(),
+      findBarById: vi.fn(),
+      inviteMember: vi.fn(),
+      getMembersByBar: vi.fn(),
     };
     const mockEmailService = {
-      sendInviteEmail: jest.fn(),
+      sendInviteEmail: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -36,12 +37,25 @@ describe('BarMembersService', () => {
 
   describe('getMembers', () => {
     it('debería devolver los miembros del bar', async () => {
-      repository.getMembersByBar.mockResolvedValue([{ id: 'member-1', user: { name: 'admin', photoUrl: '', email: '' } }] as any);
+      repository.getMembersByBar.mockResolvedValue([
+        { id: 'member-1', userId: 'user-1', barId: 'bar-1', active: true, role: BarRole.OWNER, user: { name: 'admin', photoUrl: 'http://user-1.jpg', email: 'admin@mail.com' } },
+      ] as any);
 
       const result = await service.getMembers(asBarId('bar-1'));
 
       expect(repository.getMembersByBar).toHaveBeenCalledWith('bar-1');
-      expect(result).toEqual([{ id: 'member-1' }]);
+      expect(result).toEqual([
+        {
+          id: 'member-1',
+          userId: 'user-1',
+          barId: 'bar-1',
+          active: true,
+          role: BarRole.OWNER,
+          userName: 'admin',
+          userImage: 'http://user-1.jpg',
+          userEmail: 'admin@mail.com',
+        },
+      ]);
     });
   });
 

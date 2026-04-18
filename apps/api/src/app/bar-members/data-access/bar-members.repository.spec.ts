@@ -1,21 +1,22 @@
 import { asBarId, BarRole } from '@coaster/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PrismaService } from '../../core';
 import { BarMembersRepository } from './bar-members.repository';
 
 describe('BarMembersRepository', () => {
   let repository: BarMembersRepository;
   let prisma: {
-    bar: { findUnique: jest.Mock };
-    user: { upsert: jest.Mock };
-    barMember: { create: jest.Mock; findMany: jest.Mock };
+    bar: { findUnique: Mock };
+    user: { upsert: Mock };
+    barMember: { create: Mock; findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      bar: { findUnique: jest.fn() },
-      user: { upsert: jest.fn() },
-      barMember: { create: jest.fn(), findMany: jest.fn() },
+      bar: { findUnique: vi.fn() },
+      user: { upsert: vi.fn() },
+      barMember: { create: vi.fn(), findMany: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -47,11 +48,11 @@ describe('BarMembersRepository', () => {
       expect(prisma.user.upsert).toHaveBeenCalledWith({
         where: { email: 'new@test.com' },
         update: {},
-        create: { email: 'new@test.com', name: 'NEW_EMPLOYEE' },
+        create: { email: 'new@test.com', name: 'new' },
       });
       expect(prisma.barMember.create).toHaveBeenCalledWith({
         data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: BarRole.STAFF },
-        include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
+        include: { user: { select: { id: true, name: true, email: true } } },
       });
       expect(result).toEqual({ id: 'member-1' });
     });
