@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 
 import { BarId, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/interfaces';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -25,6 +26,7 @@ import { BarShifts, CreateShift, CreateShiftForm, HorizontalDateScroller, ShiftC
     BottomSheet,
     CreateShiftForm,
     ExchangeRequestCard,
+    RouterLink,
   ],
   providers: [RosterStateService],
   viewProviders: [provideIcons({ lucideClock, lucideRepeat2 })],
@@ -50,7 +52,12 @@ export default class Roster {
 
   protected readonly list = this.barShifts.all;
   protected readonly pendingExchanges = this.#barExchanges.pending;
-  protected readonly isSheetOpen = signal(false);
+  readonly #router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+  protected readonly isCreateMode = isActive(
+    createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
+    this.#router,
+  );
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
 
@@ -88,9 +95,9 @@ export default class Roster {
     this.state.selectDay(dayId);
   }
 
-  protected openBottomSheet() {
+  protected closeModal() {
     this.formError.set(undefined);
-    this.isSheetOpen.set(true);
+    this.#router.navigate(['/bars', this.barId(), 'roster']);
   }
 
   protected async onShiftSubmit(payload: CreateShiftDto) {
@@ -108,7 +115,7 @@ export default class Roster {
       },
       () => {
         this.barShifts.reload();
-        this.isSheetOpen.set(false);
+        this.closeModal();
       },
     );
   }

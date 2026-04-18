@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
   BarId,
   Category,
@@ -44,6 +45,7 @@ import { BottomSheet, CoasterTitle, Fab, Loading, StatusCard } from '../../../..
     Loading,
     BottomSheet,
     Fab,
+    RouterLink,
     TranslatePipe,
     UpdateProductForm,
     EditProductForm,
@@ -73,7 +75,13 @@ export default class Pantry {
   readonly #editProduct = inject(EditProduct);
   readonly #updateProductStock = inject(UpdateProduct);
 
-  protected readonly isSheetOpen = signal(false);
+  readonly #router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+  protected readonly isCreateMode = isActive(
+    createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
+    this.#router,
+  );
+
   protected readonly currentFormTab = signal<'PRODUCT' | 'CATEGORY'>('PRODUCT');
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
@@ -169,10 +177,10 @@ export default class Pantry {
     );
   }
 
-  protected openBottomSheet() {
+  protected closeModal() {
     this.formError.set(undefined);
     this.currentFormTab.set('PRODUCT');
-    this.isSheetOpen.set(true);
+    this.#router.navigate(['/bars', this.barId(), 'pantry']);
   }
 
   protected async onProductSubmit(payload: CreateProductDto) {
@@ -182,7 +190,7 @@ export default class Pantry {
       },
       () => {
         this.#productsService.reload();
-        this.isSheetOpen.set(false);
+        this.closeModal();
       },
     );
   }
@@ -194,7 +202,7 @@ export default class Pantry {
       },
       () => {
         this.#categoriesService.reload();
-        this.isSheetOpen.set(false);
+        this.closeModal();
       },
     );
   }

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ApiError, CurrentUser, prepareDefaultProfileImage } from '../../../../core';
@@ -7,7 +8,7 @@ import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, SectionTitle, BottomSheet, Fab, InviteMemberForm, TranslatePipe],
+  imports: [Loading, StaffMemberCard, SectionTitle, BottomSheet, Fab, InviteMemberForm, TranslatePipe, RouterLink],
   host: {
     class: 'flex flex-col gap-2',
   },
@@ -23,7 +24,12 @@ export default class Staff {
 
   protected readonly list = this.#barMembers.list;
 
-  protected readonly isSheetOpen = signal(false);
+  readonly #router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+  protected readonly isInviteMode = isActive(
+    createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['invite']),
+    this.#router,
+  );
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
   protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
@@ -38,9 +44,9 @@ export default class Staff {
     });
   }
 
-  protected openBottomSheet() {
+  protected closeModal() {
     this.formError.set(undefined);
-    this.isSheetOpen.set(true);
+    this.#router.navigate(['/bars', this.barId(), 'staff']);
   }
 
   protected async inviteMember(payload: InviteBarMemberDto) {
@@ -50,7 +56,7 @@ export default class Staff {
       },
       () => {
         this.#barMembers.reload();
-        this.isSheetOpen.set(false);
+        this.closeModal();
       },
     );
   }

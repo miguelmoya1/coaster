@@ -80,17 +80,17 @@
 }
 
 @if (currentUserRole() === 'OWNER') {
-  <coaster-fab (click)="openBottomSheet()" />
+  <coaster-fab routerLink="new" />
 }
 
-@if (isSheetOpen()) {
-  <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+@if (isCreateMode()) {
+  <coaster-bottom-sheet (closed)="closeModal()">
       <coaster-create-shift-form
         [members]="membersList() ?? []"
         [disabled]="isSubmitting() || list.isLoading()"
         [(error)]="formError"
         (createShift)="onShiftSubmit($event)"
-        (canceled)="isSheetOpen.set(false)"
+        (canceled)="closeModal()"
       />
   </coaster-bottom-sheet>
 }

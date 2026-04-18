@@ -20,16 +20,16 @@
 }
 
 @if (currentUserRole() === 'OWNER') {
-  <coaster-fab (click)="openBottomSheet()" />
+  <coaster-fab routerLink="invite" />
 }
 
-@if (isSheetOpen()) {
-  <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+@if (isInviteMode()) {
+  <coaster-bottom-sheet (closed)="closeModal()">
     <coaster-invite-member-form
       (inviteMember)="inviteMember($event)"
       [disabled]="list.isLoading() || isSubmitting()"
       [(error)]="formError"
-      (canceled)="isSheetOpen.set(false)"
+      (canceled)="closeModal()"
     />
   </coaster-bottom-sheet>
 }

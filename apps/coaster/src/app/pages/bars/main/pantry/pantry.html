@@ -57,7 +57,7 @@
 }
 
 @if (currentUserRole() === 'OWNER') {
-  <coaster-fab (click)="openBottomSheet()" />
+  <coaster-fab routerLink="new" />
 }
 
 @if (productSelected(); as product) {
@@ -103,9 +103,9 @@
   </coaster-bottom-sheet>
 }
 
-@if (isSheetOpen()) {
+@if (isCreateMode()) {
   @let tab = currentFormTab();
-  <coaster-bottom-sheet (closed)="isSheetOpen.set(false)">
+  <coaster-bottom-sheet (closed)="closeModal()">
     <div class="flex flex-col px-6 pb-6 pt-2">
       <div class="flex bg-surface-container rounded-lg p-1 mb-6">
         <button
@@ -135,7 +135,7 @@
             [disabled]="isSubmitting() || products.isLoading()"
             [(error)]="formError"
             (createProduct)="onProductSubmit($event)"
-            (canceled)="isSheetOpen.set(false)"
+            (canceled)="closeModal()"
           />
         }
         @case ('CATEGORY') {
@@ -143,7 +143,7 @@
             [disabled]="isSubmitting() || categories.isLoading()"
             [(error)]="formError"
             (createCategory)="onCategorySubmit($event)"
-            (canceled)="isSheetOpen.set(false)"
+            (canceled)="closeModal()"
           />
         }
         <!-- @default never; -->
