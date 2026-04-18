@@ -1,7 +1,7 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
 import Pantry from './pantry';
 import { CurrentUser } from '../../../../core';
 import { BarProducts, CreateProduct, EditProduct, UpdateProduct } from '../../../../products';
@@ -15,15 +15,9 @@ describe('Pantry', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Pantry, TranslateModule.forRoot(), RouterModule.forRoot([])],
+      imports: [Pantry, TranslateModule.forRoot()],
       providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
-            parent: { snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] } },
-          },
-        },
+        provideRouter([]),
         { provide: BarProducts, useValue: { setBarContext: vi.fn(), reload: vi.fn(), all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) }, total: signal(0), criticalStock: signal(0), lowStock: signal(0) } },
         { provide: BarCategories, useValue: { setBarContext: vi.fn(), reload: vi.fn(), all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) } } },
         { provide: CreateProduct, useValue: { create: vi.fn() } },

@@ -1,3 +1,5 @@
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Auth as FirebaseAuth } from '@angular/fire/auth';
 import { TestBed } from '@angular/core/testing';
 

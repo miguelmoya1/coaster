@@ -22,7 +22,7 @@ describe('Main', () => {
         },
         {
           provide: CurrentBar,
-          useValue: { current: { hasValue: signal(true), value: signal({ name: 'Test Bar' }) }, select: vi.fn(), clear: vi.fn() }
+          useValue: { current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) }, select: vi.fn(), clear: vi.fn(), setBarContext: vi.fn() }
         }
       ]
     }).compileComponents();

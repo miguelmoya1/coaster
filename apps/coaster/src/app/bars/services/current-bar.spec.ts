@@ -1,8 +1,9 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
 import { firstValueFrom } from 'rxjs';
 import { BarRepository } from '../data-access/bar-repository';
@@ -64,11 +65,11 @@ describe('CurrentBar', () => {
       const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
       service.current.value();
-      tick();
+      TestBed.flushEffects();
       service.setBarContext(asBarId('bar-1'));
       service.current.value();
 
-      tick();
+      TestBed.flushEffects();
 
       repositoryMock.routes.bar.mockReturnValue('/bars/bar-1');
       expect(repositoryMock.routes.bar).toHaveBeenCalledWith(asBarId('bar-1'));
@@ -85,11 +86,11 @@ describe('CurrentBar', () => {
       const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
       service.current.value();
-      tick();
+      TestBed.flushEffects();
 
       service.setBarContext(asBarId('bar-1'));
       service.current.value();
-      tick();
+      TestBed.flushEffects();
 
       const req = httpMock.expectOne('/bars/bar-1');
       expect(req.request.method).toBe('GET');
@@ -97,7 +98,7 @@ describe('CurrentBar', () => {
       req.flush(mockBar);
       service.current.value();
 
-      tick();
+      TestBed.flushEffects();
       expect(service.current.value()).toEqual(mockBar);
     });
 
@@ -105,11 +106,11 @@ describe('CurrentBar', () => {
       const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
 
       service.current.value();
-      tick();
+      TestBed.flushEffects();
 
       service.setBarContext(asBarId('bar-1'));
       service.current.value();
-      tick();
+      TestBed.flushEffects();
 
       const req = httpMock.expectOne('/bars/bar-1');
       expect(req.request.method).toBe('GET');
@@ -117,7 +118,7 @@ describe('CurrentBar', () => {
       req.flush(mockBar);
       service.current.value();
 
-      tick();
+      TestBed.flushEffects();
       expect(service.current.value()).toEqual(mockBar);
     });
   });
@@ -132,13 +133,13 @@ describe('CurrentBar', () => {
 
       service.setBarContext(asBarId('bar-1'));
       service.current.value();
-      tick();
+      TestBed.flushEffects();
       const req = httpMock.expectOne('/bars/bar-1');
       expect(req.request.method).toBe('GET');
       req.flush(mockBar);
 
       service.reload();
-      tick();
+      TestBed.flushEffects();
       const req2 = httpMock.expectOne('/bars/bar-1');
       expect(req2.request.method).toBe('GET');
       req2.flush(mockBar);

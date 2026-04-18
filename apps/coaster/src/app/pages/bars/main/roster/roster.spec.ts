@@ -1,20 +1,13 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import Roster from './roster';
 import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
-import { vi } from 'vitest';
 import { BarShifts, CreateShift } from '../../../../shifts';
 import { BarMembers } from '../../../../members';
 import { CurrentUser } from '../../../../core';
 import { AcceptExchange, BarExchanges, RequestExchange } from '../../../../exchanges';
-
-const mockActivatedRoute = {
-  snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
-  parent: {
-    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] },
-  },
-};
 
 describe('Roster', () => {
   let component: Roster;
@@ -22,13 +15,14 @@ describe('Roster', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Roster, TranslateModule.forRoot(), RouterModule.forRoot([])],
+      imports: [Roster, TranslateModule.forRoot()],
       providers: [
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        provideRouter([]),
         {
           provide: BarShifts,
           useValue: {
-            setBarContext: vi.fn(),
+            setContext: vi.fn(),
+            setDateRange: vi.fn(),
             reload: vi.fn(),
             all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) },
           },

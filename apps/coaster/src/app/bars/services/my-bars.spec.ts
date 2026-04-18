@@ -1,8 +1,9 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
 import { firstValueFrom } from 'rxjs';
 import { Auth } from '../../core';
@@ -44,7 +45,7 @@ describe('MyBars', () => {
     const mockBars: Bar[] = [{ id: asBarId('bar-1'), name: 'Test Bar' }];
 
     service.all.value();
-    tick();
+    TestBed.flushEffects();
     const req = httpMock.expectOne('/bars');
     expect(req.request.method).toBe('GET');
     req.flush(mockBars);

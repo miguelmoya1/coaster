@@ -1,6 +1,6 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
-import { RouterModule } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import Staff from './staff';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,24 +8,15 @@ import { BarMembers } from '../../../../members';
 import { signal } from '@angular/core';
 import { CurrentUser } from '../../../../core';
 
-import { vi } from 'vitest';
-
-const mockActivatedRoute = {
-  snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
-  parent: {
-    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] },
-  },
-};
-
 describe('Staff', () => {
   let component: Staff;
   let fixture: ComponentFixture<Staff>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Staff, TranslateModule.forRoot(), RouterModule.forRoot([])],
+      imports: [Staff, TranslateModule.forRoot()],
       providers: [
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        provideRouter([]),
         { provide: BarMembers, useValue: { list: { value: signal([]), isLoading: signal(false), hasValue: signal(true) }, setBarContext: vi.fn(), reload: vi.fn() } },
         { provide: CurrentUser, useValue: { current: { value: signal(null) } } },
       ]
