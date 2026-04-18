@@ -10,9 +10,9 @@ import { CurrentUser } from '../../../../core';
 import { AcceptExchange, BarExchanges, RequestExchange } from '../../../../exchanges';
 
 const mockActivatedRoute = {
-  snapshot: { url: [], params: {}, queryParams: {}, data: {} },
+  snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
   parent: {
-    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }] },
+    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] },
   },
 };
 

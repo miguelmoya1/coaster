@@ -11,9 +11,9 @@ import { CurrentUser } from '../../../../core';
 import { vi } from 'vitest';
 
 const mockActivatedRoute = {
-  snapshot: { url: [], params: {}, queryParams: {}, data: {} },
+  snapshot: { url: [], params: {}, queryParams: {}, data: {}, children: [] },
   parent: {
-    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }] },
+    snapshot: { url: [], params: {}, queryParams: {}, data: {}, pathFromRoot: [{ url: [] }], children: [] },
   },
 };
 

@@ -33,7 +33,7 @@
     @if (list.hasValue() && list.value().length) {
       @for (shift of list.value(); track shift.id) {
         <coaster-shift-card
-          [timeRange]="formatTimeRange(shift.startTime, shift.endTime)"
+          [timeRange]="dateFormatter.formatTimeRange(shift.startTime, shift.endTime)"
           [staffName]="shift.userName || ('roster.unassigned' | translate)"
           [roleName]="'STAFF'"
           [staffImage]="shift.userImage || getProfileImage(shift.userName)"
@@ -63,11 +63,11 @@
   <div class="flex flex-col gap-3 pb-24">
     @for (exchange of pendingExchanges.value(); track exchange.id) {
       <coaster-exchange-request-card
-        [month]="formatMonth(exchange.shiftStartTime)"
-        [day]="formatDay(exchange.shiftStartTime)"
-        [shiftPeriod]="formatShiftPeriod(exchange.shiftStartTime)"
+        [month]="dateFormatter.formatMonth(exchange.shiftStartTime)"
+        [day]="dateFormatter.formatDay(exchange.shiftStartTime)"
+        [shiftPeriod]="dateFormatter.formatShiftPeriod(exchange.shiftStartTime)"
         [roleName]="'STAFF'"
-        [timeRange]="formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
+        [timeRange]="dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
         [offeredBy]="exchange.requesterName"
         [disabled]="isSubmitting()"
         [isOwnRequest]="exchange.requesterId === currentUserId()"

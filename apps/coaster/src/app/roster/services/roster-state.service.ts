@@ -1,11 +1,14 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { addDays, format, isSameDay, subDays } from 'date-fns';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { addDays, isSameDay, subDays } from 'date-fns';
+import { DateFormatterService } from '../../core';
 import { ScrollerDay } from '../../shifts';
 
 const TOTAL_DAYS = 15;
 
 @Injectable()
 export class RosterStateService {
+  private readonly dateFormatter = inject(DateFormatterService);
+
   public readonly selectedDate = signal<Date>(new Date());
 
   public readonly scrollerDays = computed<(ScrollerDay & { dateObj: Date })[]>(() => {
@@ -15,8 +18,8 @@ export class RosterStateService {
     return Array.from({ length: TOTAL_DAYS }).map((_, i) => {
       const date = addDays(start, i);
       return {
-        id: format(date, 'yyyy-MM-dd'),
-        dayName: format(date, 'EEE'),
+        id: this.dateFormatter.formatDayId(date),
+        dayName: this.dateFormatter.formatDayName(date),
         dayNumber: date.getDate(),
         isActive: isSameDay(date, currentSelected),
         dateObj: date,
@@ -32,11 +35,11 @@ export class RosterStateService {
   });
 
   public readonly displayMonthYear = computed(() => {
-    return format(this.selectedDate(), 'MMMM yyyy').toUpperCase();
+    return this.dateFormatter.formatMonthYear(this.selectedDate());
   });
 
   public readonly displayToday = computed(() => {
-    return format(new Date(), 'MMM d');
+    return this.dateFormatter.formatShortDate(new Date());
   });
 
   public selectDay(dayId: string) {

@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-
 import { BarId, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/interfaces';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
-import { ApiError, CurrentUser, prepareDefaultProfileImage } from '../../../../core';
+import { ApiError, CurrentUser, DateFormatterService, prepareDefaultProfileImage } from '../../../../core';
 import { AcceptExchange, BarExchanges, ExchangeRequestCard, RequestExchange } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
@@ -42,6 +40,7 @@ export default class Roster {
   protected readonly state = inject(RosterStateService);
   protected readonly barShifts = inject(BarShifts);
   protected readonly translate = inject(TranslateService);
+  protected readonly dateFormatter = inject(DateFormatterService);
 
   readonly #barMembers = inject(BarMembers);
   readonly #currentUser = inject(CurrentUser);
@@ -60,16 +59,12 @@ export default class Roster {
   );
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
-
   protected readonly membersList = computed(() => this.#barMembers.list.value());
-
   protected readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
-
   protected readonly currentUserRole = computed(() => {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
   });
-
   protected readonly pendingShiftIds = computed(() => {
     const exchanges = this.pendingExchanges.value() ?? [];
     return new Set(exchanges.map((e) => e.shiftId));
@@ -89,7 +84,7 @@ export default class Roster {
     });
   }
 
-  protected readonly selectedDayId = computed(() => format(this.state.selectedDate(), 'yyyy-MM-dd'));
+  protected readonly selectedDayId = computed(() => this.dateFormatter.formatDayId(this.state.selectedDate()));
 
   protected onDaySelected(dayId: string) {
     this.state.selectDay(dayId);
@@ -105,8 +100,8 @@ export default class Roster {
 
     const fullPayload: CreateShiftDto = {
       ...payload,
-      startTime: this.#buildIso(selectedDate, payload.startTime),
-      endTime: this.#buildIso(selectedDate, payload.endTime),
+      startTime: this.dateFormatter.buildIso(selectedDate, payload.startTime),
+      endTime: this.dateFormatter.buildIso(selectedDate, payload.endTime),
     };
 
     await this.#handleFormSubmission(
@@ -143,40 +138,8 @@ export default class Roster {
     );
   }
 
-  protected formatTimeRange(startIso: string, endIso: string) {
-    try {
-      const start = new Date(startIso);
-      const end = new Date(endIso);
-      return `${format(start, 'HH:mm')} — ${format(end, 'HH:mm')}`;
-    } catch {
-      return '';
-    }
-  }
-
-  protected formatMonth(iso: string) {
-    return format(new Date(iso), 'MMM').toUpperCase();
-  }
-
-  protected formatDay(iso: string) {
-    return format(new Date(iso), 'd');
-  }
-
-  protected formatShiftPeriod(iso: string) {
-    const hour = new Date(iso).getHours();
-    if (hour < 12) return this.translate.instant('roster.exchanges.period_morning');
-    if (hour < 18) return this.translate.instant('roster.exchanges.period_afternoon');
-    return this.translate.instant('roster.exchanges.period_evening');
-  }
-
   protected getProfileImage(name?: string) {
     return prepareDefaultProfileImage(undefined, name ?? this.translate.instant('roster.unassigned'));
-  }
-
-  #buildIso(date: Date, timeString: string): string {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const result = new Date(date);
-    result.setHours(hours, minutes, 0, 0);
-    return result.toISOString();
   }
 
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {

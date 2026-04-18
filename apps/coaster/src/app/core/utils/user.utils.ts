@@ -3,5 +3,5 @@ export const prepareDefaultProfileImage = (profileImage: string | null | undefin
     return profileImage;
   }
 
-  return `https://ui-avatars.com/api/?name=${name}`;
+  return `https://ui-avatars.com/api/?name=${name}&background=0F172A&color=fff`;
 };
