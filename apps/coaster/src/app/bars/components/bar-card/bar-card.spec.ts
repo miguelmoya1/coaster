@@ -1,13 +1,12 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { BarCard } from './bar-card';
 
 describe('BarCard', () => {
-  let component: BarCard;
   let fixture: ComponentFixture<BarCard>;
-
+  let component: BarCard;
   const mockBar: Bar = {
     id: asBarId('bar-123'),
     name: 'The Rusty Anchor',
@@ -15,8 +14,8 @@ describe('BarCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BarCard, TranslateModule.forRoot()],
-      providers: [provideZonelessChangeDetection()],
+      imports: [BarCard],
+      providers: [provideZonelessChangeDetection(), provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BarCard);
@@ -26,17 +25,51 @@ describe('BarCard', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the bar name', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h3')?.textContent).toContain(mockBar.name);
+  describe('bar input', () => {
+    it('should expose the bar signal with the provided value', () => {
+      expect(component.bar()).toEqual(mockBar);
+    });
+
+    it('should render the bar name', () => {
+      const nameEl = fixture.nativeElement.querySelector('[data-testid="bar-card-name"]');
+
+      expect(nameEl).toBeTruthy();
+      expect(nameEl?.textContent.trim()).toBe(mockBar.name);
+    });
+
+    it('should update the rendered name when input changes', () => {
+      const updatedBar: Bar = { id: asBarId('bar-456'), name: 'Ocean Breeze' };
+      fixture.componentRef.setInput('bar', updatedBar);
+      fixture.detectChanges();
+
+      const nameEl = fixture.nativeElement.querySelector('[data-testid="bar-card-name"]');
+
+      expect(nameEl).toBeTruthy();
+      expect(nameEl?.textContent.trim()).toBe(updatedBar.name);
+    });
   });
 
-  it('should contain the bar role badge', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('coaster-bar-role-badge')).toBeTruthy();
+  describe('avatar', () => {
+    it('should render the avatar placeholder', () => {
+      expect(fixture.nativeElement.querySelector('[data-testid="bar-card-avatar"]')).toBeTruthy();
+    });
+  });
+
+  describe('role badge', () => {
+    it('should render the bar role badge', () => {
+      expect(fixture.nativeElement.querySelector('[data-testid="bar-card-role-badge"]')).toBeTruthy();
+    });
+  });
+
+  describe('status card', () => {
+    it('should be wrapped in a status card with primary status', () => {
+      const statusCard = fixture.nativeElement.querySelector('coaster-status-card');
+
+      expect(statusCard).toBeTruthy();
+    });
   });
 });

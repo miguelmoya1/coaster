@@ -21,9 +21,10 @@ export class CurrentBar {
     },
   );
 
-  readonly current = this.#current.asReadonly();
+  public readonly current = this.#current.asReadonly();
+  public readonly currentId = this.#currentId.asReadonly();
 
-  public setBarContext(barId: BarId) {
+  public setBarContext(barId: BarId | undefined) {
     this.#currentId.set(barId);
   }
 

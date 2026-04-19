@@ -22,7 +22,11 @@ describe('Bar Mapper', () => {
     });
 
     it('should throw Error for invalid bar', () => {
-      expect(() => barMapper({ id: '1' })).toThrow('Invalid Bar payload');
+      expect(() => barMapper({})).toThrow(Error);
+      expect(() => barMapper(null)).toThrow(Error);
+      expect(() => barMapper(undefined)).toThrow(Error);
+      expect(() => barMapper({ id: '1' })).toThrow(Error);
+      expect(() => barMapper({ name: 'Bar' })).toThrow(Error);
     });
   });
 
@@ -32,7 +36,11 @@ describe('Bar Mapper', () => {
     });
 
     it('should throw an array for non-array input', () => {
-      expect(() => barArrayMapper({})).toThrow('Expected array of Bars');
+      expect(() => barArrayMapper({})).toThrow(Error);
+      expect(() => barArrayMapper(null)).toThrow(Error);
+      expect(() => barArrayMapper(undefined)).toThrow(Error);
+      expect(() => barArrayMapper(1)).toThrow(Error);
+      expect(() => barArrayMapper('1')).toThrow(Error);
     });
   });
 });

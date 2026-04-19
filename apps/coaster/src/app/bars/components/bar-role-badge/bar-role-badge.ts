@@ -6,9 +6,9 @@ import { BarRole } from '@coaster/interfaces';
   selector: 'coaster-bar-role-badge',
   imports: [TranslatePipe],
   template: `
-    <div class="flex items-center gap-2 mt-2">
-      <div class="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] opacity-90" [class]="dotColorClass()"></div>
-      <span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+    <div data-testid="bar-role-badge" class="flex items-center gap-2 mt-2">
+      <div data-testid="bar-role-badge-dot" class="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] opacity-90" [class]="dotColorClass()"></div>
+      <span data-testid="bar-role-badge-label" class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
         {{ labelKey() | translate }}
       </span>
     </div>

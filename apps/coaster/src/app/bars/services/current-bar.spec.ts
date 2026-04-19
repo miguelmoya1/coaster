@@ -1,11 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, Bar } from '@coaster/interfaces';
-import { firstValueFrom } from 'rxjs';
+import { asBarId, Bar, BarId } from '@coaster/interfaces';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { CurrentBar } from './current-bar';
 
@@ -26,7 +23,6 @@ describe('CurrentBar', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
-        provideHttpClient(),
         provideZonelessChangeDetection(),
         {
           provide: BarRepository,
@@ -43,108 +39,92 @@ describe('CurrentBar', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('current signal', () => {
-    it('should initially have undefined currentBar', () => {
-      expect(service.current.value()).toBeUndefined();
+  describe('currentId', () => {
+    it('should be undefined at start', () => {
+      expect(service.currentId()).toBeUndefined();
     });
+  });
 
-    it('should do not have value at start', () => {
+  describe('current', () => {
+    it('should not have value at start', () => {
+      expect(service.current.status()).toBe('idle');
       expect(service.current.hasValue()).toBe(false);
-    });
-  });
-
-  describe('setBarContext function', () => {
-    it('should set bar context', () => {
-      service.setBarContext(asBarId('bar-1'));
-      expect(service.current.value()).toBeUndefined();
-    });
-  });
-
-  describe('current signal', () => {
-    it('should fetch bar when select is called', async () => {
-      const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
-
-      service.current.value();
-      TestBed.flushEffects();
-      service.setBarContext(asBarId('bar-1'));
-      service.current.value();
-
-      TestBed.flushEffects();
-
-      repositoryMock.routes.bar.mockReturnValue('/bars/bar-1');
-      expect(repositoryMock.routes.bar).toHaveBeenCalledWith(asBarId('bar-1'));
-
-      const req = httpMock.expectOne('/bars/bar-1');
-      expect(req.request.method).toBe('GET');
-      req.flush(mockBar);
-
-      await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.current.value)));
-      expect(service.current.value()).toEqual(mockBar);
+      expect(service.current.isLoading()).toBe(false);
     });
 
-    it('should not fetch bar when select is called with same bar id', async () => {
-      const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
+    it('should call the bar repository when setBarContext is called', () => {
+      const barId: BarId = asBarId('bar-1');
 
-      service.current.value();
-      TestBed.flushEffects();
-
-      service.setBarContext(asBarId('bar-1'));
-      service.current.value();
-      TestBed.flushEffects();
-
-      const req = httpMock.expectOne('/bars/bar-1');
-      expect(req.request.method).toBe('GET');
-
-      req.flush(mockBar);
-      service.current.value();
-
-      TestBed.flushEffects();
-      expect(service.current.value()).toEqual(mockBar);
+      service.setBarContext(barId);
+      TestBed.tick();
+      expect(repositoryMock.routes.bar).toHaveBeenCalledWith(barId);
     });
 
-    it('should not fetch bar when select is called with different bar id', async () => {
-      const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
-
-      service.current.value();
-      TestBed.flushEffects();
-
+    it('should be set when setBarContext is called', async () => {
       service.setBarContext(asBarId('bar-1'));
-      service.current.value();
-      TestBed.flushEffects();
 
-      const req = httpMock.expectOne('/bars/bar-1');
-      expect(req.request.method).toBe('GET');
+      TestBed.tick();
 
-      req.flush(mockBar);
-      service.current.value();
+      expect(service.current.isLoading()).toBe(true);
 
-      TestBed.flushEffects();
+      const mockBar: Bar = {
+        id: asBarId('bar-1'),
+        name: 'Bar 1',
+      };
+
+      httpMock.expectOne('/bars/bar-1').flush(mockBar);
+
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.current.isLoading()).toBe(false);
+      expect(service.current.hasValue()).toBe(true);
       expect(service.current.value()).toEqual(mockBar);
     });
   });
 
-  describe('reload function', () => {
-    it('should be created', () => {
-      expect(service.reload).toBeTruthy();
+  describe('setBarContext', () => {
+    it('should be set when setBarContext is called', () => {
+      service.setBarContext(asBarId('bar-1'));
+      expect(service.currentId()).toBe(asBarId('bar-1'));
     });
 
-    it('should fetch bar when reload is called', async () => {
-      const mockBar: Bar = { id: asBarId('bar-1'), name: 'Test Bar' };
-
+    it('should be undefined when setBarContext is called with undefined', () => {
       service.setBarContext(asBarId('bar-1'));
-      service.current.value();
-      TestBed.flushEffects();
-      const req = httpMock.expectOne('/bars/bar-1');
-      expect(req.request.method).toBe('GET');
-      req.flush(mockBar);
+      service.setBarContext(undefined);
+      expect(service.currentId()).toBeUndefined();
+    });
+  });
+
+  describe('reload', () => {
+    it('should reload the current bar', async () => {
+      service.setBarContext(asBarId('bar-1'));
+
+      TestBed.tick();
+
+      const mockBar: Bar = {
+        id: asBarId('bar-1'),
+        name: 'Bar 1',
+      };
+
+      httpMock.expectOne('/bars/bar-1').flush(mockBar);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.current.value()).toEqual(mockBar);
 
       service.reload();
-      TestBed.flushEffects();
-      const req2 = httpMock.expectOne('/bars/bar-1');
-      expect(req2.request.method).toBe('GET');
-      req2.flush(mockBar);
+      TestBed.tick();
 
-      expect(service.current.value()).toEqual(mockBar);
+      expect(service.current.isLoading()).toBe(true);
+
+      const mockBarReloaded: Bar = {
+        id: asBarId('bar-1-reloaded'),
+        name: 'Bar 1 Reloaded',
+      };
+
+      httpMock.expectOne('/bars/bar-1').flush(mockBarReloaded);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.current.value()).toEqual(mockBarReloaded);
     });
   });
 });

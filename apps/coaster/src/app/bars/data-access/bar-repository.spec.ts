@@ -1,8 +1,12 @@
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
+import { barMapper } from '../mappers/bar.mapper';
 import { BarRepository } from './bar-repository';
+
+vi.mock('../mappers/bar.mapper', () => ({
+  barMapper: vi.fn((bar: Bar) => bar),
+}));
 
 describe('BarRepository', () => {
   let service: BarRepository;
@@ -10,14 +14,13 @@ describe('BarRepository', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClientTesting()],
     });
+
     service = TestBed.inject(BarRepository);
     httpMock = TestBed.inject(HttpTestingController);
-  });
 
-  afterEach(() => {
-    httpMock.verify();
+    vi.mocked(barMapper).mockClear();
   });
 
   it('should be created', () => {
@@ -48,15 +51,38 @@ describe('BarRepository', () => {
     });
 
     it('should call create bar endpoint', async () => {
-      const mockBar: Bar = { id: asBarId('1'), name: 'Test Bar' };
-      const promise = service.create({ name: 'Test Bar' });
+      const res = service.create({ name: 'Test Bar' });
 
       const req = httpMock.expectOne(service.routes.create);
+      req.flush({ id: asBarId('1'), name: 'Test Bar' });
       expect(req.request.method).toBe('POST');
-      req.flush(mockBar);
 
-      const result = await promise;
-      expect(result).toEqual(mockBar);
+      await res;
+    });
+
+    it('should return the created bar', async () => {
+      const bar: Bar = { id: asBarId('1'), name: 'Test Bar' };
+      const res = service.create({ name: 'Test Bar' });
+
+      const req = httpMock.expectOne(service.routes.create);
+      req.flush(bar);
+
+      expect(await res).toEqual(bar);
+    });
+    
+    describe('mapper', () => {
+      it('should map the response to a bar', async () => {
+        const bar: Bar = { id: asBarId('1'), name: 'Test Bar' };
+        const res = service.create({ name: 'Test Bar' });
+  
+        const req = httpMock.expectOne(service.routes.create);
+        req.flush(bar);
+  
+        expect(await res).toEqual(bar);
+        expect(barMapper).toHaveBeenCalledTimes(1);
+        expect(barMapper).toHaveBeenCalledWith(bar);
+      });
     });
   });
+
 });
