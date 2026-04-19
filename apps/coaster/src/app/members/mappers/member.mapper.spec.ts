@@ -6,10 +6,10 @@ describe('Member Mapper', () => {
     id: asBarMemberId('member-1'),
     userId: asUserId('user-1'),
     barId: asBarId('bar-1'),
-    role: BarRole.OWNER,
+    role: BarRole.STAFF,
     active: true,
-    userName: 'John',
-    userEmail: 'john@example.com',
+    userName: 'John Doe',
+    userEmail: 'john@test.com',
     userImage: '',
   };
 
@@ -17,8 +17,10 @@ describe('Member Mapper', () => {
     it('should return true for valid member', () => {
       expect(checkIsMember(validMember)).toBe(true);
     });
+
     it('should return false for invalid objects', () => {
       expect(checkIsMember(null)).toBe(false);
+      expect(checkIsMember({})).toBe(false);
       expect(checkIsMember({ id: '1' })).toBe(false);
     });
   });
@@ -27,16 +29,22 @@ describe('Member Mapper', () => {
     it('should map a valid member', () => {
       expect(memberMapper(validMember)).toEqual(validMember);
     });
+
     it('should throw Error for invalid member', () => {
-      expect(() => memberMapper({ id: '1' })).toThrow('Invalid Member payload');
+      expect(() => memberMapper({})).toThrow('Invalid Member payload');
     });
   });
 
   describe('memberArrayMapper', () => {
-    it('should map an array of valid members', () => {
+    it('should map valid array of members', () => {
       expect(memberArrayMapper([validMember])).toEqual([validMember]);
     });
-    it('should throw an error for non-array input', () => {
+
+    it('should return empty array for empty input', () => {
+      expect(memberArrayMapper([])).toEqual([]);
+    });
+
+    it('should throw Error if input is not an array', () => {
       expect(() => memberArrayMapper({})).toThrow('Expected array of Members');
     });
   });

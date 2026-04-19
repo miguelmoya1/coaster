@@ -1,19 +1,36 @@
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
+import { memberMapper } from '../mappers/member.mapper';
 import { MemberRepository } from './member-repository';
+
+vi.mock('../mappers/member.mapper', () => ({
+  memberMapper: vi.fn((member: BarMember) => member),
+}));
 
 describe('MemberRepository', () => {
   let service: MemberRepository;
   let httpMock: HttpTestingController;
 
+  const mockMember: BarMember = {
+    id: asBarMemberId('member-1'),
+    userId: asUserId('user-1'),
+    barId: asBarId('bar-1'),
+    role: BarRole.STAFF,
+    active: true,
+    userName: 'John Doe',
+    userEmail: 'john@test.com',
+    userImage: '',
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClientTesting()],
     });
     service = TestBed.inject(MemberRepository);
     httpMock = TestBed.inject(HttpTestingController);
+
+    vi.mocked(memberMapper).mockClear();
   });
 
   afterEach(() => {
@@ -24,28 +41,36 @@ describe('MemberRepository', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call invite member endpoint', async () => {
-    const mockMember: BarMember = {
-      id: asBarMemberId('member-1'),
-      userId: asUserId('user-1'),
-      barId: asBarId('bar-1'),
-      role: BarRole.STAFF,
-      active: true,
-      userName: 'John Doe',
-      userEmail: 'john@example.com',
-      userImage: '',
-    };
-
-    const promise = service.invite(asBarId('bar-1'), {
-      email: 'test@test.com',
-      role: BarRole.STAFF,
+  describe('routes', () => {
+    it('should have the list route', () => {
+      expect(service.routes.list(asBarId('1'))).toBe('/bars/1/members');
     });
 
-    const req = httpMock.expectOne(service.routes.invite(asBarId('bar-1')));
-    expect(req.request.method).toBe('POST');
-    req.flush(mockMember);
+    it('should have the invite route', () => {
+      expect(service.routes.invite(asBarId('1'))).toBe('/bars/1/members');
+    });
+  });
 
-    const result = await promise;
-    expect(result).toEqual(mockMember);
+  describe('invite', () => {
+    const barId = asBarId('bar-1');
+    const dto = { email: 'john@test.com', role: BarRole.STAFF };
+
+    it('should call invite member endpoint', async () => {
+      const promise = service.invite(barId, dto);
+
+      const req = httpMock.expectOne(service.routes.invite(barId));
+      expect(req.request.method).toBe('POST');
+      req.flush(mockMember);
+
+      await promise;
+    });
+
+    it('should return mapped member', async () => {
+      const res = service.invite(barId, dto);
+      httpMock.expectOne(service.routes.invite(barId)).flush(mockMember);
+
+      expect(await res).toEqual(mockMember);
+      expect(memberMapper).toHaveBeenCalledWith(mockMember);
+    });
   });
 });

@@ -1,29 +1,30 @@
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
-import { MemberRepository } from '../data-access/member-repository';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BarMembers } from './bar-members';
 
 describe('BarMembers', () => {
   let service: BarMembers;
   let httpMock: HttpTestingController;
-  const mockRoutes = { list: (id: string) => `/bars/${id}/members` };
 
-  beforeEach(async () => {
+  const mockMembers: BarMember[] = [
+    {
+      id: asBarMemberId('member-1'),
+      userId: asUserId('user-1'),
+      barId: asBarId('bar-1'),
+      role: BarRole.STAFF,
+      active: true,
+      userName: 'John Doe',
+      userEmail: 'john@test.com',
+      userImage: '',
+    },
+  ];
+
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        {
-          provide: MemberRepository,
-          useValue: { routes: mockRoutes },
-        },
-      ],
+      providers: [provideHttpClientTesting()],
     });
     service = TestBed.inject(BarMembers);
     httpMock = TestBed.inject(HttpTestingController);
@@ -37,48 +38,62 @@ describe('BarMembers', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initially have undefined list', () => {
-    expect(service.list.value()).toBeUndefined();
+  describe('list', () => {
+    it('should be idle at start', () => {
+      expect(service.list.status()).toBe('idle');
+    });
+
+    it('should fetch members when bar context is set', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+
+      TestBed.tick();
+      expect(service.list.isLoading()).toBe(true);
+
+      httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.list.hasValue()).toBe(true);
+      expect(service.list.value()).toEqual(mockMembers);
+    });
+
+    it('should be idle if barId is not set', () => {
+      TestBed.tick();
+      httpMock.expectNone(() => true);
+      expect(service.list.status()).toBe('idle');
+    });
+
+    it('should return to idle when context is cleared', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      TestBed.tick();
+      httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.list.hasValue()).toBe(true);
+
+      service.clearBarContext();
+      TestBed.tick();
+      expect(service.list.status()).toBe('idle');
+      expect(service.list.hasValue()).toBe(false);
+    });
   });
 
-  it('should fetch members when setBarContext is called', async () => {
-    const mockMembers: BarMember[] = [
-      {
-        id: asBarMemberId('1'),
-        userId: asUserId('1'),
-        barId: asBarId('bar-1'),
-        role: BarRole.OWNER,
-        active: true,
-        userName: 'A',
-        userEmail: 'a@a.com',
-        userImage: '',
-      },
-    ];
+  describe('reload', () => {
+    it('should reload the members', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      TestBed.tick();
+      httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
+      await TestBed.inject(ApplicationRef).whenStable();
 
-    TestBed.flushEffects();
-    service.setBarContext(asBarId('bar-1'));
-    service.list.value();
-    TestBed.flushEffects();
+      service.reload();
+      TestBed.tick();
+      expect(service.list.isLoading()).toBe(true);
 
-    const req = httpMock.expectOne('/bars/bar-1/members');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockMembers);
-
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.list.value)));
-    expect(service.list.value()).toEqual(mockMembers);
-  });
-
-  it('should clear list when bar is cleared', async () => {
-    service.setBarContext(asBarId('bar-1'));
-    service.list.value();
-    TestBed.flushEffects();
-    const req = httpMock.expectOne('/bars/bar-1/members');
-    req.flush([]);
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.list.value)));
-
-    service.clearBarContext();
-    service.list.value();
-    TestBed.flushEffects();
-    expect(service.list.value()).toBeUndefined();
+      httpMock.expectOne(`/bars/${barId}/members`).flush([]);
+      await TestBed.inject(ApplicationRef).whenStable();
+      expect(service.list.value()).toEqual([]);
+    });
   });
 });

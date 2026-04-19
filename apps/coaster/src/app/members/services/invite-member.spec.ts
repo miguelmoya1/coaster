@@ -1,21 +1,33 @@
-import { TestBed } from '@angular/core/testing';
-import { asBarId, BarRole } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
 import { MemberRepository } from '../data-access/member-repository';
 import { InviteMember } from './invite-member';
 
 describe('InviteMember', () => {
   let service: InviteMember;
-  let repositoryMock: Record<string, Mock>;
+  let memberRepoMock: Record<string, Mock>;
+
+  const mockMember: BarMember = {
+    id: asBarMemberId('member-1'),
+    userId: asUserId('user-1'),
+    barId: asBarId('bar-1'),
+    role: BarRole.STAFF,
+    active: true,
+    userName: 'John Doe',
+    userEmail: 'john@test.com',
+    userImage: '',
+  };
 
   beforeEach(() => {
-    repositoryMock = {
+    memberRepoMock = {
       invite: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: MemberRepository, useValue: repositoryMock }],
+      providers: [{ provide: MemberRepository, useValue: memberRepoMock }],
     });
+
     service = TestBed.inject(InviteMember);
   });
 
@@ -23,20 +35,16 @@ describe('InviteMember', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.invite on invite', async () => {
-    const dto = { email: 'test@test.com', role: BarRole.STAFF };
-    const mockMember = {
-      id: 'member-1',
-      userId: 'user-1',
-      barId: 'bar-1',
-      role: BarRole.STAFF,
-      active: true,
-    };
-    repositoryMock['invite'].mockResolvedValue(mockMember);
+  describe('invite', () => {
+    it('should delegate to repository and return the result', async () => {
+      const barId = asBarId('bar-1');
+      const dto = { email: 'john@test.com', role: BarRole.STAFF };
+      memberRepoMock['invite'].mockResolvedValue(mockMember);
 
-    const result = await service.invite(asBarId('bar-1'), dto);
+      const result = await service.invite(barId, dto);
 
-    expect(repositoryMock['invite']).toHaveBeenCalledWith(asBarId('bar-1'), dto);
-    expect(result).toEqual(mockMember);
+      expect(memberRepoMock['invite']).toHaveBeenCalledWith(barId, dto);
+      expect(result).toEqual(mockMember);
+    });
   });
 });
