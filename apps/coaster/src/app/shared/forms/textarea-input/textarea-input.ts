@@ -23,9 +23,10 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
         <div class="relative flex">
           <textarea
+            #textareaEl
             [id]="id()"
             [value]="value()"
-            (input)="value.set($any($event.target).value)"
+            (input)="value.set(textareaEl.value)"
             (blur)="touched.set(true)"
             [placeholder]="placeholder()"
             [disabled]="disabled()"

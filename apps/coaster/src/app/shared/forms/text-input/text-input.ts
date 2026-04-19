@@ -31,10 +31,11 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
           }
 
           <input
+            #inputEl
             [id]="id()"
             [type]="type()"
             [value]="value()"
-            (input)="value.set($any($event.target).value)"
+            (input)="value.set(inputEl.value)"
             (blur)="touched.set(true)"
             [placeholder]="placeholder()"
             [disabled]="disabled()"

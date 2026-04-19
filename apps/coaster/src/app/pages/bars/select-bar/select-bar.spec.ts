@@ -9,8 +9,9 @@ import SelectBar from './select-bar';
 describe('SelectBar', () => {
   let component: SelectBar;
   let fixture: ComponentFixture<SelectBar>;
-  let routerMock: any;
-  let myBarsMock: any;
+  const routerMock = {
+    navigate: vi.fn().mockResolvedValue(true),
+  };
 
   const mockBars: BarMember[] = [
     {
@@ -22,21 +23,17 @@ describe('SelectBar', () => {
       userImage: '',
       role: BarRole.OWNER,
       active: true,
-      barName: 'Test Bar',
     },
   ];
 
-  beforeEach(async () => {
-    routerMock = {
-      navigate: vi.fn().mockResolvedValue(true),
-    };
-    myBarsMock = {
-      all: {
-        value: vi.fn().mockReturnValue(mockBars),
-        isLoading: vi.fn().mockReturnValue(false),
-      },
-    };
+  const myBarsMock = {
+    all: {
+      value: vi.fn().mockReturnValue(mockBars),
+      isLoading: vi.fn().mockReturnValue(false),
+    },
+  };
 
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SelectBar, TranslateModule.forRoot()],
       providers: [
@@ -57,8 +54,8 @@ describe('SelectBar', () => {
 
   describe('rendering', () => {
     it('should show section title', () => {
-       const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
-       expect(sectionTitle).toBeTruthy();
+      const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
+      expect(sectionTitle).toBeTruthy();
     });
 
     it('should render bar cards for each bar', () => {

@@ -74,7 +74,7 @@ export class EditProductForm {
     name: '',
   });
 
-  protected readonly form = form(
+  readonly form = form(
     this.#productModel,
     (fields) => {
       required(fields.name);

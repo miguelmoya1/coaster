@@ -1,14 +1,13 @@
-import { User } from '@coaster/interfaces';
+import { asUserId, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
 import { UserService } from '../services/user.service';
 import { UsersController } from './users.controller';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let userService: Mocked<UserService>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
@@ -28,12 +27,11 @@ describe('UsersController', () => {
       .compile();
 
     controller = module.get<UsersController>(UsersController);
-    userService = module.get(UserService);
   });
 
   it('debería devolver el usuario actual', async () => {
     const fakeUser: User = {
-      id: 'user-1' as any,
+      id: asUserId('user-1'),
       email: 'test@mail.com',
       name: 'Test',
       active: true,

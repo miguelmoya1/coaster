@@ -32,8 +32,8 @@ describe('authGuard', () => {
 
   it('should return true if authenticated', async () => {
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard({} as any, {} as any);
-      return firstValueFrom(guard as any);
+      const guard = authGuard(null!, null!) as any;
+      return firstValueFrom(guard);
     });
 
     expect(result).toBe(true);
@@ -43,20 +43,20 @@ describe('authGuard', () => {
     isAuthenticated.set(false);
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard({} as any, {} as any);
-      return firstValueFrom(guard as any);
+      const guard = authGuard(null!, null!) as any;
+      return firstValueFrom(guard);
     });
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
-    expect((result as any).path).toEqual(['/login']);
+    expect((result as UrlTree & { path: string[] }).path).toEqual(['/login']);
   });
 
   it('should wait for auth to load before emitting', async () => {
     isAuthLoaded.set(false);
     
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = authGuard({} as any, {} as any);
-      return firstValueFrom(guard as any);
+      const guard = authGuard(null!, null!) as any;
+      return firstValueFrom(guard);
     });
 
     // Simulate delay/loading

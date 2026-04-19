@@ -36,7 +36,7 @@ describe('InviteMemberForm', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      buttons.forEach((button) => {
+      buttons.forEach((button: HTMLButtonElement) => {
         expect(button.disabled).toBe(true);
       });
     });

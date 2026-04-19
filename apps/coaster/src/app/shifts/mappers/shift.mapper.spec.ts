@@ -25,17 +25,10 @@ describe('ShiftMapper', () => {
     });
 
     it('should return false if required fields are missing', () => {
-      const missingId = { ...validShift } as any;
-      delete missingId.id;
-
-      const missingStart = { ...validShift } as any;
-      delete (missingStart as any).startTime;
-
-      const missingEnd = { ...validShift } as any;
-      delete (missingEnd as any).endTime;
-
-      const missingUser = { ...validShift } as any;
-      delete (missingUser as any).userName;
+      const { id: _id, ...missingId } = validShift;
+      const { startTime: _startTime, ...missingStart } = validShift;
+      const { endTime: _endTime, ...missingEnd } = validShift;
+      const { userName: _userName, ...missingUser } = validShift;
 
       expect(checkIsShift(missingId)).toBe(false);
       expect(checkIsShift(missingStart)).toBe(false);

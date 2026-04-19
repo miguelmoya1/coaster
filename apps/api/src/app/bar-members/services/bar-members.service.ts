@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asUserId, BarId, BarMember, BarRole, User } from '@coaster/interfaces';
+import { asBarId, asBarMemberId, asBarRole, asUserId, BarId, BarMember, BarRole, User } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EmailService } from '../../core';
@@ -31,23 +31,30 @@ export class BarMembersService {
       await this.emailService.sendInviteEmail(email, bar.name, user.name);
 
       return membership;
-    } catch (error: any) {
-      if (error.code === 'P2002') {
+    } catch (error) {
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
         throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
       }
       throw error;
     }
   }
 
-  #mapToBarMember(member: any): BarMember {
+  #mapToBarMember(member: {
+    id: string;
+    userId: string;
+    barId: string;
+    role: string;
+    active: boolean;
+    user: { name: string; photoUrl: string | null; email: string };
+  }): BarMember {
     return {
       id: asBarMemberId(member.id),
       userId: asUserId(member.userId),
       barId: asBarId(member.barId),
-      role: member.role,
+      role: asBarRole(member.role),
       active: member.active,
       userName: member.user.name,
-      userImage: member.user.photoUrl,
+      userImage: member.user.photoUrl ?? undefined,
       userEmail: member.user.email,
     };
   }

@@ -1,7 +1,7 @@
 import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/interfaces';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { ShiftExchangesService } from '../services/shift-exchanges.service';
 import { ShiftExchangesController } from './shift-exchanges.controller';
@@ -20,7 +20,7 @@ describe('ShiftExchangesController', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     googleId: 'g-123',
-  } as any;
+  } as User;
 
   beforeEach(async () => {
     const mockService = {
@@ -52,16 +52,20 @@ describe('ShiftExchangesController', () => {
   });
 
   it('createExchange debería delegar al servicio con userId del user autenticado', () => {
-    service.requestExchange.mockResolvedValue({} as any);
+    service.requestExchange.mockResolvedValue(
+      {} as Awaited<ReturnType<typeof ShiftExchangesService.prototype.requestExchange>>,
+    );
     const dto = { targetId: asUserId('target-1') };
 
-    controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto as any, fakeUser);
+    controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto, fakeUser);
 
     expect(service.requestExchange).toHaveBeenCalledWith('bar-1', 'shift-1', 'user-1', dto);
   });
 
   it('acceptExchange debería delegar al servicio con userId del user autenticado', () => {
-    service.acceptExchange.mockResolvedValue({} as any);
+    service.acceptExchange.mockResolvedValue(
+      {} as Awaited<ReturnType<typeof ShiftExchangesService.prototype.acceptExchange>>,
+    );
 
     controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), fakeUser);
 
