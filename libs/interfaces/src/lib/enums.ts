@@ -3,8 +3,6 @@ export enum BarRole {
   STAFF = 'STAFF',
 }
 
-
-
 export enum ShiftExchangeStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -18,8 +16,6 @@ export const asBarRole = (role: string): BarRole => {
   console.warn(`Invalid BarRole mapping: ${role}, defaulting to STAFF`);
   return BarRole.STAFF;
 };
-
-
 
 export const asShiftExchangeStatus = (status: string): ShiftExchangeStatus => {
   if (Object.values(ShiftExchangeStatus).includes(status as ShiftExchangeStatus)) {

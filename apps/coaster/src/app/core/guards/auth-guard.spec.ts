@@ -1,21 +1,29 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Auth } from '../services/auth';
 import { authGuard } from './auth-guard';
+
+const activatedRouteSnapshotMock = {
+  snapshot: {},
+} as unknown as ActivatedRouteSnapshot;
+
+const routerStateSnapshotMock = {
+  url: '',
+} as unknown as RouterStateSnapshot;
 
 describe('authGuard', () => {
   const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
-  
+
   const authMock = {
     isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
   };
 
   const routerMock = {
-    createUrlTree: vi.fn((path: string[]) => ({ path } as unknown as UrlTree)),
+    createUrlTree: vi.fn((path: string[]) => ({ path }) as unknown as UrlTree),
   };
 
   beforeEach(() => {
@@ -32,8 +40,8 @@ describe('authGuard', () => {
 
   it('should return true if authenticated', async () => {
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard(null!, null!) as any;
-      return firstValueFrom(guard);
+      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
+      return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
     expect(result).toBe(true);
@@ -43,8 +51,8 @@ describe('authGuard', () => {
     isAuthenticated.set(false);
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = authGuard(null!, null!) as any;
-      return firstValueFrom(guard);
+      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
+      return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
@@ -53,13 +61,12 @@ describe('authGuard', () => {
 
   it('should wait for auth to load before emitting', async () => {
     isAuthLoaded.set(false);
-    
+
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = authGuard(null!, null!) as any;
-      return firstValueFrom(guard);
+      const guard = authGuard(activatedRouteSnapshotMock, routerStateSnapshotMock);
+      return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    // Simulate delay/loading
     isAuthLoaded.set(true);
 
     const result = await guardPromise;
