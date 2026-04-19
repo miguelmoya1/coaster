@@ -5,11 +5,10 @@ import {
   CreateProductDto,
   Product,
   ProductId,
-  SocketEvents,
   UpdateProductStockDto,
   UpdateProductDto,
 } from '@coaster/interfaces';
-import { ErrorCodes } from '@coaster/logic';
+import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { BarGateway, Product as ProductDb } from '../../core';
 import { ProductsRepository } from '../data-access/products.repository';

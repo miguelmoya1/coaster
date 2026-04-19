@@ -20,6 +20,7 @@ type ExchangeWithRelations = {
   requesterId: string;
   targetId: string | null;
   status: string;
+  createdAt: Date;
   shift: { startTime: Date; endTime: Date };
   requester: { id: string; name: string };
 };
@@ -87,6 +88,7 @@ export class ShiftExchangesService {
       requesterName: exchange.requester.name,
       shiftStartTime: exchange.shift.startTime.toISOString(),
       shiftEndTime: exchange.shift.endTime.toISOString(),
+      createdAt: exchange.createdAt,
     };
   }
 }
