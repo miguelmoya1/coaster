@@ -1,7 +1,7 @@
 import { asBarId, asShiftId, Shift, asUserId } from '@coaster/interfaces';
 import { shiftArrayMapper, shiftMapper, checkIsShift } from './shift.mapper';
 
-describe('Shift Mapper', () => {
+describe('ShiftMapper', () => {
   const validShift: Shift = {
     id: asShiftId('shift-1'),
     barId: asBarId('bar-1'),
@@ -12,25 +12,66 @@ describe('Shift Mapper', () => {
     userImage: 'https://photo.url/test.jpg',
   };
 
-  it('should validate correctly', () => {
-    expect(checkIsShift(validShift)).toBe(true);
-    expect(checkIsShift({})).toBe(false);
-    expect(checkIsShift(null)).toBe(false);
+  describe('checkIsShift', () => {
+    it('should return true for a valid shift model', () => {
+      expect(checkIsShift(validShift)).toBe(true);
+    });
+
+    it('should return false for null or non-object', () => {
+      expect(checkIsShift(null)).toBe(false);
+      expect(checkIsShift(undefined)).toBe(false);
+      expect(checkIsShift('string')).toBe(false);
+      expect(checkIsShift(123)).toBe(false);
+    });
+
+    it('should return false if required fields are missing', () => {
+      const missingId = { ...validShift } as any;
+      delete missingId.id;
+
+      const missingStart = { ...validShift } as any;
+      delete (missingStart as any).startTime;
+
+      const missingEnd = { ...validShift } as any;
+      delete (missingEnd as any).endTime;
+
+      const missingUser = { ...validShift } as any;
+      delete (missingUser as any).userName;
+
+      expect(checkIsShift(missingId)).toBe(false);
+      expect(checkIsShift(missingStart)).toBe(false);
+      expect(checkIsShift(missingEnd)).toBe(false);
+      expect(checkIsShift(missingUser)).toBe(false);
+    });
   });
 
-  it('should map shift', () => {
-    expect(shiftMapper(validShift)).toEqual(validShift);
+  describe('shiftMapper', () => {
+    it('should map a valid shift object', () => {
+      const result = shiftMapper(validShift);
+      expect(result).toEqual(validShift);
+      expect(result).not.toBe(validShift); // Ensure it's a new object
+    });
+
+    it('should throw an error for an invalid shift object', () => {
+      expect(() => shiftMapper({})).toThrow('Invalid Shift payload');
+    });
   });
 
-  it('should throw on invalid shift', () => {
-    expect(() => shiftMapper({})).toThrow('Invalid Shift payload');
-  });
+  describe('shiftArrayMapper', () => {
+    it('should map an array of valid shifts', () => {
+      const shifts = [validShift, { ...validShift, id: asShiftId('shift-2') }];
+      const result = shiftArrayMapper(shifts);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual(validShift);
+      expect(result[1].id).toBe('shift-2');
+    });
 
-  it('should map shift array', () => {
-    expect(shiftArrayMapper([validShift])).toEqual([validShift]);
-  });
+    it('should throw an error if input is not an array', () => {
+      expect(() => shiftArrayMapper(null)).toThrow('Expected array of Shifts');
+      expect(() => shiftArrayMapper({})).toThrow('Expected array of Shifts');
+    });
 
-  it('should throw on invalid shift array', () => {
-    expect(() => shiftArrayMapper({})).toThrow('Expected array of Shifts');
+    it('should throw an error if any element in the array is invalid', () => {
+      expect(() => shiftArrayMapper([validShift, {}])).toThrow('Invalid Shift payload');
+    });
   });
 });

@@ -1,12 +1,16 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
 import { asBarId, asShiftId, asUserId, Shift } from '@coaster/interfaces';
 import { ShiftRepository } from '../data-access/shift-repository';
+import * as mapper from '../mappers/shift.mapper';
 import { BarShifts } from './bar-shifts';
+import { vi, Mock } from 'vitest';
+
+vi.mock('../mappers/shift.mapper', () => ({
+  shiftArrayMapper: vi.fn(),
+}));
 
 describe('BarShifts', () => {
   let service: BarShifts;
@@ -16,6 +20,8 @@ describe('BarShifts', () => {
     list: (barId: string, startDate: string, endDate: string) =>
       `/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`,
   };
+
+  let appRef: ApplicationRef;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -31,69 +37,99 @@ describe('BarShifts', () => {
     });
     service = TestBed.inject(BarShifts);
     httpMock = TestBed.inject(HttpTestingController);
+    appRef = TestBed.inject(ApplicationRef);
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     httpMock.verify();
+    vi.clearAllMocks();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch list of shifts when barId, startDate, and endDate are set', async () => {
+  it('should be in idle state initially', () => {
+    expect(service.all.status()).toBe('idle');
+    expect(service.all.value()).toBeUndefined();
+  });
+
+  describe('fetching shifts', () => {
     const barId = asBarId('bar-1');
     const startDate = '2026-03-01';
     const endDate = '2026-03-31';
-
     const mockShifts: Shift[] = [
-      { id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1'), userName: 'User 1', userImage: 'https://photo.url/u1.jpg' },
+      {
+        id: asShiftId('shift-1'),
+        barId,
+        startTime: '2026-03-20T08:00:00Z',
+        endTime: '2026-03-20T16:00:00Z',
+        userId: asUserId('user-1'),
+        userName: 'User 1',
+        userImage: '',
+      },
     ];
 
-    service.setContext(barId);
-    service.setDateRange(startDate, endDate);
+    it('should fetch shifts when context and date range are set', async () => {
+      (mapper.shiftArrayMapper as Mock).mockReturnValue(mockShifts);
 
-    // Trigger resource read
-    service.all.value();
-    TestBed.flushEffects();
-    
-    const req = httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockShifts);
+      service.setContext(barId);
+      service.setDateRange(startDate, endDate);
 
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
-    expect(service.all.value()).toEqual(mockShifts);
-  });
+      // Trigger resource read
+      service.all.value();
+      TestBed.flushEffects();
 
-  it('should not fetch anything if any signal is undefined', () => {
-    service.setContext(asBarId('bar-1'));
-    service.all.value();
-    TestBed.flushEffects();
-    httpMock.expectNone((req) => req.url.includes('/shifts'));
-  });
+      const req = httpMock.expectOne(mockRoutes.list(barId, startDate, endDate));
+      expect(req.request.method).toBe('GET');
+      req.flush(mockShifts);
 
-  it('should reload data', async () => {
-    const barId = asBarId('bar-1');
-    const startDate = '2026-03-01';
-    const endDate = '2026-03-31';
-    const mockShifts: Shift[] = [{ id: asShiftId('shift-1'), barId, startTime: '2026-03-20T08:00:00Z', endTime: '2026-03-20T16:00:00Z', userId: asUserId('user-1'), userName: 'User 1', userImage: 'https://photo.url/u1.jpg' }];
+      await appRef.whenStable();
 
-    service.setContext(barId);
-    service.setDateRange(startDate, endDate);
+      expect(service.all.value()).toEqual(mockShifts);
+      expect(service.all.status()).toBe('resolved');
+      expect(mapper.shiftArrayMapper).toHaveBeenCalledWith(mockShifts);
+    });
 
-    TestBed.flushEffects();
-    httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`).flush(mockShifts);
-    
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
-    expect(service.all.value()).toEqual(mockShifts);
+    it('should not fetch if context or date range is missing', () => {
+      service.setContext(barId);
+      // Missing date range
+      service.all.value();
+      TestBed.flushEffects();
+      httpMock.expectNone(() => true);
+      expect(service.all.status()).toBe('idle');
+    });
 
-    service.reload();
-    TestBed.flushEffects();
-    
-    const req = httpMock.expectOne(`/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`);
-    req.flush(mockShifts);
-    
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
-    expect(service.all.value()).toEqual(mockShifts);
+    it('should show loading state during fetch', async () => {
+      service.setContext(barId);
+      service.setDateRange(startDate, endDate);
+
+      service.all.value();
+      TestBed.flushEffects();
+
+      expect(service.all.status()).toBe('loading');
+      httpMock.expectOne(mockRoutes.list(barId, startDate, endDate)).flush([]);
+      await appRef.whenStable();
+    });
+
+    it('should reload data when explicitly requested', async () => {
+      service.setContext(barId);
+      service.setDateRange(startDate, endDate);
+
+      service.all.value();
+      TestBed.flushEffects();
+
+      const req1 = httpMock.expectOne(mockRoutes.list(barId, startDate, endDate));
+      req1.flush(mockShifts);
+      await appRef.whenStable();
+
+      service.reload();
+      TestBed.flushEffects();
+
+      const req2 = httpMock.expectOne(mockRoutes.list(barId, startDate, endDate));
+      expect(req2.request.method).toBe('GET');
+      req2.flush(mockShifts);
+      await appRef.whenStable();
+    });
   });
 });
