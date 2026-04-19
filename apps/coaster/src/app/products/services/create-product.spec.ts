@@ -1,29 +1,31 @@
-import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { asBarId, asCategoryId, asProductId, CreateProductDto, Product } from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
-import { BarProducts } from './bar-products';
 import { CreateProduct } from './create-product';
 
 describe('CreateProduct', () => {
   let service: CreateProduct;
-  let repositoryMock: Record<string, Mock>;
-  let barProductsMock: Record<string, Mock>;
+  let productRepoMock: Record<string, Mock>;
+
+  const mockProduct: Product = {
+    id: asProductId('prod-1'),
+    categoryId: asCategoryId('cat-1'),
+    name: 'Beer',
+    currentStock: 10,
+    minStockAlert: 5,
+    categoryName: 'Drinks',
+  };
 
   beforeEach(() => {
-    repositoryMock = {
+    productRepoMock = {
       create: vi.fn(),
-    };
-    barProductsMock = {
-      reload: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ProductRepository, useValue: repositoryMock },
-        { provide: BarProducts, useValue: barProductsMock },
-      ],
+      providers: [{ provide: ProductRepository, useValue: productRepoMock }],
     });
+
     service = TestBed.inject(CreateProduct);
   });
 
@@ -31,22 +33,16 @@ describe('CreateProduct', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.create and reload state on create', async () => {
-    const barId = asBarId('bar-1');
-    const dto = { name: 'New Product', categoryId: asCategoryId('cat-1') };
-    const expectedProduct = {
-      id: 'prod-1',
-      ...dto,
-      currentStock: 0,
-      minStockAlert: 0,
-      lastUpdated: new Date().toISOString(),
-    };
-    repositoryMock['create'].mockResolvedValue(expectedProduct);
+  describe('create', () => {
+    it('should delegate to repository and return the result', async () => {
+      const barId = asBarId('bar-1');
+      const dto: CreateProductDto = { name: 'Beer', categoryId: asCategoryId('cat-1'), minStockAlert: 5 };
+      productRepoMock['create'].mockResolvedValue(mockProduct);
 
-    const result = await service.create(barId, dto);
+      const result = await service.create(barId, dto);
 
-    expect(repositoryMock['create']).toHaveBeenCalledWith(barId, dto);
-
-    expect(result).toEqual(expectedProduct);
+      expect(productRepoMock['create']).toHaveBeenCalledWith(barId, dto);
+      expect(result).toEqual(mockProduct);
+    });
   });
 });

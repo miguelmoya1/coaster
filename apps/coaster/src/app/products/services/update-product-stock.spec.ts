@@ -1,30 +1,31 @@
-import { TestBed } from '@angular/core/testing';
-import { asBarId, asProductId } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { asBarId, asCategoryId, asProductId, Product, UpdateProductStockDto } from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
-import { BarProducts } from './bar-products';
 import { UpdateProduct } from './update-product-stock';
 
-describe('UpdateProductStock', () => {
+describe('UpdateProduct', () => {
   let service: UpdateProduct;
-  let repositoryMock: Record<string, Mock>;
-  let barProductsMock: Record<string, Mock>;
+  let productRepoMock: Record<string, Mock>;
+
+  const mockProduct: Product = {
+    id: asProductId('prod-1'),
+    categoryId: asCategoryId('cat-1'),
+    name: 'Beer',
+    currentStock: 10,
+    minStockAlert: 5,
+    categoryName: 'Drinks',
+  };
 
   beforeEach(() => {
-    repositoryMock = {
+    productRepoMock = {
       updateStock: vi.fn(),
-    };
-    barProductsMock = {
-      reload: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        UpdateProduct,
-        { provide: ProductRepository, useValue: repositoryMock },
-        { provide: BarProducts, useValue: barProductsMock },
-      ],
+      providers: [{ provide: ProductRepository, useValue: productRepoMock }],
     });
+
     service = TestBed.inject(UpdateProduct);
   });
 
@@ -32,24 +33,17 @@ describe('UpdateProductStock', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.updateStock and return on update', async () => {
-    const barId = asBarId('bar-1');
-    const productId = asProductId('prod-1');
-    const dto = { currentStock: 2 };
-    const expectedProduct = {
-      id: productId,
-      name: 'Product 1',
-      currentStock: 2,
-      minStockAlert: 5,
-      lastUpdated: new Date().toISOString(),
-      categoryId: 'cat-1',
-    };
-    repositoryMock['updateStock'].mockResolvedValue(expectedProduct);
+  describe('update', () => {
+    it('should delegate to repository and return the result', async () => {
+      const barId = asBarId('bar-1');
+      const productId = asProductId('prod-1');
+      const dto: UpdateProductStockDto = { amount: 5, action: 'ADD' };
+      productRepoMock['updateStock'].mockResolvedValue(mockProduct);
 
-    const result = await service.update(barId, productId, dto);
+      const result = await service.update(barId, productId, dto);
 
-    expect(repositoryMock['updateStock']).toHaveBeenCalledWith(barId, productId, dto);
-
-    expect(result).toEqual(expectedProduct);
+      expect(productRepoMock['updateStock']).toHaveBeenCalledWith(barId, productId, dto);
+      expect(result).toEqual(mockProduct);
+    });
   });
 });

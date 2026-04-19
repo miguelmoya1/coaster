@@ -1,29 +1,44 @@
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
 import { asBarId, asCategoryId, asProductId, Product } from '@coaster/interfaces';
-import { ProductRepository } from '../data-access/product-repository';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BarProducts } from './bar-products';
 
 describe('BarProducts', () => {
   let service: BarProducts;
   let httpMock: HttpTestingController;
-  const mockRoutes = { list: (id: string) => `/bars/${id}/products` };
 
-  beforeEach(async () => {
+  const mockProducts: Product[] = [
+    {
+      id: asProductId('prod-1'),
+      categoryId: asCategoryId('cat-1'),
+      name: 'Product 1',
+      currentStock: 10,
+      minStockAlert: 5,
+      categoryName: 'Cat 1',
+    },
+    {
+      id: asProductId('prod-2'),
+      categoryId: asCategoryId('cat-1'),
+      name: 'Product 2',
+      currentStock: 2,
+      minStockAlert: 5,
+      categoryName: 'Cat 1',
+    },
+    {
+      id: asProductId('prod-3'),
+      categoryId: asCategoryId('cat-1'),
+      name: 'Product 3',
+      currentStock: 0,
+      minStockAlert: 5,
+      categoryName: 'Cat 1',
+    },
+  ];
+
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        {
-          provide: ProductRepository,
-          useValue: { routes: mockRoutes },
-        },
-      ],
+      providers: [provideHttpClientTesting()],
     });
     service = TestBed.inject(BarProducts);
     httpMock = TestBed.inject(HttpTestingController);
@@ -37,33 +52,61 @@ describe('BarProducts', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch list of products when barId is set', async () => {
-    const barId = asBarId('bar-1');
-    const mockProducts: Product[] = [
-      {
-        id: asProductId('prod-1'),
-        categoryId: asCategoryId('cat-1'),
-        name: 'Test Product',
-        currentStock: 10,
-        minStockAlert: 5,
-        lastUpdated: new Date().toISOString(),
-      },
-    ];
+  describe('all', () => {
+    it('should be idle at start', () => {
+      expect(service.all.status()).toBe('idle');
+    });
 
-    service.setBarContext(barId);
-    service.all.value();
-    TestBed.flushEffects();
+    it('should fetch products when bar context is set', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
 
-    const req = httpMock.expectOne(`/bars/${barId}/products`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockProducts);
-    
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
-    expect(service.all.value()).toEqual(mockProducts);
+      TestBed.tick();
+      expect(service.all.isLoading()).toBe(true);
+
+      httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.all.hasValue()).toBe(true);
+      expect(service.all.value()).toEqual(mockProducts);
+    });
   });
 
-  it('should not fetch anything if barId is undefined', () => {
-    TestBed.tick();
-    httpMock.expectNone(`/bars/undefined/products`);
+  describe('computed signals', () => {
+    it('should calculate total, lowStock, and criticalStock correctly', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      TestBed.tick();
+      httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.total()).toBe(3);
+      expect(service.lowStock()).toBe(1); // prod-2
+      expect(service.criticalStock()).toBe(1); // prod-3
+    });
+
+    it('should return undefined if no value yet', () => {
+      expect(service.total()).toBeUndefined();
+      expect(service.lowStock()).toBeUndefined();
+      expect(service.criticalStock()).toBeUndefined();
+    });
+  });
+
+  describe('reload', () => {
+    it('should reload the products', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      TestBed.tick();
+      httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      service.reload();
+      TestBed.tick();
+      expect(service.all.isLoading()).toBe(true);
+
+      httpMock.expectOne(`/bars/${barId}/products`).flush([]);
+      await TestBed.inject(ApplicationRef).whenStable();
+      expect(service.all.value()).toEqual([]);
+    });
   });
 });

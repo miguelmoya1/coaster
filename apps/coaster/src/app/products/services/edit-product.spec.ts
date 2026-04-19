@@ -1,23 +1,31 @@
-import { TestBed } from '@angular/core/testing';
-import { asBarId, asProductId } from '@coaster/interfaces';
 import { Mock, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { asBarId, asCategoryId, asProductId, Product, UpdateProductDto } from '@coaster/interfaces';
 import { ProductRepository } from '../data-access/product-repository';
 import { EditProduct } from './edit-product';
 
 describe('EditProduct', () => {
   let service: EditProduct;
-  let repositoryMock: Record<string, Mock>;
+  let productRepoMock: Record<string, Mock>;
+
+  const mockProduct: Product = {
+    id: asProductId('prod-1'),
+    categoryId: asCategoryId('cat-1'),
+    name: 'Beer',
+    currentStock: 10,
+    minStockAlert: 5,
+    categoryName: 'Drinks',
+  };
 
   beforeEach(() => {
-    repositoryMock = {
+    productRepoMock = {
       update: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ProductRepository, useValue: repositoryMock },
-      ],
+      providers: [{ provide: ProductRepository, useValue: productRepoMock }],
     });
+
     service = TestBed.inject(EditProduct);
   });
 
@@ -25,17 +33,17 @@ describe('EditProduct', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.update and return its result', async () => {
-    const barId = asBarId('bar-1');
-    const productId = asProductId('prod-1');
-    const dto = { name: 'Updated Product', currentStock: 10 };
-    
-    const expectedResult = { id: productId, ...dto, minStockAlert: 5, lastUpdated: new Date().toISOString() };
-    repositoryMock['update'].mockResolvedValue(expectedResult);
+  describe('edit', () => {
+    it('should delegate to repository and return the result', async () => {
+      const barId = asBarId('bar-1');
+      const productId = asProductId('prod-1');
+      const dto: UpdateProductDto = { name: 'Updated Beer' };
+      productRepoMock['update'].mockResolvedValue(mockProduct);
 
-    const result = await service.edit(barId, productId, dto);
+      const result = await service.edit(barId, productId, dto);
 
-    expect(repositoryMock['update']).toHaveBeenCalledWith(barId, productId, dto);
-    expect(result).toEqual(expectedResult);
+      expect(productRepoMock['update']).toHaveBeenCalledWith(barId, productId, dto);
+      expect(result).toEqual(mockProduct);
+    });
   });
 });
