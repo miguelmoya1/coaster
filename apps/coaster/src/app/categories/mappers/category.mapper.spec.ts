@@ -3,30 +3,48 @@ import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category
 
 describe('Category Mapper', () => {
   const validCategory: Category = {
-    id: asCategoryId('1'),
+    id: asCategoryId('cat-1'),
     barId: asBarId('bar-1'),
-    name: 'Test Category',
+    name: 'Tapas',
   };
 
-  it('should validate correctly', () => {
-    expect(checkIsCategory(validCategory)).toBe(true);
-    expect(checkIsCategory({})).toBe(false);
-    expect(checkIsCategory(null)).toBe(false);
+  describe('checkIsCategory', () => {
+    it('should return true for valid category', () => {
+      expect(checkIsCategory({ id: 'cat-1', name: 'Category' })).toBe(true);
+    });
+
+    it('should return false for invalid objects', () => {
+      expect(checkIsCategory(null)).toBe(false);
+      expect(checkIsCategory({ name: 'Category' })).toBe(false);
+      expect(checkIsCategory({ id: '1' })).toBe(false);
+    });
   });
 
-  it('should map category', () => {
-    expect(categoryMapper(validCategory)).toEqual(validCategory);
+  describe('categoryMapper', () => {
+    it('should map a valid category', () => {
+      expect(categoryMapper(validCategory)).toEqual(validCategory);
+    });
+
+    it('should throw Error for invalid category', () => {
+      expect(() => categoryMapper({})).toThrow(Error);
+      expect(() => categoryMapper(null)).toThrow(Error);
+      expect(() => categoryMapper(undefined)).toThrow(Error);
+      expect(() => categoryMapper({ id: '1' })).toThrow(Error);
+      expect(() => categoryMapper({ name: 'Category' })).toThrow(Error);
+    });
   });
 
-  it('should throw on invalid category', () => {
-    expect(() => categoryMapper({})).toThrow('Invalid Category payload');
-  });
+  describe('categoryArrayMapper', () => {
+    it('should map an array of valid categories', () => {
+      expect(categoryArrayMapper([validCategory])).toEqual([validCategory]);
+    });
 
-  it('should map category array', () => {
-    expect(categoryArrayMapper([validCategory])).toEqual([validCategory]);
-  });
-
-  it('should throw on invalid category array', () => {
-    expect(() => categoryArrayMapper({})).toThrow('Expected array of Categories');
+    it('should throw for non-array input', () => {
+      expect(() => categoryArrayMapper({})).toThrow(Error);
+      expect(() => categoryArrayMapper(null)).toThrow(Error);
+      expect(() => categoryArrayMapper(undefined)).toThrow(Error);
+      expect(() => categoryArrayMapper(1)).toThrow(Error);
+      expect(() => categoryArrayMapper('1')).toThrow(Error);
+    });
   });
 });

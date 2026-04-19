@@ -19,7 +19,7 @@ export class MyBars {
       return this.#barRepository.routes.myBars;
     },
     {
-      parse: barArrayMapper,
+      parse: (bars) => barArrayMapper(bars),
     },
   );
 

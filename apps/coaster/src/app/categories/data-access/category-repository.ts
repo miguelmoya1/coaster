@@ -17,7 +17,9 @@ export class CategoryRepository {
 
   public async create(barId: BarId, createCategoryDto: CreateCategoryDto) {
     return firstValueFrom(
-      this.#http.post<Category>(this.routes.create(barId), createCategoryDto).pipe(map(categoryMapper)),
+      this.#http
+        .post<Category>(this.routes.create(barId), createCategoryDto)
+        .pipe(map((category) => categoryMapper(category))),
     );
   }
 
@@ -25,7 +27,7 @@ export class CategoryRepository {
     return firstValueFrom(
       this.#http
         .patch<Category>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto)
-        .pipe(map(categoryMapper)),
+        .pipe(map((category) => categoryMapper(category))),
     );
   }
 }

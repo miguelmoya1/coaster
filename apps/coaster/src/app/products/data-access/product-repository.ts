@@ -26,13 +26,17 @@ export class ProductRepository {
 
   public async create(barId: BarId, createProductDto: CreateProductDto) {
     return firstValueFrom(
-      this.#http.post<Product>(this.routes.create(barId), createProductDto).pipe(map(productMapper)),
+      this.#http
+        .post<Product>(this.routes.create(barId), createProductDto)
+        .pipe(map((product) => productMapper(product))),
     );
   }
 
   public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto) {
     return firstValueFrom(
-      this.#http.patch<Product>(this.routes.update(barId, productId), updateProductDto).pipe(map(productMapper)),
+      this.#http
+        .patch<Product>(this.routes.update(barId, productId), updateProductDto)
+        .pipe(map((product) => productMapper(product))),
     );
   }
 
@@ -40,7 +44,7 @@ export class ProductRepository {
     return firstValueFrom(
       this.#http
         .patch<Product>(this.routes.updateStock(barId, productId), updateProductStockDto)
-        .pipe(map(productMapper)),
+        .pipe(map((product) => productMapper(product))),
     );
   }
 }

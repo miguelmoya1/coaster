@@ -20,7 +20,7 @@ export class BarProducts {
       return this.#productRepository.routes.list(barId);
     },
     {
-      parse: productArrayMapper,
+      parse: (products) => productArrayMapper(products),
     },
   );
 

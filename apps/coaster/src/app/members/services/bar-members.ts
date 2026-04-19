@@ -17,7 +17,7 @@ export class BarMembers {
 
       return this.#memberRepo.routes.list(barId);
     },
-    { parse: memberArrayMapper },
+    { parse: (members) => memberArrayMapper(members) },
   );
 
   public readonly list = this.#list.asReadonly();

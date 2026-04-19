@@ -24,7 +24,7 @@ export class CurrentUser {
       return this.#routes.me;
     },
     {
-      parse: userMapper,
+      parse: (user) => userMapper(user),
     },
   );
 

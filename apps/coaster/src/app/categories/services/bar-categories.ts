@@ -20,7 +20,7 @@ export class BarCategories {
       return this.#categoryRepository.routes.list(barId);
     },
     {
-      parse: categoryArrayMapper,
+      parse: (categories) => categoryArrayMapper(categories),
     },
   );
 

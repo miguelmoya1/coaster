@@ -25,7 +25,7 @@ export class BarShifts {
       return this.#shiftRepository.routes.list(barId, startDate, endDate);
     },
     {
-      parse: shiftArrayMapper,
+      parse: (shifts) => shiftArrayMapper(shifts),
     },
   );
 

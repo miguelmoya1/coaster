@@ -1,22 +1,30 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
 import { provideTranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
-import { CreateCategoryForm } from './create-category-form';
+import { EditCategoryForm } from './edit-category-form';
 
-describe('CreateCategoryForm', () => {
-  let fixture: ComponentFixture<CreateCategoryForm>;
-  let component: CreateCategoryForm;
+describe('EditCategoryForm', () => {
+  let fixture: ComponentFixture<EditCategoryForm>;
+  let component: EditCategoryForm;
+  const mockCategory: Category = {
+    id: asCategoryId('cat-1'),
+    barId: asBarId('bar-1'),
+    name: 'Tapas',
+    icon: '🍕',
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateCategoryForm],
+      imports: [EditCategoryForm],
       providers: [provideZonelessChangeDetection(), provideTranslateService()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CreateCategoryForm);
+    fixture = TestBed.createComponent(EditCategoryForm);
     component = fixture.componentInstance;
 
+    fixture.componentRef.setInput('category', mockCategory);
     fixture.componentRef.setInput('disabled', false);
     fixture.componentRef.setInput('error', undefined);
 
@@ -25,6 +33,25 @@ describe('CreateCategoryForm', () => {
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('category input', () => {
+    it('should expose the category signal with the provided value', () => {
+      expect(component.category()).toEqual(mockCategory);
+    });
+
+    it('should update when category input changes', () => {
+      const updatedCategory: Category = {
+        id: asCategoryId('cat-2'),
+        barId: asBarId('bar-1'),
+        name: 'Cocktails',
+        icon: '🍸',
+      };
+      fixture.componentRef.setInput('category', updatedCategory);
+      fixture.detectChanges();
+
+      expect(component.category()).toEqual(updatedCategory);
+    });
   });
 
   describe('disabled input', () => {
@@ -54,14 +81,14 @@ describe('CreateCategoryForm', () => {
   });
 
   describe('outputs', () => {
-    it('should emit createCategory when form is submitted', () => {
+    it('should emit editCategory output', () => {
       const spy = vi.fn();
-      component.createCategory.subscribe(spy);
+      component.editCategory.subscribe(spy);
 
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('should emit canceled when cancel is clicked', () => {
+    it('should emit canceled output', () => {
       const spy = vi.fn();
       component.canceled.subscribe(spy);
 

@@ -17,7 +17,7 @@ export class CurrentBar {
       return currentId ? this.#barRepository.routes.bar(currentId) : undefined;
     },
     {
-      parse: barMapper,
+      parse: (bar) => barMapper(bar),
     },
   );
 

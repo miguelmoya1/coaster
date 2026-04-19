@@ -20,7 +20,7 @@ export class BarExchanges {
       return this.#exchangeRepository.routes.listPending(barId);
     },
     {
-      parse: exchangeArrayMapper,
+      parse: (exchanges) => exchangeArrayMapper(exchanges),
     },
   );
 

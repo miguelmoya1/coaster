@@ -1,29 +1,25 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/interfaces';
-import { Mock, vi } from 'vitest';
+import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
+import { vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
-import { BarCategories } from './bar-categories';
 import { CreateCategory } from './create-category';
 
 describe('CreateCategory', () => {
   let service: CreateCategory;
-  let repositoryMock: Record<string, Mock>;
-  let barCategoriesMock: Record<string, Mock>;
+  const repositoryMock = {
+    create: vi.fn(),
+  };
 
-  beforeEach(() => {
-    repositoryMock = {
-      create: vi.fn(),
-    };
-    barCategoriesMock = {
-      reload: vi.fn(),
-    };
-
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [
-        { provide: CategoryRepository, useValue: repositoryMock },
-        { provide: BarCategories, useValue: barCategoriesMock },
+        {
+          provide: CategoryRepository,
+          useValue: repositoryMock,
+        },
       ],
-    });
+    }).compileComponents();
+
     service = TestBed.inject(CreateCategory);
   });
 
@@ -31,16 +27,25 @@ describe('CreateCategory', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call repository.create and reload state on create', async () => {
-    const barId = asBarId('bar-1');
-    const dto = { name: 'New Category' };
-    const expectedCategory = { id: 'cat-1', name: 'New Category' };
-    repositoryMock['create'].mockResolvedValue(expectedCategory);
+  describe('create function', () => {
+    it('should call repository.create on create', async () => {
+      const barId = asBarId('bar-1');
+      const dto = { name: 'New Category' };
 
-    const result = await service.create(barId, dto);
+      await service.create(barId, dto);
 
-    expect(repositoryMock['create']).toHaveBeenCalledWith(barId, dto);
+      expect(repositoryMock.create).toHaveBeenCalledWith(barId, dto);
+    });
 
-    expect(result).toEqual(expectedCategory);
+    it('should return the created category', async () => {
+      const barId = asBarId('bar-1');
+      const category: Category = { id: asCategoryId('1'), barId, name: 'New Category' };
+      const dto = { name: 'New Category' };
+      repositoryMock.create.mockResolvedValue(category);
+
+      const result = await service.create(barId, dto);
+
+      expect(result).toEqual(category);
+    });
   });
 });
