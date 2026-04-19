@@ -1,56 +1,117 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
-import { firstValueFrom } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
 import { MyBars } from './my-bars';
 
-// TODO: Revisar
 describe('MyBars', () => {
   let service: MyBars;
   let httpMock: HttpTestingController;
-  const mockRoutes = { myBars: '/bars' };
+  const isAuthenticated = signal(true);
+  const authMock = {
+    isAuthenticated: isAuthenticated.asReadonly(),
+  };
+  const barRepositoryMock = {
+    routes: {
+      myBars: '/bars',
+    },
+  };
 
   beforeEach(async () => {
+    isAuthenticated.set(true);
+
     TestBed.configureTestingModule({
       providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: Auth, useValue: { isAuthenticated: () => true } },
-        {
-          provide: BarRepository,
-          useValue: { routes: mockRoutes },
-        },
+        { provide: Auth, useValue: authMock },
+        { provide: BarRepository, useValue: barRepositoryMock },
       ],
     });
+
     service = TestBed.inject(MyBars);
     httpMock = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => {
-    httpMock.verify();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch list of bars automatically', async () => {
-    const mockBars: Bar[] = [{ id: asBarId('bar-1'), name: 'Test Bar' }];
+  describe('all', () => {
+    it('should be loading at start when authenticated', () => {
+      expect(service.all.status()).toBe('loading');
+      expect(service.all.hasValue()).toBe(false);
+      expect(service.all.isLoading()).toBe(true);
+    });
 
-    service.all.value();
-    TestBed.flushEffects();
-    const req = httpMock.expectOne('/bars');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockBars);
+    it('should be idle at start when not authenticated', () => {
+      isAuthenticated.set(false);
+      TestBed.tick();
 
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.all.value)));
-    expect(service.all.value()).toEqual(mockBars);
+      service = TestBed.inject(MyBars);
+
+      expect(service.all.hasValue()).toBe(false);
+    });
+
+    it('should fetch bars when authenticated', async () => {
+      TestBed.tick();
+
+      expect(service.all.isLoading()).toBe(true);
+
+      const mockBars: Bar[] = [
+        { id: asBarId('bar-1'), name: 'Bar 1' },
+        { id: asBarId('bar-2'), name: 'Bar 2' },
+      ];
+
+      httpMock.expectOne('/bars').flush(mockBars);
+
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.all.isLoading()).toBe(false);
+      expect(service.all.hasValue()).toBe(true);
+      expect(service.all.value()).toEqual(mockBars);
+    });
+
+    it('should not fetch bars when not authenticated', () => {
+      isAuthenticated.set(false);
+
+      TestBed.tick();
+
+      httpMock.expectNone('/bars');
+
+      expect(service.all.isLoading()).toBe(false);
+    });
+  });
+
+  describe('reload', () => {
+    it('should reload the bars', async () => {
+      TestBed.tick();
+
+      const mockBars: Bar[] = [
+        { id: asBarId('bar-1'), name: 'Bar 1' },
+      ];
+
+      httpMock.expectOne('/bars').flush(mockBars);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.all.value()).toEqual(mockBars);
+
+      service.reload();
+      TestBed.tick();
+
+      expect(service.all.isLoading()).toBe(true);
+
+      const mockBarsReloaded: Bar[] = [
+        { id: asBarId('bar-1'), name: 'Bar 1' },
+        { id: asBarId('bar-2'), name: 'Bar 2' },
+      ];
+
+      httpMock.expectOne('/bars').flush(mockBarsReloaded);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(service.all.value()).toEqual(mockBarsReloaded);
+    });
   });
 });
