@@ -1,39 +1,29 @@
-import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
-import {
-  asBarId,
-  asShiftId,
-  asShiftExchangeId,
-  ShiftExchange,
-  ShiftExchangeStatus,
-  asUserId,
-} from '@coaster/interfaces';
-import { ExchangeRepository } from '../data-access/exchange-repository';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchange, ShiftExchangeStatus } from '@coaster/interfaces';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BarExchanges } from './bar-exchanges';
 
 describe('BarExchanges', () => {
   let service: BarExchanges;
   let httpMock: HttpTestingController;
 
-  const mockRoutes = {
-    listPending: (barId: string) => `/bars/${barId}/exchanges`,
-  };
+  const mockExchanges: ShiftExchange[] = [
+    {
+      id: asShiftExchangeId('exchange-1'),
+      shiftId: asShiftId('shift-1'),
+      requesterId: asUserId('user-1'),
+      status: ShiftExchangeStatus.PENDING,
+      requesterName: 'John',
+      shiftStartTime: '2026-04-17T09:00:00.000Z',
+      shiftEndTime: '2026-04-17T17:00:00.000Z',
+    },
+  ];
 
-  beforeEach(async () => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        {
-          provide: ExchangeRepository,
-          useValue: { routes: mockRoutes },
-        },
-      ],
+      providers: [provideHttpClientTesting()],
     });
     service = TestBed.inject(BarExchanges);
     httpMock = TestBed.inject(HttpTestingController);
@@ -47,34 +37,47 @@ describe('BarExchanges', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch list of pending exchanges when barId is set', async () => {
-    const barId = asBarId('bar-1');
+  describe('pending', () => {
+    it('should be idle at start', () => {
+      expect(service.pending.status()).toBe('idle');
+    });
 
-    const mockExchanges: ShiftExchange[] = [
-      {
-        id: asShiftExchangeId('exchange-1'),
-        shiftId: asShiftId('shift-1'),
-        requesterId: asUserId('user-1'),
-        status: ShiftExchangeStatus.PENDING,
-        requesterName: 'John',
-        shiftStartTime: '2026-04-17T09:00:00.000Z',
-        shiftEndTime: '2026-04-17T17:00:00.000Z',
-      },
-    ];
+    it('should fetch pending exchanges when bar context is set', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      
+      TestBed.tick();
+      expect(service.pending.isLoading()).toBe(true);
 
-    service.setBarContext(barId);
-    service.pending.value();
-    TestBed.flushEffects();
-    const req = httpMock.expectOne(`/bars/${barId}/exchanges`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockExchanges);
+      httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
+      await TestBed.inject(ApplicationRef).whenStable();
 
-    await TestBed.runInInjectionContext(() => firstValueFrom(toObservable(service.pending.value)));
-    expect(service.pending.value()).toEqual(mockExchanges);
+      expect(service.pending.hasValue()).toBe(true);
+      expect(service.pending.value()).toEqual(mockExchanges);
+    });
+
+    it('should not fetch if barId is not set', () => {
+      TestBed.tick();
+      httpMock.expectNone(() => true);
+      expect(service.pending.status()).toBe('idle');
+    });
   });
 
-  it('should not fetch anything if barId is undefined', () => {
-    TestBed.tick();
-    httpMock.expectNone((req) => req.url.includes('/exchanges'));
+  describe('reload', () => {
+    it('should reload the pending exchanges', async () => {
+      const barId = asBarId('bar-1');
+      service.setBarContext(barId);
+      TestBed.tick();
+      httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      service.reload();
+      TestBed.tick();
+      expect(service.pending.isLoading()).toBe(true);
+
+      httpMock.expectOne(`/bars/${barId}/exchanges`).flush([]);
+      await TestBed.inject(ApplicationRef).whenStable();
+      expect(service.pending.value()).toEqual([]);
+    });
   });
 });
