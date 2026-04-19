@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CoasterBtn } from './button';
+import { ButtonVariant, CoasterBtn } from './button';
 
 @Component({
   standalone: true,
   imports: [CoasterBtn],
-  template: `<button coaster-btn>Test</button>`,
+  template: `<button [coaster-btn] [variant]="variant">Test</button>`,
 })
-class TestHost {}
+class TestHost {
+  variant: ButtonVariant = 'primary';
+}
 
 describe('CoasterBtn', () => {
   let fixture: ComponentFixture<TestHost>;
@@ -22,12 +24,38 @@ describe('CoasterBtn', () => {
   });
 
   it('should create', () => {
-    const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+    const button = fixture.nativeElement.querySelector('button');
     expect(button).toBeTruthy();
   });
 
-  it('should apply primary classes by default', () => {
-    const button = fixture.nativeElement.querySelector('button[coaster-btn]') as HTMLElement;
-    expect(button.classList.contains('from-primary')).toBe(true);
+  describe('rendering', () => {
+    it('should project content', () => {
+      const button = fixture.nativeElement.querySelector('button');
+      expect(button.textContent).toContain('Test');
+    });
+
+    it('should have base classes', () => {
+      const button = fixture.nativeElement.querySelector('button');
+      expect(button.className).toContain('rounded-xl');
+      expect(button.className).toContain('transition-all');
+    });
+  });
+
+  describe('variants', () => {
+    it('should apply primary classes by default', () => {
+      const button = fixture.nativeElement.querySelector('button');
+      expect(button.className).toContain('from-primary');
+      expect(button.className).toContain('text-on-primary-fixed');
+    });
+  });
+
+  describe('states', () => {
+    it('should apply disabled styles via native disabled attribute', () => {
+      const button = fixture.nativeElement.querySelector('button');
+      button.disabled = true;
+      fixture.detectChanges();
+
+      expect(button.className).toContain('disabled:opacity-50');
+    });
   });
 });

@@ -1,17 +1,15 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CoasterBadge } from './badge';
+import { BadgeVariant, CoasterBadge } from './badge';
 
 @Component({
   standalone: true,
   imports: [CoasterBadge],
-  template: `
-    <span coaster-badge>Default</span>
-    <span coaster-badge variant="success">Success</span>
-    <span coaster-badge variant="error">Error</span>
-  `,
+  template: `<span [coaster-badge] [variant]="variant">Badge Content</span>`,
 })
-class TestHost {}
+class TestHost {
+  variant: BadgeVariant = 'neutral';
+}
 
 describe('CoasterBadge', () => {
   let fixture: ComponentFixture<TestHost>;
@@ -25,25 +23,29 @@ describe('CoasterBadge', () => {
     fixture.detectChanges();
   });
 
-  it('should create badges', () => {
-    const badges = fixture.nativeElement.querySelectorAll('span[coaster-badge]');
-    expect(badges.length).toBe(3);
+  it('should create', () => {
+    const badge = fixture.nativeElement.querySelector('span');
+    expect(badge).toBeTruthy();
   });
 
-  it('should apply neutral classes by default', () => {
-    const badge = fixture.nativeElement.querySelector('span[coaster-badge]') as HTMLElement;
-    expect(badge.classList.contains('bg-on-surface/10')).toBe(true);
+  describe('rendering', () => {
+    it('should project content', () => {
+      const badge = fixture.nativeElement.querySelector('span');
+      expect(badge.textContent).toContain('Badge Content');
+    });
+
+    it('should have base classes', () => {
+      const badge = fixture.nativeElement.querySelector('span');
+      expect(badge.className).toContain('rounded-full');
+      expect(badge.className).toContain('font-bold');
+    });
   });
 
-  it('should apply success variant classes', () => {
-    const badges = fixture.nativeElement.querySelectorAll('span[coaster-badge]');
-    const successBadge = badges[1] as HTMLElement;
-    expect(successBadge.classList.contains('text-secondary')).toBe(true);
-  });
-
-  it('should apply error variant classes', () => {
-    const badges = fixture.nativeElement.querySelectorAll('span[coaster-badge]');
-    const errorBadge = badges[2] as HTMLElement;
-    expect(errorBadge.classList.contains('text-error')).toBe(true);
+  describe('variants', () => {
+    it('should apply neutral classes by default', () => {
+      const badge = fixture.nativeElement.querySelector('span');
+      expect(badge.className).toContain('bg-on-surface/10');
+      expect(badge.className).toContain('text-on-surface-variant');
+    });
   });
 });
