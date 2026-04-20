@@ -10,6 +10,7 @@ describe('Exchange Mapper', () => {
     requesterName: 'John',
     shiftStartTime: '2026-04-17T09:00:00.000Z',
     shiftEndTime: '2026-04-17T17:00:00.000Z',
+    createdAt: new Date(),
   };
 
   describe('checkIsExchange', () => {
