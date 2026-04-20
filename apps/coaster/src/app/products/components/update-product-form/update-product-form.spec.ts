@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import { TranslateModule } from '@ngx-translate/core';
 import { UpdateProductForm } from './update-product-form';
 
 describe('UpdateProductForm', () => {
@@ -13,7 +13,7 @@ describe('UpdateProductForm', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
-    categoryName: 'Drinks',
+    lastUpdated: new Date().toISOString(),
   };
 
   beforeEach(async () => {
@@ -36,7 +36,7 @@ describe('UpdateProductForm', () => {
 
   describe('initialization', () => {
     it('should initialize form with product stock', () => {
-      expect((component as any).form.currentStock().value()).toBe(10);
+      expect(component.form.currentStock().value()).toBe(10);
     });
   });
 
@@ -54,18 +54,16 @@ describe('UpdateProductForm', () => {
     it('should emit updateStock when form is submitted', async () => {
       const spy = vi.spyOn(component.updateStock, 'emit');
 
-      // Update stock via form signal
-      (component as any).form.currentStock().value.set(15);
+      component.form.currentStock().value.set(15);
       fixture.detectChanges();
 
       const actionButtons = fixture.nativeElement.querySelectorAll('.justify-end button');
       const submitButton = Array.from(actionButtons).find(
-        (btn: any) => btn.getAttribute('type') === 'submit',
+        (btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'submit',
       ) as HTMLButtonElement;
 
       submitButton.click();
 
-      // Wait for async form submission
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(spy).toHaveBeenCalledWith({

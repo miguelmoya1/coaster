@@ -3,9 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ButtonVariant, CoasterBtn } from './button';
 
 @Component({
-  standalone: true,
   imports: [CoasterBtn],
-  template: `<button [coaster-btn] [variant]="variant">Test</button>`,
+  template: `<button coaster-btn [variant]="variant">Test</button>`,
 })
 class TestHost {
   variant: ButtonVariant = 'primary';

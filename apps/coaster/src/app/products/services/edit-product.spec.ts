@@ -1,6 +1,6 @@
-import { Mock, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, Product, UpdateProductDto } from '@coaster/interfaces';
+import { Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { EditProduct } from './edit-product';
 
@@ -14,7 +14,7 @@ describe('EditProduct', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
-    categoryName: 'Drinks',
+    lastUpdated: new Date().toISOString(),
   };
 
   beforeEach(() => {

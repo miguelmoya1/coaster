@@ -1,5 +1,5 @@
 import { Component, computed, input, model, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, required } from '@angular/forms/signals';
+import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { BarMember, CreateShiftDto, asUserId } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '../../../shared';
@@ -82,7 +82,7 @@ export class CreateShiftForm {
     notes: '',
   });
 
-  protected readonly form = form(
+  readonly form = form(
     this.#formBase,
     (fields) => {
       required(fields.userId);

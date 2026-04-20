@@ -1,6 +1,6 @@
-import { Mock, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, Product, UpdateProductStockDto } from '@coaster/interfaces';
+import { Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { UpdateProduct } from './update-product-stock';
 
@@ -14,7 +14,7 @@ describe('UpdateProduct', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
-    categoryName: 'Drinks',
+    lastUpdated: new Date().toISOString(),
   };
 
   beforeEach(() => {
@@ -37,7 +37,7 @@ describe('UpdateProduct', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const productId = asProductId('prod-1');
-      const dto: UpdateProductStockDto = { amount: 5, action: 'ADD' };
+      const dto: UpdateProductStockDto = { currentStock: 15 };
       productRepoMock['updateStock'].mockResolvedValue(mockProduct);
 
       const result = await service.update(barId, productId, dto);

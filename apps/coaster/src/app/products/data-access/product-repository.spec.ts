@@ -26,7 +26,7 @@ describe('ProductRepository', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
-    categoryName: 'Drinks',
+    lastUpdated: new Date().toISOString(),
   };
 
   beforeEach(() => {
@@ -115,7 +115,7 @@ describe('ProductRepository', () => {
   describe('updateStock', () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('prod-1');
-    const dto: UpdateProductStockDto = { amount: 5, action: 'ADD' };
+    const dto: UpdateProductStockDto = { currentStock: 15 };
 
     it('should call updateStock product endpoint', async () => {
       const promise = service.updateStock(barId, productId, dto);

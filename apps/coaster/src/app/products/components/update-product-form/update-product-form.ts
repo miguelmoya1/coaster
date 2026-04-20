@@ -58,7 +58,7 @@ export class UpdateProductForm {
     currentStock: 0,
   });
 
-  protected readonly form = form(
+  readonly form = form(
     this.#formBase,
     (fields) => {
       required(fields.currentStock);

@@ -3,9 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BadgeVariant, CoasterBadge } from './badge';
 
 @Component({
-  standalone: true,
   imports: [CoasterBadge],
-  template: `<span [coaster-badge] [variant]="variant">Badge Content</span>`,
+  template: `<span coaster-badge [variant]="variant">Badge Content</span>`,
 })
 class TestHost {
   variant: BadgeVariant = 'neutral';

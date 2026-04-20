@@ -8,7 +8,7 @@ describe('Product Mapper', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
-    categoryName: 'Drinks',
+    lastUpdated: new Date().toISOString(),
   };
 
   describe('checkIsProduct', () => {

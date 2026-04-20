@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
 import { TranslateModule } from '@ngx-translate/core';
-import { asUserId, BarMember } from '@coaster/interfaces';
 import { CreateShiftForm } from './create-shift-form';
 
 describe('CreateShiftForm', () => {
@@ -11,10 +11,12 @@ describe('CreateShiftForm', () => {
     {
       userId: asUserId('user-1'),
       userName: 'John Doe',
-      email: 'john@test.com',
-      role: 'OWNER',
-      barId: 'bar-1' as any,
-      image: '',
+      role: BarRole.OWNER,
+      barId: asBarId('bar-1'),
+      active: true,
+      id: asBarMemberId('member-1'),
+      userEmail: 'john@test.com',
+      userImage: '',
     },
   ];
 
@@ -74,7 +76,7 @@ describe('CreateShiftForm', () => {
       const spy = vi.spyOn(component.createShift, 'emit');
 
       // Accessing form via FieldTree pattern
-      const f = (component as any).form;
+      const f = component.form;
       f.userId().value.set('user-1');
       f.startTime().value.set('08:00');
       f.endTime().value.set('16:00');
@@ -84,12 +86,11 @@ describe('CreateShiftForm', () => {
 
       const actionButtons = fixture.nativeElement.querySelectorAll('.justify-end button');
       const submitButton = Array.from(actionButtons).find(
-        (btn: any) => btn.getAttribute('type') === 'submit',
+        (btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'submit',
       ) as HTMLButtonElement;
 
       submitButton.click();
 
-      // Wait for async form submission
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(spy).toHaveBeenCalledWith({

@@ -1,6 +1,14 @@
-import { Mock, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, CreateShiftExchangeDto, ShiftExchange, ShiftExchangeStatus } from '@coaster/interfaces';
+import {
+  asBarId,
+  asShiftExchangeId,
+  asShiftId,
+  asUserId,
+  CreateShiftExchangeDto,
+  ShiftExchange,
+  ShiftExchangeStatus,
+} from '@coaster/interfaces';
+import { Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { RequestExchange } from './request-exchange';
 
@@ -9,6 +17,7 @@ describe('RequestExchange', () => {
   let exchangeRepoMock: Record<string, Mock>;
 
   const mockExchange: ShiftExchange = {
+    createdAt: new Date(),
     id: asShiftExchangeId('exchange-1'),
     shiftId: asShiftId('shift-1'),
     requesterId: asUserId('requester-1'),
@@ -24,9 +33,7 @@ describe('RequestExchange', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ExchangeRepository, useValue: exchangeRepoMock },
-      ],
+      providers: [{ provide: ExchangeRepository, useValue: exchangeRepoMock }],
     });
 
     service = TestBed.inject(RequestExchange);

@@ -1,13 +1,13 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { 
-  asBarId, 
-  asShiftExchangeId, 
-  asShiftId, 
-  asUserId, 
-  CreateShiftExchangeDto, 
-  ShiftExchange, 
-  ShiftExchangeStatus 
+import {
+  asBarId,
+  asShiftExchangeId,
+  asShiftId,
+  asUserId,
+  CreateShiftExchangeDto,
+  ShiftExchange,
+  ShiftExchangeStatus,
 } from '@coaster/interfaces';
 import { exchangeMapper } from '../mappers/exchange.mapper';
 import { ExchangeRepository } from './exchange-repository';
@@ -21,6 +21,7 @@ describe('ExchangeRepository', () => {
   let httpMock: HttpTestingController;
 
   const mockExchange: ShiftExchange = {
+    createdAt: new Date(),
     id: asShiftExchangeId('exchange-1'),
     shiftId: asShiftId('shift-1'),
     requesterId: asUserId('user-1'),

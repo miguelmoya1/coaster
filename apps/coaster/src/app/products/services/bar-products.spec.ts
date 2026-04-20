@@ -16,7 +16,7 @@ describe('BarProducts', () => {
       name: 'Product 1',
       currentStock: 10,
       minStockAlert: 5,
-      categoryName: 'Cat 1',
+      lastUpdated: new Date().toISOString(),
     },
     {
       id: asProductId('prod-2'),
@@ -24,7 +24,7 @@ describe('BarProducts', () => {
       name: 'Product 2',
       currentStock: 2,
       minStockAlert: 5,
-      categoryName: 'Cat 1',
+      lastUpdated: new Date().toISOString(),
     },
     {
       id: asProductId('prod-3'),
@@ -32,7 +32,7 @@ describe('BarProducts', () => {
       name: 'Product 3',
       currentStock: 0,
       minStockAlert: 5,
-      categoryName: 'Cat 1',
+      lastUpdated: new Date().toISOString(),
     },
   ];
 

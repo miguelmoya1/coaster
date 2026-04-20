@@ -1,7 +1,14 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, signal } from '@angular/core';
+import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchange, ShiftExchangeStatus } from '@coaster/interfaces';
+import {
+  asBarId,
+  asShiftExchangeId,
+  asShiftId,
+  asUserId,
+  ShiftExchange,
+  ShiftExchangeStatus,
+} from '@coaster/interfaces';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BarExchanges } from './bar-exchanges';
 
@@ -11,6 +18,7 @@ describe('BarExchanges', () => {
 
   const mockExchanges: ShiftExchange[] = [
     {
+      createdAt: new Date(),
       id: asShiftExchangeId('exchange-1'),
       shiftId: asShiftId('shift-1'),
       requesterId: asUserId('user-1'),
@@ -45,7 +53,7 @@ describe('BarExchanges', () => {
     it('should fetch pending exchanges when bar context is set', async () => {
       const barId = asBarId('bar-1');
       service.setBarContext(barId);
-      
+
       TestBed.tick();
       expect(service.pending.isLoading()).toBe(true);
 
