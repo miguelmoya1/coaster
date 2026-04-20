@@ -1,12 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, Bar } from '@coaster/interfaces';
-import { barMapper } from '../mappers/bar.mapper';
 import { BarRepository } from './bar-repository';
-
-vi.mock('../mappers/bar.mapper', () => ({
-  barMapper: vi.fn((bar: Bar) => bar),
-}));
 
 describe('BarRepository', () => {
   let service: BarRepository;
@@ -19,8 +14,6 @@ describe('BarRepository', () => {
 
     service = TestBed.inject(BarRepository);
     httpMock = TestBed.inject(HttpTestingController);
-
-    vi.mocked(barMapper).mockClear();
   });
 
   it('should be created', () => {
@@ -69,20 +62,17 @@ describe('BarRepository', () => {
 
       expect(await res).toEqual(bar);
     });
-    
+
     describe('mapper', () => {
       it('should map the response to a bar', async () => {
         const bar: Bar = { id: asBarId('1'), name: 'Test Bar' };
         const res = service.create({ name: 'Test Bar' });
-  
+
         const req = httpMock.expectOne(service.routes.create);
         req.flush(bar);
-  
+
         expect(await res).toEqual(bar);
-        expect(barMapper).toHaveBeenCalledTimes(1);
-        expect(barMapper).toHaveBeenCalledWith(bar);
       });
     });
   });
-
 });

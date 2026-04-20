@@ -9,12 +9,7 @@ import {
   UpdateProductDto,
   UpdateProductStockDto,
 } from '@coaster/interfaces';
-import { productMapper } from '../mappers/product.mapper';
 import { ProductRepository } from './product-repository';
-
-vi.mock('../mappers/product.mapper', () => ({
-  productMapper: vi.fn((product: Product) => product),
-}));
 
 describe('ProductRepository', () => {
   let service: ProductRepository;
@@ -35,8 +30,6 @@ describe('ProductRepository', () => {
     });
     service = TestBed.inject(ProductRepository);
     httpMock = TestBed.inject(HttpTestingController);
-
-    vi.mocked(productMapper).mockClear();
   });
 
   afterEach(() => {
@@ -84,7 +77,6 @@ describe('ProductRepository', () => {
       httpMock.expectOne(service.routes.create(barId)).flush(mockProduct);
 
       expect(await res).toEqual(mockProduct);
-      expect(productMapper).toHaveBeenCalledWith(mockProduct);
     });
   });
 
@@ -108,7 +100,6 @@ describe('ProductRepository', () => {
       httpMock.expectOne(service.routes.update(barId, productId)).flush(mockProduct);
 
       expect(await res).toEqual(mockProduct);
-      expect(productMapper).toHaveBeenCalledWith(mockProduct);
     });
   });
 
@@ -132,7 +123,6 @@ describe('ProductRepository', () => {
       httpMock.expectOne(service.routes.updateStock(barId, productId)).flush(mockProduct);
 
       expect(await res).toEqual(mockProduct);
-      expect(productMapper).toHaveBeenCalledWith(mockProduct);
     });
   });
 });

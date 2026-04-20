@@ -1,16 +1,20 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
 import { Auth as FirebaseAuth } from '@angular/fire/auth';
-import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from './auth';
-// Mock the firebase functions used in Auth constructor/properties
-vi.mock('@angular/fire/auth', async () => {
-  const actual = await vi.importActual('@angular/fire/auth');
+
+vi.mock('@angular/fire/auth', () => {
   return {
-    ...actual,
-    authState: vi.fn(() => of(null)), // Mock initial auth state
-    idToken: vi.fn(() => of('mock-token')), // Mock id token
+    Auth: class {},
+    authState: vi.fn(() => {
+      const { of } = require('rxjs');
+      return of(null);
+    }),
+    idToken: vi.fn(() => {
+      const { of } = require('rxjs');
+      return of('mock-token');
+    }),
   };
 });
 
@@ -34,7 +38,6 @@ describe('Auth', () => {
 
   describe('signals', () => {
     it('isAuthLoaded should be false initially if authState is null', () => {
-      // In our mock of() is synchronous so it might already be loaded
       expect(typeof service.isAuthLoaded()).toBe('boolean');
     });
 

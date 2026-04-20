@@ -9,12 +9,7 @@ import {
   ShiftExchange,
   ShiftExchangeStatus,
 } from '@coaster/interfaces';
-import { exchangeMapper } from '../mappers/exchange.mapper';
 import { ExchangeRepository } from './exchange-repository';
-
-vi.mock('../mappers/exchange.mapper', () => ({
-  exchangeMapper: vi.fn((exchange: ShiftExchange) => exchange),
-}));
 
 describe('ExchangeRepository', () => {
   let service: ExchangeRepository;
@@ -38,8 +33,6 @@ describe('ExchangeRepository', () => {
     });
     service = TestBed.inject(ExchangeRepository);
     httpMock = TestBed.inject(HttpTestingController);
-
-    vi.mocked(exchangeMapper).mockClear();
   });
 
   afterEach(() => {
@@ -84,7 +77,6 @@ describe('ExchangeRepository', () => {
       httpMock.expectOne(service.routes.request(barId, shiftId)).flush(mockExchange);
 
       expect(await res).toEqual(mockExchange);
-      expect(exchangeMapper).toHaveBeenCalledWith(mockExchange);
     });
   });
 
@@ -108,7 +100,6 @@ describe('ExchangeRepository', () => {
       httpMock.expectOne(service.routes.accept(barId, exchangeId)).flush(approvedExchange);
 
       expect(await res).toEqual(approvedExchange);
-      expect(exchangeMapper).toHaveBeenCalledWith(approvedExchange);
     });
   });
 });

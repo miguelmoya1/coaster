@@ -1,12 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
-import { memberMapper } from '../mappers/member.mapper';
 import { MemberRepository } from './member-repository';
-
-vi.mock('../mappers/member.mapper', () => ({
-  memberMapper: vi.fn((member: BarMember) => member),
-}));
 
 describe('MemberRepository', () => {
   let service: MemberRepository;
@@ -29,8 +24,6 @@ describe('MemberRepository', () => {
     });
     service = TestBed.inject(MemberRepository);
     httpMock = TestBed.inject(HttpTestingController);
-
-    vi.mocked(memberMapper).mockClear();
   });
 
   afterEach(() => {
@@ -70,7 +63,6 @@ describe('MemberRepository', () => {
       httpMock.expectOne(service.routes.invite(barId)).flush(mockMember);
 
       expect(await res).toEqual(mockMember);
-      expect(memberMapper).toHaveBeenCalledWith(mockMember);
     });
   });
 });

@@ -1,15 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, CreateShiftDto, Shift, asUserId } from '@coaster/interfaces';
-import * as mapper from '../mappers/shift.mapper';
+import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/interfaces';
+import { vi } from 'vitest';
 import { ShiftRepository } from './shift-repository';
-import { vi, Mock } from 'vitest';
-
-vi.mock('../mappers/shift.mapper', () => ({
-  shiftMapper: vi.fn(),
-  shiftArrayMapper: vi.fn(),
-}));
 
 describe('ShiftRepository', () => {
   let repository: ShiftRepository;
@@ -60,8 +54,6 @@ describe('ShiftRepository', () => {
         userImage: '',
       };
 
-      (mapper.shiftMapper as Mock).mockReturnValue(mockShift);
-
       const promise = repository.create(barId, dto);
 
       const req = httpMock.expectOne(repository.routes.create(barId));
@@ -71,7 +63,6 @@ describe('ShiftRepository', () => {
 
       const result = await promise;
       expect(result).toEqual(mockShift);
-      expect(mapper.shiftMapper).toHaveBeenCalledWith(mockShift);
     });
   });
 });

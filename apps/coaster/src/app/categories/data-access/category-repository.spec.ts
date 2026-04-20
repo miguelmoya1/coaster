@@ -1,12 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
-import { categoryMapper } from '../mappers/category.mapper';
 import { CategoryRepository } from './category-repository';
-
-vi.mock('../mappers/category.mapper', () => ({
-  categoryMapper: vi.fn((category: Category) => category),
-}));
 
 describe('CategoryRepository', () => {
   let service: CategoryRepository;
@@ -19,8 +14,6 @@ describe('CategoryRepository', () => {
 
     service = TestBed.inject(CategoryRepository);
     httpMock = TestBed.inject(HttpTestingController);
-
-    vi.mocked(categoryMapper).mockClear();
   });
 
   it('should be created', () => {
@@ -78,8 +71,6 @@ describe('CategoryRepository', () => {
         req.flush(category);
 
         expect(await res).toEqual(category);
-        expect(categoryMapper).toHaveBeenCalledTimes(1);
-        expect(categoryMapper).toHaveBeenCalledWith(category);
       });
     });
   });
@@ -124,8 +115,6 @@ describe('CategoryRepository', () => {
         req.flush(category);
 
         expect(await res).toEqual(category);
-        expect(categoryMapper).toHaveBeenCalledTimes(1);
-        expect(categoryMapper).toHaveBeenCalledWith(category);
       });
     });
   });

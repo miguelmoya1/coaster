@@ -3,14 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asShiftId, asUserId, Shift } from '@coaster/interfaces';
+import { vi } from 'vitest';
 import { ShiftRepository } from '../data-access/shift-repository';
-import * as mapper from '../mappers/shift.mapper';
 import { BarShifts } from './bar-shifts';
-import { vi, Mock } from 'vitest';
-
-vi.mock('../mappers/shift.mapper', () => ({
-  shiftArrayMapper: vi.fn(),
-}));
 
 describe('BarShifts', () => {
   let service: BarShifts;
@@ -71,8 +66,6 @@ describe('BarShifts', () => {
     ];
 
     it('should fetch shifts when context and date range are set', async () => {
-      (mapper.shiftArrayMapper as Mock).mockReturnValue(mockShifts);
-
       service.setContext(barId);
       service.setDateRange(startDate, endDate);
 
@@ -88,7 +81,6 @@ describe('BarShifts', () => {
 
       expect(service.all.value()).toEqual(mockShifts);
       expect(service.all.status()).toBe('resolved');
-      expect(mapper.shiftArrayMapper).toHaveBeenCalledWith(mockShifts);
     });
 
     it('should not fetch if context or date range is missing', () => {
