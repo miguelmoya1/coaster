@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SelectInput, SelectOption } from './select-input';
 
 describe('SelectInput', () => {
@@ -13,7 +12,7 @@ describe('SelectInput', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SelectInput, NoopAnimationsModule],
+      imports: [SelectInput],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SelectInput);
@@ -54,7 +53,7 @@ describe('SelectInput', () => {
       const trigger = fixture.nativeElement.querySelector('button');
       trigger.click();
       expect(component.isOpen()).toBe(true);
-      
+
       trigger.click();
       expect(component.isOpen()).toBe(false);
     });
