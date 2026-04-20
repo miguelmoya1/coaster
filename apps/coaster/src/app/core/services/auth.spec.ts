@@ -1,31 +1,32 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
-import { Auth as FirebaseAuth } from '@angular/fire/auth';
+import { Auth as FirebaseAuth, User } from '@angular/fire/auth';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from './auth';
-
-vi.mock('@angular/fire/auth', () => {
-  return {
-    Auth: class {},
-    authState: vi.fn(() => {
-      const { of } = require('rxjs');
-      return of(null);
-    }),
-    idToken: vi.fn(() => {
-      const { of } = require('rxjs');
-      return of('mock-token');
-    }),
-  };
-});
 
 describe('Auth', () => {
   let service: Auth;
 
-  const firebaseAuthMock = {
-    app: {},
-  };
+  let firebaseAuthMock: Partial<FirebaseAuth>;
 
   beforeEach(() => {
+    firebaseAuthMock = {
+      app: {} as FirebaseAuth['app'],
+      onAuthStateChanged: (next: (user: User | null) => void) => {
+        next(null);
+        return () => {
+          /* empty */
+        };
+      },
+      onIdTokenChanged: (next: (user: User | null) => void) => {
+        next({} as User);
+        return () => {
+          /* empty */
+        };
+      },
+      signOut: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       providers: [{ provide: FirebaseAuth, useValue: firebaseAuthMock }],
     });
