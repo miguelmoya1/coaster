@@ -17,6 +17,7 @@ jobs:
     env:
       NX_CLOUD_DISTRIBUTED_EXECUTION: false
       NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
+      NX_NO_CLOUD: true
 
     steps:
       - name: 📥 Checkout code
