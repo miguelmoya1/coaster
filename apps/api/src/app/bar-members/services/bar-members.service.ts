@@ -1,8 +1,9 @@
-import { asBarId, asBarMemberId, asBarRole, asUserId, BarId, BarMember, BarRole, User } from '@coaster/interfaces';
+import { BarId, BarRole, User } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
+import { BarMembersMapper } from '../mappers/bar-members.mapper';
 
 @Injectable()
 export class BarMembersService {
@@ -14,7 +15,7 @@ export class BarMembersService {
   async getMembers(barId: BarId) {
     const members = await this.repository.getMembersByBar(barId);
 
-    return members.map(this.#mapToBarMember);
+    return members.map(BarMembersMapper.toDomain);
   }
 
   async invite(barId: BarId, email: string, role: BarRole = BarRole.STAFF, user: User) {
@@ -30,32 +31,12 @@ export class BarMembersService {
 
       await this.emailService.sendInviteEmail(email, bar.name, user.name);
 
-      return membership;
+      return BarMembersMapper.toDomain(membership);
     } catch (error) {
       if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
         throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
       }
       throw error;
     }
-  }
-
-  #mapToBarMember(member: {
-    id: string;
-    userId: string;
-    barId: string;
-    role: string;
-    active: boolean;
-    user: { name: string; photoUrl: string | null; email: string };
-  }): BarMember {
-    return {
-      id: asBarMemberId(member.id),
-      userId: asUserId(member.userId),
-      barId: asBarId(member.barId),
-      role: asBarRole(member.role),
-      active: member.active,
-      userName: member.user.name,
-      userImage: member.user.photoUrl ?? undefined,
-      userEmail: member.user.email,
-    };
   }
 }

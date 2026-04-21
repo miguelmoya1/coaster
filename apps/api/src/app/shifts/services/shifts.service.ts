@@ -1,11 +1,9 @@
-import { BarId, Shift as IShift, asBarId, asShiftId, asUserId } from '@coaster/interfaces';
+import { BarId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
-import { Shift as ShiftDb } from '../../core';
 import { ShiftsRepository } from '../data-access/shifts.repository';
 import { CreateShiftDto } from '../dto/create-shift.dto';
-
-type ShiftWithUser = ShiftDb & { user?: { id: string; name: string; photoUrl: string | null } };
+import { ShiftsMapper } from '../mappers/shifts.mapper';
 
 @Injectable()
 export class ShiftsService {
@@ -33,7 +31,7 @@ export class ShiftsService {
       ...rest,
     });
 
-    return this.#mapToDomain(shift);
+    return ShiftsMapper.toDomain(shift);
   }
 
   async getShifts(barId: BarId, startDateIso?: string, endDateIso?: string) {
@@ -49,19 +47,6 @@ export class ShiftsService {
     }
 
     const shifts = await this._shiftsRepository.findByBarId(barId, start, end);
-    return shifts.map((shift) => this.#mapToDomain(shift));
-  }
-
-  #mapToDomain(dbShift: ShiftWithUser): IShift {
-    return {
-      id: asShiftId(dbShift.id),
-      startTime: dbShift.startTime.toISOString(),
-      endTime: dbShift.endTime.toISOString(),
-      userId: asUserId(dbShift.userId),
-      userName: dbShift.user?.name ?? '',
-      userImage: dbShift.user?.photoUrl ?? undefined,
-      barId: asBarId(dbShift.barId),
-      notes: dbShift.notes ?? undefined,
-    };
+    return shifts.map((shift) => ShiftsMapper.toDomain(shift));
   }
 }

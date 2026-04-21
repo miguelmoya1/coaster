@@ -2,6 +2,7 @@ import { BarId, BarRole, User } from '@coaster/interfaces';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
+import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { BarMembersService } from '../services/bar-members.service';
 
 @Controller('bars/:barId/members')
@@ -11,13 +12,16 @@ export class BarMembersController {
 
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  getMembers(@Param('barId') barId: BarId) {
-    return this._barMembersService.getMembers(barId);
+  async getMembers(@Param('barId') barId: BarId) {
+    const members = await this._barMembersService.getMembers(barId);
+    return members.map(BarMembersMapper.toDto);
   }
 
   @Post()
   @Roles(BarRole.OWNER)
-  inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
-    return this._barMembersService.invite(barId, dto.email, dto.role, user);
+  async inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
+    const member = await this._barMembersService.invite(barId, dto.email, dto.role, user);
+
+    return BarMembersMapper.toDto(member);
   }
 }

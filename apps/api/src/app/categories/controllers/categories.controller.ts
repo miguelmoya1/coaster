@@ -3,6 +3,7 @@ import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/co
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { CategoriesMapper } from '../mappers/categories.mapper';
 import { CategoriesService } from '../services/categories.service';
 
 @Controller('bars/:barId/categories')
@@ -12,23 +13,26 @@ export class CategoriesController {
 
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  getCategories(@Param('barId') barId: BarId) {
-    return this._categoriesService.getCategories(barId);
+  async getCategories(@Param('barId') barId: BarId) {
+    const categories = await this._categoriesService.getCategories(barId);
+    return categories.map(CategoriesMapper.toDto);
   }
 
   @Post()
   @Roles(BarRole.OWNER)
-  createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
-    return this._categoriesService.createCategory(barId, dto);
+  async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
+    const category = await this._categoriesService.createCategory(barId, dto);
+    return CategoriesMapper.toDto(category);
   }
 
   @Patch(':categoryId')
   @Roles(BarRole.OWNER)
-  updateCategory(
+  async updateCategory(
     @Param('barId') barId: BarId,
     @Param('categoryId') categoryId: string,
     @Body() dto: UpdateCategoryDto,
   ) {
-    return this._categoriesService.updateCategory(barId, categoryId, dto);
+    const category = await this._categoriesService.updateCategory(barId, categoryId, dto);
+    return CategoriesMapper.toDto(category);
   }
 }

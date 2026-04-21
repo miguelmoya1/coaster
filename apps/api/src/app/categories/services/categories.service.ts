@@ -1,7 +1,7 @@
-import { asBarId, asCategoryId, BarId, Category, CreateCategoryDto, UpdateCategoryDto } from '@coaster/interfaces';
+import { BarId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { Category as CategoryDb } from '../../core';
 import { CategoriesRepository } from '../data-access/categories.repository';
+import { CategoriesMapper } from '../mappers/categories.mapper';
 
 @Injectable()
 export class CategoriesService {
@@ -10,27 +10,18 @@ export class CategoriesService {
   async createCategory(barId: BarId, createCategoryDto: CreateCategoryDto) {
     const category = await this._categoriesRepository.create(barId, createCategoryDto);
 
-    return this.#mapToDomain(category);
+    return CategoriesMapper.toDomain(category);
   }
 
   async getCategories(barId: BarId) {
     const categories = await this._categoriesRepository.findByBarId(barId);
 
-    return categories.map((c) => this.#mapToDomain(c));
+    return categories.map((c) => CategoriesMapper.toDomain(c));
   }
 
   async updateCategory(barId: BarId, categoryId: string, dtos: UpdateCategoryDto) {
     const category = await this._categoriesRepository.update(barId, categoryId, dtos);
 
-    return this.#mapToDomain(category);
-  }
-
-  #mapToDomain(dbCategory: CategoryDb): Category {
-    return {
-      id: asCategoryId(dbCategory.id),
-      barId: asBarId(dbCategory.barId),
-      name: dbCategory.name,
-      icon: dbCategory.icon ?? undefined,
-    };
+    return CategoriesMapper.toDomain(category);
   }
 }

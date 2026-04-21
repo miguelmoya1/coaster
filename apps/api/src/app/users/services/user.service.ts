@@ -1,7 +1,7 @@
-import { asUserId, UpdateUserDto, User, UserId } from '@coaster/interfaces';
+import { UpdateUserDto, UserId } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { User as UserDb } from '../../core';
 import { UserRepository } from '../data-access/user.repository';
+import { UsersMapper } from '../mappers/users.mapper';
 
 @Injectable()
 export class UserService {
@@ -14,7 +14,7 @@ export class UserService {
       return null;
     }
 
-    return this.#mapToDomain(user);
+    return UsersMapper.toDomain(user);
   }
 
   public async update(id: UserId, data: UpdateUserDto) {
@@ -23,17 +23,6 @@ export class UserService {
       photoUrl: data.photoUrl,
     });
 
-    return this.#mapToDomain(user);
-  }
-
-  #mapToDomain(dbUser: UserDb): User {
-    return {
-      id: asUserId(dbUser.id),
-      email: dbUser.email,
-      name: dbUser.name,
-      googleId: dbUser.googleId ?? undefined,
-      photoUrl: dbUser.photoUrl ?? undefined,
-      active: dbUser.active,
-    };
+    return UsersMapper.toDomain(user);
   }
 }

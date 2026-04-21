@@ -1,7 +1,7 @@
-import { asBarId, Bar, BarId, CreateBarDto, User } from '@coaster/interfaces';
+import { BarId, CreateBarDto, User } from '@coaster/interfaces';
 import { Injectable } from '@nestjs/common';
-import { Bar as BarDb } from '../../core';
 import { BarRepository } from '../data-access/bar.repository';
+import { BarsMapper } from '../mappers/bars.mapper';
 
 @Injectable()
 export class BarsService {
@@ -10,13 +10,13 @@ export class BarsService {
   async create(dto: CreateBarDto, user: User) {
     const bar = await this.barRepository.create(user.id, dto);
 
-    return this.#mapToDomain(bar);
+    return BarsMapper.toDomain(bar);
   }
 
   async getForUser(user: User) {
     const memberships = await this.barRepository.findByUserId(user.id);
 
-    return memberships.map((m) => this.#mapToDomain(m));
+    return memberships.map((m) => BarsMapper.toDomain(m));
   }
 
   async get(barId: BarId) {
@@ -26,15 +26,6 @@ export class BarsService {
       return null;
     }
 
-    return this.#mapToDomain(bar);
-  }
-
-  #mapToDomain(dbBar: BarDb): Bar {
-    return {
-      id: asBarId(dbBar.id),
-      name: dbBar.name,
-      createdAt: dbBar.createdAt.toISOString(),
-      updatedAt: dbBar.updatedAt.toISOString(),
-    };
+    return BarsMapper.toDomain(bar);
   }
 }

@@ -2,6 +2,7 @@ import { asUserId, BarId, BarRole, ShiftExchangeId, ShiftId, User } from '@coast
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
+import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 import { ShiftExchangesService } from '../services/shift-exchanges.service';
 
 @Controller('bars/:barId')
@@ -11,8 +12,9 @@ export class ShiftExchangesController {
 
   @Get('exchanges')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  getExchanges(@Param('barId') barId: BarId) {
-    return this._shiftExchangesService.getPendingExchanges(barId);
+  async getExchanges(@Param('barId') barId: BarId) {
+    const exchanges = await this._shiftExchangesService.getPendingExchanges(barId);
+    return exchanges.map(ShiftExchangesMapper.toDto);
   }
 
   @Post('shifts/:shiftId/exchanges')

@@ -1,17 +1,16 @@
 import {
   asCategoryId,
-  asProductId,
   BarId,
   CreateProductDto,
-  Product,
   ProductId,
-  UpdateProductStockDto,
   UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/interfaces';
 import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { BarGateway, Product as ProductDb } from '../../core';
+import { BarGateway } from '../../core';
 import { ProductsRepository } from '../data-access/products.repository';
+import { ProductsMapper } from '../mappers/products.mapper';
 
 @Injectable()
 export class ProductsService {
@@ -36,7 +35,7 @@ export class ProductsService {
 
     const product = await this._productsRepository.create(validCategoryId, createData);
 
-    const mapped = this.#mapToDomain(product);
+    const mapped = ProductsMapper.toDomain(product);
 
     this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_CREATED, mapped);
 
@@ -46,7 +45,7 @@ export class ProductsService {
   async updateProductStock(barId: BarId, productId: ProductId, productDto: UpdateProductStockDto) {
     const product = await this._productsRepository.update(productId, productDto);
 
-    const mapped = this.#mapToDomain(product);
+    const mapped = ProductsMapper.toDomain(product);
 
     this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
 
@@ -65,7 +64,7 @@ export class ProductsService {
 
     const product = await this._productsRepository.update(productId, productDto);
 
-    const mapped = this.#mapToDomain(product);
+    const mapped = ProductsMapper.toDomain(product);
 
     this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
 
@@ -75,17 +74,6 @@ export class ProductsService {
   async getProductsByBarId(barId: BarId) {
     const products = await this._productsRepository.findByBarId(barId);
 
-    return products.map((p) => this.#mapToDomain(p));
-  }
-
-  #mapToDomain(dbProduct: ProductDb): Product {
-    return {
-      id: asProductId(dbProduct.id),
-      categoryId: asCategoryId(dbProduct.categoryId),
-      name: dbProduct.name,
-      currentStock: dbProduct.currentStock,
-      minStockAlert: dbProduct.minStockAlert,
-      lastUpdated: dbProduct.updatedAt.toISOString(),
-    };
+    return products.map((p) => ProductsMapper.toDomain(p));
   }
 }

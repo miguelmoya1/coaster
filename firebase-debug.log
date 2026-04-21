@@ -5999,3 +5999,36 @@ To force them to exit run:
     at Console._write (/home/miguel/projects/coaster/node_modules/winston-transport/modern.js:103:17)
     at doWrite (/home/miguel/projects/coaster/node_modules/readable-stream/lib/_stream_writable.js:390:139)
 [error] 
+[debug] [2026-04-21T08:49:24.647Z] ----------------------------------------------------------------------
+[debug] [2026-04-21T08:49:24.649Z] Command:       /home/miguel/.local/share/fnm/node-versions/v24.14.1/installation/bin/node /home/miguel/projects/coaster/node_modules/.bin/firebase emulators:start --only auth
+[debug] [2026-04-21T08:49:24.649Z] CLI Version:   15.15.0
+[debug] [2026-04-21T08:49:24.649Z] Platform:      linux
+[debug] [2026-04-21T08:49:24.649Z] Node Version:  v24.14.1
+[debug] [2026-04-21T08:49:24.649Z] Time:          Tue Apr 21 2026 10:49:24 GMT+0200 (Central European Summer Time)
+[debug] [2026-04-21T08:49:24.649Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-21T08:49:24.652Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-04-21T08:49:26.943Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-21T08:49:26.943Z] > authorizing via signed-in user (miguelmoyaortega@gmail.com)
+[info] i  emulators: Starting emulators: auth {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth"}}
+[debug] [2026-04-21T08:49:26.989Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2026-04-21T08:49:26.995Z] Write emulator hub locator at /tmp/hub-coaster-437f2.json
+[debug] [2026-04-21T08:49:35.780Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: connect ECONNREFUSED 127.0.0.1:40001. If you are not running the Firebase SQL Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI        │
+├────────────────┼────────────────┼────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth │
+└────────────────┴────────────────┴────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2026-04-21T08:49:33.547Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-04-21T08:49:33.548Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}

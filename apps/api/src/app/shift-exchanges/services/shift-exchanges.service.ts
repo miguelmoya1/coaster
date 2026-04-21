@@ -1,29 +1,9 @@
-import {
-  BarId,
-  ShiftExchange as IShiftExchange,
-  ShiftExchangeId,
-  ShiftExchangeStatus,
-  ShiftId,
-  UserId,
-  asShiftExchangeId,
-  asShiftId,
-  asUserId,
-} from '@coaster/interfaces';
+import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
-
-type ExchangeWithRelations = {
-  id: string;
-  shiftId: string;
-  requesterId: string;
-  targetId: string | null;
-  status: string;
-  createdAt: Date;
-  shift: { startTime: Date; endTime: Date };
-  requester: { id: string; name: string };
-};
+import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 
 @Injectable()
 export class ShiftExchangesService {
@@ -31,7 +11,7 @@ export class ShiftExchangesService {
 
   async getPendingExchanges(barId: BarId) {
     const exchanges = await this._shiftExchangesRepository.findPendingByBarId(barId);
-    return exchanges.map((e) => this.#mapToDomain(e));
+    return exchanges.map((e) => ShiftExchangesMapper.toDomain(e));
   }
 
   async requestExchange(barId: BarId, shiftId: ShiftId, requesterId: UserId, dto: CreateShiftExchangeDto) {
@@ -40,9 +20,11 @@ export class ShiftExchangesService {
     if (!shift) {
       throw new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND);
     }
+
     if (shift.barId !== barId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
+
     if (shift.userId !== requesterId) {
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_SHIFT);
     }
@@ -56,15 +38,19 @@ export class ShiftExchangesService {
     if (!exchange) {
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
     }
+
     if (exchange.status !== ShiftExchangeStatus.PENDING) {
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
+
     if (exchange.shift.barId !== barId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
+
     if (exchange.requesterId === acceptingUserId) {
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
+    
     if (exchange.targetId && exchange.targetId !== acceptingUserId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
@@ -76,19 +62,5 @@ export class ShiftExchangesService {
     );
 
     return updatedExchange;
-  }
-
-  #mapToDomain(exchange: ExchangeWithRelations): IShiftExchange {
-    return {
-      id: asShiftExchangeId(exchange.id),
-      shiftId: asShiftId(exchange.shiftId),
-      requesterId: asUserId(exchange.requesterId),
-      targetId: exchange.targetId ? asUserId(exchange.targetId) : undefined,
-      status: exchange.status as ShiftExchangeStatus,
-      requesterName: exchange.requester.name,
-      shiftStartTime: exchange.shift.startTime.toISOString(),
-      shiftEndTime: exchange.shift.endTime.toISOString(),
-      createdAt: exchange.createdAt,
-    };
   }
 }
