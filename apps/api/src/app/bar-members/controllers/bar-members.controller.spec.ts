@@ -39,7 +39,7 @@ describe('BarMembersController', () => {
     service = module.get(BarMembersService);
   });
 
-  it('getMembers debería delegar al servicio', () => {
+  it('getMembers should delegate to the service', () => {
     service.getMembers.mockResolvedValue([]);
 
     controller.getMembers(asBarId('bar-1'));
@@ -47,11 +47,11 @@ describe('BarMembersController', () => {
     expect(service.getMembers).toHaveBeenCalledWith('bar-1');
   });
 
-  it('inviteMember debería delegar al servicio', () => {
+  it('inviteMember should delegate to the service', () => {
     const dto = { email: 'new@mail.com', role: BarRole.STAFF };
-    service.invite.mockResolvedValue({} as any);
+    service.invite.mockResolvedValue({});
 
-    controller.inviteMember(asBarId('bar-1'), dto as any, fakeUser);
+    controller.inviteMember(asBarId('bar-1'), dto, fakeUser);
 
     expect(service.invite).toHaveBeenCalledWith('bar-1', 'new@mail.com', BarRole.STAFF, fakeUser);
   });

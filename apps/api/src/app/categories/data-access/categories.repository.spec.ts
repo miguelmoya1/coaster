@@ -24,7 +24,7 @@ describe('CategoriesRepository', () => {
   });
 
   describe('create', () => {
-    it('debería crear una categoría con productos incluidos', async () => {
+    it('should create a category with included products', async () => {
       prisma.category.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
 
       const result = await repository.create(asBarId('bar-1'), { name: 'Bebidas', icon: 'beer' });
@@ -37,7 +37,7 @@ describe('CategoriesRepository', () => {
   });
 
   describe('findByBarId', () => {
-    it('debería buscar categorías del bar con productos ordenados', async () => {
+    it('should find bar categories with sorted products', async () => {
       prisma.category.findMany.mockResolvedValue([{ id: 'cat-1' }]);
 
       const result = await repository.findByBarId(asBarId('bar-1'));

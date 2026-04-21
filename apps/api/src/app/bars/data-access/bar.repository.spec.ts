@@ -26,7 +26,7 @@ describe('BarRepository', () => {
   });
 
   describe('create', () => {
-    it('debería crear un bar con un miembro OWNER', async () => {
+    it('should create a bar with an OWNER member', async () => {
       prisma.bar.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
 
       const result = await repository.create(asUserId('user-1'), { name: 'Mi Bar' });
@@ -42,7 +42,7 @@ describe('BarRepository', () => {
   });
 
   describe('findByUserId', () => {
-    it('debería devolver los bares del usuario', async () => {
+    it('should return the user bars', async () => {
       prisma.barMember.findMany.mockResolvedValue([
         { bar: { id: 'bar-1', name: 'Bar 1' } },
         { bar: { id: 'bar-2', name: 'Bar 2' } },

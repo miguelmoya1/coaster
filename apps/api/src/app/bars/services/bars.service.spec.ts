@@ -25,19 +25,19 @@ describe('BarsService', () => {
   });
 
   describe('create', () => {
-    it('debería mapear correctamente el bar creado', async () => {
+    it('should map the created bar correctly', async () => {
       repository.create.mockResolvedValue({
         id: 'bar-123',
         name: 'Nuevo Bar',
         createdAt: FAKE_DATE,
         updatedAt: FAKE_DATE,
-      } as any);
+      });
 
       const result = await service.create(
         {
           name: 'Nuevo Bar',
         },
-        { id: 'user-id' } as any,
+        { id: 'user-id' },
       );
 
       expect(repository.create).toHaveBeenCalledWith('user-id', { name: 'Nuevo Bar' });
@@ -51,17 +51,17 @@ describe('BarsService', () => {
   });
 
   describe('getForUser', () => {
-    it('debería mapear correctamente la lista de bares del usuario', async () => {
+    it('should map the user bar list correctly', async () => {
       repository.findByUserId.mockResolvedValue([
         {
           id: 'bar-1',
           name: 'Bar Paco',
           createdAt: FAKE_DATE,
           updatedAt: FAKE_DATE,
-        } as any,
+        },
       ]);
 
-      const result = await service.getForUser({ id: 'user-id' } as any);
+      const result = await service.getForUser({ id: 'user-id' });
 
       expect(repository.findByUserId).toHaveBeenCalledWith('user-id');
       expect(result).toEqual([
@@ -74,10 +74,10 @@ describe('BarsService', () => {
       ]);
     });
 
-    it('debería devolver un array vacío si no tiene bares', async () => {
+    it('should return an empty array if no bars', async () => {
       repository.findByUserId.mockResolvedValue([]);
 
-      const result = await service.getForUser({ id: 'user-id' } as any);
+      const result = await service.getForUser({ id: 'user-id' });
 
       expect(result).toEqual([]);
     });

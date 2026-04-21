@@ -9,7 +9,8 @@ import {
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { Shift } from '../../core';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
 import { ShiftExchangesService } from './shift-exchanges.service';
 
@@ -37,7 +38,7 @@ describe('ShiftExchangesService', () => {
   describe('requestExchange', () => {
     const dto: CreateShiftExchangeDto = { targetId: asUserId('target-id') };
 
-    it('debería fallar si el turno no existe', async () => {
+    it('should fail if the shift does not exist', async () => {
       repository.getShiftById.mockResolvedValue(null);
 
       await expect(
@@ -45,12 +46,17 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('debería fallar si el turno es de otro bar', async () => {
+    it('should fail if the shift belongs to another bar', async () => {
       repository.getShiftById.mockResolvedValue({
         id: 'shift-1',
         barId: 'bar-FAKE',
         userId: 'requester-1',
-      } as any);
+        createdAt: new Date(),
+        endTime: new Date(),
+        notes: '',
+        startTime: new Date(),
+        updatedAt: new Date(),
+      });
 
       await expect(
         service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
@@ -60,12 +66,17 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     });
 
-    it('debería fallar si pides el turno de otra persona', async () => {
+    it("should fail if requesting someone else's shift", async () => {
       repository.getShiftById.mockResolvedValue({
         id: 'shift-1',
         barId: 'bar-1',
         userId: 'otro-usuario',
-      } as any);
+        createdAt: new Date(),
+        endTime: new Date(),
+        notes: '',
+        startTime: new Date(),
+        updatedAt: new Date(),
+      });
 
       await expect(
         service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
@@ -75,16 +86,26 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(ErrorCodes.NOT_YOUR_SHIFT);
     });
 
-    it('debería crear el intercambio correctamente si todas las reglas validan', async () => {
+    it('should create the exchange correctly if all rules validate', async () => {
       repository.getShiftById.mockResolvedValue({
         id: 'shift-1',
         barId: 'bar-1',
         userId: 'requester-1',
-      } as any);
+        createdAt: new Date(),
+        endTime: new Date(),
+        notes: '',
+        startTime: new Date(),
+        updatedAt: new Date(),
+      });
 
       repository.createExchange.mockResolvedValue({
         id: 'exchange-1',
-      } as any);
+        createdAt: new Date(),
+        shiftId: 'shift-1',
+        requesterId: 'requester-1',
+        targetId: 'target-id',
+        status: ShiftExchangeStatus.PENDING,
+      });
 
       const result = await service.requestExchange(
         asBarId('bar-1'),
@@ -94,12 +115,18 @@ describe('ShiftExchangesService', () => {
       );
 
       expect(repository.createExchange).toHaveBeenCalledWith('shift-1', 'requester-1', 'target-id');
-      expect(result).toEqual({ id: 'exchange-1' });
+      expect(result).toMatchObject({
+        id: 'exchange-1',
+        requesterId: 'requester-1',
+        shiftId: 'shift-1',
+        status: 'PENDING',
+        targetId: 'target-id',
+      });
     });
   });
 
   describe('acceptExchange', () => {
-    it('debería fallar si el intercambio no existe', async () => {
+    it('should fail if the exchange does not exist', async () => {
       repository.getExchangeById.mockResolvedValue(null);
 
       await expect(
@@ -107,36 +134,48 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('debería fallar si el intercambio está aprobado/rechazado', async () => {
+    it('should fail if the exchange is approved/rejected', async () => {
       repository.getExchangeById.mockResolvedValue({
         id: 'exc-1',
         status: ShiftExchangeStatus.APPROVED,
-      } as any);
+        createdAt: new Date(),
+        shiftId: 'shift-1',
+        requesterId: 'user-1',
+        targetId: 'user-2',
+        shift: {} as unknown as Shift,
+      });
 
       await expect(
         service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor-1')),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('debería fallar si intentas aceptar en un bar incorrecto', async () => {
+    it('should fail if attempting to accept in the wrong bar', async () => {
       repository.getExchangeById.mockResolvedValue({
         id: 'exc-1',
         status: ShiftExchangeStatus.PENDING,
-        shift: { barId: 'bar-FAR' },
-      } as any);
+        createdAt: new Date(),
+        shiftId: 'shift-1',
+        requesterId: 'user-1',
+        targetId: 'user-2',
+        shift: { barId: 'bar-FAR' } as unknown as Shift,
+      });
 
       await expect(
         service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor-1')),
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it('debería impedir que el solicitante acepte su propio intercambio', async () => {
+    it('should prevent the requester from accepting their own exchange', async () => {
       repository.getExchangeById.mockResolvedValue({
         id: 'exc-1',
         status: ShiftExchangeStatus.PENDING,
         requesterId: 'user-rafa',
-        shift: { barId: 'bar-1' },
-      } as any);
+        shift: { barId: 'bar-1' } as unknown as Shift,
+        createdAt: new Date(),
+        shiftId: 'shift-1',
+        targetId: 'user-2',
+      });
 
       await expect(
         service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('user-rafa')),
@@ -146,44 +185,64 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(ErrorCodes.INVALID_EXCHANGE);
     });
 
-    it('debería fallar si hay un targetId explícito y tú no lo eres', async () => {
+    it('should fail if there is an explicit targetId and it is not you', async () => {
       repository.getExchangeById.mockResolvedValue({
         id: 'exc-1',
         status: ShiftExchangeStatus.PENDING,
         requesterId: 'user-1',
-        targetId: 'user-2', // Se lo ofrece solo al user-2
-        shift: { barId: 'bar-1' },
-      } as any);
+        targetId: 'user-2',
+        shift: { barId: 'bar-1' } as unknown as Shift,
+        createdAt: new Date(),
+        shiftId: 'shift-1',
+      });
 
-      // user-3 intenta robarlo
       await expect(
         service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('user-3')),
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it('debería aprobar si todo es correcto y swappear el turno', async () => {
+    it('should approve if everything is correct and swap the shift', async () => {
       repository.getExchangeById.mockResolvedValue({
         id: 'exc-1',
         status: ShiftExchangeStatus.PENDING,
         requesterId: 'user-1',
-        targetId: null, // Marketplace abierto
+        targetId: null,
         shiftId: 'shift-1',
-        shift: { barId: 'bar-1' },
-      } as any);
+        createdAt: new Date(),
+        shift: { barId: 'bar-1' } as unknown as Shift,
+      });
 
       repository.acceptExchangeAndSwapShift.mockResolvedValue([
-        { id: 'exc-1', status: ShiftExchangeStatus.APPROVED },
-      ] as any);
+        {
+          id: 'exc-1',
+          status: ShiftExchangeStatus.APPROVED,
+          shiftId: 'shift-1',
+          requesterId: 'user-1',
+          targetId: null,
+          createdAt: new Date(),
+          shift: { barId: 'bar-1' } as unknown as Shift,
+        },
+        {
+          id: 'shift-2',
+          barId: 'bar-1',
+          userId: 'user-1',
+          startTime: new Date(),
+          endTime: new Date(),
+          notes: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
 
       const result = await service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'));
 
       expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith('exc-1', 'shift-1', 'acceptor');
-      expect(result).toEqual({ id: 'exc-1', status: 'APPROVED' });
+      expect(result).toMatchObject({ id: 'exc-1', status: 'APPROVED' });
     });
   });
 
   describe('getPendingExchanges', () => {
-    it('debería llamar al repositorio', async () => {
+    it('should call the repository', async () => {
       repository.findPendingByBarId.mockResolvedValue([
         {
           id: 'exc-1',
@@ -191,15 +250,24 @@ describe('ShiftExchangesService', () => {
           requesterId: 'user-1',
           targetId: null,
           status: ShiftExchangeStatus.PENDING,
-          shift: { startTime: new Date('2026-04-17T09:00:00.000Z'), endTime: new Date('2026-04-17T17:00:00.000Z') },
+          shift: {
+            startTime: new Date('2026-04-17T09:00:00.000Z'),
+            endTime: new Date('2026-04-17T17:00:00.000Z'),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            notes: '',
+            barId: 'bar-1',
+            userId: 'user-1',
+          } as unknown as Shift,
+          createdAt: new Date(),
           requester: { id: 'user-1', name: 'John' },
         },
-      ] as any);
+      ]);
 
       const result = await service.getPendingExchanges(asBarId('bar-1'));
 
       expect(repository.findPendingByBarId).toHaveBeenCalledWith('bar-1');
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         {
           id: 'exc-1',
           shiftId: 'shift-1',

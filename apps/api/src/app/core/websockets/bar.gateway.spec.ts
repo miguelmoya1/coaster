@@ -14,32 +14,31 @@ describe('BarGateway', () => {
     }).compile();
 
     gateway = module.get<BarGateway>(BarGateway);
-    gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() } as any;
+    gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() };
 
-    // Suppress logger outputs during tests
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    vi.spyOn(Logger.prototype, 'debug').mockImplementation(() => {});
+    vi.spyOn(Logger.prototype, 'debug').mockImplementation(() => {
+      // do nothing
+    });
   });
 
-  const createSocketMock = () =>
-    ({
-      id: 'mock-socket-id',
-      join: vi.fn(),
-      leave: vi.fn(),
-    }) as any;
+  const createSocketMock = () => ({
+    id: 'mock-socket-id',
+    join: vi.fn(),
+    leave: vi.fn(),
+  });
 
   describe('handleConnection / handleDisconnect', () => {
-    it('debería no fallar al conectar', () => {
+    it('should not fail on connect', () => {
       expect(() => gateway.handleConnection(createSocketMock())).not.toThrow();
     });
 
-    it('debería no fallar al desconectar', () => {
+    it('should not fail on disconnect', () => {
       expect(() => gateway.handleDisconnect(createSocketMock())).not.toThrow();
     });
   });
 
   describe('handleJoinBar', () => {
-    it('debería unir el socket a la sala del bar y devolver joined', () => {
+    it('should join the socket to the bar room and return joined', () => {
       const socket = createSocketMock();
 
       const result = gateway.handleJoinBar(socket, 'bar-1');
@@ -48,15 +47,15 @@ describe('BarGateway', () => {
       expect(result).toEqual({ event: SocketEvents.JOINED, data: 'bar-1' });
     });
 
-    it('debería lanzar WsException si el barId es inválido (nulo)', () => {
+    it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(WsException);
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleJoinBar(socket, null)).toThrow(WsException);
+      expect(() => gateway.handleJoinBar(socket, null)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.join).not.toHaveBeenCalled();
     });
 
-    it('debería lanzar WsException si el barId está vacío', () => {
+    it('should throw WsException if barId is empty', () => {
       const socket = createSocketMock();
 
       expect(() => gateway.handleJoinBar(socket, '   ')).toThrow(WsException);
@@ -65,7 +64,7 @@ describe('BarGateway', () => {
   });
 
   describe('handleLeaveBar', () => {
-    it('debería sacar al socket de la sala del bar y devolver left', () => {
+    it('should remove socket from bar room and return left', () => {
       const socket = createSocketMock();
 
       const result = gateway.handleLeaveBar(socket, 'bar-1');
@@ -74,11 +73,11 @@ describe('BarGateway', () => {
       expect(result).toEqual({ event: SocketEvents.LEFT, data: 'bar-1' });
     });
 
-    it('debería lanzar WsException si el barId es inválido (nulo)', () => {
+    it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(WsException);
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleLeaveBar(socket, null)).toThrow(WsException);
+      expect(() => gateway.handleLeaveBar(socket, null)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.leave).not.toHaveBeenCalled();
     });
   });

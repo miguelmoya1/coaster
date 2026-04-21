@@ -38,50 +38,50 @@ describe('RolesGuard', () => {
       switchToHttp: () => ({
         getRequest: () => ({ user, params: { barId } }),
       }),
-    }) as any;
+    });
 
-  it('debería permitir acceso si no hay roles requeridos', async () => {
+  it('should allow access if no roles are required', async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
   });
 
-  it('debería lanzar UNAUTHORIZED si no hay user', async () => {
+  it('should throw UNAUTHORIZED if there is no user', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     await expect(guard.canActivate(mockContext(null, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
-  it('debería lanzar MISSING_BAR_ID si no hay barId', async () => {
+  it('should throw MISSING_BAR_ID if there is no barId', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     await expect(guard.canActivate(mockContext({ id: 'u1' }, undefined))).rejects.toThrow(ForbiddenException);
   });
 
-  it('debería lanzar MEMBER_NOT_FOUND si el membership no existe', async () => {
+  it('should throw MEMBER_NOT_FOUND if membership does not exist', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     prisma.barMember.findUnique.mockResolvedValue(null);
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
-  it('debería lanzar MEMBER_NOT_FOUND si membership existe pero inactivo', async () => {
+  it('should throw MEMBER_NOT_FOUND if membership exists but is inactive', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     prisma.barMember.findUnique.mockResolvedValue({ active: false, role: 'OWNER' });
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
-  it('debería lanzar si el rol del miembro no es suficiente', async () => {
+  it('should throw if the member role is insufficient', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
-  it('debería permitir acceso si el rol coincide', async () => {
+  it('should allow access if the role matches', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER]);
     prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'OWNER' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
   });
 
-  it('debería permitir acceso si hay múltiples roles y el miembro tiene uno', async () => {
+  it('should allow access if there are multiple roles and member has one', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarRole.OWNER, BarRole.STAFF]);
     prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));

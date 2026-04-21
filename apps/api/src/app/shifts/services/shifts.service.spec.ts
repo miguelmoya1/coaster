@@ -2,7 +2,7 @@ import { asBarId, asUserId, CreateShiftDto } from '@coaster/interfaces';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { ShiftsRepository } from '../data-access/shifts.repository';
 import { ShiftsService } from './shifts.service';
 
@@ -36,7 +36,7 @@ describe('ShiftsService', () => {
       notes: 'Test notes',
     };
 
-    it('debería mapear correctamente un turno creado', async () => {
+    it('should map the created shift correctly', async () => {
       repository.isUserMemberOfBar.mockResolvedValue(true);
       repository.create.mockResolvedValue({
         id: 'shift-1',
@@ -46,7 +46,7 @@ describe('ShiftsService', () => {
         endTime: FAKE_DATE,
         notes: 'Test notes',
         user: { id: 'user-id', name: 'User Name', photoUrl: 'https://photo.url/user.jpg' },
-      } as any);
+      });
 
       const result = await service.createShift(asBarId('bar-1'), createDto);
 
@@ -69,7 +69,7 @@ describe('ShiftsService', () => {
       });
     });
 
-    it('debería bloquear creación si el usuario no es miembro', async () => {
+    it('should block creation if user is not a member', async () => {
       repository.isUserMemberOfBar.mockResolvedValue(false);
 
       await expect(service.createShift(asBarId('bar-1'), createDto)).rejects.toThrow(ForbiddenException);
@@ -78,7 +78,7 @@ describe('ShiftsService', () => {
       expect(repository.create).not.toHaveBeenCalled();
     });
 
-    it('debería lanzar BadRequestException si la fecha es inválida', async () => {
+    it('should throw BadRequestException if date is invalid', async () => {
       repository.isUserMemberOfBar.mockResolvedValue(true);
 
       const invalidDto: CreateShiftDto = {
@@ -94,7 +94,7 @@ describe('ShiftsService', () => {
   });
 
   describe('getShifts', () => {
-    it('debería mapear correctamente un listado de turnos y filtrar por fecha', async () => {
+    it('should map list of shifts correctly and filter by date', async () => {
       repository.findByBarId.mockResolvedValue([
         {
           id: 'shift-1',
@@ -104,7 +104,7 @@ describe('ShiftsService', () => {
           endTime: FAKE_DATE,
           notes: null,
           user: null,
-        } as any,
+        },
       ]);
 
       const startIso = '2026-03-01T00:00:00Z';
@@ -128,7 +128,7 @@ describe('ShiftsService', () => {
       ]);
     });
 
-    it('debería lanzar error si un query param datetime es inválido', async () => {
+    it('should throw error if a datetime query param is invalid', async () => {
       await expect(service.getShifts(asBarId('bar-1'), 'invalida', '2026-01-01T00:00:00Z')).rejects.toThrow(
         BadRequestException,
       );

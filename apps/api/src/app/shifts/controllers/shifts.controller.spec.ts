@@ -32,7 +32,7 @@ describe('ShiftsController', () => {
     service = module.get(ShiftsService);
   });
 
-  it('getShifts debería delegar al servicio con query params', () => {
+  it('getShifts should delegate to the service with query params', () => {
     service.getShifts.mockResolvedValue([]);
 
     controller.getShifts(asBarId('bar-1'), '2026-03-01', '2026-03-31');
@@ -40,15 +40,15 @@ describe('ShiftsController', () => {
     expect(service.getShifts).toHaveBeenCalledWith('bar-1', '2026-03-01', '2026-03-31');
   });
 
-  it('createShift debería delegar al servicio', () => {
-    service.createShift.mockResolvedValue({} as any);
+  it('createShift should delegate to the service', () => {
+    service.createShift.mockResolvedValue({});
     const dto = {
       startTime: '2026-03-20T08:00:00Z',
       endTime: '2026-03-20T16:00:00Z',
       userId: asUserId('u1'),
     };
 
-    controller.createShift(asBarId('bar-1'), dto as any);
+    controller.createShift(asBarId('bar-1'), dto);
 
     expect(service.createShift).toHaveBeenCalledWith('bar-1', dto);
   });

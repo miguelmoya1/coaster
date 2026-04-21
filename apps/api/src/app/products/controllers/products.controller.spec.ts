@@ -33,7 +33,7 @@ describe('ProductsController', () => {
     service = module.get(ProductsService);
   });
 
-  it('getProducts debería delegar al servicio', async () => {
+  it('getProducts should delegate to the service', async () => {
     service.getProductsByBarId.mockResolvedValue([]);
 
     await controller.getProducts(asBarId('bar-1'));
@@ -41,8 +41,8 @@ describe('ProductsController', () => {
     expect(service.getProductsByBarId).toHaveBeenCalledWith('bar-1');
   });
 
-  it('createProduct debería delegar al servicio', async () => {
-    service.createProduct.mockResolvedValue({} as any);
+  it('createProduct should delegate to the service', async () => {
+    service.createProduct.mockResolvedValue({});
     const dto = { name: 'Coca Cola', categoryId: asCategoryId('cat-1') };
 
     await controller.createProduct(asBarId('bar-1'), dto);
@@ -50,8 +50,8 @@ describe('ProductsController', () => {
     expect(service.createProduct).toHaveBeenCalledWith('bar-1', dto);
   });
 
-  it('updateProductStock debería delegar al servicio', async () => {
-    service.updateProductStock.mockResolvedValue({} as any);
+  it('updateProductStock should delegate to the service', async () => {
+    service.updateProductStock.mockResolvedValue({});
     const dto = { currentStock: 2, minStockAlert: 5 };
 
     await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);

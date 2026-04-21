@@ -26,7 +26,7 @@ describe('EmailService', () => {
     expect(service).toBeDefined();
   });
 
-  it('debería tener el método sendInviteEmail', () => {
+  it('should have the sendInviteEmail method', () => {
     expect(service.sendInviteEmail).toBeDefined();
   });
 });

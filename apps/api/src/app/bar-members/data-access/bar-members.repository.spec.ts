@@ -28,7 +28,7 @@ describe('BarMembersRepository', () => {
   });
 
   describe('findBarById', () => {
-    it('debería delegar a prisma.bar.findUnique', async () => {
+    it('should delegate to prisma.bar.findUnique', async () => {
       prisma.bar.findUnique.mockResolvedValue({ id: 'bar-1' });
 
       const result = await repository.findBarById(asBarId('bar-1'));
@@ -39,7 +39,7 @@ describe('BarMembersRepository', () => {
   });
 
   describe('inviteMember', () => {
-    it('debería hacer upsert del usuario y crear el barMember', async () => {
+    it('should upsert the user and create the barMember', async () => {
       prisma.user.upsert.mockResolvedValue({ id: 'new-user' });
       prisma.barMember.create.mockResolvedValue({ id: 'member-1' });
 
@@ -52,14 +52,14 @@ describe('BarMembersRepository', () => {
       });
       expect(prisma.barMember.create).toHaveBeenCalledWith({
         data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: BarRole.STAFF },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
       });
       expect(result).toEqual({ id: 'member-1' });
     });
   });
 
   describe('getMembersByBar', () => {
-    it('debería buscar miembros activos', async () => {
+    it('should find active members', async () => {
       prisma.barMember.findMany.mockResolvedValue([{ id: 'm1' }]);
 
       const result = await repository.getMembersByBar(asBarId('bar-1'));

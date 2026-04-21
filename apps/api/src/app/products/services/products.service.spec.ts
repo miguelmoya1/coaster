@@ -51,14 +51,14 @@ describe('ProductsService', () => {
       minStockAlert: 5,
     };
 
-    it('debería fallar si la categoría no pertenece al bar', async () => {
+    it('should fail if the category does not belong to the bar', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
       await expect(service.createProduct(barId, dto)).rejects.toThrow(ForbiddenException);
       await expect(service.createProduct(barId, dto)).rejects.toThrow(ErrorCodes.CATEGORY_NOT_FOUND);
     });
 
-    it('debería crear el producto y emitir evento de socket si es correcto', async () => {
+    it('should create the product and emit socket event if correct', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(true);
       const dbProduct = {
         id: 'prod-1',
@@ -95,7 +95,7 @@ describe('ProductsService', () => {
     const productId = asProductId('prod-1');
     const dto: UpdateProductStockDto = { currentStock: 20 };
 
-    it('debería actualizar el stock y emitir evento', async () => {
+    it('should update the stock and emit event', async () => {
       const dbProduct = {
         id: 'prod-1',
         categoryId: 'cat-1',
@@ -119,13 +119,13 @@ describe('ProductsService', () => {
     const productId = asProductId('prod-1');
     const dto: UpdateProductDto = { name: 'New Name', categoryId: asCategoryId('cat-2') };
 
-    it('debería validar la nueva categoría si se proporciona', async () => {
+    it('should validate the new category if provided', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
       await expect(service.updateProduct(barId, productId, dto)).rejects.toThrow(ForbiddenException);
     });
 
-    it('debería actualizar y emitir evento si la categoría es válida', async () => {
+    it('should update and emit event if the category is valid', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(true);
       const dbProduct = {
         id: 'prod-1',
@@ -145,7 +145,7 @@ describe('ProductsService', () => {
   });
 
   describe('getProductsByBarId', () => {
-    it('debería retornar los productos mapeados', async () => {
+    it('should return the mapped products', async () => {
       const barId = asBarId('bar-1');
       const dbProducts = [
         {

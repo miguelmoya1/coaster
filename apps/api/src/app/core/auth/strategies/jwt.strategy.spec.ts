@@ -32,7 +32,7 @@ describe('JwtStrategy', () => {
     expect(strategy).toBeDefined();
   });
 
-  it('debería validar el token y hacer upsert del usuario', async () => {
+  it('should validate the token and upsert the user', async () => {
     const fakePayload = {
       sub: 'google-123',
       email: 'test@mail.com',
@@ -63,13 +63,13 @@ describe('JwtStrategy', () => {
     });
   });
 
-  it('debería lanzar UnauthorizedException si el payload no tiene sub', async () => {
+  it('should throw UnauthorizedException if the payload has no sub', async () => {
     (admin.auth().verifyIdToken as Mock).mockResolvedValue({ email: 'test@mail.com' });
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 
-  it('debería lanzar UnauthorizedException si verifyIdToken falla', async () => {
+  it('should throw UnauthorizedException if verifyIdToken fails', async () => {
     (admin.auth().verifyIdToken as Mock).mockRejectedValue(new Error('bad'));
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);

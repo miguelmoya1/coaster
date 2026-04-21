@@ -26,7 +26,7 @@ describe('ShiftsRepository', () => {
   });
 
   describe('isUserMemberOfBar', () => {
-    it('debería devolver true si el miembro está activo', async () => {
+    it('should return true if the member is active', async () => {
       prisma.barMember.findUnique.mockResolvedValue({ active: true });
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
@@ -34,7 +34,7 @@ describe('ShiftsRepository', () => {
       expect(result).toBe(true);
     });
 
-    it('debería devolver false si no existe', async () => {
+    it('should return false if it does not exist', async () => {
       prisma.barMember.findUnique.mockResolvedValue(null);
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
@@ -42,7 +42,7 @@ describe('ShiftsRepository', () => {
       expect(result).toBe(false);
     });
 
-    it('debería devolver false si está inactivo', async () => {
+    it('should return false if it is inactive', async () => {
       prisma.barMember.findUnique.mockResolvedValue({ active: false });
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
@@ -52,7 +52,7 @@ describe('ShiftsRepository', () => {
   });
 
   describe('create', () => {
-    it('debería crear un turno con include de user', async () => {
+    it('should create a shift including user', async () => {
       const startTime = new Date('2026-03-20T08:00:00Z');
       const endTime = new Date('2026-03-20T16:00:00Z');
       prisma.shift.create.mockResolvedValue({ id: 'shift-1' });
@@ -78,7 +78,7 @@ describe('ShiftsRepository', () => {
   });
 
   describe('findByBarId', () => {
-    it('debería buscar turnos con filtro de fecha', async () => {
+    it('should find shifts with date filter', async () => {
       const startDate = new Date('2026-03-01');
       const endDate = new Date('2026-03-31');
       prisma.shift.findMany.mockResolvedValue([{ id: 'shift-1' }]);
@@ -96,7 +96,7 @@ describe('ShiftsRepository', () => {
       expect(result).toEqual([{ id: 'shift-1' }]);
     });
 
-    it('debería buscar sin filtro de fecha si no se pasan', async () => {
+    it('should find without date filter if none provided', async () => {
       prisma.shift.findMany.mockResolvedValue([]);
 
       await repository.findByBarId(asBarId('bar-1'));

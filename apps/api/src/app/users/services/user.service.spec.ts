@@ -19,7 +19,7 @@ describe('UserService', () => {
     repository = module.get(UserRepository);
   });
 
-  it('debería devolver null si el usuario no existe', async () => {
+  it('should return null if the user does not exist', async () => {
     repository.getById.mockResolvedValue(null);
 
     const result = await service.getById(asUserId('no-exist'));
@@ -28,7 +28,7 @@ describe('UserService', () => {
     expect(result).toBeNull();
   });
 
-  it('debería mapear correctamente el usuario de DB a dominio', async () => {
+  it('should map db user to domain correctly', async () => {
     repository.getById.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -38,7 +38,7 @@ describe('UserService', () => {
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as any);
+    });
 
     const result = await service.getById(asUserId('user-1'));
 
@@ -52,7 +52,7 @@ describe('UserService', () => {
     });
   });
 
-  it('debería mapear googleId y photoUrl null a undefined', async () => {
+  it('should map null googleId and photoUrl to undefined', async () => {
     repository.getById.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -60,7 +60,9 @@ describe('UserService', () => {
       googleId: null,
       photoUrl: null,
       active: true,
-    } as any);
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     const result = await service.getById(asUserId('user-1'));
 
@@ -68,7 +70,7 @@ describe('UserService', () => {
     expect(result?.photoUrl).toBeUndefined();
   });
 
-  it('debería actualizar el usuario correctamente', async () => {
+  it('should update the user correctly', async () => {
     repository.update.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -78,7 +80,7 @@ describe('UserService', () => {
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as any);
+    });
 
     const result = await service.update(asUserId('user-1'), {
       name: 'Updated Name',

@@ -18,7 +18,7 @@ describe('UserRepository', () => {
     prisma = module.get(PrismaService);
   });
 
-  it('debería llamar a prisma.user.findUnique con el id', async () => {
+  it('should call prisma.user.findUnique with the id', async () => {
     prisma.user.findUnique.mockResolvedValue({ id: 'u1' });
 
     const result = await repository.getById('u1');
@@ -27,7 +27,7 @@ describe('UserRepository', () => {
     expect(result).toEqual({ id: 'u1' });
   });
 
-  it('debería devolver null si no existe', async () => {
+  it('should return null if it does not exist', async () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     const result = await repository.getById('no-exist');

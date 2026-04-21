@@ -26,7 +26,7 @@ describe('PrismaService', () => {
     expect(service).toBeDefined();
   });
 
-  it('debería tener métodos de ciclo de vida', () => {
+  it('should have lifecycle methods', () => {
     expect(service.onModuleInit).toBeDefined();
     expect(service.onModuleDestroy).toBeDefined();
   });

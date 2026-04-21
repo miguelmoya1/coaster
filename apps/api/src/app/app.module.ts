@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
 import { BarMembersModule } from './bar-members/bar-members.module';
 import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -11,7 +10,6 @@ import { ShiftsModule } from './shifts/shifts.module';
 import { UserModule } from './users/user.module';
 
 @Module({
-  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

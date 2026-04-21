@@ -33,7 +33,7 @@ describe('ShiftExchangesRepository', () => {
   });
 
   describe('getShiftById', () => {
-    it('debería delegar a prisma.shift.findUnique', async () => {
+    it('should delegate to prisma.shift.findUnique', async () => {
       prisma.shift.findUnique.mockResolvedValue({ id: 'shift-1' });
 
       const result = await repository.getShiftById(asShiftId('shift-1'));
@@ -44,7 +44,7 @@ describe('ShiftExchangesRepository', () => {
   });
 
   describe('getExchangeById', () => {
-    it('debería incluir el shift en la consulta', async () => {
+    it('should include the shift in the query', async () => {
       prisma.shiftExchange.findUnique.mockResolvedValue({ id: 'exc-1' });
 
       const result = await repository.getExchangeById(asShiftExchangeId('exc-1'));
@@ -58,7 +58,7 @@ describe('ShiftExchangesRepository', () => {
   });
 
   describe('createExchange', () => {
-    it('debería crear con estado PENDING', async () => {
+    it('should create with PENDING status', async () => {
       prisma.shiftExchange.create.mockResolvedValue({ id: 'exc-1' });
 
       const result = await repository.createExchange(asShiftId('shift-1'), asUserId('requester'), asUserId('target'));
@@ -76,7 +76,7 @@ describe('ShiftExchangesRepository', () => {
   });
 
   describe('findPendingByBarId', () => {
-    it('debería filtrar por PENDING y barId', async () => {
+    it('should filter by PENDING and barId', async () => {
       prisma.shiftExchange.findMany.mockResolvedValue([{ id: 'exc-1' }]);
 
       const result = await repository.findPendingByBarId(asBarId('bar-1'));
@@ -100,7 +100,7 @@ describe('ShiftExchangesRepository', () => {
   });
 
   describe('acceptExchangeAndSwapShift', () => {
-    it('debería usar transacción para update exchange + shift', async () => {
+    it('should use transaction to update exchange + shift', async () => {
       prisma.$transaction.mockResolvedValue([{ id: 'exc-1' }]);
 
       await repository.acceptExchangeAndSwapShift(

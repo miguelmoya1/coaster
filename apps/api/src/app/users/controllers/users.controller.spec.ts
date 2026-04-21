@@ -29,7 +29,7 @@ describe('UsersController', () => {
     controller = module.get<UsersController>(UsersController);
   });
 
-  it('debería devolver el usuario actual', async () => {
+  it('should return the current user', async () => {
     const fakeUser: User = {
       id: asUserId('user-1'),
       email: 'test@mail.com',

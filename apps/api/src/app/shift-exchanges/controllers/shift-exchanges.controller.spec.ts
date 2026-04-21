@@ -43,7 +43,7 @@ describe('ShiftExchangesController', () => {
     service = module.get(ShiftExchangesService);
   });
 
-  it('getExchanges debería delegar al servicio', () => {
+  it('getExchanges should delegate to the service', () => {
     service.getPendingExchanges.mockResolvedValue([]);
 
     controller.getExchanges(asBarId('bar-1'));
@@ -51,7 +51,7 @@ describe('ShiftExchangesController', () => {
     expect(service.getPendingExchanges).toHaveBeenCalledWith('bar-1');
   });
 
-  it('createExchange debería delegar al servicio con userId del user autenticado', () => {
+  it("createExchange should delegate to the service with the authenticated user's userId", () => {
     service.requestExchange.mockResolvedValue(
       {} as Awaited<ReturnType<typeof ShiftExchangesService.prototype.requestExchange>>,
     );
@@ -62,7 +62,7 @@ describe('ShiftExchangesController', () => {
     expect(service.requestExchange).toHaveBeenCalledWith('bar-1', 'shift-1', 'user-1', dto);
   });
 
-  it('acceptExchange debería delegar al servicio con userId del user autenticado', () => {
+  it("acceptExchange should delegate to the service with the authenticated user's userId", () => {
     service.acceptExchange.mockResolvedValue(
       {} as Awaited<ReturnType<typeof ShiftExchangesService.prototype.acceptExchange>>,
     );

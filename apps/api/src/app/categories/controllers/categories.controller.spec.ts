@@ -32,7 +32,7 @@ describe('CategoriesController', () => {
     service = module.get(CategoriesService);
   });
 
-  it('getCategories debería delegar al servicio', () => {
+  it('getCategories should delegate to the service', () => {
     service.getCategories.mockResolvedValue([]);
 
     controller.getCategories(asBarId('bar-1'));
@@ -40,11 +40,11 @@ describe('CategoriesController', () => {
     expect(service.getCategories).toHaveBeenCalledWith('bar-1');
   });
 
-  it('createCategory debería delegar al servicio', () => {
-    service.createCategory.mockResolvedValue({} as any);
+  it('createCategory should delegate to the service', () => {
+    service.createCategory.mockResolvedValue({});
     const dto = { name: 'Bebidas', icon: 'beer' };
 
-    controller.createCategory(asBarId('bar-1'), dto as any);
+    controller.createCategory(asBarId('bar-1'), dto);
 
     expect(service.createCategory).toHaveBeenCalledWith('bar-1', { name: 'Bebidas', icon: 'beer' });
   });

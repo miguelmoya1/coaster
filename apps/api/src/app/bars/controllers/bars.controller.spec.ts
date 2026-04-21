@@ -42,16 +42,16 @@ describe('BarsController', () => {
     service = module.get(BarsService);
   });
 
-  it('createBar debería delegar al servicio', async () => {
-    service.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' } as any);
+  it('createBar should delegate to the service', async () => {
+    service.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
 
-    const result = await controller.createBar(fakeUser, { name: 'Mi Bar' } as any);
+    const result = await controller.createBar(fakeUser, { name: 'Mi Bar' });
 
     expect(service.create).toHaveBeenCalledWith({ name: 'Mi Bar' }, fakeUser);
     expect(result).toEqual({ id: 'bar-1', name: 'Mi Bar' });
   });
 
-  it('getMyBars debería delegar al servicio', async () => {
+  it('getMyBars should delegate to the service', async () => {
     service.getForUser.mockResolvedValue([]);
 
     const result = await controller.getMyBars(fakeUser);
