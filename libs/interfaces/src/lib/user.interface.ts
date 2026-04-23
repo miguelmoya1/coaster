@@ -10,7 +10,7 @@ export interface User {
   name: string;
   googleId?: string;
   active: boolean;
-  photoUrl: string;
+  photoUrl?: string;
 }
 
 export interface CreateUserDto {

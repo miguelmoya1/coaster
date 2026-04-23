@@ -121,7 +121,7 @@ describe('ShiftsService', () => {
           endTime: '2026-03-20T10:00:00.000Z',
           userId: 'user-id',
           userName: '',
-          userImage: 'https://ui-avatars.com/api/?name=Unknown&background=0F172A&color=fff',
+          userImage: undefined,
           barId: 'bar-1',
           notes: undefined,
         },

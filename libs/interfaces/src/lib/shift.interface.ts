@@ -15,7 +15,7 @@ export interface Shift {
   endTime: string; // ISO String
   userId: UserId;
   userName: string;
-  userImage: string;
+  userImage?: string;
   barId: BarId;
   notes?: string;
 }

@@ -27,7 +27,10 @@ describe('Member Mapper', () => {
 
   describe('memberMapper', () => {
     it('should map a valid member', () => {
-      expect(memberMapper(validMember)).toEqual(validMember);
+      const result = memberMapper(validMember);
+      expect(result.id).toBe(validMember.id);
+      expect(result.userName).toBe(validMember.userName);
+      expect(result.userImage).toContain('ui-avatars.com');
     });
 
     it('should throw Error for invalid member', () => {
@@ -37,7 +40,9 @@ describe('Member Mapper', () => {
 
   describe('memberArrayMapper', () => {
     it('should map valid array of members', () => {
-      expect(memberArrayMapper([validMember])).toEqual([validMember]);
+      const result = memberArrayMapper([validMember]);
+      expect(result).toHaveLength(1);
+      expect(result[0].userImage).toContain('ui-avatars.com');
     });
 
     it('should return empty array for empty input', () => {

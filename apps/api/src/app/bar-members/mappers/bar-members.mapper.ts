@@ -1,5 +1,4 @@
 import { asBarId, asBarMemberId, asBarRole, asUserId, BarMember } from '@coaster/interfaces';
-import { resolveProfileImage } from '../../core';
 
 export const BarMembersMapper = {
   toDomain(member: {
@@ -17,7 +16,7 @@ export const BarMembersMapper = {
       role: asBarRole(member.role),
       active: member.active,
       userName: member.user.name,
-      userImage: resolveProfileImage(member.user.photoUrl, member.user.name),
+      userImage: member.user.photoUrl ?? '',
       userEmail: member.user.email,
     };
   },

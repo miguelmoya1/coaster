@@ -18,7 +18,7 @@ describe('BarMembers', () => {
       active: true,
       userName: 'John Doe',
       userEmail: 'john@test.com',
-      userImage: '',
+      userImage: 'https://photo.url/test.jpg',
     },
   ];
 

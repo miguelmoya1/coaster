@@ -59,7 +59,7 @@ describe('BarShifts', () => {
         endTime: '2026-03-20T16:00:00Z',
         userId: asUserId('user-1'),
         userName: 'User 1',
-        userImage: '',
+        userImage: 'https://photo.url/test.jpg',
       },
     ];
 

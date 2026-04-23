@@ -1,5 +1,5 @@
 import { asUserId, User } from '@coaster/interfaces';
-import { resolveProfileImage, User as UserDb } from '../../core';
+import { User as UserDb } from '../../core';
 
 export const UsersMapper = {
   toDomain(dbUser: UserDb): User {
@@ -8,7 +8,7 @@ export const UsersMapper = {
       email: dbUser.email,
       name: dbUser.name,
       googleId: dbUser.googleId ?? undefined,
-      photoUrl: resolveProfileImage(dbUser.photoUrl, dbUser.name),
+      photoUrl: dbUser.photoUrl ?? undefined,
       active: dbUser.active,
     };
   },

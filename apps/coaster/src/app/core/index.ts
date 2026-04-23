@@ -9,3 +9,4 @@ export * from './mappers/user.mapper';
 export * from './services/auth';
 export * from './services/current-user';
 export * from './services/date-formatter';
+export * from './utils/user.utils';

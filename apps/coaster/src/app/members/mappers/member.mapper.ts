@@ -1,4 +1,5 @@
 import { BarMember } from '@coaster/interfaces';
+import { prepareDefaultProfileImage } from '../../core';
 
 export const checkIsMember = (member: unknown): member is BarMember => {
   return (
@@ -15,7 +16,10 @@ export const memberMapper = (member: unknown): BarMember => {
   if (!checkIsMember(member)) {
     throw new Error('Invalid Member payload');
   }
-  return { ...member };
+  return {
+    ...member,
+    userImage: prepareDefaultProfileImage(member.userImage, member.userName),
+  };
 };
 
 export const memberArrayMapper = (members: unknown): BarMember[] => {

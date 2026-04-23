@@ -51,7 +51,7 @@ describe('ShiftRepository', () => {
         barId,
         ...dto,
         userName: 'User 1',
-        userImage: '',
+        userImage: 'https://photo.url/test.jpg',
       };
 
       const promise = repository.create(barId, dto);

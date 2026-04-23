@@ -68,7 +68,6 @@ describe('CurrentUser', () => {
         email: 'test@example.com',
         name: 'Test user',
         active: true,
-        photoUrl: 'https://photo.url/test.jpg',
       };
 
       httpMock.expectOne('/users/me').flush(mockUser);
@@ -76,7 +75,13 @@ describe('CurrentUser', () => {
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(service.current.hasValue()).toBe(true);
-      expect(service.current.value()).toEqual(mockUser);
+
+      const currentUser = service.current.value();
+      expect(currentUser).toBeDefined();
+      expect(currentUser?.id).toBe(mockUser.id);
+      expect(currentUser?.email).toBe(mockUser.email);
+      expect(currentUser?.name).toBe(mockUser.name);
+      expect(currentUser?.photoUrl).toContain('ui-avatars.com');
     });
   });
 

@@ -1,11 +1,6 @@
-import { asCategoryId, asProductId, Product, StockStatus } from '@coaster/interfaces';
+import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import { resolveStockStatus } from '@coaster/logic';
 import { Product as ProductDb } from '../../core';
-
-const resolveStockStatus = (currentStock: number, minStockAlert: number): StockStatus => {
-  if (currentStock <= 0) return 'critical';
-  if (currentStock <= minStockAlert) return 'low';
-  return 'good';
-};
 
 export const ProductsMapper = {
   toDomain(dbProduct: ProductDb): Product {

@@ -7,7 +7,6 @@ describe('User Mapper', () => {
     email: 'test@example.com',
     name: 'Test User',
     active: true,
-    photoUrl: 'https://photo.url/test.jpg',
   };
 
   describe('checkIsUser', () => {
@@ -24,7 +23,17 @@ describe('User Mapper', () => {
 
   describe('userMapper', () => {
     it('should map a valid user', () => {
-      expect(userMapper(validUser)).toEqual(validUser);
+      const result = userMapper(validUser);
+      expect(result.id).toBe(validUser.id);
+      expect(result.email).toBe(validUser.email);
+      expect(result.name).toBe(validUser.name);
+      expect(result.active).toBe(validUser.active);
+      expect(result.photoUrl).toContain('ui-avatars.com');
+    });
+
+    it('should preserve existing photoUrl', () => {
+      const userWithPhoto = { ...validUser, photoUrl: 'https://photo.url/test.jpg' };
+      expect(userMapper(userWithPhoto).photoUrl).toBe('https://photo.url/test.jpg');
     });
 
     it('should throw Error for invalid user', () => {

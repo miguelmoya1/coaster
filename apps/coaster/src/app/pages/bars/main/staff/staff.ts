@@ -66,6 +66,7 @@ export default class Staff {
     );
   }
 
+
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
     this.formError.set(undefined);
     try {
