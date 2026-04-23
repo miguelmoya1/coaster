@@ -39,22 +39,20 @@
   <coaster-loading />
 }
 
-@if (products.hasValue()) {
-  <div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
-    @for (product of filteredProducts(); track product.id) {
-      <coaster-inventory-item-card
-        [itemName]="product.name"
-        [qty]="product.currentStock"
-        [statusLevel]="getProductStatus(product)"
-        [showEditButton]="currentUserRole() === 'OWNER'"
-        (click)="onProductClicked(product)"
-        (editClicked)="onEditProductClicked(product)"
-      />
-    } @empty {
-      <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
-    }
-  </div>
-}
+<div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
+  @for (product of filteredProducts(); track product.id) {
+    <coaster-inventory-item-card
+      [itemName]="product.name"
+      [qty]="product.currentStock"
+      [statusLevel]="product.status"
+      [showEditButton]="currentUserRole() === 'OWNER'"
+      (click)="onProductClicked(product)"
+      (editClicked)="onEditProductClicked(product)"
+    />
+  } @empty {
+    <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
+  }
+</div>
 
 @if (currentUserRole() === 'OWNER') {
   <coaster-fab routerLink="new" />

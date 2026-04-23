@@ -33,6 +33,15 @@ export default class Staff {
   protected readonly isSubmitting = signal(false);
   protected readonly formError = signal<string | undefined>(undefined);
   protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
+
+  protected readonly members = computed(() => {
+    if (!this.list.hasValue()) return [];
+
+    return this.list.value().map((member) => ({
+      ...member,
+      profileImage: this.#getProfileImage(member.userImage, member.userName),
+    }));
+  });
   protected readonly currentUserRole = computed(() => {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
@@ -61,7 +70,7 @@ export default class Staff {
     );
   }
 
-  protected getProfileImage(profileImage: string, userName: string) {
+  #getProfileImage(profileImage: string, userName: string) {
     return prepareDefaultProfileImage(profileImage, userName);
   }
 

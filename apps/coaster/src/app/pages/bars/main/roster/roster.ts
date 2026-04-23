@@ -66,8 +66,24 @@ export default class Roster {
     return barMember?.role;
   });
   protected readonly pendingShiftIds = computed(() => {
-    const exchanges = this.pendingExchanges.value() ?? [];
+    if (!this.pendingExchanges.hasValue()) return new Set<string>();
+
+    const exchanges = this.pendingExchanges.value();
     return new Set(exchanges.map((e) => e.shiftId));
+  });
+
+  protected readonly dailyShifts = computed(() => {
+    if (!this.list.hasValue()) return [];
+
+    return this.list.value().map((shift) => ({
+      ...shift,
+      profileImage: shift.userImage || this.#getProfileImage(shift.userName),
+    }));
+  });
+
+  protected readonly pendingExchangesList = computed(() => {
+    if (!this.pendingExchanges.hasValue()) return [];
+    return this.pendingExchanges.value();
   });
 
   constructor() {
@@ -138,7 +154,7 @@ export default class Roster {
     );
   }
 
-  protected getProfileImage(name?: string) {
+  #getProfileImage(name?: string) {
     return prepareDefaultProfileImage(undefined, name ?? this.translate.instant('roster.unassigned'));
   }
 

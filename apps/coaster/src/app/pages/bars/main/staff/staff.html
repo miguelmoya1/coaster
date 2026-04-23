@@ -8,15 +8,13 @@
   <coaster-loading />
 }
 
-@if (list.hasValue()) {
-  @for (member of list.value(); track member.id) {
-    <coaster-staff-member-card
-      [staffName]="member.userName"
-      [staffEmail]="member.userEmail"
-      [staffImage]="getProfileImage(member.userImage, member.userName)"
-      [roleName]="member.role"
-    />
-  }
+@for (member of members(); track member.id) {
+  <coaster-staff-member-card
+    [staffName]="member.userName"
+    [staffEmail]="member.userEmail"
+    [staffImage]="member.profileImage"
+    [roleName]="member.role"
+  />
 }
 
 @if (currentUserRole() === 'OWNER') {

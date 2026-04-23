@@ -110,13 +110,16 @@ export default class Pantry {
   });
 
   protected readonly filteredProducts = computed(() => {
-    const allProducts = this.products.value() ?? [];
-    const categoryId = this.selectedCategoryId();
+    if (!this.products.hasValue()) return [];
 
-    if (categoryId === 'ALL') {
-      return allProducts;
-    }
-    return allProducts.filter((p) => p.categoryId === categoryId);
+    const allProducts = this.products.value();
+    const categoryId = this.selectedCategoryId();
+    const filtered = categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
+
+    return filtered.map((product) => ({
+      ...product,
+      status: this.#getProductStatus(product),
+    }));
   });
 
   constructor() {
@@ -127,7 +130,7 @@ export default class Pantry {
     });
   }
 
-  protected getProductStatus(product: Product): InventoryStatus {
+  #getProductStatus(product: Product): InventoryStatus {
     if (product.currentStock <= 0) return 'critical';
     if (product.minStockAlert !== undefined && product.currentStock <= product.minStockAlert) return 'low';
     return 'good';

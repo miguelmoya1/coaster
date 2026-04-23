@@ -30,13 +30,13 @@
   <coaster-loading />
 } @else {
   <div class="flex flex-col gap-3">
-    @if (list.hasValue() && list.value().length) {
-      @for (shift of list.value(); track shift.id) {
+    @if (dailyShifts().length) {
+      @for (shift of dailyShifts(); track shift.id) {
         <coaster-shift-card
           [timeRange]="dateFormatter.formatTimeRange(shift.startTime, shift.endTime)"
           [staffName]="shift.userName || ('roster.unassigned' | translate)"
           [roleName]="'STAFF'"
-          [staffImage]="shift.userImage || getProfileImage(shift.userName)"
+          [staffImage]="shift.profileImage"
           [isOwn]="shift.userId === currentUserId()"
           [hasPendingExchange]="pendingShiftIds().has(shift.id)"
           roleColorClass="bg-primary text-primary"
@@ -51,17 +51,17 @@
   </div>
 }
 
-@if (pendingExchanges.hasValue() && pendingExchanges.value().length) {
+@if (pendingExchangesList().length) {
   <h2 coaster-title class="mt-8 mb-4 flex items-center gap-2 text-on-surface">
     <ng-icon name="lucideRepeat2" class="text-tertiary text-xl" />
     {{ 'roster.exchanges.title' | translate }}
     <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
-      {{ pendingExchanges.value().length }}
+      {{ pendingExchangesList().length }}
     </span>
   </h2>
 
   <div class="flex flex-col gap-3 pb-24">
-    @for (exchange of pendingExchanges.value(); track exchange.id) {
+    @for (exchange of pendingExchangesList(); track exchange.id) {
       <coaster-exchange-request-card
         [month]="dateFormatter.formatMonth(exchange.shiftStartTime)"
         [day]="dateFormatter.formatDay(exchange.shiftStartTime)"
