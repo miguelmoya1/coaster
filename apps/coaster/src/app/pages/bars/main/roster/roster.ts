@@ -150,7 +150,6 @@ export default class Roster {
     );
   }
 
-
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
     this.formError.set(undefined);
 
