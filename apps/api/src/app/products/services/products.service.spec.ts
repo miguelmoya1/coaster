@@ -85,6 +85,7 @@ describe('ProductsService', () => {
         name: 'Product 1',
         currentStock: 10,
         minStockAlert: 5,
+        stockStatus: 'good',
         lastUpdated: dbProduct.updatedAt.toISOString(),
       });
     });
@@ -163,6 +164,7 @@ describe('ProductsService', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(asProductId('prod-1'));
+      expect(result[0].stockStatus).toBe('good');
       expect(result[0].lastUpdated).toBe(dbProducts[0].updatedAt.toISOString());
     });
   });

@@ -29,7 +29,6 @@ import {
   EditProduct,
   EditProductForm,
   InventoryItemCard,
-  InventoryStatus,
   UpdateProduct,
   UpdateProductForm,
 } from '../../../../products';
@@ -114,12 +113,8 @@ export default class Pantry {
 
     const allProducts = this.products.value();
     const categoryId = this.selectedCategoryId();
-    const filtered = categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
 
-    return filtered.map((product) => ({
-      ...product,
-      status: this.#getProductStatus(product),
-    }));
+    return categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
   });
 
   constructor() {
@@ -128,12 +123,6 @@ export default class Pantry {
       this.#categoriesService.setBarContext(this.barId());
       this.#barMembers.setBarContext(this.barId());
     });
-  }
-
-  #getProductStatus(product: Product): InventoryStatus {
-    if (product.currentStock <= 0) return 'critical';
-    if (product.minStockAlert !== undefined && product.currentStock <= product.minStockAlert) return 'low';
-    return 'good';
   }
 
   protected onProductClicked(product: Product) {

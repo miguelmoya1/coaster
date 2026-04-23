@@ -68,6 +68,7 @@ describe('CurrentUser', () => {
         email: 'test@example.com',
         name: 'Test user',
         active: true,
+        photoUrl: 'https://photo.url/test.jpg',
       };
 
       httpMock.expectOne('/users/me').flush(mockUser);

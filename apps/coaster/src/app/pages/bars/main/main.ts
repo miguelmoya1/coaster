@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarId } from '@coaster/interfaces';
 import { CurrentBar } from '../../../bars';
-import { CurrentUser, prepareDefaultProfileImage } from '../../../core';
+import { CurrentUser } from '../../../core';
 import { BottomNav, TopAppBar } from '../../../shared';
 
 @Component({
@@ -42,7 +42,7 @@ export default class Main {
       return '';
     }
 
-    return prepareDefaultProfileImage(this.currentUser.value().photoUrl, this.currentUser.value().name);
+    return this.currentUser.value().photoUrl;
   });
 
   constructor() {

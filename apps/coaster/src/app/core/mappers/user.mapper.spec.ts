@@ -2,11 +2,12 @@ import { asUserId, User } from '@coaster/interfaces';
 import { checkIsUser, userMapper } from './user.mapper';
 
 describe('User Mapper', () => {
-  const validUser: User = { 
-    id: asUserId('user-1'), 
+  const validUser: User = {
+    id: asUserId('user-1'),
     email: 'test@example.com',
     name: 'Test User',
-    active: true
+    active: true,
+    photoUrl: 'https://photo.url/test.jpg',
   };
 
   describe('checkIsUser', () => {

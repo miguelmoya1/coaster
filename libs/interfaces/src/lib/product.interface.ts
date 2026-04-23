@@ -4,6 +4,8 @@ import { Category, CategoryId } from './category.interface';
 export type ProductId = Brand<string, 'ProductId'>;
 export const asProductId = (id: string): ProductId => id as ProductId;
 
+export type StockStatus = 'critical' | 'low' | 'good';
+
 export interface Product {
   id: ProductId;
   name: string;
@@ -11,6 +13,7 @@ export interface Product {
   category?: Category;
   currentStock: number;
   minStockAlert: number;
+  stockStatus: StockStatus;
   lastUpdated: string;
 }
 

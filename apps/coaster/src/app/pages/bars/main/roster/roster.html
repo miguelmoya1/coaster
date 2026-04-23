@@ -36,7 +36,7 @@
           [timeRange]="dateFormatter.formatTimeRange(shift.startTime, shift.endTime)"
           [staffName]="shift.userName || ('roster.unassigned' | translate)"
           [roleName]="'STAFF'"
-          [staffImage]="shift.profileImage"
+          [staffImage]="shift.userImage"
           [isOwn]="shift.userId === currentUserId()"
           [hasPendingExchange]="pendingShiftIds().has(shift.id)"
           roleColorClass="bg-primary text-primary"
@@ -65,7 +65,9 @@
       <coaster-exchange-request-card
         [month]="dateFormatter.formatMonth(exchange.shiftStartTime)"
         [day]="dateFormatter.formatDay(exchange.shiftStartTime)"
-        [shiftPeriod]="'roster.exchanges.period_' + dateFormatter.formatShiftPeriod(exchange.shiftStartTime) | translate"
+        [shiftPeriod]="
+          'roster.exchanges.period_' + dateFormatter.formatShiftPeriod(exchange.shiftStartTime) | translate
+        "
         [roleName]="'STAFF'"
         [timeRange]="dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
         [offeredBy]="exchange.requesterName"
@@ -85,12 +87,12 @@
 
 @if (isCreateMode()) {
   <coaster-bottom-sheet (closed)="closeModal()">
-      <coaster-create-shift-form
-        [members]="membersList() ?? []"
-        [disabled]="isSubmitting() || list.isLoading()"
-        [(error)]="formError"
-        (createShift)="onShiftSubmit($event)"
-        (canceled)="closeModal()"
-      />
+    <coaster-create-shift-form
+      [members]="membersList() ?? []"
+      [disabled]="isSubmitting() || list.isLoading()"
+      [(error)]="formError"
+      (createShift)="onShiftSubmit($event)"
+      (canceled)="closeModal()"
+    />
   </coaster-bottom-sheet>
 }

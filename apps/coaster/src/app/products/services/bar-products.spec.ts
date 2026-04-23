@@ -16,6 +16,7 @@ describe('BarProducts', () => {
       name: 'Product 1',
       currentStock: 10,
       minStockAlert: 5,
+      stockStatus: 'good',
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -24,6 +25,7 @@ describe('BarProducts', () => {
       name: 'Product 2',
       currentStock: 2,
       minStockAlert: 5,
+      stockStatus: 'low',
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -32,6 +34,7 @@ describe('BarProducts', () => {
       name: 'Product 3',
       currentStock: 0,
       minStockAlert: 5,
+      stockStatus: 'critical',
       lastUpdated: new Date().toISOString(),
     },
   ];

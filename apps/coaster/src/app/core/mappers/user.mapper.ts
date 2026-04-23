@@ -2,7 +2,13 @@ import { User } from '@coaster/interfaces';
 
 export const checkIsUser = (user: unknown): user is User => {
   return (
-    typeof user === 'object' && user !== null && 'id' in user && 'email' in user && 'name' in user && 'active' in user
+    typeof user === 'object' &&
+    user !== null &&
+    'id' in user &&
+    'email' in user &&
+    'name' in user &&
+    'active' in user &&
+    'photoUrl' in user
   );
 };
 
@@ -11,12 +17,13 @@ export const userMapper = (user: unknown): User => {
     throw new Error('Invalid user');
   }
 
-  const { id, email, name, active } = user;
+  const { id, email, name, active, photoUrl } = user;
 
   return {
     id,
     email,
     name,
     active,
+    photoUrl,
   };
 };

@@ -4,7 +4,7 @@ import { BarId, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/interf
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ApiError, CurrentUser, DateFormatterService, prepareDefaultProfileImage } from '../../../../core';
+import { ApiError, CurrentUser, DateFormatterService } from '../../../../core';
 import { AcceptExchange, BarExchanges, ExchangeRequestCard, RequestExchange } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
@@ -74,11 +74,7 @@ export default class Roster {
 
   protected readonly dailyShifts = computed(() => {
     if (!this.list.hasValue()) return [];
-
-    return this.list.value().map((shift) => ({
-      ...shift,
-      profileImage: shift.userImage || this.#getProfileImage(shift.userName),
-    }));
+    return this.list.value();
   });
 
   protected readonly pendingExchangesList = computed(() => {
@@ -152,10 +148,6 @@ export default class Roster {
         this.#barExchanges.reload();
       },
     );
-  }
-
-  #getProfileImage(name?: string) {
-    return prepareDefaultProfileImage(undefined, name ?? this.translate.instant('roster.unassigned'));
   }
 
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {

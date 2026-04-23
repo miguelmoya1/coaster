@@ -13,6 +13,7 @@ describe('EditProductForm', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
+    stockStatus: 'good',
     lastUpdated: '2022-01-01T00:00:00.000Z',
   };
 

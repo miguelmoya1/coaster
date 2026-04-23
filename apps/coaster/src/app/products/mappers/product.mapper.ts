@@ -9,7 +9,8 @@ export const checkIsProduct = (product: unknown): product is Product => {
     typeof p['categoryId'] === 'string' &&
     typeof p['name'] === 'string' &&
     typeof p['currentStock'] === 'number' &&
-    typeof p['minStockAlert'] === 'number'
+    typeof p['minStockAlert'] === 'number' &&
+    typeof p['stockStatus'] === 'string'
   );
 };
 

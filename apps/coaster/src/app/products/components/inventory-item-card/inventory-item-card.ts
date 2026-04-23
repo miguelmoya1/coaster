@@ -2,9 +2,8 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil } from '@ng-icons/lucide';
+import { StockStatus } from '@coaster/interfaces';
 import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
-
-export type InventoryStatus = 'critical' | 'low' | 'good';
 
 @Component({
   selector: 'coaster-inventory-item-card',
@@ -54,7 +53,7 @@ export class InventoryItemCard {
   // readonly locationText = input.required<string>();
   readonly qty = input.required<number>();
   readonly icon = input('lucidePackage');
-  readonly statusLevel = input<InventoryStatus>('good');
+  readonly statusLevel = input<StockStatus>('good');
   readonly disabled = input(false);
   readonly showEditButton = input(false);
   readonly editClicked = output<void>();

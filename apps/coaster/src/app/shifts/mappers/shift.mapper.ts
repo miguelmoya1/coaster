@@ -7,7 +7,8 @@ export const checkIsShift = (shift: unknown): shift is Shift => {
     'id' in shift &&
     'startTime' in shift &&
     'endTime' in shift &&
-    'userName' in shift
+    'userName' in shift &&
+    'userImage' in shift
   );
 };
 

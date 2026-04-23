@@ -44,7 +44,7 @@
     <coaster-inventory-item-card
       [itemName]="product.name"
       [qty]="product.currentStock"
-      [statusLevel]="product.status"
+      [statusLevel]="product.stockStatus"
       [showEditButton]="currentUserRole() === 'OWNER'"
       (click)="onProductClicked(product)"
       (editClicked)="onEditProductClicked(product)"

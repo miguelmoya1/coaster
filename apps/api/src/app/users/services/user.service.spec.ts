@@ -52,7 +52,7 @@ describe('UserService', () => {
     });
   });
 
-  it('should map null googleId and photoUrl to undefined', async () => {
+  it('should map null googleId to undefined and null photoUrl to fallback avatar', async () => {
     repository.getById.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -67,7 +67,7 @@ describe('UserService', () => {
     const result = await service.getById(asUserId('user-1'));
 
     expect(result?.googleId).toBeUndefined();
-    expect(result?.photoUrl).toBeUndefined();
+    expect(result?.photoUrl).toBe('https://ui-avatars.com/api/?name=Test&background=0F172A&color=fff');
   });
 
   it('should update the user correctly', async () => {

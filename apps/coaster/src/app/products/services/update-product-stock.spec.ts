@@ -14,6 +14,7 @@ describe('UpdateProduct', () => {
     name: 'Beer',
     currentStock: 10,
     minStockAlert: 5,
+    stockStatus: 'good',
     lastUpdated: new Date().toISOString(),
   };
 

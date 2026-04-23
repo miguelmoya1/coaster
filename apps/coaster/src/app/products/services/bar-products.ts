@@ -36,7 +36,7 @@ export class BarProducts {
 
   public readonly lowStock = computed(() => {
     if (this.#all.hasValue()) {
-      return this.#all.value()?.filter((p) => p.currentStock < p.minStockAlert && p.currentStock > 0).length ?? 0;
+      return this.#all.value()?.filter((p) => p.stockStatus === 'low').length ?? 0;
     }
 
     return undefined;
@@ -44,7 +44,7 @@ export class BarProducts {
 
   public readonly criticalStock = computed(() => {
     if (this.#all.hasValue()) {
-      return this.#all.value()?.filter((p) => p.currentStock <= 0).length ?? 0;
+      return this.#all.value()?.filter((p) => p.stockStatus === 'critical').length ?? 0;
     }
 
     return undefined;

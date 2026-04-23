@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiError, CurrentUser, prepareDefaultProfileImage } from '../../../../core';
+import { ApiError, CurrentUser } from '../../../../core';
 import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard } from '../../../../members';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
@@ -36,11 +36,7 @@ export default class Staff {
 
   protected readonly members = computed(() => {
     if (!this.list.hasValue()) return [];
-
-    return this.list.value().map((member) => ({
-      ...member,
-      profileImage: this.#getProfileImage(member.userImage, member.userName),
-    }));
+    return this.list.value();
   });
   protected readonly currentUserRole = computed(() => {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
@@ -68,10 +64,6 @@ export default class Staff {
         this.closeModal();
       },
     );
-  }
-
-  #getProfileImage(profileImage: string, userName: string) {
-    return prepareDefaultProfileImage(profileImage, userName);
   }
 
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
