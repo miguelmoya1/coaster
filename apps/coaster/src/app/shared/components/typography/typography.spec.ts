@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CoasterTitle, CoasterLabel } from './typography';
 
 @Component({
-  standalone: true,
   imports: [CoasterTitle, CoasterLabel],
   template: `
     <h1 coaster-title>Page Title</h1>

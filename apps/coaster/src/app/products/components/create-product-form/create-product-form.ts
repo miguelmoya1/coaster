@@ -6,7 +6,6 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
 
 @Component({
   selector: 'coaster-create-product-form',
-  standalone: true,
   imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">

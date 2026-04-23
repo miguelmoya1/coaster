@@ -6,7 +6,6 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-create-category-form',
-  standalone: true,
   imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">

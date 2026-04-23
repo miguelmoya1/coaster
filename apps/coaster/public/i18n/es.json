@@ -94,7 +94,12 @@
       "critical": "Críticos",
       "alerts": "Alertas"
     },
-    "update_stock": "Actualizar Stock",
+    "update_product": {
+      "title": "Actualizar Producto",
+      "current_stock_label": "Stock Actual",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Actualizar Stock"
+    },
     "inventory_title": "Inventario Activo"
   },
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",

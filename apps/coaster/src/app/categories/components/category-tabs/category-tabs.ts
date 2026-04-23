@@ -13,28 +13,17 @@ export interface CategoryTab {
     <div ngTabs>
       <nav ngTabList class="flex overflow-x-auto hide-scrollbar gap-2 py-2">
         @for (tab of tabs(); track tab.id) {
-          @if (selectedTabId() === tab.id) {
-            <button
-              ngTab
-              [value]="tab.id"
-              [disabled]="disabled()"
-              (click)="selectTab(tab.id)"
-              class="px-6 py-3 bg-primary text-on-primary-fixed rounded-full font-bold text-sm whitespace-nowrap shadow-lg transition-all active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
-            >
-              {{ tab.label }}
-            </button>
-          } @else {
-            <button
-              ngTab
-              [value]="tab.id"
-              [disabled]="disabled()"
-              (click)="selectTab(tab.id)"
-              class="px-6 py-3 bg-surface-container-highest text-on-surface-variant hover:text-white rounded-full font-bold text-sm whitespace-nowrap transition-all active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
-            >
-              {{ tab.label }}
-            </button>
-          }
-        }
+          <button
+            ngTab
+            [value]="tab.id"
+            [disabled]="disabled()"
+            (click)="selectTab(tab.id)"
+            class="px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap transition-all active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
+            [class]="selectedTabId() === tab.id ? 'bg-primary text-on-primary-fixed shadow-lg' : 'bg-surface-container-highest text-on-surface-variant hover:text-white'"
+          >
+            {{ tab.label }}
+          </button>
+        } 
       </nav>
     </div>
   `,

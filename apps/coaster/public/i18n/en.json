@@ -94,7 +94,12 @@
       "critical": "Critical",
       "alerts": "Alerts"
     },
-    "update_stock": "Update Stock",
+    "update_product": {
+      "title": "Update Product",
+      "current_stock_label": "Current Stock",
+      "cancel_btn": "Cancel",
+      "submit_btn": "Update Stock"
+    },
     "inventory_title": "Active Inventory"
   },
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",

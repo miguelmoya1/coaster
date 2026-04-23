@@ -10,18 +10,18 @@ import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
   template: `
     <div class="px-6 pb-6 pt-6">
       <h2 class="text-xl font-bold mb-4 text-on-surface">
-        {{ 'pantry.update_stock' | translate }} - {{ product().name }}
+        {{ 'pantry.update_product.title' | translate }} - {{ product().name }}
       </h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">
           <coaster-number-input
             [formField]="form.currentStock"
-            [label]="'pantry.create_product.current_stock_label' | translate"
+            [label]="'pantry.update_product.current_stock_label' | translate"
             showControls
           />
 
           @if (error(); as err) {
-            <coaster-form-field-messages [invalid]="true" [errors]="[{ message: err | translate, kind: '' }]" />
+            <coaster-form-field-messages invalid [errors]="[{ message: err | translate, kind: '' }]" />
           }
 
           <div class="flex justify-end mt-4 gap-2">
@@ -33,11 +33,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
               [disabled]="disabled()"
               (click)="canceled.emit()"
             >
-              {{ 'pantry.create_product.cancel_btn' | translate }}
+              {{ 'pantry.update_product.cancel_btn' | translate }}
             </button>
 
             <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-              Guardar Stock
+              {{ 'pantry.update_product.submit_btn' | translate }}
             </button>
           </div>
         </div>
