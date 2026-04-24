@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
 import { TranslateModule } from '@ngx-translate/core';
+import { vi } from 'vitest';
 import { UpdateProductForm } from './update-product-form';
 
 describe('UpdateProductForm', () => {
   let component: UpdateProductForm;
   let fixture: ComponentFixture<UpdateProductForm>;
+  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockProduct: Product = {
     id: asProductId('prod-1'),
@@ -18,6 +20,8 @@ describe('UpdateProductForm', () => {
   };
 
   beforeEach(async () => {
+    mockSubmitAction = vi.fn().mockResolvedValue(null);
+
     await TestBed.configureTestingModule({
       imports: [UpdateProductForm, TranslateModule.forRoot()],
     }).compileComponents();
@@ -27,6 +31,7 @@ describe('UpdateProductForm', () => {
 
     fixture.componentRef.setInput('product', mockProduct);
     fixture.componentRef.setInput('disabled', false);
+    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -52,9 +57,7 @@ describe('UpdateProductForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should emit updateStock when form is submitted', async () => {
-      const spy = vi.spyOn(component.updateStock, 'emit');
-
+    it('should call submitAction when form is submitted', async () => {
       component.form.currentStock().value.set(15);
       fixture.detectChanges();
 
@@ -67,7 +70,7 @@ describe('UpdateProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(spy).toHaveBeenCalledWith({
+      expect(mockSubmitAction).toHaveBeenCalledWith({
         currentStock: 15,
       });
     });

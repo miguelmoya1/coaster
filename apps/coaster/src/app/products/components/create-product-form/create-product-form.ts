@@ -1,5 +1,5 @@
-import { Component, computed, input, model, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
+import { Component, computed, input, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, min, minLength, required, TreeValidationResult } from '@angular/forms/signals';
 import { asCategoryId, Category, CreateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
@@ -35,8 +35,8 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
           showControls
         />
 
-        @if (error(); as error) {
-          <coaster-form-field-messages [invalid]="true" [errors]="[{ message: error | translate, kind: '' }]" />
+        @if (form().errors().length > 0) {
+          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
         }
 
         <div class="flex justify-end mt-4 gap-2">
@@ -60,13 +60,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
   `,
 })
 export class CreateProductForm {
-  public readonly categories = input.required<Category[]>();
+  readonly categories = input.required<Category[]>();
+  readonly disabled = input.required<boolean>();
+  readonly submitAction = input.required<(payload: CreateProductDto) => Promise<TreeValidationResult>>();
 
-  public readonly createProduct = output<CreateProductDto>();
-  public readonly canceled = output<void>();
-
-  public readonly disabled = input.required<boolean>();
-  public readonly error = model.required<string | undefined>();
+  readonly canceled = output<void>();
 
   readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
@@ -82,7 +80,7 @@ export class CreateProductForm {
     minStockAlert: 5,
   });
 
-  protected readonly form = form(
+  readonly form = form(
     this.#formBase,
     (fields) => {
       required(fields.name);
@@ -101,7 +99,9 @@ export class CreateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          this.createProduct.emit(payload);
+          const action = this.submitAction();
+
+          return await action(payload);
         },
       },
     },

@@ -4,7 +4,7 @@ import { BarId, BarRole, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coast
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiError, CurrentUser, DateFormatterService } from '../../../../core';
+import { ApiError, CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
 import { AcceptExchange, BarExchanges, ExchangeRequestCard, RequestExchange } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
@@ -54,7 +54,7 @@ export default class Roster {
   readonly displayMonthYear = this.#state.displayMonthYear;
   readonly displayToday = this.#state.displayToday;
   readonly scrollerDays = this.#state.scrollerDays;
-  
+
   readonly isSubmitting = signal(false);
   readonly formError = signal<string | undefined>(undefined);
 
@@ -130,7 +130,9 @@ export default class Roster {
     this.#router.navigate(['/bars', this.barId(), 'roster']);
   }
 
-  async onShiftSubmit(payload: CreateShiftDto) {
+  readonly shiftSubmit = async (payload: CreateShiftDto) => {
+    this.isSubmitting.set(true);
+
     const selectedDate = this.#state.selectedDate();
 
     const fullPayload: CreateShiftDto = {
@@ -139,16 +141,18 @@ export default class Roster {
       endTime: this.#dateFormatter.buildIso(selectedDate, payload.endTime),
     };
 
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#createShift.execute(this.barId(), fullPayload);
-      },
-      () => {
-        this.#barShifts.reload();
-        this.closeModal();
-      },
-    );
-  }
+    try {
+      await this.#createShift.execute(this.barId(), fullPayload);
+    } catch (error: unknown) {
+      return handleErrorFormField(error);
+    } finally {
+      this.#barShifts.reload();
+      this.closeModal();
+      this.isSubmitting.set(false);
+    }
+
+    return null;
+  };
 
   async onAcceptExchange(exchangeId: ShiftExchangeId) {
     await this.#handleFormSubmission(
@@ -175,9 +179,9 @@ export default class Roster {
 
   async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
     this.formError.set(undefined);
+    this.isSubmitting.set(true);
 
     try {
-      this.isSubmitting.set(true);
       await action();
       onSuccess();
     } catch (error: unknown) {

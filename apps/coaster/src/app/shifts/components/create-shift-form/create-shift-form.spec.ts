@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/interfaces';
 import { TranslateModule } from '@ngx-translate/core';
+import { vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
 
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;
   let fixture: ComponentFixture<CreateShiftForm>;
+  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockMembers: BarMember[] = [
     {
@@ -21,6 +23,8 @@ describe('CreateShiftForm', () => {
   ];
 
   beforeEach(async () => {
+    mockSubmitAction = vi.fn().mockResolvedValue(null);
+
     await TestBed.configureTestingModule({
       imports: [CreateShiftForm, TranslateModule.forRoot()],
     }).compileComponents();
@@ -30,7 +34,7 @@ describe('CreateShiftForm', () => {
 
     fixture.componentRef.setInput('members', mockMembers);
     fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('error', undefined);
+    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -40,14 +44,6 @@ describe('CreateShiftForm', () => {
   });
 
   describe('rendering', () => {
-    it('should show error message if error input is set', () => {
-      fixture.componentRef.setInput('error', 'test error');
-      fixture.detectChanges();
-
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('test error');
-    });
-
     it('should disable buttons if disabled input is true', async () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
@@ -72,10 +68,7 @@ describe('CreateShiftForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should emit createShift when form is valid and submitted', async () => {
-      const spy = vi.spyOn(component.createShift, 'emit');
-
-      // Accessing form via FieldTree pattern
+    it('should call submitAction when form is valid and submitted', async () => {
       const f = component.form;
       f.userId().value.set('user-1');
       f.startTime().value.set('08:00');
@@ -93,7 +86,7 @@ describe('CreateShiftForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(spy).toHaveBeenCalledWith({
+      expect(mockSubmitAction).toHaveBeenCalledWith({
         userId: 'user-1',
         startTime: '08:00',
         endTime: '16:00',

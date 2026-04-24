@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, Category, Product } from '@coaster/interfaces';
 import { TranslateModule } from '@ngx-translate/core';
+import { vi } from 'vitest';
 import { EditProductForm } from './edit-product-form';
 
 describe('EditProductForm', () => {
   let component: EditProductForm;
   let fixture: ComponentFixture<EditProductForm>;
+  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockProduct: Product = {
     id: asProductId('prod-1'),
@@ -20,6 +22,8 @@ describe('EditProductForm', () => {
   const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
 
   beforeEach(async () => {
+    mockSubmitAction = vi.fn().mockResolvedValue(null);
+
     await TestBed.configureTestingModule({
       imports: [EditProductForm, TranslateModule.forRoot()],
     }).compileComponents();
@@ -30,6 +34,7 @@ describe('EditProductForm', () => {
     fixture.componentRef.setInput('product', mockProduct);
     fixture.componentRef.setInput('categories', mockCategories);
     fixture.componentRef.setInput('disabled', false);
+    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -58,9 +63,7 @@ describe('EditProductForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should emit editProduct when form is valid and submitted', async () => {
-      const spy = vi.spyOn(component.editProduct, 'emit');
-
+    it('should call submitAction when form is valid and submitted', async () => {
       const f = component.form;
       f.name().value.set('Updated Beer');
 
@@ -75,7 +78,7 @@ describe('EditProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(spy).toHaveBeenCalledWith({
+      expect(mockSubmitAction).toHaveBeenCalledWith({
         name: 'Updated Beer',
         categoryId: 'cat-1',
         minStockAlert: 5,

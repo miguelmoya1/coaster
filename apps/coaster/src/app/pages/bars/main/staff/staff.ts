@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiError, CurrentUser } from '../../../../core';
+import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard } from '../../../../members';
 import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
 
@@ -31,7 +31,6 @@ export default class Staff {
     this.#router,
   );
   protected readonly isSubmitting = signal(false);
-  protected readonly formError = signal<string | undefined>(undefined);
   protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
 
   protected readonly members = computed(() => {
@@ -50,32 +49,22 @@ export default class Staff {
   }
 
   protected closeModal() {
-    this.formError.set(undefined);
     this.#router.navigate(['/bars', this.barId(), 'staff']);
   }
 
-  protected async inviteMember(payload: InviteBarMemberDto) {
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#inviteMember.invite(this.barId(), payload);
-      },
-      () => {
-        this.#barMembers.reload();
-        this.closeModal();
-      },
-    );
-  }
+  readonly inviteMemberSubmit = async (payload: InviteBarMemberDto) => {
+    this.isSubmitting.set(true);
 
-  async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
-    this.formError.set(undefined);
     try {
-      this.isSubmitting.set(true);
-      await action();
-      onSuccess();
+      await this.#inviteMember.invite(this.barId(), payload);
     } catch (error: unknown) {
-      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
+      return handleErrorFormField(error);
     } finally {
+      this.#barMembers.reload();
+      this.closeModal();
       this.isSubmitting.set(false);
     }
-  }
+
+    return null;
+  };
 }

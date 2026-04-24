@@ -24,10 +24,9 @@
 @if (isInviteMode()) {
   <coaster-bottom-sheet (closed)="closeModal()">
     <coaster-invite-member-form
-      (inviteMember)="inviteMember($event)"
       [disabled]="list.isLoading() || isSubmitting()"
-      [(error)]="formError"
       (canceled)="closeModal()"
+      [submitAction]="inviteMemberSubmit"
     />
   </coaster-bottom-sheet>
 }

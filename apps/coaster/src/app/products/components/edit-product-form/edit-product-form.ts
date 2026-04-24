@@ -1,5 +1,5 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, maxLength, min, minLength, required, TreeValidationResult } from '@angular/forms/signals';
 import { asCategoryId, Category, Product, UpdateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
@@ -29,8 +29,8 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
           showControls
         />
 
-        @if (error(); as error) {
-          <coaster-form-field-messages [invalid]="true" [errors]="[{ message: error | translate, kind: '' }]" />
+        @if (form().errors().length > 0) {
+          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
         }
 
         <div class="flex justify-end mt-4 gap-2">
@@ -45,21 +45,21 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             {{ 'pantry.create_product.cancel_btn' | translate }}
           </button>
 
-          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">Guardar</button>
+          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+            {{ 'pantry.create_product.submit_btn' | translate }}
+          </button>
         </div>
       </div>
     </form>
   `,
 })
 export class EditProductForm {
-  public readonly product = input.required<Product>();
-  public readonly categories = input.required<Category[]>();
+  readonly product = input.required<Product>();
+  readonly categories = input.required<Category[]>();
+  readonly disabled = input.required<boolean>();
+  readonly submitAction = input.required<(payload: UpdateProductDto) => Promise<TreeValidationResult>>();
 
-  public readonly editProduct = output<UpdateProductDto>();
-  public readonly canceled = output<void>();
-
-  public readonly disabled = input.required<boolean>();
-  public readonly error = input<string | undefined>();
+  readonly canceled = output<void>();
 
   readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
@@ -90,7 +90,9 @@ export class EditProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          this.editProduct.emit(payload);
+          const action = this.submitAction();
+
+          return await action(payload);
         },
       },
     },

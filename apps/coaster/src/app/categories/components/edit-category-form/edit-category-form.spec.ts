@@ -8,6 +8,8 @@ import { EditCategoryForm } from './edit-category-form';
 describe('EditCategoryForm', () => {
   let fixture: ComponentFixture<EditCategoryForm>;
   let component: EditCategoryForm;
+  let mockSubmitAction: ReturnType<typeof vi.fn>;
+
   const mockCategory: Category = {
     id: asCategoryId('cat-1'),
     barId: asBarId('bar-1'),
@@ -16,6 +18,8 @@ describe('EditCategoryForm', () => {
   };
 
   beforeEach(async () => {
+    mockSubmitAction = vi.fn().mockResolvedValue(null);
+
     await TestBed.configureTestingModule({
       imports: [EditCategoryForm],
       providers: [provideZonelessChangeDetection(), provideTranslateService()],
@@ -26,7 +30,7 @@ describe('EditCategoryForm', () => {
 
     fixture.componentRef.setInput('category', mockCategory);
     fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('error', undefined);
+    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -67,27 +71,7 @@ describe('EditCategoryForm', () => {
     });
   });
 
-  describe('error input', () => {
-    it('should default to undefined', () => {
-      expect(component.error()).toBeUndefined();
-    });
-
-    it('should accept an error input', () => {
-      fixture.componentRef.setInput('error', 'Some error');
-      fixture.detectChanges();
-
-      expect(component.error()).toBe('Some error');
-    });
-  });
-
   describe('outputs', () => {
-    it('should emit editCategory output', () => {
-      const spy = vi.fn();
-      component.editCategory.subscribe(spy);
-
-      expect(spy).not.toHaveBeenCalled();
-    });
-
     it('should emit canceled output', () => {
       const spy = vi.fn();
       component.canceled.subscribe(spy);
@@ -103,14 +87,14 @@ describe('EditCategoryForm', () => {
 
     it('should render the cancel button', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const cancelBtn = Array.from(buttons).find((btn: any) => btn.getAttribute('type') === 'button');
+      const cancelBtn = Array.from(buttons).find((btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'button');
 
       expect(cancelBtn).toBeTruthy();
     });
 
     it('should render the submit button', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const submitBtn = Array.from(buttons).find((btn: any) => btn.getAttribute('type') === 'submit');
+      const submitBtn = Array.from(buttons).find((btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'submit');
 
       expect(submitBtn).toBeTruthy();
     });

@@ -1,5 +1,5 @@
-import { Component, input, model, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { Component, input, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, minLength, required, TreeValidationResult } from '@angular/forms/signals';
 import { CreateCategoryDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
@@ -22,8 +22,8 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
           [placeholder]="'pantry.create_category.icon_placeholder' | translate"
         />
 
-        @if (error(); as error) {
-          <coaster-form-field-messages [invalid]="true" [errors]="[{ message: error | translate, kind: '' }]" />
+        @if (form().errors().length > 0) {
+          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
         }
 
         <div class="flex justify-end mt-4 gap-2">
@@ -47,18 +47,17 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
   `,
 })
 export class CreateCategoryForm {
-  public readonly createCategory = output<CreateCategoryDto>();
-  public readonly canceled = output<void>();
+  readonly disabled = input.required<boolean>();
+  readonly submitAction = input.required<(payload: CreateCategoryDto) => Promise<TreeValidationResult>>();
 
-  public readonly disabled = input.required<boolean>();
-  public readonly error = model.required<string | undefined>();
+  readonly canceled = output<void>();
 
   readonly #formBase = signal<Required<CreateCategoryDto>>({
     name: '',
     icon: '',
   });
 
-  protected readonly form = form(
+  readonly form = form(
     this.#formBase,
     (fields) => {
       required(fields.name);
@@ -69,7 +68,9 @@ export class CreateCategoryForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          this.createCategory.emit(payload);
+          const action = this.submitAction();
+
+          return await action(payload);
         },
       },
     },

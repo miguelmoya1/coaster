@@ -63,8 +63,7 @@
     <coaster-update-product-form
       [product]="product"
       [disabled]="isSubmitting()"
-      [error]="formError()"
-      (updateStock)="onUpdateStockSubmit($event)"
+      [submitAction]="updateStockSubmit"
       (canceled)="unselectProduct()"
     />
   </coaster-bottom-sheet>
@@ -78,8 +77,7 @@
         [product]="product"
         [categories]="categories.value() ?? []"
         [disabled]="isSubmitting()"
-        [error]="formError()"
-        (editProduct)="onEditProductSubmit($event)"
+        [submitAction]="editProductSubmit"
         (canceled)="unselectProductToEdit()"
       />
     </div>
@@ -93,8 +91,7 @@
       <coaster-edit-category-form
         [category]="category"
         [disabled]="isSubmitting()"
-        [(error)]="formError"
-        (editCategory)="onEditCategorySubmit($event)"
+        [submitAction]="editCategorySubmit"
         (canceled)="unselectCategoryToEdit()"
       />
     </div>
@@ -131,20 +128,18 @@
           <coaster-create-product-form
             [categories]="categories.value() ?? []"
             [disabled]="isSubmitting() || products.isLoading()"
-            [(error)]="formError"
-            (createProduct)="onProductSubmit($event)"
+            [submitAction]="productSubmit"
             (canceled)="closeModal()"
           />
         }
         @case ('CATEGORY') {
           <coaster-create-category-form
             [disabled]="isSubmitting() || categories.isLoading()"
-            [(error)]="formError"
-            (createCategory)="onCategorySubmit($event)"
+            [submitAction]="categorySubmit"
             (canceled)="closeModal()"
           />
         }
-        <!-- @default never; -->
+        @default never;
       }
     </div>
   </coaster-bottom-sheet>

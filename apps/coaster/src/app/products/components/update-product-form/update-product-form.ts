@@ -1,5 +1,5 @@
 import { Component, effect, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, min, required, TreeValidationResult } from '@angular/forms/signals';
 import { Product, UpdateProductStockDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
@@ -20,8 +20,8 @@ import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
             showControls
           />
 
-          @if (error(); as err) {
-            <coaster-form-field-messages invalid [errors]="[{ message: err | translate, kind: '' }]" />
+          @if (form().errors().length > 0) {
+            <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
           }
 
           <div class="flex justify-end mt-4 gap-2">
@@ -46,13 +46,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
   `,
 })
 export class UpdateProductForm {
-  public readonly product = input.required<Product>();
+  readonly product = input.required<Product>();
+  readonly disabled = input(false);
+  readonly submitAction = input.required<(payload: UpdateProductStockDto) => Promise<TreeValidationResult>>();
 
-  public readonly updateStock = output<UpdateProductStockDto>();
-  public readonly canceled = output<void>();
-
-  public readonly disabled = input(false);
-  public readonly error = input<string | undefined>();
+  readonly canceled = output<void>();
 
   readonly #formBase = signal<{ currentStock: number }>({
     currentStock: 0,
@@ -68,7 +66,9 @@ export class UpdateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          this.updateStock.emit(payload);
+          const action = this.submitAction();
+
+          return await action(payload);
         },
       },
     },

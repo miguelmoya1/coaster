@@ -8,6 +8,7 @@ import {
   Product,
   UpdateCategoryDto,
   UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/interfaces';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
@@ -20,7 +21,7 @@ import {
   EditCategory,
   EditCategoryForm,
 } from '../../../../categories';
-import { ApiError, CurrentUser } from '../../../../core';
+import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import {
   BarProducts,
@@ -83,7 +84,6 @@ export default class Pantry {
 
   protected readonly currentFormTab = signal<'PRODUCT' | 'CATEGORY'>('PRODUCT');
   protected readonly isSubmitting = signal(false);
-  protected readonly formError = signal<string | undefined>(undefined);
   protected readonly selectedCategoryId = signal<string>('ALL');
   protected readonly productSelected = signal<Product | null>(null);
   protected readonly productToEdit = signal<Product | null>(null);
@@ -154,91 +154,97 @@ export default class Pantry {
     }
   }
 
-  protected async onUpdateStockSubmit(payload: { currentStock: number }) {
-    const product = this.productSelected();
-    if (!product) return;
-
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#updateProductStock.update(this.barId(), product.id, payload);
-      },
-      () => {
-        this.#productsService.reload();
-        this.productSelected.set(null);
-      },
-    );
-  }
-
   protected closeModal() {
-    this.formError.set(undefined);
     this.currentFormTab.set('PRODUCT');
     this.#router.navigate(['/bars', this.barId(), 'pantry']);
   }
 
-  protected async onProductSubmit(payload: CreateProductDto) {
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#createProduct.create(this.barId(), payload);
-      },
-      () => {
-        this.#productsService.reload();
-        this.closeModal();
-      },
-    );
-  }
+  readonly updateStockSubmit = async (payload: UpdateProductStockDto) => {
+    const product = this.productSelected();
+    if (!product) return null;
 
-  protected async onCategorySubmit(payload: CreateCategoryDto) {
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#createCategory.create(this.barId(), payload);
-      },
-      () => {
-        this.#categoriesService.reload();
-        this.closeModal();
-      },
-    );
-  }
+    this.isSubmitting.set(true);
 
-  protected async onEditProductSubmit(payload: UpdateProductDto) {
-    const product = this.productToEdit();
-    if (!product) return;
-
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#editProduct.edit(this.barId(), product.id, payload);
-      },
-      () => {
-        this.#productsService.reload();
-        this.productToEdit.set(null);
-      },
-    );
-  }
-
-  protected async onEditCategorySubmit(payload: UpdateCategoryDto) {
-    const category = this.categoryToEdit();
-    if (!category) return;
-
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#editCategory.edit(this.barId(), category.id, payload);
-      },
-      () => {
-        this.#categoriesService.reload();
-        this.categoryToEdit.set(null);
-      },
-    );
-  }
-
-  async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
-    this.formError.set(undefined);
     try {
-      this.isSubmitting.set(true);
-      await action();
-      onSuccess();
+      await this.#updateProductStock.update(this.barId(), product.id, payload);
     } catch (error: unknown) {
-      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
+      return handleErrorFormField(error);
     } finally {
+      this.#productsService.reload();
+      this.productSelected.set(null);
       this.isSubmitting.set(false);
     }
-  }
+
+    return null;
+  };
+
+  readonly productSubmit = async (payload: CreateProductDto) => {
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#createProduct.create(this.barId(), payload);
+    } catch (error: unknown) {
+      return handleErrorFormField(error);
+    } finally {
+      this.#productsService.reload();
+      this.closeModal();
+      this.isSubmitting.set(false);
+    }
+
+    return null;
+  };
+
+  readonly categorySubmit = async (payload: CreateCategoryDto) => {
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#createCategory.create(this.barId(), payload);
+    } catch (error: unknown) {
+      return handleErrorFormField(error);
+    } finally {
+      this.#categoriesService.reload();
+      this.closeModal();
+      this.isSubmitting.set(false);
+    }
+
+    return null;
+  };
+
+  readonly editProductSubmit = async (payload: UpdateProductDto) => {
+    const product = this.productToEdit();
+    if (!product) return null;
+
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#editProduct.edit(this.barId(), product.id, payload);
+    } catch (error: unknown) {
+      return handleErrorFormField(error);
+    } finally {
+      this.#productsService.reload();
+      this.productToEdit.set(null);
+      this.isSubmitting.set(false);
+    }
+
+    return null;
+  };
+
+  readonly editCategorySubmit = async (payload: UpdateCategoryDto) => {
+    const category = this.categoryToEdit();
+    if (!category) return null;
+
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#editCategory.edit(this.barId(), category.id, payload);
+    } catch (error: unknown) {
+      return handleErrorFormField(error);
+    } finally {
+      this.#categoriesService.reload();
+      this.categoryToEdit.set(null);
+      this.isSubmitting.set(false);
+    }
+
+    return null;
+  };
 }

@@ -86,9 +86,8 @@
     <coaster-create-shift-form
       [members]="membersList() ?? []"
       [disabled]="isSubmitting() || list.isLoading()"
-      [(error)]="formError"
-      (createShift)="onShiftSubmit($event)"
       (canceled)="closeModal()"
+      [submitAction]="shiftSubmit"
     />
   </coaster-bottom-sheet>
 }

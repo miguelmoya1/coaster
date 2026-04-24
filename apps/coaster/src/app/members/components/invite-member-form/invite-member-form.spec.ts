@@ -1,12 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { vi } from 'vitest';
 import { InviteMemberForm } from './invite-member-form';
 
 describe('InviteMemberForm', () => {
   let component: InviteMemberForm;
   let fixture: ComponentFixture<InviteMemberForm>;
+  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    mockSubmitAction = vi.fn().mockResolvedValue(null);
+
     await TestBed.configureTestingModule({
       imports: [InviteMemberForm, TranslateModule.forRoot()],
     }).compileComponents();
@@ -14,7 +18,7 @@ describe('InviteMemberForm', () => {
     fixture = TestBed.createComponent(InviteMemberForm);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('error', undefined);
+    fixture.componentRef.setInput('submitAction', mockSubmitAction);
     fixture.detectChanges();
   });
 
@@ -23,14 +27,6 @@ describe('InviteMemberForm', () => {
   });
 
   describe('rendering', () => {
-    it('should show error message if error input is set', () => {
-      fixture.componentRef.setInput('error', 'test error');
-      fixture.detectChanges();
-
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('test error');
-    });
-
     it('should disable buttons if disabled input is true', () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
@@ -52,9 +48,7 @@ describe('InviteMemberForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should emit inviteMember when form is valid and submitted', async () => {
-      const spy = vi.spyOn(component.inviteMember, 'emit');
-
+    it('should call submitAction when form is valid and submitted', async () => {
       // Set value via DOM to ensure typical interaction flow
       const input = fixture.nativeElement.querySelector('input');
       input.value = 'test@test.com';
@@ -67,7 +61,7 @@ describe('InviteMemberForm', () => {
       // Wait for async form submission
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(spy).toHaveBeenCalledWith({ email: 'test@test.com' });
+      expect(mockSubmitAction).toHaveBeenCalledWith({ email: 'test@test.com' });
     });
   });
 });
