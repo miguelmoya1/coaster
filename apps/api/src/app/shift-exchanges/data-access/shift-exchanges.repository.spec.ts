@@ -70,6 +70,10 @@ describe('ShiftExchangesRepository', () => {
           target: { connect: { id: 'target' } },
           status: ShiftExchangeStatus.PENDING,
         },
+        include: {
+          shift: true,
+          requester: { select: { id: true, name: true } },
+        },
       });
       expect(result).toEqual({ id: 'exc-1' });
     });

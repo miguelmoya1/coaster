@@ -19,22 +19,24 @@ export class ShiftExchangesController {
 
   @Post('shifts/:shiftId/exchanges')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  createExchange(
+  async createExchange(
     @Param('barId') barId: BarId,
     @Param('shiftId') shiftId: ShiftId,
     @Body() dto: CreateShiftExchangeDto,
     @CurrentUser() user: User,
   ) {
-    return this._shiftExchangesService.requestExchange(barId, shiftId, asUserId(user.id), dto);
+    const exchange = await this._shiftExchangesService.requestExchange(barId, shiftId, asUserId(user.id), dto);
+    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 
   @Patch('exchanges/:exchangeId/accept')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  acceptExchange(
+  async acceptExchange(
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
   ) {
-    return this._shiftExchangesService.acceptExchange(barId, exchangeId, asUserId(user.id));
+    const exchange = await this._shiftExchangesService.acceptExchange(barId, exchangeId, asUserId(user.id));
+    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 }

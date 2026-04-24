@@ -25,6 +25,10 @@ export class ShiftExchangesRepository {
         ...(targetId ? { target: { connect: { id: targetId } } } : {}),
         status: ShiftExchangeStatus.PENDING,
       },
+      include: {
+        shift: true,
+        requester: { select: { id: true, name: true } },
+      },
     });
   }
 
@@ -63,7 +67,7 @@ export class ShiftExchangesRepository {
       this.prisma.shiftExchange.update({
         where: { id: exchangeId },
         data: { status: ShiftExchangeStatus.APPROVED, targetId: newUserId },
-        include: { shift: true },
+        include: { shift: true, requester: { select: { id: true, name: true } } },
       }),
       this.prisma.shift.update({
         where: { id: shiftId },

@@ -4,7 +4,7 @@ import { BarId, BarRole, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coast
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApiError, CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
+import { CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
 import { AcceptExchange, BarExchanges, ExchangeRequestCard, RequestExchange } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
@@ -56,7 +56,6 @@ export default class Roster {
   readonly scrollerDays = this.#state.scrollerDays;
 
   readonly isSubmitting = signal(false);
-  readonly formError = signal<string | undefined>(undefined);
 
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
@@ -126,7 +125,6 @@ export default class Roster {
   }
 
   closeModal() {
-    this.formError.set(undefined);
     this.#router.navigate(['/bars', this.barId(), 'roster']);
   }
 
@@ -149,7 +147,6 @@ export default class Roster {
     }
 
     this.#barShifts.reload();
-    this.#barExchanges.reload();
     this.closeModal();
     this.isSubmitting.set(false);
 
@@ -157,40 +154,32 @@ export default class Roster {
   };
 
   async onAcceptExchange(exchangeId: ShiftExchangeId) {
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#acceptExchange.execute(this.barId(), exchangeId);
-      },
-      () => {
-        this.#barExchanges.reload();
-        this.#barShifts.reload();
-      },
-    );
-  }
-
-  async onOfferExchange(shiftId: ShiftId) {
-    await this.#handleFormSubmission(
-      async () => {
-        await this.#requestExchange.execute(this.barId(), shiftId, {});
-      },
-      () => {
-        this.#barExchanges.reload();
-        this.#barShifts.reload();
-      },
-    );
-  }
-
-  async #handleFormSubmission(action: () => Promise<void>, onSuccess: () => void) {
-    this.formError.set(undefined);
     this.isSubmitting.set(true);
 
     try {
-      await action();
-      onSuccess();
-    } catch (error: unknown) {
-      this.formError.set(error instanceof ApiError ? error.message : 'UNEXPECTED_ERROR');
-    } finally {
+      await this.#acceptExchange.execute(this.barId(), exchangeId);
+    } catch {
       this.isSubmitting.set(false);
+      return;
     }
+
+    this.#barExchanges.reload();
+    this.#barShifts.reload();
+    this.isSubmitting.set(false);
+  }
+
+  async onOfferExchange(shiftId: ShiftId) {
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#requestExchange.execute(this.barId(), shiftId, {});
+    } catch {
+      this.isSubmitting.set(false);
+      return;
+    }
+
+    this.#barExchanges.reload();
+    this.#barShifts.reload();
+    this.isSubmitting.set(false);
   }
 }
