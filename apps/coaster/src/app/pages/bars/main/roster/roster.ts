@@ -144,12 +144,14 @@ export default class Roster {
     try {
       await this.#createShift.execute(this.barId(), fullPayload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#barShifts.reload();
-      this.closeModal();
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#barShifts.reload();
+    this.#barExchanges.reload();
+    this.closeModal();
+    this.isSubmitting.set(false);
 
     return null;
   };
@@ -173,6 +175,7 @@ export default class Roster {
       },
       () => {
         this.#barExchanges.reload();
+        this.#barShifts.reload();
       },
     );
   }

@@ -28,6 +28,16 @@ export class ShiftExchangesRepository {
     });
   }
 
+  async hasPendingExchangeForShift(shiftId: ShiftId): Promise<boolean> {
+    const count = await this.prisma.shiftExchange.count({
+      where: {
+        shiftId,
+        status: ShiftExchangeStatus.PENDING,
+      },
+    });
+    return count > 0;
+  }
+
   async findPendingByBarId(barId: BarId) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

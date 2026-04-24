@@ -168,12 +168,13 @@ export default class Pantry {
     try {
       await this.#updateProductStock.update(this.barId(), product.id, payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#productsService.reload();
-      this.productSelected.set(null);
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#productsService.reload();
+    this.productSelected.set(null);
+    this.isSubmitting.set(false);
 
     return null;
   };
@@ -184,12 +185,13 @@ export default class Pantry {
     try {
       await this.#createProduct.create(this.barId(), payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#productsService.reload();
-      this.closeModal();
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#productsService.reload();
+    this.closeModal();
+    this.isSubmitting.set(false);
 
     return null;
   };
@@ -200,12 +202,13 @@ export default class Pantry {
     try {
       await this.#createCategory.create(this.barId(), payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#categoriesService.reload();
-      this.closeModal();
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#categoriesService.reload();
+    this.closeModal();
+    this.isSubmitting.set(false);
 
     return null;
   };
@@ -219,12 +222,13 @@ export default class Pantry {
     try {
       await this.#editProduct.edit(this.barId(), product.id, payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#productsService.reload();
-      this.productToEdit.set(null);
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#productsService.reload();
+    this.productToEdit.set(null);
+    this.isSubmitting.set(false);
 
     return null;
   };
@@ -238,12 +242,13 @@ export default class Pantry {
     try {
       await this.#editCategory.edit(this.barId(), category.id, payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#categoriesService.reload();
-      this.categoryToEdit.set(null);
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#categoriesService.reload();
+    this.categoryToEdit.set(null);
+    this.isSubmitting.set(false);
 
     return null;
   };

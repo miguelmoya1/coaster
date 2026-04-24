@@ -17,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       </div>
 
       <div class="flex flex-col justify-center">
-        <p class="label-sm text-on-surface-variant uppercase font-bold">{{ shiftPeriod() }}</p>
+        <p class="label-sm text-on-surface-variant uppercase font-bold">{{ shiftPeriod() | translate }}</p>
         <h4 class="title-lg font-bold">{{ roleName() }}</h4>
         <p class="body-md text-on-surface-variant">{{ timeRange() }}</p>
       </div>

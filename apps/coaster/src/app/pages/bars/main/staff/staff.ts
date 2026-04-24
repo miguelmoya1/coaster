@@ -58,12 +58,13 @@ export default class Staff {
     try {
       await this.#inviteMember.invite(this.barId(), payload);
     } catch (error: unknown) {
-      return handleErrorFormField(error);
-    } finally {
-      this.#barMembers.reload();
-      this.closeModal();
       this.isSubmitting.set(false);
+      return handleErrorFormField(error);
     }
+
+    this.#barMembers.reload();
+    this.closeModal();
+    this.isSubmitting.set(false);
 
     return null;
   };

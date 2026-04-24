@@ -105,6 +105,7 @@
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_NOT_FOUND": "No user registered with that email address.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
+  "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "roster": {
     "title": "Shift Roster",
     "today": "Today",

@@ -29,6 +29,11 @@ export class ShiftExchangesService {
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_SHIFT);
     }
 
+    const hasPending = await this._shiftExchangesRepository.hasPendingExchangeForShift(shiftId);
+    if (hasPending) {
+      throw new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_PENDING);
+    }
+
     return this._shiftExchangesRepository.createExchange(shiftId, requesterId, dto.targetId);
   }
 

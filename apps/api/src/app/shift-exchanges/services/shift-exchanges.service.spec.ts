@@ -25,6 +25,7 @@ describe('ShiftExchangesService', () => {
       createExchange: vi.fn(),
       findPendingByBarId: vi.fn(),
       acceptExchangeAndSwapShift: vi.fn(),
+      hasPendingExchangeForShift: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -86,6 +87,28 @@ describe('ShiftExchangesService', () => {
       ).rejects.toThrow(ErrorCodes.NOT_YOUR_SHIFT);
     });
 
+    it('should fail if the shift already has a pending exchange', async () => {
+      repository.getShiftById.mockResolvedValue({
+        id: 'shift-1',
+        barId: 'bar-1',
+        userId: 'requester-1',
+        createdAt: new Date(),
+        endTime: new Date(),
+        notes: '',
+        startTime: new Date(),
+        updatedAt: new Date(),
+      });
+
+      repository.hasPendingExchangeForShift.mockResolvedValue(true);
+
+      await expect(
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
+      ).rejects.toThrow(ErrorCodes.EXCHANGE_ALREADY_PENDING);
+    });
+
     it('should create the exchange correctly if all rules validate', async () => {
       repository.getShiftById.mockResolvedValue({
         id: 'shift-1',
@@ -97,6 +120,8 @@ describe('ShiftExchangesService', () => {
         startTime: new Date(),
         updatedAt: new Date(),
       });
+
+      repository.hasPendingExchangeForShift.mockResolvedValue(false);
 
       repository.createExchange.mockResolvedValue({
         id: 'exchange-1',
