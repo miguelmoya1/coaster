@@ -2,9 +2,10 @@
   "migrations": [],
   "nx-console": {
     "initialGitRef": {
-      "ref": "4ef37bd77cbbaf2c3fccb11888f89fa24f8f5c3f",
-      "subject": "refactor: rename service methods, improve component test coverage, and standardize repository route testing"
+      "ref": "1462d858e30f3265ede464b86015694dc83e8daf",
+      "subject": "refactor: remove redundant blank lines in staff and roster form submission handlers"
     },
-    "targetVersion": "next"
+    "targetVersion": "next",
+    "confirmedPackageUpdates": true
   }
 }
