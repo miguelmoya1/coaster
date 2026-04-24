@@ -1,7 +1,7 @@
 <div class="flex items-center justify-between mb-4 mt-2">
   <div class="flex flex-col gap-0.5">
     <span class="text-on-surface-variant font-bold uppercase tracking-widest text-sm">
-      {{ state.displayMonthYear() }}
+      {{ displayMonthYear() }}
     </span>
     <h1 coaster-title>{{ 'roster.title' | translate }}</h1>
   </div>
@@ -10,12 +10,12 @@
     <span class="text-on-surface-variant font-bold uppercase tracking-widest text-xs">
       {{ 'roster.today' | translate }}
     </span>
-    <span class="text-white font-bold text-sm"> {{ state.displayToday() }} </span>
+    <span class="text-white font-bold text-sm"> {{ displayToday() }} </span>
   </div>
 </div>
 
 <coaster-horizontal-date-scroller
-  [days]="state.scrollerDays()"
+  [days]="scrollerDays()"
   [selectedDay]="selectedDayId()"
   (daySelected)="onDaySelected($event)"
   class="mb-6"
@@ -30,20 +30,18 @@
   <coaster-loading />
 } @else {
   <div class="flex flex-col gap-3">
-    @if (dailyShifts().length) {
-      @for (shift of dailyShifts(); track shift.id) {
-        <coaster-shift-card
-          [timeRange]="dateFormatter.formatTimeRange(shift.startTime, shift.endTime)"
-          [staffName]="shift.userName || ('roster.unassigned' | translate)"
-          [roleName]="'STAFF'"
-          [staffImage]="shift.userImage"
-          [isOwn]="shift.userId === currentUserId()"
-          [hasPendingExchange]="pendingShiftIds().has(shift.id)"
-          roleColorClass="bg-primary text-primary"
-          (offerExchange)="onOfferExchange(shift.id)"
-        />
-      }
-    } @else {
+    @for (shift of dailyShifts(); track shift.id) {
+      <coaster-shift-card
+        [timeRange]="shift.timeRange"
+        [staffName]="shift.userName || ('roster.unassigned' | translate)"
+        [roleName]="shift.roleName"
+        [staffImage]="shift.userImage"
+        [isOwn]="shift.isOwn"
+        [hasPendingExchange]="shift.hasPendingExchange"
+        roleColorClass="bg-primary text-primary"
+        (offerExchange)="onOfferExchange(shift.id)"
+      />
+    } @empty {
       <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
         {{ 'roster.no_shifts' | translate }}
       </div>
@@ -63,16 +61,14 @@
   <div class="flex flex-col gap-3 pb-24">
     @for (exchange of pendingExchangesList(); track exchange.id) {
       <coaster-exchange-request-card
-        [month]="dateFormatter.formatMonth(exchange.shiftStartTime)"
-        [day]="dateFormatter.formatDay(exchange.shiftStartTime)"
-        [shiftPeriod]="
-          'roster.exchanges.period_' + dateFormatter.formatShiftPeriod(exchange.shiftStartTime) | translate
-        "
-        [roleName]="'STAFF'"
-        [timeRange]="dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime)"
+        [month]="exchange.month"
+        [day]="exchange.day"
+        [shiftPeriod]="exchange.shiftPeriod"
+        [roleName]="exchange.roleName"
+        [timeRange]="exchange.timeRange"
         [offeredBy]="exchange.requesterName"
+        [isOwnRequest]="exchange.isOwnRequest"
         [disabled]="isSubmitting()"
-        [isOwnRequest]="exchange.requesterId === currentUserId()"
         (accepted)="onAcceptExchange(exchange.id)"
       />
     }

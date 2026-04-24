@@ -93,6 +93,7 @@ export class CreateShiftForm {
       submission: {
         action: async (form) => {
           const raw = form().value();
+
           this.createShift.emit({
             userId: asUserId(raw.userId),
             startTime: raw.startTime,
