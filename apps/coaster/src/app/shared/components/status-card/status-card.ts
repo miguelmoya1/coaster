@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
 
@@ -9,7 +9,7 @@ export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
       <div [class]="'absolute top-0 left-0 w-1 h-full ' + statusColorClass()"></div>
     }
 
-    <ng-content></ng-content>
+    <ng-content />
   `,
   host: {
     class: 'bg-surface-container-high p-6 flex flex-col justify-between rounded-xl relative overflow-hidden',
