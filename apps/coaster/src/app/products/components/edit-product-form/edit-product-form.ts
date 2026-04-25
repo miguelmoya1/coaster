@@ -1,5 +1,14 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, min, minLength, required, TreeValidationResult } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  FormRoot,
+  maxLength,
+  min,
+  minLength,
+  required,
+  TreeValidationResult,
+} from '@angular/forms/signals';
 import { asCategoryId, Category, Product, UpdateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
@@ -12,20 +21,20 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
       <div class="flex flex-col gap-4">
         <coaster-text-input
           [formField]="form.name"
-          [label]="'pantry.create_product.name_label' | translate"
-          [placeholder]="'pantry.create_product.name_placeholder' | translate"
+          [label]="'pantry.edit_product.name_label' | translate"
+          [placeholder]="'pantry.edit_product.name_placeholder' | translate"
         />
 
         <coaster-select-input
           [formField]="form.categoryId"
-          [label]="'pantry.create_product.category_label' | translate"
+          [label]="'pantry.edit_product.category_label' | translate"
           [options]="categoryOptions()"
-          [placeholder]="'pantry.create_product.category_placeholder' | translate"
+          [placeholder]="'pantry.edit_product.category_placeholder' | translate"
         />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
-          [label]="'pantry.create_product.min_stock_label' | translate"
+          [label]="'pantry.edit_product.min_stock_label' | translate"
           showControls
         />
 
@@ -42,11 +51,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             [disabled]="disabled()"
             (click)="canceled.emit()"
           >
-            {{ 'pantry.create_product.cancel_btn' | translate }}
+            {{ 'pantry.edit_product.cancel_btn' | translate }}
           </button>
 
           <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-            {{ 'pantry.create_product.submit_btn' | translate }}
+            {{ 'pantry.edit_product.submit_btn' | translate }}
           </button>
         </div>
       </div>

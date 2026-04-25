@@ -71,6 +71,27 @@
     "all": "Todos",
     "product": "Producto",
     "category": "Categoría",
+    "inventory_title": "Inventario Activo",
+    "total": "Total",
+    "critical": "Críticos",
+    "alerts": "Alertas",
+
+    "create_category": {
+      "name_label": "Nombre de la Categoría",
+      "name_placeholder": "Ej. Licores",
+      "icon_label": "Icono (Opcional)",
+      "icon_placeholder": "Ej. lucideGlass",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Crear Categoría"
+    },
+    "edit_category": {
+      "name_label": "Nombre de la Categoría",
+      "name_placeholder": "Ej. Licores",
+      "icon_label": "Icono (Opcional)",
+      "icon_placeholder": "Ej. lucideGlass",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Actualizar Categoría"
+    },
     "create_product": {
       "name_label": "Nombre del Producto",
       "name_placeholder": "Ej. Absolut Vodka",
@@ -81,31 +102,21 @@
       "cancel_btn": "Cancelar",
       "submit_btn": "Crear Producto"
     },
-    "create_category": {
-      "name_label": "Nombre de la Categoría",
-      "name_placeholder": "Ej. Licores",
-      "icon_label": "Icono (Opcional)",
-      "icon_placeholder": "Ej. lucideGlass",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Crear Categoría"
-    },
-    "stats": {
-      "total": "Total",
-      "critical": "Críticos",
-      "alerts": "Alertas"
-    },
     "update_product": {
-      "title": "Actualizar Producto",
       "current_stock_label": "Stock Actual",
       "cancel_btn": "Cancelar",
       "submit_btn": "Actualizar Stock"
     },
-    "inventory_title": "Inventario Activo"
+    "edit_product": {
+      "name_label": "Nombre del Producto",
+      "name_placeholder": "Ej. Absolut Vodka",
+      "category_label": "Categoría",
+      "category_placeholder": "Selecciona una categoría",
+      "min_stock_label": "Alerta de Stock Mínimo",
+      "cancel_btn": "Cancelar",
+      "submit_btn": "Actualizar"
+    }
   },
-  "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
-  "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
-  "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
-  "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "roster": {
     "title": "Turnos",
     "today": "Hoy",
@@ -133,5 +144,9 @@
       "period_evening": "Turno de Noche",
       "your_request": "Tu petición"
     }
-  }
+  },
+  "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
+  "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
+  "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
+  "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente."
 }

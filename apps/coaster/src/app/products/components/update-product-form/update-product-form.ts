@@ -2,16 +2,14 @@ import { Component, effect, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required, TreeValidationResult } from '@angular/forms/signals';
 import { Product, UpdateProductStockDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, NumberInput } from '../../../shared';
+import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../../shared';
 
 @Component({
   selector: 'coaster-update-product-form',
-  imports: [FormRoot, NumberInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, NumberInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages, CoasterTitle],
   template: `
     <div class="px-6 pb-6 pt-6">
-      <h2 class="text-xl font-bold mb-4 text-on-surface">
-        {{ 'pantry.update_product.title' | translate }} - {{ product().name }}
-      </h2>
+      <h2 coaster-title class="mb-6">{{ product().name }}</h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">
           <coaster-number-input

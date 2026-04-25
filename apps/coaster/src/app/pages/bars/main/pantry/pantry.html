@@ -1,16 +1,16 @@
 <div class="flex gap-4 mb-6">
   <coaster-status-card class="flex-1" status="primary">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.total' | translate }}</div>
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.total' | translate }}</div>
     <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
   </coaster-status-card>
 
   <coaster-status-card class="flex-1" status="error">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.critical' | translate }}</div>
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.critical' | translate }}</div>
     <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
   </coaster-status-card>
 
   <coaster-status-card class="flex-1" status="warning">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.stats.alerts' | translate }}</div>
+    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.alerts' | translate }}</div>
     <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
   </coaster-status-card>
 </div>
@@ -19,17 +19,14 @@
 
 <div class="-mx-4 px-4 mb-4 flex items-center gap-4 overflow-hidden">
   <div class="min-w-0 flex-1">
-    <coaster-category-tabs
+    <coaster-tabs
       [tabs]="tabs()"
       [selectedTabId]="selectedCategoryId()"
       (tabSelected)="selectedCategoryId.set($event)"
     />
   </div>
   @if (currentUserRole() === 'OWNER' && selectedCategoryId() !== 'ALL') {
-    <button
-      class="shrink-0 w-11 h-11 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      (click)="onEditCategoryClicked()"
-    >
+    <button class="w-12! h-12!" coaster-btn (click)="onEditCategoryClicked()">
       <ng-icon name="lucidePencil" class="text-xl" />
     </button>
   }
@@ -58,88 +55,57 @@
   <coaster-fab routerLink="new" />
 }
 
-@if (productSelected(); as product) {
-  <coaster-bottom-sheet (closed)="unselectProduct()">
-    <coaster-update-product-form
-      [product]="product"
-      [disabled]="isSubmitting()"
-      [submitAction]="updateStockSubmit"
-      (canceled)="unselectProduct()"
-    />
-  </coaster-bottom-sheet>
-}
-
-@if (productToEdit(); as product) {
-  <coaster-bottom-sheet (closed)="unselectProductToEdit()">
-    <div class="px-6 pb-6 pt-6">
-      <h2 class="text-xl font-bold mb-4 text-on-surface">{{ 'pantry.product' | translate }}</h2>
-      <coaster-edit-product-form
-        [product]="product"
-        [categories]="categories.value() ?? []"
-        [disabled]="isSubmitting()"
-        [submitAction]="editProductSubmit"
-        (canceled)="unselectProductToEdit()"
-      />
-    </div>
-  </coaster-bottom-sheet>
-}
-
-@if (categoryToEdit(); as category) {
-  <coaster-bottom-sheet (closed)="unselectCategoryToEdit()">
-    <div class="px-6 pb-6 pt-6">
-      <h2 class="text-xl font-bold mb-4 text-on-surface">{{ 'pantry.category' | translate }}</h2>
-      <coaster-edit-category-form
-        [category]="category"
-        [disabled]="isSubmitting()"
-        [submitAction]="editCategorySubmit"
-        (canceled)="unselectCategoryToEdit()"
-      />
-    </div>
-  </coaster-bottom-sheet>
-}
-
-@if (isCreateMode()) {
-  @let tab = currentFormTab();
+@if (isModalOpen()) {
   <coaster-bottom-sheet (closed)="closeModal()">
     <div class="flex flex-col px-6 pb-6 pt-2">
-      <div class="flex bg-surface-container rounded-lg p-1 mb-6">
-        <button
-          class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
-          [class.bg-surface-container-high]="tab === 'PRODUCT'"
-          [class.text-on-surface]="tab === 'PRODUCT'"
-          [class.text-on-surface-variant]="tab !== 'PRODUCT'"
-          (click)="currentFormTab.set('PRODUCT')"
-        >
-          {{ 'pantry.product' | translate }}
-        </button>
-        <button
-          class="flex-1 py-2 text-sm font-semibold rounded-md transition-all"
-          [class.bg-surface-container-high]="tab === 'CATEGORY'"
-          [class.text-on-surface]="tab === 'CATEGORY'"
-          [class.text-on-surface-variant]="tab !== 'CATEGORY'"
-          (click)="currentFormTab.set('CATEGORY')"
-        >
-          {{ 'pantry.category' | translate }}
-        </button>
-      </div>
+      @if (productSelected(); as product) {
+        <coaster-update-product-form
+          [product]="product"
+          [disabled]="isSubmitting()"
+          [submitAction]="updateStockSubmit"
+          (canceled)="closeModal()"
+        />
+      }
 
-      @switch (tab) {
-        @case ('PRODUCT') {
-          <coaster-create-product-form
-            [categories]="categories.value() ?? []"
-            [disabled]="isSubmitting() || products.isLoading()"
-            [submitAction]="productSubmit"
-            (canceled)="closeModal()"
-          />
+      @if (productToEdit(); as product) {
+        <coaster-edit-product-form
+          [product]="product"
+          [categories]="categories.value() ?? []"
+          [disabled]="isSubmitting()"
+          [submitAction]="editProductSubmit"
+          (canceled)="closeModal()"
+        />
+      }
+
+      @if (categoryToEdit(); as category) {
+        <coaster-edit-category-form
+          [category]="category"
+          [disabled]="isSubmitting()"
+          [submitAction]="editCategorySubmit"
+          (canceled)="closeModal()"
+        />
+      }
+
+      @if (isCreateMode()) {
+        <coaster-tabs [tabs]="availableTabs()" [selectedTabId]="currentTab()" (tabSelected)="currentTab.set($event)" />
+
+        @switch (currentTab()) {
+          @case ('PRODUCT') {
+            <coaster-create-product-form
+              [categories]="categories.value() ?? []"
+              [disabled]="isSubmitting() || products.isLoading()"
+              [submitAction]="productSubmit"
+              (canceled)="closeModal()"
+            />
+          }
+          @case ('CATEGORY') {
+            <coaster-create-category-form
+              [disabled]="isSubmitting() || categories.isLoading()"
+              [submitAction]="categorySubmit"
+              (canceled)="closeModal()"
+            />
+          }
         }
-        @case ('CATEGORY') {
-          <coaster-create-category-form
-            [disabled]="isSubmitting() || categories.isLoading()"
-            [submitAction]="categorySubmit"
-            (canceled)="closeModal()"
-          />
-        }
-        @default never;
       }
     </div>
   </coaster-bottom-sheet>

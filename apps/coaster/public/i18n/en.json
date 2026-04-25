@@ -71,6 +71,10 @@
     "all": "All",
     "product": "Product",
     "category": "Category",
+    "inventory_title": "Active Inventory",
+    "total": "Total",
+    "critical": "Critical",
+    "alerts": "Alerts",
     "create_product": {
       "name_label": "Product Name",
       "name_placeholder": "e.g. Absolut Vodka",
@@ -81,6 +85,14 @@
       "cancel_btn": "Cancel",
       "submit_btn": "Create Product"
     },
+    "edit_category": {
+      "name_label": "Category Name",
+      "name_placeholder": "e.g. Spirits",
+      "icon_label": "Icon (Optional)",
+      "icon_placeholder": "e.g. lucideGlass",
+      "cancel_btn": "Cancel",
+      "submit_btn": "Update Category"
+    },
     "create_category": {
       "name_label": "Category Name",
       "name_placeholder": "e.g. Spirits",
@@ -89,23 +101,21 @@
       "cancel_btn": "Cancel",
       "submit_btn": "Create Category"
     },
-    "stats": {
-      "total": "Total",
-      "critical": "Critical",
-      "alerts": "Alerts"
-    },
     "update_product": {
-      "title": "Update Product",
       "current_stock_label": "Current Stock",
       "cancel_btn": "Cancel",
       "submit_btn": "Update Stock"
     },
-    "inventory_title": "Active Inventory"
+    "edit_product": {
+      "name_label": "Product Name",
+      "name_placeholder": "e.g. Absolut Vodka",
+      "category_label": "Category",
+      "category_placeholder": "Select a category",
+      "min_stock_label": "Min Stock Alert",
+      "cancel_btn": "Cancel",
+      "submit_btn": "Update"
+    }
   },
-  "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
-  "USER_NOT_FOUND": "No user registered with that email address.",
-  "UNEXPECTED_ERROR": "An unexpected error occurred",
-  "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "roster": {
     "title": "Shift Roster",
     "today": "Today",
@@ -133,5 +143,9 @@
       "period_evening": "Evening Shift",
       "your_request": "Your request"
     }
-  }
+  },
+  "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
+  "USER_NOT_FOUND": "No user registered with that email address.",
+  "UNEXPECTED_ERROR": "An unexpected error occurred",
+  "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request."
 }

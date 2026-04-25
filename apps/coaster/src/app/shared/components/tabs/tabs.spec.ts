@@ -1,23 +1,23 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import { CategoryTab, CategoryTabs } from './category-tabs';
+import { Tab, Tabs } from './tabs';
 
-describe('CategoryTabs', () => {
-  let fixture: ComponentFixture<CategoryTabs>;
-  let component: CategoryTabs;
-  const mockTabs: CategoryTab[] = [
+describe('Tabs', () => {
+  let fixture: ComponentFixture<Tabs<unknown>>;
+  let component: Tabs<unknown>;
+  const mockTabs: Tab<unknown>[] = [
     { id: 'tab-1', label: 'Tapas' },
     { id: 'tab-2', label: 'Cocktails' },
   ];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategoryTabs],
+      imports: [Tabs],
       providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CategoryTabs);
+    fixture = TestBed.createComponent(Tabs);
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('tabs', mockTabs);
@@ -54,7 +54,7 @@ describe('CategoryTabs', () => {
     });
 
     it('should update tabs when input changes', () => {
-      const updatedTabs: CategoryTab[] = [{ id: 'tab-3', label: 'Wines' }];
+      const updatedTabs: Tab<unknown>[] = [{ id: 'tab-3', label: 'Wines' }];
       fixture.componentRef.setInput('tabs', updatedTabs);
       fixture.detectChanges();
 

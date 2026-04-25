@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
   BarId,
@@ -15,11 +24,11 @@ import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   BarCategories,
-  CategoryTabs,
   CreateCategory,
   CreateCategoryForm,
   EditCategory,
   EditCategoryForm,
+  Tabs,
 } from '../../../../categories';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers } from '../../../../members';
@@ -33,12 +42,14 @@ import {
   UpdateProduct,
   UpdateProductForm,
 } from '../../../../products';
-import { BottomSheet, CoasterTitle, Fab, Loading, StatusCard } from '../../../../shared';
+import { BottomSheet, CoasterTitle, Fab, Loading, StatusCard, CoasterBtn } from '../../../../shared';
+
+type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
 @Component({
   selector: 'coaster-pantry',
   imports: [
-    CategoryTabs,
+    Tabs,
     InventoryItemCard,
     CreateCategoryForm,
     CreateProductForm,
@@ -53,6 +64,8 @@ import { BottomSheet, CoasterTitle, Fab, Loading, StatusCard } from '../../../..
     StatusCard,
     CoasterTitle,
     NgIcon,
+    CoasterBtn,
+    
   ],
   viewProviders: [provideIcons({ lucidePencil })],
   host: {
@@ -77,30 +90,39 @@ export default class Pantry {
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
-  protected readonly isCreateMode = isActive(
+
+  readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
     this.#router,
   );
 
-  protected readonly currentFormTab = signal<'PRODUCT' | 'CATEGORY'>('PRODUCT');
-  protected readonly isSubmitting = signal(false);
-  protected readonly selectedCategoryId = signal<string>('ALL');
-  protected readonly productSelected = signal<Product | null>(null);
-  protected readonly productToEdit = signal<Product | null>(null);
-  protected readonly categoryToEdit = signal<Category | null>(null);
+  readonly currentTab = signal<PantryTabs>('PRODUCT');
+  readonly availableTabs = signal<{ id: PantryTabs; label: string }[]>([
+    { id: 'PRODUCT', label: this.#translate.instant('pantry.product') },
+    { id: 'CATEGORY', label: this.#translate.instant('pantry.category') },
+  ]);
+  readonly isSubmitting = signal(false);
+  readonly selectedCategoryId = signal<string>('ALL');
+  readonly productSelected = signal<Product | null>(null);
+  readonly productToEdit = signal<Product | null>(null);
+  readonly categoryToEdit = signal<Category | null>(null);
 
-  protected readonly categories = this.#categoriesService.all;
-  protected readonly products = this.#productsService.all;
-  protected readonly totalProductsCount = this.#productsService.total;
-  protected readonly criticalProductsCount = this.#productsService.criticalStock;
-  protected readonly alertProductsCount = this.#productsService.lowStock;
+  readonly categories = this.#categoriesService.all;
+  readonly products = this.#productsService.all;
+  readonly totalProductsCount = this.#productsService.total;
+  readonly criticalProductsCount = this.#productsService.criticalStock;
+  readonly alertProductsCount = this.#productsService.lowStock;
 
-  protected readonly currentUserRole = computed(() => {
+  readonly isModalOpen = linkedSignal(() => {
+    return this.productSelected() || this.productToEdit() || this.categoryToEdit() || this.isCreateMode();
+  });
+
+  readonly currentUserRole = computed(() => {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
   });
 
-  protected readonly tabs = computed(() => {
+  readonly tabs = computed(() => {
     const rawCategories = this.categories.value() ?? [];
     return [
       { id: 'ALL', label: this.#translate.instant('pantry.all') },
@@ -108,7 +130,7 @@ export default class Pantry {
     ];
   });
 
-  protected readonly filteredProducts = computed(() => {
+  readonly filteredProducts = computed(() => {
     if (!this.products.hasValue()) return [];
 
     const allProducts = this.products.value();
@@ -125,27 +147,15 @@ export default class Pantry {
     });
   }
 
-  protected onProductClicked(product: Product) {
+  onProductClicked(product: Product) {
     this.productSelected.set(product);
   }
 
-  protected onEditProductClicked(product: Product) {
+  onEditProductClicked(product: Product) {
     this.productToEdit.set(product);
   }
 
-  protected unselectProduct() {
-    this.productSelected.set(null);
-  }
-
-  protected unselectProductToEdit() {
-    this.productToEdit.set(null);
-  }
-
-  protected unselectCategoryToEdit() {
-    this.categoryToEdit.set(null);
-  }
-
-  protected onEditCategoryClicked() {
+  onEditCategoryClicked() {
     const categoryId = this.selectedCategoryId();
     if (categoryId === 'ALL') return;
     const cat = this.categories.value()?.find((c) => c.id === categoryId);
@@ -154,9 +164,18 @@ export default class Pantry {
     }
   }
 
-  protected closeModal() {
-    this.currentFormTab.set('PRODUCT');
-    this.#router.navigate(['/bars', this.barId(), 'pantry']);
+  closeModal() {
+    this.productSelected.set(null);
+    this.productToEdit.set(null);
+    this.categoryToEdit.set(null);
+    this.isSubmitting.set(false);
+    this.isModalOpen.set(false);
+
+    this.currentTab.set('PRODUCT');
+
+    if (this.isCreateMode()) {
+      this.#router.navigate(['/bars', this.barId(), 'pantry']);
+    }
   }
 
   readonly updateStockSubmit = async (payload: UpdateProductStockDto) => {
@@ -173,8 +192,7 @@ export default class Pantry {
     }
 
     this.#productsService.reload();
-    this.productSelected.set(null);
-    this.isSubmitting.set(false);
+    this.closeModal();
 
     return null;
   };
@@ -191,7 +209,6 @@ export default class Pantry {
 
     this.#productsService.reload();
     this.closeModal();
-    this.isSubmitting.set(false);
 
     return null;
   };
@@ -208,7 +225,6 @@ export default class Pantry {
 
     this.#categoriesService.reload();
     this.closeModal();
-    this.isSubmitting.set(false);
 
     return null;
   };
@@ -227,8 +243,7 @@ export default class Pantry {
     }
 
     this.#productsService.reload();
-    this.productToEdit.set(null);
-    this.isSubmitting.set(false);
+    this.closeModal();
 
     return null;
   };
@@ -247,8 +262,7 @@ export default class Pantry {
     }
 
     this.#categoriesService.reload();
-    this.categoryToEdit.set(null);
-    this.isSubmitting.set(false);
+    this.closeModal();
 
     return null;
   };

@@ -12,14 +12,14 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
       <div class="flex flex-col gap-4">
         <coaster-text-input
           [formField]="form.name"
-          [label]="'pantry.create_category.name_label' | translate"
-          [placeholder]="'pantry.create_category.name_placeholder' | translate"
+          [label]="'pantry.edit_category.name_label' | translate"
+          [placeholder]="'pantry.edit_category.name_placeholder' | translate"
         />
 
         <coaster-text-input
           [formField]="form.icon"
-          [label]="'pantry.create_category.icon_label' | translate"
-          [placeholder]="'pantry.create_category.icon_placeholder' | translate"
+          [label]="'pantry.edit_category.icon_label' | translate"
+          [placeholder]="'pantry.edit_category.icon_placeholder' | translate"
         />
 
         @if (form().errors().length > 0) {
@@ -35,11 +35,11 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             [disabled]="disabled()"
             (click)="canceled.emit()"
           >
-            {{ 'pantry.create_category.cancel_btn' | translate }}
+            {{ 'pantry.edit_category.cancel_btn' | translate }}
           </button>
 
           <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-            {{ 'pantry.create_category.submit_btn' | translate }}
+            {{ 'pantry.edit_category.submit_btn' | translate }}
           </button>
         </div>
       </div>
