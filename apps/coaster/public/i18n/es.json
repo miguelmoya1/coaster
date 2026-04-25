@@ -148,5 +148,35 @@
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
-  "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente."
+  "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
+  "dashboard": {
+    "title": "Panel de Control",
+    "sections": {
+      "pantry": "Alertas Críticas de Despensa",
+      "pantry_issues": "{{count}} INCIDENCIAS",
+      "roster": "Turnos de Hoy",
+      "roster_full": "HORARIO COMPLETO",
+      "overview": "Resumen de Personal",
+      "overview_stats": "{{clockedIn}} En Turno • {{assigned}} Asignados"
+    },
+    "pantry": {
+      "status": {
+        "critical": "STOCK CRÍTICO",
+        "low": "REPOSICIÓN PRÓXIMA",
+        "good": "STOCK SEGURO"
+      }
+    },
+    "roster": {
+      "status": {
+        "current": "TURNO ACTUAL",
+        "next": "SIGUIENTE"
+      }
+    },
+    "overview": {
+      "bar_staff": "PERSONAL BAR",
+      "floor_leads": "RESPONSABLES",
+      "security": "SEGURIDAD",
+      "manage_staff": "GESTIONAR"
+    }
+  }
 }

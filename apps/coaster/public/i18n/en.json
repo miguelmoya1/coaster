@@ -147,5 +147,35 @@
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_NOT_FOUND": "No user registered with that email address.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
-  "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request."
+  "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
+  "dashboard": {
+    "title": "Control Panel",
+    "sections": {
+      "pantry": "Critical Pantry Alerts",
+      "pantry_issues": "{{count}} ISSUES",
+      "roster": "Today's Roster",
+      "roster_full": "FULL SCHEDULE",
+      "overview": "Staff Overview",
+      "overview_stats": "{{clockedIn}} Clocked In • {{assigned}} Assigned"
+    },
+    "pantry": {
+      "status": {
+        "critical": "CRITICAL LOW",
+        "low": "REORDER SOON",
+        "good": "STOCK SECURE"
+      }
+    },
+    "roster": {
+      "status": {
+        "current": "CURRENT SHIFT",
+        "next": "NEXT UP"
+      }
+    },
+    "overview": {
+      "bar_staff": "BAR STAFF",
+      "floor_leads": "FLOOR LEADS",
+      "security": "SECURITY",
+      "manage_staff": "MANAGE STAFF"
+    }
+  }
 }
