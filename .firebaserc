@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "coaster-437f2"
+  },
+  "targets": {
+    "coaster-437f2": {
+      "hosting": {
+        "coaster": [
+          "coaster-437f2"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -10,7 +10,7 @@ import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   if (admin.apps.length === 0) {
-    admin.initializeApp({ projectId: 'coaster-437f2' });
+    admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2' });
   }
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
