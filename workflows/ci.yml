@@ -1,4 +1,4 @@
-name: CI
+name: CI (Integración Continua)
 
 on:
   push:
@@ -11,33 +11,34 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  build-and-test:
+    name: Check Quality
     runs-on: ubuntu-latest
+    env:
+      NX_CLOUD_DISTRIBUTED_EXECUTION: false
+      NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
+      NX_NO_CLOUD: true
+
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
         with:
-          filter: tree:0
           fetch-depth: 0
 
-      # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-      # Connect your workspace by running "nx connect" and uncomment this line to enable task distribution
-      # - run: npx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
-
-      # Cache node_modules
-      - uses: actions/setup-node@v4
+      - name: 🟢 Setup Node.js (Latest version)
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
-      - run: npm ci
-      - run: npx playwright install --with-deps
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
 
-      # Prepend any command with "nx record --" to record its logs to Nx Cloud
-      # - run: npx nx record -- echo Hello World
-      # When you enable task distribution, run the e2e-ci task instead of e2e
-      - run: npx nx run-many -t lint test build e2e
-      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
-      - run: npx nx fix-ci
-        if: always()
+      - name: 🎭 Install Browsers (Playwright E2E)
+        run: npx playwright install --with-deps
+
+      - name: 🔍 Calculate changes (Nx SHAs)
+        uses: nrwl/nx-set-shas@v4
+
+      - name: 🚀 Run Affected (With Nx Cloud Reporting)
+        run: npx nx affected -t lint test build e2e
