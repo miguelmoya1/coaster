@@ -7,7 +7,10 @@
     "duty": {
       "on": "En Turno",
       "off": "Fuera de Servicio"
-    }
+    },
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Eliminar"
   },
   "nav": {
     "dashboard": "Panel",
@@ -64,6 +67,10 @@
     "invite": {
       "cancel_btn": "Cancelar",
       "invite_btn": "Invitar"
+    },
+    "delete": {
+      "title": "Eliminar Miembro",
+      "message": "¿Estás seguro de que quieres eliminar a \"{{name}}\" del equipo? Ya no tendrá acceso al bar."
     }
   },
   "pantry": {
@@ -115,6 +122,14 @@
       "min_stock_label": "Alerta de Stock Mínimo",
       "cancel_btn": "Cancelar",
       "submit_btn": "Actualizar"
+    },
+    "delete_product": {
+      "title": "Eliminar Producto",
+      "message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer."
+    },
+    "delete_category": {
+      "title": "Eliminar Categoría",
+      "message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Todos los productos de esta categoría se borrarán también."
     }
   },
   "roster": {

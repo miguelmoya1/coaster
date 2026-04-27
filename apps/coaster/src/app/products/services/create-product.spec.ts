@@ -12,6 +12,7 @@ describe('CreateProduct', () => {
     id: asProductId('prod-1'),
     categoryId: asCategoryId('cat-1'),
     name: 'Beer',
+    price: 1050,
     currentStock: 10,
     minStockAlert: 5,
     stockStatus: 'good',
@@ -37,7 +38,7 @@ describe('CreateProduct', () => {
   describe('create', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
-      const dto: CreateProductDto = { name: 'Beer', categoryId: asCategoryId('cat-1'), minStockAlert: 5 };
+      const dto: CreateProductDto = { name: 'Beer', categoryId: asCategoryId('cat-1'), minStockAlert: 5, price: 1050 };
       productRepoMock['create'].mockResolvedValue(mockProduct);
 
       const result = await service.create(barId, dto);

@@ -41,10 +41,12 @@
     <coaster-inventory-item-card
       [itemName]="product.name"
       [qty]="product.currentStock"
+      [price]="product.price"
       [statusLevel]="product.stockStatus"
       [showEditButton]="currentUserRole() === 'OWNER'"
       (click)="onProductClicked(product)"
       (editClicked)="onEditProductClicked(product)"
+      (deleteClicked)="onDeleteProductClicked(product)"
     />
   } @empty {
     <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
@@ -83,6 +85,7 @@
           [disabled]="isSubmitting()"
           [submitAction]="editCategorySubmit"
           (canceled)="closeModal()"
+          (deleted)="onDeleteCategoryClicked(category)"
         />
       }
 

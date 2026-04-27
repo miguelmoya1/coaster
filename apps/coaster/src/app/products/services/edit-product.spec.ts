@@ -12,6 +12,7 @@ describe('EditProduct', () => {
     id: asProductId('prod-1'),
     categoryId: asCategoryId('cat-1'),
     name: 'Beer',
+    price: 1050,
     currentStock: 10,
     minStockAlert: 5,
     stockStatus: 'good',
@@ -38,13 +39,13 @@ describe('EditProduct', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const productId = asProductId('prod-1');
-      const dto: UpdateProductDto = { name: 'Updated Beer' };
-      productRepoMock['update'].mockResolvedValue(mockProduct);
+      const dto: UpdateProductDto = { name: 'Beer Edited', categoryId: asCategoryId('cat-1'), minStockAlert: 10, price: 1050 };
+      productRepoMock['update'].mockResolvedValue({ ...mockProduct, ...dto });
 
       const result = await service.edit(barId, productId, dto);
 
       expect(productRepoMock['update']).toHaveBeenCalledWith(barId, productId, dto);
-      expect(result).toEqual(mockProduct);
+      expect(result).toEqual({ ...mockProduct, ...dto });
     });
   });
 });

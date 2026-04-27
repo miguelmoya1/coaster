@@ -33,6 +33,12 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
         />
 
         <coaster-number-input
+          [formField]="form.price"
+          [label]="'Precio (Céntimos)'"
+          showControls
+        />
+
+        <coaster-number-input
           [formField]="form.minStockAlert"
           [label]="'pantry.edit_product.min_stock_label' | translate"
           showControls
@@ -79,6 +85,7 @@ export class EditProductForm {
 
   readonly #productModel = signal<Required<UpdateProductDto>>({
     categoryId: asCategoryId(''),
+    price: 0,
     minStockAlert: 0,
     name: '',
   });
@@ -91,6 +98,8 @@ export class EditProductForm {
       maxLength(fields.name, 50);
 
       required(fields.categoryId);
+
+      min(fields.price, 0);
 
       required(fields.minStockAlert);
       min(fields.minStockAlert, 0);
@@ -114,6 +123,7 @@ export class EditProductForm {
         this.#productModel.set({
           name: product.name,
           categoryId: product.categoryId,
+          price: product.price ?? 0,
           minStockAlert: product.minStockAlert,
         });
       }

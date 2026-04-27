@@ -11,6 +11,7 @@ export interface Product {
   name: string;
   categoryId: CategoryId;
   category?: Category;
+  price: number;
   currentStock: number;
   minStockAlert: number;
   stockStatus: StockStatus;
@@ -20,6 +21,7 @@ export interface Product {
 export interface UpdateProductDto {
   name?: string;
   categoryId?: CategoryId;
+  price?: number;
   minStockAlert?: number;
 }
 
@@ -30,6 +32,7 @@ export interface UpdateProductStockDto {
 export interface CreateProductDto {
   name: string;
   categoryId: CategoryId;
+  price?: number;
   currentStock?: number;
   minStockAlert?: number;
 }

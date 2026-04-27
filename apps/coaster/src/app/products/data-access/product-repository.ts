@@ -22,6 +22,7 @@ export class ProductRepository {
     create: (barId: BarId) => `/bars/${barId}/products`,
     update: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
     updateStock: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}/stock`,
+    delete: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
   };
 
   public async create(barId: BarId, createProductDto: CreateProductDto) {
@@ -46,5 +47,9 @@ export class ProductRepository {
         .patch<Product>(this.routes.updateStock(barId, productId), updateProductStockDto)
         .pipe(map((product) => productMapper(product))),
     );
+  }
+
+  public async delete(barId: BarId, productId: ProductId) {
+    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.delete(barId, productId)));
   }
 }

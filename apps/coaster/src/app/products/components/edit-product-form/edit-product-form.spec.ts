@@ -13,6 +13,7 @@ describe('EditProductForm', () => {
     id: asProductId('prod-1'),
     categoryId: asCategoryId('cat-1'),
     name: 'Beer',
+    price: 1050,
     currentStock: 10,
     minStockAlert: 5,
     stockStatus: 'good',
@@ -82,6 +83,7 @@ describe('EditProductForm', () => {
         name: 'Updated Beer',
         categoryId: 'cat-1',
         minStockAlert: 5,
+        price: 1050,
       });
     });
   });

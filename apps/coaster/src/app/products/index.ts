@@ -7,3 +7,4 @@ export * from './services/bar-products';
 export * from './services/create-product';
 export * from './services/update-product-stock';
 export * from './services/edit-product';
+export * from './services/delete-product';

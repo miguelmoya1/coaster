@@ -1,5 +1,13 @@
 import { Component, effect, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, minLength, required, TreeValidationResult } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  FormRoot,
+  maxLength,
+  minLength,
+  required,
+  TreeValidationResult,
+} from '@angular/forms/signals';
 import { Category, UpdateCategoryDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
@@ -42,6 +50,17 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             {{ 'pantry.edit_category.submit_btn' | translate }}
           </button>
         </div>
+
+        <div class="mt-4 border-t border-outline-variant/20 pt-4">
+          <button
+            class="w-full py-2.5 rounded-xl font-medium text-error bg-error/10 hover:bg-error/20 transition-colors"
+            type="button"
+            [disabled]="disabled()"
+            (click)="deleted.emit()"
+          >
+            {{ 'common.delete' | translate }}
+          </button>
+        </div>
       </div>
     </form>
   `,
@@ -52,6 +71,7 @@ export class EditCategoryForm {
   readonly submitAction = input.required<(payload: UpdateCategoryDto) => Promise<TreeValidationResult>>();
 
   readonly canceled = output<void>();
+  readonly deleted = output<void>();
 
   readonly #formBase = signal<Required<UpdateCategoryDto>>({
     name: '',

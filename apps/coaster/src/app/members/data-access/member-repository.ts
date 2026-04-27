@@ -11,9 +11,16 @@ export class MemberRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/members`,
     invite: (barId: BarId) => `/bars/${barId}/members`,
+    remove: (barId: BarId, memberId: string) => `/bars/${barId}/members/${memberId}`,
   };
 
   public async invite(barId: BarId, dto: InviteBarMemberDto) {
-    return firstValueFrom(this.#http.post<BarMember>(this.routes.invite(barId), dto).pipe(map((member) => memberMapper(member))));
+    return firstValueFrom(
+      this.#http.post<BarMember>(this.routes.invite(barId), dto).pipe(map((member) => memberMapper(member))),
+    );
+  }
+
+  public async remove(barId: BarId, memberId: string) {
+    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.remove(barId, memberId)));
   }
 }

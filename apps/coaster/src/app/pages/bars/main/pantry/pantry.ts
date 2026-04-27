@@ -8,6 +8,7 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
   BarId,
@@ -36,13 +37,23 @@ import {
   BarProducts,
   CreateProduct,
   CreateProductForm,
+  DeleteProduct,
   EditProduct,
   EditProductForm,
   InventoryItemCard,
   UpdateProduct,
   UpdateProductForm,
 } from '../../../../products';
-import { BottomSheet, CoasterTitle, Fab, Loading, StatusCard, CoasterBtn } from '../../../../shared';
+import { DeleteCategory } from '../../../../categories';
+import {
+  BottomSheet,
+  CoasterTitle,
+  Fab,
+  Loading,
+  StatusCard,
+  CoasterBtn,
+  ConfirmDialogComponent,
+} from '../../../../shared';
 
 type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
@@ -65,7 +76,6 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     CoasterTitle,
     NgIcon,
     CoasterBtn,
-    
   ],
   viewProviders: [provideIcons({ lucidePencil })],
   host: {
@@ -87,6 +97,9 @@ export default class Pantry {
   readonly #barMembers = inject(BarMembers);
   readonly #editProduct = inject(EditProduct);
   readonly #updateProductStock = inject(UpdateProduct);
+  readonly #deleteProduct = inject(DeleteProduct);
+  readonly #deleteCategory = inject(DeleteCategory);
+  readonly #dialog = inject(Dialog);
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -162,6 +175,55 @@ export default class Pantry {
     if (cat) {
       this.categoryToEdit.set(cat);
     }
+  }
+
+  onDeleteProductClicked(product: Product) {
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.#translate.instant('pantry.delete_product.title'),
+        message: this.#translate.instant('pantry.delete_product.message', { name: product.name }),
+        confirmText: 'common.delete',
+        cancelText: 'common.cancel',
+        isDestructive: true,
+      },
+    });
+
+    dialogRef.closed.subscribe(async (result) => {
+      if (result) {
+        try {
+          await this.#deleteProduct.delete(this.barId(), product.id);
+          this.#productsService.reload();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+  }
+
+  onDeleteCategoryClicked(category: Category) {
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.#translate.instant('pantry.delete_category.title'),
+        message: this.#translate.instant('pantry.delete_category.message', { name: category.name }),
+        confirmText: 'common.delete',
+        cancelText: 'common.cancel',
+        isDestructive: true,
+      },
+    });
+
+    dialogRef.closed.subscribe(async (result) => {
+      if (result) {
+        try {
+          this.closeModal();
+          await this.#deleteCategory.delete(this.barId(), category.id);
+          this.selectedCategoryId.set('ALL');
+          this.#categoriesService.reload();
+          this.#productsService.reload();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
   }
 
   closeModal() {

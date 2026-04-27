@@ -13,6 +13,7 @@ export class CategoryRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/categories`,
     create: (barId: BarId) => `/bars/${barId}/categories`,
+    delete: (barId: BarId, categoryId: string) => `/bars/${barId}/categories/${categoryId}`,
   };
 
   public async create(barId: BarId, createCategoryDto: CreateCategoryDto) {
@@ -29,5 +30,9 @@ export class CategoryRepository {
         .patch<Category>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto)
         .pipe(map((category) => categoryMapper(category))),
     );
+  }
+
+  public async delete(barId: BarId, categoryId: string) {
+    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.delete(barId, categoryId)));
   }
 }

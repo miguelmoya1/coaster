@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Dialog } from '@angular/cdk/dialog';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
-import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard } from '../../../../members';
-import { BottomSheet, Fab, Loading, SectionTitle } from '../../../../shared';
+import { BarMember } from '@coaster/interfaces';
+import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard, RemoveMember } from '../../../../members';
+import { BottomSheet, Fab, Loading, SectionTitle, ConfirmDialogComponent } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',
@@ -20,7 +22,10 @@ export default class Staff {
 
   readonly #barMembers = inject(BarMembers);
   readonly #inviteMember = inject(InviteMember);
+  readonly #removeMember = inject(RemoveMember);
   readonly #currentUser = inject(CurrentUser);
+  readonly #dialog = inject(Dialog);
+  readonly #translate = inject(TranslateService);
 
   protected readonly list = this.#barMembers.list;
 
@@ -41,6 +46,7 @@ export default class Staff {
     const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
   });
+  protected readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
 
   constructor() {
     effect(() => {
@@ -68,4 +74,27 @@ export default class Staff {
 
     return null;
   };
+
+  onDeleteMemberClicked(member: BarMember) {
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.#translate.instant('members.delete.title'),
+        message: this.#translate.instant('members.delete.message', { name: member.userName }),
+        confirmText: 'common.delete',
+        cancelText: 'common.cancel',
+        isDestructive: true,
+      },
+    });
+
+    dialogRef.closed.subscribe(async (result) => {
+      if (result) {
+        try {
+          await this.#removeMember.remove(this.barId(), member.id);
+          this.#barMembers.reload();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+  }
 }

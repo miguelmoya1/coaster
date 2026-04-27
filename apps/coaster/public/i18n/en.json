@@ -7,7 +7,10 @@
     "duty": {
       "on": "On Duty",
       "off": "Off Duty"
-    }
+    },
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -64,6 +67,10 @@
     "invite": {
       "cancel_btn": "Cancel",
       "invite_btn": "Invite"
+    },
+    "delete": {
+      "title": "Remove Member",
+      "message": "Are you sure you want to remove \"{{name}}\" from the team? They will no longer have access to the bar."
     }
   },
   "pantry": {
@@ -114,6 +121,14 @@
       "min_stock_label": "Min Stock Alert",
       "cancel_btn": "Cancel",
       "submit_btn": "Update"
+    },
+    "delete_product": {
+      "title": "Delete Product",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "delete_category": {
+      "title": "Delete Category",
+      "message": "Are you sure you want to delete \"{{name}}\"? All products in this category will also be deleted."
     }
   },
   "roster": {

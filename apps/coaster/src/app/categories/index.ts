@@ -6,3 +6,4 @@ export * from './mappers/category.mapper';
 export * from './services/bar-categories';
 export * from './services/create-category';
 export * from './services/edit-category';
+export * from './services/delete-category';

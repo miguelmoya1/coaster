@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePackage, lucidePencil } from '@ng-icons/lucide';
+import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { StockStatus } from '@coaster/interfaces';
 import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
 
@@ -12,9 +12,11 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
       <ng-icon [name]="icon()!" [class]="'text-3xl ' + textColorClass()" />
     </div>
 
-    <div class="grow min-w-0 mr-4">
+    <div class="grow min-w-0 mr-4 flex flex-col gap-0.5">
       <h3 coaster-title class="truncate">{{ itemName() }}</h3>
-      <!-- <p class="text-on-surface-variant text-xs truncate">{{ locationText() }}</p> -->
+      @if (price() > 0) {
+        <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">{{ (price() / 100).toFixed(2) }} €</p>
+      }
     </div>
 
     <div class="flex flex-col items-end gap-1 shrink-0">
@@ -28,12 +30,20 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
     </div>
 
     @if (showEditButton()) {
-      <button
-        class="ml-4 w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"
-        (click)="onEditClick($event)"
-      >
-        <ng-icon name="lucidePencil" class="text-xl" />
-      </button>
+      <div class="ml-4 flex items-center gap-2 shrink-0">
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"
+          (click)="onEditClick($event)"
+        >
+          <ng-icon name="lucidePencil" class="text-xl" />
+        </button>
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-error/10 hover:bg-error/20 text-error transition-colors"
+          (click)="onDeleteClick($event)"
+        >
+          <ng-icon name="lucideTrash2" class="text-xl" />
+        </button>
+      </div>
     }
   `,
   host: {
@@ -45,22 +55,29 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
       "'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer block ' + borderColorClass()",
   },
   imports: [CommonModule, NgIcon, CoasterBadge, CoasterTitle],
-  viewProviders: [provideIcons({ lucidePackage, lucidePencil })],
+  viewProviders: [provideIcons({ lucidePackage, lucidePencil, lucideTrash2 })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryItemCard {
   readonly itemName = input.required<string>();
   // readonly locationText = input.required<string>();
   readonly qty = input.required<number>();
+  readonly price = input<number>(0);
   readonly icon = input('lucidePackage');
   readonly statusLevel = input<StockStatus>('good');
   readonly disabled = input(false);
   readonly showEditButton = input(false);
   readonly editClicked = output<void>();
+  readonly deleteClicked = output<void>();
 
   onEditClick(event: Event) {
     event.stopPropagation();
     this.editClicked.emit();
+  }
+
+  onDeleteClick(event: Event) {
+    event.stopPropagation();
+    this.deleteClicked.emit();
   }
 
   readonly borderColorClass = computed(() => {

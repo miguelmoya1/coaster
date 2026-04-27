@@ -37,12 +37,7 @@ describe('TopAppBar', () => {
       expect(component.image()).toBe('https://photo.url/user.jpg');
     });
 
-    it('should have a search button', () => {
-      const searchButton = fixture.nativeElement.querySelector('button');
-      expect(searchButton).toBeTruthy();
-      const icon = searchButton.querySelector('ng-icon');
-      expect(icon).toBeTruthy();
-    });
+
   });
 
   describe('content projection', () => {

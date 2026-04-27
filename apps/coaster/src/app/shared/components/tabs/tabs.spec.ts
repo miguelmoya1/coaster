@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { vi } from 'vitest';
 import { Tab, Tabs } from './tabs';
 
@@ -13,7 +14,7 @@ describe('Tabs', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Tabs],
+      imports: [Tabs, TranslateModule.forRoot()],
       providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 

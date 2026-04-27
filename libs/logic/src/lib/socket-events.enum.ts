@@ -5,4 +5,7 @@ export enum SocketEvents {
   LEFT = 'left',
   PRODUCT_CREATED = 'productCreated',
   PRODUCT_STOCK_CHANGED = 'productStockChanged',
+  PRODUCT_DELETED = 'productDeleted',
+  CATEGORY_DELETED = 'categoryDeleted',
+  MEMBER_REMOVED = 'memberRemoved',
 }

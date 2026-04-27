@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMail } from '@ng-icons/lucide';
+import { lucideMail, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBadge, CoasterTitle } from '../../../shared';
 
 @Component({
   selector: 'coaster-staff-member-card',
   imports: [NgIcon, TranslatePipe, CoasterBadge, CoasterTitle],
-  viewProviders: [provideIcons({ lucideMail })],
+  viewProviders: [provideIcons({ lucideMail, lucideTrash2 })],
   template: `
     <div [class]="'absolute left-0 top-0 bottom-0 w-1 ' + (isOffDuty() ? 'bg-outline-variant' : 'bg-primary')"></div>
 
@@ -61,6 +61,16 @@ import { CoasterBadge, CoasterTitle } from '../../../shared';
           <ng-icon name="lucideMail" class="text-xl" />
         </a>
       </button>
+
+      @if (showDeleteButton()) {
+        <button
+          [disabled]="disabled()"
+          class="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20"
+          (click)="onDeleteClick($event)"
+        >
+          <ng-icon name="lucideTrash2" class="text-xl" />
+        </button>
+      }
     </div>
   `,
   host: {
@@ -79,4 +89,11 @@ export class StaffMemberCard {
   readonly roleName = input.required<string>();
   readonly isOffDuty = input(false);
   readonly disabled = input(false);
+  readonly showDeleteButton = input(false);
+  readonly deleteClicked = output<void>();
+
+  onDeleteClick(event: Event) {
+    event.stopPropagation();
+    this.deleteClicked.emit();
+  }
 }

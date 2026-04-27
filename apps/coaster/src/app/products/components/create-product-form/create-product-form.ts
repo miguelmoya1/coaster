@@ -1,5 +1,14 @@
 import { Component, computed, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, maxLength, min, minLength, required, TreeValidationResult } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  FormRoot,
+  maxLength,
+  min,
+  minLength,
+  required,
+  TreeValidationResult,
+} from '@angular/forms/signals';
 import { asCategoryId, Category, CreateProductDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
@@ -22,6 +31,8 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
           [options]="categoryOptions()"
           [placeholder]="'pantry.create_product.category_placeholder' | translate"
         />
+
+        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" showControls />
 
         <coaster-number-input
           [formField]="form.currentStock"
@@ -76,6 +87,7 @@ export class CreateProductForm {
   readonly #formBase = signal<Required<CreateProductDto>>({
     name: '',
     categoryId: asCategoryId(''),
+    price: 0,
     currentStock: 0,
     minStockAlert: 5,
   });
@@ -88,6 +100,8 @@ export class CreateProductForm {
       maxLength(fields.name, 50);
 
       required(fields.categoryId);
+
+      min(fields.price, 0);
 
       required(fields.currentStock);
       min(fields.currentStock, 0);

@@ -4,3 +4,4 @@ export * from './data-access/member-repository';
 export * from './mappers/member.mapper';
 export * from './services/bar-members';
 export * from './services/invite-member';
+export * from './services/remove-member';

@@ -2,6 +2,7 @@ export * from './components/avatar-badge/avatar-badge';
 export * from './components/badge/badge';
 export * from './components/bottom-nav/bottom-nav';
 export * from './components/bottom-sheet/bottom-sheet';
+export * from './components/confirm-dialog/confirm-dialog.component';
 export * from './components/button/button';
 export * from './components/fab/fab';
 export * from './components/loading/loading';

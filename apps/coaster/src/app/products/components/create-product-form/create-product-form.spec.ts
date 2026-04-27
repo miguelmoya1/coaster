@@ -80,6 +80,7 @@ describe('CreateProductForm', () => {
         categoryId: 'cat-1',
         currentStock: 10,
         minStockAlert: 5,
+        price: 0,
       });
     });
   });
