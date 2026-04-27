@@ -3,7 +3,7 @@ import { ErrorCodes } from '@coaster/logic';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { EmailService } from '../../core';
+import { EmailService, BarGateway } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersService } from './bar-members.service';
 
@@ -22,11 +22,19 @@ describe('BarMembersService', () => {
       sendInviteEmail: vi.fn(),
     };
 
+    const mockBarGateway = {
+      server: {
+        to: vi.fn().mockReturnThis(),
+        emit: vi.fn(),
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BarMembersService,
         { provide: BarMembersRepository, useValue: mockRepo },
         { provide: EmailService, useValue: mockEmailService },
+        { provide: BarGateway, useValue: mockBarGateway },
       ],
     }).compile();
 

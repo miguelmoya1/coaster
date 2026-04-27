@@ -69,12 +69,19 @@ describe('ShiftExchangesController', () => {
     expect(service.requestExchange).toHaveBeenCalledWith('bar-1', 'shift-1', 'user-1', dto);
   });
 
-  it("acceptExchange should delegate to the service with the authenticated user's userId", () => {
-    service.acceptExchange.mockResolvedValue(
-      {} as Awaited<ReturnType<typeof ShiftExchangesService.prototype.acceptExchange>>,
-    );
+  it("acceptExchange should delegate to the service with the authenticated user's userId", async () => {
+    service.acceptExchange.mockResolvedValue({
+      id: 'exc-1',
+      shiftId: 'shift-1',
+      requesterId: 'user-1',
+      targetId: 'target-1',
+      status: 'ACCEPTED',
+      createdAt: new Date(),
+      shift: { startTime: new Date(), endTime: new Date() },
+      requester: { id: 'user-1', name: 'Test' },
+    } as Awaited<ReturnType<typeof ShiftExchangesService.prototype.acceptExchange>>);
 
-    controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), fakeUser);
+    await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), fakeUser);
 
     expect(service.acceptExchange).toHaveBeenCalledWith('bar-1', 'exc-1', 'user-1');
   });

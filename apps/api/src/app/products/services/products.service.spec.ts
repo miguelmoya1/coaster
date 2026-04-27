@@ -76,6 +76,7 @@ describe('ProductsService', () => {
         name: 'Product 1',
         currentStock: 10,
         minStockAlert: 5,
+        price: 0,
       });
       expect(barGateway.server.to).toHaveBeenCalledWith(barId);
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, result);

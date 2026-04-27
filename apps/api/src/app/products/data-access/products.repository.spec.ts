@@ -76,6 +76,7 @@ describe('ProductsRepository', () => {
       expect(prisma.product.create).toHaveBeenCalledWith({
         data: {
           ...createData,
+          price: 0,
           category: { connect: { id: categoryId } },
         },
       });

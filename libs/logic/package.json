@@ -7,7 +7,8 @@
   "types": "./src/index.d.ts",
   "dependencies": {
     "tslib": "^2.3.0",
-    "@nx/vite": "22.7.0-beta.15",
-    "vitest": "4.1.4"
+    "@coaster/interfaces": "0.0.1",
+    "@nx/vite": "22.7.0",
+    "vitest": "4.1.5"
   }
 }
