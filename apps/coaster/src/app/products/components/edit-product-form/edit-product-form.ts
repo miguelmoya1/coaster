@@ -32,11 +32,7 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
           [placeholder]="'pantry.edit_product.category_placeholder' | translate"
         />
 
-        <coaster-number-input
-          [formField]="form.price"
-          [label]="'Precio (Céntimos)'"
-          showControls
-        />
+        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" showControls />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
@@ -57,11 +53,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             [disabled]="disabled()"
             (click)="canceled.emit()"
           >
-            {{ 'pantry.edit_product.cancel_btn' | translate }}
+            {{ 'common.cancel' | translate }}
           </button>
 
           <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-            {{ 'pantry.edit_product.submit_btn' | translate }}
+            {{ 'common.update' | translate }}
           </button>
         </div>
       </div>

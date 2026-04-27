@@ -35,11 +35,11 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             [disabled]="disabled()"
             (click)="canceled.emit()"
           >
-            {{ 'pantry.create_category.cancel_btn' | translate }}
+            {{ 'common.cancel' | translate }}
           </button>
 
           <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-            {{ 'pantry.create_category.submit_btn' | translate }}
+            {{ 'common.create' | translate }}
           </button>
         </div>
       </div>

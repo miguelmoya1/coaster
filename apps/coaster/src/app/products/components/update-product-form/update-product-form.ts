@@ -31,11 +31,17 @@ import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../
               [disabled]="disabled()"
               (click)="canceled.emit()"
             >
-              {{ 'pantry.update_product.cancel_btn' | translate }}
+              {{ 'common.cancel' | translate }}
             </button>
 
-            <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-              {{ 'pantry.update_product.submit_btn' | translate }}
+            <button
+              coaster-btn
+              class="w-full"
+              type="submit"
+              variant="primary"
+              [disabled]="form().invalid() || disabled()"
+            >
+              {{ 'common.update' | translate }}
             </button>
           </div>
         </div>

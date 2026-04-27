@@ -10,7 +10,12 @@
     },
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "delete": "Delete"
+    "delete": "Delete",
+    "create": "Create",
+    "update": "Update",
+    "invite": "Invite",
+    "accept": "Accept",
+    "save": "Save"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -32,7 +37,6 @@
       "title": "Select Your Active Bar",
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
       "operational": "Operational",
-      "create_btn": "Create New Bar",
       "empty": "No active bars found. Create one to get started.",
       "stats": {
         "area": "Total Venue Area",
@@ -51,8 +55,6 @@
         "location": "Location / Address",
         "location_placeholder": "Street, Building, Suite No."
       },
-      "register_btn": "Register Bar",
-      "cancel_btn": "Cancel",
       "stats": {
         "nodes": "Active Nodes",
         "latency": "Latency"
@@ -63,10 +65,6 @@
     "staff": {
       "title": "Staff Roster",
       "description": "{{count}} team members"
-    },
-    "invite": {
-      "cancel_btn": "Cancel",
-      "invite_btn": "Invite"
     },
     "delete": {
       "title": "Remove Member",
@@ -88,39 +86,29 @@
       "category_label": "Category",
       "category_placeholder": "Select a category",
       "current_stock_label": "Current Stock",
-      "min_stock_label": "Min Stock Alert",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Create Product"
+      "min_stock_label": "Min Stock Alert"
     },
     "edit_category": {
       "name_label": "Category Name",
       "name_placeholder": "e.g. Spirits",
       "icon_label": "Icon (Optional)",
-      "icon_placeholder": "e.g. lucideGlass",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Update Category"
+      "icon_placeholder": "e.g. lucideGlass"
     },
     "create_category": {
       "name_label": "Category Name",
       "name_placeholder": "e.g. Spirits",
       "icon_label": "Icon (Optional)",
-      "icon_placeholder": "e.g. lucideGlass",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Create Category"
+      "icon_placeholder": "e.g. lucideGlass"
     },
     "update_product": {
-      "current_stock_label": "Current Stock",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Update Stock"
+      "current_stock_label": "Current Stock"
     },
     "edit_product": {
       "name_label": "Product Name",
       "name_placeholder": "e.g. Absolut Vodka",
       "category_label": "Category",
       "category_placeholder": "Select a category",
-      "min_stock_label": "Min Stock Alert",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Update"
+      "min_stock_label": "Min Stock Alert"
     },
     "delete_product": {
       "title": "Delete Product",
@@ -145,14 +133,11 @@
       "start_time_label": "Start Time",
       "end_time_label": "End Time",
       "notes_label": "Notes (Optional)",
-      "notes_placeholder": "e.g. Cover for evening rush",
-      "cancel_btn": "Cancel",
-      "submit_btn": "Create Shift"
+      "notes_placeholder": "e.g. Cover for evening rush"
     },
     "exchanges": {
       "title": "Pending Exchanges",
       "offered_by": "Offered by",
-      "accept_btn": "Accept",
       "period_morning": "Morning Shift",
       "period_afternoon": "Afternoon Shift",
       "period_evening": "Evening Shift",

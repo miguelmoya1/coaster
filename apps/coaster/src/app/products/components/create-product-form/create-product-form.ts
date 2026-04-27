@@ -59,11 +59,11 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             [disabled]="disabled()"
             (click)="canceled.emit()"
           >
-            {{ 'pantry.create_product.cancel_btn' | translate }}
+            {{ 'common.cancel' | translate }}
           </button>
 
           <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-            {{ 'pantry.create_product.submit_btn' | translate }}
+            {{ 'common.create' | translate }}
           </button>
         </div>
       </div>

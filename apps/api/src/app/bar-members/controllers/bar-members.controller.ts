@@ -1,6 +1,6 @@
-import { BarId, BarRole, User } from '@coaster/interfaces';
+import { BarId, BarMemberId, BarRole, User } from '@coaster/interfaces';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { commonMapper, CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { BarMembersService } from '../services/bar-members.service';
@@ -27,8 +27,8 @@ export class BarMembersController {
 
   @Delete(':memberId')
   @Roles(BarRole.OWNER)
-  async removeMember(@Param('barId') barId: BarId, @Param('memberId') memberId: string) {
+  async removeMember(@Param('barId') barId: BarId, @Param('memberId') memberId: BarMemberId) {
     await this._barMembersService.removeMember(barId, memberId);
-    return { success: true };
+    return commonMapper.getSuccessResponse();
   }
 }

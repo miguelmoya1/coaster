@@ -36,10 +36,10 @@
 
   <div class="grid grid-cols-2 gap-4 mt-4">
     <button coaster-btn variant="outline" type="button" (click)="cancel()">
-      {{ 'bars.create.cancel_btn' | translate }}
+      {{ 'common.cancel' | translate }}
     </button>
     <button coaster-btn type="submit" variant="primary" [disabled]="barForm().invalid()">
-      {{ 'bars.create.register_btn' | translate }}
+      {{ 'common.create' | translate }}
       <ng-icon name="lucideArrowRight" class="text-on-primary-fixed text-xl" />
     </button>
   </div>

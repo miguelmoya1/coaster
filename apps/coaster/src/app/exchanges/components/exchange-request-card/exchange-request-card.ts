@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -25,7 +25,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 
     <div class="flex items-center gap-3">
       <div class="text-right hidden sm:block">
-        <p class="label-sm text-on-surface-variant uppercase font-bold">{{ 'roster.exchanges.offered_by' | translate }}</p>
+        <p class="label-sm text-on-surface-variant uppercase font-bold">
+          {{ 'roster.exchanges.offered_by' | translate }}
+        </p>
         <p class="body-md font-semibold">{{ offeredBy() }}</p>
       </div>
       @if (!isOwnRequest()) {
@@ -34,7 +36,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           (click)="accepted.emit(); $event.stopPropagation()"
           class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
         >
-          {{ 'roster.exchanges.accept_btn' | translate }}
+          {{ 'common.accept' | translate }}
           <ng-icon name="lucideRepeat2" class="text-lg"></ng-icon>
         </button>
       }

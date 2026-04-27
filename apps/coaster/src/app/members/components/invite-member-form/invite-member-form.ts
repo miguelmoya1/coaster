@@ -1,5 +1,14 @@
 import { Component, input, output, signal } from '@angular/core';
-import { email, form, FormField, FormRoot, maxLength, minLength, required, TreeValidationResult } from '@angular/forms/signals';
+import {
+  email,
+  form,
+  FormField,
+  FormRoot,
+  maxLength,
+  minLength,
+  required,
+  TreeValidationResult,
+} from '@angular/forms/signals';
 import { InviteBarMemberDto } from '@coaster/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
@@ -24,11 +33,11 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
           [disabled]="disabled()"
           (click)="canceled.emit()"
         >
-          {{ 'members.invite.cancel_btn' | translate }}
+          {{ 'common.cancel' | translate }}
         </button>
 
         <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
-          {{ 'members.invite.invite_btn' | translate }}
+          {{ 'common.invite' | translate }}
         </button>
       </div>
     </form>

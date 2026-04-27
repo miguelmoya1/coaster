@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId } from '@coaster/interfaces';
+import { BarId, BarMemberId } from '@coaster/interfaces';
 import { MemberRepository } from '../data-access/member-repository';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { MemberRepository } from '../data-access/member-repository';
 export class RemoveMember {
   readonly #memberRepository = inject(MemberRepository);
 
-  public async remove(barId: BarId, memberId: string) {
+  public async remove(barId: BarId, memberId: BarMemberId) {
     return await this.#memberRepository.remove(barId, memberId);
   }
 }

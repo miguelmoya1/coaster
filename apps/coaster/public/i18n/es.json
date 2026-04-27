@@ -10,7 +10,12 @@
     },
     "cancel": "Cancelar",
     "confirm": "Confirmar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "invite": "Invitar",
+    "accept": "Aceptar",
+    "save": "Guardar"
   },
   "nav": {
     "dashboard": "Panel",
@@ -32,7 +37,6 @@
       "title": "Selecciona tu Bar Activo",
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
       "operational": "Operativo",
-      "create_btn": "Crear Nuevo Bar",
       "empty": "No se encontraron bares activos. Crea uno para empezar.",
       "stats": {
         "area": "Área Total",
@@ -51,8 +55,6 @@
         "location": "Ubicación / Dirección",
         "location_placeholder": "Calle, Edificio, Número"
       },
-      "register_btn": "Registrar Bar",
-      "cancel_btn": "Cancelar",
       "stats": {
         "nodes": "Nodos Activos",
         "latency": "Latencia"
@@ -63,10 +65,6 @@
     "staff": {
       "title": "Equipo",
       "description": "{{count}} miembros del equipo"
-    },
-    "invite": {
-      "cancel_btn": "Cancelar",
-      "invite_btn": "Invitar"
     },
     "delete": {
       "title": "Eliminar Miembro",
@@ -87,17 +85,13 @@
       "name_label": "Nombre de la Categoría",
       "name_placeholder": "Ej. Licores",
       "icon_label": "Icono (Opcional)",
-      "icon_placeholder": "Ej. lucideGlass",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Crear Categoría"
+      "icon_placeholder": "Ej. lucideGlass"
     },
     "edit_category": {
       "name_label": "Nombre de la Categoría",
       "name_placeholder": "Ej. Licores",
       "icon_label": "Icono (Opcional)",
-      "icon_placeholder": "Ej. lucideGlass",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Actualizar Categoría"
+      "icon_placeholder": "Ej. lucideGlass"
     },
     "create_product": {
       "name_label": "Nombre del Producto",
@@ -105,23 +99,17 @@
       "category_label": "Categoría",
       "category_placeholder": "Selecciona una categoría",
       "current_stock_label": "Stock Actual",
-      "min_stock_label": "Alerta de Stock Mínimo",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Crear Producto"
+      "min_stock_label": "Alerta de Stock Mínimo"
     },
     "update_product": {
-      "current_stock_label": "Stock Actual",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Actualizar Stock"
+      "current_stock_label": "Stock Actual"
     },
     "edit_product": {
       "name_label": "Nombre del Producto",
       "name_placeholder": "Ej. Absolut Vodka",
       "category_label": "Categoría",
       "category_placeholder": "Selecciona una categoría",
-      "min_stock_label": "Alerta de Stock Mínimo",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Actualizar"
+      "min_stock_label": "Alerta de Stock Mínimo"
     },
     "delete_product": {
       "title": "Eliminar Producto",
@@ -146,14 +134,11 @@
       "start_time_label": "Hora de Inicio",
       "end_time_label": "Hora de Fin",
       "notes_label": "Notas (Opcional)",
-      "notes_placeholder": "Ej. Cubrir hora punta de la noche",
-      "cancel_btn": "Cancelar",
-      "submit_btn": "Crear Turno"
+      "notes_placeholder": "Ej. Cubrir hora punta de la noche"
     },
     "exchanges": {
       "title": "Intercambios Pendientes",
       "offered_by": "Ofrecido por",
-      "accept_btn": "Aceptar",
       "period_morning": "Turno de Mañana",
       "period_afternoon": "Turno de Tarde",
       "period_evening": "Turno de Noche",

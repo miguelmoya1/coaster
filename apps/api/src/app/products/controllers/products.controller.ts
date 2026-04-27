@@ -1,6 +1,6 @@
 import { BarId, BarRole, ProductId } from '@coaster/interfaces';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
@@ -52,6 +52,6 @@ export class ProductsController {
   @Roles(BarRole.OWNER)
   async deleteProduct(@Param('barId') barId: BarId, @Param('productId') productId: ProductId) {
     await this._productsService.deleteProduct(barId, productId);
-    return { success: true };
+    return commonMapper.getSuccessResponse();
   }
 }

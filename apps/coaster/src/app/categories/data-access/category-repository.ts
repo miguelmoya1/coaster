@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, Category, CreateCategoryDto, UpdateCategoryDto } from '@coaster/interfaces';
+import { BarId, Category, CategoryId, CreateCategoryDto, DeleteResponse, UpdateCategoryDto } from '@coaster/interfaces';
 import { firstValueFrom, map } from 'rxjs';
+import { deleteResponseMapper } from '../../core/mappers/common.mapper';
 import { categoryMapper } from '../mappers/category.mapper';
 
 @Injectable({
@@ -32,7 +33,11 @@ export class CategoryRepository {
     );
   }
 
-  public async delete(barId: BarId, categoryId: string) {
-    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.delete(barId, categoryId)));
+  public async delete(barId: BarId, categoryId: CategoryId) {
+    return firstValueFrom(
+      this.#http
+        .delete<DeleteResponse>(this.routes.delete(barId, categoryId))
+        .pipe(map((res) => deleteResponseMapper(res))),
+    );
   }
 }
