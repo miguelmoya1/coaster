@@ -50,4 +50,10 @@ export class BarMembersRepository {
       },
     });
   }
+
+  async removeMember(memberId: string) {
+    return this.prisma.barMember.delete({
+      where: { id: memberId },
+    });
+  }
 }

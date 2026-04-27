@@ -1,7 +1,7 @@
 import { BarId, BarRole, User } from '@coaster/interfaces';
-import { ErrorCodes } from '@coaster/logic';
+import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { EmailService } from '../../core';
+import { EmailService, BarGateway } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 
@@ -10,6 +10,7 @@ export class BarMembersService {
   constructor(
     private readonly repository: BarMembersRepository,
     private readonly emailService: EmailService,
+    private readonly _barGateway: BarGateway,
   ) {}
 
   async getMembers(barId: BarId) {
@@ -38,5 +39,10 @@ export class BarMembersService {
       }
       throw error;
     }
+  }
+
+  async removeMember(barId: BarId, memberId: string) {
+    await this.repository.removeMember(memberId);
+    this._barGateway.server.to(barId).emit(SocketEvents.MEMBER_REMOVED, { id: memberId });
   }
 }

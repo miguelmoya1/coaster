@@ -17,6 +17,7 @@ export class ProductsRepository {
     return this._prisma.product.create({
       data: {
         ...createProductDto,
+        price: createProductDto.price ?? 0,
         category: { connect: { id: categoryId } },
       },
     });
@@ -33,6 +34,12 @@ export class ProductsRepository {
     return this._prisma.product.findMany({
       where: { category: { barId } },
       orderBy: { name: 'asc' },
+    });
+  }
+
+  async delete(productId: ProductId) {
+    return this._prisma.product.delete({
+      where: { id: productId },
     });
   }
 }

@@ -8,6 +8,7 @@ export const ProductsMapper = {
       id: asProductId(dbProduct.id),
       categoryId: asCategoryId(dbProduct.categoryId),
       name: dbProduct.name,
+      price: dbProduct.price,
       currentStock: dbProduct.currentStock,
       minStockAlert: dbProduct.minStockAlert,
       stockStatus: resolveStockStatus(dbProduct.currentStock, dbProduct.minStockAlert),

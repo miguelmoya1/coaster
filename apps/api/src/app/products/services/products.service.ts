@@ -29,8 +29,9 @@ export class ProductsService {
 
     const createData = {
       name: productDto.name,
-      currentStock: productDto.currentStock,
-      minStockAlert: productDto.minStockAlert,
+      price: productDto.price ?? 0,
+      currentStock: productDto.currentStock ?? 0,
+      minStockAlert: productDto.minStockAlert ?? 0,
     };
 
     const product = await this._productsRepository.create(validCategoryId, createData);
@@ -75,5 +76,10 @@ export class ProductsService {
     const products = await this._productsRepository.findByBarId(barId);
 
     return products.map((p) => ProductsMapper.toDomain(p));
+  }
+
+  async deleteProduct(barId: BarId, productId: ProductId) {
+    await this._productsRepository.delete(productId);
+    this._barGateway.server.to(barId).emit(SocketEvents.PRODUCT_DELETED, { id: productId });
   }
 }

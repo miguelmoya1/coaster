@@ -1,5 +1,5 @@
 import { BarId, BarRole } from '@coaster/interfaces';
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
@@ -34,5 +34,12 @@ export class CategoriesController {
   ) {
     const category = await this._categoriesService.updateCategory(barId, categoryId, dto);
     return CategoriesMapper.toDto(category);
+  }
+
+  @Delete(':categoryId')
+  @Roles(BarRole.OWNER)
+  async deleteCategory(@Param('barId') barId: BarId, @Param('categoryId') categoryId: string) {
+    await this._categoriesService.deleteCategory(barId, categoryId);
+    return { success: true };
   }
 }

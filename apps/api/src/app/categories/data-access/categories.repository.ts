@@ -28,4 +28,10 @@ export class CategoriesRepository {
       data: dtos,
     });
   }
+
+  async delete(categoryId: string) {
+    return this._prisma.category.delete({
+      where: { id: categoryId },
+    });
+  }
 }

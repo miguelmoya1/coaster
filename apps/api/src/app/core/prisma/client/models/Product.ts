@@ -27,11 +27,13 @@ export type AggregateProduct = {
 }
 
 export type ProductAvgAggregateOutputType = {
+  price: number | null
   currentStock: number | null
   minStockAlert: number | null
 }
 
 export type ProductSumAggregateOutputType = {
+  price: number | null
   currentStock: number | null
   minStockAlert: number | null
 }
@@ -39,6 +41,7 @@ export type ProductSumAggregateOutputType = {
 export type ProductMinAggregateOutputType = {
   id: string | null
   name: string | null
+  price: number | null
   categoryId: string | null
   currentStock: number | null
   minStockAlert: number | null
@@ -49,6 +52,7 @@ export type ProductMinAggregateOutputType = {
 export type ProductMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  price: number | null
   categoryId: string | null
   currentStock: number | null
   minStockAlert: number | null
@@ -59,6 +63,7 @@ export type ProductMaxAggregateOutputType = {
 export type ProductCountAggregateOutputType = {
   id: number
   name: number
+  price: number
   categoryId: number
   currentStock: number
   minStockAlert: number
@@ -69,11 +74,13 @@ export type ProductCountAggregateOutputType = {
 
 
 export type ProductAvgAggregateInputType = {
+  price?: true
   currentStock?: true
   minStockAlert?: true
 }
 
 export type ProductSumAggregateInputType = {
+  price?: true
   currentStock?: true
   minStockAlert?: true
 }
@@ -81,6 +88,7 @@ export type ProductSumAggregateInputType = {
 export type ProductMinAggregateInputType = {
   id?: true
   name?: true
+  price?: true
   categoryId?: true
   currentStock?: true
   minStockAlert?: true
@@ -91,6 +99,7 @@ export type ProductMinAggregateInputType = {
 export type ProductMaxAggregateInputType = {
   id?: true
   name?: true
+  price?: true
   categoryId?: true
   currentStock?: true
   minStockAlert?: true
@@ -101,6 +110,7 @@ export type ProductMaxAggregateInputType = {
 export type ProductCountAggregateInputType = {
   id?: true
   name?: true
+  price?: true
   categoryId?: true
   currentStock?: true
   minStockAlert?: true
@@ -198,6 +208,7 @@ export type ProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ProductGroupByOutputType = {
   id: string
   name: string
+  price: number
   categoryId: string
   currentStock: number
   minStockAlert: number
@@ -231,6 +242,7 @@ export type ProductWhereInput = {
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   id?: Prisma.StringFilter<"Product"> | string
   name?: Prisma.StringFilter<"Product"> | string
+  price?: Prisma.IntFilter<"Product"> | number
   categoryId?: Prisma.StringFilter<"Product"> | string
   currentStock?: Prisma.IntFilter<"Product"> | number
   minStockAlert?: Prisma.IntFilter<"Product"> | number
@@ -242,6 +254,7 @@ export type ProductWhereInput = {
 export type ProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
@@ -256,6 +269,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   name?: Prisma.StringFilter<"Product"> | string
+  price?: Prisma.IntFilter<"Product"> | number
   categoryId?: Prisma.StringFilter<"Product"> | string
   currentStock?: Prisma.IntFilter<"Product"> | number
   minStockAlert?: Prisma.IntFilter<"Product"> | number
@@ -267,6 +281,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
@@ -285,6 +300,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProductScalarWhereWithAggregatesInput | Prisma.ProductScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Product"> | string
   name?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  price?: Prisma.IntWithAggregatesFilter<"Product"> | number
   categoryId?: Prisma.StringWithAggregatesFilter<"Product"> | string
   currentStock?: Prisma.IntWithAggregatesFilter<"Product"> | number
   minStockAlert?: Prisma.IntWithAggregatesFilter<"Product"> | number
@@ -295,6 +311,7 @@ export type ProductScalarWhereWithAggregatesInput = {
 export type ProductCreateInput = {
   id?: string
   name: string
+  price?: number
   currentStock?: number
   minStockAlert?: number
   createdAt?: Date | string
@@ -305,6 +322,7 @@ export type ProductCreateInput = {
 export type ProductUncheckedCreateInput = {
   id?: string
   name: string
+  price?: number
   categoryId: string
   currentStock?: number
   minStockAlert?: number
@@ -315,6 +333,7 @@ export type ProductUncheckedCreateInput = {
 export type ProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -325,6 +344,7 @@ export type ProductUpdateInput = {
 export type ProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
@@ -335,6 +355,7 @@ export type ProductUncheckedUpdateInput = {
 export type ProductCreateManyInput = {
   id?: string
   name: string
+  price?: number
   categoryId: string
   currentStock?: number
   minStockAlert?: number
@@ -345,6 +366,7 @@ export type ProductCreateManyInput = {
 export type ProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,6 +376,7 @@ export type ProductUpdateManyMutationInput = {
 export type ProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
@@ -374,6 +397,7 @@ export type ProductOrderByRelationAggregateInput = {
 export type ProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
@@ -382,6 +406,7 @@ export type ProductCountOrderByAggregateInput = {
 }
 
 export type ProductAvgOrderByAggregateInput = {
+  price?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
 }
@@ -389,6 +414,7 @@ export type ProductAvgOrderByAggregateInput = {
 export type ProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
@@ -399,6 +425,7 @@ export type ProductMaxOrderByAggregateInput = {
 export type ProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
@@ -407,6 +434,7 @@ export type ProductMinOrderByAggregateInput = {
 }
 
 export type ProductSumOrderByAggregateInput = {
+  price?: Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   minStockAlert?: Prisma.SortOrder
 }
@@ -464,6 +492,7 @@ export type IntFieldUpdateOperationsInput = {
 export type ProductCreateWithoutCategoryInput = {
   id?: string
   name: string
+  price?: number
   currentStock?: number
   minStockAlert?: number
   createdAt?: Date | string
@@ -473,6 +502,7 @@ export type ProductCreateWithoutCategoryInput = {
 export type ProductUncheckedCreateWithoutCategoryInput = {
   id?: string
   name: string
+  price?: number
   currentStock?: number
   minStockAlert?: number
   createdAt?: Date | string
@@ -511,6 +541,7 @@ export type ProductScalarWhereInput = {
   NOT?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
   id?: Prisma.StringFilter<"Product"> | string
   name?: Prisma.StringFilter<"Product"> | string
+  price?: Prisma.IntFilter<"Product"> | number
   categoryId?: Prisma.StringFilter<"Product"> | string
   currentStock?: Prisma.IntFilter<"Product"> | number
   minStockAlert?: Prisma.IntFilter<"Product"> | number
@@ -521,6 +552,7 @@ export type ProductScalarWhereInput = {
 export type ProductCreateManyCategoryInput = {
   id?: string
   name: string
+  price?: number
   currentStock?: number
   minStockAlert?: number
   createdAt?: Date | string
@@ -530,6 +562,7 @@ export type ProductCreateManyCategoryInput = {
 export type ProductUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -539,6 +572,7 @@ export type ProductUpdateWithoutCategoryInput = {
 export type ProductUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -548,6 +582,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
   currentStock?: Prisma.IntFieldUpdateOperationsInput | number
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -559,6 +594,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  price?: boolean
   categoryId?: boolean
   currentStock?: boolean
   minStockAlert?: boolean
@@ -570,6 +606,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  price?: boolean
   categoryId?: boolean
   currentStock?: boolean
   minStockAlert?: boolean
@@ -581,6 +618,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  price?: boolean
   categoryId?: boolean
   currentStock?: boolean
   minStockAlert?: boolean
@@ -592,6 +630,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type ProductSelectScalar = {
   id?: boolean
   name?: boolean
+  price?: boolean
   categoryId?: boolean
   currentStock?: boolean
   minStockAlert?: boolean
@@ -599,7 +638,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "categoryId" | "currentStock" | "minStockAlert" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "currentStock" | "minStockAlert" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
 }
@@ -618,6 +657,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    price: number
     categoryId: string
     currentStock: number
     minStockAlert: number
@@ -1049,6 +1089,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
 export interface ProductFieldRefs {
   readonly id: Prisma.FieldRef<"Product", 'String'>
   readonly name: Prisma.FieldRef<"Product", 'String'>
+  readonly price: Prisma.FieldRef<"Product", 'Int'>
   readonly categoryId: Prisma.FieldRef<"Product", 'String'>
   readonly currentStock: Prisma.FieldRef<"Product", 'Int'>
   readonly minStockAlert: Prisma.FieldRef<"Product", 'Int'>

@@ -13,6 +13,10 @@ export class CreateProductDto implements ICreateProductDto {
 
   @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
+  declare price?: number;
+
+  @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
   declare currentStock?: number;
 
   @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })

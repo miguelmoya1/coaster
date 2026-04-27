@@ -12,6 +12,10 @@ export class UpdateProductDto implements IUpdateProductDto {
   declare categoryId?: CategoryId;
 
   @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare price?: number;
+
+  @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
   @Min(0, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   declare minStockAlert?: number;
