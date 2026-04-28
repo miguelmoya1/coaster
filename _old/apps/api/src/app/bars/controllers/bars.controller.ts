@@ -1,4 +1,4 @@
-import { BarId, BarRole, User } from '@coaster/interfaces';
+import { BarId, BarRole, User } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CurrentUser } from '../../core/auth/decorators/current-user.decorator';

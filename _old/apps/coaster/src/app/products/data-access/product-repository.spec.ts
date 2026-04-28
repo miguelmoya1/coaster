@@ -1,14 +1,14 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  CreateProductDto,
-  Product,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/interfaces';
+    asBarId,
+    asCategoryId,
+    asProductId,
+    CreateProductDto,
+    Product,
+    UpdateProductDto,
+    UpdateProductStockDto,
+} from '@coaster/common';
 import { ProductRepository } from './product-repository';
 
 describe('ProductRepository', () => {

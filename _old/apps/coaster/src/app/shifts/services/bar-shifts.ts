@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 

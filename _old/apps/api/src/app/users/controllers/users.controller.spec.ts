@@ -1,4 +1,4 @@
-import { asUserId, User } from '@coaster/interfaces';
+import { asUserId, User } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

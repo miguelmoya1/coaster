@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/interfaces';
+import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/common';
 import { vi } from 'vitest';
 import { ShiftRepository } from './shift-repository';
 

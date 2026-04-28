@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asBarRole, asUserId, BarMember } from '@coaster/interfaces';
+import { asBarId, asBarMemberId, asBarRole, asUserId, BarMember } from '@coaster/common';
 
 export const BarMembersMapper = {
   toDomain(member: {

@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asBarId, Bar } from '@coaster/interfaces';
+import { asBarId, Bar } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BarCard } from './bar-card';
 

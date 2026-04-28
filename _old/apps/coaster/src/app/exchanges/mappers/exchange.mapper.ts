@@ -1,4 +1,4 @@
-import { ShiftExchange } from '@coaster/interfaces';
+import { ShiftExchange } from '@coaster/common';
 
 export const checkIsExchange = (exchange: unknown): exchange is ShiftExchange => {
   return (

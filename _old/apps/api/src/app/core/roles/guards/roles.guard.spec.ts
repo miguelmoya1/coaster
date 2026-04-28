@@ -1,11 +1,9 @@
-import { BarRole } from '@coaster/interfaces';
-import { ErrorCodes } from '@coaster/logic';
+import { BarRole } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked, Mock } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, Mocked, vi } from 'vitest';
 import { PrismaService } from '../../prisma/services/prisma.service';
-import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RolesGuard } from './roles.guard';
 
 describe('RolesGuard', () => {
@@ -31,14 +29,13 @@ describe('RolesGuard', () => {
     prisma = module.get(PrismaService);
   });
 
-  const mockContext = (user?: unknown, barId?: string) =>
-    ({
-      getHandler: vi.fn(),
-      getClass: vi.fn(),
-      switchToHttp: () => ({
-        getRequest: () => ({ user, params: { barId } }),
-      }),
-    });
+  const mockContext = (user?: unknown, barId?: string) => ({
+    getHandler: vi.fn(),
+    getClass: vi.fn(),
+    switchToHttp: () => ({
+      getRequest: () => ({ user, params: { barId } }),
+    }),
+  });
 
   it('should allow access if no roles are required', async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);

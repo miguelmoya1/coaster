@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateBarDto } from '@coaster/interfaces';
+import { BarId, CreateBarDto } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { barMapper } from '../mappers/bar.mapper';
 

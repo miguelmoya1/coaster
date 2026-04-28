@@ -1,4 +1,4 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/interfaces';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';

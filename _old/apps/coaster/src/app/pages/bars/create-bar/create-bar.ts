@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
-import { CreateBarDto } from '@coaster/interfaces';
+import { CreateBarDto } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';

@@ -1,16 +1,16 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideAlertCircle,
-  lucideAlertTriangle,
-  lucideArrowRight,
-  lucideCheckCircle2,
-  lucideChevronRight,
-  lucidePlus,
-  lucideUsers,
+    lucideAlertCircle,
+    lucideAlertTriangle,
+    lucideArrowRight,
+    lucideCheckCircle2,
+    lucideChevronRight,
+    lucidePlus,
+    lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarMembers } from '../../../../members';

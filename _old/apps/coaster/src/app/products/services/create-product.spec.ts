@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, CreateProductDto, Product } from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, CreateProductDto, Product } from '@coaster/common';
 import { Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { CreateProduct } from './create-product';

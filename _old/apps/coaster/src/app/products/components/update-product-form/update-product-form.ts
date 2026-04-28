@@ -1,6 +1,6 @@
 import { Component, effect, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required, TreeValidationResult } from '@angular/forms/signals';
-import { Product, UpdateProductStockDto } from '@coaster/interfaces';
+import { Product, UpdateProductStockDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../../shared';
 

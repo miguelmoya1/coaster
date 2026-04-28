@@ -1,14 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarRole } from '@coaster/interfaces';
 
 @Component({
   selector: 'coaster-bar-role-badge',
   imports: [TranslatePipe],
   template: `
     <div data-testid="bar-role-badge" class="flex items-center gap-2 mt-2">
-      <div data-testid="bar-role-badge-dot" class="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] opacity-90" [class]="dotColorClass()"></div>
-      <span data-testid="bar-role-badge-label" class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+      <div
+        data-testid="bar-role-badge-dot"
+        class="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] opacity-90"
+        [class]="dotColorClass()"
+      ></div>
+      <span
+        data-testid="bar-role-badge-label"
+        class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold"
+      >
         {{ labelKey() | translate }}
       </span>
     </div>

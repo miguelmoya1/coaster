@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { CurrentBar } from '../../../bars';
 import { CurrentUser } from '../../../core';
 import { BottomNav, TopAppBar } from '../../../shared';

@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
+import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
 import { EditCategoryForm } from './edit-category-form';
@@ -87,14 +87,18 @@ describe('EditCategoryForm', () => {
 
     it('should render the cancel button', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const cancelBtn = Array.from(buttons).find((btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'button');
+      const cancelBtn = Array.from(buttons).find(
+        (btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'button',
+      );
 
       expect(cancelBtn).toBeTruthy();
     });
 
     it('should render the submit button', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const submitBtn = Array.from(buttons).find((btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'submit');
+      const submitBtn = Array.from(buttons).find(
+        (btn: unknown) => (btn as HTMLButtonElement).getAttribute('type') === 'submit',
+      );
 
       expect(submitBtn).toBeTruthy();
     });

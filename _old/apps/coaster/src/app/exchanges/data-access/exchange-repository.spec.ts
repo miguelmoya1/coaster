@@ -1,14 +1,14 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import {
-  asBarId,
-  asShiftExchangeId,
-  asShiftId,
-  asUserId,
-  CreateShiftExchangeDto,
-  ShiftExchange,
-  ShiftExchangeStatus,
-} from '@coaster/interfaces';
+    asBarId,
+    asShiftExchangeId,
+    asShiftId,
+    asUserId,
+    CreateShiftExchangeDto,
+    ShiftExchange,
+    ShiftExchangeStatus,
+} from '@coaster/common';
 import { ExchangeRepository } from './exchange-repository';
 
 describe('ExchangeRepository', () => {

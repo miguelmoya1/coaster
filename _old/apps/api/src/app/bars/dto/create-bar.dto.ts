@@ -1,4 +1,4 @@
-import { CreateBarDto as ICreateBarDto } from '@coaster/interfaces';
+import { CreateBarDto as ICreateBarDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 

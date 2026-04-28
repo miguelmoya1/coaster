@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { ProductRepository } from '../data-access/product-repository';
 import { productArrayMapper } from '../mappers/product.mapper';
 

@@ -1,4 +1,4 @@
-import { CreateShiftExchangeDto as ICreateShiftExchangeDto, UserId } from '@coaster/interfaces';
+import { CreateShiftExchangeDto as ICreateShiftExchangeDto, UserId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { IsOptional, IsUUID } from 'class-validator';
 

@@ -1,4 +1,4 @@
-import { UpdateCategoryDto as IUpdateCategoryDto } from '@coaster/interfaces';
+import { UpdateCategoryDto as IUpdateCategoryDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 

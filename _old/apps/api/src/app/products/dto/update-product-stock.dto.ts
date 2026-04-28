@@ -1,6 +1,6 @@
-import { UpdateProductStockDto as IUpdateProductStockDto } from '@coaster/interfaces';
+import { UpdateProductStockDto as IUpdateProductStockDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
-import { IsNumber, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class UpdateProductStockDto implements IUpdateProductStockDto {
   @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })

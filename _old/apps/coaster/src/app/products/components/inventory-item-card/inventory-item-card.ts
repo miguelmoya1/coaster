@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { StockStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-import { StockStatus } from '@coaster/interfaces';
 import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
 
 @Component({

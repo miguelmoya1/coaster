@@ -1,4 +1,4 @@
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { ShiftsRepository } from '../data-access/shifts.repository';

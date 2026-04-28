@@ -1,14 +1,14 @@
 import { Component, effect, input, output, signal } from '@angular/core';
 import {
-  form,
-  FormField,
-  FormRoot,
-  maxLength,
-  minLength,
-  required,
-  TreeValidationResult,
+    form,
+    FormField,
+    FormRoot,
+    maxLength,
+    minLength,
+    required,
+    TreeValidationResult,
 } from '@angular/forms/signals';
-import { Category, UpdateCategoryDto } from '@coaster/interfaces';
+import { Category, UpdateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
 

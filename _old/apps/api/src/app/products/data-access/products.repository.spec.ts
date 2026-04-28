@@ -1,6 +1,6 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { PrismaService } from '../../core';
 import { ProductsRepository } from './products.repository';
 
@@ -22,10 +22,7 @@ describe('ProductsRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ProductsRepository,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [ProductsRepository, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<ProductsRepository>(ProductsRepository);

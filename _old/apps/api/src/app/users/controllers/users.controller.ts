@@ -1,4 +1,4 @@
-import { User } from '@coaster/interfaces';
+import { User } from '@coaster/common';
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { CurrentUser, FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
 import { UpdateUserDto } from '../dto/update-user.dto';

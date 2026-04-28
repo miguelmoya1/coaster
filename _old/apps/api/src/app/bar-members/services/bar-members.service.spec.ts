@@ -1,9 +1,9 @@
-import { asBarId, asUserId, BarRole } from '@coaster/interfaces';
+import { asBarId, asUserId, BarRole } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { EmailService, BarGateway } from '../../core';
+import { BarGateway, EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersService } from './bar-members.service';
 

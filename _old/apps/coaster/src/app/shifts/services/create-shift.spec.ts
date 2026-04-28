@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, CreateShiftDto, Shift, asUserId } from '@coaster/interfaces';
+import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/common';
 import { Mock, vi } from 'vitest';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { CreateShift } from './create-shift';
@@ -14,10 +14,7 @@ describe('CreateShift', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        CreateShift,
-        { provide: ShiftRepository, useValue: shiftRepoMock },
-      ],
+      providers: [CreateShift, { provide: ShiftRepository, useValue: shiftRepoMock }],
     });
 
     service = TestBed.inject(CreateShift);
@@ -33,14 +30,14 @@ describe('CreateShift', () => {
       const dto: CreateShiftDto = {
         startTime: '2026-03-20T08:00:00Z',
         endTime: '2026-03-20T16:00:00Z',
-        userId: asUserId('user-1')
+        userId: asUserId('user-1'),
       };
       const mockShift: Shift = {
         id: asShiftId('shift-1'),
         barId,
         ...dto,
         userName: 'User 1',
-        userImage: ''
+        userImage: '',
       };
 
       shiftRepoMock['create'].mockResolvedValue(mockShift);
@@ -56,9 +53,9 @@ describe('CreateShift', () => {
       const dto: CreateShiftDto = {
         startTime: '2026-03-20T08:00:00Z',
         endTime: '2026-03-20T16:00:00Z',
-        userId: asUserId('user-1')
+        userId: asUserId('user-1'),
       };
-      
+
       const error = new Error('Creation failed');
       shiftRepoMock['create'].mockRejectedValue(error);
 

@@ -1,4 +1,4 @@
-import { asUserId, User } from '@coaster/interfaces';
+import { asUserId, User } from '@coaster/common';
 import { User as UserDb } from '../../core';
 
 export const UsersMapper = {

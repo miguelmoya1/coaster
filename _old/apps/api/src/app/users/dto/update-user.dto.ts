@@ -1,4 +1,4 @@
-import { UpdateUserDto as IUpdateUserDto } from '@coaster/interfaces';
+import { UpdateUserDto as IUpdateUserDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { IsOptional, IsString } from 'class-validator';
 

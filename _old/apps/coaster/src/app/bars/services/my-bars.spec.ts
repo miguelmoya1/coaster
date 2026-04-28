@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, Bar } from '@coaster/interfaces';
+import { asBarId, Bar } from '@coaster/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
@@ -89,9 +89,7 @@ describe('MyBars', () => {
     it('should reload the bars', async () => {
       TestBed.tick();
 
-      const mockBars: Bar[] = [
-        { id: asBarId('bar-1'), name: 'Bar 1' },
-      ];
+      const mockBars: Bar[] = [{ id: asBarId('bar-1'), name: 'Bar 1' }];
 
       httpMock.expectOne('/bars').flush(mockBars);
       await TestBed.inject(ApplicationRef).whenStable();

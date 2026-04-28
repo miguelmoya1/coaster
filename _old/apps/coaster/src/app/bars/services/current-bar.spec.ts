@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, Bar, BarId } from '@coaster/interfaces';
+import { asBarId, Bar, BarId } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { CurrentBar } from './current-bar';

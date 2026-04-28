@@ -1,7 +1,7 @@
-import { BarId, BarRole, User } from '@coaster/interfaces';
+import { BarId, BarRole, User } from '@coaster/common';
 import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { EmailService, BarGateway } from '../../core';
+import { BarGateway, EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 

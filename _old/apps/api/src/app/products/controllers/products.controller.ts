@@ -1,4 +1,4 @@
-import { BarId, BarRole, ProductId } from '@coaster/interfaces';
+import { BarId, BarRole, ProductId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateProductDto } from '../dto/create-product.dto';

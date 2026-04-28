@@ -1,4 +1,4 @@
-import { asBarId, Bar } from '@coaster/interfaces';
+import { asBarId, Bar } from '@coaster/common';
 import { barArrayMapper, barMapper, checkIsBar } from './bar.mapper';
 
 describe('Bar Mapper', () => {

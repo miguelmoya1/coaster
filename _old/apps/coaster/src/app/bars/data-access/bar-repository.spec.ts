@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, Bar } from '@coaster/interfaces';
+import { asBarId, Bar } from '@coaster/common';
 import { BarRepository } from './bar-repository';
 
 describe('BarRepository', () => {

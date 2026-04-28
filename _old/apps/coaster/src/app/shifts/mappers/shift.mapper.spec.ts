@@ -1,5 +1,5 @@
-import { asBarId, asShiftId, Shift, asUserId } from '@coaster/interfaces';
-import { shiftArrayMapper, shiftMapper, checkIsShift } from './shift.mapper';
+import { asBarId, asShiftId, asUserId, Shift } from '@coaster/common';
+import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
 
 describe('ShiftMapper', () => {
   const validShift: Shift = {

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateShiftDto, Shift } from '@coaster/interfaces';
+import { BarId, CreateShiftDto, Shift } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { shiftMapper } from '../mappers/shift.mapper';
 

@@ -1,4 +1,4 @@
-import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/interfaces';
+import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
@@ -55,7 +55,7 @@ export class ShiftExchangesService {
     if (exchange.requesterId === acceptingUserId) {
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
-    
+
     if (exchange.targetId && exchange.targetId !== acceptingUserId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }

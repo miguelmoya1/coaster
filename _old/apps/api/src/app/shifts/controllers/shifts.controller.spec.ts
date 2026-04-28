@@ -1,7 +1,7 @@
-import { asBarId, asUserId } from '@coaster/interfaces';
+import { asBarId, asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { ShiftsService } from '../services/shifts.service';
 import { ShiftsController } from './shifts.controller';

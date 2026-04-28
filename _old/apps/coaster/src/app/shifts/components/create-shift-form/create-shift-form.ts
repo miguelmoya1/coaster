@@ -1,6 +1,6 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, TreeValidationResult, form, required } from '@angular/forms/signals';
-import { BarMember, CreateShiftDto, asUserId } from '@coaster/interfaces';
+import { BarMember, CreateShiftDto, asUserId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '../../../shared';
 

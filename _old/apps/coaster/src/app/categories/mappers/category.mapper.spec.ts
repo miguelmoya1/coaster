@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
+import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category.mapper';
 
 describe('Category Mapper', () => {

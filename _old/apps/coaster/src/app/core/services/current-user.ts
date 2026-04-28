@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { User } from '@coaster/interfaces';
+import { User } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
 import { Auth } from './auth';

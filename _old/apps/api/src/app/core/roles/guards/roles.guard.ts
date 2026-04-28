@@ -1,4 +1,4 @@
-import { asBarRole, BarRole } from '@coaster/interfaces';
+import { asBarRole, BarRole } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';

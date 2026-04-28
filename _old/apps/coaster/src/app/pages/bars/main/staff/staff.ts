@@ -1,12 +1,11 @@
+import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-import { BarId, InviteBarMemberDto } from '@coaster/interfaces';
+import { BarId, BarMember, InviteBarMemberDto } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Dialog } from '@angular/cdk/dialog';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
-import { BarMember } from '@coaster/interfaces';
-import { BarMembers, InviteMember, InviteMemberForm, StaffMemberCard, RemoveMember } from '../../../../members';
-import { BottomSheet, Fab, Loading, SectionTitle, ConfirmDialogComponent } from '../../../../shared';
+import { BarMembers, InviteMember, InviteMemberForm, RemoveMember, StaffMemberCard } from '../../../../members';
+import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
   selector: 'coaster-staff',

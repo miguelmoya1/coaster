@@ -1,4 +1,4 @@
-import { asUserId, User } from '@coaster/interfaces';
+import { asUserId, User } from '@coaster/common';
 import { checkIsUser, userMapper } from './user.mapper';
 
 describe('User Mapper', () => {

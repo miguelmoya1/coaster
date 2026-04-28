@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BarRole } from '@coaster/interfaces';
+import { BarRole } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BarRoleBadge } from './bar-role-badge';
 

@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, Product } from '@coaster/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BarProducts } from './bar-products';
 

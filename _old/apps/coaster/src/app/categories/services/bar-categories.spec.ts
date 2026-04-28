@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, BarId, Category } from '@coaster/interfaces';
+import { asBarId, asCategoryId, BarId, Category } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
 import { BarCategories } from './bar-categories';
@@ -97,9 +97,7 @@ describe('BarCategories', () => {
 
       TestBed.tick();
 
-      const mockCategories: Category[] = [
-        { id: asCategoryId('cat-1'), barId: asBarId('bar-1'), name: 'Tapas' },
-      ];
+      const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), barId: asBarId('bar-1'), name: 'Tapas' }];
 
       httpMock.expectOne('/bars/bar-1/categories').flush(mockCategories);
       await TestBed.inject(ApplicationRef).whenStable();

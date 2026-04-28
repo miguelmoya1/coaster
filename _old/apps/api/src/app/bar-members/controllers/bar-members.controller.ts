@@ -1,4 +1,4 @@
-import { BarId, BarMemberId, BarRole, User } from '@coaster/interfaces';
+import { BarId, BarMemberId, BarRole, User } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { commonMapper, CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';

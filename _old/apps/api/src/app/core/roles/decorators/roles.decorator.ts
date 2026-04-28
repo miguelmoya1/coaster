@@ -1,4 +1,4 @@
-import { BarRole } from '@coaster/interfaces';
+import { BarRole } from '@coaster/common';
 import { SetMetadata } from '@nestjs/common';
 
 export const ROLES_KEY = 'roles';

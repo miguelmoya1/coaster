@@ -1,4 +1,4 @@
-import { DeleteResponse } from '@coaster/interfaces';
+import { DeleteResponse } from '@coaster/common';
 
 export const commonMapper = {
   getSuccessResponse: (): DeleteResponse => ({

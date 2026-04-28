@@ -1,4 +1,4 @@
-import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { resolveStockStatus } from '@coaster/logic';
 import { Product as ProductDb } from '../../core';
 

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-import { BarId, BarRole, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/interfaces';
+import { BarId, BarRole, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';

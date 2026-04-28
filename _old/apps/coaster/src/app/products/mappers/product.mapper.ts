@@ -1,4 +1,4 @@
-import { Product } from '@coaster/interfaces';
+import { Product } from '@coaster/common';
 
 export const checkIsProduct = (product: unknown): product is Product => {
   const p = product as Record<string, unknown>;

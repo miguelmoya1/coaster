@@ -1,4 +1,4 @@
-import { UpdateUserDto, UserId } from '@coaster/interfaces';
+import { UpdateUserDto, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../data-access/user.repository';
 import { UsersMapper } from '../mappers/users.mapper';

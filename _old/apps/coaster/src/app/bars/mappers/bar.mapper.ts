@@ -1,4 +1,4 @@
-import { Bar } from '@coaster/interfaces';
+import { Bar } from '@coaster/common';
 
 export const checkIsBar = (bar: unknown): bar is Bar => {
   return typeof bar === 'object' && bar !== null && 'id' in bar && 'name' in bar;

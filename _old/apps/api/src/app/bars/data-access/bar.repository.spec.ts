@@ -1,6 +1,6 @@
-import { asUserId } from '@coaster/interfaces';
+import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { PrismaService } from '../../core';
 import { BarRepository } from './bar.repository';
 

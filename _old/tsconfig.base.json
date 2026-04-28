@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@coaster/interfaces": ["libs/interfaces/src/index.ts"],
+      "@coaster/common": ["libs/interfaces/src/index.ts"],
       "@coaster/logic": ["libs/logic/src/index.ts"]
     }
   },

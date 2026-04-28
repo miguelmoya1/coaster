@@ -1,6 +1,6 @@
-import { CategoryId, UpdateProductDto as IUpdateProductDto } from '@coaster/interfaces';
+import { CategoryId, UpdateProductDto as IUpdateProductDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
-import { IsNumber, IsString, IsOptional, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdateProductDto implements IUpdateProductDto {
   @IsString({ message: ErrorCodes.INVALID_TYPE })

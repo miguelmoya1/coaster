@@ -1,15 +1,15 @@
 import { Component, input, output, signal } from '@angular/core';
 import {
-  email,
-  form,
-  FormField,
-  FormRoot,
-  maxLength,
-  minLength,
-  required,
-  TreeValidationResult,
+    email,
+    form,
+    FormField,
+    FormRoot,
+    maxLength,
+    minLength,
+    required,
+    TreeValidationResult,
 } from '@angular/forms/signals';
-import { InviteBarMemberDto } from '@coaster/interfaces';
+import { InviteBarMemberDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
 

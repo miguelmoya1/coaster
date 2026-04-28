@@ -1,4 +1,4 @@
-import { asShiftExchangeId, asShiftId, asUserId, ShiftExchange, ShiftExchangeStatus } from '@coaster/interfaces';
+import { asShiftExchangeId, asShiftId, asUserId, ShiftExchange, ShiftExchangeStatus } from '@coaster/common';
 import { checkIsExchange, exchangeArrayMapper, exchangeMapper } from './exchange.mapper';
 
 describe('Exchange Mapper', () => {

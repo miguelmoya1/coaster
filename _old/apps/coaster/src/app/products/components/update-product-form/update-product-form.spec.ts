@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asCategoryId, asProductId, Product } from '@coaster/interfaces';
+import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { vi } from 'vitest';
 import { UpdateProductForm } from './update-product-form';

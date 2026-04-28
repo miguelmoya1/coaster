@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, Product, UpdateProductDto } from '@coaster/interfaces';
+import { asBarId, asCategoryId, asProductId, Product, UpdateProductDto } from '@coaster/common';
 import { Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { EditProduct } from './edit-product';
@@ -39,7 +39,12 @@ describe('EditProduct', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const productId = asProductId('prod-1');
-      const dto: UpdateProductDto = { name: 'Beer Edited', categoryId: asCategoryId('cat-1'), minStockAlert: 10, price: 1050 };
+      const dto: UpdateProductDto = {
+        name: 'Beer Edited',
+        categoryId: asCategoryId('cat-1'),
+        minStockAlert: 10,
+        price: 1050,
+      };
       productRepoMock['update'].mockResolvedValue({ ...mockProduct, ...dto });
 
       const result = await service.edit(barId, productId, dto);

@@ -1,4 +1,4 @@
-import { CreateCategoryDto as ICreateCategoryDto } from '@coaster/interfaces';
+import { CreateCategoryDto as ICreateCategoryDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/logic';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 

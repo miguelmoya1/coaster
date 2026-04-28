@@ -1,58 +1,58 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  signal,
-} from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    linkedSignal,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
-  BarId,
-  Category,
-  CreateCategoryDto,
-  CreateProductDto,
-  Product,
-  UpdateCategoryDto,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/interfaces';
+    BarId,
+    Category,
+    CreateCategoryDto,
+    CreateProductDto,
+    Product,
+    UpdateCategoryDto,
+    UpdateProductDto,
+    UpdateProductStockDto,
+} from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
-  BarCategories,
-  CreateCategory,
-  CreateCategoryForm,
-  EditCategory,
-  EditCategoryForm,
-  Tabs,
+    BarCategories,
+    CreateCategory,
+    CreateCategoryForm,
+    DeleteCategory,
+    EditCategory,
+    EditCategoryForm,
+    Tabs,
 } from '../../../../categories';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import {
-  BarProducts,
-  CreateProduct,
-  CreateProductForm,
-  DeleteProduct,
-  EditProduct,
-  EditProductForm,
-  InventoryItemCard,
-  UpdateProduct,
-  UpdateProductForm,
+    BarProducts,
+    CreateProduct,
+    CreateProductForm,
+    DeleteProduct,
+    EditProduct,
+    EditProductForm,
+    InventoryItemCard,
+    UpdateProduct,
+    UpdateProductForm,
 } from '../../../../products';
-import { DeleteCategory } from '../../../../categories';
 import {
-  BottomSheet,
-  CoasterTitle,
-  Fab,
-  Loading,
-  StatusCard,
-  CoasterBtn,
-  ConfirmDialogComponent,
+    BottomSheet,
+    CoasterBtn,
+    CoasterTitle,
+    ConfirmDialogComponent,
+    Fab,
+    Loading,
+    StatusCard,
 } from '../../../../shared';
 
 type PantryTabs = 'PRODUCT' | 'CATEGORY';

@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, Category } from '@coaster/interfaces';
+import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { CategoryRepository } from './category-repository';
 
 describe('CategoryRepository', () => {

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/interfaces';
+import { BarId } from '@coaster/common';
 import { CategoryRepository } from '../data-access/category-repository';
 import { categoryArrayMapper } from '../mappers/category.mapper';
 

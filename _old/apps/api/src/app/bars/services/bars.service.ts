@@ -1,4 +1,4 @@
-import { BarId, CreateBarDto, User } from '@coaster/interfaces';
+import { BarId, CreateBarDto, User } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { BarRepository } from '../data-access/bar.repository';
 import { BarsMapper } from '../mappers/bars.mapper';

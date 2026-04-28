@@ -1,11 +1,11 @@
 import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  CreateProductDto,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/interfaces';
+    asBarId,
+    asCategoryId,
+    asProductId,
+    CreateProductDto,
+    UpdateProductDto,
+    UpdateProductStockDto,
+} from '@coaster/common';
 import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';

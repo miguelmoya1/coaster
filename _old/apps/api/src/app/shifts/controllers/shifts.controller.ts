@@ -1,4 +1,4 @@
-import { BarId, BarRole } from '@coaster/interfaces';
+import { BarId, BarRole } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateShiftDto } from '../dto/create-shift.dto';
