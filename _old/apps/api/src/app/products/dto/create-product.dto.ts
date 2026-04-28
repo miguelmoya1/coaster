@@ -1,5 +1,4 @@
-import { CategoryId, CreateProductDto as ICreateProductDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { CategoryId, ErrorCodes, CreateProductDto as ICreateProductDto } from '@coaster/common';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProductDto implements ICreateProductDto {

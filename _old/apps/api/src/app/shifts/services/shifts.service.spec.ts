@@ -1,5 +1,4 @@
-import { asBarId, asUserId, CreateShiftDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { asBarId, asUserId, CreateShiftDto, ErrorCodes } from '@coaster/common';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';

@@ -1,5 +1,4 @@
-import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { BarId, ErrorCodes, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId, asShiftId } from '@coaster/common';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ShiftExchangesRepository } from '../data-access/shift-exchanges.repository';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';

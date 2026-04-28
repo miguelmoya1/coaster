@@ -1,5 +1,4 @@
-import { asBarId, asUserId, BarRole } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { asBarId, asUserId, BarRole, ErrorCodes } from '@coaster/common';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';

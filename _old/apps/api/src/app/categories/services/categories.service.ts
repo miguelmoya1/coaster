@@ -1,5 +1,4 @@
-import { BarId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
-import { SocketEvents } from '@coaster/logic';
+import { BarId, CreateCategoryDto, SocketEvents, UpdateCategoryDto } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { BarGateway } from '../../core';
 import { CategoriesRepository } from '../data-access/categories.repository';

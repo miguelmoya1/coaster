@@ -1,12 +1,13 @@
 import {
-    asCategoryId,
-    BarId,
-    CreateProductDto,
-    ProductId,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  asCategoryId,
+  BarId,
+  CreateProductDto,
+  ErrorCodes,
+  ProductId,
+  SocketEvents,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
-import { ErrorCodes, SocketEvents } from '@coaster/logic';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { BarGateway } from '../../core';
 import { ProductsRepository } from '../data-access/products.repository';

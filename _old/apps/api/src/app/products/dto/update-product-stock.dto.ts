@@ -1,5 +1,4 @@
-import { UpdateProductStockDto as IUpdateProductStockDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { ErrorCodes, UpdateProductStockDto as IUpdateProductStockDto } from '@coaster/common';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class UpdateProductStockDto implements IUpdateProductStockDto {

@@ -1,12 +1,12 @@
 import {
-    asBarId,
-    asShiftExchangeId,
-    asShiftId,
-    asUserId,
-    CreateShiftExchangeDto,
-    ShiftExchangeStatus,
+  asBarId,
+  asShiftExchangeId,
+  asShiftId,
+  asUserId,
+  CreateShiftExchangeDto,
+  ErrorCodes,
+  ShiftExchangeStatus,
 } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';

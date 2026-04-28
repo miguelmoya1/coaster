@@ -1,5 +1,4 @@
-import { asBarRole, BarRole } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { asBarRole, BarRole, ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';

@@ -1,4 +1,4 @@
-import { ErrorCodes, SocketEvents } from '@coaster/logic';
+import { ErrorCodes, SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';

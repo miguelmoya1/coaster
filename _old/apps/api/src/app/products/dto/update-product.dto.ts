@@ -1,5 +1,4 @@
-import { CategoryId, UpdateProductDto as IUpdateProductDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/logic';
+import { CategoryId, ErrorCodes, UpdateProductDto as IUpdateProductDto } from '@coaster/common';
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdateProductDto implements IUpdateProductDto {
