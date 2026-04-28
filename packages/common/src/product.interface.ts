@@ -1,0 +1,38 @@
+import { Brand } from './brand.type';
+import { Category, CategoryId } from './category.interface';
+
+export type ProductId = Brand<string, 'ProductId'>;
+export const asProductId = (id: string): ProductId => id as ProductId;
+
+export type StockStatus = 'critical' | 'low' | 'good';
+
+export interface Product {
+  id: ProductId;
+  name: string;
+  categoryId: CategoryId;
+  category?: Category;
+  price: number;
+  currentStock: number;
+  minStockAlert: number;
+  stockStatus: StockStatus;
+  lastUpdated: string;
+}
+
+export interface UpdateProductDto {
+  name?: string;
+  categoryId?: CategoryId;
+  price?: number;
+  minStockAlert?: number;
+}
+
+export interface UpdateProductStockDto {
+  currentStock: number;
+}
+
+export interface CreateProductDto {
+  name: string;
+  categoryId: CategoryId;
+  price?: number;
+  currentStock?: number;
+  minStockAlert?: number;
+}

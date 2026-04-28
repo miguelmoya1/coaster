@@ -1,0 +1,15 @@
+{
+  "name": "coaster",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start:web": "npm start -w apps/web",
+    "start:api": "npm start -w apps/api",
+    "start:emulators": "firebase emulators:start --only auth",
+    "test": "npm test --workspaces --if-present"
+  }
+}
