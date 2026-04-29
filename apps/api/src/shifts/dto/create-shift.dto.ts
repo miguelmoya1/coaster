@@ -1,15 +1,5 @@
-import {
-  ErrorCodes,
-  CreateShiftDto as ICreateShiftDto,
-  type UserId,
-} from '@coaster/common';
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { ErrorCodes, CreateShiftDto as ICreateShiftDto, type UserId } from '@coaster/common';
+import { IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateShiftDto implements ICreateShiftDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })

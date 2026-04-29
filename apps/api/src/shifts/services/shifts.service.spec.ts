@@ -20,10 +20,7 @@ describe('ShiftsService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ShiftsService,
-        { provide: ShiftsRepository, useValue: mockRepo },
-      ],
+      providers: [ShiftsService, { provide: ShiftsRepository, useValue: mockRepo }],
     }).compile();
 
     service = module.get<ShiftsService>(ShiftsService);
@@ -56,10 +53,7 @@ describe('ShiftsService', () => {
 
       const result = await service.createShift(asBarId('bar-1'), createDto);
 
-      expect(repository.isUserMemberOfBar).toHaveBeenCalledWith(
-        'user-id',
-        'bar-1',
-      );
+      expect(repository.isUserMemberOfBar).toHaveBeenCalledWith('user-id', 'bar-1');
       expect(repository.create).toHaveBeenCalledWith('bar-1', 'user-id', {
         startTime: FAKE_DATE,
         endTime: FAKE_DATE,
@@ -81,12 +75,8 @@ describe('ShiftsService', () => {
     it('should block creation if user is not a member', async () => {
       repository.isUserMemberOfBar.mockResolvedValue(false);
 
-      await expect(
-        service.createShift(asBarId('bar-1'), createDto),
-      ).rejects.toThrow(ForbiddenException);
-      await expect(
-        service.createShift(asBarId('bar-1'), createDto),
-      ).rejects.toThrow(ErrorCodes.MEMBER_NOT_FOUND);
+      await expect(service.createShift(asBarId('bar-1'), createDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.createShift(asBarId('bar-1'), createDto)).rejects.toThrow(ErrorCodes.MEMBER_NOT_FOUND);
 
       expect(repository.create).not.toHaveBeenCalled();
     });
@@ -99,12 +89,8 @@ describe('ShiftsService', () => {
         startTime: 'fecha-invalida',
       };
 
-      await expect(
-        service.createShift(asBarId('bar-1'), invalidDto),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.createShift(asBarId('bar-1'), invalidDto),
-      ).rejects.toThrow(ErrorCodes.INVALID_DATE);
+      await expect(service.createShift(asBarId('bar-1'), invalidDto)).rejects.toThrow(BadRequestException);
+      await expect(service.createShift(asBarId('bar-1'), invalidDto)).rejects.toThrow(ErrorCodes.INVALID_DATE);
 
       expect(repository.create).not.toHaveBeenCalled();
     });
@@ -127,17 +113,9 @@ describe('ShiftsService', () => {
       const startIso = '2026-03-01T00:00:00Z';
       const endIso = '2026-03-31T23:59:59Z';
 
-      const result = await service.getShifts(
-        asBarId('bar-1'),
-        startIso,
-        endIso,
-      );
+      const result = await service.getShifts(asBarId('bar-1'), startIso, endIso);
 
-      expect(repository.findByBarId).toHaveBeenCalledWith(
-        'bar-1',
-        new Date(startIso),
-        new Date(endIso),
-      );
+      expect(repository.findByBarId).toHaveBeenCalledWith('bar-1', new Date(startIso), new Date(endIso));
 
       expect(result).toEqual([
         {
@@ -154,13 +132,11 @@ describe('ShiftsService', () => {
     });
 
     it('should throw error if a datetime query param is invalid', async () => {
-      await expect(
-        service.getShifts(asBarId('bar-1'), 'invalida', '2026-01-01T00:00:00Z'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.getShifts(asBarId('bar-1'), 'invalida', '2026-01-01T00:00:00Z')).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(
-        service.getShifts(asBarId('bar-1'), undefined, 'invalida'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.getShifts(asBarId('bar-1'), undefined, 'invalida')).rejects.toThrow(BadRequestException);
     });
   });
 });

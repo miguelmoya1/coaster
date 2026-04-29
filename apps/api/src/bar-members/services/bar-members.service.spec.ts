@@ -112,23 +112,10 @@ describe('BarMembersService', () => {
         },
       });
 
-      const result = await service.invite(
-        asBarId('bar-1'),
-        'new@test.com',
-        BarRole.STAFF,
-        fakeUser,
-      );
+      const result = await service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser);
 
-      expect(repository.inviteMember).toHaveBeenCalledWith(
-        'bar-1',
-        'new@test.com',
-        { role: BarRole.STAFF },
-      );
-      expect(emailService.sendInviteEmail).toHaveBeenCalledWith(
-        'new@test.com',
-        'Test Bar',
-        'Admin Name',
-      );
+      expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: BarRole.STAFF });
+      expect(emailService.sendInviteEmail).toHaveBeenCalledWith('new@test.com', 'Test Bar', 'Admin Name');
       expect(result).toEqual({
         id: asUserId('new-member'),
         userId: asUserId('some-user'),
@@ -144,22 +131,12 @@ describe('BarMembersService', () => {
     it('should fail if the bar does not exist and NOT send email', async () => {
       repository.findBarById.mockResolvedValue(null);
 
-      await expect(
-        service.invite(
-          asBarId('bar-1'),
-          'new@test.com',
-          BarRole.STAFF,
-          fakeUser,
-        ),
-      ).rejects.toThrow(NotFoundException);
-      await expect(
-        service.invite(
-          asBarId('bar-1'),
-          'new@test.com',
-          BarRole.STAFF,
-          fakeUser,
-        ),
-      ).rejects.toThrow(ErrorCodes.BAR_NOT_FOUND);
+      await expect(service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)).rejects.toThrow(
+        ErrorCodes.BAR_NOT_FOUND,
+      );
 
       expect(repository.inviteMember).not.toHaveBeenCalled();
       expect(emailService.sendInviteEmail).not.toHaveBeenCalled();
@@ -175,22 +152,12 @@ describe('BarMembersService', () => {
 
       repository.inviteMember.mockRejectedValue({ code: 'P2002' });
 
-      await expect(
-        service.invite(
-          asBarId('bar-1'),
-          'new@test.com',
-          BarRole.STAFF,
-          fakeUser,
-        ),
-      ).rejects.toThrow(ConflictException);
-      await expect(
-        service.invite(
-          asBarId('bar-1'),
-          'new@test.com',
-          BarRole.STAFF,
-          fakeUser,
-        ),
-      ).rejects.toThrow(ErrorCodes.USER_ALREADY_MEMBER);
+      await expect(service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)).rejects.toThrow(
+        ErrorCodes.USER_ALREADY_MEMBER,
+      );
 
       expect(emailService.sendInviteEmail).not.toHaveBeenCalled();
     });
@@ -206,14 +173,9 @@ describe('BarMembersService', () => {
       const unknownError = new Error('Database down');
       repository.inviteMember.mockRejectedValue(unknownError);
 
-      await expect(
-        service.invite(
-          asBarId('bar-1'),
-          'new@test.com',
-          BarRole.STAFF,
-          fakeUser,
-        ),
-      ).rejects.toThrow(unknownError);
+      await expect(service.invite(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)).rejects.toThrow(
+        unknownError,
+      );
     });
   });
 });

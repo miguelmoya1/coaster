@@ -24,7 +24,7 @@ describe('JwtStrategy', () => {
       providers: [JwtStrategy, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
-     strategy = module.get<JwtStrategy>(JwtStrategy);
+    strategy = module.get<JwtStrategy>(JwtStrategy);
     prisma = module.get(PrismaService);
   });
 

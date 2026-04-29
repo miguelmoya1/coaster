@@ -1,7 +1,4 @@
-import {
-  ErrorCodes,
-  UpdateCategoryDto as IUpdateCategoryDto,
-} from '@coaster/common';
+import { ErrorCodes, UpdateCategoryDto as IUpdateCategoryDto } from '@coaster/common';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCategoryDto implements IUpdateCategoryDto {

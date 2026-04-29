@@ -55,12 +55,8 @@ describe('ProductsService', () => {
     it('should fail if the category does not belong to the bar', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
-      await expect(service.createProduct(barId, dto)).rejects.toThrow(
-        ForbiddenException,
-      );
-      await expect(service.createProduct(barId, dto)).rejects.toThrow(
-        ErrorCodes.CATEGORY_NOT_FOUND,
-      );
+      await expect(service.createProduct(barId, dto)).rejects.toThrow(ForbiddenException);
+      await expect(service.createProduct(barId, dto)).rejects.toThrow(ErrorCodes.CATEGORY_NOT_FOUND);
     });
 
     it('should create the product and emit socket event if correct', async () => {
@@ -84,10 +80,7 @@ describe('ProductsService', () => {
         price: 0,
       });
       expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_CREATED,
-        result,
-      );
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, result);
       expect(result).toEqual({
         id: asProductId('prod-1'),
         categoryId: asCategoryId('cat-1'),
@@ -120,10 +113,7 @@ describe('ProductsService', () => {
 
       expect(repository.update).toHaveBeenCalledWith(productId, dto);
       expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_STOCK_CHANGED,
-        result,
-      );
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, result);
     });
   });
 
@@ -138,9 +128,7 @@ describe('ProductsService', () => {
     it('should validate the new category if provided', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
-      await expect(
-        service.updateProduct(barId, productId, dto),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.updateProduct(barId, productId, dto)).rejects.toThrow(ForbiddenException);
     });
 
     it('should update and emit event if the category is valid', async () => {
@@ -158,10 +146,7 @@ describe('ProductsService', () => {
       const result = await service.updateProduct(barId, productId, dto);
 
       expect(repository.update).toHaveBeenCalledWith(productId, dto);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(
-        SocketEvents.PRODUCT_STOCK_CHANGED,
-        result,
-      );
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, result);
     });
   });
 

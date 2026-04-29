@@ -7,11 +7,7 @@ import {
   ErrorCodes,
   ShiftExchangeStatus,
 } from '@coaster/common';
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { Shift } from '../../core';
@@ -33,10 +29,7 @@ describe('ShiftExchangesService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ShiftExchangesService,
-        { provide: ShiftExchangesRepository, useValue: mockRepo },
-      ],
+      providers: [ShiftExchangesService, { provide: ShiftExchangesRepository, useValue: mockRepo }],
     }).compile();
 
     service = module.get<ShiftExchangesService>(ShiftExchangesService);
@@ -50,12 +43,7 @@ describe('ShiftExchangesService', () => {
       repository.getShiftById.mockResolvedValue(null);
 
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -72,20 +60,10 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(ForbiddenException);
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     });
 
@@ -102,20 +80,10 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(ForbiddenException);
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(ErrorCodes.NOT_YOUR_SHIFT);
     });
 
@@ -134,20 +102,10 @@ describe('ShiftExchangesService', () => {
       repository.hasPendingExchangeForShift.mockResolvedValue(true);
 
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.requestExchange(
-          asBarId('bar-1'),
-          asShiftId('shift-1'),
-          asUserId('requester-1'),
-          dto,
-        ),
+        service.requestExchange(asBarId('bar-1'), asShiftId('shift-1'), asUserId('requester-1'), dto),
       ).rejects.toThrow(ErrorCodes.EXCHANGE_ALREADY_PENDING);
     });
 
@@ -181,11 +139,7 @@ describe('ShiftExchangesService', () => {
         dto,
       );
 
-      expect(repository.createExchange).toHaveBeenCalledWith(
-        'shift-1',
-        'requester-1',
-        'target-id',
-      );
+      expect(repository.createExchange).toHaveBeenCalledWith('shift-1', 'requester-1', 'target-id');
       expect(result).toMatchObject({
         id: 'exchange-1',
         requesterId: 'requester-1',
@@ -201,11 +155,7 @@ describe('ShiftExchangesService', () => {
       repository.getExchangeById.mockResolvedValue(null);
 
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exchange-1'),
-          asUserId('acceptor-1'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exchange-1'), asUserId('acceptor-1')),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -221,11 +171,7 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exc-1'),
-          asUserId('acceptor-1'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor-1')),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -241,11 +187,7 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exc-1'),
-          asUserId('acceptor-1'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor-1')),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -261,18 +203,10 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exc-1'),
-          asUserId('user-rafa'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('user-rafa')),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exc-1'),
-          asUserId('user-rafa'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('user-rafa')),
       ).rejects.toThrow(ErrorCodes.INVALID_EXCHANGE);
     });
 
@@ -288,11 +222,7 @@ describe('ShiftExchangesService', () => {
       });
 
       await expect(
-        service.acceptExchange(
-          asBarId('bar-1'),
-          asShiftExchangeId('exc-1'),
-          asUserId('user-3'),
-        ),
+        service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('user-3')),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -329,17 +259,9 @@ describe('ShiftExchangesService', () => {
         },
       ]);
 
-      const result = await service.acceptExchange(
-        asBarId('bar-1'),
-        asShiftExchangeId('exc-1'),
-        asUserId('acceptor'),
-      );
+      const result = await service.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'));
 
-      expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith(
-        'exc-1',
-        'shift-1',
-        'acceptor',
-      );
+      expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith('exc-1', 'shift-1', 'acceptor');
       expect(result).toMatchObject({ id: 'exc-1', status: 'APPROVED' });
     });
   });
