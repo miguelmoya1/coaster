@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditCategoryForm } from './edit-category-form';
 
 describe('EditCategoryForm', () => {

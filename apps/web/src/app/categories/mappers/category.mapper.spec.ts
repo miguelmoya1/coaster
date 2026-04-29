@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category.mapper';
 

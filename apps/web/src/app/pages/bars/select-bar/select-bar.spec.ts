@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MyBars } from '../../../bars';
 import SelectBar from './select-bar';
 

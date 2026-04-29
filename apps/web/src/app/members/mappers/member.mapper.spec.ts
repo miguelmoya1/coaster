@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from 'vitest';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
 import { checkIsMember, memberArrayMapper, memberMapper } from './member.mapper';
 

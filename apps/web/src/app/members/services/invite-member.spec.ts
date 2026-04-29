@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { MemberRepository } from '../data-access/member-repository';
 import { InviteMember } from './invite-member';
 

@@ -1,7 +1,7 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
@@ -52,9 +52,9 @@ describe('ConfirmDialogComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
     const cancelButton = buttons[0]; // First button is cancel
-    
+
     cancelButton.click();
-    
+
     expect(dialogRefMock['close']).toHaveBeenCalledWith(false);
   });
 
@@ -62,9 +62,9 @@ describe('ConfirmDialogComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
     const confirmButton = buttons[1]; // Second button is confirm
-    
+
     confirmButton.click();
-    
+
     expect(dialogRefMock['close']).toHaveBeenCalledWith(true);
   });
 });

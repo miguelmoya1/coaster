@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from 'vitest';
 import { asUserId, User } from '@coaster/common';
 import { checkIsUser, userMapper } from './user.mapper';
 

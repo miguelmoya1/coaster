@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId } from '@coaster/common';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
 import { DeleteCategory } from './delete-category';
 

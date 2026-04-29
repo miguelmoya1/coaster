@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../../../core';
 import Login from './login';
 
@@ -18,7 +18,11 @@ describe('Login', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login, TranslateModule.forRoot()],
-      providers: [provideRouter([]), { provide: Auth, useValue: authMock }, { provide: Router, useValue: routerMock }],
+      providers: [
+        provideRouter([]),
+        { provide: Auth, useValue: authMock },
+        { provide: Router, useValue: routerMock },
+      ],
     }).compileComponents();
 
     vi.clearAllMocks();

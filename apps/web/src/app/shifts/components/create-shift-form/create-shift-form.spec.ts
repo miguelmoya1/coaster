@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
 
 describe('CreateShiftForm', () => {

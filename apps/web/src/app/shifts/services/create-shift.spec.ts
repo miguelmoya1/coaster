@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/common';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { CreateShift } from './create-shift';
 

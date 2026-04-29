@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import {
-    asBarId,
-    asShiftExchangeId,
-    asShiftId,
-    asUserId,
-    CreateShiftExchangeDto,
-    ShiftExchange,
-    ShiftExchangeStatus,
+  asBarId,
+  asShiftExchangeId,
+  asShiftId,
+  asUserId,
+  CreateShiftExchangeDto,
+  ShiftExchange,
+  ShiftExchangeStatus,
 } from '@coaster/common';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { RequestExchange } from './request-exchange';
 

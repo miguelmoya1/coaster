@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { asShiftExchangeId, asShiftId, asUserId, ShiftExchange, ShiftExchangeStatus } from '@coaster/common';
 import { checkIsExchange, exchangeArrayMapper, exchangeMapper } from './exchange.mapper';
 

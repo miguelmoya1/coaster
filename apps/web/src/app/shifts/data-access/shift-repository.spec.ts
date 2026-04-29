@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/common';
-import { vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftRepository } from './shift-repository';
 
 describe('ShiftRepository', () => {

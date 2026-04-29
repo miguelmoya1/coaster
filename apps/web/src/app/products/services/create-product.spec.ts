@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, CreateProductDto, Product } from '@coaster/common';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { CreateProduct } from './create-product';
 
@@ -38,7 +38,12 @@ describe('CreateProduct', () => {
   describe('create', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
-      const dto: CreateProductDto = { name: 'Beer', categoryId: asCategoryId('cat-1'), minStockAlert: 5, price: 1050 };
+      const dto: CreateProductDto = {
+        name: 'Beer',
+        categoryId: asCategoryId('cat-1'),
+        minStockAlert: 5,
+        price: 1050,
+      };
       productRepoMock['create'].mockResolvedValue(mockProduct);
 
       const result = await service.create(barId, dto);

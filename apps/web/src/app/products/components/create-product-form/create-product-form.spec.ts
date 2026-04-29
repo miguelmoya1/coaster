@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateProductForm } from './create-product-form';
 
 describe('CreateProductForm', () => {
@@ -9,7 +9,9 @@ describe('CreateProductForm', () => {
   let fixture: ComponentFixture<CreateProductForm>;
   let mockSubmitAction: ReturnType<typeof vi.fn>;
 
-  const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
+  const mockCategories: Category[] = [
+    { id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') },
+  ];
 
   beforeEach(async () => {
     mockSubmitAction = vi.fn().mockResolvedValue(null);

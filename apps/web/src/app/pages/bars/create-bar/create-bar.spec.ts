@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateBar as CreateBarService, MyBars } from '../../../bars';
 import CreateBar from './create-bar';
 
@@ -61,12 +61,12 @@ describe('CreateBar', () => {
     it('should submit form and navigate on success', async () => {
       component.barForm.name().value.set('My New Bar');
       fixture.detectChanges();
-      
+
       const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
       submitButton.click();
-      
+
       await fixture.whenStable();
-      
+
       expect(createBarMock.execute).toHaveBeenCalledWith({ name: 'My New Bar' });
       expect(myBarsMock.reload).toHaveBeenCalled();
       expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);

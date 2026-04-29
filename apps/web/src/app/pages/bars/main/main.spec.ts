@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { vi } from 'vitest';
 import { TranslateModule } from '@ngx-translate/core';
-import Main from './main';
-import { CurrentUser } from '../../../core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentBar } from '../../../bars';
+import { CurrentUser } from '../../../core';
+import Main from './main';
 
 describe('Main', () => {
   let component: Main;
@@ -18,13 +18,20 @@ describe('Main', () => {
         provideRouter([]),
         {
           provide: CurrentUser,
-          useValue: { current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) } }
+          useValue: {
+            current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) },
+          },
         },
         {
           provide: CurrentBar,
-          useValue: { current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) }, select: vi.fn(), clear: vi.fn(), setBarContext: vi.fn() }
-        }
-      ]
+          useValue: {
+            current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) },
+            select: vi.fn(),
+            clear: vi.fn(),
+            setBarContext: vi.fn(),
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Main);
@@ -37,4 +44,3 @@ describe('Main', () => {
     expect(component).toBeTruthy();
   });
 });
-

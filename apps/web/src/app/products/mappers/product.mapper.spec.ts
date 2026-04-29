@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { checkIsProduct, productArrayMapper, productMapper } from './product.mapper';
 

@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from 'vitest';
 import { asBarId, asShiftId, asUserId, Shift } from '@coaster/common';
 import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
 

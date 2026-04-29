@@ -2,7 +2,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BarMembers } from './bar-members';
 
 describe('BarMembers', () => {
