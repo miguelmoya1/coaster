@@ -2,7 +2,8 @@
   "$schema": "../../node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "schematicCollections": ["@schematics/angular", "playwright-ng-schematics"]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -66,6 +67,17 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "runnerConfig": true
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "coaster:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "coaster:serve:production"
+            }
           }
         }
       }

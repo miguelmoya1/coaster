@@ -9,7 +9,7 @@
   "scripts": {
     "start:web": "npm run dev -w apps/web",
     "start:api": "npm run dev -w apps/api",
-    "start:emulators": "firebase emulators:start --only auth",
+    "start:emulators": "firebase emulators:start --only auth --import=./.firebase-data --export-on-exit=./.firebase-data",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
