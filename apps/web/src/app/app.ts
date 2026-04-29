@@ -1,19 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { asUserId, User } from '@coaster/common';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
+  selector: 'coaster-root',
+  imports: [RouterModule],
+  template: ` <router-outlet /> `,
 })
 export class App {
-  protected readonly title = signal('coaster');
-
-  a: User = {
-    id: asUserId('123'),
-    email: '[EMAIL_ADDRESS]',
-    name: 'Test',
-    active: true,
-  };
+  protected title = 'coaster';
 }

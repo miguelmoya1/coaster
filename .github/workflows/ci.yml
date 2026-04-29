@@ -14,16 +14,9 @@ jobs:
   build-and-test:
     name: Check Quality
     runs-on: ubuntu-latest
-    env:
-      NX_CLOUD_DISTRIBUTED_EXECUTION: false
-      NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
-      NX_NO_CLOUD: true
-
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 🟢 Setup Node.js (Latest version)
         uses: actions/setup-node@v4
@@ -37,8 +30,9 @@ jobs:
       - name: 🎭 Install Browsers (Playwright E2E)
         run: npx playwright install --with-deps
 
-      - name: 🔍 Calculate changes (Nx SHAs)
-        uses: nrwl/nx-set-shas@v4
-
-      - name: 🚀 Run Affected (With Nx Cloud Reporting)
-        run: npx nx affected -t lint test build e2e
+      - name: 🚀 Build, Lint & Test
+        run: |
+          npm run build
+          npm run lint
+          npm test
+          npm run test:e2e
