@@ -94,7 +94,7 @@ export class TemplatesRepository {
     });
   }
 
-  async createManyCategories(data: { barId: string; name: string; icon: string }[], skipDuplicates = true) {
+  async createManyCategories(data: { barId: string; name: string; icon: string | null }[], skipDuplicates = true) {
     return this._prisma.category.createMany({
       data,
       skipDuplicates,

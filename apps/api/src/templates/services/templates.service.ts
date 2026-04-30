@@ -13,7 +13,6 @@ import { TemplatesMapper } from '../mappers/templates.mapper';
 export class TemplatesService {
   constructor(private readonly _templatesRepository: TemplatesRepository) {}
 
-  // Category Templates
   async findAllCategoryTemplates() {
     const templates = await this._templatesRepository.findAllCategoryTemplates();
     return templates.map((template) => TemplatesMapper.toCategoryTemplate(template));
@@ -34,7 +33,6 @@ export class TemplatesService {
     return commonMapper.getSuccessResponse();
   }
 
-  // Product Templates
   async findAllProductTemplates() {
     const templates = await this._templatesRepository.findAllProductTemplates();
     return templates.map((template) => TemplatesMapper.toProductTemplate(template));
@@ -55,7 +53,6 @@ export class TemplatesService {
     return commonMapper.getSuccessResponse();
   }
 
-  // Bulk Import
   async importTemplatesToBar(barId: string, importDto: ImportTemplatesDto) {
     const { categoryTemplateIds } = importDto;
 
@@ -63,33 +60,28 @@ export class TemplatesService {
       throw new BadRequestException(ErrorCodes.REQUIRED);
     }
 
-    // Paso 1: Buscar la info de los templates solicitados
     const categoryTemplates = await this._templatesRepository.findCategoryTemplatesByIds(categoryTemplateIds);
 
     if (categoryTemplates.length === 0) {
       throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
     }
 
-    // Paso 2: Bulk Create (createMany) de las categorías con skipDuplicates: true
     const categoryDataToInsert = categoryTemplates.map((ct) => ({
       barId,
       name: ct.name,
-      icon: ct.icon!,
+      icon: ct.icon ?? null,
     }));
 
     await this._templatesRepository.createManyCategories(categoryDataToInsert, true);
 
-    // Paso 3: Bulk Read (findMany) de esas categorías para conseguir sus IDs reales
     const categoryNames = categoryTemplates.map((ct) => ct.name);
     const createdCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(barId, categoryNames);
 
-    // Crear un mapa para buscar rápidamente el nuevo categoryId por nombre
     const categoryMap = new Map<string, string>();
     for (const cat of createdCategories) {
       categoryMap.set(cat.name, cat.id);
     }
 
-    // Paso 4: Bulk Create (createMany) de los productos usando los IDs mapeados
     const productsDataToInsert: {
       categoryId: string;
       name: string;
