@@ -56,7 +56,9 @@ export const ModelName = {
   Shift: 'Shift',
   ShiftExchange: 'ShiftExchange',
   Category: 'Category',
-  Product: 'Product'
+  Product: 'Product',
+  CategoryTemplate: 'CategoryTemplate',
+  ProductTemplate: 'ProductTemplate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -82,6 +84,7 @@ export const UserScalarFieldEnum = {
   name: 'name',
   photoUrl: 'photoUrl',
   active: 'active',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -160,6 +163,29 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const CategoryTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  icon: 'icon',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryTemplateScalarFieldEnum = (typeof CategoryTemplateScalarFieldEnum)[keyof typeof CategoryTemplateScalarFieldEnum]
+
+
+export const ProductTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTemplateScalarFieldEnum = (typeof ProductTemplateScalarFieldEnum)[keyof typeof ProductTemplateScalarFieldEnum]
 
 
 export const SortOrder = {

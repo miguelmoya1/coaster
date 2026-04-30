@@ -7,5 +7,7 @@ export * from './prisma/client/client';
 export * from './prisma/client/models';
 export * from './prisma/services/prisma.service';
 export * from './roles/decorators/roles.decorator';
+export * from './roles/decorators/user-roles.decorator';
 export * from './roles/guards/roles.guard';
+export * from './roles/guards/user-roles.guard';
 export * from './websockets/bar.gateway';

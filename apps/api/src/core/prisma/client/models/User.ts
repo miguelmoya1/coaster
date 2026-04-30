@@ -30,6 +30,7 @@ export type UserMinAggregateOutputType = {
   name: string | null
   photoUrl: string | null
   active: boolean | null
+  role: $Enums.Role | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -41,6 +42,7 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   photoUrl: string | null
   active: boolean | null
+  role: $Enums.Role | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +54,7 @@ export type UserCountAggregateOutputType = {
   name: number
   photoUrl: number
   active: number
+  role: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -65,6 +68,7 @@ export type UserMinAggregateInputType = {
   name?: true
   photoUrl?: true
   active?: true
+  role?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +80,7 @@ export type UserMaxAggregateInputType = {
   name?: true
   photoUrl?: true
   active?: true
+  role?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +92,7 @@ export type UserCountAggregateInputType = {
   name?: true
   photoUrl?: true
   active?: true
+  role?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -171,6 +177,7 @@ export type UserGroupByOutputType = {
   name: string
   photoUrl: string | null
   active: boolean
+  role: $Enums.Role
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -203,6 +210,7 @@ export type UserWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   photoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.BarMemberListRelationFilter
@@ -218,6 +226,7 @@ export type UserOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.BarMemberOrderByRelationAggregateInput
@@ -236,6 +245,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"User"> | string
   photoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.BarMemberListRelationFilter
@@ -251,6 +261,7 @@ export type UserOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -268,6 +279,7 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   photoUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -279,6 +291,7 @@ export type UserCreateInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberCreateNestedManyWithoutUserInput
@@ -294,6 +307,7 @@ export type UserUncheckedCreateInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberUncheckedCreateNestedManyWithoutUserInput
@@ -309,6 +323,7 @@ export type UserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUpdateManyWithoutUserNestedInput
@@ -324,6 +339,7 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -339,6 +355,7 @@ export type UserCreateManyInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -350,6 +367,7 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -361,6 +379,7 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -372,6 +391,7 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -383,6 +403,7 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -394,6 +415,7 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -418,6 +440,10 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type EnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -489,6 +515,7 @@ export type UserCreateWithoutMembershipsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
@@ -503,6 +530,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
@@ -533,6 +561,7 @@ export type UserUpdateWithoutMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
@@ -547,6 +576,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -561,6 +591,7 @@ export type UserCreateWithoutShiftsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberCreateNestedManyWithoutUserInput
@@ -575,6 +606,7 @@ export type UserUncheckedCreateWithoutShiftsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberUncheckedCreateNestedManyWithoutUserInput
@@ -605,6 +637,7 @@ export type UserUpdateWithoutShiftsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUpdateManyWithoutUserNestedInput
@@ -619,6 +652,7 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -633,6 +667,7 @@ export type UserCreateWithoutShiftRequestsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberCreateNestedManyWithoutUserInput
@@ -647,6 +682,7 @@ export type UserUncheckedCreateWithoutShiftRequestsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberUncheckedCreateNestedManyWithoutUserInput
@@ -666,6 +702,7 @@ export type UserCreateWithoutShiftApprovalsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberCreateNestedManyWithoutUserInput
@@ -680,6 +717,7 @@ export type UserUncheckedCreateWithoutShiftApprovalsInput = {
   name: string
   photoUrl?: string | null
   active?: boolean
+  role?: $Enums.Role
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BarMemberUncheckedCreateNestedManyWithoutUserInput
@@ -710,6 +748,7 @@ export type UserUpdateWithoutShiftRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUpdateManyWithoutUserNestedInput
@@ -724,6 +763,7 @@ export type UserUncheckedUpdateWithoutShiftRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -749,6 +789,7 @@ export type UserUpdateWithoutShiftApprovalsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUpdateManyWithoutUserNestedInput
@@ -763,6 +804,7 @@ export type UserUncheckedUpdateWithoutShiftApprovalsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BarMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -835,6 +877,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   photoUrl?: boolean
   active?: boolean
+  role?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
@@ -851,6 +894,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   photoUrl?: boolean
   active?: boolean
+  role?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -862,6 +906,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   photoUrl?: boolean
   active?: boolean
+  role?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -873,11 +918,12 @@ export type UserSelectScalar = {
   name?: boolean
   photoUrl?: boolean
   active?: boolean
+  role?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "name" | "photoUrl" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
@@ -903,6 +949,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string
     photoUrl: string | null
     active: boolean
+    role: $Enums.Role
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1338,6 +1385,7 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly photoUrl: Prisma.FieldRef<"User", 'String'>
   readonly active: Prisma.FieldRef<"User", 'Boolean'>
+  readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

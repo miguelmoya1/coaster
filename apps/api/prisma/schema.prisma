@@ -18,6 +18,10 @@ enum BarRole {
   STAFF
 }
 
+enum Role {
+  USER
+  ADMIN
+}
 
 model User {
   id             String          @id @default(uuid())
@@ -26,6 +30,7 @@ model User {
   name           String
   photoUrl       String?
   active         Boolean         @default(true)
+  role           Role            @default(USER)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   memberships    BarMember[]
@@ -59,7 +64,7 @@ model BarMember {
 }
 
 model Shift {
-  id   String    @id @default(uuid())
+  id        String   @id @default(uuid())
   startTime DateTime
   endTime   DateTime
 
@@ -96,13 +101,32 @@ model Category {
 }
 
 model Product {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
   name          String
-  price         Int       @default(0)
+  price         Int      @default(0)
   categoryId    String
-  category      Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  currentStock  Int       @default(0)
-  minStockAlert Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  currentStock  Int      @default(0)
+  minStockAlert Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CategoryTemplate {
+  id        String            @id @default(uuid())
+  name      String
+  icon      String?
+  products  ProductTemplate[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model ProductTemplate {
+  id         String           @id @default(uuid())
+  name       String
+  price      Int              @default(0)
+  categoryId String
+  category   CategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 }

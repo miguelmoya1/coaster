@@ -14,3 +14,11 @@ export const BarRole = {
 } as const
 
 export type BarRole = (typeof BarRole)[keyof typeof BarRole]
+
+
+export const Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]

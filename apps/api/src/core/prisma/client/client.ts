@@ -75,3 +75,13 @@ export type Category = Prisma.CategoryModel
  * 
  */
 export type Product = Prisma.ProductModel
+/**
+ * Model CategoryTemplate
+ * 
+ */
+export type CategoryTemplate = Prisma.CategoryTemplateModel
+/**
+ * Model ProductTemplate
+ * 
+ */
+export type ProductTemplate = Prisma.ProductTemplateModel

@@ -50,7 +50,7 @@ export class BarProducts {
     return undefined;
   });
 
-  public setBarContext(barId: BarId) {
+  public setBarContext(barId: BarId | undefined) {
     this.#barId.set(barId);
   }
 

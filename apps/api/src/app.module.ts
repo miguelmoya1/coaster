@@ -7,6 +7,7 @@ import { CoreModule } from './core/core.module';
 import { ProductsModule } from './products/products.module';
 import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
 import { ShiftsModule } from './shifts/shifts.module';
+import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { UserModule } from './users/user.module';
     ProductsModule,
     ShiftsModule,
     ShiftExchangesModule,
+    TemplatesModule,
   ],
 })
 export class AppModule {}

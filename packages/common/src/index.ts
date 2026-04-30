@@ -8,5 +8,5 @@ export * from './interfaces/common.interface';
 export * from './interfaces/product.interface';
 export * from './interfaces/shift.interface';
 export * from './interfaces/user.interface';
+export * from './interfaces/template.interface';
 export * from './utilities/stock-status';
-

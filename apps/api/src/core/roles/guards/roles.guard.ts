@@ -4,6 +4,11 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
+type RequestWithUser = {
+  user: { id: string };
+  params: { barId: string };
+};
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
@@ -21,7 +26,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
 
     const barId = request.params.barId;
