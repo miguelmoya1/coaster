@@ -2,12 +2,12 @@ import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductTemplateDto {
   @IsString()
-  name: string;
+  declare name: string;
 
   @IsInt()
   @IsOptional()
-  price?: number;
+  declare price?: number;
 
   @IsString()
-  categoryId: string;
+  declare categoryId: string;
 }

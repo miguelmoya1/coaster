@@ -26,7 +26,7 @@ export class ProductsRepository {
   async update(productId: ProductId, updateData: Prisma.ProductUpdateInput) {
     return this._prisma.product.update({
       where: { id: productId },
-      data: { ...updateData },
+      data: { ...updateData, price: updateData.price ?? 0 },
     });
   }
 
