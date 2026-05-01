@@ -1,27 +1,23 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
-  isDevMode,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
-import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
+import {
+  provideRouter,
+  withComponentInputBinding,
+  withRouterConfig,
+  withViewTransitions,
+} from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 import { errorInterceptor, idTokenInterceptor, urlInterceptor } from './core';
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyBtGgtVUIZBfRuItAZWk1gM_t1cJ19I2Yc',
-  authDomain: 'coaster-437f2.firebaseapp.com',
-  projectId: 'coaster-437f2',
-  storageBucket: 'coaster-437f2.firebasestorage.app',
-  messagingSenderId: '774617138158',
-  appId: '1:774617138158:web:5be3f0bc2147226ac684ff',
-};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,17 +31,26 @@ export const appConfig: ApplicationConfig = {
       withRouterConfig({ paramsInheritanceStrategy: 'always' }),
     ),
     provideTranslateService({
-      lang: 'en',
+      lang: environment.defaultLanguage,
       loader: provideTranslateHttpLoader({
-        prefix: './i18n/',
+        prefix: environment.defaultLanguagePath,
       }),
     }),
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideFirebaseApp(() =>
+      initializeApp({
+        apiKey: environment.firebase.apiKey,
+        authDomain: environment.firebase.authDomain,
+        projectId: environment.firebase.projectId,
+        storageBucket: environment.firebase.storageBucket,
+        messagingSenderId: environment.firebase.messagingSenderId,
+        appId: environment.firebase.appId,
+      }),
+    ),
     provideAuth(() => {
       const auth = getAuth();
 
-      if (isDevMode()) {
-        connectAuthEmulator(auth, 'http://localhost:9099');
+      if (environment.useEmulators) {
+        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
       }
 
       return auth;
