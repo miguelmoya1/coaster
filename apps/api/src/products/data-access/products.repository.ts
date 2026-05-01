@@ -10,7 +10,11 @@ export class ProductsRepository {
     const category = await this._prisma.category.findUnique({
       where: { id: categoryId },
     });
-    return category?.barId === barId;
+    
+    if (!category) {
+      return false;
+    }
+    return category.barId === barId;
   }
 
   async create(categoryId: CategoryId, createProductDto: Omit<Prisma.ProductCreateInput, 'category'>) {
