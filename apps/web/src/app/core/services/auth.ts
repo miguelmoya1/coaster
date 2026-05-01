@@ -9,11 +9,11 @@ import {
   signOut,
 } from '@angular/fire/auth';
 
-export type UserProfile = {
+export interface UserProfile {
   name: string;
   email: string;
   photo: string;
-};
+}
 
 @Injectable({
   providedIn: 'root',

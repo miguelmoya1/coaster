@@ -27,13 +27,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         where: { email: payload.email },
         update: {
           googleId: payload.sub,
-          name: payload.name || undefined,
+          name: (payload.name as string | undefined) || undefined,
           photoUrl: payload.picture || undefined,
         },
         create: {
           email: payload.email,
           googleId: payload.sub,
-          name: payload.name || payload.email.split('@')[0],
+          name: (payload.name as string | undefined) || payload.email.split('@')[0],
           photoUrl: payload.picture || undefined,
         },
       });

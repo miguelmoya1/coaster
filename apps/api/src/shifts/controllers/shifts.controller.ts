@@ -18,7 +18,7 @@ export class ShiftsController {
     @Query('endDate') endDate?: string,
   ) {
     const shifts = await this._shiftsService.getShifts(barId, startDate, endDate);
-    return shifts.map(ShiftsMapper.toDto);
+    return shifts.map((shift) => ShiftsMapper.toDto(shift));
   }
 
   @Post()

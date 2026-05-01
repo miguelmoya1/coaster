@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -32,19 +32,24 @@ describe('CategoriesController', () => {
     service = module.get(CategoriesService);
   });
 
-  it('getCategories should delegate to the service', () => {
+  it('getCategories should delegate to the service', async () => {
     service.getCategories.mockResolvedValue([]);
 
-    controller.getCategories(asBarId('bar-1'));
+    await controller.getCategories(asBarId('bar-1'));
 
     expect(service.getCategories).toHaveBeenCalledWith('bar-1');
   });
 
-  it('createCategory should delegate to the service', () => {
-    service.createCategory.mockResolvedValue({});
+  it('createCategory should delegate to the service', async () => {
+    service.createCategory.mockResolvedValue({
+      id: asCategoryId('cat-1'),
+      barId: asBarId('bar-1'),
+      name: 'Bebidas',
+      icon: 'beer',
+    });
     const dto = { name: 'Bebidas', icon: 'beer' };
 
-    controller.createCategory(asBarId('bar-1'), dto);
+    await controller.createCategory(asBarId('bar-1'), dto);
 
     expect(service.createCategory).toHaveBeenCalledWith('bar-1', { name: 'Bebidas', icon: 'beer' });
   });

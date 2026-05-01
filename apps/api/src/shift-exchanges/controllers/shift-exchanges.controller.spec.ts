@@ -43,10 +43,10 @@ describe('ShiftExchangesController', () => {
     service = module.get(ShiftExchangesService);
   });
 
-  it('getExchanges should delegate to the service', () => {
+  it('getExchanges should delegate to the service', async () => {
     service.getPendingExchanges.mockResolvedValue([]);
 
-    controller.getExchanges(asBarId('bar-1'));
+    await controller.getExchanges(asBarId('bar-1'));
 
     expect(service.getPendingExchanges).toHaveBeenCalledWith('bar-1');
   });

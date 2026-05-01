@@ -43,7 +43,7 @@ export class ShiftExchangesService {
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
     }
 
-    if (exchange.status !== ShiftExchangeStatus.PENDING) {
+    if (exchange.status !== (ShiftExchangeStatus.PENDING as string)) {
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
 

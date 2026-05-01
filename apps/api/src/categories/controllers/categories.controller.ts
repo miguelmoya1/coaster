@@ -15,7 +15,7 @@ export class CategoriesController {
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getCategories(@Param('barId') barId: BarId) {
     const categories = await this._categoriesService.getCategories(barId);
-    return categories.map(CategoriesMapper.toDto);
+    return categories.map((category) => CategoriesMapper.toDto(category));
   }
 
   @Post()

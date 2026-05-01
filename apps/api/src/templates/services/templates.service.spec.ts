@@ -198,7 +198,10 @@ describe('TemplatesService', () => {
       const result = await service.importTemplatesToBar(barId, { categoryTemplateIds: ['temp-cat-1'] });
 
       expect(vi.mocked(repository.findCategoryTemplatesByIds)).toHaveBeenCalledWith(['temp-cat-1']);
-      expect(vi.mocked(repository.createManyCategories)).toHaveBeenCalledWith([{ barId, name: 'Bebidas', icon: 'cup' }], true);
+      expect(vi.mocked(repository.createManyCategories)).toHaveBeenCalledWith(
+        [{ barId, name: 'Bebidas', icon: 'cup' }],
+        true,
+      );
       expect(vi.mocked(repository.findCategoriesByBarIdAndNames)).toHaveBeenCalledWith(barId, ['Bebidas']);
       expect(vi.mocked(repository.createManyProducts)).toHaveBeenCalledWith(
         [

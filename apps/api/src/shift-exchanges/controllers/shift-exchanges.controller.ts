@@ -14,7 +14,7 @@ export class ShiftExchangesController {
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getExchanges(@Param('barId') barId: BarId) {
     const exchanges = await this._shiftExchangesService.getPendingExchanges(barId);
-    return exchanges.map(ShiftExchangesMapper.toDto);
+    return exchanges.map((exchange) => ShiftExchangesMapper.toDto(exchange));
   }
 
   @Post('shifts/:shiftId/exchanges')

@@ -29,7 +29,7 @@ describe('UsersController', () => {
     controller = module.get<UsersController>(UsersController);
   });
 
-  it('should return the current user', async () => {
+  it('should return the current user', () => {
     const fakeUser: User = {
       id: asUserId('user-1'),
       email: 'test@mail.com',
@@ -37,7 +37,7 @@ describe('UsersController', () => {
       active: true,
     };
 
-    const result = await controller.findMe(fakeUser);
+    const result = controller.findMe(fakeUser);
 
     expect(result).toEqual(fakeUser);
   });

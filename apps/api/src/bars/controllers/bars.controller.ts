@@ -14,7 +14,7 @@ export class BarsController {
   @Get()
   async getMyBars(@CurrentUser() user: User) {
     const bars = await this._barsService.getForUser(user);
-    return bars.map(BarsMapper.toDto);
+    return bars.map((bar) => BarsMapper.toDto(bar));
   }
 
   @Get(':barId')

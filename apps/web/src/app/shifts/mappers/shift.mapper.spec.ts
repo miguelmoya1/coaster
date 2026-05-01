@@ -1,5 +1,5 @@
-import { describe, expect, it, test } from 'vitest';
 import { asBarId, asShiftId, asUserId, Shift } from '@coaster/common';
+import { describe, expect, it } from 'vitest';
 import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
 
 describe('ShiftMapper', () => {
@@ -26,10 +26,14 @@ describe('ShiftMapper', () => {
     });
 
     it('should return false if required fields are missing', () => {
-      const { id: _id, ...missingId } = validShift;
-      const { startTime: _startTime, ...missingStart } = validShift;
-      const { endTime: _endTime, ...missingEnd } = validShift;
-      const { userName: _userName, ...missingUser } = validShift;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, ...missingId } = validShift;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { startTime, ...missingStart } = validShift;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { endTime, ...missingEnd } = validShift;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { userName, ...missingUser } = validShift;
 
       expect(checkIsShift(missingId)).toBe(false);
       expect(checkIsShift(missingStart)).toBe(false);
