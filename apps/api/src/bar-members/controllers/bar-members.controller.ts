@@ -14,7 +14,7 @@ export class BarMembersController {
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getMembers(@Param('barId') barId: BarId) {
     const members = await this._barMembersService.getMembers(barId);
-    return members.map(BarMembersMapper.toDto);
+    return members.map((member) => BarMembersMapper.toDto(member));
   }
 
   @Post()

@@ -33,7 +33,7 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
-    client.join(barId);
+    void client.join(barId);
     this._logger.debug(`Cliente ${client.id} se unió a la sala del bar: ${barId}`);
 
     return { event: SocketEvents.JOINED, data: barId };
@@ -45,7 +45,7 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
-    client.leave(barId);
+    void client.leave(barId);
     this._logger.debug(`Cliente ${client.id} abandonó la sala del bar: ${barId}`);
 
     return { event: SocketEvents.LEFT, data: barId };

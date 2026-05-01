@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, test } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MemberRepository } from './member-repository';
 
 describe('MemberRepository', () => {

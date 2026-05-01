@@ -90,7 +90,7 @@ describe('ShiftExchangesRepository', () => {
           status: ShiftExchangeStatus.PENDING,
           shift: {
             barId: 'bar-1',
-            startTime: { gte: expect.any(Date) },
+            startTime: { gte: expect.any(Date) as unknown },
           },
         },
         include: {

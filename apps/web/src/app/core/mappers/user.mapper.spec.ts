@@ -1,5 +1,5 @@
-import { describe, expect, it, test } from 'vitest';
 import { asUserId, User } from '@coaster/common';
+import { describe, expect, it } from 'vitest';
 import { checkIsUser, userMapper } from './user.mapper';
 
 describe('User Mapper', () => {

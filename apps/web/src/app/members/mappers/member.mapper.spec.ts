@@ -1,5 +1,5 @@
-import { describe, expect, it, test } from 'vitest';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import { describe, expect, it } from 'vitest';
 import { checkIsMember, memberArrayMapper, memberMapper } from './member.mapper';
 
 describe('Member Mapper', () => {

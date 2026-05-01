@@ -15,7 +15,7 @@ export class BarMembersService {
   async getMembers(barId: BarId) {
     const members = await this.repository.getMembersByBar(barId);
 
-    return members.map(BarMembersMapper.toDomain);
+    return members.map((member) => BarMembersMapper.toDomain(member));
   }
 
   async invite(barId: BarId, email: string, role: BarRole = BarRole.STAFF, user: User) {
@@ -33,7 +33,12 @@ export class BarMembersService {
 
       return BarMembersMapper.toDomain(membership);
     } catch (error) {
-      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as Record<string, unknown>).code === 'P2002'
+      ) {
         throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
       }
       throw error;

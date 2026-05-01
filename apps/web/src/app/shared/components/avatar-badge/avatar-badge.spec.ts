@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, test } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AvatarBadge } from './avatar-badge';
 
 describe('AvatarBadge', () => {

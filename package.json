@@ -12,6 +12,7 @@
     "start:emulators": "firebase emulators:start --only auth --import=./.firebase-data --export-on-exit=./.firebase-data",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspaces --if-present"
   }
