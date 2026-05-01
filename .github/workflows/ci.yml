@@ -27,8 +27,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci --legacy-peer-deps
 
-      # - name: 🎭 Install Browsers (Playwright E2E)
-      #   run: npx playwright install --with-deps
+      - name: 🗄️ Generate Prisma Client
+        run: npm run db:gen -w apps/api
 
       - name: 🧹 Lint
         run: npm run lint
@@ -38,6 +38,9 @@ jobs:
 
       - name: 🧪 Test Unitarios
         run: npm run test
+
+      # - name: 🎭 Install Browsers (Playwright E2E)
+      #   run: npx playwright install --with-deps
 
       # - name: 🕵️ Test E2E
       #   run: npm run test:e2e
