@@ -55,3 +55,5 @@ vitest.config.*.timestamp*
 .nx/self-healing
 
 .firebase-data
+
+firebase-debug.log
