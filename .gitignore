@@ -53,3 +53,5 @@ vitest.config.*.timestamp*
 
 .nx/polygraph
 .nx/self-healing
+
+.firebase-data

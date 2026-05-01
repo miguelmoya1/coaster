@@ -2,9 +2,18 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+
+  "eslint.format.enable": false,
+
   "editor.codeActionsOnSave": {
-    "source.addMissingImports": "explicit",
-    "source.organizeImports": "explicit",
-    "source.fixAll": "explicit"
+    "source.addMissingImports": "always",
+    "source.organizeImports": "always",
+    "source.fixAll.eslint": "explicit"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
   }
 }

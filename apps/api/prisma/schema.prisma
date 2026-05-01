@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/core/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BarRole {
+  OWNER
+  STAFF
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  googleId       String?         @unique
+  name           String
+  photoUrl       String?
+  active         Boolean         @default(true)
+  role           Role            @default(USER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  memberships    BarMember[]
+  shifts         Shift[]
+  shiftRequests  ShiftExchange[] @relation("Requester")
+  shiftApprovals ShiftExchange[] @relation("Target")
+}
+
+model Bar {
+  id         String      @id @default(uuid())
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  members    BarMember[]
+  shifts     Shift[]
+  categories Category[]
+}
+
+model BarMember {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId     String
+  bar       Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
+  role      BarRole  @default(STAFF)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, barId])
+}
+
+model Shift {
+  id        String   @id @default(uuid())
+  startTime DateTime
+  endTime   DateTime
+
+  userId   String
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId    String
+  bar      Bar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  notes    String?
+  exchange ShiftExchange?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShiftExchange {
+  id          String   @id @default(uuid())
+  shiftId     String   @unique
+  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  requesterId String
+  requester   User     @relation("Requester", fields: [requesterId], references: [id])
+  targetId    String?
+  target      User?    @relation("Target", fields: [targetId], references: [id])
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  barId    String
+  bar      Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  name     String
+  icon     String?
+  products Product[]
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  price         Int      @default(0)
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  currentStock  Int      @default(0)
+  minStockAlert Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CategoryTemplate {
+  id        String            @id @default(uuid())
+  name      String
+  icon      String?
+  products  ProductTemplate[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model ProductTemplate {
+  id         String           @id @default(uuid())
+  name       String
+  price      Int              @default(0)
+  categoryId String
+  category   CategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}

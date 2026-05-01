@@ -6,11 +6,13 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
-import { AppModule } from './app/app.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   if (admin.apps.length === 0) {
-    admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2' });
+    admin.initializeApp({
+      projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2',
+    });
   }
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
@@ -64,4 +66,4 @@ async function bootstrap() {
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
-bootstrap();
+void bootstrap();

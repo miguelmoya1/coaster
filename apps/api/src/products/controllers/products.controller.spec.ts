@@ -1,0 +1,61 @@
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { CanActivate } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
+import { FirebaseAuthGuard, RolesGuard } from '../../core';
+import { ProductsService } from '../services/products.service';
+import { ProductsController } from './products.controller';
+
+describe('ProductsController', () => {
+  let controller: ProductsController;
+  let service: Mocked<ProductsService>;
+
+  const mockGuard: CanActivate = { canActivate: () => true };
+
+  beforeEach(async () => {
+    const mockService = {
+      getProductsByBarId: vi.fn(),
+      createProduct: vi.fn(),
+      updateProductStock: vi.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ProductsController],
+      providers: [{ provide: ProductsService, useValue: mockService }],
+    })
+      .overrideGuard(FirebaseAuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(RolesGuard)
+      .useValue(mockGuard)
+      .compile();
+
+    controller = module.get<ProductsController>(ProductsController);
+    service = module.get(ProductsService);
+  });
+
+  it('getProducts should delegate to the service', async () => {
+    service.getProductsByBarId.mockResolvedValue([]);
+
+    await controller.getProducts(asBarId('bar-1'));
+
+    expect(service.getProductsByBarId).toHaveBeenCalledWith('bar-1');
+  });
+
+  it('createProduct should delegate to the service', async () => {
+    service.createProduct.mockResolvedValue({});
+    const dto = { name: 'Coca Cola', categoryId: asCategoryId('cat-1') };
+
+    await controller.createProduct(asBarId('bar-1'), dto);
+
+    expect(service.createProduct).toHaveBeenCalledWith('bar-1', dto);
+  });
+
+  it('updateProductStock should delegate to the service', async () => {
+    service.updateProductStock.mockResolvedValue({});
+    const dto = { currentStock: 2, minStockAlert: 5 };
+
+    await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);
+
+    expect(service.updateProductStock).toHaveBeenCalledWith('bar-1', 'prod-1', dto);
+  });
+});

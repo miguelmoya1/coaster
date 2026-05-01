@@ -1,4 +1,4 @@
-name: CI (Integración Continua)
+name: CI (Continuous Integration)
 
 on:
   push:
@@ -14,18 +14,11 @@ jobs:
   build-and-test:
     name: Check Quality
     runs-on: ubuntu-latest
-    env:
-      NX_CLOUD_DISTRIBUTED_EXECUTION: false
-      NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
-      NX_NO_CLOUD: true
-
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: 🟢 Setup Node.js (Latest version)
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -34,11 +27,17 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: 🎭 Install Browsers (Playwright E2E)
-        run: npx playwright install --with-deps
+      # - name: 🎭 Install Browsers (Playwright E2E)
+      #   run: npx playwright install --with-deps
 
-      - name: 🔍 Calculate changes (Nx SHAs)
-        uses: nrwl/nx-set-shas@v4
+      - name: 🧹 Lint
+        run: npm run lint
 
-      - name: 🚀 Run Affected (With Nx Cloud Reporting)
-        run: npx nx affected -t lint test build e2e
+      - name: 🚀 Build
+        run: npm run build
+
+      - name: 🧪 Test Unitarios
+        run: npm run test
+
+      - name: 🕵️ Test E2E
+        run: npm run test:e2e
