@@ -4,11 +4,11 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   {
     ignores: ['dist/', 'node_modules/', 'eslint.config.mjs', '**/migrations/*', '**/prisma/*'],
   },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
       parserOptions: {
