@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
-export interface RequestWithUser {
+interface RequestWithUser {
   user: { id: string };
   params: { barId: string };
 }
