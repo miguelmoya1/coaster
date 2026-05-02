@@ -4,10 +4,10 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
-type RequestWithUser = {
+interface RequestWithUser {
   user: { id: string };
   params: { barId: string };
-};
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {

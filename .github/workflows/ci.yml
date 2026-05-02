@@ -25,16 +25,19 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci --workspaces
+
+      - name: 🏗️ Build Common Library
+        run: npm run build -w @coaster/common
 
       - name: 🗄️ Generate Prisma Client
         run: npm run db:gen -w apps/api
 
-      - name: 🧹 Lint
-        run: npm run lint
-
       - name: 🚀 Build
         run: npm run build
+
+      - name: 🧹 Lint
+        run: npm run lint
 
       - name: 🧪 Test Unitarios
         run: npm run test

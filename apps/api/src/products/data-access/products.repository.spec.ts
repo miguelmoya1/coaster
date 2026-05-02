@@ -84,7 +84,7 @@ describe('ProductsRepository', () => {
   describe('update', () => {
     it('should update the product by id', async () => {
       const productId = asProductId('prod-1');
-      const updateData = { currentStock: 20 };
+      const updateData = { currentStock: 20, price: 1 };
       prisma.product.update.mockResolvedValue({ id: productId, ...updateData });
 
       const result = await repository.update(productId, updateData);

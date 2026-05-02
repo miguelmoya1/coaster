@@ -6,7 +6,7 @@ import {
   ShiftExchangeStatus,
 } from '@coaster/common';
 
-export type ExchangeWithRelations = {
+export interface ExchangeWithRelations {
   id: string;
   shiftId: string;
   requesterId: string;
@@ -15,7 +15,7 @@ export type ExchangeWithRelations = {
   createdAt: Date;
   shift: { startTime: Date; endTime: Date };
   requester: { id: string; name: string };
-};
+}
 
 export const ShiftExchangesMapper = {
   toDomain(exchange: ExchangeWithRelations): IShiftExchange {
