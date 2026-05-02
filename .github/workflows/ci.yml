@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Dependencies
-        run: npm i --legacy-peer-deps
+        run: npm ci --workspaces
 
       - name: 🏗️ Build Common Library
         run: npm run build -w @coaster/common
