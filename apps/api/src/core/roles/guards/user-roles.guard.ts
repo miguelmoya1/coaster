@@ -4,9 +4,9 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { USER_ROLES_KEY } from '../decorators/user-roles.decorator';
 
-type RequestWithUser = {
+export interface RequestWithUser {
   user: { id: string };
-};
+}
 
 @Injectable()
 export class UserRolesGuard implements CanActivate {

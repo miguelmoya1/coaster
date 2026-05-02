@@ -4,11 +4,6 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  {
-    ignores: ['dist/', 'node_modules/', 'eslint.config.mjs', '**/migrations/*', '**/prisma/*'],
-  },
   {
     languageOptions: {
       parserOptions: {
@@ -18,7 +13,8 @@ export default defineConfig(
     },
   },
   {
-    files: ['src/**/*.ts'],
+    files: ['**/*.ts'],
+    extends: [eslint.configs.recommended, tseslint.configs.recommended, tseslint.configs.stylistic],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
