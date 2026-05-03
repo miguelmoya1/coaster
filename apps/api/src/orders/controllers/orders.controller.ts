@@ -1,5 +1,5 @@
 import { type BarId, BarRole, type OrderId, type OrderItemId } from '@coaster/common';
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
@@ -15,7 +15,11 @@ export class OrdersController {
 
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async getOrders(@Param('barId') barId: BarId, @Query('status') status?: string) {
+  async getOrders(@Param('barId') barId: BarId, @Query('status') status?: string, @Query('date') date?: string) {
+    if (date) {
+      const orders = await this._ordersService.getOrdersByDate(barId, date);
+      return orders.map((o) => OrdersMapper.toDto(o));
+    }
     const orders = await this._ordersService.getOrdersByBarId(barId, status);
     return orders.map((o) => OrdersMapper.toDto(o));
   }
@@ -89,5 +93,11 @@ export class OrdersController {
   async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto) {
     const order = await this._ordersService.mergeOrders(barId, dto);
     return OrdersMapper.toDto(order);
+  }
+
+  @Delete(':orderId')
+  @Roles(BarRole.OWNER)
+  async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
+    return this._ordersService.deleteOrder(barId, orderId);
   }
 }

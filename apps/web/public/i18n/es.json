@@ -223,5 +223,22 @@
     "start_order": "Iniciar Pedido",
     "delete_table_title": "Eliminar Mesa",
     "delete_table_message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer."
+  },
+  "history": {
+    "title": "Historial de Pedidos",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "revenue": "Recaudación",
+    "total_orders": "Completados",
+    "cancelled": "Cancelados",
+    "avg_ticket": "Ticket Medio",
+    "orders_list": "Pedidos",
+    "items": "artículos",
+    "no_orders": "No hay pedidos para esta fecha",
+    "status_closed": "Cerrado",
+    "status_cancelled": "Cancelado",
+    "status_open": "Abierto",
+    "delete_title": "Eliminar Pedido",
+    "delete_message": "¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer."
   }
 }

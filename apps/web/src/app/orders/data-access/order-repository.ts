@@ -4,6 +4,7 @@ import {
   AddOrderItemsDto,
   BarId,
   CreateOrderDto,
+  DeleteResponse,
   MergeOrdersDto,
   MoveTableDto,
   Order,
@@ -22,8 +23,10 @@ export class OrderRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/orders`,
     listByStatus: (barId: BarId, status: string) => `/bars/${barId}/orders?status=${status}`,
+    listByDate: (barId: BarId, date: string) => `/bars/${barId}/orders?date=${date}`,
     get: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}`,
     create: (barId: BarId) => `/bars/${barId}/orders`,
+    delete: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}`,
     addItems: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/items`,
     payItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
       `/bars/${barId}/orders/${orderId}/items/${itemId}/pay`,
@@ -83,5 +86,9 @@ export class OrderRepository {
     return firstValueFrom(
       this.#http.post<Order>(this.routes.merge(barId), dto).pipe(map((order) => orderMapper(order))),
     );
+  }
+
+  public async deleteOrder(barId: BarId, orderId: OrderId) {
+    return firstValueFrom(this.#http.delete<DeleteResponse>(this.routes.delete(barId, orderId)));
   }
 }

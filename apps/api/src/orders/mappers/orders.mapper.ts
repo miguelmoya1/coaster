@@ -27,7 +27,7 @@ export const OrdersMapper = {
       id: asOrderId(dbOrder.id),
       barId: asBarId(dbOrder.barId),
       tableId: dbOrder.tableId ? asTableId(dbOrder.tableId) : undefined,
-      tableName: dbOrder.table?.name,
+      tableName: dbOrder.tableName ?? dbOrder.table?.name,
       status: asOrderStatus(dbOrder.status),
       totalAmount: dbOrder.totalAmount,
       items: dbOrder.items.map((item) => OrdersMapper.itemToDomain(item)),

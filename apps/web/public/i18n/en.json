@@ -222,5 +222,22 @@
     "start_order": "Start Order",
     "delete_table_title": "Delete Table",
     "delete_table_message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+  },
+  "history": {
+    "title": "Order History",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "revenue": "Revenue",
+    "total_orders": "Completed",
+    "cancelled": "Cancelled",
+    "avg_ticket": "Avg. Ticket",
+    "orders_list": "Orders",
+    "items": "items",
+    "no_orders": "No orders for this date",
+    "status_closed": "Closed",
+    "status_cancelled": "Cancelled",
+    "status_open": "Open",
+    "delete_title": "Delete Order",
+    "delete_message": "Are you sure you want to delete this order? This action cannot be undone."
   }
 }

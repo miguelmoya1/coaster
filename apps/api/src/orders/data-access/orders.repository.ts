@@ -24,6 +24,31 @@ export class OrdersRepository {
     });
   }
 
+  async findByBarIdAndDate(barId: BarId, date: string) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    return this._prisma.order.findMany({
+      where: {
+        barId,
+        createdAt: { gte: start, lte: end },
+      },
+      include: {
+        items: { include: { product: true } },
+        table: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteOrder(orderId: OrderId) {
+    return this._prisma.order.delete({
+      where: { id: orderId },
+    });
+  }
+
   async findById(orderId: OrderId) {
     return this._prisma.order.findUnique({
       where: { id: orderId },

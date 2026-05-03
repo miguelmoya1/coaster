@@ -1,6 +1,6 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, OrderItemId, Table, TableStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
@@ -26,10 +26,24 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, StatusCard, Loading, CoasterTitle, BottomSheet, OrderDetailSheet, Fab, TranslatePipe, CoasterBtn, NgIcon],
+  imports: [TableCard, StatusCard, Loading, CoasterTitle, BottomSheet, OrderDetailSheet, Fab, TranslatePipe, CoasterBtn, NgIcon, RouterLink],
   viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
   template: `
+    <div class="flex bg-surface-container rounded-2xl p-1 gap-1">
+      <div
+        class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary"
+      >
+        {{ 'orders.tables_title' | translate }}
+      </div>
+      <a
+        class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+        [routerLink]="['/bars', barId(), 'orders', 'history']"
+      >
+        {{ 'history.title' | translate }}
+      </a>
+    </div>
+
     <div class="flex gap-4 mb-2">
       <coaster-status-card class="flex-1" status="success">
         <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.free_tables' | translate }}</div>

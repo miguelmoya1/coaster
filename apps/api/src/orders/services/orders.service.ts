@@ -27,6 +27,33 @@ export class OrdersService {
     return orders.map((o) => OrdersMapper.toDomain(o));
   }
 
+  async getOrdersByDate(barId: BarId, date: string) {
+    const orders = await this._ordersRepository.findByBarIdAndDate(barId, date);
+    return orders.map((o) => OrdersMapper.toDomain(o));
+  }
+
+  async deleteOrder(barId: BarId, orderId: OrderId) {
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+
+    if (order.status === 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    // Only allow deletion of today's orders
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const orderDate = new Date(order.createdAt);
+    if (orderDate < today) {
+      throw new BadRequestException('CANNOT_DELETE_PAST_ORDER');
+    }
+
+    await this._ordersRepository.deleteOrder(orderId);
+    return { success: true };
+  }
+
   async getOrderById(barId: BarId, orderId: OrderId) {
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
@@ -58,11 +85,19 @@ export class OrdersService {
 
     const totalAmount = dto.items.reduce((sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity, 0);
 
+    // Resolve table name for persistence
+    let resolvedTableName: string | null = null;
+    if (dto.tableId) {
+      const table = await this._ordersRepository.findTableById(asTableId(dto.tableId));
+      resolvedTableName = table?.name ?? null;
+    }
+
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
         data: {
           barId,
           tableId: dto.tableId ?? null,
+          tableName: resolvedTableName,
           status: 'OPEN',
           totalAmount,
           items: {
@@ -338,7 +373,7 @@ export class OrdersService {
 
       return tx.order.update({
         where: { id: orderId },
-        data: { tableId: dto.tableId },
+        data: { tableId: dto.tableId, tableName: newTable.name },
         include: {
           items: { include: { product: true } },
           table: true,
@@ -427,11 +462,19 @@ export class OrdersService {
       const allItems = await tx.orderItem.findMany({ where: { orderId: primaryOrder.id } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
 
+      // Resolve target table name
+      let mergedTableName = primaryOrder.tableName;
+      if (dto.targetTableId) {
+        const targetTable = await tx.table.findUnique({ where: { id: dto.targetTableId } });
+        mergedTableName = targetTable?.name ?? mergedTableName;
+      }
+
       return tx.order.update({
         where: { id: primaryOrder.id },
         data: {
           totalAmount,
           tableId: dto.targetTableId ?? primaryOrder.tableId,
+          tableName: mergedTableName,
         },
         include: {
           items: { include: { product: true } },

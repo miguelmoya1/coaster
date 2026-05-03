@@ -1469,6 +1469,7 @@ export const OrderScalarFieldEnum = {
   id: 'id',
   barId: 'barId',
   tableId: 'tableId',
+  tableName: 'tableName',
   status: 'status',
   totalAmount: 'totalAmount',
   createdAt: 'createdAt',

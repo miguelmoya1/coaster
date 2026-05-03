@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentBar } from '../../../bars';
 import { CurrentUser } from '../../../core';
+import { BarMembers } from '../../../members';
 import Main from './main';
 
 describe('Main', () => {
@@ -31,6 +32,7 @@ describe('Main', () => {
             setBarContext: vi.fn(),
           },
         },
+        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]) } } },
       ],
     }).compileComponents();
 
