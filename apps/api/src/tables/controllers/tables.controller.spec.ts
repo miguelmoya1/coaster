@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId, type Table } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -43,7 +43,7 @@ describe('TablesController', () => {
   });
 
   it('createTable should delegate to the service', async () => {
-    service.createTable.mockResolvedValue({});
+    service.createTable.mockResolvedValue({} as Table);
     const dto = { name: 'Mesa 1' };
 
     await controller.createTable(asBarId('bar-1'), dto);
@@ -52,7 +52,7 @@ describe('TablesController', () => {
   });
 
   it('updateTable should delegate to the service', async () => {
-    service.updateTable.mockResolvedValue({});
+    service.updateTable.mockResolvedValue({} as Table);
     const dto = { name: 'Mesa 2' };
 
     await controller.updateTable(asBarId('bar-1'), asTableId('table-1'), dto);

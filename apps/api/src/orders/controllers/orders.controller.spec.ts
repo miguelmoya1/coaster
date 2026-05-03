@@ -1,4 +1,4 @@
-import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId, type Order } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -49,7 +49,7 @@ describe('OrdersController', () => {
   });
 
   it('getOrder should delegate to the service', async () => {
-    service.getOrderById.mockResolvedValue({});
+    service.getOrderById.mockResolvedValue({} as Order);
 
     await controller.getOrder(asBarId('bar-1'), asOrderId('order-1'));
 
@@ -57,7 +57,7 @@ describe('OrdersController', () => {
   });
 
   it('createOrder should delegate to the service', async () => {
-    service.createOrder.mockResolvedValue({});
+    service.createOrder.mockResolvedValue({} as Order);
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
     await controller.createOrder(asBarId('bar-1'), dto);
@@ -66,7 +66,7 @@ describe('OrdersController', () => {
   });
 
   it('addItems should delegate to the service', async () => {
-    service.addItems.mockResolvedValue({});
+    service.addItems.mockResolvedValue({} as Order);
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
     await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto);
@@ -75,7 +75,7 @@ describe('OrdersController', () => {
   });
 
   it('payItem should delegate to the service', async () => {
-    service.payItem.mockResolvedValue({});
+    service.payItem.mockResolvedValue({} as Order);
 
     await controller.payItem(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1'));
 
@@ -83,7 +83,7 @@ describe('OrdersController', () => {
   });
 
   it('deliverItem should delegate to the service', async () => {
-    service.deliverItem.mockResolvedValue({});
+    service.deliverItem.mockResolvedValue({} as Order);
 
     await controller.deliverItem(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1'));
 
@@ -91,7 +91,7 @@ describe('OrdersController', () => {
   });
 
   it('checkout should delegate to the service', async () => {
-    service.checkout.mockResolvedValue({});
+    service.checkout.mockResolvedValue({} as Order);
 
     await controller.checkout(asBarId('bar-1'), asOrderId('order-1'));
 
@@ -99,7 +99,7 @@ describe('OrdersController', () => {
   });
 
   it('cancelOrder should delegate to the service', async () => {
-    service.cancelOrder.mockResolvedValue({});
+    service.cancelOrder.mockResolvedValue({} as Order);
 
     await controller.cancelOrder(asBarId('bar-1'), asOrderId('order-1'));
 
@@ -107,7 +107,7 @@ describe('OrdersController', () => {
   });
 
   it('moveTable should delegate to the service', async () => {
-    service.moveTable.mockResolvedValue({});
+    service.moveTable.mockResolvedValue({} as Order);
     const dto = { tableId: 'table-2' };
 
     await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
@@ -116,7 +116,7 @@ describe('OrdersController', () => {
   });
 
   it('mergeOrders should delegate to the service', async () => {
-    service.mergeOrders.mockResolvedValue({});
+    service.mergeOrders.mockResolvedValue({} as Order);
     const dto = { orderIds: ['order-1', 'order-2'] };
 
     await controller.mergeOrders(asBarId('bar-1'), dto);
