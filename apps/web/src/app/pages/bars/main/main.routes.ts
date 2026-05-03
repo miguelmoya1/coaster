@@ -36,6 +36,10 @@ const mainRoutes: Routes = [
         ],
       },
       {
+        path: 'orders',
+        loadChildren: () => import('./orders/orders.routes'),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },

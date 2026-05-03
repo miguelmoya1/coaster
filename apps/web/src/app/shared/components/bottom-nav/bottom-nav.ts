@@ -2,7 +2,13 @@ import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCalendar, lucideLayoutDashboard, lucidePackage, lucideUsers } from '@ng-icons/lucide';
+import {
+  lucideCalendar,
+  lucideClipboardList,
+  lucideLayoutDashboard,
+  lucidePackage,
+  lucideUsers,
+} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -14,6 +20,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       lucidePackage,
       lucideCalendar,
       lucideUsers,
+      lucideClipboardList,
     }),
   ],
   template: `
@@ -61,6 +68,12 @@ export class BottomNav {
       link: `/bars/${this.barId()}/roster`,
       icon: 'lucideCalendar',
       labelKey: 'nav.roster',
+    },
+    {
+      value: 'orders',
+      link: `/bars/${this.barId()}/orders`,
+      icon: 'lucideClipboardList',
+      labelKey: 'nav.orders',
     },
     {
       value: 'staff',
