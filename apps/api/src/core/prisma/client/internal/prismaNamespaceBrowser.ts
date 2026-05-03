@@ -59,7 +59,10 @@ export const ModelName = {
   Category: 'Category',
   Product: 'Product',
   CategoryTemplate: 'CategoryTemplate',
-  ProductTemplate: 'ProductTemplate'
+  ProductTemplate: 'ProductTemplate',
+  Table: 'Table',
+  Order: 'Order',
+  OrderItem: 'OrderItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -187,6 +190,46 @@ export const ProductTemplateScalarFieldEnum = {
 } as const
 
 export type ProductTemplateScalarFieldEnum = (typeof ProductTemplateScalarFieldEnum)[keyof typeof ProductTemplateScalarFieldEnum]
+
+
+export const TableScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  status: 'status',
+  barId: 'barId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TableScalarFieldEnum = (typeof TableScalarFieldEnum)[keyof typeof TableScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  tableId: 'tableId',
+  status: 'status',
+  totalAmount: 'totalAmount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  quantity: 'quantity',
+  priceAtPurchase: 'priceAtPurchase',
+  paymentStatus: 'paymentStatus',
+  deliveryStatus: 'deliveryStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -62,3 +62,18 @@ export type CategoryTemplate = Prisma.CategoryTemplateModel
  * 
  */
 export type ProductTemplate = Prisma.ProductTemplateModel
+/**
+ * Model Table
+ * 
+ */
+export type Table = Prisma.TableModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel

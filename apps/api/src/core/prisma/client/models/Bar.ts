@@ -177,6 +177,8 @@ export type BarWhereInput = {
   members?: Prisma.BarMemberListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
+  tables?: Prisma.TableListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
 }
 
 export type BarOrderByWithRelationInput = {
@@ -187,6 +189,8 @@ export type BarOrderByWithRelationInput = {
   members?: Prisma.BarMemberOrderByRelationAggregateInput
   shifts?: Prisma.ShiftOrderByRelationAggregateInput
   categories?: Prisma.CategoryOrderByRelationAggregateInput
+  tables?: Prisma.TableOrderByRelationAggregateInput
+  orders?: Prisma.OrderOrderByRelationAggregateInput
 }
 
 export type BarWhereUniqueInput = Prisma.AtLeast<{
@@ -200,6 +204,8 @@ export type BarWhereUniqueInput = Prisma.AtLeast<{
   members?: Prisma.BarMemberListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
+  tables?: Prisma.TableListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
 }, "id">
 
 export type BarOrderByWithAggregationInput = {
@@ -230,6 +236,8 @@ export type BarCreateInput = {
   members?: Prisma.BarMemberCreateNestedManyWithoutBarInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBarInput
 }
 
 export type BarUncheckedCreateInput = {
@@ -240,6 +248,8 @@ export type BarUncheckedCreateInput = {
   members?: Prisma.BarMemberUncheckedCreateNestedManyWithoutBarInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type BarUpdateInput = {
@@ -250,6 +260,8 @@ export type BarUpdateInput = {
   members?: Prisma.BarMemberUpdateManyWithoutBarNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBarNestedInput
 }
 
 export type BarUncheckedUpdateInput = {
@@ -260,6 +272,8 @@ export type BarUncheckedUpdateInput = {
   members?: Prisma.BarMemberUncheckedUpdateManyWithoutBarNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type BarCreateManyInput = {
@@ -351,6 +365,34 @@ export type BarUpdateOneRequiredWithoutCategoriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BarUpdateToOneWithWhereWithoutCategoriesInput, Prisma.BarUpdateWithoutCategoriesInput>, Prisma.BarUncheckedUpdateWithoutCategoriesInput>
 }
 
+export type BarCreateNestedOneWithoutTablesInput = {
+  create?: Prisma.XOR<Prisma.BarCreateWithoutTablesInput, Prisma.BarUncheckedCreateWithoutTablesInput>
+  connectOrCreate?: Prisma.BarCreateOrConnectWithoutTablesInput
+  connect?: Prisma.BarWhereUniqueInput
+}
+
+export type BarUpdateOneRequiredWithoutTablesNestedInput = {
+  create?: Prisma.XOR<Prisma.BarCreateWithoutTablesInput, Prisma.BarUncheckedCreateWithoutTablesInput>
+  connectOrCreate?: Prisma.BarCreateOrConnectWithoutTablesInput
+  upsert?: Prisma.BarUpsertWithoutTablesInput
+  connect?: Prisma.BarWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BarUpdateToOneWithWhereWithoutTablesInput, Prisma.BarUpdateWithoutTablesInput>, Prisma.BarUncheckedUpdateWithoutTablesInput>
+}
+
+export type BarCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.BarCreateWithoutOrdersInput, Prisma.BarUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.BarCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.BarWhereUniqueInput
+}
+
+export type BarUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.BarCreateWithoutOrdersInput, Prisma.BarUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.BarCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.BarUpsertWithoutOrdersInput
+  connect?: Prisma.BarWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BarUpdateToOneWithWhereWithoutOrdersInput, Prisma.BarUpdateWithoutOrdersInput>, Prisma.BarUncheckedUpdateWithoutOrdersInput>
+}
+
 export type BarCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -358,6 +400,8 @@ export type BarCreateWithoutMembersInput = {
   updatedAt?: Date | string
   shifts?: Prisma.ShiftCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBarInput
 }
 
 export type BarUncheckedCreateWithoutMembersInput = {
@@ -367,6 +411,8 @@ export type BarUncheckedCreateWithoutMembersInput = {
   updatedAt?: Date | string
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type BarCreateOrConnectWithoutMembersInput = {
@@ -392,6 +438,8 @@ export type BarUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.ShiftUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBarNestedInput
 }
 
 export type BarUncheckedUpdateWithoutMembersInput = {
@@ -401,6 +449,8 @@ export type BarUncheckedUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type BarCreateWithoutShiftsInput = {
@@ -410,6 +460,8 @@ export type BarCreateWithoutShiftsInput = {
   updatedAt?: Date | string
   members?: Prisma.BarMemberCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBarInput
 }
 
 export type BarUncheckedCreateWithoutShiftsInput = {
@@ -419,6 +471,8 @@ export type BarUncheckedCreateWithoutShiftsInput = {
   updatedAt?: Date | string
   members?: Prisma.BarMemberUncheckedCreateNestedManyWithoutBarInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type BarCreateOrConnectWithoutShiftsInput = {
@@ -444,6 +498,8 @@ export type BarUpdateWithoutShiftsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.BarMemberUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBarNestedInput
 }
 
 export type BarUncheckedUpdateWithoutShiftsInput = {
@@ -453,6 +509,8 @@ export type BarUncheckedUpdateWithoutShiftsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.BarMemberUncheckedUpdateManyWithoutBarNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type BarCreateWithoutCategoriesInput = {
@@ -462,6 +520,8 @@ export type BarCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   members?: Prisma.BarMemberCreateNestedManyWithoutBarInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBarInput
 }
 
 export type BarUncheckedCreateWithoutCategoriesInput = {
@@ -471,6 +531,8 @@ export type BarUncheckedCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   members?: Prisma.BarMemberUncheckedCreateNestedManyWithoutBarInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type BarCreateOrConnectWithoutCategoriesInput = {
@@ -496,6 +558,8 @@ export type BarUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.BarMemberUpdateManyWithoutBarNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBarNestedInput
 }
 
 export type BarUncheckedUpdateWithoutCategoriesInput = {
@@ -505,6 +569,128 @@ export type BarUncheckedUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.BarMemberUncheckedUpdateManyWithoutBarNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBarNestedInput
+}
+
+export type BarCreateWithoutTablesInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.BarMemberCreateNestedManyWithoutBarInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutBarInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBarInput
+}
+
+export type BarUncheckedCreateWithoutTablesInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.BarMemberUncheckedCreateNestedManyWithoutBarInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutBarInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBarInput
+}
+
+export type BarCreateOrConnectWithoutTablesInput = {
+  where: Prisma.BarWhereUniqueInput
+  create: Prisma.XOR<Prisma.BarCreateWithoutTablesInput, Prisma.BarUncheckedCreateWithoutTablesInput>
+}
+
+export type BarUpsertWithoutTablesInput = {
+  update: Prisma.XOR<Prisma.BarUpdateWithoutTablesInput, Prisma.BarUncheckedUpdateWithoutTablesInput>
+  create: Prisma.XOR<Prisma.BarCreateWithoutTablesInput, Prisma.BarUncheckedCreateWithoutTablesInput>
+  where?: Prisma.BarWhereInput
+}
+
+export type BarUpdateToOneWithWhereWithoutTablesInput = {
+  where?: Prisma.BarWhereInput
+  data: Prisma.XOR<Prisma.BarUpdateWithoutTablesInput, Prisma.BarUncheckedUpdateWithoutTablesInput>
+}
+
+export type BarUpdateWithoutTablesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.BarMemberUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutBarNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBarNestedInput
+}
+
+export type BarUncheckedUpdateWithoutTablesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.BarMemberUncheckedUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutBarNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBarNestedInput
+}
+
+export type BarCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.BarMemberCreateNestedManyWithoutBarInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutBarInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableCreateNestedManyWithoutBarInput
+}
+
+export type BarUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.BarMemberUncheckedCreateNestedManyWithoutBarInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutBarInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.TableUncheckedCreateNestedManyWithoutBarInput
+}
+
+export type BarCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.BarWhereUniqueInput
+  create: Prisma.XOR<Prisma.BarCreateWithoutOrdersInput, Prisma.BarUncheckedCreateWithoutOrdersInput>
+}
+
+export type BarUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.BarUpdateWithoutOrdersInput, Prisma.BarUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.BarCreateWithoutOrdersInput, Prisma.BarUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.BarWhereInput
+}
+
+export type BarUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.BarWhereInput
+  data: Prisma.XOR<Prisma.BarUpdateWithoutOrdersInput, Prisma.BarUncheckedUpdateWithoutOrdersInput>
+}
+
+export type BarUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.BarMemberUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutBarNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUpdateManyWithoutBarNestedInput
+}
+
+export type BarUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.BarMemberUncheckedUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutBarNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.TableUncheckedUpdateManyWithoutBarNestedInput
 }
 
 
@@ -516,12 +702,16 @@ export type BarCountOutputType = {
   members: number
   shifts: number
   categories: number
+  tables: number
+  orders: number
 }
 
 export type BarCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | BarCountOutputTypeCountMembersArgs
   shifts?: boolean | BarCountOutputTypeCountShiftsArgs
   categories?: boolean | BarCountOutputTypeCountCategoriesArgs
+  tables?: boolean | BarCountOutputTypeCountTablesArgs
+  orders?: boolean | BarCountOutputTypeCountOrdersArgs
 }
 
 /**
@@ -555,6 +745,20 @@ export type BarCountOutputTypeCountCategoriesArgs<ExtArgs extends runtime.Types.
   where?: Prisma.CategoryWhereInput
 }
 
+/**
+ * BarCountOutputType without action
+ */
+export type BarCountOutputTypeCountTablesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TableWhereInput
+}
+
+/**
+ * BarCountOutputType without action
+ */
+export type BarCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
 
 export type BarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -564,6 +768,8 @@ export type BarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   members?: boolean | Prisma.Bar$membersArgs<ExtArgs>
   shifts?: boolean | Prisma.Bar$shiftsArgs<ExtArgs>
   categories?: boolean | Prisma.Bar$categoriesArgs<ExtArgs>
+  tables?: boolean | Prisma.Bar$tablesArgs<ExtArgs>
+  orders?: boolean | Prisma.Bar$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.BarCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bar"]>
 
@@ -593,6 +799,8 @@ export type BarInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   members?: boolean | Prisma.Bar$membersArgs<ExtArgs>
   shifts?: boolean | Prisma.Bar$shiftsArgs<ExtArgs>
   categories?: boolean | Prisma.Bar$categoriesArgs<ExtArgs>
+  tables?: boolean | Prisma.Bar$tablesArgs<ExtArgs>
+  orders?: boolean | Prisma.Bar$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.BarCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BarIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -604,6 +812,8 @@ export type $BarPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     members: Prisma.$BarMemberPayload<ExtArgs>[]
     shifts: Prisma.$ShiftPayload<ExtArgs>[]
     categories: Prisma.$CategoryPayload<ExtArgs>[]
+    tables: Prisma.$TablePayload<ExtArgs>[]
+    orders: Prisma.$OrderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1007,6 +1217,8 @@ export interface Prisma__BarClient<T, Null = never, ExtArgs extends runtime.Type
   members<T extends Prisma.Bar$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bar$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BarMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shifts<T extends Prisma.Bar$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bar$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categories<T extends Prisma.Bar$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bar$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tables<T extends Prisma.Bar$tablesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bar$tablesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TablePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orders<T extends Prisma.Bar$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bar$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1502,6 +1714,54 @@ export type Bar$categoriesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CategoryScalarFieldEnum | Prisma.CategoryScalarFieldEnum[]
+}
+
+/**
+ * Bar.tables
+ */
+export type Bar$tablesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Table
+   */
+  select?: Prisma.TableSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Table
+   */
+  omit?: Prisma.TableOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TableInclude<ExtArgs> | null
+  where?: Prisma.TableWhereInput
+  orderBy?: Prisma.TableOrderByWithRelationInput | Prisma.TableOrderByWithRelationInput[]
+  cursor?: Prisma.TableWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TableScalarFieldEnum | Prisma.TableScalarFieldEnum[]
+}
+
+/**
+ * Bar.orders
+ */
+export type Bar$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
 }
 
 /**

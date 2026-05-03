@@ -23,3 +23,36 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const TableStatus = {
+  FREE: 'FREE',
+  OCCUPIED: 'OCCUPIED'
+} as const
+
+export type TableStatus = (typeof TableStatus)[keyof typeof TableStatus]
+
+
+export const OrderStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const DeliveryStatus = {
+  PENDING: 'PENDING',
+  SERVED: 'SERVED'
+} as const
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
