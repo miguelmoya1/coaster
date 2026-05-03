@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import Pos from './pos';
+import NewOrder from './new-order';
 import { signal } from '@angular/core';
 import { BarCategories } from '../../../../../categories';
 import { BarProducts } from '../../../../../products';
 import { BarOrders, CreateOrder, ManageOrder } from '../../../../../orders';
 import { BarTables } from '../../../../../tables';
 
-describe('Pos', () => {
-  let component: Pos;
-  let fixture: ComponentFixture<Pos>;
+describe('NewOrder', () => {
+  let component: NewOrder;
+  let fixture: ComponentFixture<NewOrder>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Pos, TranslateModule.forRoot()],
+      imports: [NewOrder, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         {
@@ -54,7 +54,7 @@ describe('Pos', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Pos);
+    fixture = TestBed.createComponent(NewOrder);
     fixture.componentRef.setInput('barId', 'bar-1');
     component = fixture.componentInstance;
     await fixture.whenStable();

@@ -12,15 +12,15 @@ const ordersRoutes: Routes = [
   },
   {
     path: 'new',
-    loadComponent: () => import('./pos/pos'),
+    loadComponent: () => import('./new-order/new-order'),
   },
   {
     path: 'new/:tableId',
-    loadComponent: () => import('./pos/pos'),
+    loadComponent: () => import('./new-order/new-order'),
   },
   {
     path: ':orderId/add',
-    loadComponent: () => import('./pos/pos'),
+    loadComponent: () => import('./new-order/new-order'),
   },
 ];
 

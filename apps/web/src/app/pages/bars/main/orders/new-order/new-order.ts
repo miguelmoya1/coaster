@@ -10,7 +10,7 @@ import { CoasterTitle, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
 
 @Component({
-  selector: 'coaster-pos',
+  selector: 'coaster-new-order',
   imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe],
   host: { class: 'flex flex-col gap-4' },
   template: `
@@ -50,7 +50,7 @@ import { BarTables } from '../../../../../tables';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class Pos {
+class NewOrder {
   public readonly barId = input.required<BarId>();
 
   /** Route param — tableId from /new/:tableId */
@@ -183,4 +183,4 @@ class Pos {
   }
 }
 
-export default Pos;
+export default NewOrder;
