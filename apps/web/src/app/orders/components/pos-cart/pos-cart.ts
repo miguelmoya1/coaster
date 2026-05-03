@@ -66,7 +66,7 @@ export interface CartItem {
         </div>
 
         <div class="flex flex-col gap-2">
-          @if (tables().length > 0) {
+          @if (tables().length > 0 && !tableLocked()) {
             <select
               class="w-full rounded-xl bg-surface-container-highest text-on-surface p-3 text-sm font-medium border border-outline-variant/30 outline-none focus:border-primary"
               [value]="selectedTableId() ?? ''"
@@ -98,6 +98,7 @@ export class PosCart {
   readonly items = input.required<CartItem[]>();
   readonly tables = input<Table[]>([]);
   readonly selectedTableId = input<string | undefined>(undefined);
+  readonly tableLocked = input(false);
   readonly disabled = input(false);
 
   readonly incrementClicked = output<string>();

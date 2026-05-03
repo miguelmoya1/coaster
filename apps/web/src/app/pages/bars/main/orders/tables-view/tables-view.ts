@@ -2,8 +2,8 @@ import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarId, Order, OrderItemId, Table, TableStatus } from '@coaster/common';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { BarMembers } from '../../../../../members';
@@ -26,18 +26,8 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
 
 @Component({
   selector: 'coaster-tables-view',
-  imports: [
-    TableCard,
-    StatusCard,
-    Loading,
-    CoasterTitle,
-    BottomSheet,
-    OrderDetailSheet,
-    Fab,
-    TranslatePipe,
-    CoasterBtn,
-  ],
-  viewProviders: [provideIcons({ lucidePlus })],
+  imports: [TableCard, StatusCard, Loading, CoasterTitle, BottomSheet, OrderDetailSheet, Fab, TranslatePipe, CoasterBtn, NgIcon],
+  viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
   template: `
     <div class="flex gap-4 mb-2">
@@ -64,15 +54,27 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
     }
 
     <div class="grid grid-cols-3 gap-3 pb-24">
+      <!-- "Sin mesa" card — bar order -->
+      <button
+        class="w-full rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer border-2 min-h-[120px] bg-primary/10 border-primary/40 text-primary"
+        (click)="onBarOrder()"
+      >
+        <ng-icon name="lucideCoffee" class="text-2xl" />
+        <span class="font-bold text-base leading-tight text-center">{{ 'orders.bar_order' | translate }}</span>
+        <span class="text-xs font-semibold uppercase tracking-wider">{{ 'orders.no_table' | translate }}</span>
+      </button>
+
       @for (table of tablesService.all.value() ?? []; track table.id) {
         <coaster-table-card
           [table]="table"
           [orderAmount]="getOrderAmountForTable(table.id)"
+          [deletable]="isOwner()"
           (cardClicked)="onTableClicked($event)"
+          (deleteClicked)="onDeleteTable($event)"
         />
       } @empty {
         @if (!tablesService.all.isLoading()) {
-          <div class="col-span-3 text-center text-on-surface-variant py-8">
+          <div class="col-span-2 text-center text-on-surface-variant py-8">
             {{ 'orders.no_tables' | translate }}
           </div>
         }
@@ -95,23 +97,6 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
           (payItemClicked)="onPayItem($event)"
           (deliverItemClicked)="onDeliverItem($event)"
         />
-      </coaster-bottom-sheet>
-    }
-
-    @if (selectedFreeTable(); as table) {
-      <coaster-bottom-sheet (closed)="selectedFreeTable.set(null)">
-        <div class="flex flex-col gap-4 px-2 pb-4">
-          <h3 class="text-lg font-bold text-on-surface">{{ table.name }}</h3>
-          <p class="text-sm text-on-surface-variant">{{ 'orders.free_table_hint' | translate }}</p>
-          <button coaster-btn (click)="onStartOrderAtTable(table)">
-            {{ 'orders.start_order' | translate }}
-          </button>
-          @if (isOwner()) {
-            <button coaster-btn variant="outline" class="text-error!" (click)="onDeleteTable(table)">
-              {{ 'common.delete' | translate }}
-            </button>
-          }
-        </div>
       </coaster-bottom-sheet>
     }
 
@@ -149,7 +134,6 @@ export default class TablesView {
   readonly #router = inject(Router);
 
   readonly selectedOrder = signal<Order | null>(null);
-  readonly selectedFreeTable = signal<Table | null>(null);
   readonly showCreateTable = signal(false);
   readonly isSubmitting = signal(false);
 
@@ -173,27 +157,48 @@ export default class TablesView {
     return order?.totalAmount;
   }
 
+  /** Bar order — no table */
+  onBarOrder() {
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'pos']);
+  }
+
   onTableClicked(table: Table) {
     if (table.status === TableStatus.OCCUPIED) {
+      // Occupied → open order detail bottom sheet
       const order = this.ordersService.openOrders().find((o) => o.tableId === table.id);
       if (order) {
         this.selectedOrder.set(order);
       }
     } else {
-      this.selectedFreeTable.set(table);
+      // Free → go directly to POS with this table pre-selected
+      this.#router.navigate(['/bars', this.barId(), 'orders', 'pos'], {
+        queryParams: { tableId: table.id },
+      });
     }
   }
 
-  onStartOrderAtTable(table: Table) {
-    this.selectedFreeTable.set(null);
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'pos'], {
-      queryParams: { tableId: table.id },
-    });
+  closeSheet() {
+    this.selectedOrder.set(null);
+  }
+
+  onCreateTable() {
+    this.showCreateTable.set(true);
+  }
+
+  async submitCreateTable(name: string) {
+    if (!name.trim()) return;
+    this.isSubmitting.set(true);
+    try {
+      await this.#createTable.create(this.barId(), { name: name.trim() });
+      this.tablesService.reload();
+      this.showCreateTable.set(false);
+    } catch (e) {
+      console.error(e);
+    }
+    this.isSubmitting.set(false);
   }
 
   async onDeleteTable(table: Table) {
-    this.selectedFreeTable.set(null);
-
     const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
       data: {
         title: this.#translate.instant('orders.delete_table_title'),
@@ -214,28 +219,6 @@ export default class TablesView {
         }
       }
     });
-  }
-
-  closeSheet() {
-    this.selectedOrder.set(null);
-    this.selectedFreeTable.set(null);
-  }
-
-  onCreateTable() {
-    this.showCreateTable.set(true);
-  }
-
-  async submitCreateTable(name: string) {
-    if (!name.trim()) return;
-    this.isSubmitting.set(true);
-    try {
-      await this.#createTable.create(this.barId(), { name: name.trim() });
-      this.tablesService.reload();
-      this.showCreateTable.set(false);
-    } catch (e) {
-      console.error(e);
-    }
-    this.isSubmitting.set(false);
   }
 
   async onPayItem(itemId: OrderItemId) {
@@ -317,9 +300,14 @@ export default class TablesView {
     });
   }
 
+  /** Navigate to POS to add more items to the existing order */
   onAddItems() {
-    // Navigate to POS view with order context — for now just close and redirect
+    const order = this.selectedOrder();
+    if (!order) return;
     this.closeSheet();
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'pos'], {
+      queryParams: { orderId: order.id, tableId: order.tableId },
+    });
   }
 
   onMoveTable() {

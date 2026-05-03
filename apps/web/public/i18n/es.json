@@ -197,6 +197,7 @@
     "mark_served": "Marcar como servido",
     "mark_paid": "Marcar como pagado",
     "add_items": "Añadir",
+    "add_items_title": "Añadir al Pedido",
     "checkout": "Cobrar Todo",
     "move": "Mover",
     "merge": "Juntar",

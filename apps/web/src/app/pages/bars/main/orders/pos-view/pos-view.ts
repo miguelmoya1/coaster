@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BarId, Product } from '@coaster/common';
+import { BarId, OrderId, Product, asOrderId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarCategories } from '../../../../../categories';
-import { BarOrders, CreateOrder, PosProductGrid } from '../../../../../orders';
+import { BarOrders, CreateOrder, ManageOrder, PosProductGrid } from '../../../../../orders';
 import { CartItem, PosCart } from '../../../../../orders/components/pos-cart/pos-cart';
 import { BarProducts } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
@@ -18,7 +18,9 @@ import { BarTables } from '../../../../../tables';
       <coaster-loading />
     }
 
-    <h2 coaster-title>{{ 'orders.pos_title' | translate }}</h2>
+    <h2 coaster-title>
+      {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
+    </h2>
 
     <div class="flex flex-col lg:flex-row gap-4 pb-24">
       <div class="flex-1">
@@ -34,9 +36,10 @@ import { BarTables } from '../../../../../tables';
       <div class="lg:w-80 lg:sticky lg:top-20">
         <coaster-pos-cart
           [items]="cartItems()"
-          [tables]="tablesService.all.value() ?? []"
+          [tables]="isAddItemsMode() ? [] : (tablesService.all.value() ?? [])"
           [selectedTableId]="selectedTableId()"
           [disabled]="isSubmitting()"
+          [tableLocked]="tableLocked()"
           (incrementClicked)="incrementItem($event)"
           (decrementClicked)="decrementItem($event)"
           (tableSelected)="selectedTableId.set($event)"
@@ -55,6 +58,7 @@ export default class PosView {
   readonly tablesService = inject(BarTables);
   readonly #ordersService = inject(BarOrders);
   readonly #createOrder = inject(CreateOrder);
+  readonly #manageOrder = inject(ManageOrder);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -62,6 +66,12 @@ export default class PosView {
   readonly cart = signal<Map<string, CartItem>>(new Map());
   readonly selectedTableId = signal<string | undefined>(undefined);
   readonly isSubmitting = signal(false);
+
+  /** If coming from "add items" on an occupied table, we have an orderId */
+  readonly existingOrderId = signal<OrderId | undefined>(undefined);
+  readonly isAddItemsMode = computed(() => !!this.existingOrderId());
+  /** Lock table selector when we arrived from a specific table */
+  readonly tableLocked = signal(false);
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
@@ -73,8 +83,15 @@ export default class PosView {
 
   constructor() {
     const queryTableId = this.#route.snapshot.queryParamMap.get('tableId');
+    const queryOrderId = this.#route.snapshot.queryParamMap.get('orderId');
+
     if (queryTableId) {
       this.selectedTableId.set(queryTableId);
+      this.tableLocked.set(true);
+    }
+
+    if (queryOrderId) {
+      this.existingOrderId.set(asOrderId(queryOrderId));
     }
 
     effect(() => {
@@ -129,16 +146,24 @@ export default class PosView {
 
     this.isSubmitting.set(true);
     try {
-      await this.#createOrder.create(this.barId(), {
-        tableId: this.selectedTableId(),
-        items: items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-      });
+      const itemDtos = items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+
+      const orderId = this.existingOrderId();
+      if (orderId) {
+        // Add items to existing order
+        await this.#manageOrder.addItems(this.barId(), orderId, { items: itemDtos });
+      } else {
+        // Create new order
+        await this.#createOrder.create(this.barId(), {
+          tableId: this.selectedTableId(),
+          items: itemDtos,
+        });
+      }
 
       this.cart.set(new Map());
-      this.selectedTableId.set(undefined);
       this.#ordersService.reload();
       this.tablesService.reload();
 

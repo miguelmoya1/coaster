@@ -196,6 +196,7 @@
     "mark_served": "Mark as served",
     "mark_paid": "Mark as paid",
     "add_items": "Add Items",
+    "add_items_title": "Add Items to Order",
     "checkout": "Pay All",
     "move": "Move",
     "merge": "Merge",
