@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import TablesView from './tables-view';
+import Tables from './tables';
 import { signal } from '@angular/core';
 import { BarTables, CreateTable, DeleteTable } from '../../../../../tables';
 import { BarOrders, ManageOrder } from '../../../../../orders';
 import { CurrentUser } from '../../../../../core';
 import { BarMembers } from '../../../../../members';
 
-describe('TablesView', () => {
-  let component: TablesView;
-  let fixture: ComponentFixture<TablesView>;
+describe('Tables', () => {
+  let component: Tables;
+  let fixture: ComponentFixture<Tables>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TablesView, TranslateModule.forRoot()],
+      imports: [Tables, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         {
@@ -47,7 +47,7 @@ describe('TablesView', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TablesView);
+    fixture = TestBed.createComponent(Tables);
     fixture.componentRef.setInput('barId', 'bar-1');
     component = fixture.componentInstance;
     await fixture.whenStable();

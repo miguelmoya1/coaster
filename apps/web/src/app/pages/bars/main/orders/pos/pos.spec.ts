@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import PosView from './pos-view';
+import Pos from './pos';
 import { signal } from '@angular/core';
 import { BarCategories } from '../../../../../categories';
 import { BarProducts } from '../../../../../products';
-import { BarOrders, CreateOrder } from '../../../../../orders';
+import { BarOrders, CreateOrder, ManageOrder } from '../../../../../orders';
 import { BarTables } from '../../../../../tables';
 
-describe('PosView', () => {
-  let component: PosView;
-  let fixture: ComponentFixture<PosView>;
+describe('Pos', () => {
+  let component: Pos;
+  let fixture: ComponentFixture<Pos>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PosView, TranslateModule.forRoot()],
+      imports: [Pos, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         {
@@ -50,10 +50,11 @@ describe('PosView', () => {
           },
         },
         { provide: CreateOrder, useValue: { create: vi.fn() } },
+        { provide: ManageOrder, useValue: { addItems: vi.fn() } },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PosView);
+    fixture = TestBed.createComponent(Pos);
     fixture.componentRef.setInput('barId', 'bar-1');
     component = fixture.componentInstance;
     await fixture.whenStable();

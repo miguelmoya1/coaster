@@ -25,7 +25,7 @@ import {
 import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../tables';
 
 @Component({
-  selector: 'coaster-tables-view',
+  selector: 'coaster-tables',
   imports: [TableCard, StatusCard, Loading, CoasterTitle, BottomSheet, OrderDetailSheet, Fab, TranslatePipe, CoasterBtn, NgIcon],
   viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
@@ -119,7 +119,7 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class TablesView {
+class Tables {
   public readonly barId = input.required<BarId>();
 
   readonly tablesService = inject(BarTables);
@@ -159,7 +159,7 @@ export default class TablesView {
 
   /** Bar order — no table */
   onBarOrder() {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'pos']);
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
@@ -170,10 +170,8 @@ export default class TablesView {
         this.selectedOrder.set(order);
       }
     } else {
-      // Free → go directly to POS with this table pre-selected
-      this.#router.navigate(['/bars', this.barId(), 'orders', 'pos'], {
-        queryParams: { tableId: table.id },
-      });
+      // Free → go directly to POS with this table
+      this.#router.navigate(['/bars', this.barId(), 'orders', 'new', table.id]);
     }
   }
 
@@ -305,9 +303,7 @@ export default class TablesView {
     const order = this.selectedOrder();
     if (!order) return;
     this.closeSheet();
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'pos'], {
-      queryParams: { orderId: order.id, tableId: order.tableId },
-    });
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id, 'add']);
   }
 
   onMoveTable() {
@@ -364,3 +360,5 @@ export default class TablesView {
     });
   }
 }
+
+export default Tables;

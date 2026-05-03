@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { BarId, OrderId, Product, asOrderId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarCategories } from '../../../../../categories';
@@ -10,7 +10,7 @@ import { CoasterTitle, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
 
 @Component({
-  selector: 'coaster-pos-view',
+  selector: 'coaster-pos',
   imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe],
   host: { class: 'flex flex-col gap-4' },
   template: `
@@ -50,8 +50,14 @@ import { BarTables } from '../../../../../tables';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class PosView {
+class Pos {
   public readonly barId = input.required<BarId>();
+
+  /** Route param — tableId from /new/:tableId */
+  public readonly tableId = input<string>();
+
+  /** Route param — orderId from /:orderId/add */
+  public readonly orderId = input<string>();
 
   readonly productsService = inject(BarProducts);
   readonly categoriesService = inject(BarCategories);
@@ -60,7 +66,6 @@ export default class PosView {
   readonly #createOrder = inject(CreateOrder);
   readonly #manageOrder = inject(ManageOrder);
   readonly #router = inject(Router);
-  readonly #route = inject(ActivatedRoute);
 
   readonly selectedCategory = signal<string | undefined>(undefined);
   readonly cart = signal<Map<string, CartItem>>(new Map());
@@ -82,23 +87,26 @@ export default class PosView {
   });
 
   constructor() {
-    const queryTableId = this.#route.snapshot.queryParamMap.get('tableId');
-    const queryOrderId = this.#route.snapshot.queryParamMap.get('orderId');
-
-    if (queryTableId) {
-      this.selectedTableId.set(queryTableId);
-      this.tableLocked.set(true);
-    }
-
-    if (queryOrderId) {
-      this.existingOrderId.set(asOrderId(queryOrderId));
-    }
-
     effect(() => {
       const barId = this.barId();
       this.productsService.setBarContext(barId);
       this.categoriesService.setBarContext(barId);
       this.tablesService.setBarContext(barId);
+    });
+
+    // Read route params via withComponentInputBinding + paramsInheritanceStrategy
+    effect(() => {
+      const tableId = this.tableId();
+      if (tableId) {
+        this.selectedTableId.set(tableId);
+        this.tableLocked.set(true);
+      }
+
+      const orderId = this.orderId();
+      if (orderId) {
+        this.existingOrderId.set(asOrderId(orderId));
+        this.tableLocked.set(true);
+      }
     });
   }
 
@@ -174,3 +182,5 @@ export default class PosView {
     this.isSubmitting.set(false);
   }
 }
+
+export default Pos;

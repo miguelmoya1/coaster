@@ -8,11 +8,19 @@ const ordersRoutes: Routes = [
   },
   {
     path: 'tables',
-    loadComponent: () => import('./tables-view/tables-view'),
+    loadComponent: () => import('./tables/tables'),
   },
   {
-    path: 'pos',
-    loadComponent: () => import('./pos-view/pos-view'),
+    path: 'new',
+    loadComponent: () => import('./pos/pos'),
+  },
+  {
+    path: 'new/:tableId',
+    loadComponent: () => import('./pos/pos'),
+  },
+  {
+    path: ':orderId/add',
+    loadComponent: () => import('./pos/pos'),
   },
 ];
 
