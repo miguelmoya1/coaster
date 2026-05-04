@@ -67,7 +67,6 @@ describe('BarShifts', () => {
       service.setContext(barId);
       service.setDateRange(startDate, endDate);
 
-      // Trigger resource read
       service.all.value();
       TestBed.flushEffects();
 
@@ -83,7 +82,6 @@ describe('BarShifts', () => {
 
     it('should not fetch if context or date range is missing', () => {
       service.setContext(barId);
-      // Missing date range
       service.all.value();
       TestBed.flushEffects();
       httpMock.expectNone(() => true);

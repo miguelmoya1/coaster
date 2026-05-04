@@ -60,18 +60,14 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToggleInput implements FormCheckboxControl {
-  // Required for FormCheckboxControl
   readonly checked = model<boolean>(false);
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly hint = input<string>('');
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);

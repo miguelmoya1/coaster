@@ -60,7 +60,6 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
 })
 export class InventoryItemCard {
   readonly itemName = input.required<string>();
-  // readonly locationText = input.required<string>();
   readonly qty = input.required<number>();
   readonly price = input<number>(0);
   readonly icon = input('lucidePackage');

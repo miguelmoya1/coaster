@@ -42,7 +42,6 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    // Only allow deletion of today's orders
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const orderDate = new Date(order.createdAt);
@@ -85,7 +84,6 @@ export class OrdersService {
 
     const totalAmount = dto.items.reduce((sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity, 0);
 
-    // Resolve table name for persistence
     let resolvedTableName: string | null = null;
     if (dto.tableId) {
       const table = await this._ordersRepository.findTableById(asTableId(dto.tableId));
@@ -462,7 +460,6 @@ export class OrdersService {
       const allItems = await tx.orderItem.findMany({ where: { orderId: primaryOrder.id } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
 
-      // Resolve target table name
       let mergedTableName = primaryOrder.tableName;
       if (dto.targetTableId) {
         const targetTable = await tx.table.findUnique({ where: { id: dto.targetTableId } });

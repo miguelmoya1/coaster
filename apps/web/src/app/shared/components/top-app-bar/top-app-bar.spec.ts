@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { TopAppBar } from './top-app-bar';
 
 describe('TopAppBar', () => {
@@ -13,10 +13,10 @@ describe('TopAppBar', () => {
 
     fixture = TestBed.createComponent(TopAppBar);
     component = fixture.componentInstance;
-    
+
     fixture.componentRef.setInput('label', 'Dashboard');
     fixture.componentRef.setInput('image', 'https://photo.url/user.jpg');
-    
+
     fixture.detectChanges();
   });
 
@@ -33,18 +33,7 @@ describe('TopAppBar', () => {
     it('should display the user image in avatar badge', () => {
       const avatar = fixture.nativeElement.querySelector('coaster-avatar-badge');
       expect(avatar).toBeTruthy();
-      // Since it's a child component, we mainly check its existence and host-passed inputs if possible,
-      // but standard practice here is checking existence and that inputs were set on component.
       expect(component.image()).toBe('https://photo.url/user.jpg');
-    });
-
-
-  });
-
-  describe('content projection', () => {
-    it('should project actions content', () => {
-       // We'd need a TestHost to test projection properly or use manual projection if available.
-       // For simple ng-content we often skip if it's just a placeholder.
     });
   });
 });

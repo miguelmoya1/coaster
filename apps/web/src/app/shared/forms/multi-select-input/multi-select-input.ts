@@ -145,20 +145,16 @@ export interface MultiSelectOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiSelectInput implements FormValueControl<(string | number)[]> {
-  // Required
   readonly value = model<(string | number)[]>([]);
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly placeholder = input<string>('Select options...');
   readonly hint = input<string>('');
   readonly options = input<MultiSelectOption[]>([]);
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);
@@ -167,18 +163,15 @@ export class MultiSelectInput implements FormValueControl<(string | number)[]> {
   readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
-  // Component state
   readonly isOpen = signal(false);
   readonly triggerWidth = signal<number | string>('auto');
 
-  // Computed state
   readonly hasValue = computed(() => this.value() && this.value().length > 0);
 
   readonly selectedDisplayItems = computed(() => {
     const vals = this.value();
     if (!vals || vals.length === 0) return [];
 
-    // Map values to display objects
     return vals.map((val) => {
       const option = this.options().find((o) => o.value === val);
       return {

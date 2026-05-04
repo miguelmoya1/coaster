@@ -32,7 +32,7 @@ describe('Main', () => {
             setBarContext: vi.fn(),
           },
         },
-        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]) } } },
+        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]), hasValue: signal(true) } } },
       ],
     }).compileComponents();
 

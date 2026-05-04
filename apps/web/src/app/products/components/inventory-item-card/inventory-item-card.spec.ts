@@ -14,7 +14,6 @@ describe('InventoryItemCard', () => {
     fixture = TestBed.createComponent(InventoryItemCard);
     component = fixture.componentInstance;
 
-    // Set required inputs
     fixture.componentRef.setInput('itemName', 'Beer');
     fixture.componentRef.setInput('qty', 10);
 

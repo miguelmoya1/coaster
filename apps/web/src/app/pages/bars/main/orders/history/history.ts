@@ -41,7 +41,6 @@ import {
       </div>
     </div>
 
-    <!-- Date Selector -->
     <div class="flex items-center justify-between bg-surface-container rounded-2xl p-3 gap-2">
       <button
         class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-transform text-on-surface-variant hover:text-on-surface cursor-pointer"
@@ -90,7 +89,6 @@ import {
       </button>
     </div>
 
-    <!-- Summary Stats -->
     <div class="grid grid-cols-2 gap-3">
       <coaster-status-card status="primary">
         <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.revenue' | translate }}</div>
@@ -137,8 +135,13 @@ import {
             <span class="text-sm text-on-surface-variant">{{ formatTime(order.createdAt) }}</span>
           </div>
 
-          <div class="text-sm text-on-surface-variant">
-            {{ order.items.length }} {{ 'history.items' | translate }}
+          <div class="flex flex-col gap-1 text-sm text-on-surface-variant">
+            @for (item of order.items; track item.id) {
+              <div class="flex justify-between">
+                <span>{{ item.productName ?? item.productId }} <span class="text-xs">x{{ item.quantity }}</span></span>
+                <span class="text-xs font-bold text-on-surface">{{ formatPrice(item.priceAtPurchase * item.quantity) }}</span>
+              </div>
+            }
           </div>
 
           <div class="flex items-center justify-between">

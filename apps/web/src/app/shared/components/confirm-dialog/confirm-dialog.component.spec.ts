@@ -51,7 +51,7 @@ describe('ConfirmDialogComponent', () => {
   it('should call dialogRef.close(false) when cancel button is clicked', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
-    const cancelButton = buttons[0]; // First button is cancel
+    const cancelButton = buttons[0];
 
     cancelButton.click();
 
@@ -61,7 +61,7 @@ describe('ConfirmDialogComponent', () => {
   it('should call dialogRef.close(true) when confirm button is clicked', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
-    const confirmButton = buttons[1]; // Second button is confirm
+    const confirmButton = buttons[1];
 
     confirmButton.click();
 

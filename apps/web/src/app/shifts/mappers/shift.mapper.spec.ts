@@ -46,7 +46,7 @@ describe('ShiftMapper', () => {
     it('should map a valid shift object', () => {
       const result = shiftMapper(validShift);
       expect(result).toEqual(validShift);
-      expect(result).not.toBe(validShift); // Ensure it's a new object
+      expect(result).not.toBe(validShift);
     });
 
     it('should throw an error for an invalid shift object', () => {

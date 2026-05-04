@@ -53,10 +53,8 @@ import { BarTables } from '../../../../../tables';
 class NewOrder {
   public readonly barId = input.required<BarId>();
 
-  /** Route param — tableId from /new/:tableId */
   public readonly tableId = input<string>();
 
-  /** Route param — orderId from /:orderId/add */
   public readonly orderId = input<string>();
 
   readonly productsService = inject(BarProducts);
@@ -72,10 +70,8 @@ class NewOrder {
   readonly selectedTableId = signal<string | undefined>(undefined);
   readonly isSubmitting = signal(false);
 
-  /** If coming from "add items" on an occupied table, we have an orderId */
   readonly existingOrderId = signal<OrderId | undefined>(undefined);
   readonly isAddItemsMode = computed(() => !!this.existingOrderId());
-  /** Lock table selector when we arrived from a specific table */
   readonly tableLocked = signal(false);
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
@@ -94,7 +90,6 @@ class NewOrder {
       this.tablesService.setBarContext(barId);
     });
 
-    // Read route params via withComponentInputBinding + paramsInheritanceStrategy
     effect(() => {
       const tableId = this.tableId();
       if (tableId) {
@@ -161,10 +156,8 @@ class NewOrder {
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        // Add items to existing order
         await this.#manageOrder.addItems(this.barId(), orderId, { items: itemDtos });
       } else {
-        // Create new order
         await this.#createOrder.create(this.barId(), {
           tableId: this.selectedTableId(),
           items: itemDtos,

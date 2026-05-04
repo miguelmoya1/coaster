@@ -57,20 +57,16 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TextareaInput implements FormValueControl<string> {
-  // Required
   readonly value = model<string>('');
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
   readonly rows = input<number>(3);
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);

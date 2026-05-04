@@ -55,7 +55,7 @@ async function bootstrap() {
     .setTitle('BarTeam API')
     .setDescription('API Multi-Tenant para la gestión de bares y turnos')
     .setVersion('1.0')
-    // .addBearerAuth()
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

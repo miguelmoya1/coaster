@@ -87,8 +87,8 @@ describe('BarProducts', () => {
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(service.total()).toBe(3);
-      expect(service.lowStock()).toBe(1); // prod-2
-      expect(service.criticalStock()).toBe(1); // prod-3
+      expect(service.lowStock()).toBe(1);
+      expect(service.criticalStock()).toBe(1);
     });
 
     it('should return undefined if no value yet', () => {
