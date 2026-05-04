@@ -1,0 +1,9 @@
+@if (currentUser.hasValue()) {
+  <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
+}
+
+<main class="py-20 px-4">
+  <router-outlet />
+</main>
+
+<coaster-bottom-nav [barId]="barId()" [isOwner]="isOwner()" />

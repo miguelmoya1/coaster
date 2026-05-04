@@ -16,49 +16,7 @@ import { BarTables } from '../../../../../tables';
   imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe, NgIcon],
   viewProviders: [provideIcons({ lucideArrowLeft })],
   host: { class: 'flex flex-col gap-4' },
-  template: `
-    @if (productsService.all.isLoading() || categoriesService.all.isLoading()) {
-      <coaster-loading />
-    }
-
-    <div class="flex items-center gap-3">
-      <button
-        class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
-        (click)="goBack()"
-      >
-        <ng-icon name="lucideArrowLeft" size="22" />
-      </button>
-      <h2 coaster-title class="flex-1!">
-        {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
-      </h2>
-    </div>
-
-    <div class="flex flex-col lg:flex-row gap-4 pb-24">
-      <div class="flex-1">
-        <coaster-pos-product-grid
-          [products]="filteredProducts()"
-          [categories]="categoriesService.all.value() ?? []"
-          [selectedCategory]="selectedCategory()"
-          (productClicked)="addToCart($event)"
-          (categorySelected)="selectedCategory.set($event)"
-        />
-      </div>
-
-      <div class="lg:w-80 lg:sticky lg:top-20">
-        <coaster-pos-cart
-          [items]="cartItems()"
-          [tables]="isAddItemsMode() ? [] : (tablesService.all.value() ?? [])"
-          [selectedTableId]="selectedTableId()"
-          [disabled]="isSubmitting()"
-          [tableLocked]="tableLocked()"
-          (incrementClicked)="incrementItem($event)"
-          (decrementClicked)="decrementItem($event)"
-          (tableSelected)="selectedTableId.set($event)"
-          (submitClicked)="submitOrder()"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './new-order.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class NewOrder {

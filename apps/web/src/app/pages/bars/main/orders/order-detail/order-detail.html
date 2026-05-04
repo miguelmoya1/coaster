@@ -1,0 +1,133 @@
+<div class="flex items-center gap-3">
+      <button
+        class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
+        (click)="goBack()"
+      >
+        <ng-icon name="lucideArrowLeft" size="22" />
+      </button>
+      <h2 coaster-title class="flex-1!">{{ title() }}</h2>
+    </div>
+
+    @if (ordersService.all.isLoading() || isLoading()) {
+      <coaster-loading />
+    }
+
+    @if (displayOrder(); as order) {
+      <div class="flex justify-between items-center bg-surface-container rounded-2xl p-4">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-on-surface-variant font-medium">
+            @if (order.status === 'OPEN') {
+              {{ 'orders.open_orders' | translate }}
+            } @else if (order.status === 'CLOSED') {
+              {{ 'history.status_closed' | translate }}
+            } @else {
+              {{ 'history.status_cancelled' | translate }}
+            }
+          </span>
+          <span class="text-xs text-on-surface-variant"
+            >{{ order.items.length }} {{ 'history.items' | translate }}</span
+          >
+        </div>
+        <span class="text-2xl font-black" [class.text-primary]="order.status === 'OPEN'">{{
+          formatPrice(order.totalAmount)
+        }}</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        @for (item of order.items; track item.id) {
+          <div
+            class="bg-surface-container rounded-xl p-4 flex items-center gap-3"
+            [class.opacity-50]="item.paymentStatus === 'PAID'"
+          >
+            <div class="flex-1 flex flex-col gap-1">
+              <span class="font-semibold text-on-surface text-sm">{{ item.productName ?? item.productId }}</span>
+              <div class="flex gap-2 items-center">
+                <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
+                <span class="text-xs font-bold text-on-surface">{{
+                  formatPrice(item.priceAtPurchase * item.quantity)
+                }}</span>
+              </div>
+              <div class="flex gap-1.5 mt-1">
+                @if (item.paymentStatus === 'PAID') {
+                  <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
+                    {{ 'orders.paid' | translate }}
+                  </span>
+                }
+                @if (item.deliveryStatus === 'SERVED') {
+                  <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
+                    {{ 'orders.served' | translate }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="flex gap-1">
+              @if (order.status === 'OPEN') {
+                @if (item.deliveryStatus !== 'SERVED') {
+                  <button
+                    class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+                    (click)="onDeliverItem(item.id)"
+                    [title]="'orders.mark_served' | translate"
+                  >
+                    <ng-icon name="lucideChefHat" size="18" />
+                  </button>
+                }
+                @if (item.paymentStatus !== 'PAID') {
+                  <button
+                    class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+                    (click)="onPayItem(item.id)"
+                    [title]="'orders.mark_paid' | translate"
+                  >
+                    <ng-icon name="lucideCreditCard" size="18" />
+                  </button>
+                }
+                <button
+                  class="w-10 h-10 rounded-xl bg-error/10 text-error flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+                  (click)="onRemoveItem(item.id)"
+                  [title]="'orders.remove_item' | translate"
+                >
+                  <ng-icon name="lucideTrash2" size="18" />
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (order.status === 'OPEN') {
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button coaster-btn variant="outline" (click)="onAddItems()">
+            <ng-icon name="lucidePackagePlus" size="18" />
+            {{ 'orders.add_items' | translate }}
+          </button>
+          <button coaster-btn (click)="onCheckout()">
+            <ng-icon name="lucideCreditCard" size="18" />
+            {{ 'orders.checkout' | translate }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <button coaster-btn variant="outline" (click)="onMoveTable()">
+            <ng-icon name="lucideArrowRightLeft" size="16" />
+            {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
+          </button>
+          <button coaster-btn variant="outline" (click)="onMerge()">
+            <ng-icon name="lucideMerge" size="16" />
+            {{ 'orders.merge' | translate }}
+          </button>
+          <button coaster-btn variant="outline" class="text-error!" (click)="onCancel()">
+            <ng-icon name="lucideX" size="16" />
+            {{ 'orders.cancel_order' | translate }}
+          </button>
+        </div>
+      }
+    } @else {
+      @if (!ordersService.all.isLoading() && !isLoading()) {
+        <div class="flex flex-col items-center gap-4 py-12 text-center">
+          <span class="text-on-surface-variant text-lg">{{ 'orders.order_not_found' | translate }}</span>
+          <button coaster-btn (click)="goBack()">
+            {{ 'orders.tables_title' | translate }}
+          </button>
+        </div>
+      }
+    }

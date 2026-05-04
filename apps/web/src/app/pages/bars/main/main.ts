@@ -9,17 +9,7 @@ import { BottomNav, TopAppBar } from '../../../shared';
 @Component({
   selector: 'coaster-main',
   imports: [RouterOutlet, TopAppBar, BottomNav],
-  template: `
-    @if (currentUser.hasValue()) {
-      <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
-    }
-
-    <main class="py-20 px-4">
-      <router-outlet />
-    </main>
-
-    <coaster-bottom-nav [barId]="barId()" [isOwner]="isOwner()" />
-  `,
+  templateUrl: './main.html',
 })
 export default class Main {
   public readonly barId = input.required<BarId>();
