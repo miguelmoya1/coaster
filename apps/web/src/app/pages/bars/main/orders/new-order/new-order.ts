@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarId, OrderId, Product, asOrderId } from '@coaster/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarCategories } from '../../../../../categories';
 import { BarOrders, CreateOrder, ManageOrder, PosProductGrid } from '../../../../../orders';
@@ -11,16 +13,25 @@ import { BarTables } from '../../../../../tables';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe],
+  imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe, NgIcon],
+  viewProviders: [provideIcons({ lucideArrowLeft })],
   host: { class: 'flex flex-col gap-4' },
   template: `
     @if (productsService.all.isLoading() || categoriesService.all.isLoading()) {
       <coaster-loading />
     }
 
-    <h2 coaster-title>
-      {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
-    </h2>
+    <div class="flex items-center gap-3">
+      <button
+        class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
+        (click)="goBack()"
+      >
+        <ng-icon name="lucideArrowLeft" size="22" />
+      </button>
+      <h2 coaster-title class="flex-1!">
+        {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
+      </h2>
+    </div>
 
     <div class="flex flex-col lg:flex-row gap-4 pb-24">
       <div class="flex-1">
@@ -103,6 +114,10 @@ class NewOrder {
         this.tableLocked.set(true);
       }
     });
+  }
+
+  goBack() {
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
   }
 
   addToCart(product: Product) {
