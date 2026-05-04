@@ -88,6 +88,17 @@ export class OrdersController {
     return OrdersMapper.toDto(order);
   }
 
+  @Delete(':orderId/items/:itemId')
+  @Roles(BarRole.OWNER, BarRole.STAFF)
+  async removeItem(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Param('itemId') itemId: OrderItemId,
+  ) {
+    const order = await this._ordersService.removeItem(barId, orderId, itemId);
+    return OrdersMapper.toDto(order);
+  }
+
   @Post('merge')
   @Roles(BarRole.OWNER)
   async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto) {

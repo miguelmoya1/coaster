@@ -19,6 +19,10 @@ const ordersRoutes: Routes = [
     loadComponent: () => import('./history/history'),
   },
   {
+    path: 'bar/:orderId',
+    loadComponent: () => import('./bar-order-detail/bar-order-detail'),
+  },
+  {
     path: 'new',
     loadComponent: () => import('./new-order/new-order'),
   },

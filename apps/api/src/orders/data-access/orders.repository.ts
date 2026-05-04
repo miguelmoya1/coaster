@@ -77,6 +77,48 @@ export class OrdersRepository {
     });
   }
 
+  async removeItemAndRecalculate(orderId: OrderId, itemId: OrderItemId) {
+    return this._prisma.$transaction(async (tx) => {
+      await tx.orderItem.delete({ where: { id: itemId } });
+
+      const allItems = await tx.orderItem.findMany({ where: { orderId } });
+      const totalAmount = allItems.reduce((sum, i) => sum + i.priceAtPurchase * i.quantity, 0);
+
+      return tx.order.update({
+        where: { id: orderId },
+        data: { totalAmount },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+    });
+  }
+
+  async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: string | null) {
+    return this._prisma.$transaction(async (tx) => {
+      await tx.orderItem.delete({ where: { id: itemId } });
+
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: { status: 'CANCELLED', totalAmount: 0 },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+
+      if (tableId) {
+        await tx.table.update({
+          where: { id: tableId },
+          data: { status: 'FREE' },
+        });
+      }
+
+      return updated;
+    });
+  }
+
   async findOrdersByIds(orderIds: string[]) {
     return this._prisma.order.findMany({
       where: { id: { in: orderIds } },

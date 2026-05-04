@@ -1,12 +1,10 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, OrderItemId, asTableId } from '@coaster/common';
+import { BarId, OrderItemId, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
-  lucideArrowRightLeft,
-  lucideCheck,
   lucideChefHat,
   lucideCreditCard,
   lucideMerge,
@@ -15,7 +13,7 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { BarOrders, ManageOrder, MoveTableDialog, MoveTableDialogData } from '../../../../../orders';
+import { BarOrders, ManageOrder } from '../../../../../orders';
 import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
@@ -29,16 +27,14 @@ import {
 import { BarTables } from '../../../../../tables';
 
 @Component({
-  selector: 'coaster-table-detail',
+  selector: 'coaster-bar-order-detail',
   imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
-      lucideCheck,
       lucideChefHat,
       lucideCreditCard,
       lucidePackagePlus,
-      lucideArrowRightLeft,
       lucideMerge,
       lucideTrash2,
       lucideX,
@@ -53,10 +49,10 @@ import { BarTables } from '../../../../../tables';
       >
         <ng-icon name="lucideArrowLeft" size="22" />
       </button>
-      <h2 coaster-title class="flex-1!">{{ tableName() }}</h2>
+      <h2 coaster-title class="flex-1!">{{ 'orders.bar_order_title' | translate }}</h2>
     </div>
 
-    @if (ordersService.all.isLoading() || tablesService.all.isLoading()) {
+    @if (ordersService.all.isLoading()) {
       <coaster-loading />
     }
 
@@ -137,11 +133,7 @@ import { BarTables } from '../../../../../tables';
         </button>
       </div>
 
-      <div class="grid grid-cols-3 gap-2">
-        <button coaster-btn variant="outline" (click)="onMoveTable()">
-          <ng-icon name="lucideArrowRightLeft" size="16" />
-          {{ 'orders.move' | translate }}
-        </button>
+      <div class="grid grid-cols-2 gap-2">
         <button coaster-btn variant="outline" (click)="onMerge()">
           <ng-icon name="lucideMerge" size="16" />
           {{ 'orders.merge' | translate }}
@@ -154,9 +146,9 @@ import { BarTables } from '../../../../../tables';
     } @else {
       @if (!ordersService.all.isLoading()) {
         <div class="flex flex-col items-center gap-4 py-12 text-center">
-          <span class="text-on-surface-variant text-lg">{{ 'orders.free_table_hint' | translate }}</span>
-          <button coaster-btn (click)="onStartNewOrder()">
-            {{ 'orders.start_order' | translate }}
+          <span class="text-on-surface-variant text-lg">{{ 'orders.no_bar_orders' | translate }}</span>
+          <button coaster-btn (click)="goBack()">
+            {{ 'orders.tables_title' | translate }}
           </button>
         </div>
       }
@@ -164,36 +156,29 @@ import { BarTables } from '../../../../../tables';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TableDetail {
+class BarOrderDetail {
   public readonly barId = input.required<BarId>();
-  public readonly tableId = input.required<string>();
+  public readonly orderId = input.required<string>();
 
   readonly ordersService = inject(BarOrders);
-  readonly tablesService = inject(BarTables);
+  readonly #tablesService = inject(BarTables);
   readonly #manageOrder = inject(ManageOrder);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
 
-  readonly resolvedTableId = computed(() => asTableId(this.tableId()));
-
-  readonly table = computed(() => {
-    const tables = this.tablesService.all.value() ?? [];
-    return tables.find((t) => t.id === this.resolvedTableId());
-  });
-
-  readonly tableName = computed(() => this.table()?.name ?? '...');
+  readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
   readonly currentOrder = computed(() => {
     const orders = this.ordersService.openOrders();
-    return orders.find((o) => o.tableId === this.resolvedTableId()) ?? null;
+    return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
   });
 
   constructor() {
     effect(() => {
       const barId = this.barId();
       this.ordersService.setBarContext(barId);
-      this.tablesService.setBarContext(barId);
+      this.#tablesService.setBarContext(barId);
     });
   }
 
@@ -203,10 +188,6 @@ class TableDetail {
 
   formatPrice(cents: number): string {
     return (cents / 100).toFixed(2) + ' €';
-  }
-
-  onStartNewOrder() {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'new', this.tableId()]);
   }
 
   onAddItems() {
@@ -255,7 +236,6 @@ class TableDetail {
         try {
           await this.#manageOrder.checkout(this.barId(), order.id);
           this.ordersService.reload();
-          this.tablesService.reload();
           this.goBack();
         } catch (e) {
           console.error(e);
@@ -283,34 +263,7 @@ class TableDetail {
         try {
           await this.#manageOrder.cancel(this.barId(), order.id);
           this.ordersService.reload();
-          this.tablesService.reload();
           this.goBack();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
-  }
-
-  onMoveTable() {
-    const order = this.currentOrder();
-    if (!order) return;
-
-    const dialogRef = this.#dialog.open(MoveTableDialog, {
-      data: {
-        tables: this.tablesService.all.value() ?? [],
-        currentTableId: order.tableId,
-      } satisfies MoveTableDialogData,
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      const targetTableId = result as string | undefined;
-      if (targetTableId) {
-        try {
-          await this.#manageOrder.moveTable(this.barId(), order.id, { tableId: targetTableId });
-          this.ordersService.reload();
-          this.tablesService.reload();
-          this.#router.navigate(['/bars', this.barId(), 'orders', 'tables', targetTableId]);
         } catch (e) {
           console.error(e);
         }
@@ -337,7 +290,7 @@ class TableDetail {
             orderIds: [order.id, targetOrderId],
           });
           this.ordersService.reload();
-          this.tablesService.reload();
+          this.#tablesService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -364,7 +317,6 @@ class TableDetail {
         try {
           await this.#manageOrder.removeItem(this.barId(), order.id, itemId);
           this.ordersService.reload();
-          this.tablesService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -373,4 +325,4 @@ class TableDetail {
   }
 }
 
-export default TableDetail;
+export default BarOrderDetail;

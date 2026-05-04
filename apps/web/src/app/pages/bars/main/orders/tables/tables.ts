@@ -1,7 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { BarId, Table } from '@coaster/common';
+import { BarId, Order, Table } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -89,6 +89,28 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
       }
     </div>
 
+    @if (barOrders().length > 0) {
+      <h2 coaster-title>{{ 'orders.bar_orders' | translate }}</h2>
+
+      <div class="flex flex-col gap-2 pb-24">
+        @for (order of barOrders(); track order.id) {
+          <button
+            class="w-full bg-surface-container rounded-2xl p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer hover:bg-surface-container-high"
+            (click)="onBarOrderClicked(order)"
+          >
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <ng-icon name="lucideCoffee" size="20" />
+            </div>
+            <div class="flex-1 flex flex-col gap-0.5 text-left">
+              <span class="font-semibold text-on-surface text-sm">{{ 'orders.bar_order' | translate }}</span>
+              <span class="text-xs text-on-surface-variant">{{ order.items.length }} {{ 'history.items' | translate }}</span>
+            </div>
+            <span class="text-lg font-black text-primary">{{ formatPrice(order.totalAmount) }}</span>
+          </button>
+        }
+      </div>
+    }
+
     @if (isOwner()) {
       <coaster-fab (click)="onCreateTable()" />
     }
@@ -134,6 +156,10 @@ class Tables {
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
+  readonly barOrders = computed(() => {
+    return this.ordersService.openOrders().filter((o) => !o.tableId);
+  });
+
   constructor() {
     effect(() => {
       const barId = this.barId();
@@ -154,6 +180,14 @@ class Tables {
 
   onTableClicked(table: Table) {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'tables', table.id]);
+  }
+
+  onBarOrderClicked(order: Order) {
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'bar', order.id]);
+  }
+
+  formatPrice(cents: number): string {
+    return (cents / 100).toFixed(2) + ' €';
   }
 
   onCreateTable() {

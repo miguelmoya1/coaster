@@ -36,6 +36,8 @@ export class OrderRepository {
     cancel: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/cancel`,
     moveTable: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/move-table`,
     merge: (barId: BarId) => `/bars/${barId}/orders/merge`,
+    removeItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
+      `/bars/${barId}/orders/${orderId}/items/${itemId}`,
   };
 
   public async create(barId: BarId, dto: CreateOrderDto) {
@@ -85,6 +87,14 @@ export class OrderRepository {
   public async merge(barId: BarId, dto: MergeOrdersDto) {
     return firstValueFrom(
       this.#http.post<Order>(this.routes.merge(barId), dto).pipe(map((order) => orderMapper(order))),
+    );
+  }
+
+  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return firstValueFrom(
+      this.#http
+        .delete<Order>(this.routes.removeItem(barId, orderId, itemId))
+        .pipe(map((order) => orderMapper(order))),
     );
   }
 

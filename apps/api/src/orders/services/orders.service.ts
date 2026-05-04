@@ -495,4 +495,43 @@ export class OrdersService {
 
     return mapped;
   }
+
+  async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+    if (order.status !== 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    }
+
+    const remainingItems = order.items.filter((i) => i.id !== itemId);
+
+    if (remainingItems.length === 0) {
+      const cancelled = await this._ordersRepository.removeLastItemAndCancel(orderId, itemId, order.tableId);
+
+      const mapped = OrdersMapper.toDomain(cancelled);
+      this._barGateway.server.to(barId).emit(SocketEvents.ORDER_CANCELLED, mapped);
+
+      if (order.tableId) {
+        this._barGateway.server.to(barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
+          id: order.tableId,
+          status: 'FREE',
+        });
+      }
+
+      return mapped;
+    }
+
+    const result = await this._ordersRepository.removeItemAndRecalculate(orderId, itemId);
+
+    const mapped = OrdersMapper.toDomain(result);
+    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    return mapped;
+  }
 }

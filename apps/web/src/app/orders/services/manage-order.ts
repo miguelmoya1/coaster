@@ -35,4 +35,8 @@ export class ManageOrder {
   public async merge(barId: BarId, dto: MergeOrdersDto) {
     return await this.#orderRepository.merge(barId, dto);
   }
+
+  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return await this.#orderRepository.removeItem(barId, orderId, itemId);
+  }
 }
