@@ -40,6 +40,12 @@ export class OrderRepository {
       `/bars/${barId}/orders/${orderId}/items/${itemId}`,
   };
 
+  public async getOrder(barId: BarId, orderId: OrderId) {
+    return firstValueFrom(
+      this.#http.get<Order>(this.routes.get(barId, orderId)).pipe(map((order) => orderMapper(order))),
+    );
+  }
+
   public async create(barId: BarId, dto: CreateOrderDto) {
     return firstValueFrom(
       this.#http.post<Order>(this.routes.create(barId), dto).pipe(map((order) => orderMapper(order))),
@@ -92,9 +98,7 @@ export class OrderRepository {
 
   public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
     return firstValueFrom(
-      this.#http
-        .delete<Order>(this.routes.removeItem(barId, orderId, itemId))
-        .pipe(map((order) => orderMapper(order))),
+      this.#http.delete<Order>(this.routes.removeItem(barId, orderId, itemId)).pipe(map((order) => orderMapper(order))),
     );
   }
 

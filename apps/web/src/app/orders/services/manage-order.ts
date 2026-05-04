@@ -1,5 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { AddOrderItemsDto, BarId, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
+import {
+  AddOrderItemsDto,
+  BarId,
+  CreateOrderDto,
+  MergeOrdersDto,
+  MoveTableDto,
+  OrderId,
+  OrderItemId,
+} from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Injectable({
@@ -7,6 +15,14 @@ import { OrderRepository } from '../data-access/order-repository';
 })
 export class ManageOrder {
   readonly #orderRepository = inject(OrderRepository);
+
+  public async getOrder(barId: BarId, orderId: OrderId) {
+    return await this.#orderRepository.getOrder(barId, orderId);
+  }
+
+  public async create(barId: BarId, dto: CreateOrderDto) {
+    return await this.#orderRepository.create(barId, dto);
+  }
 
   public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto) {
     return await this.#orderRepository.addItems(barId, orderId, dto);

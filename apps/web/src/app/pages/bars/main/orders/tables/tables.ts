@@ -179,11 +179,16 @@ class Tables {
   }
 
   onTableClicked(table: Table) {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'tables', table.id]);
+    const order = this.ordersService.openOrders().find((o) => o.tableId === table.id);
+    if (order) {
+      this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
+    } else {
+      this.#router.navigate(['/bars', this.barId(), 'orders', 'new', table.id]);
+    }
   }
 
   onBarOrderClicked(order: Order) {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'bar', order.id]);
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
   formatPrice(cents: number): string {

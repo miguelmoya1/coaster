@@ -227,7 +227,9 @@
     "bar_order_title": "Bar Order",
     "remove_item": "Remove item",
     "remove_item_title": "Remove Item",
-    "remove_item_message": "Remove this item from the order?"
+    "remove_item_message": "Remove this item from the order?",
+    "order_not_found": "The order is no longer available or has been closed.",
+    "assign_table": "Assign Table"
   },
   "history": {
     "title": "Order History",

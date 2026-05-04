@@ -1,25 +1,14 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideCalendar,
-  lucideChevronLeft,
-  lucideChevronRight,
-  lucideTrash2,
-} from '@ng-icons/lucide';
+import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { BarMembers } from '../../../../../members';
 import { BarOrderHistory, OrderRepository } from '../../../../../orders';
-import {
-  CoasterBtn,
-  CoasterTitle,
-  ConfirmDialogComponent,
-  Loading,
-  StatusCard,
-} from '../../../../../shared';
+import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, StatusCard } from '../../../../../shared';
 
 @Component({
   selector: 'coaster-history',
@@ -34,9 +23,7 @@ import {
       >
         {{ 'orders.tables_title' | translate }}
       </a>
-      <div
-        class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary"
-      >
+      <div class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary">
         {{ 'history.title' | translate }}
       </div>
     </div>
@@ -71,20 +58,10 @@ import {
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        coaster-btn
-        variant="outline"
-        class="text-xs! py-1! px-3!"
-        (click)="goToday()"
-      >
+      <button coaster-btn variant="outline" class="text-xs! py-1! px-3!" (click)="goToday()">
         {{ 'history.today' | translate }}
       </button>
-      <button
-        coaster-btn
-        variant="outline"
-        class="text-xs! py-1! px-3!"
-        (click)="goYesterday()"
-      >
+      <button coaster-btn variant="outline" class="text-xs! py-1! px-3!" (click)="goYesterday()">
         {{ 'history.yesterday' | translate }}
       </button>
     </div>
@@ -120,15 +97,16 @@ import {
     <div class="flex flex-col gap-3 pb-24">
       @for (order of historyService.all.value() ?? []; track order.id) {
         <div
-          class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2"
+          role="button"
+          tabindex="0"
+          class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2 transition-colors cursor-pointer hover:bg-surface-container-high text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
+          (click)="onOrderClicked(order)"
+          (keydown.enter)="onOrderClicked(order)"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="font-bold text-on-surface">{{ order.tableName ?? ('orders.no_table' | translate) }}</span>
-              <span
-                class="text-xs font-semibold px-2 py-0.5 rounded-full"
-                [class]="statusClasses(order)"
-              >
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full" [class]="statusClasses(order)">
                 {{ statusLabel(order) | translate }}
               </span>
             </div>
@@ -138,8 +116,12 @@ import {
           <div class="flex flex-col gap-1 text-sm text-on-surface-variant">
             @for (item of order.items; track item.id) {
               <div class="flex justify-between">
-                <span>{{ item.productName ?? item.productId }} <span class="text-xs">x{{ item.quantity }}</span></span>
-                <span class="text-xs font-bold text-on-surface">{{ formatPrice(item.priceAtPurchase * item.quantity) }}</span>
+                <span
+                  >{{ item.productName ?? item.productId }} <span class="text-xs">x{{ item.quantity }}</span></span
+                >
+                <span class="text-xs font-bold text-on-surface">{{
+                  formatPrice(item.priceAtPurchase * item.quantity)
+                }}</span>
               </div>
             }
           </div>
@@ -150,7 +132,7 @@ import {
             @if (isOwner() && isToday()) {
               <button
                 class="w-9 h-9 rounded-xl flex items-center justify-center text-error active:scale-90 transition-transform hover:bg-error/10 cursor-pointer"
-                (click)="onDeleteOrder(order)"
+                (click)="onDeleteOrder(order); $event.stopPropagation()"
               >
                 <ng-icon name="lucideTrash2" size="18" />
               </button>
@@ -177,6 +159,7 @@ class History {
   readonly #barMembers = inject(BarMembers);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
+  readonly #router = inject(Router);
 
   readonly today = new Date().toISOString().split('T')[0];
 
@@ -227,6 +210,10 @@ class History {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     this.historyService.setDate(yesterday.toISOString().split('T')[0]);
+  }
+
+  onOrderClicked(order: Order) {
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
   formatPrice(cents: number): string {

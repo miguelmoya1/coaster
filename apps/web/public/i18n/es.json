@@ -228,7 +228,9 @@
     "bar_order_title": "Pedido de Barra",
     "remove_item": "Eliminar artículo",
     "remove_item_title": "Eliminar Artículo",
-    "remove_item_message": "¿Eliminar este artículo del pedido?"
+    "remove_item_message": "¿Eliminar este artículo del pedido?",
+    "order_not_found": "El pedido ya no está disponible o ha sido cerrado.",
+    "assign_table": "Asignar Mesa"
   },
   "history": {
     "title": "Historial de Pedidos",
