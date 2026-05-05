@@ -21,7 +21,18 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, StatusCard, Loading, CoasterTitle, BottomSheet, Fab, TranslatePipe, CoasterBtn, NgIcon, RouterLink],
+  imports: [
+    TableCard,
+    StatusCard,
+    Loading,
+    CoasterTitle,
+    BottomSheet,
+    Fab,
+    TranslatePipe,
+    CoasterBtn,
+    NgIcon,
+    RouterLink,
+  ],
   viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
@@ -60,20 +71,20 @@ class Tables {
     const tables = this.#tablesService.all.value() ?? [];
     const orders = this.#ordersService.openOrders();
 
-    return tables.map(table => {
+    return tables.map((table) => {
       const order = orders.find((o) => o.tableId === table.id);
       return {
         original: table,
-        orderAmount: order?.totalAmount
+        orderAmount: order?.totalAmount,
       };
     });
   });
 
   protected readonly barOrdersViewModel = computed(() => {
     const orders = this.#ordersService.openOrders().filter((o) => !o.tableId);
-    return orders.map(order => ({
+    return orders.map((order) => ({
       original: order,
-      formattedTotalAmount: this.#formatPrice(order.totalAmount)
+      formattedTotalAmount: this.#formatPrice(order.totalAmount),
     }));
   });
 
@@ -85,8 +96,6 @@ class Tables {
       this.#barMembers.setBarContext(barId);
     });
   }
-
-
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
