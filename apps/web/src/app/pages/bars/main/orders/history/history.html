@@ -23,7 +23,7 @@
     <input
       type="date"
       class="bg-transparent text-on-surface font-bold text-center outline-none cursor-pointer"
-      [value]="historyService.selectedDate()"
+      [value]="selectedDate()"
       [max]="today"
       (change)="onDateChange($event)"
     />
@@ -56,12 +56,12 @@
 
   <coaster-status-card status="success">
     <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.total_orders' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ historyService.totalClosed() }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalClosed() }}</div>
   </coaster-status-card>
 
   <coaster-status-card status="error">
     <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.cancelled' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ historyService.totalCancelled() }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalCancelled() }}</div>
   </coaster-status-card>
 
   <coaster-status-card status="warning">
@@ -72,49 +72,47 @@
 
 <h2 coaster-title>{{ 'history.orders_list' | translate }}</h2>
 
-@if (historyService.all.isLoading()) {
+@if (isLoading()) {
   <coaster-loading />
 }
 
 <div class="flex flex-col gap-3 pb-24">
-  @for (order of historyService.all.value() ?? []; track order.id) {
+  @for (order of ordersViewModel(); track order.original.id) {
     <div
       role="button"
       tabindex="0"
       class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2 transition-colors cursor-pointer hover:bg-surface-container-high text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
-      (click)="onOrderClicked(order)"
-      (keydown.enter)="onOrderClicked(order)"
+      (click)="onOrderClicked(order.original)"
+      (keydown.enter)="onOrderClicked(order.original)"
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="font-bold text-on-surface">{{ order.tableName ?? ('orders.no_table' | translate) }}</span>
-          <span class="text-xs font-semibold px-2 py-0.5 rounded-full" [class]="statusClasses(order)">
-            {{ statusLabel(order) | translate }}
+          <span class="font-bold text-on-surface">{{ order.tableName }}</span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full" [class]="order.statusClass">
+            {{ order.statusLabel | translate }}
           </span>
         </div>
-        <span class="text-sm text-on-surface-variant">{{ formatTime(order.createdAt) }}</span>
+        <span class="text-sm text-on-surface-variant">{{ order.formattedTime }}</span>
       </div>
 
       <div class="flex flex-col gap-1 text-sm text-on-surface-variant">
         @for (item of order.items; track item.id) {
           <div class="flex justify-between">
             <span
-              >{{ item.productName ?? item.productId }} <span class="text-xs">x{{ item.quantity }}</span></span
+              >{{ item.productName }} <span class="text-xs">x{{ item.quantity }}</span></span
             >
-            <span class="text-xs font-bold text-on-surface">{{
-              formatPrice(item.priceAtPurchase * item.quantity)
-            }}</span>
+            <span class="text-xs font-bold text-on-surface">{{ item.formattedPrice }}</span>
           </div>
         }
       </div>
 
       <div class="flex items-center justify-between">
-        <span class="text-lg font-black text-primary">{{ formatPrice(order.totalAmount) }}</span>
+        <span class="text-lg font-black text-primary">{{ order.formattedTotalAmount }}</span>
 
         @if (isOwner() && isToday()) {
           <button
             class="w-9 h-9 rounded-xl flex items-center justify-center text-error active:scale-90 transition-transform hover:bg-error/10 cursor-pointer"
-            (click)="onDeleteOrder(order); $event.stopPropagation()"
+            (click)="onDeleteOrder(order.original); $event.stopPropagation()"
           >
             <ng-icon name="lucideTrash2" size="18" />
           </button>
@@ -122,7 +120,7 @@
       </div>
     </div>
   } @empty {
-    @if (!historyService.all.isLoading()) {
+    @if (!isLoading()) {
       <div class="text-center text-on-surface-variant py-8">
         {{ 'history.no_orders' | translate }}
       </div>

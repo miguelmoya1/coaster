@@ -14,7 +14,7 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { BarOrders, ManageOrder, MoveTableDialog, MoveTableDialogData } from '../../../../../orders';
+import { BarOrderHistory, BarOrders, ManageOrder, MoveTableDialog, MoveTableDialogData } from '../../../../../orders';
 import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
@@ -45,9 +45,10 @@ class OrderDetail {
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
 
-  readonly ordersService = inject(BarOrders);
-  readonly tablesService = inject(BarTables);
+  readonly #ordersService = inject(BarOrders);
+  readonly #tablesService = inject(BarTables);
   readonly #manageOrder = inject(ManageOrder);
+  readonly #historyService = inject(BarOrderHistory);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -58,11 +59,28 @@ class OrderDetail {
   readonly isLoading = signal(false);
 
   readonly currentOrder = computed(() => {
-    const orders = this.ordersService.openOrders();
+    const orders = this.#ordersService.openOrders();
     return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
   });
 
   readonly displayOrder = computed(() => this.currentOrder() ?? this.fetchedOrder());
+
+  protected readonly displayOrderViewModel = computed(() => {
+    const order = this.displayOrder();
+    if (!order) return null;
+
+    return {
+      ...order,
+      formattedTotalAmount: this.#formatPrice(order.totalAmount),
+      items: order.items.map((item) => ({
+        ...item,
+        productName: item.productName ?? item.productId,
+        formattedPrice: this.#formatPrice(item.priceAtPurchase * item.quantity),
+      })),
+    };
+  });
+
+  protected readonly isLoadingServices = this.#ordersService.all.isLoading;
 
   readonly title = computed(() => {
     const order = this.displayOrder();
@@ -74,11 +92,12 @@ class OrderDetail {
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.ordersService.setBarContext(barId);
-      this.tablesService.setBarContext(barId);
+      this.#ordersService.setBarContext(barId);
+      this.#tablesService.setBarContext(barId);
     });
 
     effect(async () => {
+      if (this.#isNavigatingAway) return;
       const current = this.currentOrder();
       if (!current) {
         this.isLoading.set(true);
@@ -96,11 +115,14 @@ class OrderDetail {
     });
   }
 
-  goBack() {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
+  #isNavigatingAway = false;
+
+  async goBack() {
+    this.#isNavigatingAway = true;
+    await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
   }
 
-  formatPrice(cents: number): string {
+  #formatPrice(cents: number): string {
     return (cents / 100).toFixed(2) + ' €';
   }
 
@@ -115,7 +137,7 @@ class OrderDetail {
     if (!order) return;
     try {
       await this.#manageOrder.payItem(this.barId(), order.id, itemId);
-      this.ordersService.reload();
+      this.#ordersService.reload();
     } catch (e) {
       console.error(e);
     }
@@ -126,7 +148,7 @@ class OrderDetail {
     if (!order) return;
     try {
       await this.#manageOrder.deliverItem(this.barId(), order.id, itemId);
-      this.ordersService.reload();
+      this.#ordersService.reload();
     } catch (e) {
       console.error(e);
     }
@@ -149,9 +171,10 @@ class OrderDetail {
       if (result) {
         try {
           await this.#manageOrder.checkout(this.barId(), order.id);
-          this.ordersService.reload();
-          this.tablesService.reload();
           this.goBack();
+          this.#ordersService.reload();
+          this.#tablesService.reload();
+          this.#historyService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -177,9 +200,10 @@ class OrderDetail {
       if (result) {
         try {
           await this.#manageOrder.cancel(this.barId(), order.id);
-          this.ordersService.reload();
-          this.tablesService.reload();
           this.goBack();
+          this.#ordersService.reload();
+          this.#tablesService.reload();
+          this.#historyService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -193,7 +217,7 @@ class OrderDetail {
 
     const dialogRef = this.#dialog.open(MoveTableDialog, {
       data: {
-        tables: this.tablesService.all.value() ?? [],
+        tables: this.#tablesService.all.hasValue() ? (this.#tablesService.all.value() ?? []) : [],
         currentTableId: order.tableId,
       } satisfies MoveTableDialogData,
     });
@@ -203,8 +227,8 @@ class OrderDetail {
       if (targetTableId) {
         try {
           await this.#manageOrder.moveTable(this.barId(), order.id, { tableId: targetTableId });
-          this.ordersService.reload();
-          this.tablesService.reload();
+          this.#ordersService.reload();
+          this.#tablesService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -218,7 +242,7 @@ class OrderDetail {
 
     const dialogRef = this.#dialog.open(MergeOrdersDialog, {
       data: {
-        orders: this.ordersService.openOrders(),
+        orders: this.#ordersService.openOrders(),
         currentOrderId: order.id,
       } satisfies MergeOrdersDialogData,
     });
@@ -230,8 +254,8 @@ class OrderDetail {
           await this.#manageOrder.merge(this.barId(), {
             orderIds: [order.id, targetOrderId],
           });
-          this.ordersService.reload();
-          this.tablesService.reload();
+          this.#ordersService.reload();
+          this.#tablesService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -257,8 +281,8 @@ class OrderDetail {
       if (result) {
         try {
           await this.#manageOrder.removeItem(this.barId(), order.id, itemId);
-          this.ordersService.reload();
-          this.tablesService.reload();
+          this.#ordersService.reload();
+          this.#tablesService.reload();
         } catch (e) {
           console.error(e);
         }

@@ -21,7 +21,7 @@ import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, StatusCard }
 class History {
   public readonly barId = input.required<BarId>();
 
-  readonly historyService = inject(BarOrderHistory);
+  readonly #historyService = inject(BarOrderHistory);
   readonly #orderRepository = inject(OrderRepository);
   readonly #currentUser = inject(CurrentUser);
   readonly #barMembers = inject(BarMembers);
@@ -31,21 +31,50 @@ class History {
 
   readonly today = new Date().toISOString().split('T')[0];
 
-  readonly isToday = computed(() => this.historyService.selectedDate() === this.today);
+  protected readonly selectedDate = this.#historyService.selectedDate;
+  protected readonly isLoading = this.#historyService.all.isLoading;
+  protected readonly totalClosed = this.#historyService.totalClosed;
+  protected readonly totalCancelled = this.#historyService.totalCancelled;
+
+  readonly isToday = computed(() => this.#historyService.selectedDate() === this.today);
 
   readonly isOwner = computed(() => {
+    if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) {
+      return false;
+    }
     const members = this.#barMembers.list.value() ?? [];
     const userId = this.#currentUser.current.value()?.id;
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
-  readonly formattedRevenue = computed(() => this.formatPrice(this.historyService.totalRevenue()));
-  readonly formattedAvgTicket = computed(() => this.formatPrice(this.historyService.averageTicket()));
+  readonly formattedRevenue = computed(() => this.#formatPrice(this.#historyService.totalRevenue()));
+  readonly formattedAvgTicket = computed(() => this.#formatPrice(this.#historyService.averageTicket()));
+
+  protected readonly ordersViewModel = computed(() => {
+    if (!this.#historyService.all.hasValue()) {
+      return [];
+    }
+
+    const orders = this.#historyService.all.value() ?? [];
+    return orders.map((order) => ({
+      original: order,
+      tableName: order.tableName ?? this.#translate.instant('orders.no_table'),
+      statusClass: this.#statusClasses(order),
+      statusLabel: this.#statusLabel(order),
+      formattedTime: this.#formatTime(order.createdAt),
+      formattedTotalAmount: this.#formatPrice(order.totalAmount),
+      items: order.items.map((item) => ({
+        ...item,
+        productName: item.productName ?? item.productId,
+        formattedPrice: this.#formatPrice(item.priceAtPurchase * item.quantity),
+      })),
+    }));
+  });
 
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.historyService.setBarContext(barId);
+      this.#historyService.setBarContext(barId);
       this.#barMembers.setBarContext(barId);
     });
   }
@@ -53,53 +82,53 @@ class History {
   onDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value) {
-      this.historyService.setDate(input.value);
+      this.#historyService.setDate(input.value);
     }
   }
 
   prevDay() {
-    const current = new Date(this.historyService.selectedDate());
+    const current = new Date(this.#historyService.selectedDate());
     current.setDate(current.getDate() - 1);
-    this.historyService.setDate(current.toISOString().split('T')[0]);
+    this.#historyService.setDate(current.toISOString().split('T')[0]);
   }
 
   nextDay() {
     if (this.isToday()) return;
-    const current = new Date(this.historyService.selectedDate());
+    const current = new Date(this.#historyService.selectedDate());
     current.setDate(current.getDate() + 1);
-    this.historyService.setDate(current.toISOString().split('T')[0]);
+    this.#historyService.setDate(current.toISOString().split('T')[0]);
   }
 
   goToday() {
-    this.historyService.setDate(this.today);
+    this.#historyService.setDate(this.today);
   }
 
   goYesterday() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    this.historyService.setDate(yesterday.toISOString().split('T')[0]);
+    this.#historyService.setDate(yesterday.toISOString().split('T')[0]);
   }
 
   onOrderClicked(order: Order) {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
-  formatPrice(cents: number): string {
+  #formatPrice(cents: number): string {
     return (cents / 100).toFixed(2) + ' €';
   }
 
-  formatTime(isoDate?: string): string {
+  #formatTime(isoDate?: string): string {
     if (!isoDate) return '';
     return new Date(isoDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  statusClasses(order: Order): string {
+  #statusClasses(order: Order): string {
     if (order.status === OrderStatus.CLOSED) return 'bg-secondary/20 text-secondary';
     if (order.status === OrderStatus.CANCELLED) return 'bg-error/20 text-error';
     return 'bg-primary/20 text-primary';
   }
 
-  statusLabel(order: Order): string {
+  #statusLabel(order: Order): string {
     if (order.status === OrderStatus.CLOSED) return 'history.status_closed';
     if (order.status === OrderStatus.CANCELLED) return 'history.status_cancelled';
     return 'history.status_open';
@@ -120,7 +149,7 @@ class History {
       if (result) {
         try {
           await this.#orderRepository.deleteOrder(this.barId(), asOrderId(order.id));
-          this.historyService.reload();
+          this.#historyService.reload();
         } catch (e) {
           console.error(e);
         }

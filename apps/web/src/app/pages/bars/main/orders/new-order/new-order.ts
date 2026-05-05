@@ -5,8 +5,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarCategories } from '../../../../../categories';
-import { BarOrders, CreateOrder, ManageOrder, PosProductGrid } from '../../../../../orders';
-import { CartItem, PosCart } from '../../../../../orders/components/pos-cart/pos-cart';
+import { BarOrders, CartItem, CreateOrder, ManageOrder, PosCart, PosProductGrid } from '../../../../../orders';
 import { BarProducts } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
@@ -21,14 +20,12 @@ import { BarTables } from '../../../../../tables';
 })
 class NewOrder {
   public readonly barId = input.required<BarId>();
-
   public readonly tableId = input<string>();
-
   public readonly orderId = input<string>();
 
-  readonly productsService = inject(BarProducts);
-  readonly categoriesService = inject(BarCategories);
-  readonly tablesService = inject(BarTables);
+  readonly #productsService = inject(BarProducts);
+  readonly #categoriesService = inject(BarCategories);
+  readonly #tablesService = inject(BarTables);
   readonly #ordersService = inject(BarOrders);
   readonly #createOrder = inject(CreateOrder);
   readonly #manageOrder = inject(ManageOrder);
@@ -45,8 +42,18 @@ class NewOrder {
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
-  readonly filteredProducts = computed(() => {
-    const products = this.productsService.all.value() ?? [];
+  protected readonly isLoadingProducts = this.#productsService.all.isLoading;
+  protected readonly isLoadingCategories = this.#categoriesService.all.isLoading;
+  protected readonly categories = computed(() =>
+    this.#categoriesService.all.hasValue() ? (this.#categoriesService.all.value() ?? []) : [],
+  );
+  protected readonly tables = computed(() =>
+    this.#tablesService.all.hasValue() ? (this.#tablesService.all.value() ?? []) : [],
+  );
+
+  protected readonly filteredProducts = computed(() => {
+    if (!this.#productsService.all.hasValue()) return [];
+    const products = this.#productsService.all.value() ?? [];
     const categoryId = this.selectedCategory();
     return categoryId ? products.filter((p) => p.categoryId === categoryId) : products;
   });
@@ -54,9 +61,9 @@ class NewOrder {
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.productsService.setBarContext(barId);
-      this.categoriesService.setBarContext(barId);
-      this.tablesService.setBarContext(barId);
+      this.#productsService.setBarContext(barId);
+      this.#categoriesService.setBarContext(barId);
+      this.#tablesService.setBarContext(barId);
     });
 
     effect(() => {
@@ -139,7 +146,7 @@ class NewOrder {
 
       this.cart.set(new Map());
       this.#ordersService.reload();
-      this.tablesService.reload();
+      this.#tablesService.reload();
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
     } catch (e) {

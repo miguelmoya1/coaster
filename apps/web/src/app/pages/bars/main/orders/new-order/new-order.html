@@ -1,4 +1,4 @@
-@if (productsService.all.isLoading() || categoriesService.all.isLoading()) {
+@if (isLoadingProducts() || isLoadingCategories()) {
       <coaster-loading />
     }
 
@@ -18,7 +18,7 @@
       <div class="flex-1">
         <coaster-pos-product-grid
           [products]="filteredProducts()"
-          [categories]="categoriesService.all.value() ?? []"
+          [categories]="categories()"
           [selectedCategory]="selectedCategory()"
           (productClicked)="addToCart($event)"
           (categorySelected)="selectedCategory.set($event)"
@@ -28,7 +28,7 @@
       <div class="lg:w-80 lg:sticky lg:top-20">
         <coaster-pos-cart
           [items]="cartItems()"
-          [tables]="isAddItemsMode() ? [] : (tablesService.all.value() ?? [])"
+          [tables]="isAddItemsMode() ? [] : tables()"
           [selectedTableId]="selectedTableId()"
           [disabled]="isSubmitting()"
           [tableLocked]="tableLocked()"

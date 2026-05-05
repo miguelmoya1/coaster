@@ -8,11 +8,11 @@
       <h2 coaster-title class="flex-1!">{{ title() }}</h2>
     </div>
 
-    @if (ordersService.all.isLoading() || isLoading()) {
+    @if (isLoadingServices() || isLoading()) {
       <coaster-loading />
     }
 
-    @if (displayOrder(); as order) {
+    @if (displayOrderViewModel(); as order) {
       <div class="flex justify-between items-center bg-surface-container rounded-2xl p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm text-on-surface-variant font-medium">
@@ -29,7 +29,7 @@
           >
         </div>
         <span class="text-2xl font-black" [class.text-primary]="order.status === 'OPEN'">{{
-          formatPrice(order.totalAmount)
+          order.formattedTotalAmount
         }}</span>
       </div>
 
@@ -40,11 +40,11 @@
             [class.opacity-50]="item.paymentStatus === 'PAID'"
           >
             <div class="flex-1 flex flex-col gap-1">
-              <span class="font-semibold text-on-surface text-sm">{{ item.productName ?? item.productId }}</span>
+              <span class="font-semibold text-on-surface text-sm">{{ item.productName }}</span>
               <div class="flex gap-2 items-center">
                 <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
                 <span class="text-xs font-bold text-on-surface">{{
-                  formatPrice(item.priceAtPurchase * item.quantity)
+                  item.formattedPrice
                 }}</span>
               </div>
               <div class="flex gap-1.5 mt-1">
@@ -122,7 +122,7 @@
         </div>
       }
     } @else {
-      @if (!ordersService.all.isLoading() && !isLoading()) {
+      @if (!isLoadingServices() && !isLoading()) {
         <div class="flex flex-col items-center gap-4 py-12 text-center">
           <span class="text-on-surface-variant text-lg">{{ 'orders.order_not_found' | translate }}</span>
           <button coaster-btn (click)="goBack()">

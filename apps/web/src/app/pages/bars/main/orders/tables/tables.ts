@@ -30,8 +30,8 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
 class Tables {
   public readonly barId = input.required<BarId>();
 
-  readonly tablesService = inject(BarTables);
-  readonly ordersService = inject(BarOrders);
+  readonly #tablesService = inject(BarTables);
+  readonly #ordersService = inject(BarOrders);
   readonly #createTable = inject(CreateTable);
   readonly #deleteTable = inject(DeleteTable);
   readonly #currentUser = inject(CurrentUser);
@@ -44,35 +44,56 @@ class Tables {
   readonly isSubmitting = signal(false);
 
   readonly isOwner = computed(() => {
+    if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) return false;
     const members = this.#barMembers.list.value() ?? [];
     const userId = this.#currentUser.current.value()?.id;
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
-  readonly barOrders = computed(() => {
-    return this.ordersService.openOrders().filter((o) => !o.tableId);
+  protected readonly freeCount = this.#tablesService.freeCount;
+  protected readonly occupiedCount = this.#tablesService.occupiedCount;
+  protected readonly totalOpen = this.#ordersService.totalOpen;
+  protected readonly isLoadingTables = this.#tablesService.all.isLoading;
+
+  protected readonly tablesViewModel = computed(() => {
+    if (!this.#tablesService.all.hasValue()) return [];
+    const tables = this.#tablesService.all.value() ?? [];
+    const orders = this.#ordersService.openOrders();
+
+    return tables.map(table => {
+      const order = orders.find((o) => o.tableId === table.id);
+      return {
+        original: table,
+        orderAmount: order?.totalAmount
+      };
+    });
+  });
+
+  protected readonly barOrdersViewModel = computed(() => {
+    const orders = this.#ordersService.openOrders().filter((o) => !o.tableId);
+    return orders.map(order => ({
+      original: order,
+      formattedTotalAmount: this.#formatPrice(order.totalAmount)
+    }));
   });
 
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.tablesService.setBarContext(barId);
-      this.ordersService.setBarContext(barId);
+      this.#tablesService.setBarContext(barId);
+      this.#ordersService.setBarContext(barId);
       this.#barMembers.setBarContext(barId);
     });
   }
 
-  getOrderAmountForTable(tableId: string): number | undefined {
-    const order = this.ordersService.openOrders().find((o) => o.tableId === tableId);
-    return order?.totalAmount;
-  }
+
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
-    const order = this.ordersService.openOrders().find((o) => o.tableId === table.id);
+    const order = this.#ordersService.openOrders().find((o) => o.tableId === table.id);
     if (order) {
       this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
     } else {
@@ -84,7 +105,7 @@ class Tables {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
-  formatPrice(cents: number): string {
+  #formatPrice(cents: number): string {
     return (cents / 100).toFixed(2) + ' €';
   }
 
@@ -97,7 +118,7 @@ class Tables {
     this.isSubmitting.set(true);
     try {
       await this.#createTable.create(this.barId(), { name: name.trim() });
-      this.tablesService.reload();
+      this.#tablesService.reload();
       this.showCreateTable.set(false);
     } catch (e) {
       console.error(e);
@@ -120,7 +141,7 @@ class Tables {
       if (result) {
         try {
           await this.#deleteTable.delete(this.barId(), table.id);
-          this.tablesService.reload();
+          this.#tablesService.reload();
         } catch (e) {
           console.error(e);
         }
