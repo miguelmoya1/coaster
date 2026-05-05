@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlertCircle, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
-import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
-import { Listbox, Option } from '@angular/aria/listbox';
+import { lucideAlertCircle, lucideChevronDown } from '@ng-icons/lucide';
 import { CoasterLabel } from '../../components/typography/typography';
 import { FormFieldMessages } from '../form-field-messages/form-field-messages';
 
@@ -15,8 +13,8 @@ export interface MultiSelectOption {
 
 @Component({
   selector: 'coaster-multi-select-input',
-  imports: [NgIcon, CdkConnectedOverlay, CdkOverlayOrigin, Listbox, Option, CoasterLabel, FormFieldMessages],
-  providers: [provideIcons({ lucideChevronDown, lucideCheck, lucideAlertCircle })],
+  imports: [NgIcon, CoasterLabel, FormFieldMessages],
+  providers: [provideIcons({ lucideAlertCircle, lucideChevronDown })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
@@ -29,108 +27,40 @@ export interface MultiSelectOption {
           </label>
         }
 
-        <button
-          cdkOverlayOrigin
-          #trigger="cdkOverlayOrigin"
-          type="button"
-          [id]="id()"
-          class="min-h-14 w-full bg-surface-container rounded-xl px-4 py-2 flex items-center justify-between border active:scale-[0.98] transition-all text-on-surface text-left"
-          [class.border-outline]="!invalid() && !isOpen()"
-          [class.border-primary]="!invalid() && isOpen()"
-          [class.border-error]="invalid()"
-          [class.opacity-50]="disabled() || readonly()"
-          [class.pointer-events-none]="disabled() || readonly()"
-          [attr.aria-invalid]="invalid()"
-          [attr.aria-expanded]="isOpen()"
-          aria-haspopup="listbox"
-          (click)="toggleOpen($event)"
-          (blur)="onBlur()"
-        >
-          <div class="flex flex-wrap items-center gap-1.5 flex-1 mr-2">
+        <div class="relative w-full group">
+          <select
+            multiple
+            [id]="id()"
+            [disabled]="disabled() || readonly()"
+            [attr.aria-invalid]="invalid()"
+            (change)="onChange($event)"
+            (blur)="onBlur()"
+            class="custom-select min-h-14 w-full bg-surface-container rounded-xl px-4 py-2 pr-10 border transition-all text-on-surface text-left focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            [class.border-outline]="!invalid()"
+            [class.border-error]="invalid()"
+            [class.opacity-50]="disabled() || readonly()"
+            [class.pointer-events-none]="disabled() || readonly()"
+          >
             @if (!hasValue()) {
-              <span class="text-on-surface-variant">{{ placeholder() }}</span>
-            } @else {
-              @for (item of selectedDisplayItems(); track item.value) {
-                <span
-                  class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-3 py-1.5 rounded-lg text-sm font-medium border border-outline-variant"
-                >
-                  {{ item.label }}
-                </span>
-              }
+              <option value="" disabled selected hidden>{{ placeholder() }}</option>
             }
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
+            @for (opt of options(); track opt.value) {
+              <option [value]="opt.value" [disabled]="opt.disabled || false" [selected]="isSelected(opt.value)">
+                {{ opt.label }}
+              </option>
+            }
+          </select>
+
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none shrink-0">
             @if (invalid()) {
-              <ng-icon name="lucideAlertCircle" class="text-error text-xl"></ng-icon>
+              <ng-icon name="lucideAlertCircle" class="text-error text-xl" />
             }
             <ng-icon
               name="lucideChevronDown"
-              class="text-on-surface-variant text-xl transition-transform"
-              [class.rotate-180]="isOpen()"
-            ></ng-icon>
+              class="text-on-surface-variant text-xl group-focus-within:rotate-180 transition-transform"
+            />
           </div>
-        </button>
-
-        <ng-template
-          cdkConnectedOverlay
-          [cdkConnectedOverlayOrigin]="trigger"
-          [cdkConnectedOverlayOpen]="isOpen()"
-          [cdkConnectedOverlayWidth]="triggerWidth()"
-          (backdropClick)="close()"
-          [cdkConnectedOverlayHasBackdrop]="true"
-          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-        >
-          <div
-            class="bg-surface-container-high rounded-xl border border-outline shadow-xl mt-2 overflow-hidden flex flex-col max-h-72 py-1 w-full"
-          >
-            <ul
-              ngListbox
-              [multi]="true"
-              [values]="value()"
-              (valuesChange)="onSelectionChange($event)"
-              class="overflow-y-auto outline-none"
-            >
-              @if (options().length === 0) {
-                <li class="px-4 py-4 text-on-surface-variant text-base flex items-center justify-center italic">
-                  No options available
-                </li>
-              }
-              @for (opt of options(); track opt.value) {
-                <li
-                  ngOption
-                  [value]="opt.value"
-                  [disabled]="opt.disabled || false"
-                  class="outline-none block w-full"
-                  (keydown.space)="toggleOption(opt.value, $event)"
-                  (keydown.enter)="toggleOption(opt.value, $event)"
-                >
-                  <div
-                    class="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-bright transition-colors aria-disabled:opacity-50 aria-disabled:cursor-not-allowed outline-none w-full"
-                    [class.bg-primary-container]="isSelected(opt.value)"
-                    [class.text-on-primary-container]="isSelected(opt.value)"
-                    (click)="toggleOption(opt.value, $event)"
-                    (pointerdown)="$event.stopPropagation()"
-                    (mousedown)="$event.stopPropagation()"
-                    (keydown.space)="$event.preventDefault()"
-                    tabindex="-1"
-                  >
-                    <div
-                      class="w-6 h-6 shrink-0 rounded border-2 flex items-center justify-center transition-colors"
-                      [class.bg-primary]="isSelected(opt.value)"
-                      [class.border-primary]="isSelected(opt.value)"
-                      [class.border-outline-variant]="!isSelected(opt.value)"
-                    >
-                      @if (isSelected(opt.value)) {
-                        <ng-icon name="lucideCheck" class="text-on-primary text-xl"></ng-icon>
-                      }
-                    </div>
-                    <span class="font-medium text-base truncate">{{ opt.label }}</span>
-                  </div>
-                </li>
-              }
-            </ul>
-          </div>
-        </ng-template>
+        </div>
 
         <coaster-form-field-messages
           [invalid]="invalid()"
@@ -142,85 +72,92 @@ export interface MultiSelectOption {
       </div>
     }
   `,
+  styles: `
+    .custom-select {
+      appearance: base-select;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .custom-select::picker(select) {
+      appearance: base-select;
+      background-color: var(--color-surface-container-high);
+      border-radius: 0.75rem;
+      border: 1px solid var(--color-outline);
+      box-shadow: var(--shadow-elevated);
+      padding: 0.25rem 0;
+      margin-top: 0.5rem;
+    }
+
+    .custom-select option {
+      padding: 1.5rem 2rem;
+      font-size: 1.125rem;
+      line-height: 1.5rem;
+      color: var(--color-on-surface);
+      cursor: pointer;
+    }
+
+    .custom-select option:hover,
+    .custom-select option:focus {
+      background-color: var(--color-surface-bright);
+    }
+
+    .custom-select option:checked {
+      background-color: var(--color-primary-container);
+      color: var(--color-on-primary);
+      font-weight: 500;
+    }
+
+    .custom-select option::checkmark {
+      display: inline-block;
+      color: var(--color-on-primary);
+      margin-left: auto;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiSelectInput implements FormValueControl<(string | number)[]> {
   readonly value = model<(string | number)[]>([]);
-  readonly id = input<string>(crypto.randomUUID());
+  readonly id = input(crypto.randomUUID());
 
-  readonly label = input<string>('');
-  readonly placeholder = input<string>('Select options...');
-  readonly hint = input<string>('');
+  readonly label = input('');
+  readonly placeholder = input('Select options...');
+  readonly hint = input('');
   readonly options = input<MultiSelectOption[]>([]);
 
-  readonly touched = model<boolean>(false);
+  readonly touched = model(false);
 
-  readonly disabled = input<boolean>(false);
+  readonly disabled = input(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
-  readonly readonly = input<boolean>(false);
-  readonly hidden = input<boolean>(false);
-  readonly invalid = input<boolean>(false);
+  readonly readonly = input(false);
+  readonly hidden = input(false);
+  readonly invalid = input(false);
   readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
-  readonly required = input<boolean>(false);
-
-  readonly isOpen = signal(false);
-  readonly triggerWidth = signal<number | string>('auto');
+  readonly required = input(false);
 
   readonly hasValue = computed(() => this.value() && this.value().length > 0);
-
-  readonly selectedDisplayItems = computed(() => {
-    const vals = this.value();
-    if (!vals || vals.length === 0) return [];
-
-    return vals.map((val) => {
-      const option = this.options().find((o) => o.value === val);
-      return {
-        value: val,
-        label: option ? option.label : String(val),
-      };
-    });
-  });
-
-  toggleOpen(event: MouseEvent) {
-    if (this.disabled() || this.readonly()) return;
-    this.isOpen.update((v) => !v);
-
-    if (this.isOpen()) {
-      const target = event.currentTarget as HTMLElement;
-      this.triggerWidth.set(target.offsetWidth);
-    }
-  }
-
-  close() {
-    this.isOpen.set(false);
-    this.touched.set(true);
-  }
-
-  onBlur() {
-    if (!this.isOpen()) {
-      this.touched.set(true);
-    }
-  }
 
   isSelected(val: string | number): boolean {
     return this.value()?.includes(val) || false;
   }
 
-  onSelectionChange(newValues: (string | number)[]) {
+  onChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedOptions = Array.from(target.selectedOptions);
+    const newValues: (string | number)[] = [];
+
+    for (const option of selectedOptions) {
+      if (option.value === '') continue;
+      const optDef = this.options().find((o) => String(o.value) === option.value);
+      if (optDef) {
+        newValues.push(optDef.value);
+      }
+    }
+
     this.value.set(newValues);
   }
 
-  toggleOption(val: string | number, event: Event) {
-    if (this.disabled() || this.readonly()) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    const current = this.value() || [];
-    if (current.includes(val)) {
-      this.value.set(current.filter((v) => v !== val));
-    } else {
-      this.value.set([...current, val]);
-    }
+  onBlur() {
+    this.touched.set(true);
   }
 }
