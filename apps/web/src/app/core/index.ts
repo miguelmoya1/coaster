@@ -11,3 +11,5 @@ export * from './services/current-user';
 export * from './services/date-formatter';
 export * from './utils/errors.utils';
 export * from './utils/user.utils';
+export * from './services/socket';
+export * from './services/toast';

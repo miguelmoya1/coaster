@@ -150,6 +150,14 @@
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
+  "ERR_ADD_ITEMS": "Error de conexión al añadir productos, reintentando...",
+  "ERR_PAYMENT": "Error de red al cobrar, la acción se ha revertido.",
+  "ERR_DELIVERY": "Error de red al entregar, la acción se ha revertido.",
+  "ERR_CHECKOUT": "Error de red al cerrar la cuenta, la acción se ha revertido.",
+  "ERR_CANCEL_ORDER": "Error de red al cancelar, la acción se ha revertido.",
+  "ERR_MOVE_TABLE": "Error de red al mover de mesa.",
+  "ERR_MERGE_TABLES": "Error de red al juntar mesas.",
+  "ERR_REMOVE_ITEM": "Error de red al eliminar producto, la acción se ha revertido.",
   "dashboard": {
     "title": "Panel de Control",
     "sections": {

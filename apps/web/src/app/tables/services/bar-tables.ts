@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { BarId, TableStatus } from '@coaster/common';
+import { Socket } from '../../core';
 import { TableRepository } from '../data-access/table-repository';
 import { tableArrayMapper } from '../mappers/table.mapper';
 
@@ -9,6 +10,7 @@ import { tableArrayMapper } from '../mappers/table.mapper';
 })
 export class BarTables {
   readonly #tableRepository = inject(TableRepository);
+  readonly #socketService = inject(Socket);
   readonly #barId = signal<BarId | undefined>(undefined);
 
   readonly #all = httpResource(
@@ -46,6 +48,18 @@ export class BarTables {
     }
     return undefined;
   });
+
+  constructor() {
+    effect(() => {
+      const payload = this.#socketService.tableStatusChanged();
+      if (payload && payload.id) {
+        this.#all.update((tables) => {
+          if (!tables) return undefined;
+          return tables.map((t) => (t.id === payload.id ? { ...t, ...payload } : t));
+        });
+      }
+    });
+  }
 
   public setBarContext(barId: BarId | undefined) {
     this.#barId.set(barId);

@@ -149,6 +149,14 @@
   "USER_NOT_FOUND": "No user registered with that email address.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
+  "ERR_ADD_ITEMS": "Network error adding items, retrying...",
+  "ERR_PAYMENT": "Network error processing payment, action reverted.",
+  "ERR_DELIVERY": "Network error processing delivery, action reverted.",
+  "ERR_CHECKOUT": "Network error during checkout, action reverted.",
+  "ERR_CANCEL_ORDER": "Network error cancelling order, action reverted.",
+  "ERR_MOVE_TABLE": "Network error moving table.",
+  "ERR_MERGE_TABLES": "Network error merging tables.",
+  "ERR_REMOVE_ITEM": "Network error removing item, action reverted.",
   "dashboard": {
     "title": "Control Panel",
     "sections": {
