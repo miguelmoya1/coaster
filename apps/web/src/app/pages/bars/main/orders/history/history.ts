@@ -1,5 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -70,14 +70,6 @@ class History {
       })),
     }));
   });
-
-  constructor() {
-    effect(() => {
-      const barId = this.barId();
-      this.#historyService.setBarContext(barId);
-      this.#barMembers.setBarContext(barId);
-    });
-  }
 
   onDateChange(event: Event) {
     const input = event.target as HTMLInputElement;

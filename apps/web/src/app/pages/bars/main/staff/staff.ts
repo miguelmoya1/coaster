@@ -1,5 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarId, BarMember, InviteBarMemberDto } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -46,12 +46,6 @@ export default class Staff {
     return barMember?.role;
   });
   protected readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
-
-  constructor() {
-    effect(() => {
-      this.#barMembers.setBarContext(this.barId());
-    });
-  }
 
   protected closeModal() {
     this.#router.navigate(['/bars', this.barId(), 'staff']);

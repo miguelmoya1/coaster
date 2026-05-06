@@ -4,13 +4,13 @@ import { RouterLink } from '@angular/router';
 import { BarId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-    lucideAlertCircle,
-    lucideAlertTriangle,
-    lucideArrowRight,
-    lucideCheckCircle2,
-    lucideChevronRight,
-    lucidePlus,
-    lucideUsers,
+  lucideAlertCircle,
+  lucideAlertTriangle,
+  lucideArrowRight,
+  lucideCheckCircle2,
+  lucideChevronRight,
+  lucidePlus,
+  lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarMembers } from '../../../../members';
@@ -43,13 +43,6 @@ export class Dashboard {
 
   constructor() {
     effect(() => {
-      const barId = this.barId();
-      if (!barId) return;
-
-      this.#productsService.setBarContext(barId);
-      this.#membersService.setBarContext(barId);
-      this.#shiftsService.setContext(barId);
-
       const now = new Date();
       const startIso = new Date(now.setHours(0, 0, 0, 0)).toISOString();
       const endIso = new Date(now.setHours(23, 59, 59, 999)).toISOString();

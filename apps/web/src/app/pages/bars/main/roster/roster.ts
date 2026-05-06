@@ -108,13 +108,6 @@ export default class Roster {
 
   constructor() {
     effect(() => {
-      const barId = this.barId();
-      this.#barShifts.setContext(barId);
-      this.#barMembers.setBarContext(barId);
-      this.#barExchanges.setBarContext(barId);
-    });
-
-    effect(() => {
       const range = this.#state.dailyShiftsRange();
       this.#barShifts.setDateRange(range.startIso, range.endIso);
     });

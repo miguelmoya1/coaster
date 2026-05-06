@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { CurrentBar } from '../../bars';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 
@@ -9,13 +9,13 @@ import { shiftArrayMapper } from '../mappers/shift.mapper';
 })
 export class BarShifts {
   readonly #shiftRepository = inject(ShiftRepository);
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #currentBar = inject(CurrentBar);
   readonly #startDate = signal<string | undefined>(undefined);
   readonly #endDate = signal<string | undefined>(undefined);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barId();
+      const barId = this.#currentBar.currentId();
       const startDate = this.#startDate();
       const endDate = this.#endDate();
 
@@ -30,10 +30,6 @@ export class BarShifts {
   );
 
   readonly all = this.#all.asReadonly();
-
-  public setContext(barId: BarId) {
-    this.#barId.set(barId);
-  }
 
   public setDateRange(start: string, end: string) {
     this.#startDate.set(start);

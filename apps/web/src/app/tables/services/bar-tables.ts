@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, TableStatus } from '@coaster/common';
+import { computed, effect, inject, Injectable } from '@angular/core';
+import { TableStatus } from '@coaster/common';
+import { CurrentBar } from '../../bars';
 import { Socket } from '../../core';
 import { TableRepository } from '../data-access/table-repository';
 import { tableArrayMapper } from '../mappers/table.mapper';
@@ -11,11 +12,11 @@ import { tableArrayMapper } from '../mappers/table.mapper';
 export class BarTables {
   readonly #tableRepository = inject(TableRepository);
   readonly #socketService = inject(Socket);
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #currentBar = inject(CurrentBar);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barId();
+      const barId = this.#currentBar.currentId();
       if (!barId) {
         return undefined;
       }
@@ -59,10 +60,6 @@ export class BarTables {
         });
       }
     });
-  }
-
-  public setBarContext(barId: BarId | undefined) {
-    this.#barId.set(barId);
   }
 
   public reload() {

@@ -1,58 +1,49 @@
 import { Dialog } from '@angular/cdk/dialog';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    linkedSignal,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
-    BarId,
-    Category,
-    CreateCategoryDto,
-    CreateProductDto,
-    Product,
-    UpdateCategoryDto,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  BarId,
+  Category,
+  CreateCategoryDto,
+  CreateProductDto,
+  Product,
+  UpdateCategoryDto,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
-    BarCategories,
-    CreateCategory,
-    CreateCategoryForm,
-    DeleteCategory,
-    EditCategory,
-    EditCategoryForm,
-    Tabs,
+  BarCategories,
+  CreateCategory,
+  CreateCategoryForm,
+  DeleteCategory,
+  EditCategory,
+  EditCategoryForm,
+  Tabs,
 } from '../../../../categories';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import {
-    BarProducts,
-    CreateProduct,
-    CreateProductForm,
-    DeleteProduct,
-    EditProduct,
-    EditProductForm,
-    InventoryItemCard,
-    UpdateProduct,
-    UpdateProductForm,
+  BarProducts,
+  CreateProduct,
+  CreateProductForm,
+  DeleteProduct,
+  EditProduct,
+  EditProductForm,
+  InventoryItemCard,
+  UpdateProduct,
+  UpdateProductForm,
 } from '../../../../products';
 import {
-    BottomSheet,
-    CoasterBtn,
-    CoasterTitle,
-    ConfirmDialogComponent,
-    Fab,
-    Loading,
-    StatusCard,
+  BottomSheet,
+  CoasterBtn,
+  CoasterTitle,
+  ConfirmDialogComponent,
+  Fab,
+  Loading,
+  StatusCard,
 } from '../../../../shared';
 
 type PantryTabs = 'PRODUCT' | 'CATEGORY';
@@ -151,14 +142,6 @@ export default class Pantry {
 
     return categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
   });
-
-  constructor() {
-    effect(() => {
-      this.#productsService.setBarContext(this.barId());
-      this.#categoriesService.setBarContext(this.barId());
-      this.#barMembers.setBarContext(this.barId());
-    });
-  }
 
   onProductClicked(product: Product) {
     this.productSelected.set(product);

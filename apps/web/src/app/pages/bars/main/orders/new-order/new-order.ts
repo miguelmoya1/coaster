@@ -60,13 +60,6 @@ class NewOrder {
 
   constructor() {
     effect(() => {
-      const barId = this.barId();
-      this.#productsService.setBarContext(barId);
-      this.#categoriesService.setBarContext(barId);
-      this.#tablesService.setBarContext(barId);
-    });
-
-    effect(() => {
       const tableId = this.tableId();
       if (tableId) {
         this.selectedTableId.set(tableId);

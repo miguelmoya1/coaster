@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { inject, Injectable } from '@angular/core';
+import { CurrentBar } from '../../bars';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 
@@ -9,11 +9,11 @@ import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 })
 export class BarExchanges {
   readonly #exchangeRepository = inject(ExchangeRepository);
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #currentBar = inject(CurrentBar);
 
   readonly #pending = httpResource(
     () => {
-      const barId = this.#barId();
+      const barId = this.#currentBar.currentId();
       if (!barId) {
         return undefined;
       }
@@ -25,10 +25,6 @@ export class BarExchanges {
   );
 
   readonly pending = this.#pending.asReadonly();
-
-  public setBarContext(barId: BarId) {
-    this.#barId.set(barId);
-  }
 
   public reload() {
     this.#pending.reload();

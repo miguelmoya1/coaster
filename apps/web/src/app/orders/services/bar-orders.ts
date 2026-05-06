@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, Order, OrderId, OrderStatus } from '@coaster/common';
+import { computed, effect, inject, Injectable } from '@angular/core';
+import { Order, OrderId, OrderStatus } from '@coaster/common';
+import { CurrentBar } from '../../bars';
 import { Socket } from '../../core';
 import { OrderRepository } from '../data-access/order-repository';
 import { orderArrayMapper } from '../mappers/order.mapper';
@@ -11,11 +12,11 @@ import { orderArrayMapper } from '../mappers/order.mapper';
 export class BarOrders {
   readonly #orderRepository = inject(OrderRepository);
   readonly #socketService = inject(Socket);
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #currentBar = inject(CurrentBar);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barId();
+      const barId = this.#currentBar.currentId();
       if (!barId) {
         return undefined;
       }
@@ -52,7 +53,7 @@ export class BarOrders {
   constructor() {
     effect(() => {
       const created = this.#socketService.orderCreated();
-      if (created && this.#barId() === created.barId) {
+      if (created && this.#currentBar.currentId() === created.barId) {
         this.#all.update((orders) => {
           if (!orders) return [created];
           const exists = orders.some((o) => o.id === created.id);
@@ -63,7 +64,7 @@ export class BarOrders {
 
     effect(() => {
       const updated = this.#socketService.orderUpdated();
-      if (updated && this.#barId() === updated.barId) {
+      if (updated && this.#currentBar.currentId() === updated.barId) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === updated.id ? updated : o));
@@ -73,7 +74,7 @@ export class BarOrders {
 
     effect(() => {
       const closed = this.#socketService.orderClosed();
-      if (closed && this.#barId() === closed.barId) {
+      if (closed && this.#currentBar.currentId() === closed.barId) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === closed.id ? closed : o));
@@ -90,18 +91,6 @@ export class BarOrders {
         });
       }
     });
-  }
-
-  public setBarContext(barId: BarId | undefined) {
-    if (this.#barId() !== barId) {
-      if (this.#barId()) {
-        this.#socketService.leaveBar(this.#barId()!);
-      }
-      this.#barId.set(barId);
-      if (barId) {
-        this.#socketService.joinBar(barId);
-      }
-    }
   }
 
   public reload() {

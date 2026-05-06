@@ -90,12 +90,6 @@ class OrderDetail {
   });
 
   constructor() {
-    effect(() => {
-      const barId = this.barId();
-      this.#ordersService.setBarContext(barId);
-      this.#tablesService.setBarContext(barId);
-    });
-
     effect(async () => {
       if (this.#isNavigatingAway) return;
       const current = this.currentOrder();

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { inject, Injectable } from '@angular/core';
+import { CurrentBar } from '../../bars';
 import { CategoryRepository } from '../data-access/category-repository';
 import { categoryArrayMapper } from '../mappers/category.mapper';
 
@@ -9,11 +9,11 @@ import { categoryArrayMapper } from '../mappers/category.mapper';
 })
 export class BarCategories {
   readonly #categoryRepository = inject(CategoryRepository);
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #currentBar = inject(CurrentBar);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barId();
+      const barId = this.#currentBar.currentId();
       if (!barId) {
         return undefined;
       }
@@ -25,10 +25,6 @@ export class BarCategories {
   );
 
   readonly all = this.#all.asReadonly();
-
-  public setBarContext(barId: BarId) {
-    this.#barId.set(barId);
-  }
 
   public reload() {
     this.#all.reload();

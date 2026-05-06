@@ -1,5 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, Table } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -87,15 +87,6 @@ class Tables {
       formattedTotalAmount: this.#formatPrice(order.totalAmount),
     }));
   });
-
-  constructor() {
-    effect(() => {
-      const barId = this.barId();
-      this.#tablesService.setBarContext(barId);
-      this.#ordersService.setBarContext(barId);
-      this.#barMembers.setBarContext(barId);
-    });
-  }
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);

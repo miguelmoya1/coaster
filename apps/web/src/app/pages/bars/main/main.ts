@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarId } from '@coaster/common';
 import { CurrentBar } from '../../../bars';
-import { CurrentUser } from '../../../core';
+import { CurrentUser, Socket } from '../../../core';
 import { BarMembers } from '../../../members';
 import { BottomNav, TopAppBar } from '../../../shared';
 
@@ -17,6 +17,7 @@ export default class Main {
   readonly #currentUser = inject(CurrentUser);
   readonly #currentBar = inject(CurrentBar);
   readonly #barMembers = inject(BarMembers);
+  readonly #socketService = inject(Socket);
 
   protected readonly currentUser = this.#currentUser.current;
   protected readonly currentBar = this.#currentBar.current;
@@ -48,10 +49,15 @@ export default class Main {
   });
 
   constructor() {
-    effect(() => {
+    effect((cleanup) => {
       const barId = this.barId();
       this.#currentBar.setBarContext(barId);
-      this.#barMembers.setBarContext(barId);
+      this.#socketService.joinBar(barId);
+
+      cleanup(() => {
+        this.#currentBar.setBarContext(undefined);
+        this.#socketService.leaveBar(barId);
+      });
     });
   }
 }
