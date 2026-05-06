@@ -19,12 +19,12 @@ import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
 } from '../../../../../orders/components/merge-orders-dialog/merge-orders-dialog';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading } from '../../../../../shared';
+import { PricePipe, CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon],
+  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, PricePipe],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -71,11 +71,9 @@ class OrderDetail {
 
     return {
       ...order,
-      formattedTotalAmount: this.#formatPrice(order.totalAmount),
       items: order.items.map((item) => ({
         ...item,
         productName: item.productName ?? item.productId,
-        formattedPrice: this.#formatPrice(item.priceAtPurchase * item.quantity),
       })),
     };
   });
@@ -116,9 +114,7 @@ class OrderDetail {
     await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
   }
 
-  #formatPrice(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
-  }
+
 
   onAddItems() {
     const order = this.currentOrder();

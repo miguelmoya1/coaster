@@ -3,7 +3,7 @@ import { Table, TableStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../shared';
+import { PricePipe, CoasterBtn } from '../../../shared';
 
 export interface CartItem {
   productId: string;
@@ -14,7 +14,7 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [NgIcon, TranslatePipe, CoasterBtn],
+  imports: [NgIcon, TranslatePipe, CoasterBtn, PricePipe],
   viewProviders: [provideIcons({ lucideMinus, lucidePlus, lucideSend, lucideTrash2 })],
   template: `
     <div class="flex flex-col gap-3">
@@ -39,7 +39,7 @@ export interface CartItem {
             <div class="bg-surface-container rounded-xl p-3 flex items-center gap-3">
               <div class="flex-1">
                 <span class="font-semibold text-on-surface text-sm">{{ item.productName }}</span>
-                <span class="text-xs text-on-surface-variant ml-2">{{ formatItemPrice(item) }}</span>
+                <span class="text-xs text-on-surface-variant ml-2">{{ item.price * item.quantity | price }}</span>
               </div>
 
               <div class="flex items-center gap-1">
@@ -81,7 +81,7 @@ export interface CartItem {
 
           <div class="flex justify-between items-center px-1">
             <span class="font-bold text-on-surface">{{ 'orders.total' | translate }}</span>
-            <span class="text-xl font-black text-primary">{{ formattedTotal() }}</span>
+            <span class="text-xl font-black text-primary">{{ totalCents() | price }}</span>
           </div>
 
           <button coaster-btn [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
@@ -108,12 +108,7 @@ export class PosCart {
 
   readonly freeTables = computed(() => this.tables().filter((t) => t.status === TableStatus.FREE));
 
-  readonly formattedTotal = computed(() => {
-    const total = this.items().reduce((sum, item) => sum + item.price * item.quantity, 0);
-    return (total / 100).toFixed(2) + ' €';
-  });
-
-  formatItemPrice(item: CartItem): string {
-    return ((item.price * item.quantity) / 100).toFixed(2) + ' €';
-  }
+  readonly totalCents = computed(() =>
+    this.items().reduce((sum, item) => sum + item.price * item.quantity, 0),
+  );
 }

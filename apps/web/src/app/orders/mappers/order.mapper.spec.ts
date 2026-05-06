@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, Order, OrderStatus, PaymentStatus } from '@coaster/common';
-import { checkIsOrder, formatPrice, orderArrayMapper, orderMapper } from './order.mapper';
+import { checkIsOrder, orderArrayMapper, orderMapper } from './order.mapper';
 
 describe('Order Mapper', () => {
   const validOrder: Order = {
@@ -65,20 +65,6 @@ describe('Order Mapper', () => {
 
     it('should throw Error if input is not an array', () => {
       expect(() => orderArrayMapper({})).toThrow('Expected array of Orders');
-    });
-  });
-
-  describe('formatPrice', () => {
-    it('should format cents to euros', () => {
-      expect(formatPrice(1500)).toBe('15.00 €');
-    });
-
-    it('should format zero', () => {
-      expect(formatPrice(0)).toBe('0.00 €');
-    });
-
-    it('should format single cent', () => {
-      expect(formatPrice(1)).toBe('0.01 €');
     });
   });
 });

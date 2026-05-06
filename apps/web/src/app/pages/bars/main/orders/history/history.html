@@ -51,7 +51,7 @@
 <div class="grid grid-cols-2 gap-3">
   <coaster-status-card status="primary">
     <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.revenue' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ formattedRevenue() }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalRevenue() | price }}</div>
   </coaster-status-card>
 
   <coaster-status-card status="success">
@@ -66,7 +66,7 @@
 
   <coaster-status-card status="warning">
     <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.avg_ticket' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ formattedAvgTicket() }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ averageTicket() | price }}</div>
   </coaster-status-card>
 </div>
 
@@ -96,18 +96,18 @@
       </div>
 
       <div class="flex flex-col gap-1 text-sm text-on-surface-variant">
-        @for (item of order.items; track item.id) {
+        @for (item of order.original.items; track item.id) {
           <div class="flex justify-between">
             <span
-              >{{ item.productName }} <span class="text-xs">x{{ item.quantity }}</span></span
+              >{{ item.productName ?? item.productId }} <span class="text-xs">x{{ item.quantity }}</span></span
             >
-            <span class="text-xs font-bold text-on-surface">{{ item.formattedPrice }}</span>
+            <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
           </div>
         }
       </div>
 
       <div class="flex items-center justify-between">
-        <span class="text-lg font-black text-primary">{{ order.formattedTotalAmount }}</span>
+        <span class="text-lg font-black text-primary">{{ order.original.totalAmount | price }}</span>
 
         @if (isOwner() && isToday()) {
           <button

@@ -40,7 +40,3 @@ export const orderArrayMapper = (orders: unknown): Order[] => {
   if (!Array.isArray(orders)) throw new Error('Expected array of Orders');
   return orders.map(orderMapper);
 };
-
-export const formatPrice = (cents: number): string => {
-  return (cents / 100).toFixed(2) + ' €';
-};

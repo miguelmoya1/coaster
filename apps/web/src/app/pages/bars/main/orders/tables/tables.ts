@@ -18,6 +18,7 @@ import {
   StatusCard,
 } from '../../../../../shared';
 import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../tables';
+import { PricePipe } from '../../../../../shared';
 
 @Component({
   selector: 'coaster-tables',
@@ -31,6 +32,7 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
     TranslatePipe,
     CoasterBtn,
     NgIcon,
+    PricePipe,
     RouterLink,
   ],
   viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
@@ -80,13 +82,9 @@ class Tables {
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() => {
-    const orders = this.#ordersService.openOrders().filter((o) => !o.tableId);
-    return orders.map((order) => ({
-      original: order,
-      formattedTotalAmount: this.#formatPrice(order.totalAmount),
-    }));
-  });
+  protected readonly barOrdersViewModel = computed(() =>
+    this.#ordersService.openOrders().filter((o) => !o.tableId),
+  );
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
@@ -105,9 +103,7 @@ class Tables {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
-  #formatPrice(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
-  }
+
 
   onCreateTable() {
     this.showCreateTable.set(true);

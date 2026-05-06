@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Category, Product } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../../shared';
 
 @Component({
   selector: 'coaster-pos-product-grid',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, PricePipe],
   template: `
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
@@ -41,7 +42,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             (click)="productClicked.emit(product)"
           >
             <span class="font-semibold text-on-surface text-sm text-center leading-tight">{{ product.name }}</span>
-            <span class="font-bold text-primary text-xs">{{ formatPrice(product.price) }}</span>
+            <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
           </button>
         } @empty {
           <div class="col-span-3 text-center text-on-surface-variant py-8">
@@ -60,7 +61,4 @@ export class PosProductGrid {
   readonly productClicked = output<Product>();
   readonly categorySelected = output<string | undefined>();
 
-  formatPrice(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
-  }
 }

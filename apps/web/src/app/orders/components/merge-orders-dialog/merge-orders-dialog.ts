@@ -2,6 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../../shared';
 
 export interface MergeOrdersDialogData {
   orders: Order[];
@@ -10,7 +11,7 @@ export interface MergeOrdersDialogData {
 
 @Component({
   selector: 'coaster-merge-orders-dialog',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, PricePipe],
   template: `
     <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-[360px] w-[90vw] flex flex-col gap-4">
       <h2 class="text-lg font-bold text-on-surface">{{ 'orders.merge_title' | translate }}</h2>
@@ -23,7 +24,7 @@ export interface MergeOrdersDialogData {
             (click)="dialogRef.close(order.id)"
           >
             <span class="font-semibold text-on-surface">{{ order.tableName ?? ('orders.bar_order' | translate) }}</span>
-            <span class="font-bold text-primary text-sm">{{ formatPrice(order.totalAmount) }}</span>
+            <span class="font-bold text-primary text-sm">{{ order.totalAmount | price }}</span>
           </button>
         } @empty {
           <p class="text-on-surface-variant text-sm text-center py-4">{{ 'orders.no_other_orders' | translate }}</p>
@@ -46,7 +47,4 @@ export class MergeOrdersDialog {
 
   readonly otherOrders = this.data.orders.filter((o) => o.id !== this.data.currentOrderId);
 
-  formatPrice(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
-  }
 }

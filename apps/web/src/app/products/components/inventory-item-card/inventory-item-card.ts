@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { StockStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
+import { BadgeVariant, PricePipe, CoasterBadge, CoasterTitle } from '../../../shared';
 
 @Component({
   selector: 'coaster-inventory-item-card',
@@ -15,7 +15,7 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
     <div class="grow min-w-0 mr-4 flex flex-col gap-0.5">
       <h3 coaster-title class="truncate">{{ itemName() }}</h3>
       @if (price() > 0) {
-        <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">{{ (price() / 100).toFixed(2) }} €</p>
+        <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">{{ price() | price }}</p>
       }
     </div>
 
@@ -54,7 +54,7 @@ import { BadgeVariant, CoasterBadge, CoasterTitle } from '../../../shared';
     '[class]':
       "'group flex items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer block ' + borderColorClass()",
   },
-  imports: [CommonModule, NgIcon, CoasterBadge, CoasterTitle],
+  imports: [CommonModule, NgIcon, CoasterBadge, CoasterTitle, PricePipe],
   viewProviders: [provideIcons({ lucidePackage, lucidePencil, lucideTrash2 })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

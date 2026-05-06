@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Order, OrderItem, OrderItemId } from '@coaster/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Order, OrderItemId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowRightLeft,
@@ -11,11 +11,11 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../shared';
+import { PricePipe, CoasterBtn } from '../../../shared';
 
 @Component({
   selector: 'coaster-order-detail-sheet',
-  imports: [NgIcon, TranslatePipe, CoasterBtn],
+  imports: [NgIcon, TranslatePipe, CoasterBtn, PricePipe],
   viewProviders: [
     provideIcons({
       lucideCheck,
@@ -33,7 +33,7 @@ import { CoasterBtn } from '../../../shared';
         <h3 class="text-xl font-bold text-on-surface">
           {{ order().tableName ?? ('orders.bar_order' | translate) }}
         </h3>
-        <span class="text-2xl font-black text-primary">{{ formattedTotal() }}</span>
+        <span class="text-2xl font-black text-primary">{{ order().totalAmount | price }}</span>
       </div>
 
       <div class="flex flex-col gap-2 max-h-[40vh] overflow-y-auto">
@@ -46,7 +46,7 @@ import { CoasterBtn } from '../../../shared';
               <span class="font-semibold text-on-surface text-sm">{{ item.productName ?? item.productId }}</span>
               <div class="flex gap-2 items-center">
                 <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
-                <span class="text-xs font-bold text-on-surface">{{ formatItemPrice(item) }}</span>
+                <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
               </div>
               <div class="flex gap-1.5 mt-1">
                 @if (item.paymentStatus === 'PAID') {
@@ -125,9 +125,4 @@ export class OrderDetailSheet {
   readonly payItemClicked = output<OrderItemId>();
   readonly deliverItemClicked = output<OrderItemId>();
 
-  readonly formattedTotal = computed(() => (this.order().totalAmount / 100).toFixed(2) + ' €');
-
-  formatItemPrice(item: OrderItem): string {
-    return ((item.priceAtPurchase * item.quantity) / 100).toFixed(2) + ' €';
-  }
 }

@@ -8,11 +8,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { BarMembers } from '../../../../../members';
 import { BarOrderHistory, OrderRepository } from '../../../../../orders';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, StatusCard } from '../../../../../shared';
+import { PricePipe, CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, StatusCard } from '../../../../../shared';
 
 @Component({
   selector: 'coaster-history',
-  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, RouterLink],
+  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, RouterLink, PricePipe],
   viewProviders: [provideIcons({ lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 })],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
@@ -47,8 +47,8 @@ class History {
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
-  readonly formattedRevenue = computed(() => this.#formatPrice(this.#historyService.totalRevenue()));
-  readonly formattedAvgTicket = computed(() => this.#formatPrice(this.#historyService.averageTicket()));
+  readonly totalRevenue = this.#historyService.totalRevenue;
+  readonly averageTicket = this.#historyService.averageTicket;
 
   protected readonly ordersViewModel = computed(() => {
     if (!this.#historyService.all.hasValue()) {
@@ -62,12 +62,6 @@ class History {
       statusClass: this.#statusClasses(order),
       statusLabel: this.#statusLabel(order),
       formattedTime: this.#formatTime(order.createdAt),
-      formattedTotalAmount: this.#formatPrice(order.totalAmount),
-      items: order.items.map((item) => ({
-        ...item,
-        productName: item.productName ?? item.productId,
-        formattedPrice: this.#formatPrice(item.priceAtPurchase * item.quantity),
-      })),
     }));
   });
 
@@ -105,9 +99,7 @@ class History {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
-  #formatPrice(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
-  }
+
 
   #formatTime(isoDate?: string): string {
     if (!isoDate) return '';

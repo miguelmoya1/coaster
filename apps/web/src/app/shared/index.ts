@@ -1,4 +1,5 @@
 export * from './components/avatar-badge/avatar-badge';
+export * from './components/price/price';
 export * from './components/badge/badge';
 export * from './components/bottom-nav/bottom-nav';
 export * from './components/bottom-sheet/bottom-sheet';

@@ -3,10 +3,11 @@ import { Table, TableStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../../shared';
 
 @Component({
   selector: 'coaster-table-card',
-  imports: [NgIcon, TranslatePipe],
+  imports: [NgIcon, TranslatePipe, PricePipe],
   viewProviders: [provideIcons({ lucideUsers, lucideCircleCheck, lucideTrash2 })],
   template: `
     <div class="relative">
@@ -20,8 +21,8 @@ import { TranslatePipe } from '@ngx-translate/core';
         <span class="text-xs font-semibold uppercase tracking-wider">
           {{ statusLabelKey() | translate }}
         </span>
-        @if (amount()) {
-          <span class="text-lg font-black mt-1">{{ amount() }}</span>
+        @if (orderAmount()) {
+          <span class="text-lg font-black mt-1">{{ orderAmount() | price }}</span>
         }
       </button>
 
@@ -58,10 +59,4 @@ export class TableCard {
   readonly statusLabelKey = computed(() =>
     this.table().status === TableStatus.OCCUPIED ? 'orders.table_occupied' : 'orders.table_free',
   );
-
-  readonly amount = computed(() => {
-    const amt = this.orderAmount();
-    if (amt === undefined || amt === 0) return undefined;
-    return (amt / 100).toFixed(2) + ' €';
-  });
 }
