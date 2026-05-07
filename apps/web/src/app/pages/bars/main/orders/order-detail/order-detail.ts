@@ -14,17 +14,24 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { BarOrderHistory, BarOrders, ManageOrder, MoveTableDialog, MoveTableDialogData } from '../../../../../orders';
+import {
+  BarOrderHistory,
+  BarOrders,
+  ManageOrder,
+  MoveTableDialog,
+  MoveTableDialogData,
+  OrderTitlePipe,
+} from '../../../../../orders';
 import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
 } from '../../../../../orders/components/merge-orders-dialog/merge-orders-dialog';
-import { PricePipe, CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading } from '../../../../../shared';
+import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, PricePipe],
+  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, PricePipe, OrderTitlePipe],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -80,13 +87,6 @@ class OrderDetail {
 
   protected readonly isLoadingServices = this.#ordersService.all.isLoading;
 
-  readonly title = computed(() => {
-    const order = this.displayOrder();
-    if (!order) return '...';
-    if (order.tableName) return order.tableName;
-    return this.#translate.instant('orders.bar_order_title');
-  });
-
   constructor() {
     effect(async () => {
       if (this.#isNavigatingAway) return;
@@ -113,8 +113,6 @@ class OrderDetail {
     this.#isNavigatingAway = true;
     await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
   }
-
-
 
   onAddItems() {
     const order = this.currentOrder();

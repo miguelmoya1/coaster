@@ -1,25 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Table, TableStatus } from '@coaster/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Table } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../shared';
+import { TableStatusPipe } from '../../pipes/table-status';
 
 @Component({
   selector: 'coaster-table-card',
-  imports: [NgIcon, TranslatePipe, PricePipe],
+  imports: [NgIcon, TranslatePipe, PricePipe, TableStatusPipe],
   viewProviders: [provideIcons({ lucideUsers, lucideCircleCheck, lucideTrash2 })],
   template: `
     <div class="relative">
       <button
         class="w-full rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer border-2 min-h-[120px]"
-        [class]="statusClasses()"
+        [class]="table().status | tableStatus: 'class'"
         (click)="cardClicked.emit(table())"
       >
-        <ng-icon [name]="statusIcon()" class="text-2xl" />
+        <ng-icon [name]="table().status | tableStatus: 'icon'" class="text-2xl" />
         <span class="font-bold text-base leading-tight text-center">{{ table().name }}</span>
         <span class="text-xs font-semibold uppercase tracking-wider">
-          {{ statusLabelKey() | translate }}
+          {{ table().status | tableStatus: 'label' | translate }}
         </span>
         @if (orderAmount()) {
           <span class="text-lg font-black mt-1">{{ orderAmount() | price }}</span>
@@ -44,19 +45,4 @@ export class TableCard {
   readonly deletable = input(false);
   readonly cardClicked = output<Table>();
   readonly deleteClicked = output<Table>();
-
-  readonly statusClasses = computed(() => {
-    if (this.table().status === TableStatus.OCCUPIED) {
-      return 'bg-error/10 border-error/40 text-error';
-    }
-    return 'bg-secondary/10 border-secondary/40 text-secondary';
-  });
-
-  readonly statusIcon = computed(() =>
-    this.table().status === TableStatus.OCCUPIED ? 'lucideUsers' : 'lucideCircleCheck',
-  );
-
-  readonly statusLabelKey = computed(() =>
-    this.table().status === TableStatus.OCCUPIED ? 'orders.table_occupied' : 'orders.table_free',
-  );
 }
