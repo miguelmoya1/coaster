@@ -1,14 +1,22 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, asUserId, Shift } from '@coaster/common';
+import { asBarId, asShiftId, asUserId, BarId, Shift } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CurrentBar } from '../../bars';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { BarShifts } from './bar-shifts';
 
 describe('BarShifts', () => {
   let service: BarShifts;
   let httpMock: HttpTestingController;
+
+  const currentId = signal<BarId | undefined>(undefined);
+
+  const currentBarMock = {
+    currentId: currentId.asReadonly(),
+    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  };
 
   const mockRoutes = {
     list: (barId: string, startDate: string, endDate: string) =>
@@ -18,10 +26,16 @@ describe('BarShifts', () => {
   let appRef: ApplicationRef;
 
   beforeEach(async () => {
+    currentId.set(undefined);
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClientTesting(),
+        {
+          provide: CurrentBar,
+          useValue: currentBarMock,
+        },
         {
           provide: ShiftRepository,
           useValue: { routes: mockRoutes },
@@ -64,7 +78,7 @@ describe('BarShifts', () => {
     ];
 
     it('should fetch shifts when context and date range are set', async () => {
-      service.setContext(barId);
+      currentBarMock.setBarContext(barId);
       service.setDateRange(startDate, endDate);
 
       service.all.value();
@@ -81,7 +95,7 @@ describe('BarShifts', () => {
     });
 
     it('should not fetch if context or date range is missing', () => {
-      service.setContext(barId);
+      currentBarMock.setBarContext(barId);
       service.all.value();
       TestBed.flushEffects();
       httpMock.expectNone(() => true);
@@ -89,7 +103,7 @@ describe('BarShifts', () => {
     });
 
     it('should show loading state during fetch', async () => {
-      service.setContext(barId);
+      currentBarMock.setBarContext(barId);
       service.setDateRange(startDate, endDate);
 
       service.all.value();
@@ -101,7 +115,7 @@ describe('BarShifts', () => {
     });
 
     it('should reload data when explicitly requested', async () => {
-      service.setContext(barId);
+      currentBarMock.setBarContext(barId);
       service.setDateRange(startDate, endDate);
 
       service.all.value();

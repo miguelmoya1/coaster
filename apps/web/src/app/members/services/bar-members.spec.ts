@@ -1,13 +1,21 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarId, BarMember, BarRole } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { CurrentBar } from '../../bars';
 import { BarMembers } from './bar-members';
 
 describe('BarMembers', () => {
   let service: BarMembers;
   let httpMock: HttpTestingController;
+
+  const currentId = signal<BarId | undefined>(undefined);
+
+  const currentBarMock = {
+    currentId: currentId.asReadonly(),
+    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  };
 
   const mockMembers: BarMember[] = [
     {
@@ -23,8 +31,16 @@ describe('BarMembers', () => {
   ];
 
   beforeEach(() => {
+    currentId.set(undefined);
+
     TestBed.configureTestingModule({
-      providers: [provideHttpClientTesting()],
+      providers: [
+        provideHttpClientTesting(),
+        {
+          provide: CurrentBar,
+          useValue: currentBarMock,
+        },
+      ],
     });
     service = TestBed.inject(BarMembers);
     httpMock = TestBed.inject(HttpTestingController);
@@ -45,7 +61,7 @@ describe('BarMembers', () => {
 
     it('should fetch members when bar context is set', async () => {
       const barId = asBarId('bar-1');
-      service.setBarContext(barId);
+      currentBarMock.setBarContext(barId);
 
       TestBed.tick();
       expect(service.list.isLoading()).toBe(true);
@@ -65,14 +81,14 @@ describe('BarMembers', () => {
 
     it('should return to idle when context is cleared', async () => {
       const barId = asBarId('bar-1');
-      service.setBarContext(barId);
+      currentBarMock.setBarContext(barId);
       TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(service.list.hasValue()).toBe(true);
 
-      service.clearBarContext();
+      currentBarMock.setBarContext(undefined);
       TestBed.tick();
       expect(service.list.status()).toBe('idle');
       expect(service.list.hasValue()).toBe(false);
@@ -82,7 +98,7 @@ describe('BarMembers', () => {
   describe('reload', () => {
     it('should reload the members', async () => {
       const barId = asBarId('bar-1');
-      service.setBarContext(barId);
+      currentBarMock.setBarContext(barId);
       TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
       await TestBed.inject(ApplicationRef).whenStable();

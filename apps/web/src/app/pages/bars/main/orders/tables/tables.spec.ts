@@ -21,7 +21,6 @@ describe('Tables', () => {
         {
           provide: BarTables,
           useValue: {
-            setBarContext: vi.fn(),
             reload: vi.fn(),
             all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) },
             freeCount: signal(0),
@@ -31,7 +30,6 @@ describe('Tables', () => {
         {
           provide: BarOrders,
           useValue: {
-            setBarContext: vi.fn(),
             reload: vi.fn(),
             all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) },
             openOrders: signal([]),
@@ -41,8 +39,8 @@ describe('Tables', () => {
         },
         { provide: CreateTable, useValue: { create: vi.fn() } },
         { provide: DeleteTable, useValue: { delete: vi.fn() } },
-        { provide: CurrentUser, useValue: { current: { value: signal(null) } } },
-        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]) } } },
+        { provide: CurrentUser, useValue: { current: { value: signal(null), hasValue: signal(false) } } },
+        { provide: BarMembers, useValue: { list: { value: signal([]), hasValue: signal(false), isLoading: signal(false) } } },
       ],
     }).compileComponents();
 

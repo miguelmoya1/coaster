@@ -1,14 +1,22 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, BarId, Category } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CurrentBar } from '../../bars';
 import { CategoryRepository } from '../data-access/category-repository';
 import { BarCategories } from './bar-categories';
 
 describe('BarCategories', () => {
   let service: BarCategories;
   let httpMock: HttpTestingController;
+
+  const currentId = signal<BarId | undefined>(undefined);
+
+  const currentBarMock = {
+    currentId: currentId.asReadonly(),
+    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  };
 
   const repositoryMock = {
     routes: {
@@ -18,10 +26,16 @@ describe('BarCategories', () => {
   };
 
   beforeEach(async () => {
+    currentId.set(undefined);
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
+        {
+          provide: CurrentBar,
+          useValue: currentBarMock,
+        },
         {
           provide: CategoryRepository,
           useValue: repositoryMock,
@@ -44,16 +58,16 @@ describe('BarCategories', () => {
       expect(service.all.isLoading()).toBe(false);
     });
 
-    it('should call the category repository when setBarContext is called', () => {
+    it('should call the category repository when bar context is set', () => {
       const barId: BarId = asBarId('bar-1');
 
-      service.setBarContext(barId);
+      currentBarMock.setBarContext(barId);
       TestBed.tick();
       expect(repositoryMock.routes.list).toHaveBeenCalledWith(barId);
     });
 
-    it('should be set when setBarContext is called', async () => {
-      service.setBarContext(asBarId('bar-1'));
+    it('should be set when bar context is set', async () => {
+      currentBarMock.setBarContext(asBarId('bar-1'));
 
       TestBed.tick();
 
@@ -82,9 +96,9 @@ describe('BarCategories', () => {
     });
   });
 
-  describe('setBarContext', () => {
-    it('should trigger loading when called with a barId', () => {
-      service.setBarContext(asBarId('bar-1'));
+  describe('bar context', () => {
+    it('should trigger loading when bar context is set', () => {
+      currentBarMock.setBarContext(asBarId('bar-1'));
       TestBed.tick();
 
       expect(service.all.isLoading()).toBe(true);
@@ -93,7 +107,7 @@ describe('BarCategories', () => {
 
   describe('reload', () => {
     it('should reload the categories', async () => {
-      service.setBarContext(asBarId('bar-1'));
+      currentBarMock.setBarContext(asBarId('bar-1'));
 
       TestBed.tick();
 
