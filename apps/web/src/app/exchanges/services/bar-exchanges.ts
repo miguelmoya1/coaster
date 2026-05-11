@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 
@@ -9,11 +9,11 @@ import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 })
 export class BarExchanges {
   readonly #exchangeRepository = inject(ExchangeRepository);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsstore = inject(BarsStore);
 
   readonly #pending = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsstore.currentBarId();
       if (!barId) {
         return undefined;
       }

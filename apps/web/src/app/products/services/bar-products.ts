@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { ProductRepository } from '../data-access/product-repository';
 import { productArrayMapper } from '../mappers/product.mapper';
 
@@ -9,10 +9,10 @@ import { productArrayMapper } from '../mappers/product.mapper';
 })
 export class BarProducts {
   readonly #productRepository = inject(ProductRepository);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsStore = inject(BarsStore);
   readonly #all = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsStore.currentBarId();
       if (!barId) {
         return undefined;
       }

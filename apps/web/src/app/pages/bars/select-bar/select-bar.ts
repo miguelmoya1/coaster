@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarCard, MyBars } from '../../../bars';
+import { BarCard, BarsStore } from '../../../bars';
 import { CoasterBtn, SectionTitle } from '../../../shared';
 
 @Component({
@@ -18,9 +18,9 @@ import { CoasterBtn, SectionTitle } from '../../../shared';
 })
 export default class SelectBar {
   readonly #router = inject(Router);
-  readonly #myBars = inject(MyBars);
+  readonly #barsStore = inject(BarsStore);
 
-  readonly bars = this.#myBars.all;
+  readonly bars = this.#barsStore.myBars;
 
   navigateToCreate() {
     this.#router.navigate(['/bars/create']);

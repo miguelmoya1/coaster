@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { OrderStatus } from '@coaster/common';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { Socket } from '../../core';
 import { OrderRepository } from '../data-access/order-repository';
 import { orderArrayMapper } from '../mappers/order.mapper';
@@ -12,12 +12,12 @@ import { orderArrayMapper } from '../mappers/order.mapper';
 export class BarOrderHistory {
   readonly #orderRepository = inject(OrderRepository);
   readonly #socketService = inject(Socket);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsstore = inject(BarsStore);
   readonly #date = signal<string>(new Date().toISOString().split('T')[0]);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsstore.currentBarId();
       const date = this.#date();
       if (!barId || !date) {
         return undefined;
@@ -65,7 +65,7 @@ export class BarOrderHistory {
 
     effect(() => {
       const created = this.#socketService.orderCreated();
-      if (created && this.#currentBar.currentId() === created.barId && isTodayOrMatchDate(created.createdAt)) {
+      if (created && this.#barsstore.currentBarId() === created.barId && isTodayOrMatchDate(created.createdAt)) {
         this.#all.update((orders) => {
           if (!orders) return [created];
           const exists = orders.some((o) => o.id === created.id);
@@ -76,7 +76,7 @@ export class BarOrderHistory {
 
     effect(() => {
       const updated = this.#socketService.orderUpdated();
-      if (updated && this.#currentBar.currentId() === updated.barId && isTodayOrMatchDate(updated.createdAt)) {
+      if (updated && this.#barsstore.currentBarId() === updated.barId && isTodayOrMatchDate(updated.createdAt)) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === updated.id ? updated : o));
@@ -86,7 +86,7 @@ export class BarOrderHistory {
 
     effect(() => {
       const closed = this.#socketService.orderClosed();
-      if (closed && this.#currentBar.currentId() === closed.barId && isTodayOrMatchDate(closed.createdAt)) {
+      if (closed && this.#barsstore.currentBarId() === closed.barId && isTodayOrMatchDate(closed.createdAt)) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === closed.id ? closed : o));

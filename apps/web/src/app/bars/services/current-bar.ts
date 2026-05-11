@@ -1,34 +1,24 @@
-import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BarId } from '@coaster/common';
+import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
-import { barMapper } from '../mappers/bar.mapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CurrentBar {
   readonly #barRepository = inject(BarRepository);
-  readonly #currentId = signal<BarId | undefined>(undefined);
-  readonly #current = httpResource(
-    () => {
-      const currentId = this.#currentId();
+  readonly #auth = inject(Auth);
 
-      return currentId ? this.#barRepository.routes.bar(currentId) : undefined;
-    },
-    {
-      parse: (bar) => barMapper(bar),
-    },
-  );
+  public execute(id: BarId | undefined) {
+    if (!this.#auth.isAuthenticated()) {
+      return undefined;
+    }
 
-  public readonly current = this.#current.asReadonly();
-  public readonly currentId = this.#currentId.asReadonly();
+    if (!id) {
+      return undefined;
+    }
 
-  public setBarContext(barId: BarId | undefined) {
-    this.#currentId.set(barId);
-  }
-
-  public reload() {
-    this.#current.reload();
+    return this.#barRepository.routes.bar(id);
   }
 }

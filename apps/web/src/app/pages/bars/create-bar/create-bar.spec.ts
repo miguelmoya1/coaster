@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Auth } from '@angular/fire/auth';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateBar as CreateBarService, MyBars } from '../../../bars';
+import { CreateBarForm } from './components/create-bar-form';
 import CreateBar from './create-bar';
 
 describe('CreateBar', () => {
@@ -11,12 +13,6 @@ describe('CreateBar', () => {
   const routerMock = {
     navigate: vi.fn().mockResolvedValue(true),
   };
-  const createBarMock = {
-    execute: vi.fn().mockResolvedValue({}),
-  };
-  const myBarsMock = {
-    reload: vi.fn(),
-  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -24,8 +20,10 @@ describe('CreateBar', () => {
       providers: [
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: CreateBarService, useValue: createBarMock },
-        { provide: MyBars, useValue: myBarsMock },
+        {
+          provide: Auth,
+          useValue: {},
+        },
       ],
     }).compileComponents();
 
@@ -42,33 +40,37 @@ describe('CreateBar', () => {
 
   describe('rendering', () => {
     it('should show section title', () => {
-      const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
+      const sectionTitle = fixture.debugElement.query(By.css('coaster-section-title'));
       expect(sectionTitle).toBeTruthy();
     });
 
-    it('should have a name input', () => {
-      const input = fixture.nativeElement.querySelector('coaster-text-input');
-      expect(input).toBeTruthy();
+    it('should show create bar form', () => {
+      const createBarForm = fixture.debugElement.query(By.css('[data-testid="create-bar-form"]'))
+        .componentInstance as CreateBarForm;
+      expect(createBarForm).toBeTruthy();
     });
   });
 
-  describe('actions', () => {
-    it('should navigate back on cancel', () => {
-      component.cancel();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
-    });
+  describe('onSubmit', () => {
+    it('should navigate to select bar', () => {
+      const createBarForm = fixture.debugElement.query(By.css('[data-testid="create-bar-form"]'))
+        .componentInstance as CreateBarForm;
+      createBarForm.formSubmitted.emit();
 
-    it('should submit form and navigate on success', async () => {
-      component.barForm.name().value.set('My New Bar');
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-      submitButton.click();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+    });
+  });
 
-      await fixture.whenStable();
+  describe('onCancel', () => {
+    it('should navigate to select bar', () => {
+      const createBarForm = fixture.debugElement.query(By.css('[data-testid="create-bar-form"]'))
+        .componentInstance as CreateBarForm;
+      createBarForm.formCancelled.emit();
 
-      expect(createBarMock.execute).toHaveBeenCalledWith({ name: 'My New Bar' });
-      expect(myBarsMock.reload).toHaveBeenCalled();
+      fixture.detectChanges();
+
       expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
   });

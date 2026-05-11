@@ -39,7 +39,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
       });
 
       return user;
-    } catch {
+    } catch (error) {
+      console.error(error);
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
   }

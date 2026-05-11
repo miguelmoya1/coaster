@@ -1,59 +1,131 @@
-# Coaster
+# 🏗️ Arquitectura Frontend: Coaster Clean-Screaming Architecture
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+Este proyecto utiliza una evolución de **Clean Architecture** adaptada al ecosistema moderno de **Angular (Signals & Standalone)**, aplicando los principios de **Screaming Architecture** (la estructura grita el propósito del negocio) y **Vertical Slicing**.
 
-## Development server
+## 🎯 Objetivos de la Arquitectura
 
-To start a local development server, run:
+- **Aislamiento de Lógica:** El dominio (negocio) no sabe nada de la UI ni de los frameworks.
+- **Estado Reactivo Centralizado:** Uso de `Stores` (Basados en Signals) como directores de orquesta.
+- **Componentes Tontos vs. Inteligentes:** Clara distinción entre componentes visuales y páginas que manejan estado.
+- **Contratos Estrictos:** Uso de `index.ts` (Public API) para evitar fugas de implementación.
 
-```bash
-ng serve
+---
+
+## 🗺️ Mapa Global del Proyecto
+
+La aplicación se divide en dos grandes bloques: **Islas de Dominio** y **Capa de Presentación**.
+
+```text
+src/app/
+├── core/                       # Singleton services (Auth, Interceptors, Config)
+├── [domain-islands]/           # Lógica pura por feature (bars, orders, products...)
+│   ├── data-access/            # Repositorios (HTTP) y Mappers
+│   ├── use-cases/              # Reglas de negocio atómicas (Acciones)
+│   ├── store/                  # ORQUESTADOR (Signals, Resources, Encadenamiento)
+│   └── index.ts                # Puerta de entrada (Public API)
+│
+├── presentation/               # CAPA VISUAL (Sin lógica de negocio)
+│   ├── components/             # UI Kit Genérico (Botones, Inputs, Modales)
+│   ├── pipes/                  # Transformadores visuales globales
+│   ├── [feature-ui]/           # UI específica (auth, bars, pantry...)
+│   │   ├── components/         # Componentes específicos (bar-card, bar-badge)
+│   │   ├── pages/              # Smart Components (Enrutados)
+│   │   └── [feature].routes.ts # Definición de rutas
+│   └── main/                   # Vistas agregadoras (Dashboard, Layouts principales)
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 🛠️ Las 3 Capas en Detalle (Ejemplo: `bars`)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 1. Dominio y Lógica (`src/app/bars`)
 
-```bash
-ng generate component component-name
+Es el cerebro de la aplicación. Aquí no hay HTML ni CSS.
+
+- **Data Access:** Repositorios que devuelven Promesas/Observables y Mappers que limpian los datos de la API.
+- **Use Cases:** Clases `execute()` que realizan una única acción (ej: `CreateBar`).
+- **Store (El Orquestador):** Centraliza el estado reactivo con `Signals` y `httpResource`. Gestiona el "qué pasa después de X" (Encadenamiento).
+
+#### Ejemplo de Store:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class BarsStore {
+  readonly #createBarUC = inject(CreateBarUseCase);
+  readonly #getBarsUC = inject(GetBarsUseCase);
+
+  readonly #barsResource = httpResource(() => this.#getBarsUC.execute());
+
+  async create(dto: CreateBarDto) {
+    try {
+      await this.#createBarUC.execute(dto); // 1. Acción
+      this.#listResource.reload(); // 2. Encadenamiento (Refresco)
+      return null; // Éxito para Signal Forms
+    } catch (error) {
+      return handleError(error); // Error para Signal Forms
+    }
+  }
+}
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 2. Capa de Presentación (`src/app/presentation`)
 
-```bash
-ng generate --help
+Es la piel de la aplicación. Se encarga de pintar y capturar eventos.
+
+- **Components (UI Kit):** Componentes transversales (`coaster-btn`). No tienen lógica de negocio.
+- **Feature Components:** Componentes que solo tienen sentido dentro de una feature (`bar-card`).
+- **Pages (Smart Components):** Inyectan el `Store`, leen sus `Signals` y envían las acciones del usuario.
+
+#### Ejemplo de Comunicación Store -> Form:
+
+```typescript
+// En presentation/bars/pages/create-bar.page.ts
+export class CreateBarPage {
+  readonly store = inject(BarsStore); // Acceso directo al orquestador
+
+  readonly form = form(..., {
+    submission: {
+      action: async (f) => await this.store.create(f().value())
+    }
+  });
+}
 ```
 
-## Building
+### 3. Public API (`index.ts`)
 
-To build the project run:
+Cada isla de dominio tiene un `index.ts` que actúa como frontera. **Solo exporta lo necesario**.
 
-```bash
-ng build
+```typescript
+// src/app/bars/index.ts
+export { BarsStore } from './store/bars.store';
+export type { Bar, BarId } from './models/bar.model';
+// ⛔ NUNCA exportar repositorios o casos de uso internamente.
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 🚦 Reglas de Oro (Para cumplir la Arquitectura)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+1. **Regla de Dependencia:** La capa de Dominio **NUNCA** puede importar nada de la capa de Presentación. La Presentación sí puede importar del Dominio.
+2. **Fronteras de Dominio:** Una página de `presentation/pantry` puede inyectar tanto `BarsStore` como `PantryStore` si necesita datos de ambos, pero `BarsStore` nunca debe importar cosas de `Pantry`.
+3. **Encadenamiento:** Toda lógica de refresco (ej: "si borro un bar, refresca la lista") debe vivir en el `Store`, no en el componente.
+4. **Ubicación de Componentes:**
+   - ¿Se usa en toda la app? ➡️ `presentation/components/`
+   - ¿Es específico de una lógica? ➡️ `presentation/[feature]/components/`
+5. **Signal Forms:** El método `submission.action` del formulario debe llamar siempre a un método del `Store` que devuelva `Promise<TreeValidationResult | null>`.
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
+## 🚀 Cómo crear una nueva Feature
 
-For end-to-end (e2e) testing, run:
+1. **Dominio:** Crea la carpeta en `src/app/nombre-feature`.
+2. **Lógica:** Define el `Repository`, el `Mapper` y los `Use Cases`.
+3. **Estado:** Crea el `Store` inyectando los casos de uso y exponiendo los `Signals/Resources`.
+4. **Contrato:** Exporta el `Store` en el `index.ts`.
+5. **UI:** Crea la carpeta en `src/app/presentation/nombre-feature`.
+6. **Vista:** Crea las `pages`, los `components` específicos y define las `routes`.
+7. **Rutas:** Registra las rutas en el `app.routes.ts` principal.
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+> _"Arquitectura clara, código sano, equipo feliz."_ 🍹

@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable } from '@angular/core';
 import { TableStatus } from '@coaster/common';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { Socket } from '../../core';
 import { TableRepository } from '../data-access/table-repository';
 import { tableArrayMapper } from '../mappers/table.mapper';
@@ -12,11 +12,11 @@ import { tableArrayMapper } from '../mappers/table.mapper';
 export class BarTables {
   readonly #tableRepository = inject(TableRepository);
   readonly #socketService = inject(Socket);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsStore = inject(BarsStore);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsStore.currentBarId();
       if (!barId) {
         return undefined;
       }

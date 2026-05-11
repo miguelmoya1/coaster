@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { CategoryRepository } from '../data-access/category-repository';
 import { categoryArrayMapper } from '../mappers/category.mapper';
 
@@ -9,11 +9,11 @@ import { categoryArrayMapper } from '../mappers/category.mapper';
 })
 export class BarCategories {
   readonly #categoryRepository = inject(CategoryRepository);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsstore = inject(BarsStore);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsstore.currentBarId();
       if (!barId) {
         return undefined;
       }

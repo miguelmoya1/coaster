@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 
@@ -9,13 +9,13 @@ import { shiftArrayMapper } from '../mappers/shift.mapper';
 })
 export class BarShifts {
   readonly #shiftRepository = inject(ShiftRepository);
-  readonly #currentBar = inject(CurrentBar);
+  readonly #barsStore = inject(BarsStore);
   readonly #startDate = signal<string | undefined>(undefined);
   readonly #endDate = signal<string | undefined>(undefined);
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#currentBar.currentId();
+      const barId = this.#barsStore.currentBarId();
       const startDate = this.#startDate();
       const endDate = this.#endDate();
 
