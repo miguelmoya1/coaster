@@ -3,7 +3,7 @@ import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, BarId, Category } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CurrentBar } from '../../bars';
+import { BarsStore } from '../../bars';
 import { CategoryRepository } from '../data-access/category-repository';
 import { BarCategories } from './bar-categories';
 
@@ -11,11 +11,10 @@ describe('BarCategories', () => {
   let service: BarCategories;
   let httpMock: HttpTestingController;
 
-  const currentId = signal<BarId | undefined>(undefined);
+  const currentBarId = signal<BarId | undefined>(undefined);
 
-  const currentBarMock = {
-    currentId: currentId.asReadonly(),
-    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  const barsStoreMock = {
+    currentBarId: currentBarId.asReadonly(),
   };
 
   const repositoryMock = {
@@ -25,21 +24,16 @@ describe('BarCategories', () => {
     },
   };
 
-  beforeEach(async () => {
-    currentId.set(undefined);
+  beforeEach(() => {
+    currentBarId.set(undefined);
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        {
-          provide: CurrentBar,
-          useValue: currentBarMock,
-        },
-        {
-          provide: CategoryRepository,
-          useValue: repositoryMock,
-        },
+        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CategoryRepository, useValue: repositoryMock },
       ],
     });
 
@@ -59,16 +53,14 @@ describe('BarCategories', () => {
     });
 
     it('should call the category repository when bar context is set', () => {
-      const barId: BarId = asBarId('bar-1');
-
-      currentBarMock.setBarContext(barId);
+      const barId = asBarId('bar-1');
+      currentBarId.set(barId);
       TestBed.tick();
       expect(repositoryMock.routes.list).toHaveBeenCalledWith(barId);
     });
 
     it('should be set when bar context is set', async () => {
-      currentBarMock.setBarContext(asBarId('bar-1'));
-
+      currentBarId.set(asBarId('bar-1'));
       TestBed.tick();
 
       expect(service.all.isLoading()).toBe(true);
@@ -79,7 +71,6 @@ describe('BarCategories', () => {
       ];
 
       httpMock.expectOne('/bars/bar-1/categories').flush(mockCategories);
-
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(service.all.isLoading()).toBe(false);
@@ -89,30 +80,25 @@ describe('BarCategories', () => {
 
     it('should not fetch anything if barId is not set', () => {
       TestBed.tick();
-
       httpMock.expectNone('/bars/bar-1/categories');
-
       expect(service.all.isLoading()).toBe(false);
     });
   });
 
   describe('bar context', () => {
     it('should trigger loading when bar context is set', () => {
-      currentBarMock.setBarContext(asBarId('bar-1'));
+      currentBarId.set(asBarId('bar-1'));
       TestBed.tick();
-
       expect(service.all.isLoading()).toBe(true);
     });
   });
 
   describe('reload', () => {
     it('should reload the categories', async () => {
-      currentBarMock.setBarContext(asBarId('bar-1'));
-
+      currentBarId.set(asBarId('bar-1'));
       TestBed.tick();
 
       const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), barId: asBarId('bar-1'), name: 'Tapas' }];
-
       httpMock.expectOne('/bars/bar-1/categories').flush(mockCategories);
       await TestBed.inject(ApplicationRef).whenStable();
 

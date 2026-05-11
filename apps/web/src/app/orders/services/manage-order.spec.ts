@@ -1,3 +1,4 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   asBarId,
@@ -9,13 +10,36 @@ import {
   OrderStatus,
   PaymentStatus,
 } from '@coaster/common';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Toast } from '../../core/services/toast';
 import { OrderRepository } from '../data-access/order-repository';
+import { BarOrders } from './bar-orders';
 import { ManageOrder } from './manage-order';
 
 describe('ManageOrder', () => {
   let service: ManageOrder;
-  let orderRepoMock: Record<string, Mock>;
+
+  const orderRepoMock = {
+    addItems: vi.fn(),
+    payItem: vi.fn(),
+    deliverItem: vi.fn(),
+    checkout: vi.fn(),
+    cancel: vi.fn(),
+    moveTable: vi.fn(),
+    merge: vi.fn(),
+    removeItem: vi.fn(),
+    getOrder: vi.fn(),
+    create: vi.fn(),
+  };
+
+  const barOrdersMock = {
+    optimisticUpdate: vi.fn().mockReturnValue(undefined),
+    revertUpdate: vi.fn(),
+  };
+
+  const toastMock = {
+    error: vi.fn(),
+  };
 
   const mockOrder: Order = {
     id: asOrderId('order-1'),
@@ -40,18 +64,15 @@ describe('ManageOrder', () => {
   const itemId = asOrderItemId('item-1');
 
   beforeEach(() => {
-    orderRepoMock = {
-      addItems: vi.fn(),
-      payItem: vi.fn(),
-      deliverItem: vi.fn(),
-      checkout: vi.fn(),
-      cancel: vi.fn(),
-      moveTable: vi.fn(),
-      merge: vi.fn(),
-    };
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [{ provide: OrderRepository, useValue: orderRepoMock }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: OrderRepository, useValue: orderRepoMock },
+        { provide: BarOrders, useValue: barOrdersMock },
+        { provide: Toast, useValue: toastMock },
+      ],
     });
 
     service = TestBed.inject(ManageOrder);
@@ -64,55 +85,55 @@ describe('ManageOrder', () => {
   describe('addItems', () => {
     it('should delegate to repository', async () => {
       const dto = { items: [{ productId: 'prod-2', quantity: 3 }] };
-      orderRepoMock['addItems'].mockResolvedValue(mockOrder);
+      orderRepoMock.addItems.mockResolvedValue(mockOrder);
 
       const result = await service.addItems(barId, orderId, dto);
 
-      expect(orderRepoMock['addItems']).toHaveBeenCalledWith(barId, orderId, dto);
+      expect(orderRepoMock.addItems).toHaveBeenCalledWith(barId, orderId, dto);
       expect(result).toEqual(mockOrder);
     });
   });
 
   describe('payItem', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock['payItem'].mockResolvedValue(mockOrder);
+      orderRepoMock.payItem.mockResolvedValue(mockOrder);
 
       const result = await service.payItem(barId, orderId, itemId);
 
-      expect(orderRepoMock['payItem']).toHaveBeenCalledWith(barId, orderId, itemId);
+      expect(orderRepoMock.payItem).toHaveBeenCalledWith(barId, orderId, itemId);
       expect(result).toEqual(mockOrder);
     });
   });
 
   describe('deliverItem', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock['deliverItem'].mockResolvedValue(mockOrder);
+      orderRepoMock.deliverItem.mockResolvedValue(mockOrder);
 
       const result = await service.deliverItem(barId, orderId, itemId);
 
-      expect(orderRepoMock['deliverItem']).toHaveBeenCalledWith(barId, orderId, itemId);
+      expect(orderRepoMock.deliverItem).toHaveBeenCalledWith(barId, orderId, itemId);
       expect(result).toEqual(mockOrder);
     });
   });
 
   describe('checkout', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock['checkout'].mockResolvedValue(mockOrder);
+      orderRepoMock.checkout.mockResolvedValue(mockOrder);
 
       const result = await service.checkout(barId, orderId);
 
-      expect(orderRepoMock['checkout']).toHaveBeenCalledWith(barId, orderId);
+      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId);
       expect(result).toEqual(mockOrder);
     });
   });
 
   describe('cancel', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock['cancel'].mockResolvedValue(mockOrder);
+      orderRepoMock.cancel.mockResolvedValue(mockOrder);
 
       const result = await service.cancel(barId, orderId);
 
-      expect(orderRepoMock['cancel']).toHaveBeenCalledWith(barId, orderId);
+      expect(orderRepoMock.cancel).toHaveBeenCalledWith(barId, orderId);
       expect(result).toEqual(mockOrder);
     });
   });
@@ -120,11 +141,11 @@ describe('ManageOrder', () => {
   describe('moveTable', () => {
     it('should delegate to repository', async () => {
       const dto = { tableId: 'table-2' };
-      orderRepoMock['moveTable'].mockResolvedValue(mockOrder);
+      orderRepoMock.moveTable.mockResolvedValue(mockOrder);
 
       const result = await service.moveTable(barId, orderId, dto);
 
-      expect(orderRepoMock['moveTable']).toHaveBeenCalledWith(barId, orderId, dto);
+      expect(orderRepoMock.moveTable).toHaveBeenCalledWith(barId, orderId, dto);
       expect(result).toEqual(mockOrder);
     });
   });
@@ -132,11 +153,11 @@ describe('ManageOrder', () => {
   describe('merge', () => {
     it('should delegate to repository', async () => {
       const dto = { orderIds: ['o1', 'o2'] };
-      orderRepoMock['merge'].mockResolvedValue(mockOrder);
+      orderRepoMock.merge.mockResolvedValue(mockOrder);
 
       const result = await service.merge(barId, dto);
 
-      expect(orderRepoMock['merge']).toHaveBeenCalledWith(barId, dto);
+      expect(orderRepoMock.merge).toHaveBeenCalledWith(barId, dto);
       expect(result).toEqual(mockOrder);
     });
   });

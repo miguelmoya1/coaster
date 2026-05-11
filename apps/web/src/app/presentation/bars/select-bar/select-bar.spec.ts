@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { asBarId, Bar } from '@coaster/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MyBars } from '../../../bars';
+import { BarsStore } from '../../../bars';
 import SelectBar from './select-bar';
 
 describe('SelectBar', () => {
@@ -13,35 +13,33 @@ describe('SelectBar', () => {
     navigate: vi.fn().mockResolvedValue(true),
   };
 
-  const mockBars: BarMember[] = [
+  const mockBars: Bar[] = [
     {
-      id: asBarMemberId('mb-1'),
-      barId: asBarId('bar-1'),
-      userId: asUserId('u-1'),
-      userName: 'User',
-      userEmail: 'u@test.com',
-      userImage: '',
-      role: BarRole.OWNER,
-      active: true,
+      id: asBarId('bar-1'),
+      name: 'The Rusty Anchor',
     },
   ];
 
-  const myBarsMock = {
-    all: {
+  const barsStoreMock = {
+    myBars: {
       value: vi.fn().mockReturnValue(mockBars),
       isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
     },
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SelectBar, TranslateModule.forRoot()],
+      imports: [SelectBar],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: MyBars, useValue: myBarsMock },
+        { provide: BarsStore, useValue: barsStoreMock },
       ],
     }).compileComponents();
+
+    vi.clearAllMocks();
 
     fixture = TestBed.createComponent(SelectBar);
     component = fixture.componentInstance;
@@ -61,6 +59,11 @@ describe('SelectBar', () => {
     it('should render bar cards for each bar', () => {
       const cards = fixture.nativeElement.querySelectorAll('coaster-bar-card');
       expect(cards.length).toBe(1);
+    });
+
+    it('should render create button', () => {
+      const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+      expect(button).toBeTruthy();
     });
   });
 

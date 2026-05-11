@@ -1,40 +1,69 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import Roster from './roster';
-import { TranslateModule } from '@ngx-translate/core';
-import { signal } from '@angular/core';
-import { BarShifts, CreateShift } from '../../../../shifts';
-import { BarMembers } from '../../../../members';
+import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentUser } from '../../../../core';
 import { AcceptExchange, BarExchanges, RequestExchange } from '../../../../exchanges';
+import { BarMembers } from '../../../../members';
+import { BarShifts, CreateShift } from '../../../../shifts';
+import Roster from './roster';
 
 describe('Roster', () => {
   let component: Roster;
   let fixture: ComponentFixture<Roster>;
 
+  const shiftsMock = {
+    all: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setDateRange: vi.fn(),
+    reload: vi.fn(),
+  };
+
+  const barMembersMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+  };
+
+  const currentUserMock = {
+    current: {
+      value: vi.fn().mockReturnValue({ id: 'u-1' }),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+  };
+
+  const exchangesMock = {
+    pending: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    reload: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Roster, TranslateModule.forRoot()],
+      imports: [Roster],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
-        {
-          provide: BarShifts,
-          useValue: {
-            setContext: vi.fn(),
-            setDateRange: vi.fn(),
-            reload: vi.fn(),
-            all: { value: signal([]), isLoading: signal(false), hasValue: signal(true) },
-          },
-        },
-        { provide: CreateShift, useValue: { create: vi.fn() } },
-        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]) } } },
-        { provide: CurrentUser, useValue: { current: { value: signal(null) } } },
-        { provide: BarExchanges, useValue: { setBarContext: vi.fn(), pending: { value: signal([]), isLoading: signal(false), hasValue: signal(true) } } },
-        { provide: RequestExchange, useValue: { request: vi.fn() } },
-        { provide: AcceptExchange, useValue: { accept: vi.fn() } },
-      ]
+        { provide: BarShifts, useValue: shiftsMock },
+        { provide: CreateShift, useValue: { execute: vi.fn() } },
+        { provide: BarMembers, useValue: barMembersMock },
+        { provide: CurrentUser, useValue: currentUserMock },
+        { provide: BarExchanges, useValue: exchangesMock },
+        { provide: AcceptExchange, useValue: { execute: vi.fn() } },
+        { provide: RequestExchange, useValue: { execute: vi.fn() } },
+      ],
     }).compileComponents();
+
+    vi.clearAllMocks();
 
     fixture = TestBed.createComponent(Roster);
     fixture.componentRef.setInput('barId', 'bar-1');
@@ -44,5 +73,49 @@ describe('Roster', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('barId input', () => {
+    it('should expose barId with provided value', () => {
+      expect(component.barId()).toBe('bar-1');
+    });
+  });
+
+  describe('rendering', () => {
+    it('should render the title', () => {
+      fixture.detectChanges();
+      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      expect(title).toBeTruthy();
+    });
+
+    it('should render the horizontal date scroller', () => {
+      fixture.detectChanges();
+      const scroller = fixture.nativeElement.querySelector('coaster-horizontal-date-scroller');
+      expect(scroller).toBeTruthy();
+    });
+
+    it('should render daily assignments heading', () => {
+      fixture.detectChanges();
+      const headings = fixture.nativeElement.querySelectorAll('[coaster-title]');
+      expect(headings.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  describe('computed properties', () => {
+    it('should return empty daily shifts when no shifts', () => {
+      expect(component.dailyShifts()).toEqual([]);
+    });
+
+    it('should return empty pending exchanges list when no exchanges', () => {
+      expect(component.pendingExchangesList()).toEqual([]);
+    });
+
+    it('should return undefined currentUserRole when no matching member', () => {
+      expect(component.currentUserRole()).toBeUndefined();
+    });
+
+    it('should return empty pending shift ids set', () => {
+      expect(component.pendingShiftIds().size).toBe(0);
+    });
   });
 });

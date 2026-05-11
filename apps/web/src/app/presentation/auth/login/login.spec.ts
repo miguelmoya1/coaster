@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from '../../../core';
 import Login from './login';
@@ -17,8 +17,9 @@ describe('Login', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Login, TranslateModule.forRoot()],
+      imports: [Login],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         { provide: Auth, useValue: authMock },
         { provide: Router, useValue: routerMock },
@@ -42,24 +43,51 @@ describe('Login', () => {
       expect(sectionTitle).toBeTruthy();
     });
 
+    it('should show status card', () => {
+      const statusCard = fixture.nativeElement.querySelector('coaster-status-card');
+      expect(statusCard).toBeTruthy();
+    });
+
+    it('should show login heading', () => {
+      const heading = fixture.nativeElement.querySelector('h2[coaster-title]');
+      expect(heading).toBeTruthy();
+    });
+
     it('should show login button', () => {
       const button = fixture.nativeElement.querySelector('button[coaster-btn]');
       expect(button).toBeTruthy();
-      // TranslateModule might not have keys loaded, but we check if it's there.
     });
   });
 
   describe('actions', () => {
-    it('should call auth.loginWithGoogle and navigate on signIn', async () => {
-      const button = fixture.nativeElement.querySelector('button[coaster-btn]');
-      button.click();
+    it('should call auth.loginWithGoogle on signIn', async () => {
+      await component.signIn();
 
       expect(authMock.loginWithGoogle).toHaveBeenCalled();
+    });
 
-      // Wait for async actions
-      await fixture.whenStable();
+    it('should navigate to /bars/select after successful signIn', async () => {
+      await component.signIn();
 
       expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+    });
+
+    it('should set isLoading to false after signIn completes', async () => {
+      await component.signIn();
+
+      expect(component['isLoading']()).toBe(false);
+    });
+
+    it('should set isLoading to false even if login fails', async () => {
+      authMock.loginWithGoogle.mockRejectedValueOnce(new Error('fail'));
+
+      try {
+        await component.signIn();
+      } catch {
+        // expected
+      }
+
+      expect(component['isLoading']()).toBe(false);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarsStore } from '../../../../bars';
 import { TextInput } from '../../../../shared';
@@ -17,8 +17,12 @@ describe('CreateBarForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateBarForm, TranslateModule.forRoot()],
-      providers: [provideRouter([]), { provide: BarsStore, useValue: barsStoreMock }],
+      imports: [CreateBarForm],
+      providers: [
+        provideTranslateService(),
+        provideRouter([]),
+        { provide: BarsStore, useValue: barsStoreMock },
+      ],
     }).compileComponents();
 
     vi.clearAllMocks();
@@ -30,6 +34,23 @@ describe('CreateBarForm', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('rendering', () => {
+    it('should render bar name input', () => {
+      const input = fixture.nativeElement.querySelector('[data-testid="bar-name-input"]');
+      expect(input).toBeTruthy();
+    });
+
+    it('should render submit button', () => {
+      const button = fixture.nativeElement.querySelector('[data-testid="submit-btn"]');
+      expect(button).toBeTruthy();
+    });
+
+    it('should render cancel button', () => {
+      const button = fixture.nativeElement.querySelector('[data-testid="cancel-btn"]');
+      expect(button).toBeTruthy();
+    });
   });
 
   describe('validators', () => {
@@ -77,14 +98,11 @@ describe('CreateBarForm', () => {
   describe('submitting', () => {
     it('should submit form and emit submit event on success', async () => {
       const input = fixture.debugElement.query(By.css('[data-testid="bar-name-input"]')).componentInstance as TextInput;
-
       input.value.set('My New Bar');
-
       fixture.detectChanges();
 
       const submitSpy = vi.spyOn(component.formSubmitted, 'emit');
-      const submitButton = fixture.debugElement.query(By.css('[data-testid="submit-btn"]'))
-        .nativeElement as HTMLButtonElement;
+      const submitButton = fixture.nativeElement.querySelector('[data-testid="submit-btn"]') as HTMLButtonElement;
       submitButton.click();
 
       await fixture.whenStable();
@@ -97,8 +115,7 @@ describe('CreateBarForm', () => {
   describe('cancel', () => {
     it('should emit cancel event', async () => {
       const cancelSpy = vi.spyOn(component.formCancelled, 'emit');
-      const button = fixture.debugElement.query(By.css('[data-testid="cancel-btn"]'))
-        .nativeElement as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="cancel-btn"]') as HTMLButtonElement;
       button.click();
 
       fixture.detectChanges();

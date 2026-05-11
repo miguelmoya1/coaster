@@ -1,20 +1,26 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, signal } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, BarId, Product } from '@coaster/common';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CurrentBar } from '../../bars';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BarsStore } from '../../bars';
+import { ProductRepository } from '../data-access/product-repository';
 import { BarProducts } from './bar-products';
 
 describe('BarProducts', () => {
   let service: BarProducts;
   let httpMock: HttpTestingController;
 
-  const currentId = signal<BarId | undefined>(undefined);
+  const currentBarId = signal<BarId | undefined>(undefined);
 
-  const currentBarMock = {
-    currentId: currentId.asReadonly(),
-    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  const barsStoreMock = {
+    currentBarId: currentBarId.asReadonly(),
+  };
+
+  const repositoryMock = {
+    routes: {
+      list: vi.fn((barId: string) => `/bars/${barId}/products`),
+    },
   };
 
   const mockProducts: Product[] = [
@@ -51,17 +57,18 @@ describe('BarProducts', () => {
   ];
 
   beforeEach(() => {
-    currentId.set(undefined);
+    currentBarId.set(undefined);
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
-        {
-          provide: CurrentBar,
-          useValue: currentBarMock,
-        },
+        provideZonelessChangeDetection(),
+        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: ProductRepository, useValue: repositoryMock },
       ],
     });
+
     service = TestBed.inject(BarProducts);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -81,9 +88,9 @@ describe('BarProducts', () => {
 
     it('should fetch products when bar context is set', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
-
+      currentBarId.set(barId);
       TestBed.tick();
+
       expect(service.all.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
@@ -97,8 +104,9 @@ describe('BarProducts', () => {
   describe('computed signals', () => {
     it('should calculate total, lowStock, and criticalStock correctly', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
+      currentBarId.set(barId);
       TestBed.tick();
+
       httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
       await TestBed.inject(ApplicationRef).whenStable();
 
@@ -117,17 +125,20 @@ describe('BarProducts', () => {
   describe('reload', () => {
     it('should reload the products', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
+      currentBarId.set(barId);
       TestBed.tick();
+
       httpMock.expectOne(`/bars/${barId}/products`).flush(mockProducts);
       await TestBed.inject(ApplicationRef).whenStable();
 
       service.reload();
       TestBed.tick();
+
       expect(service.all.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/products`).flush([]);
       await TestBed.inject(ApplicationRef).whenStable();
+
       expect(service.all.value()).toEqual([]);
     });
   });

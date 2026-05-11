@@ -1,20 +1,26 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, signal } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarId, BarMember, BarRole } from '@coaster/common';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CurrentBar } from '../../bars';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BarsStore } from '../../bars';
+import { MemberRepository } from '../data-access/member-repository';
 import { BarMembers } from './bar-members';
 
 describe('BarMembers', () => {
   let service: BarMembers;
   let httpMock: HttpTestingController;
 
-  const currentId = signal<BarId | undefined>(undefined);
+  const currentBarId = signal<BarId | undefined>(undefined);
 
-  const currentBarMock = {
-    currentId: currentId.asReadonly(),
-    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  const barsStoreMock = {
+    currentBarId: currentBarId.asReadonly(),
+  };
+
+  const repositoryMock = {
+    routes: {
+      list: vi.fn((barId: string) => `/bars/${barId}/members`),
+    },
   };
 
   const mockMembers: BarMember[] = [
@@ -31,17 +37,18 @@ describe('BarMembers', () => {
   ];
 
   beforeEach(() => {
-    currentId.set(undefined);
+    currentBarId.set(undefined);
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
-        {
-          provide: CurrentBar,
-          useValue: currentBarMock,
-        },
+        provideZonelessChangeDetection(),
+        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MemberRepository, useValue: repositoryMock },
       ],
     });
+
     service = TestBed.inject(BarMembers);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -61,9 +68,9 @@ describe('BarMembers', () => {
 
     it('should fetch members when bar context is set', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
-
+      currentBarId.set(barId);
       TestBed.tick();
+
       expect(service.list.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
@@ -81,15 +88,17 @@ describe('BarMembers', () => {
 
     it('should return to idle when context is cleared', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
+      currentBarId.set(barId);
       TestBed.tick();
+
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(service.list.hasValue()).toBe(true);
 
-      currentBarMock.setBarContext(undefined);
+      currentBarId.set(undefined);
       TestBed.tick();
+
       expect(service.list.status()).toBe('idle');
       expect(service.list.hasValue()).toBe(false);
     });
@@ -98,17 +107,20 @@ describe('BarMembers', () => {
   describe('reload', () => {
     it('should reload the members', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
+      currentBarId.set(barId);
       TestBed.tick();
+
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
       await TestBed.inject(ApplicationRef).whenStable();
 
       service.reload();
       TestBed.tick();
+
       expect(service.list.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/members`).flush([]);
       await TestBed.inject(ApplicationRef).whenStable();
+
       expect(service.list.value()).toEqual([]);
     });
   });

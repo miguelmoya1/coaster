@@ -1,10 +1,9 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CurrentBar } from '../../../bars';
-import { CurrentUser } from '../../../core';
+import { BarsStore } from '../../../bars';
+import { CurrentUser, Socket } from '../../../core';
 import { BarMembers } from '../../../members';
 import Main from './main';
 
@@ -12,29 +11,48 @@ describe('Main', () => {
   let component: Main;
   let fixture: ComponentFixture<Main>;
 
+  const currentUserMock = {
+    current: {
+      hasValue: vi.fn().mockReturnValue(true),
+      value: vi.fn().mockReturnValue({ id: 'u-1', name: 'Test User', photoUrl: '' }),
+    },
+  };
+
+  const barsStoreMock = {
+    currentBar: {
+      hasValue: vi.fn().mockReturnValue(true),
+      value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
+    },
+    setBar: vi.fn(),
+  };
+
+  const barMembersMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      hasValue: vi.fn().mockReturnValue(true),
+      isLoading: vi.fn().mockReturnValue(false),
+    },
+  };
+
+  const socketMock = {
+    joinBar: vi.fn(),
+    leaveBar: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Main, TranslateModule.forRoot()],
+      imports: [Main],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
-        {
-          provide: CurrentUser,
-          useValue: {
-            current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) },
-          },
-        },
-        {
-          provide: CurrentBar,
-          useValue: {
-            current: { hasValue: signal(true), value: signal({ name: 'Test User', photoUrl: '' }) },
-            select: vi.fn(),
-            clear: vi.fn(),
-            setBarContext: vi.fn(),
-          },
-        },
-        { provide: BarMembers, useValue: { setBarContext: vi.fn(), list: { value: signal([]), hasValue: signal(true) } } },
+        { provide: CurrentUser, useValue: currentUserMock },
+        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: BarMembers, useValue: barMembersMock },
+        { provide: Socket, useValue: socketMock },
       ],
     }).compileComponents();
+
+    vi.clearAllMocks();
 
     fixture = TestBed.createComponent(Main);
     fixture.componentRef.setInput('barId', 'bar-1');
@@ -44,5 +62,31 @@ describe('Main', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('barId input', () => {
+    it('should expose barId with provided value', () => {
+      expect(component.barId()).toBe('bar-1');
+    });
+  });
+
+  describe('rendering', () => {
+    it('should render top app bar when user has value', () => {
+      fixture.detectChanges();
+      const topBar = fixture.nativeElement.querySelector('coaster-top-app-bar');
+      expect(topBar).toBeTruthy();
+    });
+
+    it('should render router outlet', () => {
+      fixture.detectChanges();
+      const outlet = fixture.nativeElement.querySelector('router-outlet');
+      expect(outlet).toBeTruthy();
+    });
+
+    it('should render bottom nav', () => {
+      fixture.detectChanges();
+      const bottomNav = fixture.nativeElement.querySelector('coaster-bottom-nav');
+      expect(bottomNav).toBeTruthy();
+    });
   });
 });

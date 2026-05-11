@@ -1,5 +1,5 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ApplicationRef, signal } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   asBarId,
@@ -10,19 +10,25 @@ import {
   ShiftExchange,
   ShiftExchangeStatus,
 } from '@coaster/common';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CurrentBar } from '../../bars';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BarsStore } from '../../bars';
+import { ExchangeRepository } from '../data-access/exchange-repository';
 import { BarExchanges } from './bar-exchanges';
 
 describe('BarExchanges', () => {
   let service: BarExchanges;
   let httpMock: HttpTestingController;
 
-  const currentId = signal<BarId | undefined>(undefined);
+  const currentBarId = signal<BarId | undefined>(undefined);
 
-  const currentBarMock = {
-    currentId: currentId.asReadonly(),
-    setBarContext: (barId: BarId | undefined) => currentId.set(barId),
+  const barsStoreMock = {
+    currentBarId: currentBarId.asReadonly(),
+  };
+
+  const repositoryMock = {
+    routes: {
+      listPending: vi.fn((barId: string) => `/bars/${barId}/exchanges`),
+    },
   };
 
   const mockExchanges: ShiftExchange[] = [
@@ -39,17 +45,18 @@ describe('BarExchanges', () => {
   ];
 
   beforeEach(() => {
-    currentId.set(undefined);
+    currentBarId.set(undefined);
+    vi.clearAllMocks();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
-        {
-          provide: CurrentBar,
-          useValue: currentBarMock,
-        },
+        provideZonelessChangeDetection(),
+        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: ExchangeRepository, useValue: repositoryMock },
       ],
     });
+
     service = TestBed.inject(BarExchanges);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -69,9 +76,9 @@ describe('BarExchanges', () => {
 
     it('should fetch pending exchanges when bar context is set', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
-
+      currentBarId.set(barId);
       TestBed.tick();
+
       expect(service.pending.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
@@ -91,17 +98,20 @@ describe('BarExchanges', () => {
   describe('reload', () => {
     it('should reload the pending exchanges', async () => {
       const barId = asBarId('bar-1');
-      currentBarMock.setBarContext(barId);
+      currentBarId.set(barId);
       TestBed.tick();
+
       httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
       await TestBed.inject(ApplicationRef).whenStable();
 
       service.reload();
       TestBed.tick();
+
       expect(service.pending.isLoading()).toBe(true);
 
       httpMock.expectOne(`/bars/${barId}/exchanges`).flush([]);
       await TestBed.inject(ApplicationRef).whenStable();
+
       expect(service.pending.value()).toEqual([]);
     });
   });
