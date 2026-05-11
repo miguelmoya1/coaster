@@ -10,6 +10,9 @@ import { BottomNav, TopAppBar } from '../../../shared';
   selector: 'coaster-main',
   imports: [RouterOutlet, TopAppBar, BottomNav],
   templateUrl: './main.html',
+  host: {
+    class: 'min-h-screen flex flex-col items-center',
+  },
 })
 export default class Main {
   public readonly barId = input.required<BarId>();

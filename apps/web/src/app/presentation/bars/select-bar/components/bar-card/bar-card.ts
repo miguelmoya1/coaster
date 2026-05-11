@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Bar } from '@coaster/common';
-import { CoasterTitle, StatusCard } from '../../../shared';
+import { CoasterTitle, StatusCard } from '../../../../../shared';
 import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
 
 @Component({
