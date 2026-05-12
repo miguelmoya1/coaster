@@ -1,5 +1,5 @@
 import { type BarId, BarRole, ErrorCodes, SocketEvents, type User } from '@coaster/common';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { BarGateway, EmailService } from '../../core';
 import { BarMembersRepository } from '../data-access/bar-members.repository';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
@@ -46,6 +46,16 @@ export class BarMembersService {
   }
 
   async removeMember(barId: BarId, memberId: string) {
+    const members = await this.repository.getMembersByBar(barId);
+    const memberToRemove = members.find((m) => m.id === memberId);
+
+    if (memberToRemove?.role === BarRole.OWNER) {
+      const ownerCount = members.filter((m) => m.role === BarRole.OWNER).length;
+      if (ownerCount <= 1) {
+        throw new BadRequestException(ErrorCodes.CANNOT_REMOVE_LAST_OWNER);
+      }
+    }
+
     await this.repository.removeMember(memberId);
     this._barGateway.server.to(barId).emit(SocketEvents.MEMBER_REMOVED, { id: memberId });
   }

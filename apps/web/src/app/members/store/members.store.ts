@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { BarId, BarMemberId, InviteBarMemberDto } from '@coaster/common';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { BarId, BarMemberId, BarRole, InviteBarMemberDto } from '@coaster/common';
 import { handleErrorFormField } from '../../core';
 import { memberArrayMapper } from '../mappers/member.mapper';
 import { BarMembers } from '../services/bar-members';
@@ -21,6 +21,13 @@ export class MembersStore {
   });
 
   public readonly list = this.#membersResource.asReadonly();
+  public readonly isOnlyOwner = computed(() => {
+    const members = this.list.value();
+    if (!members) {
+      return false;
+    }
+    return members.filter((m) => m.role === BarRole.OWNER).length === 1;
+  });
   public readonly currentBarId = this.#currentBarId.asReadonly();
 
   public setBarId(barId: BarId | undefined) {

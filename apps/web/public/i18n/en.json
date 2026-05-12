@@ -71,7 +71,13 @@
     "delete": {
       "title": "Remove Member",
       "message": "Are you sure you want to remove \"{{name}}\" from the team? They will no longer have access to the bar."
-    }
+    },
+    "leave_dialog": {
+      "title": "Leave Bar",
+      "message": "Are you sure you want to leave this bar? You will lose access immediately."
+    },
+    "leave": "Leave Bar",
+    "leave_tooltip": "You are the only owner. To leave the bar, add another owner first."
   },
   "pantry": {
     "empty": "No products found.",
@@ -148,6 +154,7 @@
   },
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_NOT_FOUND": "No user registered with that email address.",
+  "CANNOT_REMOVE_LAST_OWNER": "Cannot remove the last owner. Transfer ownership first.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "ERR_ADD_ITEMS": "Network error adding items, retrying...",

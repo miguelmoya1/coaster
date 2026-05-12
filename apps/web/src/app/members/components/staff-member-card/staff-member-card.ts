@@ -63,13 +63,24 @@ import { CoasterBadge, CoasterTitle } from '../../../shared';
       </button>
 
       @if (showDeleteButton()) {
-        <button
-          [disabled]="disabled()"
-          class="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20"
-          (click)="onDeleteClick($event)"
-        >
-          <ng-icon name="lucideTrash2" class="text-xl" />
-        </button>
+        @if (isCurrentUser()) {
+          <button
+            [disabled]="disabled() || isOnlyOwner()"
+            [title]="isOnlyOwner() ? ('members.leave_tooltip' | translate) : ''"
+            class="h-12 px-4 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20 font-medium"
+            (click)="onDeleteClick($event)"
+          >
+            {{ 'members.leave' | translate }}
+          </button>
+        } @else {
+          <button
+            [disabled]="disabled()"
+            class="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20"
+            (click)="onDeleteClick($event)"
+          >
+            <ng-icon name="lucideTrash2" class="text-xl" />
+          </button>
+        }
       }
     </div>
   `,
@@ -90,6 +101,8 @@ export class StaffMemberCard {
   readonly isOffDuty = input(false);
   readonly disabled = input(false);
   readonly showDeleteButton = input(false);
+  readonly isCurrentUser = input(false);
+  readonly isOnlyOwner = input(false);
   readonly deleteClicked = output<void>();
 
   onDeleteClick(event: Event) {

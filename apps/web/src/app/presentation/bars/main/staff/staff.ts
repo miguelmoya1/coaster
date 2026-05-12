@@ -51,6 +51,8 @@ export default class Staff {
     return this.#membersStore.list.value().map((member) => ({
       ...member,
       showDeleteButton: this.isOwner() || userMember?.userId === member.userId,
+      isCurrentUser: userMember?.userId === member.userId,
+      isOnlyOwner: this.#membersStore.isOnlyOwner(),
     }));
   });
   protected readonly isInviteMode = isActive(
@@ -71,12 +73,19 @@ export default class Staff {
     this.#router.navigate(['/bars', this.barId(), 'staff']);
   }
 
-  protected onDeleteMemberClicked(member: BarMember) {
+  protected onDeleteMemberClicked(member: BarMember & { isCurrentUser?: boolean }) {
+    const title = member.isCurrentUser
+      ? this.#translate.instant('members.leave_dialog.title')
+      : this.#translate.instant('members.delete.title');
+    const message = member.isCurrentUser
+      ? this.#translate.instant('members.leave_dialog.message')
+      : this.#translate.instant('members.delete.message', { name: member.userName });
+
     const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
       data: {
-        title: this.#translate.instant('members.delete.title'),
-        message: this.#translate.instant('members.delete.message', { name: member.userName }),
-        confirmText: 'common.delete',
+        title,
+        message,
+        confirmText: member.isCurrentUser ? 'members.leave' : 'common.delete',
         cancelText: 'common.cancel',
         isDestructive: true,
       },

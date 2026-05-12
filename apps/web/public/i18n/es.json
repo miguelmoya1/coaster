@@ -71,7 +71,13 @@
     "delete": {
       "title": "Eliminar Miembro",
       "message": "¿Estás seguro de que quieres eliminar a \"{{name}}\" del equipo? Ya no tendrá acceso al bar."
-    }
+    },
+    "leave_dialog": {
+      "title": "Abandonar Bar",
+      "message": "¿Estás seguro de que quieres abandonar este bar? Perderás el acceso inmediatamente."
+    },
+    "leave": "Abandonar Bar",
+    "leave_tooltip": "Eres el único propietario. Para abandonar el bar, añade otro propietario primero."
   },
   "pantry": {
     "empty": "No se encontraron productos.",
@@ -149,6 +155,7 @@
   },
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
+  "CANNOT_REMOVE_LAST_OWNER": "No se puede eliminar al último propietario. Transfiere la propiedad primero.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "ERR_ADD_ITEMS": "Error de conexión al añadir productos, reintentando...",
