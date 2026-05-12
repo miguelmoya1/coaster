@@ -4,8 +4,10 @@ import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive
 import { BarId, BarMember, BarRole } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../core';
-import { InviteMemberForm, MembersStore, StaffMemberCard } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from '../../../../shared';
+import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
+import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
 
 @Component({
   selector: 'coaster-staff',
