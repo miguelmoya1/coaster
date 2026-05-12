@@ -9,6 +9,7 @@ export * from './components/loading/loading';
 export * from './components/price/price';
 export * from './components/section-title/section-title';
 export * from './components/status-card/status-card';
+export * from './components/tabs/tabs';
 export * from './components/top-app-bar/top-app-bar';
 export * from './components/typography/typography';
 export * from './forms';

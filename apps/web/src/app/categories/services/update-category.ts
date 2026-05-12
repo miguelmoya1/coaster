@@ -1,14 +1,14 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, UpdateCategoryDto } from '@coaster/common';
+import { BarId, CategoryId, UpdateCategoryDto } from '@coaster/common';
 import { CategoryRepository } from '../data-access/category-repository';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EditCategory {
+export class UpdateCategory {
   readonly #categoryRepository = inject(CategoryRepository);
 
-  public async edit(barId: BarId, categoryId: string, updateCategoryDto: UpdateCategoryDto) {
+  public async execute(barId: BarId, categoryId: CategoryId, updateCategoryDto: UpdateCategoryDto) {
     return await this.#categoryRepository.update(barId, categoryId, updateCategoryDto);
   }
 }

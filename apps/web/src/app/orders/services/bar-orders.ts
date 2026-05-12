@@ -16,7 +16,7 @@ export class BarOrders {
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barsstore.currentBarId();
+      const barId = this.#barsstore.currentId();
       if (!barId) {
         return undefined;
       }
@@ -53,7 +53,7 @@ export class BarOrders {
   constructor() {
     effect(() => {
       const created = this.#socketService.orderCreated();
-      if (created && this.#barsstore.currentBarId() === created.barId) {
+      if (created && this.#barsstore.currentId() === created.barId) {
         this.#all.update((orders) => {
           if (!orders) return [created];
           const exists = orders.some((o) => o.id === created.id);
@@ -64,7 +64,7 @@ export class BarOrders {
 
     effect(() => {
       const updated = this.#socketService.orderUpdated();
-      if (updated && this.#barsstore.currentBarId() === updated.barId) {
+      if (updated && this.#barsstore.currentId() === updated.barId) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === updated.id ? updated : o));
@@ -74,7 +74,7 @@ export class BarOrders {
 
     effect(() => {
       const closed = this.#socketService.orderClosed();
-      if (closed && this.#barsstore.currentBarId() === closed.barId) {
+      if (closed && this.#barsstore.currentId() === closed.barId) {
         this.#all.update((orders) => {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === closed.id ? closed : o));

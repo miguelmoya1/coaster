@@ -4,7 +4,7 @@ import { BarId, OrderId, Product, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarCategories } from '../../../../../categories';
+import { CategoriesStore } from '../../../../../categories';
 import { BarOrders, CartItem, CreateOrder, ManageOrder, PosCart, PosProductGrid } from '../../../../../orders';
 import { BarProducts } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
@@ -24,7 +24,7 @@ class NewOrder {
   public readonly orderId = input<string>();
 
   readonly #productsService = inject(BarProducts);
-  readonly #categoriesService = inject(BarCategories);
+  readonly #categoriesStore = inject(CategoriesStore);
   readonly #tablesService = inject(BarTables);
   readonly #ordersService = inject(BarOrders);
   readonly #createOrder = inject(CreateOrder);
@@ -43,9 +43,9 @@ class NewOrder {
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
   protected readonly isLoadingProducts = this.#productsService.all.isLoading;
-  protected readonly isLoadingCategories = this.#categoriesService.all.isLoading;
+  protected readonly isLoadingCategories = this.#categoriesStore.list.isLoading;
   protected readonly categories = computed(() =>
-    this.#categoriesService.all.hasValue() ? (this.#categoriesService.all.value() ?? []) : [],
+    this.#categoriesStore.list.hasValue() ? (this.#categoriesStore.list.value() ?? []) : [],
   );
   protected readonly tables = computed(() =>
     this.#tablesService.all.hasValue() ? (this.#tablesService.all.value() ?? []) : [],

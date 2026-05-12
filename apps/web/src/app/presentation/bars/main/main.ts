@@ -23,7 +23,7 @@ export default class Main {
   readonly #socketService = inject(Socket);
 
   protected readonly currentUser = this.#currentUser.current;
-  protected readonly currentBar = this.#barsStore.currentBar;
+  protected readonly currentBar = this.#barsStore.current;
 
   protected readonly isOwner = computed(() => {
     if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) {
@@ -54,11 +54,11 @@ export default class Main {
   constructor() {
     effect((cleanup) => {
       const barId = this.barId();
-      this.#barsStore.setBar(barId);
+      this.#barsStore.setBarId(barId);
       this.#socketService.joinBar(barId);
 
       cleanup(() => {
-        this.#barsStore.setBar(undefined);
+        this.#barsStore.setBarId(undefined);
         this.#socketService.leaveBar(barId);
       });
     });

@@ -1,28 +1,20 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import {
-  BarId,
-  Category,
-  CreateCategoryDto,
-  CreateProductDto,
-  Product,
-  UpdateCategoryDto,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { BarId, Category, CreateProductDto, Product, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import {
-  BarCategories,
-  CreateCategory,
-  CreateCategoryForm,
-  DeleteCategory,
-  EditCategory,
-  EditCategoryForm,
-  Tabs,
-} from '../../../../categories';
+import { CategoriesStore } from '../../../../categories';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import {
@@ -44,7 +36,10 @@ import {
   Fab,
   Loading,
   StatusCard,
+  Tabs,
 } from '../../../../shared';
+import { CreateCategoryForm } from './components/create-category-form/create-category-form';
+import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 
 type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
@@ -79,17 +74,14 @@ export default class Pantry {
   public readonly barId = input.required<BarId>();
 
   readonly #productsService = inject(BarProducts);
-  readonly #categoriesService = inject(BarCategories);
+  readonly #categoriesStore = inject(CategoriesStore);
   readonly #createProduct = inject(CreateProduct);
-  readonly #createCategory = inject(CreateCategory);
-  readonly #editCategory = inject(EditCategory);
   readonly #currentUser = inject(CurrentUser);
   readonly #translate = inject(TranslateService);
   readonly #barMembers = inject(BarMembers);
   readonly #editProduct = inject(EditProduct);
   readonly #updateProductStock = inject(UpdateProduct);
   readonly #deleteProduct = inject(DeleteProduct);
-  readonly #deleteCategory = inject(DeleteCategory);
   readonly #dialog = inject(Dialog);
 
   readonly #router = inject(Router);
@@ -111,7 +103,7 @@ export default class Pantry {
   readonly productToEdit = signal<Product | null>(null);
   readonly categoryToEdit = signal<Category | null>(null);
 
-  readonly categories = this.#categoriesService.all;
+  readonly categories = this.#categoriesStore.list;
   readonly products = this.#productsService.all;
   readonly totalProductsCount = this.#productsService.total;
   readonly criticalProductsCount = this.#productsService.criticalStock;
@@ -142,6 +134,12 @@ export default class Pantry {
 
     return categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
   });
+
+  constructor() {
+    effect(() => {
+      this.#categoriesStore.setBarId(this.barId());
+    });
+  }
 
   onProductClicked(product: Product) {
     this.productSelected.set(product);
@@ -197,11 +195,9 @@ export default class Pantry {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
+          await this.#categoriesStore.delete(category.id);
           this.closeModal();
-          await this.#deleteCategory.delete(this.barId(), category.id);
           this.selectedCategoryId.set('ALL');
-          this.#categoriesService.reload();
-          this.#productsService.reload();
         } catch (e) {
           console.error(e);
         }
@@ -258,22 +254,6 @@ export default class Pantry {
     return null;
   };
 
-  readonly categorySubmit = async (payload: CreateCategoryDto) => {
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#createCategory.create(this.barId(), payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#categoriesService.reload();
-    this.closeModal();
-
-    return null;
-  };
-
   readonly editProductSubmit = async (payload: UpdateProductDto) => {
     const product = this.productToEdit();
     if (!product) return null;
@@ -288,25 +268,6 @@ export default class Pantry {
     }
 
     this.#productsService.reload();
-    this.closeModal();
-
-    return null;
-  };
-
-  readonly editCategorySubmit = async (payload: UpdateCategoryDto) => {
-    const category = this.categoryToEdit();
-    if (!category) return null;
-
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#editCategory.edit(this.barId(), category.id, payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#categoriesService.reload();
     this.closeModal();
 
     return null;

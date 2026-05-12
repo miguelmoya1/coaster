@@ -16,7 +16,7 @@ describe('BarOrderHistory', () => {
   const currentBarId = signal(undefined);
 
   const barsStoreMock = {
-    currentBarId: currentBarId.asReadonly(),
+    currentId: currentBarId.asReadonly(),
   };
 
   const socketMock = {

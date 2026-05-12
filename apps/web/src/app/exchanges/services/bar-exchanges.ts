@@ -13,7 +13,7 @@ export class BarExchanges {
 
   readonly #pending = httpResource(
     () => {
-      const barId = this.#barsstore.currentBarId();
+      const barId = this.#barsstore.currentId();
       if (!barId) {
         return undefined;
       }

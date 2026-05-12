@@ -21,7 +21,7 @@ describe('SelectBar', () => {
   ];
 
   const barsStoreMock = {
-    myBars: {
+    list: {
       value: vi.fn().mockReturnValue(mockBars),
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),

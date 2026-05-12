@@ -14,7 +14,7 @@ describe('BarProducts', () => {
   const currentBarId = signal<BarId | undefined>(undefined);
 
   const barsStoreMock = {
-    currentBarId: currentBarId.asReadonly(),
+    currentId: currentBarId.asReadonly(),
   };
 
   const repositoryMock = {

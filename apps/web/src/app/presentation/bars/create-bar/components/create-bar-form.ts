@@ -72,7 +72,7 @@ export class CreateBarForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = await this.#barsStore.createBar({ name: payload.name });
+          const error = await this.#barsStore.create({ name: payload.name });
 
           if (error) {
             return error;

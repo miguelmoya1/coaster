@@ -15,7 +15,7 @@ export class BarShifts {
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barsStore.currentBarId();
+      const barId = this.#barsStore.currentId();
       const startDate = this.#startDate();
       const endDate = this.#endDate();
 

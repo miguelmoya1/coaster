@@ -22,11 +22,11 @@ export class BarsStore {
     parse: (bar) => barMapper(bar),
   });
 
-  public readonly myBars = this.#myBarsResource.asReadonly();
-  public readonly currentBar = this.#currentBarResource.asReadonly();
-  public readonly currentBarId = this.#currentBarId.asReadonly();
+  public readonly list = this.#myBarsResource.asReadonly();
+  public readonly current = this.#currentBarResource.asReadonly();
+  public readonly currentId = this.#currentBarId.asReadonly();
 
-  public setBar(barId: BarId | undefined) {
+  public setBarId(barId: BarId | undefined) {
     this.#currentBarId.set(barId);
   }
 
@@ -38,19 +38,19 @@ export class BarsStore {
     this.#myBarsResource.reload();
   }
 
-  public async createBar(createBarDto: CreateBarDto) {
+  public async create(createBarDto: CreateBarDto) {
     try {
       const bar = await this.#createBar.execute(createBarDto);
 
       if (!this.#myBarsResource.hasValue()) {
-        this.reloadMyBars();
+        this.#myBarsResource.set([bar]);
         return null;
       }
 
       const myBars = this.#myBarsResource.value();
 
       if (!myBars) {
-        this.reloadMyBars();
+        this.#myBarsResource.set([bar]);
         return null;
       }
 

@@ -19,11 +19,11 @@ describe('Main', () => {
   };
 
   const barsStoreMock = {
-    currentBar: {
+    current: {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
     },
-    setBar: vi.fn(),
+    setBarId: vi.fn(),
   };
 
   const barMembersMock = {

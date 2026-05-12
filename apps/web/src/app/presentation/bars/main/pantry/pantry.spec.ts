@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarCategories, CreateCategory, DeleteCategory, EditCategory } from '../../../../categories';
+import { CategoriesStore } from '../../../../categories';
 import { CurrentUser } from '../../../../core';
 import { BarMembers } from '../../../../members';
 import { BarProducts, CreateProduct, DeleteProduct, EditProduct, UpdateProduct } from '../../../../products';
@@ -25,13 +25,17 @@ describe('Pantry', () => {
     reload: vi.fn(),
   };
 
-  const categoriesMock = {
-    all: {
+  const categoriesStoreMock = {
+    list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    reload: vi.fn(),
+    setBarId: vi.fn(),
+    reloadCategories: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
   };
 
   const currentUserMock = {
@@ -56,14 +60,11 @@ describe('Pantry', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: BarProducts, useValue: productsMock },
-        { provide: BarCategories, useValue: categoriesMock },
+        { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: CreateProduct, useValue: { create: vi.fn() } },
-        { provide: CreateCategory, useValue: { create: vi.fn() } },
-        { provide: EditCategory, useValue: { edit: vi.fn() } },
         { provide: EditProduct, useValue: { edit: vi.fn() } },
         { provide: UpdateProduct, useValue: { update: vi.fn() } },
         { provide: DeleteProduct, useValue: { delete: vi.fn() } },
-        { provide: DeleteCategory, useValue: { delete: vi.fn() } },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: BarMembers, useValue: barMembersMock },
       ],

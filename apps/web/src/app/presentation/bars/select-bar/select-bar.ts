@@ -4,12 +4,12 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BarsStore } from '../../../bars';
-import { CoasterBtn, SectionTitle } from '../../../shared';
+import { CoasterBtn, Loading, SectionTitle } from '../../../shared';
 import { BarCard } from './components/bar-card/bar-card';
 
 @Component({
   selector: 'coaster-select-bar',
-  imports: [SectionTitle, BarCard, TranslatePipe, CoasterBtn, NgIcon],
+  imports: [SectionTitle, BarCard, TranslatePipe, CoasterBtn, NgIcon, Loading],
   providers: [provideIcons({ lucidePlusCircle })],
   templateUrl: './select-bar.html',
   host: {
@@ -21,7 +21,7 @@ export default class SelectBar {
   readonly #router = inject(Router);
   readonly #barsStore = inject(BarsStore);
 
-  readonly bars = this.#barsStore.myBars;
+  readonly bars = this.#barsStore.list;
 
   navigateToCreate() {
     this.#router.navigate(['/bars/create']);

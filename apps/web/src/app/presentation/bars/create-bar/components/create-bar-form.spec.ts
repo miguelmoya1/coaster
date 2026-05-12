@@ -12,7 +12,7 @@ describe('CreateBarForm', () => {
   let fixture: ComponentFixture<CreateBarForm>;
 
   const barsStoreMock = {
-    createBar: vi.fn(),
+    create: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -107,7 +107,7 @@ describe('CreateBarForm', () => {
 
       await fixture.whenStable();
 
-      expect(barsStoreMock.createBar).toHaveBeenCalledWith({ name: 'My New Bar' });
+      expect(barsStoreMock.create).toHaveBeenCalledWith({ name: 'My New Bar' });
       expect(submitSpy).toHaveBeenCalled();
     });
   });

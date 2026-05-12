@@ -1,16 +1,9 @@
-import { Component, effect, input, output, signal } from '@angular/core';
-import {
-    form,
-    FormField,
-    FormRoot,
-    maxLength,
-    minLength,
-    required,
-    TreeValidationResult,
-} from '@angular/forms/signals';
-import { Category, UpdateCategoryDto } from '@coaster/common';
+import { Component, inject, input, linkedSignal, output } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { Category } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
+import { CategoriesStore } from '../../../../../../categories';
+import { CoasterBtn, FormFieldMessages, TextInput } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-edit-category-form',
@@ -40,8 +33,8 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
+            [disabled]="form().submitting()"
+            (click)="cancelHandler()"
           >
             {{ 'common.cancel' | translate }}
           </button>
@@ -51,7 +44,7 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             class="w-full"
             type="submit"
             variant="primary"
-            [disabled]="form().invalid() || disabled()"
+            [disabled]="form().invalid() || form().submitting()"
           >
             {{ 'common.update' | translate }}
           </button>
@@ -61,8 +54,8 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
           <button
             class="w-full py-2.5 rounded-xl font-medium text-error bg-error/10 hover:bg-error/20 transition-colors"
             type="button"
-            [disabled]="disabled()"
-            (click)="deleted.emit()"
+            [disabled]="form().submitting()"
+            (click)="deleteHandler()"
           >
             {{ 'common.delete' | translate }}
           </button>
@@ -72,17 +65,18 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
   `,
 })
 export class EditCategoryForm {
+  readonly #categoryStore = inject(CategoriesStore);
+
   readonly category = input.required<Category>();
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: UpdateCategoryDto) => Promise<TreeValidationResult>>();
 
   readonly canceled = output<void>();
   readonly deleted = output<void>();
+  readonly updated = output<void>();
 
-  readonly #formBase = signal<Required<UpdateCategoryDto>>({
-    name: '',
-    icon: '',
-  });
+  readonly #formBase = linkedSignal(() => ({
+    name: this.category().name,
+    icon: this.category().icon || '',
+  }));
 
   readonly form = form(
     this.#formBase,
@@ -95,23 +89,26 @@ export class EditCategoryForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
 
-          return await action(payload);
+          const error = await this.#categoryStore.update(this.category().id, payload);
+
+          if (error) {
+            return error;
+          }
+
+          this.updated.emit();
+
+          return null;
         },
       },
     },
   );
 
-  constructor() {
-    effect(() => {
-      const cat = this.category();
-      if (cat) {
-        this.#formBase.set({
-          name: cat.name,
-          icon: cat.icon ?? '',
-        });
-      }
-    });
+  public cancelHandler() {
+    this.canceled.emit();
+  }
+
+  public deleteHandler() {
+    this.deleted.emit();
   }
 }

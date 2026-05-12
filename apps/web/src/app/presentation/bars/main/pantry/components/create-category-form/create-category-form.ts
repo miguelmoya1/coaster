@@ -1,16 +1,9 @@
-import { Component, input, output, signal } from '@angular/core';
-import {
-    form,
-    FormField,
-    FormRoot,
-    maxLength,
-    minLength,
-    required,
-    TreeValidationResult,
-} from '@angular/forms/signals';
+import { Component, inject, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
+import { CategoriesStore } from '../../../../../../categories';
+import { CoasterBtn, FormFieldMessages, TextInput } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-create-category-form',
@@ -40,13 +33,19 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
+            [disabled]="form().submitting() || form().invalid()"
+            (click)="cancelHandler()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+          <button
+            coaster-btn
+            class="w-full"
+            type="submit"
+            variant="primary"
+            [disabled]="form().submitting() || form().invalid()"
+          >
             {{ 'common.create' | translate }}
           </button>
         </div>
@@ -55,10 +54,9 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
   `,
 })
 export class CreateCategoryForm {
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: CreateCategoryDto) => Promise<TreeValidationResult>>();
-
+  readonly #categoryStore = inject(CategoriesStore);
   readonly canceled = output<void>();
+  readonly created = output<void>();
 
   readonly #formBase = signal<Required<CreateCategoryDto>>({
     name: '',
@@ -76,11 +74,21 @@ export class CreateCategoryForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
+          const error = await this.#categoryStore.create(payload);
 
-          return await action(payload);
+          if (error) {
+            return error;
+          }
+
+          this.created.emit();
+
+          return null;
         },
       },
     },
   );
+
+  protected cancelHandler() {
+    this.canceled.emit();
+  }
 }

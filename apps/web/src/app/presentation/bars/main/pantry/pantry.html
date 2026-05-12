@@ -82,10 +82,9 @@
       @if (categoryToEdit(); as category) {
         <coaster-edit-category-form
           [category]="category"
-          [disabled]="isSubmitting()"
-          [submitAction]="editCategorySubmit"
           (canceled)="closeModal()"
           (deleted)="onDeleteCategoryClicked(category)"
+          (updated)="closeModal()"
         />
       }
 
@@ -102,11 +101,7 @@
             />
           }
           @case ('CATEGORY') {
-            <coaster-create-category-form
-              [disabled]="isSubmitting() || categories.isLoading()"
-              [submitAction]="categorySubmit"
-              (canceled)="closeModal()"
-            />
+            <coaster-create-category-form (canceled)="closeModal()" (created)="closeModal()" />
           }
         }
       }

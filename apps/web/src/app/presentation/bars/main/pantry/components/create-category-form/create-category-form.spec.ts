@@ -7,11 +7,8 @@ import { CreateCategoryForm } from './create-category-form';
 describe('CreateCategoryForm', () => {
   let fixture: ComponentFixture<CreateCategoryForm>;
   let component: CreateCategoryForm;
-  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    mockSubmitAction = vi.fn().mockResolvedValue(null);
-
     await TestBed.configureTestingModule({
       imports: [CreateCategoryForm],
       providers: [provideZonelessChangeDetection(), provideTranslateService()],
@@ -19,28 +16,11 @@ describe('CreateCategoryForm', () => {
 
     fixture = TestBed.createComponent(CreateCategoryForm);
     component = fixture.componentInstance;
-
-    fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('submitAction', mockSubmitAction);
-
     fixture.detectChanges();
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
-  });
-
-  describe('disabled input', () => {
-    it('should accept a disabled input', () => {
-      expect(component.disabled()).toBe(false);
-    });
-
-    it('should update when disabled input changes', () => {
-      fixture.componentRef.setInput('disabled', true);
-      fixture.detectChanges();
-
-      expect(component.disabled()).toBe(true);
-    });
   });
 
   describe('outputs', () => {

@@ -11,7 +11,7 @@ export class BarMembers {
 
   readonly #list = httpResource(
     () => {
-      const barId = this.#barsstore.currentBarId();
+      const barId = this.#barsstore.currentId();
       if (!barId) return undefined;
 
       return this.#memberRepo.routes.list(barId);

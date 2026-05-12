@@ -16,7 +16,7 @@ export class BarTables {
 
   readonly #all = httpResource(
     () => {
-      const barId = this.#barsStore.currentBarId();
+      const barId = this.#barsStore.currentId();
       if (!barId) {
         return undefined;
       }

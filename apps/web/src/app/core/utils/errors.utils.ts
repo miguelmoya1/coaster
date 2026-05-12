@@ -1,4 +1,5 @@
 import { TreeValidationResult } from '@angular/forms/signals';
+import { environment } from '../../../environments/environment';
 import { ApiError } from '../errors/api-error';
 
 const handleError = (error: unknown) => {
@@ -18,6 +19,10 @@ const handleError = (error: unknown) => {
 };
 
 export const handleErrorFormField: (error: unknown) => TreeValidationResult = (error: unknown) => {
+  if (!environment.production) {
+    console.error(error);
+  }
+
   return {
     kind: 'processing_error',
     message: handleError(error),

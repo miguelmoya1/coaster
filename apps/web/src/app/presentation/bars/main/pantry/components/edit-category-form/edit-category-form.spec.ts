@@ -8,7 +8,6 @@ import { EditCategoryForm } from './edit-category-form';
 describe('EditCategoryForm', () => {
   let fixture: ComponentFixture<EditCategoryForm>;
   let component: EditCategoryForm;
-  let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockCategory: Category = {
     id: asCategoryId('cat-1'),
@@ -18,8 +17,6 @@ describe('EditCategoryForm', () => {
   };
 
   beforeEach(async () => {
-    mockSubmitAction = vi.fn().mockResolvedValue(null);
-
     await TestBed.configureTestingModule({
       imports: [EditCategoryForm],
       providers: [provideZonelessChangeDetection(), provideTranslateService()],
@@ -29,8 +26,6 @@ describe('EditCategoryForm', () => {
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('category', mockCategory);
-    fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -55,19 +50,6 @@ describe('EditCategoryForm', () => {
       fixture.detectChanges();
 
       expect(component.category()).toEqual(updatedCategory);
-    });
-  });
-
-  describe('disabled input', () => {
-    it('should accept a disabled input', () => {
-      expect(component.disabled()).toBe(false);
-    });
-
-    it('should update when disabled input changes', () => {
-      fixture.componentRef.setInput('disabled', true);
-      fixture.detectChanges();
-
-      expect(component.disabled()).toBe(true);
     });
   });
 

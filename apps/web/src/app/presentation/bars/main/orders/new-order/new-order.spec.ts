@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarCategories } from '../../../../../categories';
+import { CategoriesStore } from '../../../../../categories';
 import { BarOrders, CreateOrder, ManageOrder } from '../../../../../orders';
 import { BarProducts } from '../../../../../products';
 import { BarTables } from '../../../../../tables';
@@ -20,9 +20,14 @@ describe('NewOrder', () => {
     reload: vi.fn(),
   };
 
-  const categoriesMock = {
-    all: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
-    reload: vi.fn(),
+  const categoriesStoreMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+    reloadCategories: vi.fn(),
   };
 
   const tablesMock = {
@@ -40,7 +45,7 @@ describe('NewOrder', () => {
         provideRouter([]),
         { provide: Router, useValue: routerMock },
         { provide: BarProducts, useValue: productsMock },
-        { provide: BarCategories, useValue: categoriesMock },
+        { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: BarTables, useValue: tablesMock },
         { provide: BarOrders, useValue: ordersMock },
         { provide: CreateOrder, useValue: { create: vi.fn() } },

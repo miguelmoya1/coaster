@@ -13,7 +13,7 @@ describe('CreateBar', () => {
   };
 
   const barsStoreMock = {
-    createBar: vi.fn(),
+    create: vi.fn(),
   };
 
   beforeEach(async () => {
