@@ -7,7 +7,7 @@ import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { MembersStore } from '../../../../../members';
-import { BarOrders } from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
 import {
   BottomSheet,
   CoasterBtn,
@@ -44,7 +44,7 @@ class Tables {
   public readonly barId = input.required<BarId>();
 
   readonly #tablesService = inject(BarTables);
-  readonly #ordersService = inject(BarOrders);
+  readonly #ordersStore = inject(OrdersStore);
   readonly #createTable = inject(CreateTable);
   readonly #deleteTable = inject(DeleteTable);
   readonly #currentUser = inject(CurrentUser);
@@ -65,13 +65,13 @@ class Tables {
 
   protected readonly freeCount = this.#tablesService.freeCount;
   protected readonly occupiedCount = this.#tablesService.occupiedCount;
-  protected readonly totalOpen = this.#ordersService.totalOpen;
+  protected readonly totalOpen = this.#ordersStore.totalOpen;
   protected readonly isLoadingTables = this.#tablesService.all.isLoading;
 
   protected readonly tablesViewModel = computed(() => {
     if (!this.#tablesService.all.hasValue()) return [];
     const tables = this.#tablesService.all.value() ?? [];
-    const orders = this.#ordersService.openOrders();
+    const orders = this.#ordersStore.openOrders();
 
     return tables.map((table) => {
       const order = orders.find((o) => o.tableId === table.id);
@@ -82,14 +82,14 @@ class Tables {
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() => this.#ordersService.openOrders().filter((o) => !o.tableId));
+  protected readonly barOrdersViewModel = computed(() => this.#ordersStore.openOrders().filter((o) => !o.tableId));
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
-    const order = this.#ordersService.openOrders().find((o) => o.tableId === table.id);
+    const order = this.#ordersStore.openOrders().find((o) => o.tableId === table.id);
     if (order) {
       this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
     } else {

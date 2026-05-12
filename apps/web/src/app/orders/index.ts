@@ -1,12 +1,1 @@
-export * from './components/merge-orders-dialog/merge-orders-dialog';
-export * from './components/move-table-dialog/move-table-dialog';
-export * from './components/order-detail-sheet/order-detail-sheet';
-export * from './components/pos-cart/pos-cart';
-export * from './components/pos-product-grid/pos-product-grid';
-export * from './data-access/order-repository';
-export * from './mappers/order.mapper';
-export * from './pipes/order-title';
-export * from './services/bar-order-history';
-export * from './services/bar-orders';
-export * from './services/create-order';
-export * from './services/manage-order';
+export { OrdersStore } from './store/orders-store';

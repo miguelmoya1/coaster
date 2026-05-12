@@ -8,7 +8,7 @@ import { OrderRepository } from '../data-access/order-repository';
 export class CreateOrder {
   readonly #orderRepository = inject(OrderRepository);
 
-  public async create(barId: BarId, dto: CreateOrderDto) {
+  public async execute(barId: BarId, dto: CreateOrderDto) {
     return await this.#orderRepository.create(barId, dto);
   }
 }

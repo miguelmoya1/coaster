@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarOrderHistory, BarOrders, ManageOrder } from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
 import { BarTables } from '../../../../../tables';
 import OrderDetail from './order-detail';
 
@@ -13,13 +13,9 @@ describe('OrderDetail', () => {
 
   const routerMock = { navigate: vi.fn().mockResolvedValue(true) };
 
-  const ordersMock = {
-    all: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
+  const ordersStoreMock = {
+    list: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
     openOrders: vi.fn().mockReturnValue([]),
-    reload: vi.fn(),
-  };
-
-  const manageOrderMock = {
     getOrder: vi.fn().mockResolvedValue(null),
     payItem: vi.fn(),
     deliverItem: vi.fn(),
@@ -29,14 +25,14 @@ describe('OrderDetail', () => {
     merge: vi.fn(),
     removeItem: vi.fn(),
     addItems: vi.fn(),
+    reloadOrders: vi.fn(),
+    reloadHistory: vi.fn(),
   };
 
   const tablesMock = {
     all: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
     reload: vi.fn(),
   };
-
-  const historyMock = { reload: vi.fn() };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -45,10 +41,8 @@ describe('OrderDetail', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: BarOrders, useValue: ordersMock },
-        { provide: ManageOrder, useValue: manageOrderMock },
+        { provide: OrdersStore, useValue: ordersStoreMock },
         { provide: BarTables, useValue: tablesMock },
-        { provide: BarOrderHistory, useValue: historyMock },
       ],
     }).compileComponents();
 

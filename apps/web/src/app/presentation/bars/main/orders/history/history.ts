@@ -7,7 +7,7 @@ import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } f
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { MembersStore } from '../../../../../members';
-import { BarOrderHistory, OrderRepository } from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
 import {
   CoasterBtn,
   CoasterTitle,
@@ -28,8 +28,7 @@ import {
 class History {
   public readonly barId = input.required<BarId>();
 
-  readonly #historyService = inject(BarOrderHistory);
-  readonly #orderRepository = inject(OrderRepository);
+  readonly #ordersStore = inject(OrdersStore);
   readonly #currentUser = inject(CurrentUser);
   readonly #membersStore = inject(MembersStore);
   readonly #dialog = inject(Dialog);
@@ -38,12 +37,12 @@ class History {
 
   readonly today = new Date().toISOString().split('T')[0];
 
-  protected readonly selectedDate = this.#historyService.selectedDate;
-  protected readonly isLoading = this.#historyService.all.isLoading;
-  protected readonly totalClosed = this.#historyService.totalClosed;
-  protected readonly totalCancelled = this.#historyService.totalCancelled;
+  protected readonly selectedDate = this.#ordersStore.selectedDate;
+  protected readonly isLoading = this.#ordersStore.history.isLoading;
+  protected readonly totalClosed = this.#ordersStore.totalClosed;
+  protected readonly totalCancelled = this.#ordersStore.totalCancelled;
 
-  readonly isToday = computed(() => this.#historyService.selectedDate() === this.today);
+  readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
 
   readonly isOwner = computed(() => {
     if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
@@ -54,15 +53,15 @@ class History {
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
-  readonly totalRevenue = this.#historyService.totalRevenue;
-  readonly averageTicket = this.#historyService.averageTicket;
+  readonly totalRevenue = this.#ordersStore.historyTotalRevenue;
+  readonly averageTicket = this.#ordersStore.averageTicket;
 
   protected readonly ordersViewModel = computed(() => {
-    if (!this.#historyService.all.hasValue()) {
+    if (!this.#ordersStore.history.hasValue()) {
       return [];
     }
 
-    const orders = this.#historyService.all.value() ?? [];
+    const orders = this.#ordersStore.history.value() ?? [];
     return orders.map((order) => ({
       original: order,
       tableName: order.tableName ?? this.#translate.instant('orders.no_table'),
@@ -75,31 +74,31 @@ class History {
   onDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value) {
-      this.#historyService.setDate(input.value);
+      this.#ordersStore.setHistoryDate(input.value);
     }
   }
 
   prevDay() {
-    const current = new Date(this.#historyService.selectedDate());
+    const current = new Date(this.#ordersStore.selectedDate());
     current.setDate(current.getDate() - 1);
-    this.#historyService.setDate(current.toISOString().split('T')[0]);
+    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   nextDay() {
     if (this.isToday()) return;
-    const current = new Date(this.#historyService.selectedDate());
+    const current = new Date(this.#ordersStore.selectedDate());
     current.setDate(current.getDate() + 1);
-    this.#historyService.setDate(current.toISOString().split('T')[0]);
+    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   goToday() {
-    this.#historyService.setDate(this.today);
+    this.#ordersStore.setHistoryDate(this.today);
   }
 
   goYesterday() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    this.#historyService.setDate(yesterday.toISOString().split('T')[0]);
+    this.#ordersStore.setHistoryDate(yesterday.toISOString().split('T')[0]);
   }
 
   onOrderClicked(order: Order) {
@@ -137,8 +136,8 @@ class History {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
-          await this.#orderRepository.deleteOrder(this.barId(), asOrderId(order.id));
-          this.#historyService.reload();
+          await this.#ordersStore.deleteOrder(this.barId(), asOrderId(order.id));
+          this.#ordersStore.reloadHistory();
         } catch (e) {
           console.error(e);
         }

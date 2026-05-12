@@ -14,18 +14,16 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import {
-  BarOrderHistory,
-  BarOrders,
-  ManageOrder,
-  MoveTableDialog,
-  MoveTableDialogData,
-  OrderTitlePipe,
-} from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
 import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
 } from '../../../../../orders/components/merge-orders-dialog/merge-orders-dialog';
+import {
+  MoveTableDialog,
+  MoveTableDialogData,
+} from '../../../../../orders/components/move-table-dialog/move-table-dialog';
+import { OrderTitlePipe } from '../../../../../orders/pipes/order-title';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
 
@@ -52,10 +50,8 @@ class OrderDetail {
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
 
-  readonly #ordersService = inject(BarOrders);
+  readonly #ordersStore = inject(OrdersStore);
   readonly #tablesService = inject(BarTables);
-  readonly #manageOrder = inject(ManageOrder);
-  readonly #historyService = inject(BarOrderHistory);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -66,7 +62,7 @@ class OrderDetail {
   readonly isLoading = signal(false);
 
   readonly currentOrder = computed(() => {
-    const orders = this.#ordersService.openOrders();
+    const orders = this.#ordersStore.openOrders();
     return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
   });
 
@@ -85,7 +81,7 @@ class OrderDetail {
     };
   });
 
-  protected readonly isLoadingServices = this.#ordersService.all.isLoading;
+  protected readonly isLoadingServices = this.#ordersStore.list.isLoading;
 
   constructor() {
     effect(async () => {
@@ -94,7 +90,7 @@ class OrderDetail {
       if (!current) {
         this.isLoading.set(true);
         try {
-          const order = await this.#manageOrder.getOrder(this.barId(), this.resolvedOrderId());
+          const order = await this.#ordersStore.getOrder(this.barId(), this.resolvedOrderId());
           this.fetchedOrder.set(order);
         } catch (e) {
           console.error(e);
@@ -124,8 +120,7 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
     try {
-      await this.#manageOrder.payItem(this.barId(), order.id, itemId);
-      this.#ordersService.reload();
+      await this.#ordersStore.payItem(this.barId(), order.id, itemId);
     } catch (e) {
       console.error(e);
     }
@@ -135,8 +130,7 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
     try {
-      await this.#manageOrder.deliverItem(this.barId(), order.id, itemId);
-      this.#ordersService.reload();
+      await this.#ordersStore.deliverItem(this.barId(), order.id, itemId);
     } catch (e) {
       console.error(e);
     }
@@ -158,11 +152,10 @@ class OrderDetail {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
-          await this.#manageOrder.checkout(this.barId(), order.id);
+          await this.#ordersStore.checkout(this.barId(), order.id);
           this.goBack();
-          this.#ordersService.reload();
           this.#tablesService.reload();
-          this.#historyService.reload();
+          this.#ordersStore.reloadHistory();
         } catch (e) {
           console.error(e);
         }
@@ -187,11 +180,10 @@ class OrderDetail {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
-          await this.#manageOrder.cancel(this.barId(), order.id);
+          await this.#ordersStore.cancel(this.barId(), order.id);
           this.goBack();
-          this.#ordersService.reload();
           this.#tablesService.reload();
-          this.#historyService.reload();
+          this.#ordersStore.reloadHistory();
         } catch (e) {
           console.error(e);
         }
@@ -214,8 +206,8 @@ class OrderDetail {
       const targetTableId = result as string | undefined;
       if (targetTableId) {
         try {
-          await this.#manageOrder.moveTable(this.barId(), order.id, { tableId: targetTableId });
-          this.#ordersService.reload();
+          await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: targetTableId });
+          this.#ordersStore.reloadOrders();
           this.#tablesService.reload();
         } catch (e) {
           console.error(e);
@@ -230,7 +222,7 @@ class OrderDetail {
 
     const dialogRef = this.#dialog.open(MergeOrdersDialog, {
       data: {
-        orders: this.#ordersService.openOrders(),
+        orders: this.#ordersStore.openOrders(),
         currentOrderId: order.id,
       } satisfies MergeOrdersDialogData,
     });
@@ -239,10 +231,10 @@ class OrderDetail {
       const targetOrderId = result as string | undefined;
       if (targetOrderId) {
         try {
-          await this.#manageOrder.merge(this.barId(), {
+          await this.#ordersStore.merge(this.barId(), {
             orderIds: [order.id, targetOrderId],
           });
-          this.#ordersService.reload();
+          this.#ordersStore.reloadOrders();
           this.#tablesService.reload();
         } catch (e) {
           console.error(e);
@@ -268,8 +260,7 @@ class OrderDetail {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
-          await this.#manageOrder.removeItem(this.barId(), order.id, itemId);
-          this.#ordersService.reload();
+          await this.#ordersStore.removeItem(this.barId(), order.id, itemId);
           this.#tablesService.reload();
         } catch (e) {
           console.error(e);

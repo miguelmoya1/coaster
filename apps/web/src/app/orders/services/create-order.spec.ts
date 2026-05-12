@@ -51,13 +51,13 @@ describe('CreateOrder', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('create', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
       orderRepoMock['create'].mockResolvedValue(mockOrder);
 
-      const result = await service.create(barId, dto);
+      const result = await service.execute(barId, dto);
 
       expect(orderRepoMock['create']).toHaveBeenCalledWith(barId, dto);
       expect(result).toEqual(mockOrder);

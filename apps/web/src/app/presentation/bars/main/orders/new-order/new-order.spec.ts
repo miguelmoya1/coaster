@@ -3,7 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoriesStore } from '../../../../../categories';
-import { BarOrders, CreateOrder, ManageOrder } from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
 import { BarProducts } from '../../../../../products';
 import { BarTables } from '../../../../../tables';
 import NewOrder from './new-order';
@@ -42,7 +42,11 @@ describe('NewOrder', () => {
     reload: vi.fn(),
   };
 
-  const ordersMock = { reload: vi.fn() };
+  const ordersStoreMock = {
+    create: vi.fn(),
+    addItems: vi.fn(),
+    reloadOrders: vi.fn(),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -54,9 +58,7 @@ describe('NewOrder', () => {
         { provide: BarProducts, useValue: productsMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: BarTables, useValue: tablesMock },
-        { provide: BarOrders, useValue: ordersMock },
-        { provide: CreateOrder, useValue: { create: vi.fn() } },
-        { provide: ManageOrder, useValue: { addItems: vi.fn() } },
+        { provide: OrdersStore, useValue: ordersStoreMock },
       ],
     }).compileComponents();
 

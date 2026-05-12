@@ -13,7 +13,7 @@ export interface MergeOrdersDialogData {
   selector: 'coaster-merge-orders-dialog',
   imports: [TranslatePipe, PricePipe],
   template: `
-    <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-[360px] w-[90vw] flex flex-col gap-4">
+    <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-90 w-[90vw] flex flex-col gap-4">
       <h2 class="text-lg font-bold text-on-surface">{{ 'orders.merge_title' | translate }}</h2>
       <p class="text-sm text-on-surface-variant">{{ 'orders.merge_description' | translate }}</p>
 
@@ -46,5 +46,4 @@ export class MergeOrdersDialog {
   data = inject<MergeOrdersDialogData>(DIALOG_DATA);
 
   readonly otherOrders = this.data.orders.filter((o) => o.id !== this.data.currentOrderId);
-
 }

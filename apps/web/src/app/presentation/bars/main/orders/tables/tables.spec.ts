@@ -4,8 +4,8 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentUser } from '../../../../../core';
-import { BarMembers } from '../../../../../members';
-import { BarOrders } from '../../../../../orders';
+import { MembersStore } from '../../../../../members';
+import { OrdersStore } from '../../../../../orders';
 import { BarTables, CreateTable, DeleteTable } from '../../../../../tables';
 import Tables from './tables';
 
@@ -20,12 +20,12 @@ describe('Tables', () => {
     reload: vi.fn(),
   };
 
-  const ordersMock = {
-    all: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
+  const ordersStoreMock = {
+    list: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
     openOrders: vi.fn().mockReturnValue([]),
     totalOpen: signal(3),
     totalRevenue: signal(0),
-    reload: vi.fn(),
+    reloadOrders: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -35,11 +35,11 @@ describe('Tables', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: BarTables, useValue: tablesMock },
-        { provide: BarOrders, useValue: ordersMock },
+        { provide: OrdersStore, useValue: ordersStoreMock },
         { provide: CreateTable, useValue: { create: vi.fn() } },
         { provide: DeleteTable, useValue: { delete: vi.fn() } },
         { provide: CurrentUser, useValue: { current: { value: vi.fn().mockReturnValue({ id: 'u-1' }), hasValue: vi.fn().mockReturnValue(true) } } },
-        { provide: BarMembers, useValue: { list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(true), isLoading: vi.fn().mockReturnValue(false) } } },
+        { provide: MembersStore, useValue: { list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(true), isLoading: vi.fn().mockReturnValue(false) } } },
       ],
     }).compileComponents();
 

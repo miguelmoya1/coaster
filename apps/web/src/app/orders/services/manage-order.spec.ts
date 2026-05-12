@@ -11,9 +11,7 @@ import {
   PaymentStatus,
 } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Toast } from '../../core/services/toast';
 import { OrderRepository } from '../data-access/order-repository';
-import { BarOrders } from './bar-orders';
 import { ManageOrder } from './manage-order';
 
 describe('ManageOrder', () => {
@@ -30,15 +28,6 @@ describe('ManageOrder', () => {
     removeItem: vi.fn(),
     getOrder: vi.fn(),
     create: vi.fn(),
-  };
-
-  const barOrdersMock = {
-    optimisticUpdate: vi.fn().mockReturnValue(undefined),
-    revertUpdate: vi.fn(),
-  };
-
-  const toastMock = {
-    error: vi.fn(),
   };
 
   const mockOrder: Order = {
@@ -70,8 +59,6 @@ describe('ManageOrder', () => {
       providers: [
         provideZonelessChangeDetection(),
         { provide: OrderRepository, useValue: orderRepoMock },
-        { provide: BarOrders, useValue: barOrdersMock },
-        { provide: Toast, useValue: toastMock },
       ],
     });
 

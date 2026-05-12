@@ -5,7 +5,9 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CategoriesStore } from '../../../../../categories';
-import { BarOrders, CartItem, CreateOrder, ManageOrder, PosCart, PosProductGrid } from '../../../../../orders';
+import { OrdersStore } from '../../../../../orders';
+import { CartItem, PosCart } from '../../../../../orders/components/pos-cart/pos-cart';
+import { PosProductGrid } from '../../../../../orders/components/pos-product-grid/pos-product-grid';
 import { BarProducts } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
@@ -26,9 +28,7 @@ class NewOrder {
   readonly #productsService = inject(BarProducts);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #tablesService = inject(BarTables);
-  readonly #ordersService = inject(BarOrders);
-  readonly #createOrder = inject(CreateOrder);
-  readonly #manageOrder = inject(ManageOrder);
+  readonly #ordersStore = inject(OrdersStore);
   readonly #router = inject(Router);
 
   readonly selectedCategory = signal<string | undefined>(undefined);
@@ -129,16 +129,16 @@ class NewOrder {
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#manageOrder.addItems(this.barId(), orderId, { items: itemDtos });
+        await this.#ordersStore.addItems(this.barId(), orderId, { items: itemDtos });
       } else {
-        await this.#createOrder.create(this.barId(), {
+        await this.#ordersStore.create(this.barId(), {
           tableId: this.selectedTableId(),
           items: itemDtos,
         });
       }
 
       this.cart.set(new Map());
-      this.#ordersService.reload();
+      this.#ordersStore.reloadOrders();
       this.#tablesService.reload();
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
