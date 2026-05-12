@@ -3,20 +3,22 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentUser } from '../../../../core';
-import { BarMembers, InviteMember, RemoveMember } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import Staff from './staff';
 
 describe('Staff', () => {
   let component: Staff;
   let fixture: ComponentFixture<Staff>;
 
-  const barMembersMock = {
+  const membersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    reload: vi.fn(),
+    isOnlyOwner: vi.fn().mockReturnValue(false),
+    setBarId: vi.fn(),
+    remove: vi.fn(),
   };
 
   const currentUserMock = {
@@ -26,24 +28,14 @@ describe('Staff', () => {
     },
   };
 
-  const inviteMemberMock = {
-    invite: vi.fn(),
-  };
-
-  const removeMemberMock = {
-    remove: vi.fn(),
-  };
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Staff],
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: BarMembers, useValue: barMembersMock },
+        { provide: MembersStore, useValue: membersStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
-        { provide: InviteMember, useValue: inviteMemberMock },
-        { provide: RemoveMember, useValue: removeMemberMock },
       ],
     }).compileComponents();
 
@@ -82,8 +74,8 @@ describe('Staff', () => {
       expect(component['members']()).toEqual([]);
     });
 
-    it('should return undefined currentUserRole when no matching member', () => {
-      expect(component['currentUserRole']()).toBeUndefined();
+    it('should return undefined userMember when no matching member', () => {
+      expect(component['userMember']()).toBeUndefined();
     });
   });
 });

@@ -4,7 +4,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarsStore } from '../../../bars';
 import { CurrentUser, Socket } from '../../../core';
-import { BarMembers } from '../../../members';
+import { MembersStore } from '../../../members';
 import Main from './main';
 
 describe('Main', () => {
@@ -26,12 +26,13 @@ describe('Main', () => {
     setBarId: vi.fn(),
   };
 
-  const barMembersMock = {
+  const membersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       hasValue: vi.fn().mockReturnValue(true),
       isLoading: vi.fn().mockReturnValue(false),
     },
+    setBarId: vi.fn(),
   };
 
   const socketMock = {
@@ -47,7 +48,7 @@ describe('Main', () => {
         provideRouter([]),
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: BarsStore, useValue: barsStoreMock },
-        { provide: BarMembers, useValue: barMembersMock },
+        { provide: MembersStore, useValue: membersStoreMock },
         { provide: Socket, useValue: socketMock },
       ],
     }).compileComponents();

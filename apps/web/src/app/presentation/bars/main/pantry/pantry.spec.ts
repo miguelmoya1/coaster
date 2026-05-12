@@ -1,11 +1,12 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { Product } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoriesStore } from '../../../../categories';
 import { CurrentUser } from '../../../../core';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { BarProducts, CreateProduct, DeleteProduct, EditProduct, UpdateProduct } from '../../../../products';
 import Pantry from './pantry';
 
@@ -45,7 +46,7 @@ describe('Pantry', () => {
     },
   };
 
-  const barMembersMock = {
+  const membersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
@@ -66,7 +67,7 @@ describe('Pantry', () => {
         { provide: UpdateProduct, useValue: { update: vi.fn() } },
         { provide: DeleteProduct, useValue: { delete: vi.fn() } },
         { provide: CurrentUser, useValue: currentUserMock },
-        { provide: BarMembers, useValue: barMembersMock },
+        { provide: MembersStore, useValue: membersStoreMock },
       ],
     }).compileComponents();
 
@@ -134,19 +135,19 @@ describe('Pantry', () => {
 
   describe('actions', () => {
     it('should set product selected on click', () => {
-      const product = { id: 'p-1', name: 'Product 1' } as any;
+      const product = { id: 'p-1', name: 'Product 1' } as Product;
       component.onProductClicked(product);
       expect(component.productSelected()).toEqual(product);
     });
 
     it('should set product to edit', () => {
-      const product = { id: 'p-1', name: 'Product 1' } as any;
+      const product = { id: 'p-1', name: 'Product 1' } as Product;
       component.onEditProductClicked(product);
       expect(component.productToEdit()).toEqual(product);
     });
 
     it('should clear state on closeModal', () => {
-      component.productSelected.set({ id: 'p-1' } as any);
+      component.productSelected.set({ id: 'p-1' } as Product);
       component.closeModal();
 
       expect(component.productSelected()).toBeNull();

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
+import { asBarId, Product } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoriesStore } from '../../../../../categories';
 import { OrdersStore } from '../../../../../orders';
@@ -126,7 +127,7 @@ describe('NewOrder', () => {
     });
 
     it('should add product to cart', () => {
-      const product = { id: 'p-1', name: 'Beer', price: 500 } as any;
+      const product = { id: 'p-1', name: 'Beer', price: 500 } as Product;
       component.addToCart(product);
 
       expect(component.cartItems().length).toBe(1);
@@ -135,7 +136,7 @@ describe('NewOrder', () => {
     });
 
     it('should increment existing cart item', () => {
-      const product = { id: 'p-1', name: 'Beer', price: 500 } as any;
+      const product = { id: 'p-1', name: 'Beer', price: 500 } as Product;
       component.addToCart(product);
       component.incrementItem('p-1');
 
@@ -143,7 +144,7 @@ describe('NewOrder', () => {
     });
 
     it('should decrement cart item', () => {
-      const product = { id: 'p-1', name: 'Beer', price: 500 } as any;
+      const product = { id: 'p-1', name: 'Beer', price: 500 } as Product;
       component.addToCart(product);
       component.addToCart(product);
       component.decrementItem('p-1');
@@ -152,7 +153,7 @@ describe('NewOrder', () => {
     });
 
     it('should remove cart item when decrementing to 0', () => {
-      const product = { id: 'p-1', name: 'Beer', price: 500 } as any;
+      const product = { id: 'p-1', name: 'Beer', price: 500 } as Product;
       component.addToCart(product);
       component.decrementItem('p-1');
 

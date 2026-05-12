@@ -4,7 +4,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentUser } from '../../../../core';
 import { ExchangesStore } from '../../../../exchanges';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { BarShifts, CreateShift } from '../../../../shifts';
 import Roster from './roster';
 
@@ -22,7 +22,7 @@ describe('Roster', () => {
     reload: vi.fn(),
   };
 
-  const barMembersMock = {
+  const membersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
@@ -38,12 +38,12 @@ describe('Roster', () => {
   };
 
   const exchangesMock = {
-    pending: {
+    exchanges: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    reloadPending: vi.fn(),
+    setBarId: vi.fn(),
     accept: vi.fn(),
     request: vi.fn(),
   };
@@ -56,7 +56,7 @@ describe('Roster', () => {
         provideRouter([]),
         { provide: BarShifts, useValue: shiftsMock },
         { provide: CreateShift, useValue: { execute: vi.fn() } },
-        { provide: BarMembers, useValue: barMembersMock },
+        { provide: MembersStore, useValue: membersStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: ExchangesStore, useValue: exchangesMock },
       ],

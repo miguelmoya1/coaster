@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { BarProducts } from '../../../../products';
 import { BarShifts } from '../../../../shifts';
 import Dashboard from './dashboard';
@@ -24,12 +24,13 @@ describe('Dashboard', () => {
     reload: vi.fn(),
   };
 
-  const membersMock = {
+  const membersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
+    setBarId: vi.fn(),
   };
 
   const shiftsMock = {
@@ -48,7 +49,7 @@ describe('Dashboard', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: BarProducts, useValue: productsMock },
-        { provide: BarMembers, useValue: membersMock },
+        { provide: MembersStore, useValue: membersStoreMock },
         { provide: BarShifts, useValue: shiftsMock },
       ],
     }).compileComponents();
