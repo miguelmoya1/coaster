@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asShiftExchangeId, asShiftId, asUserId, BarId, ShiftExchange, ShiftExchangeStatus } from '@coaster/common';
+import { BarId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarsStore } from '../../bars';
 import { ExchangeRepository } from '../data-access/exchange-repository';
@@ -25,18 +25,18 @@ describe('ExchangesStore', () => {
     },
   };
 
-  const mockExchanges: ShiftExchange[] = [
-    {
-      createdAt: new Date(),
-      id: asShiftExchangeId('exchange-1'),
-      shiftId: asShiftId('shift-1'),
-      requesterId: asUserId('user-1'),
-      status: ShiftExchangeStatus.PENDING,
-      requesterName: 'John',
-      shiftStartTime: '2026-04-17T09:00:00.000Z',
-      shiftEndTime: '2026-04-17T17:00:00.000Z',
-    },
-  ];
+  // const mockExchanges: ShiftExchange[] = [
+  //   {
+  //     createdAt: new Date(),
+  //     id: asShiftExchangeId('exchange-1'),
+  //     shiftId: asShiftId('shift-1'),
+  //     requesterId: asUserId('user-1'),
+  //     status: ShiftExchangeStatus.PENDING,
+  //     requesterName: 'John',
+  //     shiftStartTime: '2026-04-17T09:00:00.000Z',
+  //     shiftEndTime: '2026-04-17T17:00:00.000Z',
+  //   },
+  // ];
 
   beforeEach(() => {
     currentBarId.set(undefined);
