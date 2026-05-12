@@ -1,10 +1,9 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentUser } from '../../../../core';
-import { AcceptExchange, BarExchanges, RequestExchange } from '../../../../exchanges';
+import { ExchangesStore } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { BarShifts, CreateShift } from '../../../../shifts';
 import Roster from './roster';
@@ -44,7 +43,9 @@ describe('Roster', () => {
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    reload: vi.fn(),
+    reloadPending: vi.fn(),
+    accept: vi.fn(),
+    request: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -57,9 +58,7 @@ describe('Roster', () => {
         { provide: CreateShift, useValue: { execute: vi.fn() } },
         { provide: BarMembers, useValue: barMembersMock },
         { provide: CurrentUser, useValue: currentUserMock },
-        { provide: BarExchanges, useValue: exchangesMock },
-        { provide: AcceptExchange, useValue: { execute: vi.fn() } },
-        { provide: RequestExchange, useValue: { execute: vi.fn() } },
+        { provide: ExchangesStore, useValue: exchangesMock },
       ],
     }).compileComponents();
 

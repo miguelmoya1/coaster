@@ -5,11 +5,12 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
-import { AcceptExchange, BarExchanges, ExchangeRequestCard, RequestExchange } from '../../../../exchanges';
+import { ExchangesStore } from '../../../../exchanges';
 import { BarMembers } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
 import { BottomSheet, CoasterTitle, Fab, Loading } from '../../../../shared';
 import { BarShifts, CreateShift, CreateShiftForm, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
+import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
 
 @Component({
   selector: 'coaster-roster',
@@ -43,14 +44,12 @@ export default class Roster {
   readonly #barMembers = inject(BarMembers);
   readonly #currentUser = inject(CurrentUser);
   readonly #createShift = inject(CreateShift);
-  readonly #barExchanges = inject(BarExchanges);
-  readonly #acceptExchange = inject(AcceptExchange);
-  readonly #requestExchange = inject(RequestExchange);
+  readonly #exchangesStore = inject(ExchangesStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
   readonly list = this.#barShifts.all;
-  readonly pendingExchanges = this.#barExchanges.pending;
+  readonly pendingExchanges = this.#exchangesStore.exchanges;
   readonly displayMonthYear = this.#state.displayMonthYear;
   readonly displayToday = this.#state.displayToday;
   readonly scrollerDays = this.#state.scrollerDays;
@@ -111,6 +110,12 @@ export default class Roster {
       const range = this.#state.dailyShiftsRange();
       this.#barShifts.setDateRange(range.startIso, range.endIso);
     });
+
+    effect(() => {
+      const barId = this.barId();
+
+      this.#exchangesStore.setBarId(barId);
+    });
   }
 
   onDaySelected(dayId: string) {
@@ -150,13 +155,12 @@ export default class Roster {
     this.isSubmitting.set(true);
 
     try {
-      await this.#acceptExchange.execute(this.barId(), exchangeId);
+      await this.#exchangesStore.accept(exchangeId);
     } catch {
       this.isSubmitting.set(false);
       return;
     }
 
-    this.#barExchanges.reload();
     this.#barShifts.reload();
     this.isSubmitting.set(false);
   }
@@ -165,13 +169,12 @@ export default class Roster {
     this.isSubmitting.set(true);
 
     try {
-      await this.#requestExchange.execute(this.barId(), shiftId, {});
+      await this.#exchangesStore.request(shiftId, {});
     } catch {
       this.isSubmitting.set(false);
       return;
     }
 
-    this.#barExchanges.reload();
     this.#barShifts.reload();
     this.isSubmitting.set(false);
   }

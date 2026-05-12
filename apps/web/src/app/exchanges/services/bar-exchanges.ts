@@ -1,32 +1,18 @@
-import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarsStore } from '../../bars';
+import { BarId } from '@coaster/common';
 import { ExchangeRepository } from '../data-access/exchange-repository';
-import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BarExchanges {
   readonly #exchangeRepository = inject(ExchangeRepository);
-  readonly #barsstore = inject(BarsStore);
 
-  readonly #pending = httpResource(
-    () => {
-      const barId = this.#barsstore.currentId();
-      if (!barId) {
-        return undefined;
-      }
-      return this.#exchangeRepository.routes.listPending(barId);
-    },
-    {
-      parse: (exchanges) => exchangeArrayMapper(exchanges),
-    },
-  );
+  public execute(barId: BarId | undefined) {
+    if (!barId) {
+      return undefined;
+    }
 
-  readonly pending = this.#pending.asReadonly();
-
-  public reload() {
-    this.#pending.reload();
+    return this.#exchangeRepository.routes.listPending(barId);
   }
 }
