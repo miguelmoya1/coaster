@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, BarMemberId } from '@coaster/common';
+import { asBarId, asBarMemberId } from '@coaster/common';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { MemberRepository } from '../data-access/member-repository';
 import { RemoveMember } from './remove-member';
@@ -30,7 +30,7 @@ describe('RemoveMember', () => {
       const memberId = 'mem-1';
       memberRepoMock['remove'].mockResolvedValue({ success: true });
 
-      const result = await service.remove(barId, memberId as BarMemberId);
+      const result = await service.execute(barId, asBarMemberId(memberId));
 
       expect(memberRepoMock['remove']).toHaveBeenCalledWith(barId, memberId);
       expect(result).toEqual({ success: true });

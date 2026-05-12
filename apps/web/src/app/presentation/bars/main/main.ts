@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { BarId } from '@coaster/common';
 import { BarsStore } from '../../../bars';
 import { CurrentUser, Socket } from '../../../core';
-import { BarMembers } from '../../../members';
+import { MembersStore } from '../../../members';
 import { BottomNav, TopAppBar } from '../../../shared';
 
 @Component({
@@ -19,19 +19,24 @@ export default class Main {
 
   readonly #currentUser = inject(CurrentUser);
   readonly #barsStore = inject(BarsStore);
-  readonly #barMembers = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #socketService = inject(Socket);
 
   protected readonly currentUser = this.#currentUser.current;
   protected readonly currentBar = this.#barsStore.current;
 
   protected readonly isOwner = computed(() => {
-    if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) {
+    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
       return false;
     }
 
-    const members = this.#barMembers.list.value() ?? [];
-    const userId = this.#currentUser.current.value()?.id;
+    const members = this.#membersStore.list.value();
+    if (!members) {
+      return false;
+    }
+
+    const userId = this.#currentUser.current.value().id;
+
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 

@@ -8,7 +8,7 @@ import { MemberRepository } from '../data-access/member-repository';
 export class RemoveMember {
   readonly #memberRepository = inject(MemberRepository);
 
-  public async remove(barId: BarId, memberId: BarMemberId) {
+  public async execute(barId: BarId, memberId: BarMemberId) {
     return await this.#memberRepository.remove(barId, memberId);
   }
 }

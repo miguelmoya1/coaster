@@ -13,7 +13,7 @@ import {
   lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { BarProducts } from '../../../../products';
 import { BarShifts } from '../../../../shifts';
 
@@ -38,7 +38,7 @@ export class Dashboard {
   public readonly barId = input.required<BarId>();
 
   readonly #productsService = inject(BarProducts);
-  readonly #membersService = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #shiftsService = inject(BarShifts);
 
   constructor() {
@@ -48,17 +48,36 @@ export class Dashboard {
       const endIso = new Date(now.setHours(23, 59, 59, 999)).toISOString();
       this.#shiftsService.setDateRange(startIso, endIso);
     });
+
+    effect(() => {
+      const barId = this.barId();
+
+      this.#membersStore.setBarId(barId);
+    });
   }
 
   readonly pantryAlerts = computed(() => {
-    const products = this.#productsService.all.value() ?? [];
+    if (!this.#productsService.all.hasValue()) {
+      return [];
+    }
+
+    const products = this.#productsService.all.value();
+
+    if (!products) {
+      return [];
+    }
+
     return products
       .filter((p) => p.stockStatus === 'critical' || p.stockStatus === 'low')
       .sort((a, b) => (a.stockStatus === 'critical' && b.stockStatus !== 'critical' ? -1 : 1));
   });
 
   readonly activeShifts = computed(() => {
-    const shifts = this.#shiftsService.all.value() ?? [];
+    if (!this.#shiftsService.all.hasValue()) {
+      return [];
+    }
+
+    const shifts = this.#shiftsService.all.value();
     const now = new Date();
     return shifts.filter((s) => {
       const start = new Date(s.startTime);
@@ -72,8 +91,17 @@ export class Dashboard {
   });
 
   readonly rosterOverview = computed(() => {
-    const shifts = this.#shiftsService.all.value() ?? [];
-    const members = this.#membersService.list.value() ?? [];
+    if (!this.#membersStore.list.hasValue() || !this.#shiftsService.all.hasValue()) {
+      return [];
+    }
+
+    const shifts = this.#shiftsService.all.value();
+    const members = this.#membersStore.list.value();
+
+    if (!shifts || !members) {
+      return [];
+    }
+
     const now = new Date();
 
     return shifts
@@ -107,7 +135,15 @@ export class Dashboard {
   });
 
   readonly overviewStats = computed(() => {
-    const members = this.#membersService.list.value() ?? [];
+    if (!this.#membersStore.list.hasValue()) {
+      return [];
+    }
+
+    const members = this.#membersStore.list.value();
+
+    if (!members) {
+      return [];
+    }
 
     return [
       { label: 'dashboard.overview.bar_staff', count: members.filter((m) => m.role === 'STAFF').length },

@@ -65,7 +65,8 @@
   "members": {
     "staff": {
       "title": "Equipo",
-      "description": "{{count}} miembros del equipo"
+      "description": "{{count}} miembros del equipo",
+      "no_members": "No hay miembros en el equipo"
     },
     "delete": {
       "title": "Eliminar Miembro",

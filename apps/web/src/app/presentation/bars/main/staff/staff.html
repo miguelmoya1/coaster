@@ -4,7 +4,7 @@
   class="mb-8"
 />
 
-@if (list.isLoading()) {
+@if (membersLoading()) {
   <coaster-loading />
 }
 
@@ -14,21 +14,19 @@
     [staffEmail]="member.userEmail"
     [staffImage]="member.userImage"
     [roleName]="member.role"
-    [showDeleteButton]="currentUserRole() === 'OWNER' && member.userId !== currentUserId()"
+    [showDeleteButton]="member.showDeleteButton"
     (deleteClicked)="onDeleteMemberClicked(member)"
   />
+} @empty {
+  <p>{{ 'members.staff.no_members' | translate }}</p>
 }
 
-@if (currentUserRole() === 'OWNER') {
+@if (isOwner()) {
   <coaster-fab routerLink="invite" />
 }
 
 @if (isInviteMode()) {
   <coaster-bottom-sheet (closed)="closeModal()">
-    <coaster-invite-member-form
-      [disabled]="list.isLoading() || isSubmitting()"
-      (canceled)="closeModal()"
-      [submitAction]="inviteMemberSubmit"
-    />
+    <coaster-invite-member-form (canceled)="closeModal()" (invited)="closeModal()" />
   </coaster-bottom-sheet>
 }

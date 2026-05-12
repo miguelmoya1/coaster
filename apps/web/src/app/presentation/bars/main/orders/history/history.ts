@@ -6,9 +6,16 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
-import { BarMembers } from '../../../../../members';
+import { MembersStore } from '../../../../../members';
 import { BarOrderHistory, OrderRepository } from '../../../../../orders';
-import { PricePipe, CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, StatusCard } from '../../../../../shared';
+import {
+  CoasterBtn,
+  CoasterTitle,
+  ConfirmDialogComponent,
+  Loading,
+  PricePipe,
+  StatusCard,
+} from '../../../../../shared';
 
 @Component({
   selector: 'coaster-history',
@@ -24,7 +31,7 @@ class History {
   readonly #historyService = inject(BarOrderHistory);
   readonly #orderRepository = inject(OrderRepository);
   readonly #currentUser = inject(CurrentUser);
-  readonly #barMembers = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -39,10 +46,10 @@ class History {
   readonly isToday = computed(() => this.#historyService.selectedDate() === this.today);
 
   readonly isOwner = computed(() => {
-    if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) {
+    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
       return false;
     }
-    const members = this.#barMembers.list.value() ?? [];
+    const members = this.#membersStore.list.value() ?? [];
     const userId = this.#currentUser.current.value()?.id;
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
@@ -98,8 +105,6 @@ class History {
   onOrderClicked(order: Order) {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
-
-
 
   #formatTime(isoDate?: string): string {
     if (!isoDate) return '';

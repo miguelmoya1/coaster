@@ -65,7 +65,8 @@
   "members": {
     "staff": {
       "title": "Staff Roster",
-      "description": "{{count}} team members"
+      "description": "{{count}} team members",
+      "no_members": "No members in the team"
     },
     "delete": {
       "title": "Remove Member",

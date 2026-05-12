@@ -1,10 +1,10 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-import { BarId, BarMember, InviteBarMemberDto } from '@coaster/common';
+import { BarId, BarMember, BarRole } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CurrentUser, handleErrorFormField } from '../../../../core';
-import { BarMembers, InviteMember, InviteMemberForm, RemoveMember, StaffMemberCard } from '../../../../members';
+import { CurrentUser } from '../../../../core';
+import { InviteMemberForm, MembersStore, StaffMemberCard } from '../../../../members';
 import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from '../../../../shared';
 
 @Component({
@@ -19,56 +19,59 @@ import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from 
 export default class Staff {
   public readonly barId = input.required<BarId>();
 
-  readonly #barMembers = inject(BarMembers);
-  readonly #inviteMember = inject(InviteMember);
-  readonly #removeMember = inject(RemoveMember);
+  readonly #membersStore = inject(MembersStore);
   readonly #currentUser = inject(CurrentUser);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
-
-  protected readonly list = this.#barMembers.list;
-
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
+
+  protected readonly membersLoading = this.#membersStore.list.isLoading;
+  protected readonly userMember = computed(() => {
+    if (!this.#membersStore.list.hasValue()) {
+      return undefined;
+    }
+
+    if (!this.#currentUser.current.hasValue()) {
+      return undefined;
+    }
+
+    const user = this.#currentUser.current.value();
+
+    return this.#membersStore.list.value().find((member) => member.userId === user?.id);
+  });
+  protected readonly isOwner = computed(() => this.userMember()?.role === BarRole.OWNER);
+  protected readonly members = computed(() => {
+    if (!this.#membersStore.list.hasValue()) {
+      return [];
+    }
+
+    const userMember = this.userMember();
+
+    return this.#membersStore.list.value().map((member) => ({
+      ...member,
+      showDeleteButton: this.isOwner() || userMember?.userId === member.userId,
+    }));
+  });
   protected readonly isInviteMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['invite']),
     this.#router,
   );
-  protected readonly isSubmitting = signal(false);
-  protected readonly totalMembers = computed(() => this.list.value()?.length ?? 0);
+  protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
 
-  protected readonly members = computed(() => {
-    if (!this.list.hasValue()) return [];
-    return this.list.value();
-  });
-  protected readonly currentUserRole = computed(() => {
-    const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
-    return barMember?.role;
-  });
-  protected readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
+  constructor() {
+    effect(() => {
+      const barId = this.barId();
+
+      this.#membersStore.setBarId(barId);
+    });
+  }
 
   protected closeModal() {
     this.#router.navigate(['/bars', this.barId(), 'staff']);
   }
 
-  readonly inviteMemberSubmit = async (payload: InviteBarMemberDto) => {
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#inviteMember.invite(this.barId(), payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#barMembers.reload();
-    this.closeModal();
-    this.isSubmitting.set(false);
-
-    return null;
-  };
-
-  onDeleteMemberClicked(member: BarMember) {
+  protected onDeleteMemberClicked(member: BarMember) {
     const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
       data: {
         title: this.#translate.instant('members.delete.title'),
@@ -82,8 +85,7 @@ export default class Staff {
     dialogRef.closed.subscribe(async (result) => {
       if (result) {
         try {
-          await this.#removeMember.remove(this.barId(), member.id);
-          this.#barMembers.reload();
+          await this.#membersStore.remove(member.id);
         } catch (e) {
           console.error(e);
         }

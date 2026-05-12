@@ -1,17 +1,9 @@
-import { Component, input, output, signal } from '@angular/core';
-import {
-    email,
-    form,
-    FormField,
-    FormRoot,
-    maxLength,
-    minLength,
-    required,
-    TreeValidationResult,
-} from '@angular/forms/signals';
+import { Component, inject, output, signal } from '@angular/core';
+import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { InviteBarMemberDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
+import { MembersStore } from '../../store/members.store';
 
 @Component({
   selector: 'coaster-invite-member-form',
@@ -30,13 +22,19 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
           class="w-full"
           type="button"
           variant="outline"
-          [disabled]="disabled()"
+          [disabled]="form().disabled() || form().submitting()"
           (click)="canceled.emit()"
         >
           {{ 'common.cancel' | translate }}
         </button>
 
-        <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+        <button
+          coaster-btn
+          class="w-full"
+          type="submit"
+          variant="primary"
+          [disabled]="form().disabled() || form().submitting()"
+        >
           {{ 'common.invite' | translate }}
         </button>
       </div>
@@ -44,11 +42,10 @@ import { CoasterBtn, FormFieldMessages, TextInput } from '../../../shared';
   `,
 })
 export class InviteMemberForm {
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: InviteBarMemberDto) => Promise<TreeValidationResult>>();
+  public readonly canceled = output<void>();
+  public readonly invited = output<void>();
 
-  readonly canceled = output<void>();
-
+  readonly #membersStore = inject(MembersStore);
   readonly #formBase = signal<InviteBarMemberDto>({
     email: '',
   });
@@ -65,11 +62,21 @@ export class InviteMemberForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
 
-          return await action(payload);
+          const error = this.#membersStore.invite(payload);
+
+          if (error) {
+            return error;
+          }
+
+          this.invited.emit();
+          return null;
         },
       },
     },
   );
+
+  protected cancelHandle() {
+    this.canceled.emit();
+  }
 }

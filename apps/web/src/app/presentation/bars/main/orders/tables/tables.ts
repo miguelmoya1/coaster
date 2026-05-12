@@ -6,7 +6,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
-import { BarMembers } from '../../../../../members';
+import { MembersStore } from '../../../../../members';
 import { BarOrders } from '../../../../../orders';
 import {
   BottomSheet,
@@ -15,10 +15,10 @@ import {
   ConfirmDialogComponent,
   Fab,
   Loading,
+  PricePipe,
   StatusCard,
 } from '../../../../../shared';
 import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../tables';
-import { PricePipe } from '../../../../../shared';
 
 @Component({
   selector: 'coaster-tables',
@@ -48,7 +48,7 @@ class Tables {
   readonly #createTable = inject(CreateTable);
   readonly #deleteTable = inject(DeleteTable);
   readonly #currentUser = inject(CurrentUser);
-  readonly #barMembers = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #dialog = inject(Dialog);
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -57,8 +57,8 @@ class Tables {
   readonly isSubmitting = signal(false);
 
   readonly isOwner = computed(() => {
-    if (!this.#barMembers.list.hasValue() || !this.#currentUser.current.hasValue()) return false;
-    const members = this.#barMembers.list.value() ?? [];
+    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) return false;
+    const members = this.#membersStore.list.value() ?? [];
     const userId = this.#currentUser.current.value()?.id;
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
@@ -82,9 +82,7 @@ class Tables {
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() =>
-    this.#ordersService.openOrders().filter((o) => !o.tableId),
-  );
+  protected readonly barOrdersViewModel = computed(() => this.#ordersService.openOrders().filter((o) => !o.tableId));
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
@@ -102,8 +100,6 @@ class Tables {
   onBarOrderClicked(order: Order) {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
-
-
 
   onCreateTable() {
     this.showCreateTable.set(true);

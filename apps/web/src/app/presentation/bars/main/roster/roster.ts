@@ -6,7 +6,7 @@ import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
 import { ExchangesStore } from '../../../../exchanges';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
 import { BottomSheet, CoasterTitle, Fab, Loading } from '../../../../shared';
 import { BarShifts, CreateShift, CreateShiftForm, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
@@ -41,7 +41,7 @@ export default class Roster {
   readonly #state = inject(RosterStateService);
   readonly #barShifts = inject(BarShifts);
   readonly #dateFormatter = inject(DateFormatterService);
-  readonly #barMembers = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #currentUser = inject(CurrentUser);
   readonly #createShift = inject(CreateShift);
   readonly #exchangesStore = inject(ExchangesStore);
@@ -61,11 +61,11 @@ export default class Roster {
     this.#router,
   );
 
-  readonly membersList = computed(() => this.#barMembers.list.value());
+  readonly membersList = computed(() => this.#membersStore.list.value());
   readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
   readonly currentUserRole = computed(() => {
-    const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
+    const barMember = this.#membersStore.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
   });
   readonly pendingShiftIds = computed(() => {

@@ -16,7 +16,7 @@ import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoriesStore } from '../../../../categories';
 import { CurrentUser, handleErrorFormField } from '../../../../core';
-import { BarMembers } from '../../../../members';
+import { MembersStore } from '../../../../members';
 import {
   BarProducts,
   CreateProduct,
@@ -78,7 +78,7 @@ export default class Pantry {
   readonly #createProduct = inject(CreateProduct);
   readonly #currentUser = inject(CurrentUser);
   readonly #translate = inject(TranslateService);
-  readonly #barMembers = inject(BarMembers);
+  readonly #membersStore = inject(MembersStore);
   readonly #editProduct = inject(EditProduct);
   readonly #updateProductStock = inject(UpdateProduct);
   readonly #deleteProduct = inject(DeleteProduct);
@@ -114,7 +114,7 @@ export default class Pantry {
   });
 
   readonly currentUserRole = computed(() => {
-    const barMember = this.#barMembers.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
+    const barMember = this.#membersStore.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
     return barMember?.role;
   });
 
