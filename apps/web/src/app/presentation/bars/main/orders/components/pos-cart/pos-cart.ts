@@ -3,7 +3,7 @@ import { Table, TableStatus } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe, CoasterBtn } from '../../../shared';
+import { PricePipe, CoasterBtn } from '../../../../../../shared';
 
 export interface CartItem {
   productId: string;

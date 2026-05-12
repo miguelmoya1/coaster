@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Category, Product } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../shared';
+import { PricePipe } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-pos-product-grid',

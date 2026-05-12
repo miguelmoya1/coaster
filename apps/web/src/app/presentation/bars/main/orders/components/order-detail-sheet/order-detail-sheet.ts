@@ -11,7 +11,7 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe, CoasterBtn } from '../../../shared';
+import { PricePipe, CoasterBtn } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-order-detail-sheet',

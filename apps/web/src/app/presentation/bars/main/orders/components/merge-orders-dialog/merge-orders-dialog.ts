@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../shared';
+import { PricePipe } from '../../../../../../shared';
 
 export interface MergeOrdersDialogData {
   orders: Order[];

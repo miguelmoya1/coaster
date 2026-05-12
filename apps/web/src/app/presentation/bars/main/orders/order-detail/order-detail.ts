@@ -18,11 +18,11 @@ import { OrdersStore } from '../../../../../orders';
 import {
   MergeOrdersDialog,
   MergeOrdersDialogData,
-} from '../../../../../orders/components/merge-orders-dialog/merge-orders-dialog';
+} from '../components/merge-orders-dialog/merge-orders-dialog';
 import {
   MoveTableDialog,
   MoveTableDialogData,
-} from '../../../../../orders/components/move-table-dialog/move-table-dialog';
+} from '../components/move-table-dialog/move-table-dialog';
 import { OrderTitlePipe } from '../../../../../orders/pipes/order-title';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
