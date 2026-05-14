@@ -1,8 +1,9 @@
-import { Component, computed, input, output, signal } from '@angular/core';
-import { FormField, FormRoot, TreeValidationResult, form, required } from '@angular/forms/signals';
-import { BarMember, CreateShiftDto, asUserId } from '@coaster/common';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { FormField, FormRoot, form, required } from '@angular/forms/signals';
+import { BarMember, asUserId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '../../../shared';
+import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '../../../../../../shared';
+import { ShiftsStore } from '../../../../../../shifts/store/shifts.store';
 
 @Component({
   selector: 'coaster-create-shift-form',
@@ -45,8 +46,8 @@ import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } 
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
+            [disabled]="form().disabled() || form().submitting()"
+            (click)="handleCancel()"
           >
             {{ 'common.cancel' | translate }}
           </button>
@@ -56,7 +57,7 @@ import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } 
             class="w-full"
             type="submit"
             variant="primary"
-            [disabled]="form().invalid() || disabled()"
+            [disabled]="form().invalid() || form().submitting() || form().disabled()"
           >
             {{ 'common.create' | translate }}
           </button>
@@ -67,10 +68,11 @@ import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } 
 })
 export class CreateShiftForm {
   readonly members = input.required<BarMember[]>();
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: CreateShiftDto) => Promise<TreeValidationResult>>();
 
   readonly canceled = output<void>();
+  readonly created = output<void>();
+
+  readonly #shiftsStore = inject(ShiftsStore);
 
   readonly memberOptions = computed(() => {
     return this.members().map((m) => ({
@@ -97,16 +99,25 @@ export class CreateShiftForm {
       submission: {
         action: async (form) => {
           const raw = form().value();
-          const action = this.submitAction();
 
-          return await action({
+          const error = await this.#shiftsStore.create({
             userId: asUserId(raw.userId),
             startTime: raw.startTime,
             endTime: raw.endTime,
             notes: raw.notes || undefined,
           });
+
+          if (!error) {
+            this.created.emit();
+          }
+
+          return error;
         },
       },
     },
   );
+
+  protected handleCancel() {
+    this.canceled.emit();
+  }
 }

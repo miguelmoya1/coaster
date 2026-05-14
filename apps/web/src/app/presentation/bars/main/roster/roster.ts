@@ -1,16 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-import { BarId, BarRole, CreateShiftDto, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { BarId, BarRole, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClock, lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CurrentUser, DateFormatterService, handleErrorFormField } from '../../../../core';
+import { CurrentUser, DateFormatterService } from '../../../../core';
 import { ExchangesStore } from '../../../../exchanges';
 import { MembersStore } from '../../../../members';
 import { RosterStateService } from '../../../../roster';
 import { BottomSheet, CoasterTitle, Fab, Loading } from '../../../../shared';
-import { BarShifts, CreateShift, CreateShiftForm, HorizontalDateScroller, ShiftCard } from '../../../../shifts';
+import { ShiftsStore } from '../../../../shifts';
+import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
+import { HorizontalDateScroller } from './components/horizontal-date-scroller/horizontal-date-scroller';
+import { ShiftCard } from './components/shift-card/shift-card';
 
 @Component({
   selector: 'coaster-roster',
@@ -39,16 +42,15 @@ export default class Roster {
   public readonly barId = input.required<BarId>();
 
   readonly #state = inject(RosterStateService);
-  readonly #barShifts = inject(BarShifts);
+  readonly #shiftsStore = inject(ShiftsStore);
   readonly #dateFormatter = inject(DateFormatterService);
   readonly #membersStore = inject(MembersStore);
   readonly #currentUser = inject(CurrentUser);
-  readonly #createShift = inject(CreateShift);
   readonly #exchangesStore = inject(ExchangesStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
-  readonly list = this.#barShifts.all;
+  readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
   readonly displayMonthYear = this.#state.displayMonthYear;
   readonly displayToday = this.#state.displayToday;
@@ -77,11 +79,11 @@ export default class Roster {
     return new Set(exchanges.map((e) => e.shiftId));
   });
   readonly dailyShifts = computed(() => {
-    if (!this.list.hasValue()) {
+    if (!this.shifts.hasValue()) {
       return [];
     }
 
-    return this.list.value().map((shift) => ({
+    return this.shifts.value().map((shift) => ({
       ...shift,
       timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
       roleName: BarRole.STAFF,
@@ -108,7 +110,7 @@ export default class Roster {
   constructor() {
     effect(() => {
       const range = this.#state.dailyShiftsRange();
-      this.#barShifts.setDateRange(range.startIso, range.endIso);
+      this.#shiftsStore.setDateRange(range.startIso, range.endIso);
     });
 
     effect(() => {
@@ -118,40 +120,20 @@ export default class Roster {
     });
   }
 
-  onDaySelected(dayId: string) {
+  protected handleDaySelected(dayId: string) {
     this.#state.selectDay(dayId);
   }
 
-  closeModal() {
+  protected handleCloseModal() {
     this.#router.navigate(['/bars', this.barId(), 'roster']);
   }
 
-  readonly shiftSubmit = async (payload: CreateShiftDto) => {
-    this.isSubmitting.set(true);
+  protected handleCreateShift() {
+    this.#exchangesStore.reload();
+    this.handleCloseModal();
+  }
 
-    const selectedDate = this.#state.selectedDate();
-
-    const fullPayload: CreateShiftDto = {
-      ...payload,
-      startTime: this.#dateFormatter.buildIso(selectedDate, payload.startTime),
-      endTime: this.#dateFormatter.buildIso(selectedDate, payload.endTime),
-    };
-
-    try {
-      await this.#createShift.execute(this.barId(), fullPayload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#barShifts.reload();
-    this.closeModal();
-    this.isSubmitting.set(false);
-
-    return null;
-  };
-
-  async onAcceptExchange(exchangeId: ShiftExchangeId) {
+  protected async handleAcceptExchange(exchangeId: ShiftExchangeId) {
     this.isSubmitting.set(true);
 
     try {
@@ -161,11 +143,11 @@ export default class Roster {
       return;
     }
 
-    this.#barShifts.reload();
+    this.#shiftsStore.reload();
     this.isSubmitting.set(false);
   }
 
-  async onOfferExchange(shiftId: ShiftId) {
+  protected async handleOfferExchange(shiftId: ShiftId) {
     this.isSubmitting.set(true);
 
     try {
@@ -175,7 +157,7 @@ export default class Roster {
       return;
     }
 
-    this.#barShifts.reload();
+    this.#shiftsStore.reload();
     this.isSubmitting.set(false);
   }
 }

@@ -17,7 +17,7 @@
 <coaster-horizontal-date-scroller
   [days]="scrollerDays()"
   [selectedDay]="selectedDayId()"
-  (daySelected)="onDaySelected($event)"
+  (daySelected)="handleDaySelected($event)"
   class="mb-6"
 />
 
@@ -26,7 +26,7 @@
   {{ 'roster.daily_assignments' | translate }}
 </h2>
 
-@if (list.isLoading()) {
+@if (shifts.isLoading()) {
   <coaster-loading />
 } @else {
   <div class="flex flex-col gap-3">
@@ -40,7 +40,7 @@
         [hasPendingExchange]="shift.hasPendingExchange"
         [disabled]="isSubmitting()"
         roleColorClass="bg-primary text-primary"
-        (offerExchange)="onOfferExchange(shift.id)"
+        (offerExchange)="handleOfferExchange(shift.id)"
       />
     } @empty {
       <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
@@ -70,7 +70,7 @@
         [offeredBy]="exchange.requesterName"
         [isOwnRequest]="exchange.isOwnRequest"
         [disabled]="isSubmitting()"
-        (accepted)="onAcceptExchange(exchange.id)"
+        (accepted)="handleAcceptExchange(exchange.id)"
       />
     }
   </div>
@@ -83,12 +83,11 @@
 }
 
 @if (isCreateMode()) {
-  <coaster-bottom-sheet (closed)="closeModal()">
+  <coaster-bottom-sheet (closed)="handleCloseModal()">
     <coaster-create-shift-form
       [members]="membersList() ?? []"
-      [disabled]="isSubmitting() || list.isLoading()"
-      (canceled)="closeModal()"
-      [submitAction]="shiftSubmit"
+      (canceled)="handleCloseModal()"
+      (created)="handleCreateShift()"
     />
   </coaster-bottom-sheet>
 }

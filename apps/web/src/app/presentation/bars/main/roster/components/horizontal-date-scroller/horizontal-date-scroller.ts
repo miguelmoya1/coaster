@@ -1,13 +1,6 @@
 import { Listbox, Option } from '@angular/aria/listbox';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-
-export interface ScrollerDay {
-  id: string;
-  dayName: string;
-  dayNumber: number;
-  monthLabel?: string;
-  isActive: boolean;
-}
+import { ScrollerDay } from '../../../../../../roster';
 
 @Component({
   selector: 'coaster-horizontal-date-scroller',

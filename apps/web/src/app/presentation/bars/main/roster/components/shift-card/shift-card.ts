@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBadge, CoasterBtn } from '../../../shared';
+import { CoasterBadge, CoasterBtn } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-shift-card',
@@ -14,9 +14,7 @@ import { CoasterBadge, CoasterBtn } from '../../../shared';
     </div>
 
     <div class="flex flex-col flex-1">
-      <span class="text-primary font-black text-2xl tracking-tighter uppercase">{{
-        timeRange()
-      }}</span>
+      <span class="text-primary font-black text-2xl tracking-tighter uppercase">{{ timeRange() }}</span>
       <span class="text-white font-bold title-lg">{{ staffName() }}</span>
       <div class="flex items-center gap-2 mt-1">
         <span coaster-badge variant="neutral">
@@ -47,8 +45,7 @@ import { CoasterBadge, CoasterBtn } from '../../../shared';
     '[class.cursor-not-allowed]': 'disabled()',
     '[class.pointer-events-none]': 'disabled()',
     '[attr.aria-disabled]': 'disabled()',
-    class:
-      'relative overflow-hidden bg-surface-container-high rounded-2xl p-5 flex items-center gap-4 block',
+    class: 'relative overflow-hidden bg-surface-container-high rounded-2xl p-5 flex items-center gap-4 block',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

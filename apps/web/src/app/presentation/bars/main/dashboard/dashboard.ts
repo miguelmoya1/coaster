@@ -15,7 +15,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { MembersStore } from '../../../../members';
 import { ProductsStore } from '../../../../products';
-import { BarShifts } from '../../../../shifts';
+import { ShiftsStore } from '../../../../shifts';
 
 @Component({
   selector: 'coaster-dashboard',
@@ -39,14 +39,14 @@ export class Dashboard {
 
   readonly #productsStore = inject(ProductsStore);
   readonly #membersStore = inject(MembersStore);
-  readonly #shiftsService = inject(BarShifts);
+  readonly #shiftsStore = inject(ShiftsStore);
 
   constructor() {
     effect(() => {
       const now = new Date();
       const startIso = new Date(now.setHours(0, 0, 0, 0)).toISOString();
       const endIso = new Date(now.setHours(23, 59, 59, 999)).toISOString();
-      this.#shiftsService.setDateRange(startIso, endIso);
+      this.#shiftsStore.setDateRange(startIso, endIso);
     });
 
     effect(() => {
@@ -73,11 +73,11 @@ export class Dashboard {
   });
 
   readonly activeShifts = computed(() => {
-    if (!this.#shiftsService.all.hasValue()) {
+    if (!this.#shiftsStore.shifts.hasValue()) {
       return [];
     }
 
-    const shifts = this.#shiftsService.all.value();
+    const shifts = this.#shiftsStore.shifts.value();
     const now = new Date();
     return shifts.filter((s) => {
       const start = new Date(s.startTime);
@@ -87,15 +87,15 @@ export class Dashboard {
   });
 
   readonly totalAssignedToday = computed(() => {
-    return this.#shiftsService.all.value()?.length ?? 0;
+    return this.#shiftsStore.shifts.value()?.length ?? 0;
   });
 
   readonly rosterOverview = computed(() => {
-    if (!this.#membersStore.list.hasValue() || !this.#shiftsService.all.hasValue()) {
+    if (!this.#membersStore.list.hasValue() || !this.#shiftsStore.shifts.hasValue()) {
       return [];
     }
 
-    const shifts = this.#shiftsService.all.value();
+    const shifts = this.#shiftsStore.shifts.value();
     const members = this.#membersStore.list.value();
 
     if (!shifts || !members) {
