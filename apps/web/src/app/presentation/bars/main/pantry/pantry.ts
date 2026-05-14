@@ -9,24 +9,15 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
-import { BarId, Category, CreateProductDto, Product, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { BarId, Category, Product } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoriesStore } from '../../../../categories';
-import { CurrentUser, handleErrorFormField } from '../../../../core';
+import { CurrentUser } from '../../../../core';
 import { MembersStore } from '../../../../members';
-import {
-  BarProducts,
-  CreateProduct,
-  CreateProductForm,
-  DeleteProduct,
-  EditProduct,
-  EditProductForm,
-  InventoryItemCard,
-  UpdateProduct,
-  UpdateProductForm,
-} from '../../../../products';
+
+import { ProductsStore } from '../../../../products';
 import {
   BottomSheet,
   CoasterBtn,
@@ -38,7 +29,11 @@ import {
   Tabs,
 } from '../../../../shared';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
+import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
+import { InventoryItemCard } from './components/inventory-item-card/inventory-item-card';
+import { UpdateProductForm } from './components/update-product-form/update-product-form';
+import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 
 type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
@@ -55,7 +50,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     RouterLink,
     TranslatePipe,
     UpdateProductForm,
-    EditProductForm,
+    UpdateStockProductForm,
     EditCategoryForm,
     StatusCard,
     CoasterTitle,
@@ -73,15 +68,11 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 
-  readonly #productsService = inject(BarProducts);
+  readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
-  readonly #createProduct = inject(CreateProduct);
   readonly #currentUser = inject(CurrentUser);
   readonly #translate = inject(TranslateService);
   readonly #membersStore = inject(MembersStore);
-  readonly #editProduct = inject(EditProduct);
-  readonly #updateProductStock = inject(UpdateProduct);
-  readonly #deleteProduct = inject(DeleteProduct);
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -105,10 +96,10 @@ export default class Pantry {
   readonly categoryDeleting = signal<Category | null>(null);
 
   readonly categories = this.#categoriesStore.list;
-  readonly products = this.#productsService.all;
-  readonly totalProductsCount = this.#productsService.total;
-  readonly criticalProductsCount = this.#productsService.criticalStock;
-  readonly alertProductsCount = this.#productsService.lowStock;
+  readonly products = this.#productsStore.list;
+  readonly totalProductsCount = this.#productsStore.total;
+  readonly criticalProductsCount = this.#productsStore.criticalStock;
+  readonly alertProductsCount = this.#productsStore.lowStock;
 
   readonly isModalOpen = linkedSignal(() => {
     return this.productSelected() || this.productToEdit() || this.categoryToEdit() || this.isCreateMode();
@@ -175,7 +166,7 @@ export default class Pantry {
 
     this.productDeleting.set(null);
 
-    await this.#deleteProduct.delete(this.barId(), productToDelete.id);
+    await this.#productsStore.delete(productToDelete.id);
   }
 
   protected handleDeleteCategoryClicked(category: Category) {
@@ -210,58 +201,4 @@ export default class Pantry {
       this.#router.navigate(['/bars', this.barId(), 'pantry']);
     }
   }
-
-  readonly updateStockSubmit = async (payload: UpdateProductStockDto) => {
-    const product = this.productSelected();
-    if (!product) return null;
-
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#updateProductStock.update(this.barId(), product.id, payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#productsService.reload();
-    this.closeModal();
-
-    return null;
-  };
-
-  readonly productSubmit = async (payload: CreateProductDto) => {
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#createProduct.create(this.barId(), payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#productsService.reload();
-    this.closeModal();
-
-    return null;
-  };
-
-  readonly editProductSubmit = async (payload: UpdateProductDto) => {
-    const product = this.productToEdit();
-    if (!product) return null;
-
-    this.isSubmitting.set(true);
-
-    try {
-      await this.#editProduct.edit(this.barId(), product.id, payload);
-    } catch (error: unknown) {
-      this.isSubmitting.set(false);
-      return handleErrorFormField(error);
-    }
-
-    this.#productsService.reload();
-    this.closeModal();
-
-    return null;
-  };
 }

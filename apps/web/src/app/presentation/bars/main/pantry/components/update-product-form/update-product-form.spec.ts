@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asCategoryId, asProductId, Category, Product } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EditProductForm } from './edit-product-form';
+import { UpdateProductForm } from './update-product-form';
 
-describe('EditProductForm', () => {
-  let component: EditProductForm;
-  let fixture: ComponentFixture<EditProductForm>;
+describe('UpdateProductForm', () => {
+  let component: UpdateProductForm;
+  let fixture: ComponentFixture<UpdateProductForm>;
   let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockProduct: Product = {
@@ -20,18 +20,16 @@ describe('EditProductForm', () => {
     lastUpdated: '2022-01-01T00:00:00.000Z',
   };
 
-  const mockCategories: Category[] = [
-    { id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') },
-  ];
+  const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
 
   beforeEach(async () => {
     mockSubmitAction = vi.fn().mockResolvedValue(null);
 
     await TestBed.configureTestingModule({
-      imports: [EditProductForm, TranslateModule.forRoot()],
+      imports: [UpdateProductForm, TranslateModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EditProductForm);
+    fixture = TestBed.createComponent(UpdateProductForm);
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('product', mockProduct);

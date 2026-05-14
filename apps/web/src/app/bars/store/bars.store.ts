@@ -14,10 +14,13 @@ export class BarsStore {
   readonly #createBar = inject(CreateBar);
   readonly #myBars = inject(MyBars);
   readonly #currentBar = inject(CurrentBar);
+
   readonly #currentBarId = signal<BarId | undefined>(undefined);
+
   readonly #myBarsResource = httpResource(() => this.#myBars.execute(), {
     parse: (bars) => barArrayMapper(bars),
   });
+
   readonly #currentBarResource = httpResource(() => this.#currentBar.execute(this.#currentBarId()), {
     parse: (bar) => barMapper(bar),
   });
@@ -54,7 +57,7 @@ export class BarsStore {
         return null;
       }
 
-      this.#myBarsResource.update((bars) => [...bars, bar]);
+      this.#myBarsResource.set([...myBars, bar]);
       return null;
     } catch (error) {
       return handleErrorFormField(error);

@@ -6,11 +6,11 @@ import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CategoriesStore } from '../../../../../categories';
 import { OrdersStore } from '../../../../../orders';
-import { CartItem, PosCart } from '../components/pos-cart/pos-cart';
-import { PosProductGrid } from '../components/pos-product-grid/pos-product-grid';
-import { BarProducts } from '../../../../../products';
+import { ProductsStore } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
+import { CartItem, PosCart } from '../components/pos-cart/pos-cart';
+import { PosProductGrid } from '../components/pos-product-grid/pos-product-grid';
 
 @Component({
   selector: 'coaster-new-order',
@@ -25,7 +25,7 @@ class NewOrder {
   public readonly tableId = input<string>();
   public readonly orderId = input<string>();
 
-  readonly #productsService = inject(BarProducts);
+  readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #tablesService = inject(BarTables);
   readonly #ordersStore = inject(OrdersStore);
@@ -42,7 +42,7 @@ class NewOrder {
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
-  protected readonly isLoadingProducts = this.#productsService.all.isLoading;
+  protected readonly isLoadingProducts = this.#productsStore.list.isLoading;
   protected readonly isLoadingCategories = this.#categoriesStore.list.isLoading;
   protected readonly categories = computed(() =>
     this.#categoriesStore.list.hasValue() ? (this.#categoriesStore.list.value() ?? []) : [],
@@ -52,8 +52,8 @@ class NewOrder {
   );
 
   protected readonly filteredProducts = computed(() => {
-    if (!this.#productsService.all.hasValue()) return [];
-    const products = this.#productsService.all.value() ?? [];
+    if (!this.#productsStore.list.hasValue()) return [];
+    const products = this.#productsStore.list.value() ?? [];
     const categoryId = this.selectedCategory();
     return categoryId ? products.filter((p) => p.categoryId === categoryId) : products;
   });

@@ -1,17 +1,9 @@
-import { Component, computed, input, output, signal } from '@angular/core';
-import {
-    form,
-    FormField,
-    FormRoot,
-    maxLength,
-    min,
-    minLength,
-    required,
-    TreeValidationResult,
-} from '@angular/forms/signals';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { asCategoryId, Category, CreateProductDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
+import { ProductsStore } from '../../../../../../products/store/products.store';
+import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-create-product-form',
@@ -56,13 +48,19 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="disabled()"
-            (click)="canceled.emit()"
+            [disabled]="form().disabled() || form().submitting()"
+            (click)="handleCancel()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+          <button
+            coaster-btn
+            class="w-full"
+            type="submit"
+            variant="primary"
+            [disabled]="form().disabled() || form().submitting()"
+          >
             {{ 'common.create' | translate }}
           </button>
         </div>
@@ -72,10 +70,10 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
 })
 export class CreateProductForm {
   readonly categories = input.required<Category[]>();
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: CreateProductDto) => Promise<TreeValidationResult>>();
+  readonly #productsStore = inject(ProductsStore);
 
   readonly canceled = output<void>();
+  readonly created = output<void>();
 
   readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
@@ -113,11 +111,20 @@ export class CreateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
 
-          return await action(payload);
+          const error = await this.#productsStore.create(payload);
+
+          if (!error) {
+            this.created.emit();
+          }
+
+          return error;
         },
       },
     },
   );
+
+  protected handleCancel() {
+    this.canceled.emit();
+  }
 }

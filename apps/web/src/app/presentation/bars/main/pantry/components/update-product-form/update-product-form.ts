@@ -1,17 +1,9 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
-import {
-    form,
-    FormField,
-    FormRoot,
-    maxLength,
-    min,
-    minLength,
-    required,
-    TreeValidationResult,
-} from '@angular/forms/signals';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { asCategoryId, Category, Product, UpdateProductDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../shared';
+import { ProductsStore } from '../../../../../../products';
+import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-edit-product-form',
@@ -50,13 +42,19 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="disabled()"
+            [disabled]="form().disabled() || form().submitting()"
             (click)="canceled.emit()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button coaster-btn class="w-full" type="submit" variant="primary" [disabled]="disabled()">
+          <button
+            coaster-btn
+            class="w-full"
+            type="submit"
+            variant="primary"
+            [disabled]="form().disabled() || form().submitting()"
+          >
             {{ 'common.update' | translate }}
           </button>
         </div>
@@ -64,15 +62,16 @@ import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } fr
     </form>
   `,
 })
-export class EditProductForm {
-  readonly product = input.required<Product>();
-  readonly categories = input.required<Category[]>();
-  readonly disabled = input.required<boolean>();
-  readonly submitAction = input.required<(payload: UpdateProductDto) => Promise<TreeValidationResult>>();
+export class UpdateProductForm {
+  public readonly product = input.required<Product>();
+  public readonly categories = input.required<Category[]>();
 
-  readonly canceled = output<void>();
+  public readonly canceled = output<void>();
+  public readonly edited = output<void>();
 
-  readonly categoryOptions = computed(() => {
+  readonly #productStore = inject(ProductsStore);
+
+  protected readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
       value: c.id,
       label: c.name,
@@ -86,7 +85,7 @@ export class EditProductForm {
     name: '',
   });
 
-  readonly form = form(
+  protected readonly form = form(
     this.#productModel,
     (fields) => {
       required(fields.name);
@@ -104,9 +103,13 @@ export class EditProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
+          const error = await this.#productStore.update(this.product().id, payload);
 
-          return await action(payload);
+          if (!error) {
+            this.edited.emit();
+          }
+
+          return error;
         },
       },
     },

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateProductForm } from './update-product-form';
+import { UpdateProductForm } from './update-stock-product-form';
 
 describe('UpdateProductForm', () => {
   let component: UpdateProductForm;

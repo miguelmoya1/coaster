@@ -8,7 +8,7 @@ import { ProductRepository } from '../data-access/product-repository';
 export class DeleteProduct {
   readonly #productRepository = inject(ProductRepository);
 
-  public async delete(barId: BarId, productId: ProductId) {
+  public async execute(barId: BarId, productId: ProductId) {
     return await this.#productRepository.delete(barId, productId);
   }
 }

@@ -1,8 +1,9 @@
-import { Component, effect, input, output, signal } from '@angular/core';
-import { form, FormField, FormRoot, min, required, TreeValidationResult } from '@angular/forms/signals';
-import { Product, UpdateProductStockDto } from '@coaster/common';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
+import { Product } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../../shared';
+import { ProductsStore } from '../../../../../../products';
+import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-update-product-form',
@@ -28,8 +29,8 @@ import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../
               class="w-full"
               type="button"
               variant="outline"
-              [disabled]="disabled()"
-              (click)="canceled.emit()"
+              [disabled]="form().disabled() || form().submitting()"
+              (click)="handleCancel()"
             >
               {{ 'common.cancel' | translate }}
             </button>
@@ -39,7 +40,7 @@ import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../
               class="w-full"
               type="submit"
               variant="primary"
-              [disabled]="form().invalid() || disabled()"
+              [disabled]="form().disabled() || form().submitting() || form().invalid()"
             >
               {{ 'common.update' | translate }}
             </button>
@@ -49,12 +50,13 @@ import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '../../
     </div>
   `,
 })
-export class UpdateProductForm {
-  readonly product = input.required<Product>();
-  readonly disabled = input(false);
-  readonly submitAction = input.required<(payload: UpdateProductStockDto) => Promise<TreeValidationResult>>();
+export class UpdateStockProductForm {
+  public readonly product = input.required<Product>();
 
-  readonly canceled = output<void>();
+  public readonly canceled = output<void>();
+  public readonly updated = output<void>();
+
+  readonly #productStore = inject(ProductsStore);
 
   readonly #formBase = signal<{ currentStock: number }>({
     currentStock: 0,
@@ -70,9 +72,14 @@ export class UpdateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const action = this.submitAction();
 
-          return await action(payload);
+          const error = await this.#productStore.updateStock(this.product().id, payload);
+
+          if (!error) {
+            this.updated.emit();
+          }
+
+          return error;
         },
       },
     },
@@ -87,5 +94,9 @@ export class UpdateProductForm {
         });
       }
     });
+  }
+
+  protected handleCancel() {
+    this.canceled.emit();
   }
 }

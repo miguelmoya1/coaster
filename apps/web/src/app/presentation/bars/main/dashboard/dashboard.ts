@@ -14,7 +14,7 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MembersStore } from '../../../../members';
-import { BarProducts } from '../../../../products';
+import { ProductsStore } from '../../../../products';
 import { BarShifts } from '../../../../shifts';
 
 @Component({
@@ -37,7 +37,7 @@ import { BarShifts } from '../../../../shifts';
 export class Dashboard {
   public readonly barId = input.required<BarId>();
 
-  readonly #productsService = inject(BarProducts);
+  readonly #productsStore = inject(ProductsStore);
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsService = inject(BarShifts);
 
@@ -57,11 +57,11 @@ export class Dashboard {
   }
 
   readonly pantryAlerts = computed(() => {
-    if (!this.#productsService.all.hasValue()) {
+    if (!this.#productsStore.list.hasValue()) {
       return [];
     }
 
-    const products = this.#productsService.all.value();
+    const products = this.#productsStore.list.value();
 
     if (!products) {
       return [];

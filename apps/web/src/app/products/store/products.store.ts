@@ -1,0 +1,163 @@
+import { httpResource } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { handleErrorFormField } from '../../core';
+import { productArrayMapper } from '../mappers/product.mapper';
+import { BarProducts } from '../services/bar-products';
+import { CreateProduct } from '../services/create-product';
+import { DeleteProduct } from '../services/delete-product';
+import { UpdateProduct } from '../services/update-product';
+import { UpdateProductStock } from '../services/update-product-stock';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProductsStore {
+  readonly #barProducts = inject(BarProducts);
+  readonly #createProduct = inject(CreateProduct);
+  readonly #updateProduct = inject(UpdateProduct);
+  readonly #updateProductStock = inject(UpdateProductStock);
+  readonly #deleteProduct = inject(DeleteProduct);
+
+  readonly #currentBarId = signal<BarId | null>(null);
+
+  readonly #productsResource = httpResource(() => this.#barProducts.execute(this.#currentBarId()), {
+    parse: (products) => productArrayMapper(products),
+  });
+
+  readonly list = this.#productsResource.asReadonly();
+
+  public readonly total = computed(() => {
+    if (this.#productsResource.hasValue()) {
+      return this.#productsResource.value().length ?? 0;
+    }
+
+    return undefined;
+  });
+
+  public readonly lowStock = computed(() => {
+    if (this.#productsResource.hasValue()) {
+      return this.#productsResource.value().filter((p) => p.stockStatus === 'low').length ?? 0;
+    }
+
+    return undefined;
+  });
+
+  public readonly criticalStock = computed(() => {
+    if (this.#productsResource.hasValue()) {
+      return this.#productsResource.value().filter((p) => p.stockStatus === 'critical').length ?? 0;
+    }
+
+    return undefined;
+  });
+
+  public async create(createProductDto: CreateProductDto) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      return handleErrorFormField('NO_BAR_SELECTED');
+    }
+
+    try {
+      const product = await this.#createProduct.execute(barId, createProductDto);
+
+      if (!this.#productsResource.hasValue()) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      const products = this.#productsResource.value();
+
+      if (!products) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      this.#productsResource.set([...products, product]);
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+
+  public async update(productId: ProductId, updateProductDto: UpdateProductDto) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      return handleErrorFormField('NO_BAR_SELECTED');
+    }
+
+    try {
+      const product = await this.#updateProduct.execute(barId, productId, updateProductDto);
+
+      if (!this.#productsResource.hasValue()) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      const products = this.#productsResource.value();
+
+      if (!products) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      this.#productsResource.set([...products, product]);
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+
+  public async updateStock(productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      return handleErrorFormField('NO_BAR_SELECTED');
+    }
+
+    try {
+      const product = await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+
+      if (!this.#productsResource.hasValue()) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      const products = this.#productsResource.value();
+
+      if (!products) {
+        this.#productsResource.set([product]);
+        return null;
+      }
+
+      this.#productsResource.set([...products, product]);
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+
+  public async delete(productId: ProductId) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      return handleErrorFormField('NO_BAR_SELECTED');
+    }
+
+    try {
+      await this.#deleteProduct.execute(barId, productId);
+
+      if (!this.#productsResource.hasValue()) {
+        return null;
+      }
+
+      const products = this.#productsResource.value();
+
+      if (!products) {
+        return null;
+      }
+
+      this.#productsResource.set(products.filter((p) => p.id !== productId));
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+}
