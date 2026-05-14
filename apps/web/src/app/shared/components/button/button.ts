@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'outline' | 'dashed';
+export type ButtonVariant = 'primary' | 'outline' | 'dashed' | 'error';
 
 const BASE_CLASSES =
   'w-full rounded-xl flex items-center justify-center gap-3 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:hover:brightness-100 active:scale-[0.98]';
@@ -9,12 +9,14 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'h-16 bg-linear-to-br from-primary to-primary-container shadow-elevated-primary hover:brightness-110',
   outline: 'h-16 border border-outline-variant hover:bg-surface-container',
   dashed: 'h-24 border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5',
+  error: 'h-16 bg-error-container text-error hover:bg-error-container/90',
 };
 
 const TEXT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'text-on-primary-fixed font-bold uppercase tracking-widest text-sm',
   outline: 'text-on-surface font-bold uppercase tracking-widest text-sm',
   dashed: 'text-on-surface-variant font-bold uppercase tracking-widest text-sm hover:text-primary',
+  error: 'text-error font-bold uppercase tracking-widest text-sm',
 };
 
 @Component({

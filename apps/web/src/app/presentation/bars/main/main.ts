@@ -61,10 +61,12 @@ export default class Main {
       const barId = this.barId();
       this.#barsStore.setBarId(barId);
       this.#socketService.joinBar(barId);
+      this.#membersStore.setBarId(barId);
 
       cleanup(() => {
         this.#barsStore.setBarId(undefined);
         this.#socketService.leaveBar(barId);
+        this.#membersStore.setBarId(undefined);
       });
     });
   }

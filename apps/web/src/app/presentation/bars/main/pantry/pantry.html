@@ -46,7 +46,7 @@
       [showEditButton]="currentUserRole() === 'OWNER'"
       (click)="onProductClicked(product)"
       (editClicked)="onEditProductClicked(product)"
-      (deleteClicked)="onDeleteProductClicked(product)"
+      (deleteClicked)="handleDeleteProductClicked(product)"
     />
   } @empty {
     <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
@@ -83,7 +83,7 @@
         <coaster-edit-category-form
           [category]="category"
           (canceled)="closeModal()"
-          (deleted)="onDeleteCategoryClicked(category)"
+          (deleted)="handleDeleteCategoryClicked(category)"
           (updated)="closeModal()"
         />
       }
@@ -108,3 +108,27 @@
     </div>
   </coaster-bottom-sheet>
 }
+
+<coaster-confirm-dialog
+  (confirmed)="handleConfirmDeleteProduct()"
+  (cancelled)="handleCancelDeleteProduct()"
+  [isOpen]="!!productDeleting()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title> {{ 'pantry.delete_product.title' | translate }} </ng-container>
+  <ng-container confirm-dialog-message>
+    {{ 'pantry.delete_product.message' | translate: { name: productDeleting()?.name } }}
+  </ng-container>
+</coaster-confirm-dialog>
+
+<coaster-confirm-dialog
+  (confirmed)="handleConfirmDeleteCategory()"
+  (cancelled)="handleCancelDeleteCategory()"
+  [isOpen]="!!categoryDeleting()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title> {{ 'pantry.delete_category.title' | translate }} </ng-container>
+  <ng-container confirm-dialog-message>
+    {{ 'pantry.delete_category.message' | translate: { name: categoryDeleting()?.name } }}
+  </ng-container>
+</coaster-confirm-dialog>

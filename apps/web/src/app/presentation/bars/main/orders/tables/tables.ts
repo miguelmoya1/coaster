@@ -1,10 +1,9 @@
-import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, Table } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CurrentUser } from '../../../../../core';
 import { MembersStore } from '../../../../../members';
 import { OrdersStore } from '../../../../../orders';
@@ -34,6 +33,7 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
     NgIcon,
     PricePipe,
     RouterLink,
+    ConfirmDialogComponent,
   ],
   viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
@@ -49,12 +49,13 @@ class Tables {
   readonly #deleteTable = inject(DeleteTable);
   readonly #currentUser = inject(CurrentUser);
   readonly #membersStore = inject(MembersStore);
-  readonly #dialog = inject(Dialog);
-  readonly #translate = inject(TranslateService);
+
   readonly #router = inject(Router);
 
   readonly showCreateTable = signal(false);
   readonly isSubmitting = signal(false);
+  readonly tableToDelete = signal<Table | null>(null);
+  readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
 
   readonly isOwner = computed(() => {
     if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) return false;
@@ -118,27 +119,23 @@ class Tables {
     this.isSubmitting.set(false);
   }
 
-  async onDeleteTable(table: Table) {
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('orders.delete_table_title'),
-        message: this.#translate.instant('orders.delete_table_message', { name: table.name }),
-        confirmText: 'common.delete',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
+  protected handleDeleteTable(table: Table) {
+    this.tableToDelete.set(table);
+  }
 
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#deleteTable.delete(this.barId(), table.id);
-          this.#tablesService.reload();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected handleCloseDeleteTableModal() {
+    this.tableToDelete.set(null);
+  }
+
+  protected async handleConfirmDeleteTable() {
+    const table = this.tableToDelete();
+    if (!table) {
+      return;
+    }
+
+    await this.#deleteTable.delete(this.barId(), table.id);
+    this.#tablesService.reload();
+    this.tableToDelete.set(null);
   }
 }
 

@@ -17,7 +17,7 @@
     [showDeleteButton]="member.showDeleteButton"
     [isCurrentUser]="member.isCurrentUser"
     [isOnlyOwner]="member.isOnlyOwner"
-    (deleteClicked)="onDeleteMemberClicked(member)"
+    (deleteClicked)="handleClickDeleteMember(member)"
   />
 } @empty {
   <p>{{ 'members.staff.no_members' | translate }}</p>
@@ -32,3 +32,24 @@
     <coaster-invite-member-form (canceled)="closeModal()" (invited)="closeModal()" />
   </coaster-bottom-sheet>
 }
+
+<coaster-confirm-dialog
+  [confirmLabel]="memberDeleting()?.isCurrentUser ? 'members.leave' : 'common.delete'"
+  (confirmed)="handleConfirmDeleteMember()"
+  (cancelled)="handleCancelDeleteMember()"
+  [isOpen]="!!memberDeleting()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title>
+    {{
+      (memberDeleting()?.isCurrentUser ? 'members.leave_dialog.title' : 'members.delete.title')
+        | translate: { name: memberDeleting()?.userName }
+    }}
+  </ng-container>
+  <ng-container confirm-dialog-message>
+    {{
+      (memberDeleting()?.isCurrentUser ? 'members.leave_dialog.message' : 'members.delete.message')
+        | translate: { name: memberDeleting()?.userName }
+    }}
+  </ng-container>
+</coaster-confirm-dialog>

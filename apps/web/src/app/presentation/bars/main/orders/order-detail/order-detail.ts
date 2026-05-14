@@ -1,7 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, Order, OrderItemId, asOrderId } from '@coaster/common';
+import { BarId, Order, OrderItem, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -13,23 +13,26 @@ import {
   lucideTrash2,
   lucideX,
 } from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { OrdersStore } from '../../../../../orders';
-import {
-  MergeOrdersDialog,
-  MergeOrdersDialogData,
-} from '../components/merge-orders-dialog/merge-orders-dialog';
-import {
-  MoveTableDialog,
-  MoveTableDialogData,
-} from '../components/move-table-dialog/move-table-dialog';
 import { OrderTitlePipe } from '../../../../../orders/pipes/order-title';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '../../../../../shared';
 import { BarTables } from '../../../../../tables';
+import { MergeOrdersDialog, MergeOrdersDialogData } from '../components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog, MoveTableDialogData } from '../components/move-table-dialog/move-table-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, PricePipe, OrderTitlePipe],
+  imports: [
+    Loading,
+    CoasterTitle,
+    CoasterBtn,
+    TranslatePipe,
+    NgIcon,
+    PricePipe,
+    OrderTitlePipe,
+    ConfirmDialogComponent,
+  ],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -53,8 +56,11 @@ class OrderDetail {
   readonly #ordersStore = inject(OrdersStore);
   readonly #tablesService = inject(BarTables);
   readonly #dialog = inject(Dialog);
-  readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
+
+  protected readonly orderItemDeleting = signal<OrderItem | null>(null);
+  protected readonly isCancelingOrderModelOpen = signal(false);
+  protected readonly isCheckoutOrderModelOpen = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
@@ -83,6 +89,8 @@ class OrderDetail {
 
   protected readonly isLoadingServices = this.#ordersStore.list.isLoading;
 
+  #isNavigatingAway = false;
+
   constructor() {
     effect(async () => {
       if (this.#isNavigatingAway) return;
@@ -103,8 +111,6 @@ class OrderDetail {
     });
   }
 
-  #isNavigatingAway = false;
-
   async goBack() {
     this.#isNavigatingAway = true;
     await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
@@ -116,79 +122,86 @@ class OrderDetail {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id, 'add']);
   }
 
-  async onPayItem(itemId: OrderItemId) {
+  async onPayItem(item: OrderItem) {
     const order = this.currentOrder();
     if (!order) return;
     try {
-      await this.#ordersStore.payItem(this.barId(), order.id, itemId);
+      await this.#ordersStore.payItem(this.barId(), order.id, item.id);
     } catch (e) {
       console.error(e);
     }
   }
 
-  async onDeliverItem(itemId: OrderItemId) {
+  async onDeliverItem(item: OrderItem) {
     const order = this.currentOrder();
-    if (!order) return;
+    if (!order) {
+      return;
+    }
     try {
-      await this.#ordersStore.deliverItem(this.barId(), order.id, itemId);
+      await this.#ordersStore.deliverItem(this.barId(), order.id, item.id);
     } catch (e) {
       console.error(e);
     }
   }
 
-  async onCheckout() {
-    const order = this.currentOrder();
-    if (!order) return;
-
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('orders.checkout_title'),
-        message: this.#translate.instant('orders.checkout_message'),
-        confirmText: 'orders.checkout',
-        cancelText: 'common.cancel',
-      },
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#ordersStore.checkout(this.barId(), order.id);
-          this.goBack();
-          this.#tablesService.reload();
-          this.#ordersStore.reloadHistory();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected handleOpenCheckout() {
+    this.isCheckoutOrderModelOpen.set(true);
   }
 
-  async onCancel() {
+  protected handleCancelCheckout() {
+    this.isCheckoutOrderModelOpen.set(false);
+  }
+
+  protected async handleCheckoutConfirmed() {
+    const order = this.currentOrder();
+    if (!order) {
+      return;
+    }
+
+    await this.#ordersStore.checkout(this.barId(), order.id);
+    this.goBack();
+    this.#tablesService.reload();
+    this.#ordersStore.reloadHistory();
+    this.isCheckoutOrderModelOpen.set(false);
+  }
+
+  protected handleCancelOrder() {
+    this.isCancelingOrderModelOpen.set(true);
+  }
+
+  protected handleCancelCancelOrderDialog() {
+    this.isCancelingOrderModelOpen.set(false);
+  }
+
+  protected async handleCancelOrderConfirmed() {
     const order = this.currentOrder();
     if (!order) return;
 
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('orders.cancel_title'),
-        message: this.#translate.instant('orders.cancel_message'),
-        confirmText: 'orders.cancel_order',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
+    await this.#ordersStore.cancel(this.barId(), order.id);
+    this.goBack();
+    this.#tablesService.reload();
+    this.#ordersStore.reloadHistory();
+    this.isCancelingOrderModelOpen.set(false);
+  }
 
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#ordersStore.cancel(this.barId(), order.id);
-          this.goBack();
-          this.#tablesService.reload();
-          this.#ordersStore.reloadHistory();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected handleRemoveItem(item: OrderItem) {
+    this.orderItemDeleting.set(item);
+  }
+
+  protected handleCancelRemoveItem() {
+    this.orderItemDeleting.set(null);
+  }
+
+  protected async handleRemoveItemConfirmed() {
+    const order = this.currentOrder();
+    const item = this.orderItemDeleting();
+    if (!order || !item) {
+      return;
+    }
+
+    await this.#ordersStore.removeItem(this.barId(), order.id, item.id);
+    this.#tablesService.reload();
+    this.orderItemDeleting.set(null);
   }
 
   onMoveTable() {
@@ -235,32 +248,6 @@ class OrderDetail {
             orderIds: [order.id, targetOrderId],
           });
           this.#ordersStore.reloadOrders();
-          this.#tablesService.reload();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
-  }
-
-  onRemoveItem(itemId: OrderItemId) {
-    const order = this.currentOrder();
-    if (!order) return;
-
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('orders.remove_item_title'),
-        message: this.#translate.instant('orders.remove_item_message'),
-        confirmText: 'common.delete',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#ordersStore.removeItem(this.barId(), order.id, itemId);
           this.#tablesService.reload();
         } catch (e) {
           console.error(e);

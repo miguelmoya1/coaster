@@ -62,7 +62,7 @@
             @if (item.deliveryStatus !== 'SERVED') {
               <button
                 class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                (click)="onDeliverItem(item.id)"
+                (click)="onDeliverItem(item)"
                 [title]="'orders.mark_served' | translate"
               >
                 <ng-icon name="lucideChefHat" size="18" />
@@ -71,7 +71,7 @@
             @if (item.paymentStatus !== 'PAID') {
               <button
                 class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                (click)="onPayItem(item.id)"
+                (click)="onPayItem(item)"
                 [title]="'orders.mark_paid' | translate"
               >
                 <ng-icon name="lucideCreditCard" size="18" />
@@ -79,7 +79,7 @@
             }
             <button
               class="w-10 h-10 rounded-xl bg-error/10 text-error flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-              (click)="onRemoveItem(item.id)"
+              (click)="handleRemoveItem(item)"
               [title]="'orders.remove_item' | translate"
             >
               <ng-icon name="lucideTrash2" size="18" />
@@ -96,7 +96,7 @@
         <ng-icon name="lucidePackagePlus" size="18" />
         {{ 'orders.add_items' | translate }}
       </button>
-      <button coaster-btn (click)="onCheckout()">
+      <button coaster-btn (click)="handleOpenCheckout()">
         <ng-icon name="lucideCreditCard" size="18" />
         {{ 'orders.checkout' | translate }}
       </button>
@@ -111,7 +111,7 @@
         <ng-icon name="lucideMerge" size="16" />
         {{ 'orders.merge' | translate }}
       </button>
-      <button coaster-btn variant="outline" class="text-error!" (click)="onCancel()">
+      <button coaster-btn variant="outline" class="text-error!" (click)="handleCancelOrder()">
         <ng-icon name="lucideX" size="16" />
         {{ 'orders.cancel_order' | translate }}
       </button>
@@ -127,3 +127,48 @@
     </div>
   }
 }
+
+<coaster-confirm-dialog
+  [isOpen]="isCheckoutOrderModelOpen()"
+  (confirmed)="handleCheckoutConfirmed()"
+  (cancelled)="handleCancelCheckout()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title>
+    {{ 'orders.checkout_title' | translate }}
+  </ng-container>
+
+  <ng-container confirm-dialog-message>
+    {{ 'orders.checkout_message' | translate }}
+  </ng-container>
+</coaster-confirm-dialog>
+
+<coaster-confirm-dialog
+  [isOpen]="isCancelingOrderModelOpen()"
+  (confirmed)="handleCancelOrderConfirmed()"
+  (cancelled)="handleCancelCancelOrderDialog()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title>
+    {{ 'orders.cancel_order_title' | translate }}
+  </ng-container>
+
+  <ng-container confirm-dialog-message>
+    {{ 'orders.cancel_order_message' | translate }}
+  </ng-container>
+</coaster-confirm-dialog>
+
+<coaster-confirm-dialog
+  [isOpen]="!!orderItemDeleting()"
+  (cancelled)="handleCancelRemoveItem()"
+  (confirmed)="handleRemoveItemConfirmed()"
+  isDestructive
+>
+  <ng-container confirm-dialog-title>
+    {{ 'orders.remove_item_title' | translate }}
+  </ng-container>
+
+  <ng-container confirm-dialog-message>
+    {{ 'orders.remove_item_message' | translate }}
+  </ng-container>
+</coaster-confirm-dialog>

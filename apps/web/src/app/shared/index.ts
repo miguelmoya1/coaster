@@ -4,6 +4,7 @@ export * from './components/bottom-nav/bottom-nav';
 export * from './components/bottom-sheet/bottom-sheet';
 export * from './components/button/button';
 export * from './components/confirm-dialog/confirm-dialog.component';
+export * from './components/dialog/dialog.component';
 export * from './components/fab/fab';
 export * from './components/loading/loading';
 export * from './components/price/price';

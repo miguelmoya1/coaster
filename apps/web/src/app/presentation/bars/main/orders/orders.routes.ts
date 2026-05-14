@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+// poner aqui una pagina que englobe todos para poder setear el bar id y demás... (pensarlo bien)
+
 const ordersRoutes: Routes = [
   {
     path: '',

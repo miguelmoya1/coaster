@@ -1,5 +1,4 @@
-import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -19,7 +18,17 @@ import {
 
 @Component({
   selector: 'coaster-history',
-  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, RouterLink, PricePipe],
+  imports: [
+    StatusCard,
+    Loading,
+    CoasterTitle,
+    TranslatePipe,
+    NgIcon,
+    CoasterBtn,
+    RouterLink,
+    PricePipe,
+    ConfirmDialogComponent,
+  ],
   viewProviders: [provideIcons({ lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 })],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
@@ -31,19 +40,19 @@ class History {
   readonly #ordersStore = inject(OrdersStore);
   readonly #currentUser = inject(CurrentUser);
   readonly #membersStore = inject(MembersStore);
-  readonly #dialog = inject(Dialog);
+
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
 
   readonly today = new Date().toISOString().split('T')[0];
-
   protected readonly selectedDate = this.#ordersStore.selectedDate;
   protected readonly isLoading = this.#ordersStore.history.isLoading;
   protected readonly totalClosed = this.#ordersStore.totalClosed;
   protected readonly totalCancelled = this.#ordersStore.totalCancelled;
 
-  readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
+  protected readonly orderToDelete = signal<Order | null>(null);
 
+  readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
   readonly isOwner = computed(() => {
     if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
       return false;
@@ -122,27 +131,23 @@ class History {
     return 'history.status_open';
   }
 
-  async onDeleteOrder(order: Order) {
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('history.delete_title'),
-        message: this.#translate.instant('history.delete_message'),
-        confirmText: 'common.delete',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
+  protected handleDeleteOrder(order: Order) {
+    this.orderToDelete.set(order);
+  }
 
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#ordersStore.deleteOrder(this.barId(), asOrderId(order.id));
-          this.#ordersStore.reloadHistory();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected handleCancelDeleteOrder() {
+    this.orderToDelete.set(null);
+  }
+
+  protected async handleDeleteOrderConfirmed() {
+    const order = this.orderToDelete();
+    if (!order) {
+      return;
+    }
+
+    await this.#ordersStore.deleteOrder(this.barId(), asOrderId(order.id));
+    this.#ordersStore.reloadHistory();
+    this.orderToDelete.set(null);
   }
 }
 

@@ -1,4 +1,3 @@
-import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -62,6 +61,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     CoasterTitle,
     NgIcon,
     CoasterBtn,
+    ConfirmDialogComponent,
   ],
   viewProviders: [provideIcons({ lucidePencil })],
   host: {
@@ -82,7 +82,6 @@ export default class Pantry {
   readonly #editProduct = inject(EditProduct);
   readonly #updateProductStock = inject(UpdateProduct);
   readonly #deleteProduct = inject(DeleteProduct);
-  readonly #dialog = inject(Dialog);
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -102,6 +101,8 @@ export default class Pantry {
   readonly productSelected = signal<Product | null>(null);
   readonly productToEdit = signal<Product | null>(null);
   readonly categoryToEdit = signal<Category | null>(null);
+  readonly productDeleting = signal<Product | null>(null);
+  readonly categoryDeleting = signal<Category | null>(null);
 
   readonly categories = this.#categoriesStore.list;
   readonly products = this.#productsService.all;
@@ -158,51 +159,42 @@ export default class Pantry {
     }
   }
 
-  onDeleteProductClicked(product: Product) {
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('pantry.delete_product.title'),
-        message: this.#translate.instant('pantry.delete_product.message', { name: product.name }),
-        confirmText: 'common.delete',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#deleteProduct.delete(this.barId(), product.id);
-          this.#productsService.reload();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected handleDeleteProductClicked(product: Product) {
+    this.productDeleting.set(product);
   }
 
-  onDeleteCategoryClicked(category: Category) {
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.#translate.instant('pantry.delete_category.title'),
-        message: this.#translate.instant('pantry.delete_category.message', { name: category.name }),
-        confirmText: 'common.delete',
-        cancelText: 'common.cancel',
-        isDestructive: true,
-      },
-    });
+  protected handleCancelDeleteProduct() {
+    this.productDeleting.set(null);
+  }
 
-    dialogRef.closed.subscribe(async (result) => {
-      if (result) {
-        try {
-          await this.#categoriesStore.delete(category.id);
-          this.closeModal();
-          this.selectedCategoryId.set('ALL');
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
+  protected async handleConfirmDeleteProduct() {
+    const productToDelete = this.productDeleting();
+    if (!productToDelete) {
+      return;
+    }
+
+    this.productDeleting.set(null);
+
+    await this.#deleteProduct.delete(this.barId(), productToDelete.id);
+  }
+
+  protected handleDeleteCategoryClicked(category: Category) {
+    this.categoryDeleting.set(category);
+  }
+
+  protected handleCancelDeleteCategory() {
+    this.categoryDeleting.set(null);
+  }
+
+  protected async handleConfirmDeleteCategory() {
+    const categoryToDelete = this.categoryDeleting();
+    if (!categoryToDelete) {
+      return;
+    }
+
+    this.categoryDeleting.set(null);
+    this.selectedCategoryId.set('ALL');
+    await this.#categoriesStore.delete(categoryToDelete.id);
   }
 
   closeModal() {

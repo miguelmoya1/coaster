@@ -112,7 +112,7 @@
         @if (isOwner() && isToday()) {
           <button
             class="w-9 h-9 rounded-xl flex items-center justify-center text-error active:scale-90 transition-transform hover:bg-error/10 cursor-pointer"
-            (click)="onDeleteOrder(order.original); $event.stopPropagation()"
+            (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
           >
             <ng-icon name="lucideTrash2" size="18" />
           </button>
@@ -127,3 +127,13 @@
     }
   }
 </div>
+
+<coaster-confirm-dialog
+  [isOpen]="!!orderToDelete()"
+  (cancelled)="handleCancelDeleteOrder()"
+  (confirmed)="handleDeleteOrderConfirmed()"
+  isDestructive
+>
+  <ng-container coaster-title>{{ 'history.delete_title' | translate }}</ng-container>
+  <ng-container>{{ 'history.delete_message' | translate }}</ng-container>
+</coaster-confirm-dialog>
