@@ -3,8 +3,8 @@ import { Table } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../shared';
-import { TableStatusPipe } from '../../pipes/table-status';
+import { PricePipe } from '../../../../../../../shared';
+import { TableStatusPipe } from '../../../../../../../tables/pipes/table-status';
 
 @Component({
   selector: 'coaster-table-card',

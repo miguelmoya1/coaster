@@ -8,7 +8,7 @@ import { TableRepository } from '../data-access/table-repository';
 export class DeleteTable {
   readonly #tableRepository = inject(TableRepository);
 
-  public async delete(barId: BarId, tableId: TableId) {
+  public async execute(barId: BarId, tableId: TableId) {
     return await this.#tableRepository.delete(barId, tableId);
   }
 }

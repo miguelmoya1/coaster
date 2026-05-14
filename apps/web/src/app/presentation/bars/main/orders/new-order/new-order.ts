@@ -8,7 +8,7 @@ import { CategoriesStore } from '../../../../../categories';
 import { OrdersStore } from '../../../../../orders';
 import { ProductsStore } from '../../../../../products';
 import { CoasterTitle, Loading } from '../../../../../shared';
-import { BarTables } from '../../../../../tables';
+import { TablesStore } from '../../../../../tables';
 import { CartItem, PosCart } from '../components/pos-cart/pos-cart';
 import { PosProductGrid } from '../components/pos-product-grid/pos-product-grid';
 
@@ -27,7 +27,7 @@ class NewOrder {
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
-  readonly #tablesService = inject(BarTables);
+  readonly #tablesStore = inject(TablesStore);
   readonly #ordersStore = inject(OrdersStore);
   readonly #router = inject(Router);
 
@@ -48,7 +48,7 @@ class NewOrder {
     this.#categoriesStore.list.hasValue() ? (this.#categoriesStore.list.value() ?? []) : [],
   );
   protected readonly tables = computed(() =>
-    this.#tablesService.all.hasValue() ? (this.#tablesService.all.value() ?? []) : [],
+    this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
   );
 
   protected readonly filteredProducts = computed(() => {
@@ -139,7 +139,7 @@ class NewOrder {
 
       this.cart.set(new Map());
       this.#ordersStore.reloadOrders();
-      this.#tablesService.reload();
+      this.#tablesStore.reload();
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
     } catch (e) {

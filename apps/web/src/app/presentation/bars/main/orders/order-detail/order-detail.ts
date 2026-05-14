@@ -17,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { OrdersStore } from '../../../../../orders';
 import { OrderTitlePipe } from '../../../../../orders/pipes/order-title';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '../../../../../shared';
-import { BarTables } from '../../../../../tables';
+import { TablesStore } from '../../../../../tables';
 import { MergeOrdersDialog, MergeOrdersDialogData } from '../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog, MoveTableDialogData } from '../components/move-table-dialog/move-table-dialog';
 
@@ -54,7 +54,7 @@ class OrderDetail {
   public readonly orderId = input.required<string>();
 
   readonly #ordersStore = inject(OrdersStore);
-  readonly #tablesService = inject(BarTables);
+  readonly #tablesStore = inject(TablesStore);
   readonly #dialog = inject(Dialog);
   readonly #router = inject(Router);
 
@@ -160,7 +160,7 @@ class OrderDetail {
 
     await this.#ordersStore.checkout(this.barId(), order.id);
     this.goBack();
-    this.#tablesService.reload();
+    this.#tablesStore.reload();
     this.#ordersStore.reloadHistory();
     this.isCheckoutOrderModelOpen.set(false);
   }
@@ -179,7 +179,7 @@ class OrderDetail {
 
     await this.#ordersStore.cancel(this.barId(), order.id);
     this.goBack();
-    this.#tablesService.reload();
+    this.#tablesStore.reload();
     this.#ordersStore.reloadHistory();
     this.isCancelingOrderModelOpen.set(false);
   }
@@ -200,7 +200,7 @@ class OrderDetail {
     }
 
     await this.#ordersStore.removeItem(this.barId(), order.id, item.id);
-    this.#tablesService.reload();
+    this.#tablesStore.reload();
     this.orderItemDeleting.set(null);
   }
 
@@ -210,7 +210,7 @@ class OrderDetail {
 
     const dialogRef = this.#dialog.open(MoveTableDialog, {
       data: {
-        tables: this.#tablesService.all.hasValue() ? (this.#tablesService.all.value() ?? []) : [],
+        tables: this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
         currentTableId: order.tableId,
       } satisfies MoveTableDialogData,
     });
@@ -221,7 +221,7 @@ class OrderDetail {
         try {
           await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: targetTableId });
           this.#ordersStore.reloadOrders();
-          this.#tablesService.reload();
+          this.#tablesStore.reload();
         } catch (e) {
           console.error(e);
         }
@@ -248,7 +248,7 @@ class OrderDetail {
             orderIds: [order.id, targetOrderId],
           });
           this.#ordersStore.reloadOrders();
-          this.#tablesService.reload();
+          this.#tablesStore.reload();
         } catch (e) {
           console.error(e);
         }

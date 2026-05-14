@@ -8,7 +8,7 @@ import { TableRepository } from '../data-access/table-repository';
 export class UpdateTable {
   readonly #tableRepository = inject(TableRepository);
 
-  public async update(barId: BarId, tableId: TableId, dto: UpdateTableDto) {
+  public async execute(barId: BarId, tableId: TableId, dto: UpdateTableDto) {
     return await this.#tableRepository.update(barId, tableId, dto);
   }
 }

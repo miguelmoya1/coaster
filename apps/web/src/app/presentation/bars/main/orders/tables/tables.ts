@@ -17,7 +17,8 @@ import {
   PricePipe,
   StatusCard,
 } from '../../../../../shared';
-import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../tables';
+import { TablesStore } from '../../../../../tables';
+import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
@@ -43,10 +44,8 @@ import { BarTables, CreateTable, DeleteTable, TableCard } from '../../../../../t
 class Tables {
   public readonly barId = input.required<BarId>();
 
-  readonly #tablesService = inject(BarTables);
+  readonly #tablesStore = inject(TablesStore);
   readonly #ordersStore = inject(OrdersStore);
-  readonly #createTable = inject(CreateTable);
-  readonly #deleteTable = inject(DeleteTable);
   readonly #currentUser = inject(CurrentUser);
   readonly #membersStore = inject(MembersStore);
 
@@ -64,14 +63,14 @@ class Tables {
     return members.find((m) => m.userId === userId)?.role === 'OWNER';
   });
 
-  protected readonly freeCount = this.#tablesService.freeCount;
-  protected readonly occupiedCount = this.#tablesService.occupiedCount;
+  protected readonly freeCount = this.#tablesStore.freeCount;
+  protected readonly occupiedCount = this.#tablesStore.occupiedCount;
   protected readonly totalOpen = this.#ordersStore.totalOpen;
-  protected readonly isLoadingTables = this.#tablesService.all.isLoading;
+  protected readonly isLoadingTables = this.#tablesStore.tables.isLoading;
 
   protected readonly tablesViewModel = computed(() => {
-    if (!this.#tablesService.all.hasValue()) return [];
-    const tables = this.#tablesService.all.value() ?? [];
+    if (!this.#tablesStore.tables.hasValue()) return [];
+    const tables = this.#tablesStore.tables.value() ?? [];
     const orders = this.#ordersStore.openOrders();
 
     return tables.map((table) => {
@@ -110,8 +109,7 @@ class Tables {
     if (!name.trim()) return;
     this.isSubmitting.set(true);
     try {
-      await this.#createTable.create(this.barId(), { name: name.trim() });
-      this.#tablesService.reload();
+      await this.#tablesStore.create({ name: name.trim() });
       this.showCreateTable.set(false);
     } catch (e) {
       console.error(e);
@@ -133,8 +131,7 @@ class Tables {
       return;
     }
 
-    await this.#deleteTable.delete(this.barId(), table.id);
-    this.#tablesService.reload();
+    await this.#tablesStore.delete(table.id);
     this.tableToDelete.set(null);
   }
 }

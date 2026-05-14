@@ -8,7 +8,7 @@ import { TableRepository } from '../data-access/table-repository';
 export class CreateTable {
   readonly #tableRepository = inject(TableRepository);
 
-  public async create(barId: BarId, dto: CreateTableDto) {
+  public async execute(barId: BarId, dto: CreateTableDto) {
     return await this.#tableRepository.create(barId, dto);
   }
 }
