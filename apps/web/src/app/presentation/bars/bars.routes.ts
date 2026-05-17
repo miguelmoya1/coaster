@@ -1,18 +1,17 @@
 import { Routes } from '@angular/router';
-import { checkParamIdGuard } from '../../core';
 
 const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./bars-layout'),
+    loadComponent: () => import('./layouts/bars-layout'),
     children: [
       {
         path: 'select',
-        loadComponent: () => import('./select-bar/select-bar'),
+        loadComponent: () => import('./pages/select-bar/select-bar'),
       },
       {
         path: 'create',
-        loadComponent: () => import('./create-bar/create-bar'),
+        loadComponent: () => import('./pages/create-bar/create-bar'),
       },
       {
         path: '',
@@ -23,8 +22,7 @@ const routes: Routes = [
   },
   {
     path: ':barId',
-    canActivate: [checkParamIdGuard('barId')],
-    loadChildren: () => import('./main/main.routes'),
+    loadChildren: () => import('./workspace/workspace.routes'),
   },
   {
     path: '**',

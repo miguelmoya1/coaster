@@ -1,9 +1,0 @@
-@if (currentUser.hasValue()) {
-  <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
-}
-
-<main class="w-full max-w-xl mt-12 md:mt-24">
-  <router-outlet />
-</main>
-
-<coaster-bottom-nav [barId]="barId()" [isOwner]="isOwner()" />

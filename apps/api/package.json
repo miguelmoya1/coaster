@@ -60,7 +60,7 @@
     "db:gen": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:nuke": "docker-compose down -v && docker-compose up -d && npm run db:push && prisma db seed",
+    "db:nuke": "docker compose down -v && docker compose up -d && npm run db:push && prisma db seed",
     "build": "nest build",
     "start": "node dist/main",
     "dev": "nest start -b swc -w",

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 const authRoutes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./login/login'),
+    loadComponent: () => import('./pages/login/login'),
   },
   {
     path: '**',

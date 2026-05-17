@@ -1,6 +1,5 @@
 export * from './errors/api-error';
 export * from './guards/auth-guard';
-export * from './guards/check-param-id-guard';
 export * from './guards/no-auth-guard';
 export * from './interceptors/error.interceptor';
 export * from './interceptors/id-token-interceptor';
@@ -9,7 +8,7 @@ export * from './mappers/user.mapper';
 export * from './services/auth';
 export * from './services/current-user';
 export * from './services/date-formatter';
-export * from './utils/errors.utils';
-export * from './utils/user.utils';
 export * from './services/socket';
 export * from './services/toast';
+export * from './utils/errors.utils';
+export * from './utils/user.utils';
