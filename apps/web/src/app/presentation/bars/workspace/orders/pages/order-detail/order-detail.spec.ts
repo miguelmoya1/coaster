@@ -29,6 +29,7 @@ describe('OrderDetail', () => {
     addItems: vi.fn(),
     reloadOrders: vi.fn(),
     reloadHistory: vi.fn(),
+    setBarId: vi.fn(),
   };
 
   beforeEach(async () => {

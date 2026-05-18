@@ -36,6 +36,7 @@ describe('Pantry', () => {
     criticalStock: vi.fn().mockReturnValue(0),
     lowStock: vi.fn().mockReturnValue(0),
     delete: vi.fn().mockResolvedValue(null),
+    setBarId: vi.fn(),
   };
 
   const currentUserMock = {
@@ -51,6 +52,7 @@ describe('Pantry', () => {
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
+    setBarId: vi.fn(),
   };
 
   beforeEach(async () => {

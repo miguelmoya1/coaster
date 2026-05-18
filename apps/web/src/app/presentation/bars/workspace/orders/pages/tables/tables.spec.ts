@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { CurrentUser } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { OrdersStore } from '@coaster/orders';
+import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Tables from './tables';
@@ -22,6 +23,20 @@ describe('Tables', () => {
     totalOpen: signal(3),
     totalRevenue: signal(0),
     reloadOrders: vi.fn(),
+    setBarId: vi.fn(),
+  };
+
+  const tablesStoreMock = {
+    tables: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    freeCount: signal(0),
+    occupiedCount: signal(0),
+    setBarId: vi.fn(),
+    create: vi.fn(),
+    delete: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -31,6 +46,7 @@ describe('Tables', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: OrdersStore, useValue: ordersStoreMock },
+        { provide: TablesStore, useValue: tablesStoreMock },
         {
           provide: CurrentUser,
           useValue: {
@@ -45,6 +61,7 @@ describe('Tables', () => {
               hasValue: vi.fn().mockReturnValue(true),
               isLoading: vi.fn().mockReturnValue(false),
             },
+            setBarId: vi.fn(),
           },
         },
       ],

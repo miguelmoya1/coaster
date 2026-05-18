@@ -3,6 +3,8 @@ import { provideRouter, Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import { Product } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
+import { ProductsStore } from '@coaster/products';
+import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NewOrder from './new-order';
@@ -23,10 +25,31 @@ describe('NewOrder', () => {
     reloadCategories: vi.fn(),
   };
 
+  const productsStoreMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+  };
+
+  const tablesStoreMock = {
+    tables: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+    setTableId: vi.fn(),
+    reload: vi.fn(),
+  };
+
   const ordersStoreMock = {
     create: vi.fn(),
     addItems: vi.fn(),
     reloadOrders: vi.fn(),
+    setBarId: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -37,6 +60,8 @@ describe('NewOrder', () => {
         provideRouter([]),
         { provide: Router, useValue: routerMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
+        { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: TablesStore, useValue: tablesStoreMock },
         { provide: OrdersStore, useValue: ordersStoreMock },
       ],
     }).compileComponents();

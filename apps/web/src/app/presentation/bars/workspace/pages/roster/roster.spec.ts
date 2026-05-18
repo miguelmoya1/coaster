@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { CurrentUser } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
+import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Roster from './roster';
@@ -17,6 +18,18 @@ describe('Roster', () => {
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
+    setBarId: vi.fn(),
+  };
+
+  const shiftsStoreMock = {
+    shifts: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+    setDateRange: vi.fn(),
+    reload: vi.fn(),
   };
 
   const currentUserMock = {
@@ -35,6 +48,7 @@ describe('Roster', () => {
     setBarId: vi.fn(),
     accept: vi.fn(),
     request: vi.fn(),
+    reload: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -44,6 +58,7 @@ describe('Roster', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
+        { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: ExchangesStore, useValue: exchangesMock },
       ],

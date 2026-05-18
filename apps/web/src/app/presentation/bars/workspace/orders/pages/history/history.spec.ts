@@ -28,6 +28,7 @@ describe('History', () => {
     setHistoryDate: vi.fn(),
     reloadHistory: vi.fn(),
     deleteOrder: vi.fn(),
+    setBarId: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -43,7 +44,10 @@ describe('History', () => {
         },
         {
           provide: MembersStore,
-          useValue: { list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(false) } },
+          useValue: {
+            list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(false) },
+            setBarId: vi.fn(),
+          },
         },
       ],
     }).compileComponents();

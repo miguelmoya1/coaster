@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MembersStore } from '@coaster/members';
+import { ProductsStore } from '@coaster/products';
+import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Dashboard from './dashboard';
@@ -18,10 +20,35 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
+  const productsStoreMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+  };
+
+  const shiftsStoreMock = {
+    shifts: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+    setDateRange: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Dashboard],
-      providers: [provideTranslateService(), provideRouter([]), { provide: MembersStore, useValue: membersStoreMock }],
+      providers: [
+        provideTranslateService(),
+        provideRouter([]),
+        { provide: MembersStore, useValue: membersStoreMock },
+        { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: ShiftsStore, useValue: shiftsStoreMock },
+      ],
     }).compileComponents();
 
     vi.clearAllMocks();
