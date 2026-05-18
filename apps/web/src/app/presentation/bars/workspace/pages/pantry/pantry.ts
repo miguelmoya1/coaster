@@ -128,7 +128,10 @@ export default class Pantry {
 
   constructor() {
     effect(() => {
-      this.#categoriesStore.setBarId(this.barId());
+      const barId = this.barId();
+      this.#categoriesStore.setBarId(barId);
+      this.#productsStore.setBarId(barId);
+      this.#membersStore.setBarId(barId);
     });
   }
 

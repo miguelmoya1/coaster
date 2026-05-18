@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
 import { CurrentUser } from '@coaster/core';
@@ -26,6 +26,14 @@ class History {
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      const barId = this.barId();
+      this.#ordersStore.setBarId(barId);
+      this.#membersStore.setBarId(barId);
+    });
+  }
 
   readonly today = new Date().toISOString().split('T')[0];
   protected readonly selectedDate = this.#ordersStore.selectedDate;

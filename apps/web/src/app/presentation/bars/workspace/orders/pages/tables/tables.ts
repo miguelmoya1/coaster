@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { BarId, Order, Table } from '@coaster/common';
 import { CurrentUser } from '@coaster/core';
@@ -49,6 +58,15 @@ class Tables {
   readonly #membersStore = inject(MembersStore);
 
   readonly #router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      const barId = this.barId();
+      this.#tablesStore.setBarId(barId);
+      this.#ordersStore.setBarId(barId);
+      this.#membersStore.setBarId(barId);
+    });
+  }
 
   readonly showCreateTable = signal(false);
   readonly isSubmitting = signal(false);

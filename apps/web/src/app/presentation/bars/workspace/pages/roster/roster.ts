@@ -117,6 +117,8 @@ export default class Roster {
       const barId = this.barId();
 
       this.#exchangesStore.setBarId(barId);
+      this.#shiftsStore.setBarId(barId);
+      this.#membersStore.setBarId(barId);
     });
   }
 

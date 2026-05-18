@@ -53,6 +53,8 @@ export class Dashboard {
       const barId = this.barId();
 
       this.#membersStore.setBarId(barId);
+      this.#productsStore.setBarId(barId);
+      this.#shiftsStore.setBarId(barId);
     });
   }
 

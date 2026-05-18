@@ -91,6 +91,12 @@ class OrderDetail {
   #isNavigatingAway = false;
 
   constructor() {
+    effect(() => {
+      const barId = this.barId();
+      this.#ordersStore.setBarId(barId);
+      this.#tablesStore.setBarId(barId);
+    });
+
     effect(async () => {
       if (this.#isNavigatingAway) return;
       const current = this.currentOrder();

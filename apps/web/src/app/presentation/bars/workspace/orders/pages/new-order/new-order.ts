@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, OrderId, Product, asOrderId } from '@coaster/common';
+import { BarId, OrderId, Product, TableId, asOrderId } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { CoasterTitle, Loading } from '@coaster/shared';
@@ -22,8 +22,8 @@ import { PosProductGrid } from '../../components/pos-product-grid/pos-product-gr
 })
 class NewOrder {
   public readonly barId = input.required<BarId>();
-  public readonly tableId = input<string>();
-  public readonly orderId = input<string>();
+  public readonly tableId = input<TableId>();
+  public readonly orderId = input<OrderId>();
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
@@ -60,15 +60,25 @@ class NewOrder {
 
   constructor() {
     effect(() => {
+      const barId = this.barId();
+      this.#productsStore.setBarId(barId);
+      this.#categoriesStore.setBarId(barId);
+      this.#tablesStore.setBarId(barId);
+      this.#ordersStore.setBarId(barId);
+    });
+
+    effect(() => {
       const tableId = this.tableId();
       if (tableId) {
         this.selectedTableId.set(tableId);
         this.tableLocked.set(true);
+        this.#tablesStore.setTableId(tableId);
       }
 
       const orderId = this.orderId();
       if (orderId) {
-        this.existingOrderId.set(asOrderId(orderId));
+        const resolved = asOrderId(orderId);
+        this.existingOrderId.set(resolved);
         this.tableLocked.set(true);
       }
     });

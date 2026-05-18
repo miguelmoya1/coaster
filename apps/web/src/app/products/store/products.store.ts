@@ -27,6 +27,10 @@ export class ProductsStore {
 
   readonly list = this.#productsResource.asReadonly();
 
+  public setBarId(barId: BarId | null) {
+    this.#currentBarId.set(barId);
+  }
+
   public readonly total = computed(() => {
     if (this.#productsResource.hasValue()) {
       return this.#productsResource.value().length ?? 0;

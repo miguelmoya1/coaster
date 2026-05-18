@@ -19,12 +19,14 @@ export class TablesStore {
   readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentTableId = signal<TableId | undefined>(undefined);
 
   readonly #listResource = httpResource(() => this.#barTables.execute(this.#currentBarId()), {
     parse: tableArrayMapper,
   });
 
   public readonly tables = this.#listResource.asReadonly();
+  public readonly currentTableId = this.#currentTableId.asReadonly();
 
   public readonly total = computed(() => {
     if (this.#listResource.hasValue()) {
@@ -65,8 +67,12 @@ export class TablesStore {
     this.#listResource.reload();
   }
 
-  public setCurrentBarId(barId: BarId | undefined) {
+  public setBarId(barId: BarId | undefined) {
     this.#currentBarId.set(barId);
+  }
+
+  public setTableId(tableId: TableId | undefined) {
+    this.#currentTableId.set(tableId);
   }
 
   public async create(createTableDto: CreateTableDto) {
