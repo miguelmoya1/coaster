@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import { ShiftsStore } from '@coaster/shifts';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
@@ -7,7 +8,7 @@ import { CreateShiftForm } from './create-shift-form';
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;
   let fixture: ComponentFixture<CreateShiftForm>;
-  let mockSubmitAction: ReturnType<typeof vi.fn>;
+  let mockShiftsStore: { create: ReturnType<typeof vi.fn> };
 
   const mockMembers: BarMember[] = [
     {
@@ -23,10 +24,13 @@ describe('CreateShiftForm', () => {
   ];
 
   beforeEach(async () => {
-    mockSubmitAction = vi.fn().mockResolvedValue(null);
+    mockShiftsStore = {
+      create: vi.fn().mockResolvedValue(null),
+    };
 
     await TestBed.configureTestingModule({
       imports: [CreateShiftForm, TranslateModule.forRoot()],
+      providers: [{ provide: ShiftsStore, useValue: mockShiftsStore }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateShiftForm);
@@ -34,7 +38,6 @@ describe('CreateShiftForm', () => {
 
     fixture.componentRef.setInput('members', mockMembers);
     fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -86,7 +89,7 @@ describe('CreateShiftForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockSubmitAction).toHaveBeenCalledWith({
+      expect(mockShiftsStore.create).toHaveBeenCalledWith({
         userId: 'user-1',
         startTime: '08:00',
         endTime: '16:00',

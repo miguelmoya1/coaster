@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CategoriesStore } from '@coaster/categories';
 import { asBarId, asCategoryId, Category } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +9,10 @@ import { EditCategoryForm } from './edit-category-form';
 describe('EditCategoryForm', () => {
   let fixture: ComponentFixture<EditCategoryForm>;
   let component: EditCategoryForm;
+  let categoriesStoreMock: {
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
 
   const mockCategory: Category = {
     id: asCategoryId('cat-1'),
@@ -17,9 +22,18 @@ describe('EditCategoryForm', () => {
   };
 
   beforeEach(async () => {
+    categoriesStoreMock = {
+      update: vi.fn().mockResolvedValue(null),
+      delete: vi.fn().mockResolvedValue(null),
+    };
+
     await TestBed.configureTestingModule({
       imports: [EditCategoryForm],
-      providers: [provideZonelessChangeDetection(), provideTranslateService()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideTranslateService(),
+        { provide: CategoriesStore, useValue: categoriesStoreMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditCategoryForm);

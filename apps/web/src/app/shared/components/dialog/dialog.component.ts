@@ -89,9 +89,18 @@ export class DialogComponent {
       }
 
       if (this.isOpen()) {
-        dialog.nativeElement.showModal();
+        if (typeof dialog.nativeElement.showModal === 'function') {
+          dialog.nativeElement.showModal();
+        } else {
+          dialog.nativeElement.setAttribute('open', '');
+        }
       } else {
-        dialog.nativeElement.close();
+        if (typeof dialog.nativeElement.close === 'function') {
+          dialog.nativeElement.close();
+        } else {
+          dialog.nativeElement.removeAttribute('open');
+          dialog.nativeElement.dispatchEvent(new Event('close'));
+        }
       }
     });
   }

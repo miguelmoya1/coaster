@@ -4,6 +4,7 @@ import { CategoriesStore } from '@coaster/categories';
 import { Product } from '@coaster/common';
 import { CurrentUser } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
+import { ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Pantry from './pantry';
@@ -23,6 +24,18 @@ describe('Pantry', () => {
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+  };
+
+  const productsStoreMock = {
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    total: vi.fn().mockReturnValue(0),
+    criticalStock: vi.fn().mockReturnValue(0),
+    lowStock: vi.fn().mockReturnValue(0),
+    delete: vi.fn().mockResolvedValue(null),
   };
 
   const currentUserMock = {
@@ -47,6 +60,7 @@ describe('Pantry', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: CategoriesStore, useValue: categoriesStoreMock },
+        { provide: ProductsStore, useValue: productsStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: MembersStore, useValue: membersStoreMock },
       ],

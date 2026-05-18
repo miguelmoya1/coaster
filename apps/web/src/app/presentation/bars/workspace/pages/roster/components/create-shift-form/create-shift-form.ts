@@ -46,7 +46,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             class="w-full"
             type="button"
             variant="outline"
-            [disabled]="form().disabled() || form().submitting()"
+            [disabled]="form().disabled() || form().submitting() || disabled()"
             (click)="handleCancel()"
           >
             {{ 'common.cancel' | translate }}
@@ -57,7 +57,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             class="w-full"
             type="submit"
             variant="primary"
-            [disabled]="form().invalid() || form().submitting() || form().disabled()"
+            [disabled]="form().invalid() || form().submitting() || form().disabled() || disabled()"
           >
             {{ 'common.create' | translate }}
           </button>
@@ -68,6 +68,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class CreateShiftForm {
   readonly members = input.required<BarMember[]>();
+  readonly disabled = input(false);
 
   readonly canceled = output<void>();
   readonly created = output<void>();

@@ -25,6 +25,10 @@ describe('ConfirmDialogComponent', () => {
   });
 
   it('should display title and message from inputs', () => {
+    fixture.componentRef.setInput('title', 'Test Title');
+    fixture.componentRef.setInput('message', 'Test Message');
+    fixture.detectChanges();
+
     const compiled = fixture.nativeElement as HTMLElement;
     const title = compiled.querySelector('h2');
     const message = compiled.querySelector('p');

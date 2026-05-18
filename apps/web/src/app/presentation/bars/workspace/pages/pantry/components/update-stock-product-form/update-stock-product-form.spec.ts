@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asCategoryId, asProductId, Product } from '@coaster/common';
+import { ProductsStore } from '@coaster/products';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateStockProductForm } from './update-stock-product-form';
@@ -7,7 +8,9 @@ import { UpdateStockProductForm } from './update-stock-product-form';
 describe('UpdateStockProductForm', () => {
   let component: UpdateStockProductForm;
   let fixture: ComponentFixture<UpdateStockProductForm>;
-  let mockSubmitAction: ReturnType<typeof vi.fn>;
+  let productsStoreMock: {
+    updateStock: ReturnType<typeof vi.fn>;
+  };
 
   const mockProduct: Product = {
     id: asProductId('prod-1'),
@@ -21,18 +24,21 @@ describe('UpdateStockProductForm', () => {
   };
 
   beforeEach(async () => {
-    mockSubmitAction = vi.fn().mockResolvedValue(null);
+    productsStoreMock = {
+      updateStock: vi.fn().mockResolvedValue(null),
+    };
 
     await TestBed.configureTestingModule({
       imports: [UpdateStockProductForm, TranslateModule.forRoot()],
+      providers: [
+        { provide: ProductsStore, useValue: productsStoreMock }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(UpdateStockProductForm);
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('product', mockProduct);
-    fixture.componentRef.setInput('disabled', false);
-    fixture.componentRef.setInput('submitAction', mockSubmitAction);
 
     fixture.detectChanges();
   });
@@ -58,7 +64,7 @@ describe('UpdateStockProductForm', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should call submitAction when form is submitted', async () => {
+    it('should call ProductsStore.updateStock when form is submitted', async () => {
       component.form.currentStock().value.set(15);
       fixture.detectChanges();
 
@@ -71,7 +77,7 @@ describe('UpdateStockProductForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockSubmitAction).toHaveBeenCalledWith({
+      expect(productsStoreMock.updateStock).toHaveBeenCalledWith(mockProduct.id, {
         currentStock: 15,
       });
     });

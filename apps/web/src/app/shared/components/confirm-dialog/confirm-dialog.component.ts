@@ -24,9 +24,15 @@ import { CoasterTitle } from '../typography/typography';
           <div class="flex flex-col gap-1">
             <h2 coaster-title>
               <ng-content select="[confirm-dialog-title]" />
+              @if (title()) {
+                {{ title() | translate }}
+              }
             </h2>
             <p class="text-on-surface-variant">
               <ng-content select="[confirm-dialog-message]" />
+              @if (message()) {
+                {{ message() | translate }}
+              }
             </p>
           </div>
         </div>
@@ -50,6 +56,8 @@ import { CoasterTitle } from '../typography/typography';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialogComponent {
+  public readonly title = input<string>();
+  public readonly message = input<string>();
   public readonly cancelLabel = input('common.cancel');
   public readonly confirmLabel = input('common.confirm');
 
