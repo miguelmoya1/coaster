@@ -1,4 +1,3 @@
-import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarId, Order, OrderItem, asOrderId } from '@coaster/common';
@@ -17,8 +16,8 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MergeOrdersDialog, MergeOrdersDialogData } from '../../components/merge-orders-dialog/merge-orders-dialog';
-import { MoveTableDialog, MoveTableDialogData } from '../../components/move-table-dialog/move-table-dialog';
+import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -31,6 +30,8 @@ import { MoveTableDialog, MoveTableDialogData } from '../../components/move-tabl
     PricePipe,
     OrderTitlePipe,
     ConfirmDialogComponent,
+    MoveTableDialog,
+    MergeOrdersDialog,
   ],
   viewProviders: [
     provideIcons({
@@ -54,12 +55,13 @@ class OrderDetail {
 
   readonly #ordersStore = inject(OrdersStore);
   readonly #tablesStore = inject(TablesStore);
-  readonly #dialog = inject(Dialog);
   readonly #router = inject(Router);
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
   protected readonly isCheckoutOrderModelOpen = signal(false);
+  protected readonly isMoveTableModelOpen = signal(false);
+  protected readonly isMergeOrdersModelOpen = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
@@ -210,56 +212,52 @@ class OrderDetail {
   }
 
   onMoveTable() {
+    this.isMoveTableModelOpen.set(true);
+  }
+
+  protected async handleMoveTableResult(targetTableId: string | undefined) {
     const order = this.currentOrder();
     if (!order) return;
 
-    const dialogRef = this.#dialog.open(MoveTableDialog, {
-      data: {
-        tables: this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
-        currentTableId: order.tableId,
-      } satisfies MoveTableDialogData,
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      const targetTableId = result as string | undefined;
-      if (targetTableId) {
-        try {
-          await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: targetTableId });
-          this.#ordersStore.reloadOrders();
-          this.#tablesStore.reload();
-        } catch (e) {
-          console.error(e);
-        }
+    if (targetTableId) {
+      try {
+        await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: targetTableId });
+        this.#ordersStore.reloadOrders();
+        this.#tablesStore.reload();
+      } catch (e) {
+        console.error(e);
       }
-    });
+    }
+    this.isMoveTableModelOpen.set(false);
   }
 
   onMerge() {
+    this.isMergeOrdersModelOpen.set(true);
+  }
+
+  protected async handleMergeResult(targetOrderId: string | undefined) {
     const order = this.currentOrder();
     if (!order) return;
 
-    const dialogRef = this.#dialog.open(MergeOrdersDialog, {
-      data: {
-        orders: this.#ordersStore.openOrders(),
-        currentOrderId: order.id,
-      } satisfies MergeOrdersDialogData,
-    });
-
-    dialogRef.closed.subscribe(async (result) => {
-      const targetOrderId = result as string | undefined;
-      if (targetOrderId) {
-        try {
-          await this.#ordersStore.merge(this.barId(), {
-            orderIds: [order.id, targetOrderId],
-          });
-          this.#ordersStore.reloadOrders();
-          this.#tablesStore.reload();
-        } catch (e) {
-          console.error(e);
-        }
+    if (targetOrderId) {
+      try {
+        await this.#ordersStore.merge(this.barId(), {
+          orderIds: [order.id, targetOrderId],
+        });
+        this.#ordersStore.reloadOrders();
+        this.#tablesStore.reload();
+      } catch (e) {
+        console.error(e);
       }
-    });
+    }
+    this.isMergeOrdersModelOpen.set(false);
   }
+
+  protected readonly availableTables = computed(() =>
+    this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
+  );
+
+  protected readonly openOrders = computed(() => this.#ordersStore.openOrders());
 }
 
 export default OrderDetail;

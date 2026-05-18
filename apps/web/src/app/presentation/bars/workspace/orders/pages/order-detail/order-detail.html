@@ -172,3 +172,17 @@
     {{ 'orders.remove_item_message' | translate }}
   </ng-container>
 </coaster-confirm-dialog>
+
+<coaster-move-table-dialog
+  [isOpen]="isMoveTableModelOpen()"
+  [tables]="availableTables()"
+  [currentTableId]="currentOrder()?.tableId"
+  (closed)="handleMoveTableResult($event)"
+/>
+
+<coaster-merge-orders-dialog
+  [isOpen]="isMergeOrdersModelOpen()"
+  [orders]="openOrders()"
+  [currentOrderId]="orderId()"
+  (closed)="handleMergeResult($event)"
+/>
