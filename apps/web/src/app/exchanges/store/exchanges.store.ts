@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { handleErrorFormField } from '../../core';
+import { handleErrorFormField } from '@coaster/core';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 import { AcceptExchange } from '../services/accept-exchange';
 import { BarExchanges } from '../services/bar-exchanges';

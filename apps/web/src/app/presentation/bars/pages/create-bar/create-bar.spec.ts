@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarsStore } from '../../../bars';
 import CreateBar from './create-bar';
 
 describe('CreateBar', () => {

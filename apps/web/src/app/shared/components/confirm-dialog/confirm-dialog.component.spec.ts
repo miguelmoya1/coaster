@@ -14,13 +14,9 @@ describe('ConfirmDialogComponent', () => {
 
     fixture = TestBed.createComponent(ConfirmDialogComponent);
     component = fixture.componentInstance;
-    
-    fixture.componentRef.setInput('title', 'Test Title');
-    fixture.componentRef.setInput('message', 'Test Message');
-    fixture.componentRef.setInput('confirmText', 'Confirm');
-    fixture.componentRef.setInput('cancelText', 'Cancel');
-    fixture.componentRef.setInput('isDestructive', true);
-    
+
+    fixture.componentRef.setInput('isOpen', true);
+
     fixture.detectChanges();
   });
 

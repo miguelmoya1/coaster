@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { DateFormatterService } from '@coaster/core';
 import { addDays, isSameDay, subDays } from 'date-fns';
-import { DateFormatterService } from '../../core';
 
 export interface ScrollerDay {
   id: string;

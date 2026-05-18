@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CurrentUser } from '@coaster/core';
+import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CurrentUser } from '../../../../../core';
-import { MembersStore } from '../../../../../members';
 import Staff from './staff';
 
 describe('Staff', () => {

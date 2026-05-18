@@ -31,14 +31,14 @@ describe('UpdateTable', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('update', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const tableId = asTableId('table-1');
       const dto = { name: 'Mesa Actualizada' };
       tableRepoMock['update'].mockResolvedValue(mockTable);
 
-      const result = await service.update(barId, tableId, dto);
+      const result = await service.execute(barId, tableId, dto);
 
       expect(tableRepoMock['update']).toHaveBeenCalledWith(barId, tableId, dto);
       expect(result).toEqual(mockTable);

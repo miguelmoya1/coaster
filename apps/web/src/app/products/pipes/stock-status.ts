@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { StockStatus } from '@coaster/common';
-import { BadgeVariant } from '../../shared';
+import { BadgeVariant } from '@coaster/shared';
 
 @Pipe({
   name: 'stockStatus',

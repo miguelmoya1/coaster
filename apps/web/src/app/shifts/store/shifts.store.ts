@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { BarId, CreateShiftDto } from '@coaster/common';
-import { handleErrorFormField } from '../../core';
+import { handleErrorFormField } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';

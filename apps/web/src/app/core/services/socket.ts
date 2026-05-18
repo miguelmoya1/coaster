@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { SocketEvents, Order, Table } from '@coaster/common';
+import { Order, SocketEvents, Table } from '@coaster/common';
+import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',

@@ -1,5 +1,5 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { environment } from '@coaster/env';
 
 const API_VERSION = 'api/v1';
 

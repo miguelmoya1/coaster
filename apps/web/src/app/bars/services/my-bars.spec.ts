@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Auth } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Auth } from '../../core';
 import { BarRepository } from '../data-access/bar-repository';
 import { MyBars } from './my-bars';
 

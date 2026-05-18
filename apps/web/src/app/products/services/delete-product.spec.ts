@@ -24,13 +24,13 @@ describe('DeleteProduct', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('delete', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const productId = asProductId('prod-1');
       productRepoMock['delete'].mockResolvedValue({ success: true });
 
-      const result = await service.delete(barId, productId);
+      const result = await service.execute(barId, productId);
 
       expect(productRepoMock['delete']).toHaveBeenCalledWith(barId, productId);
       expect(result).toEqual({ success: true });

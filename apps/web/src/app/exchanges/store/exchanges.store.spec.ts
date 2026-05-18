@@ -1,9 +1,9 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { BarsStore } from '@coaster/bars';
 import { BarId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarsStore } from '../../bars';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { ExchangesStore } from './exchanges.store';
 

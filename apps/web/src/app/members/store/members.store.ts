@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { BarId, BarMemberId, BarRole, InviteBarMemberDto } from '@coaster/common';
-import { handleErrorFormField } from '../../core';
+import { handleErrorFormField } from '@coaster/core';
 import { memberArrayMapper } from '../mappers/member.mapper';
 import { BarMembers } from '../services/bar-members';
 import { InviteMember } from '../services/invite-member';

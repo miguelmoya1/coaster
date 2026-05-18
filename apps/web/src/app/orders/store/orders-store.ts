@@ -13,7 +13,7 @@ import {
   OrderItemId,
   OrderStatus,
 } from '@coaster/common';
-import { handleErrorFormField, Socket, Toast } from '../../core';
+import { handleErrorFormField, Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { BarOrderHistory } from '../services/bar-order-history';
 import { BarOrders } from '../services/bar-orders';

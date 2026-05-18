@@ -1,9 +1,9 @@
 import { Component, inject, input, linkedSignal, output } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { CategoriesStore } from '@coaster/categories';
 import { Category } from '@coaster/common';
+import { CoasterBtn, FormFieldMessages, TextInput } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CategoriesStore } from '../../../../../../../categories';
-import { CoasterBtn, FormFieldMessages, TextInput } from '../../../../../../../shared';
 
 @Component({
   selector: 'coaster-edit-category-form',

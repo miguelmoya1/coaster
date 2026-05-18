@@ -1,9 +1,9 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { InviteBarMemberDto } from '@coaster/common';
+import { MembersStore } from '@coaster/members';
+import { CoasterBtn, FormFieldMessages, TextInput } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MembersStore } from '../../../../../../../members/store/members.store';
-import { CoasterBtn, FormFieldMessages, TextInput } from '../../../../../../../shared';
 
 @Component({
   selector: 'coaster-invite-member-form',

@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Auth } from '@coaster/core';
+import { CoasterBtn, CoasterTitle, SectionTitle, StatusCard } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Auth } from '../../../../core';
-import { CoasterBtn, CoasterTitle, SectionTitle, StatusCard } from '../../../../shared';
 
 @Component({
   selector: 'coaster-login',

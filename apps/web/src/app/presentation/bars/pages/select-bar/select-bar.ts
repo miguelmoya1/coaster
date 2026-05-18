@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
+import { CoasterBtn, Loading, SectionTitle } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarsStore } from '../../../../bars';
-import { CoasterBtn, Loading, SectionTitle } from '../../../../shared';
 import { BarCard } from './components/bar-card/bar-card';
 
 @Component({

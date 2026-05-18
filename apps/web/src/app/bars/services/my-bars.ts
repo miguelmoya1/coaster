@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth } from '../../core';
+import { Auth } from '@coaster/core';
 import { BarRepository } from '../data-access/bar-repository';
 
 @Injectable({

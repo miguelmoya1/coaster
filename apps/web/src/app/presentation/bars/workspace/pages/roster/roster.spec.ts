@@ -1,26 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CurrentUser } from '@coaster/core';
+import { ExchangesStore } from '@coaster/exchanges';
+import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CurrentUser } from '../../../../../core';
-import { ExchangesStore } from '../../../../../exchanges';
-import { MembersStore } from '../../../../../members';
-import { BarShifts, CreateShift } from '../../../../../shifts';
 import Roster from './roster';
 
 describe('Roster', () => {
   let component: Roster;
   let fixture: ComponentFixture<Roster>;
-
-  const shiftsMock = {
-    all: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setDateRange: vi.fn(),
-    reload: vi.fn(),
-  };
 
   const membersStoreMock = {
     list: {
@@ -54,8 +43,6 @@ describe('Roster', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: BarShifts, useValue: shiftsMock },
-        { provide: CreateShift, useValue: { execute: vi.fn() } },
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: ExchangesStore, useValue: exchangesMock },

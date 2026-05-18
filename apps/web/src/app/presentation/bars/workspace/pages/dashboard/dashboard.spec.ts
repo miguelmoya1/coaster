@@ -1,28 +1,13 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MembersStore } from '../../../../../members';
-import { BarProducts } from '../../../../../products';
-import { BarShifts } from '../../../../../shifts';
 import Dashboard from './dashboard';
 
 describe('Dashboard', () => {
   let component: Dashboard;
   let fixture: ComponentFixture<Dashboard>;
-
-  const productsMock = {
-    all: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    total: signal(0),
-    criticalStock: signal(0),
-    lowStock: signal(0),
-    reload: vi.fn(),
-  };
 
   const membersStoreMock = {
     list: {
@@ -33,25 +18,10 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
-  const shiftsMock = {
-    all: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setDateRange: vi.fn(),
-  };
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Dashboard],
-      providers: [
-        provideTranslateService(),
-        provideRouter([]),
-        { provide: BarProducts, useValue: productsMock },
-        { provide: MembersStore, useValue: membersStoreMock },
-        { provide: BarShifts, useValue: shiftsMock },
-      ],
+      providers: [provideTranslateService(), provideRouter([]), { provide: MembersStore, useValue: membersStoreMock }],
     }).compileComponents();
 
     vi.clearAllMocks();

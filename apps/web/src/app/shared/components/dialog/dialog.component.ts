@@ -84,7 +84,7 @@ export class DialogComponent {
   constructor() {
     effect(() => {
       const dialog = this.dialogRef();
-      if (!dialog) {
+      if (!dialog?.nativeElement) {
         return;
       }
 

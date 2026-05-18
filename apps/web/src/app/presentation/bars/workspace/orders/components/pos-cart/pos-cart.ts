@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Table, TableStatus } from '@coaster/common';
+import { CoasterBtn, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe, CoasterBtn } from '../../../../../../shared';
 
 export interface CartItem {
   productId: string;
@@ -108,7 +108,5 @@ export class PosCart {
 
   readonly freeTables = computed(() => this.tables().filter((t) => t.status === TableStatus.FREE));
 
-  readonly totalCents = computed(() =>
-    this.items().reduce((sum, item) => sum + item.price * item.quantity, 0),
-  );
+  readonly totalCents = computed(() => this.items().reduce((sum, item) => sum + item.price * item.quantity, 0));
 }

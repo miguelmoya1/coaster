@@ -1,6 +1,6 @@
 import { Listbox, Option } from '@angular/aria/listbox';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { ScrollerDay } from '../../../../../../../roster';
+import { ScrollerDay } from '@coaster/roster';
 
 @Component({
   selector: 'coaster-horizontal-date-scroller',

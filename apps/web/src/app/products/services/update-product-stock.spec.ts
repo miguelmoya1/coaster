@@ -1,17 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  Product,
-  UpdateProductStockDto,
-} from '@coaster/common';
+import { asBarId, asCategoryId, asProductId, Product, UpdateProductStockDto } from '@coaster/common';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
-import { UpdateProduct } from './update-product-stock';
+import { UpdateProductStock } from './update-product-stock';
 
-describe('UpdateProduct', () => {
-  let service: UpdateProduct;
+describe('UpdateProductStock', () => {
+  let service: UpdateProductStock;
   let productRepoMock: Record<string, Mock>;
 
   const mockProduct: Product = {
@@ -34,21 +28,21 @@ describe('UpdateProduct', () => {
       providers: [{ provide: ProductRepository, useValue: productRepoMock }],
     });
 
-    service = TestBed.inject(UpdateProduct);
+    service = TestBed.inject(UpdateProductStock);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('update', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const productId = asProductId('prod-1');
       const dto: UpdateProductStockDto = { currentStock: 15 };
       productRepoMock['updateStock'].mockResolvedValue(mockProduct);
 
-      const result = await service.update(barId, productId, dto);
+      const result = await service.execute(barId, productId, dto);
 
       expect(productRepoMock['updateStock']).toHaveBeenCalledWith(barId, productId, dto);
       expect(result).toEqual(mockProduct);

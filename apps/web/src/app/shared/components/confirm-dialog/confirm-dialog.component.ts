@@ -18,7 +18,7 @@ import { CoasterTitle } from '../typography/typography';
         <div class="flex items-start gap-3">
           @if (isDestructive()) {
             <div class="bg-error/10 p-2 rounded-full text-error shrink-0 mt-0.5 flex items-center justify-center">
-              <ng-icon name="lucideAlertTriangle" size="20"></ng-icon>
+              <ng-icon name="lucideAlertTriangle" size="20" />
             </div>
           }
           <div class="flex flex-col gap-1">

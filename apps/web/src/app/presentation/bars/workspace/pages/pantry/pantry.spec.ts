@@ -1,30 +1,16 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CategoriesStore } from '@coaster/categories';
 import { Product } from '@coaster/common';
+import { CurrentUser } from '@coaster/core';
+import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoriesStore } from '../../../../../categories';
-import { CurrentUser } from '../../../../../core';
-import { MembersStore } from '../../../../../members';
-import { BarProducts, CreateProduct, DeleteProduct, EditProduct, UpdateProduct } from '../../../../../products';
 import Pantry from './pantry';
 
 describe('Pantry', () => {
   let component: Pantry;
   let fixture: ComponentFixture<Pantry>;
-
-  const productsMock = {
-    all: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    total: signal(0),
-    criticalStock: signal(0),
-    lowStock: signal(0),
-    reload: vi.fn(),
-  };
 
   const categoriesStoreMock = {
     list: {
@@ -60,12 +46,7 @@ describe('Pantry', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: BarProducts, useValue: productsMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
-        { provide: CreateProduct, useValue: { create: vi.fn() } },
-        { provide: EditProduct, useValue: { edit: vi.fn() } },
-        { provide: UpdateProduct, useValue: { update: vi.fn() } },
-        { provide: DeleteProduct, useValue: { delete: vi.fn() } },
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: MembersStore, useValue: membersStoreMock },
       ],

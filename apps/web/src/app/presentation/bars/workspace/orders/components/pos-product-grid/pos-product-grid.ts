@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Category, Product } from '@coaster/common';
+import { PricePipe } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../../../../shared';
 
 @Component({
   selector: 'coaster-pos-product-grid',
@@ -38,7 +38,7 @@ import { PricePipe } from '../../../../../../shared';
       <div class="grid grid-cols-3 gap-2">
         @for (product of products(); track product.id) {
           <button
-            class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-[90px] active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
+            class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
             (click)="productClicked.emit(product)"
           >
             <span class="font-semibold text-on-surface text-sm text-center leading-tight">{{ product.name }}</span>
@@ -60,5 +60,4 @@ export class PosProductGrid {
   readonly selectedCategory = input<string | undefined>(undefined);
   readonly productClicked = output<Product>();
   readonly categorySelected = output<string | undefined>();
-
 }

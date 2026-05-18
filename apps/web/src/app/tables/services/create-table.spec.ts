@@ -31,13 +31,13 @@ describe('CreateTable', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('create', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const dto = { name: 'Mesa 1' };
       tableRepoMock['create'].mockResolvedValue(mockTable);
 
-      const result = await service.create(barId, dto);
+      const result = await service.execute(barId, dto);
 
       expect(tableRepoMock['create']).toHaveBeenCalledWith(barId, dto);
       expect(result).toEqual(mockTable);

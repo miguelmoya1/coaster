@@ -1,4 +1,4 @@
-import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -58,14 +58,14 @@ describe('MembersStore', () => {
     it('should fetch members when barId is set', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       const req = httpMock.expectOne(`/bars/${barId}/members`);
       expect(req.request.method).toBe('GET');
       req.flush(mockMembers);
-      TestBed.flushEffects();
+      TestBed.tick();
       await Promise.resolve();
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.list.hasValue()).toBe(true);
       expect(store.list.value()).toEqual(mockMembers);
@@ -74,12 +74,12 @@ describe('MembersStore', () => {
     it('should calculate isOnlyOwner correctly', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
-      TestBed.flushEffects();
+      TestBed.tick();
       await Promise.resolve();
-      TestBed.flushEffects();
+      TestBed.tick();
 
       // We have one OWNER (Jane Doe)
       expect(store.isOnlyOwner()).toBe(true);
@@ -99,17 +99,17 @@ describe('MembersStore', () => {
         },
       ];
       store.reload();
-      TestBed.flushEffects();
+      TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush(twoOwners);
-      TestBed.flushEffects();
+      TestBed.tick();
       await Promise.resolve();
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.isOnlyOwner()).toBe(false);
     });
 
     it('should be idle if barId is not set', () => {
-      TestBed.flushEffects();
+      TestBed.tick();
       httpMock.expectNone(() => true);
       expect(store.list.status()).toBe('idle');
     });
@@ -117,19 +117,19 @@ describe('MembersStore', () => {
     it('should return to idle when context is cleared', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
-      TestBed.flushEffects();
+      TestBed.tick();
       await Promise.resolve();
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.list.hasValue()).toBe(true);
 
       store.setBarId(undefined);
-      TestBed.flushEffects();
+      TestBed.tick();
       await Promise.resolve();
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.list.status()).toBe('idle');
       expect(store.list.hasValue()).toBe(false);
@@ -140,9 +140,9 @@ describe('MembersStore', () => {
     it('should add a member to the list after successful invite', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      TestBed.flushEffects();
+      TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush([]);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       const newMember: BarMember = {
         ...mockMembers[0],
@@ -154,10 +154,10 @@ describe('MembersStore', () => {
       const req = httpMock.expectOne(`/bars/${barId}/members`);
       expect(req.request.method).toBe('POST');
       req.flush(newMember);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       await invitePromise;
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.list.value()).toContainEqual(newMember);
     });
@@ -167,9 +167,9 @@ describe('MembersStore', () => {
     it('should remove a member from the list after successful removal', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      TestBed.flushEffects();
+      TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
-      TestBed.flushEffects();
+      TestBed.tick();
 
       const memberIdToRemove = mockMembers[0].id;
       const removePromise = store.remove(memberIdToRemove);
@@ -177,10 +177,10 @@ describe('MembersStore', () => {
       const req = httpMock.expectOne(`/bars/${barId}/members/${memberIdToRemove}`);
       expect(req.request.method).toBe('DELETE');
       req.flush({ success: true });
-      TestBed.flushEffects();
+      TestBed.tick();
 
       await removePromise;
-      TestBed.flushEffects();
+      TestBed.tick();
 
       expect(store.list.value()).not.toContainEqual(mockMembers[0]);
       expect(store.list.value()).toContainEqual(mockMembers[1]);

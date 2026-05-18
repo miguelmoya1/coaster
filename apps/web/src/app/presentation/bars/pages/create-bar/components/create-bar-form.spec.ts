@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
+import { TextInput } from '@coaster/shared';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarsStore } from '../../../../bars';
-import { TextInput } from '../../../../shared';
 import { CreateBarForm } from './create-bar-form';
 
 describe('CreateBarForm', () => {
@@ -18,11 +18,7 @@ describe('CreateBarForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CreateBarForm],
-      providers: [
-        provideTranslateService(),
-        provideRouter([]),
-        { provide: BarsStore, useValue: barsStoreMock },
-      ],
+      providers: [provideTranslateService(), provideRouter([]), { provide: BarsStore, useValue: barsStoreMock }],
     }).compileComponents();
 
     vi.clearAllMocks();

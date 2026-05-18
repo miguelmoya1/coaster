@@ -1,5 +1,5 @@
 import { TreeValidationResult } from '@angular/forms/signals';
-import { environment } from '../../../environments/environment';
+import { environment } from '@coaster/env';
 import { ApiError } from '../errors/api-error';
 
 const handleError = (error: unknown) => {

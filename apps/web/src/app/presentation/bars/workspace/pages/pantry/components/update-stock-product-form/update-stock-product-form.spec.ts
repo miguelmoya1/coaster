@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateProductForm } from './update-stock-product-form';
+import { UpdateStockProductForm } from './update-stock-product-form';
 
-describe('UpdateProductForm', () => {
-  let component: UpdateProductForm;
-  let fixture: ComponentFixture<UpdateProductForm>;
+describe('UpdateStockProductForm', () => {
+  let component: UpdateStockProductForm;
+  let fixture: ComponentFixture<UpdateStockProductForm>;
   let mockSubmitAction: ReturnType<typeof vi.fn>;
 
   const mockProduct: Product = {
@@ -24,10 +24,10 @@ describe('UpdateProductForm', () => {
     mockSubmitAction = vi.fn().mockResolvedValue(null);
 
     await TestBed.configureTestingModule({
-      imports: [UpdateProductForm, TranslateModule.forRoot()],
+      imports: [UpdateStockProductForm, TranslateModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UpdateProductForm);
+    fixture = TestBed.createComponent(UpdateStockProductForm);
     component = fixture.componentInstance;
 
     fixture.componentRef.setInput('product', mockProduct);

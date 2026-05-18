@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { StockStatus } from '@coaster/common';
+import { StockStatusPipe } from '@coaster/products';
+import { CoasterBadge, CoasterTitle, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-import { StockStatusPipe } from '../../../../../../../products/pipes/stock-status';
-import { CoasterBadge, CoasterTitle, PricePipe } from '../../../../../../../shared';
 
 @Component({
   selector: 'coaster-inventory-item-card',

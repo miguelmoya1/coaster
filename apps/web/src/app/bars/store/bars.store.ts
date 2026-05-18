@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { BarId, CreateBarDto } from '@coaster/common';
-import { handleErrorFormField } from '../../core';
+import { handleErrorFormField } from '@coaster/core';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
 import { CreateBar } from '../services/create-bar';
 import { CurrentBar } from '../services/current-bar';

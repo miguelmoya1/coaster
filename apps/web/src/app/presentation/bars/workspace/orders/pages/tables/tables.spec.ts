@@ -1,27 +1,23 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CurrentUser } from '@coaster/core';
+import { MembersStore } from '@coaster/members';
+import { OrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CurrentUser } from '../../../../../core';
-import { MembersStore } from '../../../../../members';
-import { OrdersStore } from '../../../../../orders';
-import { BarTables, CreateTable, DeleteTable } from '../../../../../tables';
 import Tables from './tables';
 
 describe('Tables', () => {
   let component: Tables;
   let fixture: ComponentFixture<Tables>;
 
-  const tablesMock = {
-    all: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
-    freeCount: signal(2),
-    occupiedCount: signal(1),
-    reload: vi.fn(),
-  };
-
   const ordersStoreMock = {
-    list: { value: vi.fn().mockReturnValue([]), isLoading: vi.fn().mockReturnValue(false), hasValue: vi.fn().mockReturnValue(true) },
+    list: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
     openOrders: vi.fn().mockReturnValue([]),
     totalOpen: signal(3),
     totalRevenue: signal(0),
@@ -34,12 +30,23 @@ describe('Tables', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: BarTables, useValue: tablesMock },
         { provide: OrdersStore, useValue: ordersStoreMock },
-        { provide: CreateTable, useValue: { create: vi.fn() } },
-        { provide: DeleteTable, useValue: { delete: vi.fn() } },
-        { provide: CurrentUser, useValue: { current: { value: vi.fn().mockReturnValue({ id: 'u-1' }), hasValue: vi.fn().mockReturnValue(true) } } },
-        { provide: MembersStore, useValue: { list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(true), isLoading: vi.fn().mockReturnValue(false) } } },
+        {
+          provide: CurrentUser,
+          useValue: {
+            current: { value: vi.fn().mockReturnValue({ id: 'u-1' }), hasValue: vi.fn().mockReturnValue(true) },
+          },
+        },
+        {
+          provide: MembersStore,
+          useValue: {
+            list: {
+              value: vi.fn().mockReturnValue([]),
+              hasValue: vi.fn().mockReturnValue(true),
+              isLoading: vi.fn().mockReturnValue(false),
+            },
+          },
+        },
       ],
     }).compileComponents();
 

@@ -1,10 +1,10 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { BarId } from '@coaster/common';
-import { BarsStore } from '../../../../bars';
-import { CurrentUser, Socket } from '../../../../core';
-import { MembersStore } from '../../../../members';
-import { BottomNav, TopAppBar } from '../../../../shared';
+import { CurrentUser, Socket } from '@coaster/core';
+import { MembersStore } from '@coaster/members';
+import { BottomNav, TopAppBar } from '@coaster/shared';
 
 @Component({
   selector: 'coaster-main',

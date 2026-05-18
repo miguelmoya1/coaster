@@ -9,15 +9,11 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { CategoriesStore } from '@coaster/categories';
 import { BarId, Category, Product } from '@coaster/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePencil } from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CategoriesStore } from '../../../../../categories';
-import { CurrentUser } from '../../../../../core';
-import { MembersStore } from '../../../../../members';
-
-import { ProductsStore } from '../../../../../products';
+import { CurrentUser } from '@coaster/core';
+import { MembersStore } from '@coaster/members';
+import { ProductsStore } from '@coaster/products';
 import {
   BottomSheet,
   CoasterBtn,
@@ -27,7 +23,10 @@ import {
   Loading,
   StatusCard,
   Tabs,
-} from '../../../../../shared';
+} from '@coaster/shared';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePencil } from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';

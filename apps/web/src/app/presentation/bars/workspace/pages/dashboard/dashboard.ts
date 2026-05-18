@@ -2,6 +2,9 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BarId } from '@coaster/common';
+import { MembersStore } from '@coaster/members';
+import { ProductsStore } from '@coaster/products';
+import { ShiftsStore } from '@coaster/shifts';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideAlertCircle,
@@ -13,9 +16,6 @@ import {
   lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MembersStore } from '../../../../../members';
-import { ProductsStore } from '../../../../../products';
-import { ShiftsStore } from '../../../../../shifts';
 
 @Component({
   selector: 'coaster-dashboard',

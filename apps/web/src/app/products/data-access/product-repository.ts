@@ -1,16 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
-    BarId,
-    CreateProductDto,
-    DeleteResponse,
-    Product,
-    ProductId,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  BarId,
+  CreateProductDto,
+  DeleteResponse,
+  Product,
+  ProductId,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
+import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
-import { deleteResponseMapper } from '../../core/mappers/common.mapper';
 import { productMapper } from '../mappers/product.mapper';
 
 @Injectable({
