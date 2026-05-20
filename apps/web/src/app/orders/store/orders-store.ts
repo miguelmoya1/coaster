@@ -172,6 +172,24 @@ export class OrdersStore {
         });
       }
     });
+
+    // Order item added
+    effect(() => {
+      const itemAdded = this.#socketService.orderItemAdded();
+      if (itemAdded && this.#currentBarId() === itemAdded.barId) {
+        this.#ordersResource.update((orders) => {
+          if (!orders) return undefined;
+          return orders.map((o) => (o.id === itemAdded.id ? itemAdded : o));
+        });
+
+        if (isTodayOrMatchDate(itemAdded.createdAt)) {
+          this.#historyResource.update((orders) => {
+            if (!orders) return undefined;
+            return orders.map((o) => (o.id === itemAdded.id ? itemAdded : o));
+          });
+        }
+      }
+    });
   }
 
   public setBarId(barId: BarId | undefined) {

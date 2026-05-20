@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { handleErrorFormField, Socket } from '@coaster/core';
 import { categoryArrayMapper } from '../mappers/category.mapper';
 import { BarCategories } from '../services/bar-categories';
 import { CreateCategory } from '../services/create-category';
@@ -16,6 +16,7 @@ export class CategoriesStore {
   readonly #createCategory = inject(CreateCategory);
   readonly #updateCategory = inject(UpdateCategory);
   readonly #deleteCategory = inject(DeleteCategory);
+  readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
 
@@ -25,6 +26,20 @@ export class CategoriesStore {
 
   public readonly currentBarId = this.#currentBarId.asReadonly();
   public readonly list = this.#categoriesResource.asReadonly();
+
+  constructor() {
+    effect(() => {
+      const deleted = this.#socketService.categoryDeleted();
+      if (deleted) {
+        this.#categoriesResource.update((categories) => {
+          if (!categories) {
+            return undefined;
+          }
+          return categories.filter((c) => c.id !== deleted.id);
+        });
+      }
+    });
+  }
 
   public setBarId(barId: BarId | undefined) {
     this.#currentBarId.set(barId);

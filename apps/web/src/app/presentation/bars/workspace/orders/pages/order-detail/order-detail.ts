@@ -257,7 +257,7 @@ class OrderDetail {
     this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
   );
 
-  protected readonly openOrders = computed(() => this.#ordersStore.openOrders());
+  protected readonly openOrders = this.#ordersStore.openOrders;
 }
 
 export default OrderDetail;

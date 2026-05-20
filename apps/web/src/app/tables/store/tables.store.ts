@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateTableDto, TableId, TableStatus, UpdateTableDto } from '@coaster/common';
+import { BarId, CreateTableDto, Table, TableId, TableStatus, UpdateTableDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { BarTables } from '../services/bar-tables';
@@ -58,6 +58,46 @@ export class TablesStore {
             return undefined;
           }
           return tables.map((t) => (t.id === payload.id ? { ...t, ...payload } : t));
+        });
+      }
+    });
+
+    // Table created
+    effect(() => {
+      const created = this.#socketService.tableCreated();
+      if (created && this.#currentBarId() === created.barId) {
+        this.#listResource.update((tables) => {
+          if (!tables) {
+            return [created];
+          }
+          const exists = tables.some((t) => t.id === created.id);
+          return exists ? tables : [...tables, created];
+        });
+      }
+    });
+
+    // Table updated
+    effect(() => {
+      const updated = this.#socketService.tableUpdated();
+      if (updated && this.#currentBarId() === updated.barId) {
+        this.#listResource.update((tables) => {
+          if (!tables) {
+            return undefined;
+          }
+          return tables.map((t) => (t.id === updated.id ? updated : t));
+        });
+      }
+    });
+
+    // Table deleted
+    effect(() => {
+      const deleted = this.#socketService.tableDeleted();
+      if (deleted) {
+        this.#listResource.update((tables) => {
+          if (!tables) {
+            return undefined;
+          }
+          return tables.filter((t) => t.id !== deleted.id);
         });
       }
     });

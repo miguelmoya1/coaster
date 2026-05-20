@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Order, SocketEvents, Table } from '@coaster/common';
+import { BarMember, Category, Order, Product, SocketEvents, Table } from '@coaster/common';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 
@@ -18,6 +18,14 @@ export class Socket implements OnDestroy {
   readonly orderCancelled = signal<{ id: string } | Order | null>(null);
   readonly orderItemAdded = signal<Order | null>(null);
   readonly tableStatusChanged = signal<Partial<Table> | null>(null);
+  readonly productCreated = signal<Product | null>(null);
+  readonly productStockChanged = signal<Product | null>(null);
+  readonly productDeleted = signal<{ id: string } | null>(null);
+  readonly categoryDeleted = signal<{ id: string } | null>(null);
+  readonly memberRemoved = signal<{ id: string } | null>(null);
+  readonly tableCreated = signal<Table | null>(null);
+  readonly tableUpdated = signal<Table | null>(null);
+  readonly tableDeleted = signal<{ id: string } | null>(null);
 
   constructor() {
     this.connect();
@@ -65,6 +73,38 @@ export class Socket implements OnDestroy {
 
     this.#socket.on(SocketEvents.TABLE_STATUS_CHANGED, (table: Partial<Table>) => {
       this.tableStatusChanged.set(table);
+    });
+
+    this.#socket.on(SocketEvents.PRODUCT_CREATED, (product: Product) => {
+      this.productCreated.set(product);
+    });
+
+    this.#socket.on(SocketEvents.PRODUCT_STOCK_CHANGED, (product: Product) => {
+      this.productStockChanged.set(product);
+    });
+
+    this.#socket.on(SocketEvents.PRODUCT_DELETED, (payload: { id: string }) => {
+      this.productDeleted.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.CATEGORY_DELETED, (payload: { id: string }) => {
+      this.categoryDeleted.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.MEMBER_REMOVED, (payload: { id: string }) => {
+      this.memberRemoved.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.TABLE_CREATED, (table: Table) => {
+      this.tableCreated.set(table);
+    });
+
+    this.#socket.on(SocketEvents.TABLE_UPDATED, (table: Table) => {
+      this.tableUpdated.set(table);
+    });
+
+    this.#socket.on(SocketEvents.TABLE_DELETED, (payload: { id: string }) => {
+      this.tableDeleted.set(payload);
     });
   }
 

@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { BarId, CreateProductDto, Product, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { handleErrorFormField, Socket } from '@coaster/core';
 import { productArrayMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
 import { CreateProduct } from '../services/create-product';
@@ -18,6 +18,7 @@ export class ProductsStore {
   readonly #updateProduct = inject(UpdateProduct);
   readonly #updateProductStock = inject(UpdateProductStock);
   readonly #deleteProduct = inject(DeleteProduct);
+  readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | null>(null);
 
@@ -26,6 +27,48 @@ export class ProductsStore {
   });
 
   readonly list = this.#productsResource.asReadonly();
+
+  constructor() {
+    // Product created
+    effect(() => {
+      const created = this.#socketService.productCreated();
+      if (created) {
+        this.#productsResource.update((products) => {
+          if (!products) {
+            return [created];
+          }
+          const exists = products.some((p) => p.id === created.id);
+          return exists ? products : [...products, created];
+        });
+      }
+    });
+
+    // Product stock changed / updated
+    effect(() => {
+      const updated = this.#socketService.productStockChanged();
+      if (updated) {
+        this.#productsResource.update((products) => {
+          if (!products) {
+            return undefined;
+          }
+          return products.map((p) => (p.id === updated.id ? updated : p));
+        });
+      }
+    });
+
+    // Product deleted
+    effect(() => {
+      const deleted = this.#socketService.productDeleted();
+      if (deleted) {
+        this.#productsResource.update((products) => {
+          if (!products) {
+            return undefined;
+          }
+          return products.filter((p) => p.id !== deleted.id);
+        });
+      }
+    });
+  }
 
   public setBarId(barId: BarId | null) {
     this.#currentBarId.set(barId);

@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { BarId, BarMemberId, BarRole, InviteBarMemberDto } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { handleErrorFormField, Socket } from '@coaster/core';
 import { memberArrayMapper } from '../mappers/member.mapper';
 import { BarMembers } from '../services/bar-members';
 import { InviteMember } from '../services/invite-member';
@@ -14,6 +14,7 @@ export class MembersStore {
   readonly #members = inject(BarMembers);
   readonly #inviteMember = inject(InviteMember);
   readonly #removeMember = inject(RemoveMember);
+  readonly #socketService = inject(Socket);
   readonly #currentBarId = signal<BarId | undefined>(undefined);
 
   readonly #membersResource = httpResource(() => this.#members.execute(this.#currentBarId()), {
@@ -29,6 +30,20 @@ export class MembersStore {
     return members.filter((m) => m.role === BarRole.OWNER).length === 1;
   });
   public readonly currentBarId = this.#currentBarId.asReadonly();
+
+  constructor() {
+    effect(() => {
+      const removed = this.#socketService.memberRemoved();
+      if (removed) {
+        this.#membersResource.update((members) => {
+          if (!members) {
+            return undefined;
+          }
+          return members.filter((m) => m.id !== removed.id);
+        });
+      }
+    });
+  }
 
   public setBarId(barId: BarId | undefined) {
     this.#currentBarId.set(barId);
