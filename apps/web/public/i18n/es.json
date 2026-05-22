@@ -240,6 +240,8 @@
     "no_other_orders": "No hay otros pedidos abiertos.",
     "all_categories": "Todos",
     "no_products": "No hay productos disponibles.",
+    "search_placeholder": "Buscar productos...",
+
     "cart": "Pedido",
     "items": "artículos",
     "empty_cart": "Toca los productos para añadirlos al pedido.",

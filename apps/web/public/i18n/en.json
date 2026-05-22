@@ -239,6 +239,8 @@
     "no_other_orders": "No other open orders available.",
     "all_categories": "All",
     "no_products": "No products available.",
+    "search_placeholder": "Search products...",
+
     "cart": "Order",
     "items": "items",
     "empty_cart": "Tap products to add them to the order.",
