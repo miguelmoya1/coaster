@@ -66,6 +66,20 @@ export default class ImportTemplates {
   readonly productsLoading = computed(() => this.#templatesStore.products.isLoading());
   readonly isLoading = computed(() => this.categoriesLoading() || this.productsLoading());
 
+  readonly selectedCategoriesCount = computed(() => this.selectedCategoryIds().size);
+  readonly selectedProductsCount = computed(() => {
+    const selectedIds = this.selectedCategoryIds();
+    const templates = this.matchedTemplates();
+    let total = 0;
+    for (const cat of templates) {
+      if (selectedIds.has(cat.id)) {
+        total += cat.products.length;
+      }
+    }
+    return total;
+  });
+
+
   // Join categories and products locally in the client reactively
   readonly matchedTemplates = computed(() => {
     const categories = this.#templatesStore.categories.value() ?? [];

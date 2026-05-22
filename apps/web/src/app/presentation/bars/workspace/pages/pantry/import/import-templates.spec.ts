@@ -94,6 +94,19 @@ describe('ImportTemplates', () => {
     expect(component.selectedCategoryIds().has('cat-1')).toBeFalsy();
   });
 
+  it('should reactively compute selectedCategoriesCount and selectedProductsCount', () => {
+    expect(component.selectedCategoriesCount()).toBe(0);
+    expect(component.selectedProductsCount()).toBe(0);
+
+    component.toggleCategory('cat-1');
+    expect(component.selectedCategoriesCount()).toBe(1);
+    expect(component.selectedProductsCount()).toBe(1); // 'cat-1' has 1 product ('prod-1')
+
+    component.toggleCategory('cat-1');
+    expect(component.selectedCategoriesCount()).toBe(0);
+    expect(component.selectedProductsCount()).toBe(0);
+  });
+
   it('should call importToBar and reload stores on successful import', async () => {
     component.toggleCategory('cat-1');
     await component.importSelected();
@@ -104,3 +117,4 @@ describe('ImportTemplates', () => {
     expect(toastMock.success).toHaveBeenCalled();
   });
 });
+

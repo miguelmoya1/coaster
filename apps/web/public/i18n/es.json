@@ -96,6 +96,9 @@
     "import_action": "Importar seleccionados",
     "import_success": "¡Plantillas importadas correctamente!",
     "no_templates_found": "No se encontraron plantillas.",
+    "selected_categories": "Categorías",
+    "selected_products": "Productos",
+
 
     "create_category": {
       "name_label": "Nombre de la Categoría",

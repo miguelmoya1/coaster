@@ -2,23 +2,27 @@ import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { TemplatesRepository } from '../data-access/templates-repository';
+import { GetCategoryTemplates } from '../services/get-category-templates';
+import { GetProductTemplates } from '../services/get-product-templates';
+import { ImportTemplatesToBar } from '../services/import-templates-to-bar';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TemplatesStore {
-  readonly #repository = inject(TemplatesRepository);
+  readonly #getCategoryTemplates = inject(GetCategoryTemplates);
+  readonly #getProductTemplates = inject(GetProductTemplates);
+  readonly #importTemplatesToBar = inject(ImportTemplatesToBar);
 
-  readonly #categoriesResource = httpResource<ICategoryTemplate[]>(() => this.#repository.routes.categories());
-  readonly #productsResource = httpResource<IProductTemplate[]>(() => this.#repository.routes.products());
+  readonly #categoriesResource = httpResource<ICategoryTemplate[]>(() => this.#getCategoryTemplates.execute());
+  readonly #productsResource = httpResource<IProductTemplate[]>(() => this.#getProductTemplates.execute());
 
   public readonly categories = this.#categoriesResource.asReadonly();
   public readonly products = this.#productsResource.asReadonly();
 
   public async importToBar(barId: BarId, categoryTemplateIds: string[]) {
     try {
-      await this.#repository.importToBar(barId, categoryTemplateIds);
+      await this.#importTemplatesToBar.execute(barId, categoryTemplateIds);
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -30,3 +34,4 @@ export class TemplatesStore {
     this.#productsResource.reload();
   }
 }
+

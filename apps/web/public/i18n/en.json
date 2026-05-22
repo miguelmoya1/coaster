@@ -96,6 +96,9 @@
     "import_action": "Import selected",
     "import_success": "Templates imported successfully!",
     "no_templates_found": "No templates found.",
+    "selected_categories": "Categories",
+    "selected_products": "Products",
+
     "create_product": {
       "name_label": "Product Name",
       "name_placeholder": "e.g. Absolut Vodka",
