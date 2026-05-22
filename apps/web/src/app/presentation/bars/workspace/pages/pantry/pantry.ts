@@ -24,8 +24,9 @@ import {
   StatusCard,
   Tabs,
 } from '@coaster/shared';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePencil } from '@ng-icons/lucide';
+import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
@@ -56,8 +57,9 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     NgIcon,
     CoasterBtn,
     ConfirmDialogComponent,
+    ScrollingModule,
   ],
-  viewProviders: [provideIcons({ lucidePencil })],
+  viewProviders: [provideIcons({ lucidePencil, lucideSearch, lucideX, lucideDownload })],
   host: {
     class: 'flex flex-col gap-2 h-full',
   },
@@ -88,6 +90,7 @@ export default class Pantry {
   ]);
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
+  readonly searchQuery = signal<string>('');
   readonly productSelected = signal<Product | null>(null);
   readonly productToEdit = signal<Product | null>(null);
   readonly categoryToEdit = signal<Category | null>(null);
@@ -122,9 +125,25 @@ export default class Pantry {
 
     const allProducts = this.products.value();
     const categoryId = this.selectedCategoryId();
+    const query = this.searchQuery().toLowerCase().trim();
 
-    return categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
+    let result = categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
+
+    if (query) {
+      result = result.filter((p) => p.name.toLowerCase().includes(query));
+    }
+
+    return result;
   });
+
+  onSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+  }
+
+  trackProductBy(index: number, product: Product) {
+    return product.id;
+  }
 
   constructor() {
     effect(() => {

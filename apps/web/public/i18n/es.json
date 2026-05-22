@@ -88,6 +88,15 @@
     "total": "Total",
     "critical": "Críticos",
     "alerts": "Alertas",
+    "search_placeholder": "Buscar productos...",
+    "import_from_templates": "Importar desde Plantillas",
+    "import_title": "Importar Plantillas",
+    "import_search_placeholder": "Buscar plantillas (categorías o productos)...",
+    "select_all": "Seleccionar todo",
+    "deselect_all": "Deseleccionar todo",
+    "import_action": "Importar seleccionados",
+    "import_success": "¡Plantillas importadas correctamente!",
+    "no_templates_found": "No se encontraron plantillas.",
 
     "create_category": {
       "name_label": "Nombre de la Categoría",

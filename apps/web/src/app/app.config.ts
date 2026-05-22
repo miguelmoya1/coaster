@@ -8,13 +8,15 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
-import { errorInterceptor, idTokenInterceptor, urlInterceptor } from './core';
+import { errorInterceptor, idTokenInterceptor, unauthorizedInterceptor, urlInterceptor } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor])),
+    provideHttpClient(
+      withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
+    ),
     provideRouter(
       appRoutes,
       withViewTransitions(),

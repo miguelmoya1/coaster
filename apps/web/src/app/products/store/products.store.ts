@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateProductDto, Product, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { productArrayMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
@@ -72,6 +72,10 @@ export class ProductsStore {
 
   public setBarId(barId: BarId | null) {
     this.#currentBarId.set(barId);
+  }
+
+  public reloadProducts() {
+    this.#productsResource.reload();
   }
 
   public readonly total = computed(() => {

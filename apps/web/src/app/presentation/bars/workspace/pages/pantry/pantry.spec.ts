@@ -119,6 +119,47 @@ describe('Pantry', () => {
       expect(component.filteredProducts()).toEqual([]);
     });
 
+    it('should filter products by category', () => {
+      const mockProducts = [
+        { id: 'p-1', name: 'Vodka', categoryId: 'cat-1' },
+        { id: 'p-2', name: 'Ron', categoryId: 'cat-2' },
+      ] as Product[];
+      productsStoreMock.list.value.mockReturnValue(mockProducts);
+      productsStoreMock.list.hasValue.mockReturnValue(true);
+
+      component.selectedCategoryId.set('cat-1');
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+    });
+
+    it('should filter products by search query case-insensitively', () => {
+      const mockProducts = [
+        { id: 'p-1', name: 'Vodka', categoryId: 'cat-1' },
+        { id: 'p-2', name: 'Ron', categoryId: 'cat-2' },
+      ] as Product[];
+      productsStoreMock.list.value.mockReturnValue(mockProducts);
+      productsStoreMock.list.hasValue.mockReturnValue(true);
+
+      component.selectedCategoryId.set('ALL');
+      component.searchQuery.set('vod');
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+
+      component.searchQuery.set('  RON  ');
+      expect(component.filteredProducts()).toEqual([mockProducts[1]]);
+    });
+
+    it('should filter products by both category and search query', () => {
+      const mockProducts = [
+        { id: 'p-1', name: 'Vodka Superior', categoryId: 'cat-1' },
+        { id: 'p-2', name: 'Vodka Barata', categoryId: 'cat-2' },
+      ] as Product[];
+      productsStoreMock.list.value.mockReturnValue(mockProducts);
+      productsStoreMock.list.hasValue.mockReturnValue(true);
+
+      component.selectedCategoryId.set('cat-1');
+      component.searchQuery.set('Vodka');
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+    });
+
     it('should return tabs with ALL as first option', () => {
       const tabs = component.tabs();
       expect(tabs.length).toBeGreaterThanOrEqual(1);
@@ -141,6 +182,12 @@ describe('Pantry', () => {
       const product = { id: 'p-1', name: 'Product 1' } as Product;
       component.onEditProductClicked(product);
       expect(component.productToEdit()).toEqual(product);
+    });
+
+    it('should update searchQuery on onSearchInput', () => {
+      const event = { target: { value: 'whisky' } } as unknown as Event;
+      component.onSearchInput(event);
+      expect(component.searchQuery()).toBe('whisky');
     });
 
     it('should clear state on closeModal', () => {

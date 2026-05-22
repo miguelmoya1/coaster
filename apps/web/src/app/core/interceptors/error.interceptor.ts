@@ -23,7 +23,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       const cleanError = new ApiError(errorCode, error.status, error);
-      toast.error(cleanError.code || 'UNEXPECTED_ERROR');
+
+      if (error.status !== 401) {
+        toast.error(cleanError.code || 'UNEXPECTED_ERROR');
+      }
 
       return throwError(() => cleanError);
     }),

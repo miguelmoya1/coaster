@@ -19,6 +19,7 @@ const mainRoutes: Routes = [
         children: [
           { path: '', loadComponent: () => import('./pages/pantry/pantry') },
           { path: 'new', loadComponent: () => import('./pages/pantry/pantry') },
+          { path: 'import', loadComponent: () => import('./pages/pantry/import/import-templates') },
         ],
       },
       {

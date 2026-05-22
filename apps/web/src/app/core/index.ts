@@ -3,6 +3,7 @@ export * from './guards/auth-guard';
 export * from './guards/no-auth-guard';
 export * from './interceptors/error.interceptor';
 export * from './interceptors/id-token-interceptor';
+export * from './interceptors/unauthorized-interceptor';
 export * from './interceptors/url-interceptor';
 export * from './mappers/common.mapper';
 export * from './mappers/user.mapper';

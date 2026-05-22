@@ -32,23 +32,54 @@
   }
 </div>
 
+<!-- Search bar & Import Templates button -->
+<div class="flex items-center gap-2 mb-4">
+  <div class="relative flex-1 w-full">
+    <ng-icon name="lucideSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" />
+    <input
+      type="text"
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
+      [placeholder]="'pantry.search_placeholder' | translate"
+      class="w-full bg-surface-container text-on-surface placeholder:text-on-surface-variant/60 rounded-xl pl-10 pr-10 py-2.5 text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+    />
+    @if (searchQuery()) {
+      <button
+        (click)="searchQuery.set('')"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+      >
+        <ng-icon name="lucideX" class="text-lg" />
+      </button>
+    }
+  </div>
+  @if (currentUserRole() === 'OWNER') {
+    <button coaster-btn variant="outline" [routerLink]="['import']">
+      <ng-icon name="lucideDownload" class="text-base" />
+      <!-- <span>{{ 'pantry.import_from_templates' | translate }}</span> -->
+    </button>
+  }
+</div>
+
 @if (categories.isLoading() || products.isLoading()) {
   <coaster-loading />
 }
 
-<div class="flex-1 overflow-y-auto pb-24 flex flex-col gap-3">
-  @for (product of filteredProducts(); track product.id) {
-    <coaster-inventory-item-card
-      [itemName]="product.name"
-      [qty]="product.currentStock"
-      [price]="product.price"
-      [statusLevel]="product.stockStatus"
-      [showEditButton]="currentUserRole() === 'OWNER'"
-      (click)="onProductClicked(product)"
-      (editClicked)="onEditProductClicked(product)"
-      (deleteClicked)="handleDeleteProductClicked(product)"
-    />
-  } @empty {
+<div class="flex-1 min-h-[300px]">
+  <cdk-virtual-scroll-viewport class="w-full h-full" [itemSize]="100">
+    <div *cdkVirtualFor="let product of filteredProducts(); trackBy: trackProductBy" class="h-[100px] pb-3 pr-1">
+      <coaster-inventory-item-card
+        [itemName]="product.name"
+        [qty]="product.currentStock"
+        [price]="product.price"
+        [statusLevel]="product.stockStatus"
+        [showEditButton]="currentUserRole() === 'OWNER'"
+        (click)="onProductClicked(product)"
+        (editClicked)="onEditProductClicked(product)"
+        (deleteClicked)="handleDeleteProductClicked(product)"
+      />
+    </div>
+  </cdk-virtual-scroll-viewport>
+  @if (filteredProducts().length === 0 && !categories.isLoading() && !products.isLoading()) {
     <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
   }
 </div>
