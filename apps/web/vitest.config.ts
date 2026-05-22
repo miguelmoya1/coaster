@@ -36,6 +36,7 @@ export default defineConfig({
       '@coaster/shared': new URL('./src/app/shared/index.ts', import.meta.url).pathname,
       '@coaster/shifts': new URL('./src/app/shifts/index.ts', import.meta.url).pathname,
       '@coaster/tables': new URL('./src/app/tables/index.ts', import.meta.url).pathname,
+      '@coaster/templates': new URL('./src/app/templates/index.ts', import.meta.url).pathname,
       '@coaster/env': new URL('./src/environments/environment.ts', import.meta.url).pathname,
     },
     server: {

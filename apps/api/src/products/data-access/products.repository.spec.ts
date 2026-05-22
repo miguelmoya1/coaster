@@ -91,9 +91,23 @@ describe('ProductsRepository', () => {
 
       expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: productId },
-        data: { ...updateData },
+        data: updateData,
       });
       expect(result).toEqual({ id: productId, ...updateData });
+    });
+
+    it('should not overwrite the price to 0 when price is not provided in updateData', async () => {
+      const productId = asProductId('prod-1');
+      const updateData = { currentStock: 15 };
+      prisma.product.update.mockResolvedValue({ id: productId, currentStock: 15, price: 1200 });
+
+      const result = await repository.update(productId, updateData);
+
+      expect(prisma.product.update).toHaveBeenCalledWith({
+        where: { id: productId },
+        data: { currentStock: 15 },
+      });
+      expect(result.price).toBe(1200);
     });
   });
 

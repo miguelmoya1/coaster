@@ -184,9 +184,8 @@ describe('Pantry', () => {
       expect(component.productToEdit()).toEqual(product);
     });
 
-    it('should update searchQuery on onSearchInput', () => {
-      const event = { target: { value: 'whisky' } } as unknown as Event;
-      component.onSearchInput(event);
+    it('should update searchQuery', () => {
+      component.searchQuery.set('whisky');
       expect(component.searchQuery()).toBe('whisky');
     });
 

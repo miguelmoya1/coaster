@@ -151,7 +151,7 @@ export class ProductsStore {
         return null;
       }
 
-      this.#productsResource.set([...products, product]);
+      this.#productsResource.set(products.map((p) => (p.id === productId ? product : p)));
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -179,7 +179,7 @@ export class ProductsStore {
         return null;
       }
 
-      this.#productsResource.set([...products, product]);
+      this.#productsResource.set(products.map((p) => (p.id === productId ? product : p)));
       return null;
     } catch (error) {
       return handleErrorFormField(error);

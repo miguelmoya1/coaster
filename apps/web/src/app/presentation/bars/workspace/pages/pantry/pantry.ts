@@ -24,7 +24,6 @@ import {
   StatusCard,
   Tabs,
 } from '@coaster/shared';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -32,6 +31,7 @@ import { CreateCategoryForm } from './components/create-category-form/create-cat
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { InventoryItemCard } from './components/inventory-item-card/inventory-item-card';
+import { PantrySearch } from './components/pantry-search/pantry-search';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 
@@ -57,13 +57,19 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     NgIcon,
     CoasterBtn,
     ConfirmDialogComponent,
-    ScrollingModule,
+    PantrySearch,
   ],
   viewProviders: [provideIcons({ lucidePencil, lucideSearch, lucideX, lucideDownload })],
   host: {
     class: 'flex flex-col gap-2 h-full',
   },
   templateUrl: './pantry.html',
+  styles: `
+    .product {
+      content-visibility: auto;
+      contain-intrinsic-size: 100px;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Pantry {
@@ -121,25 +127,24 @@ export default class Pantry {
   });
 
   readonly filteredProducts = computed(() => {
-    if (!this.products.hasValue()) return [];
-
-    const allProducts = this.products.value();
-    const categoryId = this.selectedCategoryId();
-    const query = this.searchQuery().toLowerCase().trim();
-
-    let result = categoryId === 'ALL' ? allProducts : allProducts.filter((p) => p.categoryId === categoryId);
-
-    if (query) {
-      result = result.filter((p) => p.name.toLowerCase().includes(query));
+    if (!this.products.hasValue()) {
+      return [];
     }
 
-    return result;
-  });
+    let allProducts = this.products.value();
+    const categoryId = this.selectedCategoryId();
 
-  onSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-  }
+    if (categoryId !== 'ALL') {
+      allProducts = allProducts.filter((p) => p.categoryId === categoryId);
+    }
+
+    const query = this.searchQuery().toLowerCase().trim();
+    if (query) {
+      allProducts = allProducts.filter((p) => p.name.toLowerCase().includes(query));
+    }
+
+    return allProducts;
+  });
 
   trackProductBy(index: number, product: Product) {
     return product.id;
