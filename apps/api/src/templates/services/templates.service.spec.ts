@@ -24,6 +24,8 @@ describe('TemplatesService', () => {
       createManyCategories: vi.fn(),
       findCategoriesByBarIdAndNames: vi.fn(),
       createManyProducts: vi.fn(),
+      upsertCategoryTemplate: vi.fn(),
+      upsertProductTemplate: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -209,6 +211,44 @@ describe('TemplatesService', () => {
           { categoryId: 'real-cat-1', name: 'Coca Cola', price: 2.0, currentStock: 0, minStockAlert: 0 },
         ],
         true,
+      );
+      expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('bulkUpsertTemplates', () => {
+    it('should correctly slugify, translate key, and upsert templates', async () => {
+      const categoriesJson = [
+        {
+          name: 'Cafetería',
+          icon: 'coffee',
+          products: [
+            { name: 'Café Solo', price: 120 },
+            { name: 'Té Verde', price: 150 },
+          ],
+        },
+      ];
+
+      const mockCategoryTemplate = { id: 'cat-1', name: 'templates.categories.cafeteria', icon: 'coffee' };
+
+      repository.upsertCategoryTemplate.mockResolvedValue(mockCategoryTemplate);
+      repository.upsertProductTemplate.mockResolvedValue({ id: 'p1', name: 'templates.products.cafe_solo', price: 120, categoryId: 'cat-1' });
+
+      const result = await service.bulkUpsertTemplates(categoriesJson);
+
+      expect(vi.mocked(repository.upsertCategoryTemplate)).toHaveBeenCalledWith(
+        'templates.categories.cafeteria',
+        'coffee',
+      );
+      expect(vi.mocked(repository.upsertProductTemplate)).toHaveBeenCalledWith(
+        'templates.products.cafe_solo',
+        120,
+        'cat-1',
+      );
+      expect(vi.mocked(repository.upsertProductTemplate)).toHaveBeenCalledWith(
+        'templates.products.te_verde',
+        150,
+        'cat-1',
       );
       expect(result).toEqual({ success: true });
     });

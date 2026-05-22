@@ -38,7 +38,7 @@
         [class.opacity-50]="item.paymentStatus === 'PAID'"
       >
         <div class="flex-1 flex flex-col gap-1">
-          <span class="font-semibold text-on-surface text-sm">{{ item.productName }}</span>
+          <span class="font-semibold text-on-surface text-sm">{{ item.productName | translate }}</span>
           <div class="flex gap-2 items-center">
             <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
             <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>

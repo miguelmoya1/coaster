@@ -43,7 +43,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
     }),
   ],
   host: {
-    class: 'flex flex-col gap-2 h-full pb-24',
+    class: 'flex flex-col gap-2 h-full pb-44',
   },
   templateUrl: './import-templates.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

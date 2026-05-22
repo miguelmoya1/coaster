@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InventoryItemCard } from './inventory-item-card';
 
+import { provideTranslateService } from '@ngx-translate/core';
+
 describe('InventoryItemCard', () => {
   let component: InventoryItemCard;
   let fixture: ComponentFixture<InventoryItemCard>;
@@ -9,6 +11,7 @@ describe('InventoryItemCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InventoryItemCard],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InventoryItemCard);

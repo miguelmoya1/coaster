@@ -28,5 +28,12 @@
       <ng-icon name="lucidePlusCircle" class="text-on-surface-variant text-xl hover:text-primary" />
       {{ 'common.create' | translate }}
     </button>
+
+    @if (isAdmin()) {
+      <button coaster-btn variant="outline" type="button" (click)="navigateToAdminTemplates()" class="mt-2 border-primary/30 hover:border-primary/60 text-primary">
+        <ng-icon name="lucideSettings" class="text-primary text-xl" />
+        Administración de Plantillas
+      </button>
+    }
   }
 </div>

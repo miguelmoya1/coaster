@@ -9,6 +9,15 @@ import { UpdateCategoryTemplateDto } from '../dto/update-category-template.dto';
 import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
 import { TemplatesMapper } from '../mappers/templates.mapper';
 
+export interface BulkCategoryTemplateInput {
+  name: string;
+  icon?: string;
+  products?: {
+    name: string;
+    price: number;
+  }[];
+}
+
 @Injectable()
 export class TemplatesService {
   constructor(private readonly _templatesRepository: TemplatesRepository) {}
@@ -37,6 +46,7 @@ export class TemplatesService {
     const templates = await this._templatesRepository.findAllProductTemplates();
     return templates.map((template) => TemplatesMapper.toProductTemplate(template));
   }
+
 
   async createProductTemplate(data: CreateProductTemplateDto) {
     const template = await this._templatesRepository.createProductTemplate(data);
@@ -111,5 +121,44 @@ export class TemplatesService {
     }
 
     return commonMapper.getSuccessResponse();
+  }
+
+  async bulkUpsertTemplates(categoriesJson: BulkCategoryTemplateInput[]) {
+    for (const categoryJson of categoriesJson) {
+      const categorySlug = this._slugify(categoryJson.name);
+      const categoryNameKey = `templates.categories.${categorySlug}`;
+      const categoryIcon = categoryJson.icon ?? null;
+
+      const categoryTemplate = await this._templatesRepository.upsertCategoryTemplate(
+        categoryNameKey,
+        categoryIcon,
+      );
+
+      if (categoryJson.products && Array.isArray(categoryJson.products)) {
+        for (const productJson of categoryJson.products) {
+          const productSlug = this._slugify(productJson.name);
+          const productNameKey = `templates.products.${productSlug}`;
+          const productPrice = productJson.price ?? 0;
+
+          await this._templatesRepository.upsertProductTemplate(
+            productNameKey,
+            productPrice,
+            categoryTemplate.id,
+          );
+        }
+      }
+    }
+
+    return commonMapper.getSuccessResponse();
+  }
+
+  private _slugify(text: string): string {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
   }
 }

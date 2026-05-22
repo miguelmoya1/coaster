@@ -6,7 +6,7 @@ import { CreateProductTemplateDto } from '../dto/create-product-template.dto';
 import { ImportTemplatesDto } from '../dto/import-templates.dto';
 import { UpdateCategoryTemplateDto } from '../dto/update-category-template.dto';
 import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
-import { TemplatesService } from '../services/templates.service';
+import { BulkCategoryTemplateInput, TemplatesService } from '../services/templates.service';
 
 @Controller('templates')
 @UseGuards(FirebaseAuthGuard)
@@ -70,5 +70,12 @@ export class TemplatesController {
   @UseGuards(RolesGuard)
   async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto) {
     return this._templatesService.importTemplatesToBar(barId, importDto);
+  }
+
+  @Post('bulk')
+  @UserRoles(Role.ADMIN)
+  @UseGuards(UserRolesGuard)
+  async bulkUpsertTemplates(@Body() body: BulkCategoryTemplateInput[]) {
+    return this._templatesService.bulkUpsertTemplates(body);
   }
 }

@@ -3,7 +3,7 @@ import { form, FormField, FormRoot, maxLength, min, minLength, required } from '
 import { asCategoryId, Category, Product, UpdateProductDto } from '@coaster/common';
 import { ProductsStore } from '@coaster/products';
 import { CoasterBtn, FormFieldMessages, NumberInput, SelectInput, TextInput } from '@coaster/shared';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-edit-product-form',
@@ -70,11 +70,12 @@ export class UpdateProductForm {
   public readonly edited = output<void>();
 
   readonly #productStore = inject(ProductsStore);
+  readonly #translate = inject(TranslateService);
 
   protected readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
       value: c.id,
-      label: c.name,
+      label: this.#translate.instant(c.name),
     }));
   });
 

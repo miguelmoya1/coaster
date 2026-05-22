@@ -38,7 +38,7 @@ export interface CartItem {
           @for (item of items(); track item.productId) {
             <div class="bg-surface-container rounded-xl p-3 flex items-center gap-3">
               <div class="flex-1">
-                <span class="font-semibold text-on-surface text-sm">{{ item.productName }}</span>
+                <span class="font-semibold text-on-surface text-sm">{{ item.productName | translate }}</span>
                 <span class="text-xs text-on-surface-variant ml-2">{{ item.price * item.quantity | price }}</span>
               </div>
 

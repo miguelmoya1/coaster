@@ -30,7 +30,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             "
             (click)="categorySelected.emit(cat.id)"
           >
-            {{ cat.name }}
+            {{ cat.name | translate }}
           </button>
         }
       </div>
@@ -41,7 +41,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
             (click)="productClicked.emit(product)"
           >
-            <span class="font-semibold text-on-surface text-sm text-center leading-tight">{{ product.name }}</span>
+            <span class="font-semibold text-on-surface text-sm text-center leading-tight">{{ product.name | translate }}</span>
             <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
           </button>
         } @empty {

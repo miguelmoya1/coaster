@@ -5,6 +5,8 @@ import { CoasterBadge, CoasterTitle, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 
+import { TranslatePipe } from '@ngx-translate/core';
+
 @Component({
   selector: 'coaster-inventory-item-card',
   template: `
@@ -13,7 +15,7 @@ import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
     </div>
 
     <div class="grow min-w-0 mr-4 flex flex-col gap-0.5">
-      <h3 coaster-title class="truncate">{{ itemName() }}</h3>
+      <h3 coaster-title class="truncate">{{ itemName() | translate }}</h3>
       @if (price() > 0) {
         <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">{{ price() | price }}</p>
       }
@@ -59,7 +61,7 @@ import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
     '[attr.aria-disabled]': 'disabled()',
     '[class]': 'hostClasses()',
   },
-  imports: [NgIcon, CoasterBadge, CoasterTitle, PricePipe, StockStatusPipe],
+  imports: [NgIcon, CoasterBadge, CoasterTitle, PricePipe, StockStatusPipe, TranslatePipe],
   viewProviders: [provideIcons({ lucidePackage, lucidePencil, lucideTrash2 })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

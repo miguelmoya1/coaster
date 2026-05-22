@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { asBarId, Bar } from '@coaster/common';
+import { asBarId, Bar, Role } from '@coaster/common';
+import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SelectBar from './select-bar';
@@ -28,6 +29,12 @@ describe('SelectBar', () => {
     },
   };
 
+  const currentUserMock = {
+    current: {
+      value: vi.fn().mockReturnValue({ role: Role.USER }),
+    },
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SelectBar],
@@ -36,6 +43,7 @@ describe('SelectBar', () => {
         provideRouter([]),
         { provide: Router, useValue: routerMock },
         { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentUser, useValue: currentUserMock },
       ],
     }).compileComponents();
 
