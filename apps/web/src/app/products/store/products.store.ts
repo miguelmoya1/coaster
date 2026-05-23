@@ -111,19 +111,13 @@ export class ProductsStore {
     try {
       const product = await this.#createProduct.execute(barId, createProductDto);
 
-      if (!this.#productsResource.hasValue()) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      const products = this.#productsResource.value();
-
-      if (!products) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      this.#productsResource.set([...products, product]);
+      this.#productsResource.update((products) => {
+        if (!products) {
+          return [product];
+        }
+        const exists = products.some((p) => p.id === product.id);
+        return exists ? products : [...products, product];
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);

@@ -124,19 +124,13 @@ export class TablesStore {
     try {
       const table = await this.#createTable.execute(barId, createTableDto);
 
-      if (!this.#listResource.hasValue()) {
-        this.#listResource.set([table]);
-        return null;
-      }
-
-      const tables = this.#listResource.value();
-
-      if (!tables) {
-        this.#listResource.set([table]);
-        return null;
-      }
-
-      this.#listResource.set([...tables, table]);
+      this.#listResource.update((tables) => {
+        if (!tables) {
+          return [table];
+        }
+        const exists = tables.some((t) => t.id === table.id);
+        return exists ? tables : [...tables, table];
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);

@@ -236,18 +236,11 @@ export class OrdersStore {
     try {
       const order = await this.#createOrder.execute(barId, dto);
 
-      if (!this.#ordersResource.hasValue()) {
-        this.#ordersResource.set([order]);
-        return { order, error: null };
-      }
-
-      const orders = this.#ordersResource.value();
-      if (!orders) {
-        this.#ordersResource.set([order]);
-        return { order, error: null };
-      }
-
-      this.#ordersResource.update((orders) => [...orders, order]);
+      this.#ordersResource.update((orders) => {
+        if (!orders) return [order];
+        const exists = orders.some((o) => o.id === order.id);
+        return exists ? orders : [...orders, order];
+      });
       return { order, error: null };
     } catch (error) {
       return { order: null, error: handleErrorFormField(error) };
