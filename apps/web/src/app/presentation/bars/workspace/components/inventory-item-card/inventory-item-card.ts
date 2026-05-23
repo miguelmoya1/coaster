@@ -14,7 +14,13 @@ import { TranslatePipe } from '@ngx-translate/core';
     </div>
 
     <div class="grow min-w-0 mr-4 flex flex-col gap-0.5">
-      <h3 coaster-title class="truncate">{{ itemName() | translate }}</h3>
+      <h3
+        coaster-title
+        class="line-clamp-2 break-words text-sm font-bold text-on-surface"
+        [title]="itemName() | translate"
+      >
+        {{ itemName() | translate }}
+      </h3>
       @if (price() > 0) {
         <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">{{ price() | price }}</p>
       }

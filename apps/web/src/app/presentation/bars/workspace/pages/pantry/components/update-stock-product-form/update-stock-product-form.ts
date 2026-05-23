@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [FormRoot, NumberInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages, CoasterTitle],
   template: `
     <div class="px-6 pb-6 pt-6">
-      <h2 coaster-title class="mb-6">{{ product().name }}</h2>
+      <h2 coaster-title class="mb-6">{{ product().name | translate }}</h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">
           <coaster-number-input

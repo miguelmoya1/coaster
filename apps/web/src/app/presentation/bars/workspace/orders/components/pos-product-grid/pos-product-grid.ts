@@ -71,7 +71,12 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
             class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
             (click)="productClicked.emit(product)"
           >
-            <span class="font-semibold text-on-surface text-sm text-center leading-tight">{{ product.name | translate }}</span>
+            <span
+              class="font-semibold text-on-surface text-xs text-center leading-tight line-clamp-2 break-words w-full h-8 flex items-center justify-center"
+              [title]="product.name | translate"
+            >
+              {{ product.name | translate }}
+            </span>
             <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
           </button>
         } @empty {
