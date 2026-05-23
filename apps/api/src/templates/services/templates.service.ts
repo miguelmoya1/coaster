@@ -76,21 +76,32 @@ export class TemplatesService {
       throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
     }
 
-    const categoryDataToInsert = categoryTemplates.map((ct) => ({
-      barId,
-      name: ct.name,
-      icon: ct.icon ?? null,
-    }));
-
-    await this._templatesRepository.createManyCategories(categoryDataToInsert, true);
-
     const categoryNames = categoryTemplates.map((ct) => ct.name);
+    const existingCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(barId, categoryNames);
+    const existingCategoryNames = new Set(existingCategories.map((c) => c.name));
+
+    const categoryDataToInsert = categoryTemplates
+      .filter((ct) => !existingCategoryNames.has(ct.name))
+      .map((ct) => ({
+        barId,
+        name: ct.name,
+        icon: ct.icon ?? null,
+      }));
+
+    if (categoryDataToInsert.length > 0) {
+      await this._templatesRepository.createManyCategories(categoryDataToInsert, true);
+    }
+
     const createdCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(barId, categoryNames);
 
     const categoryMap = new Map<string, string>();
     for (const cat of createdCategories) {
       categoryMap.set(cat.name, cat.id);
     }
+
+    const categoryIds = createdCategories.map((cat) => cat.id);
+    const existingProducts = await this._templatesRepository.findProductsByCategoryIds(categoryIds);
+    const existingProductKeys = new Set(existingProducts.map((p) => `${p.categoryId}_${p.name}`));
 
     const productsDataToInsert: {
       categoryId: string;
@@ -105,13 +116,16 @@ export class TemplatesService {
 
       if (realCategoryId && categoryTemplate.products) {
         for (const productTemplate of categoryTemplate.products) {
-          productsDataToInsert.push({
-            categoryId: realCategoryId,
-            name: productTemplate.name,
-            price: productTemplate.price,
-            currentStock: 0,
-            minStockAlert: 0,
-          });
+          const productKey = `${realCategoryId}_${productTemplate.name}`;
+          if (!existingProductKeys.has(productKey)) {
+            productsDataToInsert.push({
+              categoryId: realCategoryId,
+              name: productTemplate.name,
+              price: productTemplate.price,
+              currentStock: 0,
+              minStockAlert: 0,
+            });
+          }
         }
       }
     }

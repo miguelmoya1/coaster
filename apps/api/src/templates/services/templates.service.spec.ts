@@ -24,6 +24,7 @@ describe('TemplatesService', () => {
       createManyCategories: vi.fn(),
       findCategoriesByBarIdAndNames: vi.fn(),
       createManyProducts: vi.fn(),
+      findProductsByCategoryIds: vi.fn(),
       upsertCategoryTemplate: vi.fn(),
       upsertProductTemplate: vi.fn(),
     };
@@ -194,7 +195,9 @@ describe('TemplatesService', () => {
         mockCategoryTemplates as unknown as (CategoryTemplate & { products: ProductTemplate[] })[],
       );
       repository.createManyCategories.mockResolvedValue({ count: 1 });
-      repository.findCategoriesByBarIdAndNames.mockResolvedValue(mockCreatedCategories as unknown as Category[]);
+      repository.findCategoriesByBarIdAndNames.mockResolvedValueOnce([]);
+      repository.findCategoriesByBarIdAndNames.mockResolvedValueOnce(mockCreatedCategories as unknown as Category[]);
+      repository.findProductsByCategoryIds.mockResolvedValue([]);
       repository.createManyProducts.mockResolvedValue({ count: 2 });
 
       const result = await service.importTemplatesToBar(barId, { categoryTemplateIds: ['temp-cat-1'] });
@@ -209,6 +212,64 @@ describe('TemplatesService', () => {
         [
           { categoryId: 'real-cat-1', name: 'Agua', price: 1.5, currentStock: 0, minStockAlert: 0 },
           { categoryId: 'real-cat-1', name: 'Coca Cola', price: 2.0, currentStock: 0, minStockAlert: 0 },
+        ],
+        true,
+      );
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should prevent duplicating existing categories and products', async () => {
+      const mockCategoryTemplates = [
+        {
+          id: 'temp-cat-1',
+          name: 'Bebidas',
+          icon: 'cup',
+          products: [
+            { id: 'temp-prod-1', name: 'Agua', price: 1.5 },
+            { id: 'temp-prod-2', name: 'Coca Cola', price: 2.0 },
+            { id: 'temp-prod-3', name: 'Fanta', price: 1.8 },
+          ],
+        },
+      ];
+
+      const mockExistingCategories = [{ id: 'real-cat-1', name: 'Bebidas' }];
+      const mockExistingProducts = [
+        {
+          id: 'p-1',
+          name: 'Agua',
+          categoryId: 'real-cat-1',
+          price: 1.5,
+          currentStock: 0,
+          minStockAlert: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'p-2',
+          name: 'Coca Cola',
+          categoryId: 'real-cat-1',
+          price: 2.0,
+          currentStock: 0,
+          minStockAlert: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      repository.findCategoryTemplatesByIds.mockResolvedValue(
+        mockCategoryTemplates as unknown as (CategoryTemplate & { products: ProductTemplate[] })[],
+      );
+      repository.findCategoriesByBarIdAndNames.mockResolvedValueOnce(mockExistingCategories as unknown as Category[]);
+      repository.findCategoriesByBarIdAndNames.mockResolvedValueOnce(mockExistingCategories as unknown as Category[]);
+      repository.findProductsByCategoryIds.mockResolvedValue(mockExistingProducts);
+      repository.createManyProducts.mockResolvedValue({ count: 1 });
+
+      const result = await service.importTemplatesToBar(barId, { categoryTemplateIds: ['temp-cat-1'] });
+
+      expect(vi.mocked(repository.createManyCategories)).not.toHaveBeenCalled();
+      expect(vi.mocked(repository.createManyProducts)).toHaveBeenCalledWith(
+        [
+          { categoryId: 'real-cat-1', name: 'Fanta', price: 1.8, currentStock: 0, minStockAlert: 0 },
         ],
         true,
       );

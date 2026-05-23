@@ -156,6 +156,16 @@ export class TemplatesRepository {
     });
   }
 
+  async findProductsByCategoryIds(categoryIds: string[]) {
+    return this._prisma.product.findMany({
+      where: {
+        categoryId: {
+          in: categoryIds,
+        },
+      },
+    });
+  }
+
   async createManyProducts(
     data: { categoryId: string; name: string; price: number; currentStock: number; minStockAlert: number }[],
     skipDuplicates = true,
