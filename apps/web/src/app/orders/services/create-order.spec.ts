@@ -31,6 +31,8 @@ describe('CreateOrder', () => {
         priceAtPurchase: 1000,
         paymentStatus: PaymentStatus.PENDING,
         deliveryStatus: DeliveryStatus.PENDING,
+        paidQuantity: 0,
+        servedQuantity: 0,
       },
     ],
   };

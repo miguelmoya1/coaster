@@ -139,6 +139,26 @@ class OrderDetail {
     }
   }
 
+  async onPayUnit(item: OrderItem) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#ordersStore.payUnits(this.barId(), order.id, item.id, 1);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onUnpayUnit(item: OrderItem) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#ordersStore.unpayUnit(this.barId(), order.id, item.id);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async onDeliverItem(item: OrderItem) {
     const order = this.currentOrder();
     if (!order) {
@@ -146,6 +166,26 @@ class OrderDetail {
     }
     try {
       await this.#ordersStore.deliverItem(this.barId(), order.id, item.id);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onDeliverUnit(item: OrderItem) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#ordersStore.serveUnits(this.barId(), order.id, item.id, 1);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onUnserveUnit(item: OrderItem) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#ordersStore.unserveUnit(this.barId(), order.id, item.id);
     } catch (e) {
       console.error(e);
     }

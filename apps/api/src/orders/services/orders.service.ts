@@ -12,6 +12,8 @@ import {
 } from '@coaster/common';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BarGateway } from '../../core';
+import { PayUnitsDto } from '../dto/pay-units.dto';
+import { ServeUnitsDto } from '../dto/serve-units.dto';
 import { OrdersRepository } from '../data-access/orders.repository';
 import { OrdersMapper } from '../mappers/orders.mapper';
 
@@ -205,7 +207,7 @@ export class OrdersService {
 
     await prisma.orderItem.update({
       where: { id: itemId },
-      data: { paymentStatus: 'PAID' },
+      data: { paymentStatus: 'PAID', paidQuantity: item.quantity },
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -232,7 +234,173 @@ export class OrdersService {
 
     await prisma.orderItem.update({
       where: { id: itemId },
-      data: { deliveryStatus: 'SERVED' },
+      data: { deliveryStatus: 'SERVED', servedQuantity: item.quantity },
+    });
+
+    const updatedOrder = await this._ordersRepository.findById(orderId);
+    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    return mapped;
+  }
+
+  async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: PayUnitsDto) {
+    const prisma = this._ordersRepository.prisma;
+
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+    if (order.status !== 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    }
+    if (item.paymentStatus === 'PAID') {
+      throw new BadRequestException(ErrorCodes.ORDER_ALREADY_PAID);
+    }
+
+    const newPaidQuantity = (item.paidQuantity ?? 0) + dto.quantityToPay;
+    if (newPaidQuantity > item.quantity) {
+      throw new BadRequestException('PAY_QUANTITY_EXCEEDS_TOTAL');
+    }
+
+    const newPaymentStatus = newPaidQuantity === item.quantity ? 'PAID' : 'PARTIAL';
+
+    await prisma.orderItem.update({
+      where: { id: itemId },
+      data: {
+        paidQuantity: newPaidQuantity,
+        paymentStatus: newPaymentStatus,
+      },
+    });
+
+    const updatedOrder = await this._ordersRepository.findById(orderId);
+    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    return mapped;
+  }
+
+  async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: ServeUnitsDto) {
+    const prisma = this._ordersRepository.prisma;
+
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+    if (order.status !== 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    }
+    if (item.deliveryStatus === 'SERVED') {
+      throw new BadRequestException('ORDER_ITEM_ALREADY_SERVED');
+    }
+
+    const newServedQuantity = (item.servedQuantity ?? 0) + dto.quantityToServe;
+    if (newServedQuantity > item.quantity) {
+      throw new BadRequestException('SERVE_QUANTITY_EXCEEDS_TOTAL');
+    }
+
+    const newDeliveryStatus = newServedQuantity === item.quantity ? 'SERVED' : 'PARTIAL';
+
+    await prisma.orderItem.update({
+      where: { id: itemId },
+      data: {
+        servedQuantity: newServedQuantity,
+        deliveryStatus: newDeliveryStatus,
+      },
+    });
+
+    const updatedOrder = await this._ordersRepository.findById(orderId);
+    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    return mapped;
+  }
+
+  async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    const prisma = this._ordersRepository.prisma;
+
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+    if (order.status !== 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    }
+
+    const paidQty = item.paidQuantity ?? 0;
+    if (paidQty <= 0) {
+      throw new BadRequestException('CANNOT_DECREMENT_PAID_QUANTITY');
+    }
+
+    const newPaidQuantity = paidQty - 1;
+    let newPaymentStatus = item.paymentStatus;
+    if (newPaidQuantity === 0) {
+      newPaymentStatus = 'PENDING';
+    } else {
+      newPaymentStatus = 'PARTIAL';
+    }
+
+    await prisma.orderItem.update({
+      where: { id: itemId },
+      data: {
+        paidQuantity: newPaidQuantity,
+        paymentStatus: newPaymentStatus,
+      },
+    });
+
+    const updatedOrder = await this._ordersRepository.findById(orderId);
+    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    return mapped;
+  }
+
+  async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    const prisma = this._ordersRepository.prisma;
+
+    const order = await this._ordersRepository.findById(orderId);
+    if (!order || order.barId !== barId) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+    if (order.status !== 'OPEN') {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    const item = order.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    }
+
+    const servedQty = item.servedQuantity ?? 0;
+    if (servedQty <= 0) {
+      throw new BadRequestException('CANNOT_DECREMENT_SERVED_QUANTITY');
+    }
+
+    const newServedQuantity = servedQty - 1;
+    let newDeliveryStatus = item.deliveryStatus;
+    if (newServedQuantity === 0) {
+      newDeliveryStatus = 'PENDING';
+    } else {
+      newDeliveryStatus = 'PARTIAL';
+    }
+
+    await prisma.orderItem.update({
+      where: { id: itemId },
+      data: {
+        servedQuantity: newServedQuantity,
+        deliveryStatus: newDeliveryStatus,
+      },
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -253,10 +421,22 @@ export class OrdersService {
     }
 
     const order = await prisma.$transaction(async (tx) => {
-      await tx.orderItem.updateMany({
-        where: { orderId, paymentStatus: 'PENDING' },
-        data: { paymentStatus: 'PAID' },
+      const unpaidItems = await tx.orderItem.findMany({
+        where: {
+          orderId,
+          NOT: { paymentStatus: 'PAID' },
+        },
       });
+
+      for (const item of unpaidItems) {
+        await tx.orderItem.update({
+          where: { id: item.id },
+          data: {
+            paymentStatus: 'PAID',
+            paidQuantity: item.quantity,
+          },
+        });
+      }
 
       const allItems = await tx.orderItem.findMany({ where: { orderId } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);

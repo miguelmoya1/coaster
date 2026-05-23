@@ -43,15 +43,33 @@
             <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
             <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
           </div>
+          @if (item.quantity > 1) {
+            <div class="flex flex-col gap-0.5 mt-1">
+              <span class="text-xxs text-on-surface-variant font-medium">
+                {{ 'orders.paid_units' | translate:{ paid: item.paidQuantity, total: item.quantity } }}
+              </span>
+              <span class="text-xxs text-on-surface-variant font-medium">
+                {{ 'orders.served_units' | translate:{ served: item.servedQuantity, total: item.quantity } }}
+              </span>
+            </div>
+          }
           <div class="flex gap-1.5 mt-1">
             @if (item.paymentStatus === 'PAID') {
               <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
                 {{ 'orders.paid' | translate }}
               </span>
+            } @else if (item.paymentStatus === 'PARTIAL') {
+              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
+                {{ 'orders.partial' | translate }}
+              </span>
             }
             @if (item.deliveryStatus === 'SERVED') {
               <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
                 {{ 'orders.served' | translate }}
+              </span>
+            } @else if (item.deliveryStatus === 'PARTIAL') {
+              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
+                {{ 'orders.partial' | translate }}
               </span>
             }
           </div>
@@ -59,6 +77,51 @@
 
         <div class="flex gap-1">
           @if (order.status === 'OPEN') {
+            <!-- Delivery controls -->
+            <div class="flex items-center gap-0.5">
+              @if (item.servedQuantity > 0) {
+                <button
+                  class="h-10 px-2.5 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-primary/20"
+                  (click)="onUnserveUnit(item)"
+                  [title]="'orders.unserve_unit' | translate"
+                >
+                  -1
+                </button>
+              }
+              @if (item.quantity > 1 && item.deliveryStatus !== 'SERVED') {
+                <button
+                  class="h-10 px-2.5 rounded-xl bg-primary/10 text-primary flex items-center gap-1 active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-primary/20"
+                  (click)="onDeliverUnit(item)"
+                  [title]="'orders.mark_served' | translate"
+                >
+                  <ng-icon name="lucideChefHat" size="16" />
+                  +1
+                </button>
+              }
+            </div>
+
+            <!-- Payment controls -->
+            <div class="flex items-center gap-0.5">
+              @if (item.paidQuantity > 0) {
+                <button
+                  class="h-10 px-2.5 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-secondary/20"
+                  (click)="onUnpayUnit(item)"
+                  [title]="'orders.unpay_unit' | translate"
+                >
+                  -1
+                </button>
+              }
+              @if (item.quantity > 1 && item.paymentStatus !== 'PAID') {
+                <button
+                  class="h-10 px-2.5 rounded-xl bg-secondary/10 text-secondary flex items-center gap-1 active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-secondary/20"
+                  (click)="onPayUnit(item)"
+                  [title]="'orders.mark_paid' | translate"
+                >
+                  <ng-icon name="lucideCreditCard" size="16" />
+                  +1
+                </button>
+              }
+            </div>
             @if (item.deliveryStatus !== 'SERVED') {
               <button
                 class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"

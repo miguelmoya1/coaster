@@ -44,6 +44,8 @@ export const OrdersMapper = {
       productName: dbItem.product.name,
       quantity: dbItem.quantity,
       priceAtPurchase: dbItem.priceAtPurchase,
+      paidQuantity: dbItem.paidQuantity,
+      servedQuantity: dbItem.servedQuantity,
       paymentStatus: asPaymentStatus(dbItem.paymentStatus),
       deliveryStatus: asDeliveryStatus(dbItem.deliveryStatus),
       createdAt: dbItem.createdAt.toISOString(),

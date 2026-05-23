@@ -269,7 +269,9 @@ export class OrdersStore {
 
   public async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
     const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => (i.id === itemId ? { ...i, paymentStatus: asPaymentStatus('PAID') } : i));
+      const items = order.items.map((i) =>
+        i.id === itemId ? { ...i, paymentStatus: asPaymentStatus('PAID'), paidQuantity: i.quantity } : i,
+      );
       return { ...order, items };
     });
 
@@ -282,10 +284,62 @@ export class OrdersStore {
     }
   }
 
+  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
+    const original = this.optimisticUpdate(orderId, (order) => {
+      const items = order.items.map((i) => {
+        if (i.id === itemId) {
+          const newPaid = i.paidQuantity + quantityToPay;
+          const newStatus = newPaid === i.quantity ? 'PAID' : 'PARTIAL';
+          return {
+            ...i,
+            paidQuantity: newPaid,
+            paymentStatus: asPaymentStatus(newStatus),
+          };
+        }
+        return i;
+      });
+      return { ...order, items };
+    });
+
+    try {
+      return await this.#manageOrder.payUnits(barId, orderId, itemId, quantityToPay);
+    } catch (error) {
+      this.revertUpdate(original);
+      this.#toastService.error('ERR_PAYMENT');
+      throw error;
+    }
+  }
+
+  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    const original = this.optimisticUpdate(orderId, (order) => {
+      const items = order.items.map((i) => {
+        if (i.id === itemId) {
+          const newPaid = Math.max(0, i.paidQuantity - 1);
+          const newStatus = newPaid === 0 ? 'PENDING' : 'PARTIAL';
+          return {
+            ...i,
+            paidQuantity: newPaid,
+            paymentStatus: asPaymentStatus(newStatus),
+          };
+        }
+        return i;
+      });
+      return { ...order, items };
+    });
+
+    try {
+      return await this.#manageOrder.unpayUnit(barId, orderId, itemId);
+    } catch (error) {
+      this.revertUpdate(original);
+      this.#toastService.error('ERR_PAYMENT');
+      throw error;
+    }
+  }
+
   public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
     const original = this.optimisticUpdate(orderId, (order) => {
       const items = order.items.map((i) =>
-        i.id === itemId ? { ...i, deliveryStatus: asDeliveryStatus('SERVED') } : i,
+        i.id === itemId ? { ...i, deliveryStatus: asDeliveryStatus('SERVED'), servedQuantity: i.quantity } : i,
       );
       return { ...order, items };
     });
@@ -299,9 +353,61 @@ export class OrdersStore {
     }
   }
 
+  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
+    const original = this.optimisticUpdate(orderId, (order) => {
+      const items = order.items.map((i) => {
+        if (i.id === itemId) {
+          const newServed = i.servedQuantity + quantityToServe;
+          const newStatus = newServed === i.quantity ? 'SERVED' : 'PARTIAL';
+          return {
+            ...i,
+            servedQuantity: newServed,
+            deliveryStatus: asDeliveryStatus(newStatus),
+          };
+        }
+        return i;
+      });
+      return { ...order, items };
+    });
+
+    try {
+      return await this.#manageOrder.serveUnits(barId, orderId, itemId, quantityToServe);
+    } catch (error) {
+      this.revertUpdate(original);
+      this.#toastService.error('ERR_DELIVERY');
+      throw error;
+    }
+  }
+
+  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    const original = this.optimisticUpdate(orderId, (order) => {
+      const items = order.items.map((i) => {
+        if (i.id === itemId) {
+          const newServed = Math.max(0, i.servedQuantity - 1);
+          const newStatus = newServed === 0 ? 'PENDING' : 'PARTIAL';
+          return {
+            ...i,
+            servedQuantity: newServed,
+            deliveryStatus: asDeliveryStatus(newStatus),
+          };
+        }
+        return i;
+      });
+      return { ...order, items };
+    });
+
+    try {
+      return await this.#manageOrder.unserveUnit(barId, orderId, itemId);
+    } catch (error) {
+      this.revertUpdate(original);
+      this.#toastService.error('ERR_DELIVERY');
+      throw error;
+    }
+  }
+
   public async checkout(barId: BarId, orderId: OrderId) {
     const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => ({ ...i, paymentStatus: asPaymentStatus('PAID') }));
+      const items = order.items.map((i) => ({ ...i, paymentStatus: asPaymentStatus('PAID'), paidQuantity: i.quantity }));
       return { ...order, status: OrderStatus.CLOSED, items };
     });
 

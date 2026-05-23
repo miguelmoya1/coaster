@@ -36,11 +36,13 @@ enum OrderStatus {
 
 enum PaymentStatus {
   PENDING
+  PARTIAL
   PAID
 }
 
 enum DeliveryStatus {
   PENDING
+  PARTIAL
   SERVED
 }
 
@@ -188,6 +190,8 @@ model OrderItem {
   product         Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
   quantity        Int
   priceAtPurchase Int
+  paidQuantity    Int            @default(0)
+  servedQuantity  Int            @default(0)
   paymentStatus   PaymentStatus  @default(PENDING)
   deliveryStatus  DeliveryStatus @default(PENDING)
   createdAt       DateTime       @default(now())

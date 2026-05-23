@@ -262,7 +262,7 @@ describe('OrdersService', () => {
 
       expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
         where: { id: itemId },
-        data: { paymentStatus: 'PAID' },
+        data: { paymentStatus: 'PAID', paidQuantity: 2 },
       });
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
@@ -295,7 +295,7 @@ describe('OrdersService', () => {
 
       expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
         where: { id: itemId },
-        data: { deliveryStatus: 'SERVED' },
+        data: { deliveryStatus: 'SERVED', servedQuantity: 2 },
       });
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
@@ -324,6 +324,7 @@ describe('OrdersService', () => {
         const tx = {
           orderItem: {
             updateMany: vi.fn(),
+            update: vi.fn(),
             findMany: vi.fn().mockResolvedValue([{ priceAtPurchase: 250, quantity: 2 }]),
           },
           order: { update: vi.fn().mockResolvedValue(closedOrder) },
@@ -347,6 +348,7 @@ describe('OrdersService', () => {
         const tx = {
           orderItem: {
             updateMany: vi.fn(),
+            update: vi.fn(),
             findMany: vi.fn().mockResolvedValue([]),
           },
           order: { update: vi.fn().mockResolvedValue(makeOrderDb({ tableId: null, table: null, status: 'CLOSED' })) },
@@ -510,6 +512,88 @@ describe('OrdersService', () => {
       expect(result.id).toBe(asOrderId('order-1'));
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CANCELLED, { id: 'order-2' });
+    });
+  });
+
+  describe('payUnits', () => {
+    const barId = asBarId('bar-1');
+    const orderId = asOrderId('order-1');
+    const itemId = asOrderItemId('item-1');
+
+    it('should throw if pay units exceeds total quantity', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+      
+      await expect(service.payUnits(barId, orderId, itemId, { quantityToPay: 3 })).rejects.toThrow('PAY_QUANTITY_EXCEEDS_TOTAL');
+    });
+
+    it('should partially pay items', async () => {
+      repository.findById
+        .mockResolvedValueOnce(makeOrderDb())
+        .mockResolvedValueOnce(makeOrderDb({
+          items: [{
+            id: 'item-1',
+            orderId: 'order-1',
+            productId: 'prod-1',
+            quantity: 2,
+            priceAtPurchase: 250,
+            paymentStatus: 'PARTIAL',
+            deliveryStatus: 'PENDING',
+            paidQuantity: 1,
+            servedQuantity: 0,
+            product: { name: 'Cerveza' },
+            createdAt: new Date('2026-05-01T08:00:00Z'),
+            updatedAt: new Date('2026-05-01T08:00:00Z'),
+          }]
+        }));
+      repository.prisma.orderItem.update.mockResolvedValue({});
+
+      const result = await service.payUnits(barId, orderId, itemId, { quantityToPay: 1 });
+
+      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
+        where: { id: itemId },
+        data: { paidQuantity: 1, paymentStatus: 'PARTIAL' },
+      });
+    });
+  });
+
+  describe('serveUnits', () => {
+    const barId = asBarId('bar-1');
+    const orderId = asOrderId('order-1');
+    const itemId = asOrderItemId('item-1');
+
+    it('should throw if serve units exceeds total quantity', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+      
+      await expect(service.serveUnits(barId, orderId, itemId, { quantityToServe: 3 })).rejects.toThrow('SERVE_QUANTITY_EXCEEDS_TOTAL');
+    });
+
+    it('should partially serve items', async () => {
+      repository.findById
+        .mockResolvedValueOnce(makeOrderDb())
+        .mockResolvedValueOnce(makeOrderDb({
+          items: [{
+            id: 'item-1',
+            orderId: 'order-1',
+            productId: 'prod-1',
+            quantity: 2,
+            priceAtPurchase: 250,
+            paymentStatus: 'PENDING',
+            deliveryStatus: 'PARTIAL',
+            paidQuantity: 0,
+            servedQuantity: 1,
+            product: { name: 'Cerveza' },
+            createdAt: new Date('2026-05-01T08:00:00Z'),
+            updatedAt: new Date('2026-05-01T08:00:00Z'),
+          }]
+        }));
+      repository.prisma.orderItem.update.mockResolvedValue({});
+
+      const result = await service.serveUnits(barId, orderId, itemId, { quantityToServe: 1 });
+
+      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
+        where: { id: itemId },
+        data: { servedQuantity: 1, deliveryStatus: 'PARTIAL' },
+      });
     });
   });
 });

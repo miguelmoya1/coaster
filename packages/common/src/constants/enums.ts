@@ -51,11 +51,13 @@ export enum OrderStatus {
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
+  PARTIAL = 'PARTIAL',
   PAID = 'PAID',
 }
 
 export enum DeliveryStatus {
   PENDING = 'PENDING',
+  PARTIAL = 'PARTIAL',
   SERVED = 'SERVED',
 }
 

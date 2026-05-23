@@ -105,7 +105,7 @@ describe('PosProductGrid', () => {
       component.searchQuery.set('xyz');
       fixture.detectChanges();
       
-      const noProductsElement = fixture.nativeElement.querySelector('.col-span-3');
+      const noProductsElement = fixture.nativeElement.querySelector('.col-span-full');
       expect(noProductsElement).toBeTruthy();
       expect(component.filteredProducts().length).toBe(0);
     });

@@ -17,6 +17,8 @@ export interface OrderItem {
   productName?: string;
   quantity: number;
   priceAtPurchase: number;
+  paidQuantity: number;
+  servedQuantity: number;
   paymentStatus: PaymentStatus;
   deliveryStatus: DeliveryStatus;
   createdAt?: string;

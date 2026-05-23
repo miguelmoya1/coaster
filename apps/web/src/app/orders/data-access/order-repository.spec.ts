@@ -31,6 +31,8 @@ describe('OrderRepository', () => {
         priceAtPurchase: 500,
         paymentStatus: PaymentStatus.PENDING,
         deliveryStatus: DeliveryStatus.PENDING,
+        paidQuantity: 0,
+        servedQuantity: 0,
       },
     ],
   };

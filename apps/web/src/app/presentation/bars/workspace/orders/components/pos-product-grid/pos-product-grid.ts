@@ -65,7 +65,7 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
       </div>
 
       <!-- Products Grid -->
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
         @for (product of filteredProducts(); track product.id) {
           <button
             class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
@@ -75,7 +75,7 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
             <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
           </button>
         } @empty {
-          <div class="col-span-3 text-center text-on-surface-variant py-8">
+          <div class="col-span-full text-center text-on-surface-variant py-8">
             {{ 'orders.no_products' | translate }}
           </div>
         }

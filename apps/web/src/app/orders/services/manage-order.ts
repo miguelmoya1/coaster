@@ -24,8 +24,24 @@ export class ManageOrder {
     return await this.#orderRepository.payItem(barId, orderId, itemId);
   }
 
+  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
+    return await this.#orderRepository.payUnits(barId, orderId, itemId, quantityToPay);
+  }
+
+  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return await this.#orderRepository.unpayUnit(barId, orderId, itemId);
+  }
+
   public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
     return await this.#orderRepository.deliverItem(barId, orderId, itemId);
+  }
+
+  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
+    return await this.#orderRepository.serveUnits(barId, orderId, itemId, quantityToServe);
+  }
+
+  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return await this.#orderRepository.unserveUnit(barId, orderId, itemId);
   }
 
   public async checkout(barId: BarId, orderId: OrderId) {

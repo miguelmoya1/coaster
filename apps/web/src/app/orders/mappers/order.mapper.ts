@@ -10,6 +10,8 @@ const checkIsOrderItem = (item: unknown): item is OrderItem => {
     typeof i['productId'] === 'string' &&
     typeof i['quantity'] === 'number' &&
     typeof i['priceAtPurchase'] === 'number' &&
+    typeof i['paidQuantity'] === 'number' &&
+    typeof i['servedQuantity'] === 'number' &&
     typeof i['paymentStatus'] === 'string' &&
     typeof i['deliveryStatus'] === 'string'
   );

@@ -30,8 +30,16 @@ export class OrderRepository {
     addItems: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/items`,
     payItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
       `/bars/${barId}/orders/${orderId}/items/${itemId}/pay`,
+    payUnits: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
+      `/bars/${barId}/orders/${orderId}/items/${itemId}/pay-units`,
+    unpayUnit: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
+      `/bars/${barId}/orders/${orderId}/items/${itemId}/unpay-unit`,
     deliverItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
       `/bars/${barId}/orders/${orderId}/items/${itemId}/deliver`,
+    serveUnits: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
+      `/bars/${barId}/orders/${orderId}/items/${itemId}/serve-units`,
+    unserveUnit: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
+      `/bars/${barId}/orders/${orderId}/items/${itemId}/unserve-unit`,
     checkout: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/checkout`,
     cancel: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/cancel`,
     moveTable: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/move-table`,
@@ -64,10 +72,42 @@ export class OrderRepository {
     );
   }
 
+  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
+    return firstValueFrom(
+      this.#http
+        .patch<Order>(this.routes.payUnits(barId, orderId, itemId), { quantityToPay })
+        .pipe(map((order) => orderMapper(order))),
+    );
+  }
+
+  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return firstValueFrom(
+      this.#http
+        .patch<Order>(this.routes.unpayUnit(barId, orderId, itemId), {})
+        .pipe(map((order) => orderMapper(order))),
+    );
+  }
+
   public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
     return firstValueFrom(
       this.#http
         .patch<Order>(this.routes.deliverItem(barId, orderId, itemId), {})
+        .pipe(map((order) => orderMapper(order))),
+    );
+  }
+
+  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
+    return firstValueFrom(
+      this.#http
+        .patch<Order>(this.routes.serveUnits(barId, orderId, itemId), { quantityToServe })
+        .pipe(map((order) => orderMapper(order))),
+    );
+  }
+
+  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+    return firstValueFrom(
+      this.#http
+        .patch<Order>(this.routes.unserveUnit(barId, orderId, itemId), {})
         .pipe(map((order) => orderMapper(order))),
     );
   }
