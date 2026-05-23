@@ -268,9 +268,7 @@ describe('TemplatesService', () => {
 
       expect(vi.mocked(repository.createManyCategories)).not.toHaveBeenCalled();
       expect(vi.mocked(repository.createManyProducts)).toHaveBeenCalledWith(
-        [
-          { categoryId: 'real-cat-1', name: 'Fanta', price: 1.8, currentStock: 0, minStockAlert: 0 },
-        ],
+        [{ categoryId: 'real-cat-1', name: 'Fanta', price: 1.8, currentStock: 0, minStockAlert: 0 }],
         true,
       );
       expect(result).toEqual({ success: true, created: 1, modified: 0 });
@@ -293,7 +291,14 @@ describe('TemplatesService', () => {
       const mockCategoryTemplate = { id: 'cat-1', name: 'templates.categories.cafeteria', icon: 'coffee' };
 
       repository.upsertCategoryTemplate.mockResolvedValue(mockCategoryTemplate);
-      repository.upsertProductTemplate.mockResolvedValue({ id: 'p1', name: 'templates.products.cafe_solo', price: 120, categoryId: 'cat-1' });
+      repository.upsertProductTemplate.mockResolvedValue({
+        id: 'p1',
+        name: 'templates.products.cafe_solo',
+        price: 120,
+        categoryId: 'cat-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const result = await service.bulkUpsertTemplates(categoriesJson);
 
