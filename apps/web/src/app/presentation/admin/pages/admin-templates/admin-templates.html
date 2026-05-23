@@ -1,0 +1,96 @@
+<div
+  class="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+>
+  <!-- Top header bar -->
+  <div class="flex items-center justify-between border-b border-outline-variant pb-4">
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"
+    >
+      <ng-icon name="lucideArrowLeft" class="text-xl group-hover:-translate-x-1 transition-transform" />
+      <span class="font-bold text-sm tracking-wider uppercase">Volver</span>
+    </button>
+
+    <div class="flex items-center gap-2 text-primary font-black uppercase tracking-wider text-sm">
+      <ng-icon name="lucideSettings" class="text-lg spin" />
+      <span>Panel de Control Admin</span>
+    </div>
+  </div>
+
+  <!-- Main Title -->
+  <coaster-section-title
+    heading="Administración de Plantillas"
+    description="Gestiona, crea o sobrescribe de manera masiva las plantillas estándar del sistema que se ofrecen para importar a los nuevos locales."
+    centered
+    isH1
+  />
+
+  <!-- Content Editor Card -->
+  <div class="bg-surface-container rounded-2xl border border-outline-variant p-6 flex flex-col gap-6 shadow-xl">
+    <form [formRoot]="form" (submit)="$event.preventDefault()" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <div
+          class="text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center justify-between ml-1"
+        >
+          <span>Editor JSON de Plantillas</span>
+          @if (form.jsonContent().value() && form.jsonContent().invalid()) {
+            <span class="text-error flex items-center gap-1 animate-in fade-in">
+              <ng-icon name="lucideAlertTriangle" />
+              @for (error of form.jsonContent().errors(); track error) {
+                {{ error.message }}
+              }
+            </span>
+          } @else if (form.jsonContent().value() && form.jsonContent().valid()) {
+            <span class="text-success flex items-center gap-1 animate-in fade-in">
+              <ng-icon name="lucideCheck" />
+              Formato Válido
+            </span>
+          }
+        </div>
+
+        <coaster-textarea-input
+          [formField]="form.jsonContent"
+          [placeholder]="placeholderText"
+          [rows]="12"
+        />
+
+        <p class="text-xs text-on-surface-variant leading-relaxed ml-1">
+          Asegúrate de que el JSON sea un array de categorías, donde cada categoría tenga un <strong>name</strong>,
+          <strong>icon</strong> y una lista opcional de <strong>products</strong> (con <strong>name</strong> y
+          <strong>price</strong> en céntimos).
+        </p>
+      </div>
+
+      <!-- Utility prefill button -->
+      <button
+        coaster-btn
+        variant="outline"
+        type="button"
+        (click)="loadStandardTemplates()"
+        class="border-dashed border-2 border-primary/20 hover:border-primary/50 text-primary-container group"
+      >
+        <ng-icon name="lucideSparkles" class="text-lg group-hover:scale-110 transition-transform" />
+        Cargar Plantilla Estándar del Bar
+      </button>
+
+      <!-- Submit actions -->
+      <div class="flex flex-col gap-3 mt-2">
+        <button
+          coaster-btn
+          variant="primary"
+          type="submit"
+          [disabled]="form().disabled() || form().submitting() || form().invalid()"
+          class="relative w-full"
+        >
+          @if (form().submitting()) {
+            <coaster-loading class="scale-75" />
+            <span>Procesando...</span>
+          } @else {
+            <ng-icon name="lucideUpload" class="text-lg" />
+            <span>Upsert de Plantillas</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

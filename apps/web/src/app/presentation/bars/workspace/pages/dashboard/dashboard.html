@@ -11,37 +11,13 @@
 
         <div class="flex flex-col gap-3">
           @for (product of pantryAlerts(); track product.id) {
-            <div
-              class="bg-surface-container rounded-2xl p-5 border-l-4 flex justify-between items-center shadow-lg transition-transform active:scale-[0.98]"
-              [class.border-error]="product.stockStatus === 'critical'"
-              [class.border-secondary]="product.stockStatus === 'low'"
-            >
-              <div class="flex flex-col gap-1">
-                <span
-                  class="text-xxs font-black uppercase tracking-tighter px-2 py-0.5 rounded w-fit"
-                  [class.bg-error/20]="product.stockStatus === 'critical'"
-                  [class.text-error]="product.stockStatus === 'critical'"
-                  [class.bg-secondary/20]="product.stockStatus === 'low'"
-                  [class.text-secondary]="product.stockStatus === 'low'"
-                >
-                  {{ 'dashboard.pantry.status.' + product.stockStatus | translate }}
-                </span>
-                <h3 class="text-on-surface font-bold text-lg leading-tight">{{ product.name }}</h3>
-                <div class="flex items-baseline gap-1">
-                  <span class="text-2xl font-black text-on-surface leading-none">
-                    {{ product.currentStock | number: '2.0-0' }}
-                  </span>
-                  <span class="text-xxs text-on-surface-variant font-bold uppercase tracking-wider">BTLS</span>
-                </div>
-              </div>
-
-              <ng-icon
-                [name]="product.stockStatus === 'critical' ? 'lucideAlertCircle' : 'lucideAlertTriangle'"
-                class="text-2xl"
-                [class.text-error]="product.stockStatus === 'critical'"
-                [class.text-secondary]="product.stockStatus === 'low'"
-              />
-            </div>
+            <coaster-inventory-item-card
+              [itemName]="product.name"
+              [qty]="product.currentStock"
+              [statusLevel]="product.stockStatus"
+              [price]="product.price"
+              [routerLink]="['/bars', barId(), 'pantry']"
+            />
           }
         </div>
       </section>

@@ -15,7 +15,10 @@
     "update": "Actualizar",
     "invite": "Invitar",
     "accept": "Aceptar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "logout": "Cerrar sesión",
+    "change_bar": "Cambiar de bar",
+    "language": "Idioma"
   },
   "nav": {
     "dashboard": "Panel",

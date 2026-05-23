@@ -4,7 +4,6 @@ import { StockStatusPipe } from '@coaster/products';
 import { CoasterBadge, CoasterTitle, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

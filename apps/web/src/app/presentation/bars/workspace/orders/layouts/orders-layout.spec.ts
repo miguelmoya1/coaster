@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { asBarId } from '@coaster/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 import OrdersLayout from './orders-layout';
 

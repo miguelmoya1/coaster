@@ -15,7 +15,10 @@
     "update": "Update",
     "invite": "Invite",
     "accept": "Accept",
-    "save": "Save"
+    "save": "Save",
+    "logout": "Log Out",
+    "change_bar": "Change Bar",
+    "language": "Language"
   },
   "nav": {
     "dashboard": "Dashboard",

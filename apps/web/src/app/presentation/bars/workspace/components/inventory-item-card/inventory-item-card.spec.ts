@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InventoryItemCard } from './inventory-item-card';
-
 import { provideTranslateService } from '@ngx-translate/core';
 
 describe('InventoryItemCard', () => {
@@ -78,7 +77,6 @@ describe('InventoryItemCard', () => {
       const stopSpy = vi.spyOn(event, 'stopPropagation');
 
       component.onEditClick(event);
-
       expect(stopSpy).toHaveBeenCalled();
     });
   });

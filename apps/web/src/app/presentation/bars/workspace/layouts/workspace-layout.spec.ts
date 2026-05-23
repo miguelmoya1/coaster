@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { CurrentUser, Socket } from '@coaster/core';
+import { CurrentUser, Socket, Auth } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -40,6 +40,10 @@ describe('WorkspaceLayout', () => {
     leaveBar: vi.fn(),
   };
 
+  const authMock = {
+    logout: vi.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [WorkspaceLayout],
@@ -50,6 +54,7 @@ describe('WorkspaceLayout', () => {
         { provide: BarsStore, useValue: barsStoreMock },
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: Socket, useValue: socketMock },
+        { provide: Auth, useValue: authMock },
       ],
     }).compileComponents();
 

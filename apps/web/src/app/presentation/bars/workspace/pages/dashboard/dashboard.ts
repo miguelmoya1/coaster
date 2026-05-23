@@ -1,4 +1,3 @@
-import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BarId } from '@coaster/common';
@@ -16,10 +15,11 @@ import {
   lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 
 @Component({
   selector: 'coaster-dashboard',
-  imports: [DecimalPipe, TranslatePipe, NgIcon, RouterLink],
+  imports: [TranslatePipe, NgIcon, RouterLink, InventoryItemCard],
   templateUrl: './dashboard.html',
   viewProviders: [
     provideIcons({

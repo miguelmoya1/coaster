@@ -30,7 +30,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
-import { InventoryItemCard } from './components/inventory-item-card/inventory-item-card';
+import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PantrySearch } from './components/pantry-search/pantry-search';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
