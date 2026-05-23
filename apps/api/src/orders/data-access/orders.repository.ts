@@ -1,14 +1,10 @@
-import { BarId, OrderId, OrderItemId, TableId } from '@coaster/common';
+import { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core';
 
 @Injectable()
 export class OrdersRepository {
   constructor(private readonly _prisma: PrismaService) {}
-
-  get prisma() {
-    return this._prisma;
-  }
 
   async findByBarId(barId: BarId, status?: string) {
     return this._prisma.order.findMany({
@@ -126,6 +122,243 @@ export class OrdersRepository {
         items: { include: { product: true } },
         table: true,
       },
+    });
+  }
+
+  async createOrder(
+    barId: BarId,
+    dto: CreateOrderDto,
+    priceMap: Map<string, number>,
+    totalAmount: number,
+    resolvedTableName: string | null,
+  ) {
+    return this._prisma.$transaction(async (tx) => {
+      const created = await tx.order.create({
+        data: {
+          barId,
+          tableId: dto.tableId ?? null,
+          tableName: resolvedTableName,
+          status: 'OPEN',
+          totalAmount,
+          items: {
+            create: dto.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              priceAtPurchase: priceMap.get(item.productId) ?? 0,
+            })),
+          },
+        },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+
+      if (dto.tableId) {
+        await tx.table.update({
+          where: { id: dto.tableId },
+          data: { status: 'OCCUPIED' },
+        });
+      }
+
+      return created;
+    });
+  }
+
+  async addItemsToOrder(
+    orderId: OrderId,
+    additionalAmount: number,
+    dto: AddOrderItemsDto,
+    priceMap: Map<string, number>,
+    currentTotalAmount: number,
+  ) {
+    return this._prisma.$transaction(async (tx) => {
+      await tx.orderItem.createMany({
+        data: dto.items.map((item) => ({
+          orderId,
+          productId: item.productId,
+          quantity: item.quantity,
+          priceAtPurchase: priceMap.get(item.productId) ?? 0,
+        })),
+      });
+
+      return tx.order.update({
+        where: { id: orderId },
+        data: { totalAmount: currentTotalAmount + additionalAmount },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+    });
+  }
+
+  async updateOrderItem(
+    itemId: OrderItemId,
+    data: {
+      paymentStatus?: 'PENDING' | 'PARTIAL' | 'PAID';
+      deliveryStatus?: 'PENDING' | 'PARTIAL' | 'SERVED';
+      paidQuantity?: number;
+      servedQuantity?: number;
+    },
+  ) {
+    return this._prisma.orderItem.update({
+      where: { id: itemId },
+      data,
+    });
+  }
+
+  async checkoutOrder(orderId: OrderId, tableId: string | null) {
+    return this._prisma.$transaction(async (tx) => {
+      const unpaidItems = await tx.orderItem.findMany({
+        where: {
+          orderId,
+          NOT: { paymentStatus: 'PAID' },
+        },
+      });
+
+      for (const item of unpaidItems) {
+        await tx.orderItem.update({
+          where: { id: item.id },
+          data: {
+            paymentStatus: 'PAID',
+            paidQuantity: item.quantity,
+          },
+        });
+      }
+
+      const allItems = await tx.orderItem.findMany({ where: { orderId } });
+      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+      const closed = await tx.order.update({
+        where: { id: orderId },
+        data: { status: 'CLOSED', totalAmount },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+
+      if (tableId) {
+        await tx.table.update({
+          where: { id: tableId },
+          data: { status: 'FREE' },
+        });
+      }
+
+      return closed;
+    });
+  }
+
+  async cancelOrder(orderId: OrderId, tableId: string | null) {
+    return this._prisma.$transaction(async (tx) => {
+      const cancelled = await tx.order.update({
+        where: { id: orderId },
+        data: { status: 'CANCELLED' },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+
+      if (tableId) {
+        await tx.table.update({
+          where: { id: tableId },
+          data: { status: 'FREE' },
+        });
+      }
+
+      return cancelled;
+    });
+  }
+
+  async moveTable(orderId: OrderId, oldTableId: string | null, newTableId: string, newTableName: string) {
+    return this._prisma.$transaction(async (tx) => {
+      if (oldTableId) {
+        await tx.table.update({
+          where: { id: oldTableId },
+          data: { status: 'FREE' },
+        });
+      }
+
+      await tx.table.update({
+        where: { id: newTableId },
+        data: { status: 'OCCUPIED' },
+      });
+
+      return tx.order.update({
+        where: { id: orderId },
+        data: { tableId: newTableId, tableName: newTableName },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
+    });
+  }
+
+  async mergeOrders(
+    primaryOrderId: OrderId,
+    sourceOrdersData: { id: OrderId; tableId: string | null }[],
+    targetTableId: string | null,
+    primaryOrderTableId: string | null,
+    primaryOrderTableName: string | null,
+  ) {
+    return this._prisma.$transaction(async (tx) => {
+      for (const source of sourceOrdersData) {
+        await tx.orderItem.updateMany({
+          where: { orderId: source.id },
+          data: { orderId: primaryOrderId },
+        });
+
+        await tx.order.update({
+          where: { id: source.id },
+          data: { status: 'CANCELLED' },
+        });
+
+        if (source.tableId) {
+          await tx.table.update({
+            where: { id: source.tableId },
+            data: { status: 'FREE' },
+          });
+        }
+      }
+
+      if (targetTableId) {
+        if (primaryOrderTableId && primaryOrderTableId !== targetTableId) {
+          await tx.table.update({
+            where: { id: primaryOrderTableId },
+            data: { status: 'FREE' },
+          });
+        }
+
+        await tx.table.update({
+          where: { id: targetTableId },
+          data: { status: 'OCCUPIED' },
+        });
+      }
+
+      const allItems = await tx.orderItem.findMany({ where: { orderId: primaryOrderId } });
+      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+      let mergedTableName = primaryOrderTableName;
+      if (targetTableId) {
+        const targetTable = await tx.table.findUnique({ where: { id: targetTableId } });
+        mergedTableName = targetTable?.name ?? mergedTableName;
+      }
+
+      return tx.order.update({
+        where: { id: primaryOrderId },
+        data: {
+          totalAmount,
+          tableId: targetTableId ?? primaryOrderTableId,
+          tableName: mergedTableName,
+        },
+        include: {
+          items: { include: { product: true } },
+          table: true,
+        },
+      });
     });
   }
 }

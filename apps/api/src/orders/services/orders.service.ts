@@ -1,5 +1,6 @@
 import {
   AddOrderItemsDto,
+  asOrderId,
   asTableId,
   BarId,
   CreateOrderDto,
@@ -12,9 +13,9 @@ import {
 } from '@coaster/common';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BarGateway } from '../../core';
+import { OrdersRepository } from '../data-access/orders.repository';
 import { PayUnitsDto } from '../dto/pay-units.dto';
 import { ServeUnitsDto } from '../dto/serve-units.dto';
-import { OrdersRepository } from '../data-access/orders.repository';
 import { OrdersMapper } from '../mappers/orders.mapper';
 
 @Injectable()
@@ -64,8 +65,6 @@ export class OrdersService {
   }
 
   async createOrder(barId: BarId, dto: CreateOrderDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const productIds = dto.items.map((i) => i.productId);
     const products = await this._ordersRepository.findProductsByIds(productIds);
     if (products.length !== productIds.length) {
@@ -92,37 +91,7 @@ export class OrdersService {
       resolvedTableName = table?.name ?? null;
     }
 
-    const order = await prisma.$transaction(async (tx) => {
-      const created = await tx.order.create({
-        data: {
-          barId,
-          tableId: dto.tableId ?? null,
-          tableName: resolvedTableName,
-          status: 'OPEN',
-          totalAmount,
-          items: {
-            create: dto.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              priceAtPurchase: priceMap.get(item.productId) ?? 0,
-            })),
-          },
-        },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-
-      if (dto.tableId) {
-        await tx.table.update({
-          where: { id: dto.tableId },
-          data: { status: 'OCCUPIED' },
-        });
-      }
-
-      return created;
-    });
+    const order = await this._ordersRepository.createOrder(barId, dto, priceMap, totalAmount, resolvedTableName);
 
     const mapped = OrdersMapper.toDomain(order);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_CREATED, mapped);
@@ -138,8 +107,6 @@ export class OrdersService {
   }
 
   async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const existingOrder = await this._ordersRepository.findById(orderId);
     if (!existingOrder || existingOrder.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -161,25 +128,13 @@ export class OrdersService {
       0,
     );
 
-    const order = await prisma.$transaction(async (tx) => {
-      await tx.orderItem.createMany({
-        data: dto.items.map((item) => ({
-          orderId,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtPurchase: priceMap.get(item.productId) ?? 0,
-        })),
-      });
-
-      return tx.order.update({
-        where: { id: orderId },
-        data: { totalAmount: existingOrder.totalAmount + additionalAmount },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-    });
+    const order = await this._ordersRepository.addItemsToOrder(
+      orderId,
+      additionalAmount,
+      dto,
+      priceMap,
+      existingOrder.totalAmount,
+    );
 
     const mapped = OrdersMapper.toDomain(order);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_ITEM_ADDED, mapped);
@@ -187,8 +142,6 @@ export class OrdersService {
   }
 
   async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -205,9 +158,9 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_ALREADY_PAID);
     }
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: { paymentStatus: 'PAID', paidQuantity: item.quantity },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      paymentStatus: 'PAID',
+      paidQuantity: item.quantity,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -217,8 +170,6 @@ export class OrdersService {
   }
 
   async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -232,9 +183,9 @@ export class OrdersService {
       throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
     }
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: { deliveryStatus: 'SERVED', servedQuantity: item.quantity },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      deliveryStatus: 'SERVED',
+      servedQuantity: item.quantity,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -244,8 +195,6 @@ export class OrdersService {
   }
 
   async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: PayUnitsDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -269,12 +218,9 @@ export class OrdersService {
 
     const newPaymentStatus = newPaidQuantity === item.quantity ? 'PAID' : 'PARTIAL';
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: {
-        paidQuantity: newPaidQuantity,
-        paymentStatus: newPaymentStatus,
-      },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      paidQuantity: newPaidQuantity,
+      paymentStatus: newPaymentStatus,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -284,8 +230,6 @@ export class OrdersService {
   }
 
   async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: ServeUnitsDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -309,12 +253,9 @@ export class OrdersService {
 
     const newDeliveryStatus = newServedQuantity === item.quantity ? 'SERVED' : 'PARTIAL';
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: {
-        servedQuantity: newServedQuantity,
-        deliveryStatus: newDeliveryStatus,
-      },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      servedQuantity: newServedQuantity,
+      deliveryStatus: newDeliveryStatus,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -324,8 +265,6 @@ export class OrdersService {
   }
 
   async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -345,19 +284,11 @@ export class OrdersService {
     }
 
     const newPaidQuantity = paidQty - 1;
-    let newPaymentStatus = item.paymentStatus;
-    if (newPaidQuantity === 0) {
-      newPaymentStatus = 'PENDING';
-    } else {
-      newPaymentStatus = 'PARTIAL';
-    }
+    const newPaymentStatus = newPaidQuantity === 0 ? 'PENDING' : 'PARTIAL';
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: {
-        paidQuantity: newPaidQuantity,
-        paymentStatus: newPaymentStatus,
-      },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      paidQuantity: newPaidQuantity,
+      paymentStatus: newPaymentStatus,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -367,8 +298,6 @@ export class OrdersService {
   }
 
   async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const prisma = this._ordersRepository.prisma;
-
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -388,19 +317,11 @@ export class OrdersService {
     }
 
     const newServedQuantity = servedQty - 1;
-    let newDeliveryStatus = item.deliveryStatus;
-    if (newServedQuantity === 0) {
-      newDeliveryStatus = 'PENDING';
-    } else {
-      newDeliveryStatus = 'PARTIAL';
-    }
+    const newDeliveryStatus = newServedQuantity === 0 ? 'PENDING' : 'PARTIAL';
 
-    await prisma.orderItem.update({
-      where: { id: itemId },
-      data: {
-        servedQuantity: newServedQuantity,
-        deliveryStatus: newDeliveryStatus,
-      },
+    await this._ordersRepository.updateOrderItem(itemId, {
+      servedQuantity: newServedQuantity,
+      deliveryStatus: newDeliveryStatus,
     });
 
     const updatedOrder = await this._ordersRepository.findById(orderId);
@@ -410,8 +331,6 @@ export class OrdersService {
   }
 
   async checkout(barId: BarId, orderId: OrderId) {
-    const prisma = this._ordersRepository.prisma;
-
     const existingOrder = await this._ordersRepository.findById(orderId);
     if (!existingOrder || existingOrder.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -420,45 +339,7 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const order = await prisma.$transaction(async (tx) => {
-      const unpaidItems = await tx.orderItem.findMany({
-        where: {
-          orderId,
-          NOT: { paymentStatus: 'PAID' },
-        },
-      });
-
-      for (const item of unpaidItems) {
-        await tx.orderItem.update({
-          where: { id: item.id },
-          data: {
-            paymentStatus: 'PAID',
-            paidQuantity: item.quantity,
-          },
-        });
-      }
-
-      const allItems = await tx.orderItem.findMany({ where: { orderId } });
-      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
-
-      const closed = await tx.order.update({
-        where: { id: orderId },
-        data: { status: 'CLOSED', totalAmount },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-
-      if (existingOrder.tableId) {
-        await tx.table.update({
-          where: { id: existingOrder.tableId },
-          data: { status: 'FREE' },
-        });
-      }
-
-      return closed;
-    });
+    const order = await this._ordersRepository.checkoutOrder(orderId, existingOrder.tableId);
 
     const mapped = OrdersMapper.toDomain(order);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_CLOSED, mapped);
@@ -474,8 +355,6 @@ export class OrdersService {
   }
 
   async cancelOrder(barId: BarId, orderId: OrderId) {
-    const prisma = this._ordersRepository.prisma;
-
     const existingOrder = await this._ordersRepository.findById(orderId);
     if (!existingOrder || existingOrder.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -484,25 +363,7 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const order = await prisma.$transaction(async (tx) => {
-      const cancelled = await tx.order.update({
-        where: { id: orderId },
-        data: { status: 'CANCELLED' },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-
-      if (existingOrder.tableId) {
-        await tx.table.update({
-          where: { id: existingOrder.tableId },
-          data: { status: 'FREE' },
-        });
-      }
-
-      return cancelled;
-    });
+    const order = await this._ordersRepository.cancelOrder(orderId, existingOrder.tableId);
 
     const mapped = OrdersMapper.toDomain(order);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_CANCELLED, mapped);
@@ -518,8 +379,6 @@ export class OrdersService {
   }
 
   async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const existingOrder = await this._ordersRepository.findById(orderId);
     if (!existingOrder || existingOrder.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -536,28 +395,7 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.TABLE_ALREADY_OCCUPIED);
     }
 
-    const order = await prisma.$transaction(async (tx) => {
-      if (existingOrder.tableId) {
-        await tx.table.update({
-          where: { id: existingOrder.tableId },
-          data: { status: 'FREE' },
-        });
-      }
-
-      await tx.table.update({
-        where: { id: dto.tableId },
-        data: { status: 'OCCUPIED' },
-      });
-
-      return tx.order.update({
-        where: { id: orderId },
-        data: { tableId: dto.tableId, tableName: newTable.name },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-    });
+    const order = await this._ordersRepository.moveTable(orderId, existingOrder.tableId, dto.tableId, newTable.name);
 
     const mapped = OrdersMapper.toDomain(order);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
@@ -577,8 +415,6 @@ export class OrdersService {
   }
 
   async mergeOrders(barId: BarId, dto: MergeOrdersDto) {
-    const prisma = this._ordersRepository.prisma;
-
     const orders = await this._ordersRepository.findOrdersByIds(dto.orderIds);
     if (orders.length !== dto.orderIds.length) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -603,62 +439,15 @@ export class OrdersService {
 
     const [primaryOrder, ...sourceOrders] = orders;
 
-    const result = await prisma.$transaction(async (tx) => {
-      for (const source of sourceOrders) {
-        await tx.orderItem.updateMany({
-          where: { orderId: source.id },
-          data: { orderId: primaryOrder.id },
-        });
+    const sourceOrdersData = sourceOrders.map((o) => ({ id: asOrderId(o.id), tableId: o.tableId }));
 
-        await tx.order.update({
-          where: { id: source.id },
-          data: { status: 'CANCELLED' },
-        });
-
-        if (source.tableId) {
-          await tx.table.update({
-            where: { id: source.tableId },
-            data: { status: 'FREE' },
-          });
-        }
-      }
-
-      if (dto.targetTableId) {
-        if (primaryOrder.tableId && primaryOrder.tableId !== dto.targetTableId) {
-          await tx.table.update({
-            where: { id: primaryOrder.tableId },
-            data: { status: 'FREE' },
-          });
-        }
-
-        await tx.table.update({
-          where: { id: dto.targetTableId },
-          data: { status: 'OCCUPIED' },
-        });
-      }
-
-      const allItems = await tx.orderItem.findMany({ where: { orderId: primaryOrder.id } });
-      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
-
-      let mergedTableName = primaryOrder.tableName;
-      if (dto.targetTableId) {
-        const targetTable = await tx.table.findUnique({ where: { id: dto.targetTableId } });
-        mergedTableName = targetTable?.name ?? mergedTableName;
-      }
-
-      return tx.order.update({
-        where: { id: primaryOrder.id },
-        data: {
-          totalAmount,
-          tableId: dto.targetTableId ?? primaryOrder.tableId,
-          tableName: mergedTableName,
-        },
-        include: {
-          items: { include: { product: true } },
-          table: true,
-        },
-      });
-    });
+    const result = await this._ordersRepository.mergeOrders(
+      asOrderId(primaryOrder.id),
+      sourceOrdersData,
+      dto.targetTableId ?? null,
+      primaryOrder.tableId,
+      primaryOrder.tableName,
+    );
 
     const mapped = OrdersMapper.toDomain(result);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);

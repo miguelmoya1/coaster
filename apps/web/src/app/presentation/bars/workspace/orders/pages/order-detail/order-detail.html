@@ -81,21 +81,20 @@
             <div class="flex items-center gap-0.5">
               @if (item.servedQuantity > 0) {
                 <button
-                  class="h-10 px-2.5 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-primary/20"
+                  class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-primary/20"
                   (click)="onUnserveUnit(item)"
                   [title]="'orders.unserve_unit' | translate"
                 >
-                  -1
+                  <ng-icon name="lucideMinus" size="18" />
                 </button>
               }
               @if (item.quantity > 1 && item.deliveryStatus !== 'SERVED') {
                 <button
-                  class="h-10 px-2.5 rounded-xl bg-primary/10 text-primary flex items-center gap-1 active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-primary/20"
+                  class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-primary/20"
                   (click)="onDeliverUnit(item)"
                   [title]="'orders.mark_served' | translate"
                 >
-                  <ng-icon name="lucideChefHat" size="16" />
-                  +1
+                  <ng-icon name="lucidePlus" size="18" />
                 </button>
               }
             </div>
@@ -104,21 +103,20 @@
             <div class="flex items-center gap-0.5">
               @if (item.paidQuantity > 0) {
                 <button
-                  class="h-10 px-2.5 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-secondary/20"
+                  class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-secondary/20"
                   (click)="onUnpayUnit(item)"
                   [title]="'orders.unpay_unit' | translate"
                 >
-                  -1
+                  <ng-icon name="lucideMinus" size="18" />
                 </button>
               }
               @if (item.quantity > 1 && item.paymentStatus !== 'PAID') {
                 <button
-                  class="h-10 px-2.5 rounded-xl bg-secondary/10 text-secondary flex items-center gap-1 active:scale-90 transition-transform cursor-pointer text-xs font-bold hover:bg-secondary/20"
+                  class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-secondary/20"
                   (click)="onPayUnit(item)"
                   [title]="'orders.mark_paid' | translate"
                 >
-                  <ng-icon name="lucideCreditCard" size="16" />
-                  +1
+                  <ng-icon name="lucidePlus" size="18" />
                 </button>
               }
             </div>

@@ -14,6 +14,8 @@ import {
   lucidePackagePlus,
   lucideTrash2,
   lucideX,
+  lucidePlus,
+  lucideMinus,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
@@ -43,6 +45,8 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
       lucideMerge,
       lucideTrash2,
       lucideX,
+      lucidePlus,
+      lucideMinus,
     }),
   ],
   host: { class: 'flex flex-col gap-4' },

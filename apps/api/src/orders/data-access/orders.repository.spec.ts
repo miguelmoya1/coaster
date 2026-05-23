@@ -136,11 +136,4 @@ describe('OrdersRepository', () => {
       expect(result).toHaveLength(2);
     });
   });
-
-  describe('prisma accessor', () => {
-    it('should expose the prisma instance', () => {
-      expect(repository.prisma).toBeDefined();
-      expect(repository.prisma).toBe(prisma);
-    });
-  });
 });

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateTableDto, Table, TableId, TableStatus, UpdateTableDto } from '@coaster/common';
+import { BarId, CreateTableDto, TableId, TableStatus, UpdateTableDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { BarTables } from '../services/bar-tables';

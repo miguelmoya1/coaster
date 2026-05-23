@@ -34,17 +34,22 @@ const makeOrderDb = (overrides: Record<string, any> = {}) => ({
 
 describe('OrdersService', () => {
   let service: OrdersService;
-  let repository = {
-    prisma: {
-      $transaction: vi.fn(),
-      orderItem: { update: vi.fn() },
-    },
+  const repository = {
     findByBarId: vi.fn(),
     findById: vi.fn(),
     findProductsByIds: vi.fn(),
     findTableById: vi.fn(),
     findOrdersByIds: vi.fn(),
     findItemById: vi.fn(),
+    createOrder: vi.fn(),
+    addItemsToOrder: vi.fn(),
+    updateOrderItem: vi.fn(),
+    checkoutOrder: vi.fn(),
+    cancelOrder: vi.fn(),
+    moveTable: vi.fn(),
+    mergeOrders: vi.fn(),
+    removeItemAndRecalculate: vi.fn(),
+    removeLastItemAndCancel: vi.fn(),
   };
   const barGateway = {
     server: {
@@ -63,7 +68,6 @@ describe('OrdersService', () => {
     }).compile();
 
     service = module.get<OrdersService>(OrdersService);
-    repository = module.get(OrdersRepository);
     vi.clearAllMocks();
     barGateway.server.to.mockReturnThis();
   });
@@ -145,13 +149,7 @@ describe('OrdersService', () => {
     it('should create order with items in a transaction', async () => {
       repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 250 }]);
       repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'FREE' });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          order: { create: vi.fn().mockResolvedValue(makeOrderDb()) },
-          table: { update: vi.fn() },
-        };
-        return fn(tx);
-      });
+      repository.createOrder.mockResolvedValue(makeOrderDb());
 
       const result = await service.createOrder(barId, dto);
 
@@ -166,12 +164,7 @@ describe('OrdersService', () => {
     it('should create order without table (bar order)', async () => {
       const barDto = { items: [{ productId: 'prod-1', quantity: 1 }] };
       repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 300 }]);
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          order: { create: vi.fn().mockResolvedValue(makeOrderDb({ tableId: null, table: null })) },
-        };
-        return fn(tx);
-      });
+      repository.createOrder.mockResolvedValue(makeOrderDb({ tableId: null, table: null }));
 
       const result = await service.createOrder(barId, barDto);
 
@@ -207,13 +200,7 @@ describe('OrdersService', () => {
       repository.findById.mockResolvedValue(makeOrderDb());
       repository.findProductsByIds.mockResolvedValue([{ id: 'prod-2', price: 150 }]);
       const updatedOrder = makeOrderDb({ totalAmount: 650 });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          orderItem: { createMany: vi.fn() },
-          order: { update: vi.fn().mockResolvedValue(updatedOrder) },
-        };
-        return fn(tx);
-      });
+      repository.addItemsToOrder.mockResolvedValue(updatedOrder);
 
       const result = await service.addItems(barId, orderId, dto);
 
@@ -256,13 +243,13 @@ describe('OrdersService', () => {
       repository.findById
         .mockResolvedValueOnce(makeOrderDb())
         .mockResolvedValueOnce(makeOrderDb());
-      repository.prisma.orderItem.update.mockResolvedValue({});
+      repository.updateOrderItem.mockResolvedValue({});
 
       const result = await service.payItem(barId, orderId, itemId);
 
-      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
-        where: { id: itemId },
-        data: { paymentStatus: 'PAID', paidQuantity: 2 },
+      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
+        paymentStatus: 'PAID',
+        paidQuantity: 2,
       });
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
@@ -289,13 +276,13 @@ describe('OrdersService', () => {
       repository.findById
         .mockResolvedValueOnce(makeOrderDb())
         .mockResolvedValueOnce(makeOrderDb());
-      repository.prisma.orderItem.update.mockResolvedValue({});
+      repository.updateOrderItem.mockResolvedValue({});
 
       const result = await service.deliverItem(barId, orderId, itemId);
 
-      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
-        where: { id: itemId },
-        data: { deliveryStatus: 'SERVED', servedQuantity: 2 },
+      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
+        deliveryStatus: 'SERVED',
+        servedQuantity: 2,
       });
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
@@ -320,18 +307,7 @@ describe('OrdersService', () => {
     it('should close order, pay all items and free table in a transaction', async () => {
       repository.findById.mockResolvedValue(makeOrderDb());
       const closedOrder = makeOrderDb({ status: 'CLOSED' });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          orderItem: {
-            updateMany: vi.fn(),
-            update: vi.fn(),
-            findMany: vi.fn().mockResolvedValue([{ priceAtPurchase: 250, quantity: 2 }]),
-          },
-          order: { update: vi.fn().mockResolvedValue(closedOrder) },
-          table: { update: vi.fn() },
-        };
-        return fn(tx);
-      });
+      repository.checkoutOrder.mockResolvedValue(closedOrder);
 
       const result = await service.checkout(barId, orderId);
 
@@ -344,17 +320,7 @@ describe('OrdersService', () => {
 
     it('should not emit table event when there is no table', async () => {
       repository.findById.mockResolvedValue(makeOrderDb({ tableId: null }));
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          orderItem: {
-            updateMany: vi.fn(),
-            update: vi.fn(),
-            findMany: vi.fn().mockResolvedValue([]),
-          },
-          order: { update: vi.fn().mockResolvedValue(makeOrderDb({ tableId: null, table: null, status: 'CLOSED' })) },
-        };
-        return fn(tx);
-      });
+      repository.checkoutOrder.mockResolvedValue(makeOrderDb({ tableId: null, table: null, status: 'CLOSED' }));
 
       await service.checkout(barId, orderId);
 
@@ -384,13 +350,7 @@ describe('OrdersService', () => {
     it('should cancel order and free table in a transaction', async () => {
       repository.findById.mockResolvedValue(makeOrderDb());
       const cancelledOrder = makeOrderDb({ status: 'CANCELLED' });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          order: { update: vi.fn().mockResolvedValue(cancelledOrder) },
-          table: { update: vi.fn() },
-        };
-        return fn(tx);
-      });
+      repository.cancelOrder.mockResolvedValue(cancelledOrder);
 
       const result = await service.cancelOrder(barId, orderId);
 
@@ -437,13 +397,7 @@ describe('OrdersService', () => {
       repository.findById.mockResolvedValue(makeOrderDb());
       repository.findTableById.mockResolvedValue({ id: 'table-2', barId: 'bar-1', status: 'FREE' });
       const movedOrder = makeOrderDb({ tableId: 'table-2', table: { name: 'Mesa 2' } });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          table: { update: vi.fn() },
-          order: { update: vi.fn().mockResolvedValue(movedOrder) },
-        };
-        return fn(tx);
-      });
+      repository.moveTable.mockResolvedValue(movedOrder);
 
       const result = await service.moveTable(barId, orderId, dto);
 
@@ -492,20 +446,7 @@ describe('OrdersService', () => {
       const order2 = makeOrderDb({ id: 'order-2', tableId: 'table-2' });
       repository.findOrdersByIds.mockResolvedValue([order1, order2]);
       const mergedOrder = makeOrderDb({ id: 'order-1', totalAmount: 1000 });
-      repository.prisma.$transaction.mockImplementation(async (fn: (tx: any) => any) => {
-        const tx = {
-          orderItem: {
-            updateMany: vi.fn(),
-            findMany: vi.fn().mockResolvedValue([
-              { priceAtPurchase: 250, quantity: 2 },
-              { priceAtPurchase: 250, quantity: 2 },
-            ]),
-          },
-          order: { update: vi.fn().mockResolvedValue(mergedOrder) },
-          table: { update: vi.fn() },
-        };
-        return fn(tx);
-      });
+      repository.mergeOrders.mockResolvedValue(mergedOrder);
 
       const result = await service.mergeOrders(barId, dto);
 
@@ -522,7 +463,7 @@ describe('OrdersService', () => {
 
     it('should throw if pay units exceeds total quantity', async () => {
       repository.findById.mockResolvedValue(makeOrderDb());
-      
+
       await expect(service.payUnits(barId, orderId, itemId, { quantityToPay: 3 })).rejects.toThrow('PAY_QUANTITY_EXCEEDS_TOTAL');
     });
 
@@ -545,13 +486,11 @@ describe('OrdersService', () => {
             updatedAt: new Date('2026-05-01T08:00:00Z'),
           }]
         }));
-      repository.prisma.orderItem.update.mockResolvedValue({});
+      await service.payUnits(barId, orderId, itemId, { quantityToPay: 1 });
 
-      const result = await service.payUnits(barId, orderId, itemId, { quantityToPay: 1 });
-
-      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
-        where: { id: itemId },
-        data: { paidQuantity: 1, paymentStatus: 'PARTIAL' },
+      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
+        paidQuantity: 1,
+        paymentStatus: 'PARTIAL',
       });
     });
   });
@@ -563,7 +502,7 @@ describe('OrdersService', () => {
 
     it('should throw if serve units exceeds total quantity', async () => {
       repository.findById.mockResolvedValue(makeOrderDb());
-      
+
       await expect(service.serveUnits(barId, orderId, itemId, { quantityToServe: 3 })).rejects.toThrow('SERVE_QUANTITY_EXCEEDS_TOTAL');
     });
 
@@ -586,13 +525,11 @@ describe('OrdersService', () => {
             updatedAt: new Date('2026-05-01T08:00:00Z'),
           }]
         }));
-      repository.prisma.orderItem.update.mockResolvedValue({});
+      await service.serveUnits(barId, orderId, itemId, { quantityToServe: 1 });
 
-      const result = await service.serveUnits(barId, orderId, itemId, { quantityToServe: 1 });
-
-      expect(repository.prisma.orderItem.update).toHaveBeenCalledWith({
-        where: { id: itemId },
-        data: { servedQuantity: 1, deliveryStatus: 'PARTIAL' },
+      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
+        servedQuantity: 1,
+        deliveryStatus: 'PARTIAL',
       });
     });
   });
