@@ -13,7 +13,7 @@ export class OrdersRepository {
         ...(status ? { status: status as any } : {}),
       },
       include: {
-        items: { include: { product: true } },
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
         table: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -32,7 +32,7 @@ export class OrdersRepository {
         createdAt: { gte: start, lte: end },
       },
       include: {
-        items: { include: { product: true } },
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
         table: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -49,7 +49,7 @@ export class OrdersRepository {
     return this._prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        items: { include: { product: true } },
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
         table: true,
       },
     });
@@ -84,7 +84,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { totalAmount },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -99,7 +99,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { status: 'CANCELLED', totalAmount: 0 },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -119,7 +119,7 @@ export class OrdersRepository {
     return this._prisma.order.findMany({
       where: { id: { in: orderIds } },
       include: {
-        items: { include: { product: true } },
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
         table: true,
       },
     });
@@ -149,7 +149,7 @@ export class OrdersRepository {
           },
         },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -186,7 +186,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { totalAmount: currentTotalAmount + additionalAmount },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -234,7 +234,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { status: 'CLOSED', totalAmount },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -256,7 +256,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { status: 'CANCELLED' },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -290,7 +290,7 @@ export class OrdersRepository {
         where: { id: orderId },
         data: { tableId: newTableId, tableName: newTableName },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -355,7 +355,7 @@ export class OrdersRepository {
           tableName: mergedTableName,
         },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });

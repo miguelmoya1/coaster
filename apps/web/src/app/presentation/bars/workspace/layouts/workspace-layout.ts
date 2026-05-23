@@ -26,7 +26,7 @@ import { BottomNav, TopAppBar } from '@coaster/shared';
 })
 export default class WorkspaceLayout {
   public readonly barId = input.required<BarId>();
-
+  
   readonly #currentUser = inject(CurrentUser);
   readonly #barsStore = inject(BarsStore);
   readonly #membersStore = inject(MembersStore);
@@ -67,6 +67,7 @@ export default class WorkspaceLayout {
   });
 
   constructor() {
+
     effect((cleanup) => {
       const barId = this.barId();
       this.#barsStore.setBarId(barId);

@@ -226,6 +226,8 @@
     "paid": "Pagado",
     "served": "Servido",
     "partial": "Parcial",
+    "partial_payment": "Pago parcial",
+    "partial_delivery": "Servido parcial",
     "paid_units": "Pagado: {{paid}}/{{total}}",
     "served_units": "Servido: {{served}}/{{total}}",
     "unpay_unit": "Restar 1 pagado",

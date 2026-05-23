@@ -34,7 +34,7 @@
   <div class="flex flex-col gap-2">
     @for (item of order.items; track item.id) {
       <div
-        class="bg-surface-container rounded-xl p-4 flex items-center gap-3"
+        class="bg-surface-container rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
         [class.opacity-50]="item.paymentStatus === 'PAID'"
       >
         <div class="flex-1 flex flex-col gap-1">
@@ -60,7 +60,7 @@
               </span>
             } @else if (item.paymentStatus === 'PARTIAL') {
               <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial' | translate }}
+                {{ 'orders.partial_payment' | translate }}
               </span>
             }
             @if (item.deliveryStatus === 'SERVED') {
@@ -69,84 +69,24 @@
               </span>
             } @else if (item.deliveryStatus === 'PARTIAL') {
               <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial' | translate }}
+                {{ 'orders.partial_delivery' | translate }}
               </span>
             }
           </div>
         </div>
 
-        <div class="flex gap-1">
-          @if (order.status === 'OPEN') {
-            <!-- Delivery controls -->
-            <div class="flex items-center gap-0.5">
-              @if (item.servedQuantity > 0) {
-                <button
-                  class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-primary/20"
-                  (click)="onUnserveUnit(item)"
-                  [title]="'orders.unserve_unit' | translate"
-                >
-                  <ng-icon name="lucideMinus" size="18" />
-                </button>
-              }
-              @if (item.quantity > 1 && item.deliveryStatus !== 'SERVED') {
-                <button
-                  class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-primary/20"
-                  (click)="onDeliverUnit(item)"
-                  [title]="'orders.mark_served' | translate"
-                >
-                  <ng-icon name="lucidePlus" size="18" />
-                </button>
-              }
-            </div>
-
-            <!-- Payment controls -->
-            <div class="flex items-center gap-0.5">
-              @if (item.paidQuantity > 0) {
-                <button
-                  class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-secondary/20"
-                  (click)="onUnpayUnit(item)"
-                  [title]="'orders.unpay_unit' | translate"
-                >
-                  <ng-icon name="lucideMinus" size="18" />
-                </button>
-              }
-              @if (item.quantity > 1 && item.paymentStatus !== 'PAID') {
-                <button
-                  class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-secondary/20"
-                  (click)="onPayUnit(item)"
-                  [title]="'orders.mark_paid' | translate"
-                >
-                  <ng-icon name="lucidePlus" size="18" />
-                </button>
-              }
-            </div>
-            @if (item.deliveryStatus !== 'SERVED') {
-              <button
-                class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                (click)="onDeliverItem(item)"
-                [title]="'orders.mark_served' | translate"
-              >
-                <ng-icon name="lucideChefHat" size="18" />
-              </button>
-            }
-            @if (item.paymentStatus !== 'PAID') {
-              <button
-                class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                (click)="onPayItem(item)"
-                [title]="'orders.mark_paid' | translate"
-              >
-                <ng-icon name="lucideCreditCard" size="18" />
-              </button>
-            }
-            <button
-              class="w-10 h-10 rounded-xl bg-error/10 text-error flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-              (click)="handleRemoveItem(item)"
-              [title]="'orders.remove_item' | translate"
-            >
-              <ng-icon name="lucideTrash2" size="18" />
-            </button>
-          }
-        </div>
+        @if (order.status === 'OPEN') {
+          <coaster-order-item-controls
+            [item]="item"
+            (payUnit)="onPayUnit(item)"
+            (unpayUnit)="onUnpayUnit(item)"
+            (payItem)="onPayItem(item)"
+            (deliverUnit)="onDeliverUnit(item)"
+            (unserveUnit)="onUnserveUnit(item)"
+            (deliverItem)="onDeliverItem(item)"
+            (removeItem)="handleRemoveItem(item)"
+          />
+        }
       </div>
     }
   </div>

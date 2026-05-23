@@ -225,6 +225,8 @@
     "paid": "Paid",
     "served": "Served",
     "partial": "Partial",
+    "partial_payment": "Partial payment",
+    "partial_delivery": "Partially served",
     "paid_units": "Paid: {{paid}}/{{total}}",
     "served_units": "Served: {{served}}/{{total}}",
     "unpay_unit": "Subtract 1 paid",

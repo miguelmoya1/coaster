@@ -20,6 +20,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
+import { OrderItemControlsComponent } from './components/order-item-controls/order-item-controls';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -34,6 +35,7 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
     ConfirmDialogComponent,
     MoveTableDialog,
     MergeOrdersDialog,
+    OrderItemControlsComponent,
   ],
   viewProviders: [
     provideIcons({
@@ -83,9 +85,18 @@ class OrderDetail {
     const order = this.displayOrder();
     if (!order) return null;
 
+    const sortedItems = [...order.items].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (aTime !== bTime) {
+        return aTime - bTime;
+      }
+      return a.id.localeCompare(b.id);
+    });
+
     return {
       ...order,
-      items: order.items.map((item) => ({
+      items: sortedItems.map((item) => ({
         ...item,
         productName: item.productName ?? item.productId,
       })),

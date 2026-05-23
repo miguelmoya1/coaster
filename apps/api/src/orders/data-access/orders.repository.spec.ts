@@ -48,7 +48,7 @@ describe('OrdersRepository', () => {
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: { barId },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -65,7 +65,7 @@ describe('OrdersRepository', () => {
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: { barId, status: 'OPEN' },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -83,7 +83,7 @@ describe('OrdersRepository', () => {
       expect(prisma.order.findUnique).toHaveBeenCalledWith({
         where: { id: orderId },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
@@ -129,7 +129,7 @@ describe('OrdersRepository', () => {
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: { id: { in: ids } },
         include: {
-          items: { include: { product: true } },
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
         },
       });
