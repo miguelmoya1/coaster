@@ -1,7 +1,8 @@
 import { DeleteResponse } from '@coaster/common';
 
 export const commonMapper = {
-  getSuccessResponse: (): DeleteResponse => ({
+  getSuccessResponse: <T extends Record<string, any>>(extra?: T): { success: boolean } & T => ({
     success: true,
-  }),
+    ...extra,
+  } as { success: boolean } & T),
 };

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { BarId, IImportTemplatesResponse } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -15,9 +15,9 @@ export class TemplatesRepository {
     import: (barId: BarId) => `/templates/bar/${barId}`,
   };
 
-  public async importToBar(barId: BarId, categoryTemplateIds: string[]) {
+  public async importToBar(barId: BarId, categoryTemplateIds: string[]): Promise<IImportTemplatesResponse> {
     return firstValueFrom(
-      this.#http.post(this.routes.import(barId), { categoryTemplateIds })
+      this.#http.post<IImportTemplatesResponse>(this.routes.import(barId), { categoryTemplateIds })
     );
   }
 }

@@ -14,3 +14,9 @@ export interface IProductTemplate {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IImportTemplatesResponse {
+  success: boolean;
+  created: number;
+  modified: number;
+}

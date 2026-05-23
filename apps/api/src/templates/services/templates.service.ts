@@ -134,7 +134,10 @@ export class TemplatesService {
       await this._templatesRepository.createManyProducts(productsDataToInsert, true);
     }
 
-    return commonMapper.getSuccessResponse();
+    const created = categoryDataToInsert.length + productsDataToInsert.length;
+    const modified = 0;
+
+    return commonMapper.getSuccessResponse({ created, modified });
   }
 
   async bulkUpsertTemplates(categoriesJson: BulkCategoryTemplateInput[]) {

@@ -148,7 +148,7 @@ export default class ImportTemplates {
     if (ids.length === 0) return;
 
     this.isSubmitting.set(true);
-    const err = await this.#templatesStore.importToBar(barId, ids);
+    const { counts, err } = await this.#templatesStore.importToBar(barId, ids);
     this.isSubmitting.set(false);
 
     if (err) {
@@ -156,7 +156,14 @@ export default class ImportTemplates {
       return;
     }
 
-    this.#toast.success(this.#translate.instant('pantry.import_success'));
+    console.log('Import templates success. counts:', counts);
+    const translationResult = this.#translate.instant('pantry.import_success', {
+      created: counts?.created ?? 0,
+      modified: counts?.modified ?? 0,
+    });
+    console.log('Translation result:', translationResult);
+
+    this.#toast.success(translationResult);
 
     // Reload stores to refresh the lists in the pantry view
     this.#categoriesStore.reloadCategories();

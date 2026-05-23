@@ -98,7 +98,7 @@
     "select_all": "Select all",
     "deselect_all": "Deselect all",
     "import_action": "Import selected",
-    "import_success": "Templates imported successfully!",
+    "import_success": "Templates imported successfully! ({{created}} created, {{modified}} modified)",
     "no_templates_found": "No templates found.",
     "selected_categories": "Categories",
     "selected_products": "Products",

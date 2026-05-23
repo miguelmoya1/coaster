@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { BarId, IImportTemplatesResponse } from '@coaster/common';
 import { TemplatesRepository } from '../data-access/templates-repository';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { TemplatesRepository } from '../data-access/templates-repository';
 export class ImportTemplatesToBar {
   readonly #repository = inject(TemplatesRepository);
 
-  public async execute(barId: BarId, categoryTemplateIds: string[]) {
+  public async execute(barId: BarId, categoryTemplateIds: string[]): Promise<IImportTemplatesResponse> {
     return await this.#repository.importToBar(barId, categoryTemplateIds);
   }
 }

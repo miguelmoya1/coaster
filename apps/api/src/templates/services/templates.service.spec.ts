@@ -215,7 +215,7 @@ describe('TemplatesService', () => {
         ],
         true,
       );
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({ success: true, created: 3, modified: 0 });
     });
 
     it('should prevent duplicating existing categories and products', async () => {
@@ -273,7 +273,7 @@ describe('TemplatesService', () => {
         ],
         true,
       );
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({ success: true, created: 1, modified: 0 });
     });
   });
 

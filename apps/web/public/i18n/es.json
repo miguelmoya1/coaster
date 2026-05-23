@@ -98,7 +98,7 @@
     "select_all": "Seleccionar todo",
     "deselect_all": "Deseleccionar todo",
     "import_action": "Importar seleccionados",
-    "import_success": "¡Plantillas importadas correctamente!",
+    "import_success": "¡Plantillas importadas correctamente! ({{created}} creadas, {{modified}} modificadas)",
     "no_templates_found": "No se encontraron plantillas.",
     "selected_categories": "Categorías",
     "selected_products": "Productos",

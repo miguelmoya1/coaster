@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import { BarId, ICategoryTemplate, IImportTemplatesResponse, IProductTemplate } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { GetCategoryTemplates } from '../services/get-category-templates';
 import { GetProductTemplates } from '../services/get-product-templates';
@@ -22,10 +22,10 @@ export class TemplatesStore {
 
   public async importToBar(barId: BarId, categoryTemplateIds: string[]) {
     try {
-      await this.#importTemplatesToBar.execute(barId, categoryTemplateIds);
-      return null;
+      const counts = await this.#importTemplatesToBar.execute(barId, categoryTemplateIds);
+      return { counts, err: null };
     } catch (error) {
-      return handleErrorFormField(error);
+      return { counts: null, err: handleErrorFormField(error) };
     }
   }
 

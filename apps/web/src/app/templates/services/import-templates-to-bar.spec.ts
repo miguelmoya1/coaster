@@ -8,7 +8,7 @@ describe('ImportTemplatesToBar', () => {
   let service: ImportTemplatesToBar;
 
   const repositoryMock = {
-    importToBar: vi.fn().mockResolvedValue({ success: true }),
+    importToBar: vi.fn().mockResolvedValue({ success: true, created: 3, modified: 0 }),
   };
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('ImportTemplatesToBar', () => {
 
     const result = await service.execute(barId, ids);
 
-    expect(result).toEqual({ success: true });
+    expect(result).toEqual({ success: true, created: 3, modified: 0 });
     expect(repositoryMock.importToBar).toHaveBeenCalledWith(barId, ids);
   });
 });
