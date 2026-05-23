@@ -14,7 +14,7 @@ import { BottomNav, TopAppBar } from '@coaster/shared';
       <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
 
-    <main class="w-full max-w-xl mt-12 md:mt-24">
+    <main class="w-full max-w-xl mt-12 md:mt-24 pb-workspace">
       <router-outlet />
     </main>
 

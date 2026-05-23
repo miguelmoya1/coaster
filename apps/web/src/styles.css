@@ -84,3 +84,16 @@ html,
 body {
   height: 100%;
 }
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-workspace {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+

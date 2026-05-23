@@ -59,7 +59,7 @@
     </span>
   </h2>
 
-  <div class="flex flex-col gap-3 pb-24">
+  <div class="flex flex-col gap-3">
     @for (exchange of pendingExchangesList(); track exchange.id) {
       <coaster-exchange-request-card
         [month]="exchange.month"
@@ -74,8 +74,6 @@
       />
     }
   </div>
-} @else {
-  <div class="pb-24"></div>
 }
 
 @if (currentUserRole() === 'OWNER') {
