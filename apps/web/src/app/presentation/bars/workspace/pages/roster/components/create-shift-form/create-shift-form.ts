@@ -4,6 +4,7 @@ import { BarMember, asUserId } from '@coaster/common';
 import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '@coaster/shared';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
+import { RosterStateService } from '@coaster/roster';
 
 @Component({
   selector: 'coaster-create-shift-form',
@@ -74,6 +75,7 @@ export class CreateShiftForm {
   readonly created = output<void>();
 
   readonly #shiftsStore = inject(ShiftsStore);
+  readonly #rosterState = inject(RosterStateService);
 
   readonly memberOptions = computed(() => {
     return this.members().map((m) => ({
@@ -100,11 +102,24 @@ export class CreateShiftForm {
       submission: {
         action: async (form) => {
           const raw = form().value();
+          const selectedDate = this.#rosterState.selectedDate();
+
+          const [startHours, startMinutes] = raw.startTime.split(':').map(Number);
+          const startTimeDate = new Date(selectedDate);
+          startTimeDate.setHours(startHours, startMinutes, 0, 0);
+
+          const [endHours, endMinutes] = raw.endTime.split(':').map(Number);
+          const endTimeDate = new Date(selectedDate);
+          endTimeDate.setHours(endHours, endMinutes, 0, 0);
+
+          if (endTimeDate < startTimeDate) {
+            endTimeDate.setDate(endTimeDate.getDate() + 1);
+          }
 
           const error = await this.#shiftsStore.create({
             userId: asUserId(raw.userId),
-            startTime: raw.startTime,
-            endTime: raw.endTime,
+            startTime: startTimeDate.toISOString(),
+            endTime: endTimeDate.toISOString(),
             notes: raw.notes || undefined,
           });
 

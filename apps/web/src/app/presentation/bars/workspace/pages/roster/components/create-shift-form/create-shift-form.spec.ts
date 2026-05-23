@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
 import { ShiftsStore } from '@coaster/shifts';
+import { signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
+import { RosterStateService } from '@coaster/roster';
 
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;
@@ -28,9 +30,16 @@ describe('CreateShiftForm', () => {
       create: vi.fn().mockResolvedValue(null),
     };
 
+    const mockRosterState = {
+      selectedDate: signal(new Date('2026-05-23T00:00:00.000Z')),
+    };
+
     await TestBed.configureTestingModule({
       imports: [CreateShiftForm, TranslateModule.forRoot()],
-      providers: [{ provide: ShiftsStore, useValue: mockShiftsStore }],
+      providers: [
+        { provide: ShiftsStore, useValue: mockShiftsStore },
+        { provide: RosterStateService, useValue: mockRosterState },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateShiftForm);
@@ -91,8 +100,8 @@ describe('CreateShiftForm', () => {
 
       expect(mockShiftsStore.create).toHaveBeenCalledWith({
         userId: 'user-1',
-        startTime: '08:00',
-        endTime: '16:00',
+        startTime: '2026-05-23T08:00:00.000Z',
+        endTime: '2026-05-23T16:00:00.000Z',
         notes: 'Lunch break at 12:00',
       });
     });
