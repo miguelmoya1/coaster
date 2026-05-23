@@ -259,7 +259,7 @@
     "free_table_hint": "Esta mesa está libre. Puedes iniciar un pedido o gestionarla.",
     "start_order": "Iniciar Pedido",
     "delete_table_title": "Eliminar Mesa",
-    "delete_table_message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+    "delete_table_message": "¿Estás seguro de que deseas eliminar la mesa \"{{name}}\"? Todos los datos asociados y pedidos se perderán permanentemente y esta acción no se puede deshacer.",
     "bar_orders": "Pedidos de Barra",
     "no_bar_orders": "No hay pedidos de barra abiertos",
     "bar_order_title": "Pedido de Barra",

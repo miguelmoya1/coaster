@@ -259,7 +259,7 @@
     "free_table_hint": "This table is free. You can start a new order or manage it.",
     "start_order": "Start Order",
     "delete_table_title": "Delete Table",
-    "delete_table_message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "delete_table_message": "Are you sure you want to delete the table \"{{name}}\"? All associated orders and data will be permanently lost and this action cannot be undone.",
     "bar_orders": "Bar Orders",
     "no_bar_orders": "No open bar orders",
     "bar_order_title": "Bar Order",

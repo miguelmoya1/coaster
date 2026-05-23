@@ -100,7 +100,7 @@
   isDestructive
 >
   <ng-container confirm-dialog-title> {{ 'orders.delete_table_title' | translate }} </ng-container>
-  <ng-container confirm-dialog-content>
+  <ng-container confirm-dialog-message>
     {{ 'orders.delete_table_message' | translate: { name: tableToDelete()?.name } }}
   </ng-container>
 </coaster-confirm-dialog>
