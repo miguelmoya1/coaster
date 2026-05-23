@@ -16,25 +16,15 @@ const mainRoutes: Routes = [
       },
       {
         path: 'pantry',
-        children: [
-          { path: '', loadComponent: () => import('./pages/pantry/pantry') },
-          { path: 'new', loadComponent: () => import('./pages/pantry/pantry') },
-          { path: 'import', loadComponent: () => import('./pages/pantry/import/import-templates') },
-        ],
+        loadChildren: () => import('./pages/pantry/pantry.routes'),
       },
       {
         path: 'roster',
-        children: [
-          { path: '', loadComponent: () => import('./pages/roster/roster') },
-          { path: 'new', loadComponent: () => import('./pages/roster/roster') },
-        ],
+        loadChildren: () => import('./pages/roster/roster.routes'),
       },
       {
         path: 'staff',
-        children: [
-          { path: '', loadComponent: () => import('./pages/staff/staff') },
-          { path: 'invite', loadComponent: () => import('./pages/staff/staff') },
-        ],
+        loadChildren: () => import('./pages/staff/staff.routes'),
       },
       {
         path: 'orders',

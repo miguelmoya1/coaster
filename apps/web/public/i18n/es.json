@@ -42,6 +42,7 @@
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
       "operational": "Operativo",
       "empty": "No se encontraron bares activos. Crea uno para empezar.",
+      "admin_templates": "Administración de Plantillas",
       "stats": {
         "area": "Área Total",
         "staff": "Staff Activo Global"

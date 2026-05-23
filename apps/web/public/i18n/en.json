@@ -42,6 +42,7 @@
       "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
       "operational": "Operational",
       "empty": "No active bars found. Create one to get started.",
+      "admin_templates": "Template Administration",
       "stats": {
         "area": "Total Venue Area",
         "staff": "Global Active Staff"
