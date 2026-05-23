@@ -14,37 +14,13 @@ import {
   lucideSparkles,
   lucideUpload,
 } from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function jsonArrayValidator(field: any) {
-  validate(field, (ctx) => {
-    const val = (ctx.value() as string | null | undefined)?.trim();
-    if (!val) {
-      return undefined;
-    }
-    try {
-      const parsed = JSON.parse(val);
-      if (!Array.isArray(parsed)) {
-        return {
-          kind: 'invalid_json',
-          message: 'El JSON debe ser un array de categorías',
-        };
-      }
-      return undefined;
-    } catch {
-      return {
-        kind: 'invalid_json',
-        message: 'El JSON tiene un formato inválido',
-      };
-    }
-  });
-}
-
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, TextareaInput, SectionTitle, CoasterBtn, NgIcon, Loading],
+  imports: [FormRoot, FormField, TextareaInput, SectionTitle, CoasterBtn, NgIcon, Loading, TranslatePipe],
   providers: [
     provideIcons({
       lucideArrowLeft,
@@ -64,16 +40,7 @@ export class AdminTemplates {
   readonly #router = inject(Router);
   readonly #toast = inject(Toast);
   readonly #templatesStore = inject(TemplatesStore);
-
-  readonly placeholderText = `[
-  {
-    "name": "Categoría",
-    "icon": "coffee",
-    "products": [
-      { "name": "Producto", "price": 100 }
-    ]
-  }
-]`;
+  readonly #translate = inject(TranslateService);
 
   readonly #formBase = signal<{ jsonContent: string }>({
     jsonContent: '',
@@ -83,7 +50,31 @@ export class AdminTemplates {
     this.#formBase,
     (fields) => {
       required(fields.jsonContent);
-      jsonArrayValidator(fields.jsonContent);
+      validate(fields.jsonContent, (ctx) => {
+        const rawVal = ctx.value();
+        if (typeof rawVal !== 'string') {
+          return undefined;
+        }
+        const val = rawVal.trim();
+        if (!val) {
+          return undefined;
+        }
+        try {
+          const parsed = JSON.parse(val);
+          if (!Array.isArray(parsed)) {
+            return {
+              kind: 'invalid_json',
+              message: this.#translate.instant('admin_templates.validator.invalid_array'),
+            };
+          }
+          return undefined;
+        } catch {
+          return {
+            kind: 'invalid_json',
+            message: this.#translate.instant('admin_templates.validator.invalid_format'),
+          };
+        }
+      });
     },
     {
       submission: {
@@ -92,12 +83,12 @@ export class AdminTemplates {
             const payload = JSON.parse(form().value().jsonContent);
             await firstValueFrom(this.#http.post('/templates/bulk', payload));
 
-            this.#toast.success('Plantillas actualizadas con éxito');
+            this.#toast.success(this.#translate.instant('admin_templates.toasts.update_success'));
             this.#templatesStore.reloadTemplates();
             this.form.jsonContent().value.set('');
           } catch (err) {
             console.error(err);
-            let errMsg = 'Error al actualizar las plantillas. Revisa el formato JSON.';
+            let errMsg = this.#translate.instant('admin_templates.toasts.update_error');
             if (err instanceof HttpErrorResponse) {
               errMsg = err.error?.message || err.message || errMsg;
             }
@@ -119,7 +110,7 @@ export class AdminTemplates {
 
   loadStandardTemplates() {
     this.form.jsonContent().value.set(STANDARD_TEMPLATES_JSON);
-    this.#toast.show('Plantilla estándar cargada en el editor', 'info', 2000);
+    this.#toast.show(this.#translate.instant('admin_templates.toasts.load_success'), 'info', 2000);
   }
 }
 

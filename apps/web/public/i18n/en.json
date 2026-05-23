@@ -401,5 +401,27 @@
   "Tarta de Queso": "Cheesecake",
   "Tarta de Chocolate": "Chocolate Cake",
   "Flan Casero": "Homemade Creme Caramel",
-  "Helado Variado": "Mixed Ice Cream"
+  "Helado Variado": "Mixed Ice Cream",
+  "admin_templates": {
+    "back": "Back",
+    "control_panel": "Admin Control Panel",
+    "title": "Template Administration",
+    "description": "Manage, create, or bulk overwrite the standard system templates offered to new bars for import.",
+    "editor_title": "Templates JSON Editor",
+    "valid_format": "Valid Format",
+    "hint": "Make sure the JSON is an array of categories, where each category has a <strong>name</strong>, <strong>icon</strong>, and an optional list of <strong>products</strong> (with <strong>name</strong> and <strong>price</strong> in cents).",
+    "load_standard": "Load Standard Bar Template",
+    "processing": "Processing...",
+    "submit": "Upsert Templates",
+    "placeholder": "[\n  {\n    \"name\": \"Category\",\n    \"icon\": \"coffee\",\n    \"products\": [\n      { \"name\": \"Product\", \"price\": 100 }\n    ]\n  }\n]",
+    "validator": {
+      "invalid_array": "The JSON must be an array of categories",
+      "invalid_format": "The JSON has an invalid format"
+    },
+    "toasts": {
+      "update_success": "Templates updated successfully",
+      "update_error": "Error updating templates. Please check the JSON format.",
+      "load_success": "Standard template loaded in the editor"
+    }
+  }
 }
