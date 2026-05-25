@@ -1,4 +1,4 @@
-import { type BarId, BarRole, type ProductId } from '@coaster/common';
+import { type BarId, BarRole, type ProductId, type Product } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
@@ -20,7 +20,7 @@ export class ProductsController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getProducts(@Param('barId') barId: BarId) {
-    const products = await this._queryBus.execute<GetProductsByBarIdQuery, any[]>(new GetProductsByBarIdQuery(barId));
+    const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(new GetProductsByBarIdQuery(barId));
     return products.map((p) => ProductsMapper.toDto(p));
   }
 

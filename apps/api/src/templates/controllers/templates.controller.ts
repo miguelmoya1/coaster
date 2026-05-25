@@ -1,4 +1,4 @@
-import { BarRole, Role } from '@coaster/common';
+import { BarRole, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard, Roles, RolesGuard, UserRoles, UserRolesGuard } from '../../core';
@@ -30,21 +30,27 @@ export class TemplatesController {
 
   @Get('categories')
   async findAllCategoryTemplates() {
-    return this._queryBus.execute<FindAllCategoryTemplatesQuery, any[]>(new FindAllCategoryTemplatesQuery());
+    return this._queryBus.execute<FindAllCategoryTemplatesQuery, ICategoryTemplate[]>(
+      new FindAllCategoryTemplatesQuery(),
+    );
   }
 
   @Post('categories')
   @UserRoles(Role.ADMIN)
   @UseGuards(UserRolesGuard)
   async createCategoryTemplate(@Body() createCategoryTemplateDto: CreateCategoryTemplateDto) {
-    return this._commandBus.execute<CreateCategoryTemplateCommand, { id: string }>(new CreateCategoryTemplateCommand(createCategoryTemplateDto));
+    return this._commandBus.execute<CreateCategoryTemplateCommand, { id: string }>(
+      new CreateCategoryTemplateCommand(createCategoryTemplateDto),
+    );
   }
 
   @Put('categories/:id')
   @UserRoles(Role.ADMIN)
   @UseGuards(UserRolesGuard)
   async updateCategoryTemplate(@Param('id') id: string, @Body() updateCategoryTemplateDto: UpdateCategoryTemplateDto) {
-    return this._commandBus.execute<UpdateCategoryTemplateCommand, void>(new UpdateCategoryTemplateCommand(id, updateCategoryTemplateDto));
+    return this._commandBus.execute<UpdateCategoryTemplateCommand, void>(
+      new UpdateCategoryTemplateCommand(id, updateCategoryTemplateDto),
+    );
   }
 
   @Delete('categories/:id')
@@ -56,21 +62,25 @@ export class TemplatesController {
 
   @Get('products')
   async findAllProductTemplates() {
-    return this._queryBus.execute<FindAllProductTemplatesQuery, any[]>(new FindAllProductTemplatesQuery());
+    return this._queryBus.execute<FindAllProductTemplatesQuery, IProductTemplate[]>(new FindAllProductTemplatesQuery());
   }
 
   @Post('products')
   @UserRoles(Role.ADMIN)
   @UseGuards(UserRolesGuard)
   async createProductTemplate(@Body() createProductTemplateDto: CreateProductTemplateDto) {
-    return this._commandBus.execute<CreateProductTemplateCommand, { id: string }>(new CreateProductTemplateCommand(createProductTemplateDto));
+    return this._commandBus.execute<CreateProductTemplateCommand, { id: string }>(
+      new CreateProductTemplateCommand(createProductTemplateDto),
+    );
   }
 
   @Put('products/:id')
   @UserRoles(Role.ADMIN)
   @UseGuards(UserRolesGuard)
   async updateProductTemplate(@Param('id') id: string, @Body() updateProductTemplateDto: UpdateProductTemplateDto) {
-    return this._commandBus.execute<UpdateProductTemplateCommand, void>(new UpdateProductTemplateCommand(id, updateProductTemplateDto));
+    return this._commandBus.execute<UpdateProductTemplateCommand, void>(
+      new UpdateProductTemplateCommand(id, updateProductTemplateDto),
+    );
   }
 
   @Delete('products/:id')
@@ -84,7 +94,10 @@ export class TemplatesController {
   @Roles(BarRole.OWNER)
   @UseGuards(RolesGuard)
   async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto) {
-    return this._commandBus.execute<ImportTemplatesToBarCommand, any>(new ImportTemplatesToBarCommand(barId, importDto));
+    return this._commandBus.execute<
+      ImportTemplatesToBarCommand,
+      { success: boolean; created: number; modified: number }
+    >(new ImportTemplatesToBarCommand(barId, importDto));
   }
 
   @Post('bulk')

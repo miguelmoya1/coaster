@@ -1,4 +1,4 @@
-import { type BarId, BarRole } from '@coaster/common';
+import { type BarId, BarRole, type Shift } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
@@ -22,14 +22,14 @@ export class ShiftsController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const shifts = await this._queryBus.execute<GetShiftsQuery, any[]>(new GetShiftsQuery(barId, startDate, endDate));
+    const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(new GetShiftsQuery(barId, startDate, endDate));
     return shifts.map((shift) => ShiftsMapper.toDto(shift));
   }
 
   @Post()
   @Roles(BarRole.OWNER)
   async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto) {
-    const shift = await this._commandBus.execute<CreateShiftCommand, any>(new CreateShiftCommand(barId, dto));
+    const shift = await this._commandBus.execute<CreateShiftCommand, Shift>(new CreateShiftCommand(barId, dto));
     return ShiftsMapper.toDto(shift);
   }
 }

@@ -1,4 +1,4 @@
-import { type BarId, BarRole, type User } from '@coaster/common';
+import { type BarId, BarRole, type User, type Bar } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
@@ -23,14 +23,14 @@ export class BarsController {
 
   @Get()
   async getBars(@CurrentUser() user: User) {
-    const bars = await this._queryBus.execute<GetBarsForUserQuery, any[]>(new GetBarsForUserQuery(user));
+    const bars = await this._queryBus.execute<GetBarsForUserQuery, Bar[]>(new GetBarsForUserQuery(user));
     return bars.map((b) => BarsMapper.toDto(b));
   }
 
   @Get(':barId')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getBar(@Param('barId') barId: BarId) {
-    const bar = await this._queryBus.execute<GetBarByIdQuery, any | null>(new GetBarByIdQuery(barId));
+    const bar = await this._queryBus.execute<GetBarByIdQuery, Bar | null>(new GetBarByIdQuery(barId));
     if (!bar) return null;
     return BarsMapper.toDto(bar);
   }

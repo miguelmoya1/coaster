@@ -1,4 +1,4 @@
-import { type BarId, BarRole, type CategoryId } from '@coaster/common';
+import { type BarId, BarRole, type CategoryId, type Category } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
@@ -19,14 +19,14 @@ export class CategoriesController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getCategories(@Param('barId') barId: BarId) {
-    const categories = await this._queryBus.execute<GetCategoriesQuery, any[]>(new GetCategoriesQuery(barId));
+    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
     return categories.map((category) => CategoriesMapper.toDto(category));
   }
 
   @Post()
   @Roles(BarRole.OWNER)
   async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
-    const category = await this._commandBus.execute<CreateCategoryCommand, any>(new CreateCategoryCommand(barId, dto));
+    const category = await this._commandBus.execute<CreateCategoryCommand, Category>(new CreateCategoryCommand(barId, dto));
     return CategoriesMapper.toDto(category);
   }
 
@@ -37,7 +37,7 @@ export class CategoriesController {
     @Param('categoryId') categoryId: CategoryId,
     @Body() dto: UpdateCategoryDto,
   ) {
-    const category = await this._commandBus.execute<UpdateCategoryCommand, any>(new UpdateCategoryCommand(barId, categoryId, dto));
+    const category = await this._commandBus.execute<UpdateCategoryCommand, Category>(new UpdateCategoryCommand(barId, categoryId, dto));
     return CategoriesMapper.toDto(category);
   }
 
