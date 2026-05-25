@@ -1,15 +1,15 @@
+import { asBarId, asUserId, BarRole, Role } from '@coaster/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { InviteMemberHandler } from './invite-member.handler';
-import { InviteMemberCommand } from './invite-member.command';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { EmailService } from '../../../core';
-import { asBarId, asUserId, BarRole } from '@coaster/common';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { InviteMemberCommand } from './invite-member.command';
+import { InviteMemberHandler } from './invite-member.handler';
 
 describe('InviteMemberHandler', () => {
   let handler: InviteMemberHandler;
-  let repository = {
+  const repository = {
     findBarById: vi.fn(),
     inviteMember: vi.fn(),
   };
@@ -34,6 +34,7 @@ describe('InviteMemberHandler', () => {
     name: 'Admin Name',
     email: 'admin@test.com',
     active: true,
+    role: Role.USER,
   };
 
   it('should invite and send email', async () => {
@@ -82,9 +83,7 @@ describe('InviteMemberHandler', () => {
     repository.findBarById.mockResolvedValue(null);
 
     await expect(
-      handler.execute(
-        new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser),
-      ),
+      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)),
     ).rejects.toThrow(NotFoundException);
   });
 });

@@ -81,71 +81,80 @@ describe('OrdersController', () => {
     expect(result).toEqual({ id: 'order-1' });
   });
 
+  const mockOrder = {
+    id: 'order-1',
+    barId: 'bar-1',
+    status: 'OPEN',
+    items: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   it('addItems should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
     const result = await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto as any);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AddOrderItemsCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('bulkUpdate should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
     const result = await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto as any);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(BulkUpdateOrderCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('checkout should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
 
     const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CheckoutOrderCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('cancelOrder should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
 
     const result = await controller.cancelOrder(asBarId('bar-1'), asOrderId('order-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CancelOrderCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('moveTable should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { tableId: 'table-2' };
 
     const result = await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MoveOrderTableCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('removeItem should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
 
     const result = await controller.removeItem(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RemoveOrderItemCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('mergeOrders should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue(undefined);
+    commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { orderIds: ['order-1', 'order-2'] };
 
     const result = await controller.mergeOrders(asBarId('bar-1'), dto as any);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MergeOrdersCommand));
-    expect(result).toEqual({ success: true });
+    expect(result.id).toBe('order-1');
   });
 
   it('deleteOrder should delegate to command bus', async () => {
