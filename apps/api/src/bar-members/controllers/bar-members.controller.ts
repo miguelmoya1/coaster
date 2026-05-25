@@ -18,21 +18,21 @@ export class BarMembersController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getMembers(@Param('barId') barId: BarId) {
-    const members = await this._queryBus.execute(new GetMembersQuery(barId));
+    const members = await this._queryBus.execute<GetMembersQuery, any[]>(new GetMembersQuery(barId));
     return members.map((member) => BarMembersMapper.toDto(member));
   }
 
   @Post()
   @Roles(BarRole.OWNER)
   async inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
-    const member = await this._commandBus.execute(new InviteMemberCommand(barId, dto.email, dto.role, user));
+    const member = await this._commandBus.execute<InviteMemberCommand, any>(new InviteMemberCommand(barId, dto.email, dto.role, user));
     return BarMembersMapper.toDto(member);
   }
 
   @Delete(':memberId')
   @Roles(BarRole.OWNER)
   async removeMember(@Param('barId') barId: BarId, @Param('memberId') memberId: BarMemberId) {
-    await this._commandBus.execute(new RemoveMemberCommand(barId, memberId));
+    await this._commandBus.execute<RemoveMemberCommand, void>(new RemoveMemberCommand(barId, memberId));
     return commonMapper.getSuccessResponse();
   }
 }

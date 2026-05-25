@@ -1,0 +1,53 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CreateTableHandler } from './create-table.handler';
+import { CreateTableCommand } from './create-table.command';
+import { TablesRepository } from '../../data-access/tables.repository';
+import { BarGateway } from '../../../core';
+import { asBarId, asTableId, SocketEvents } from '@coaster/common';
+
+describe('CreateTableHandler', () => {
+  let handler: CreateTableHandler;
+  let repository = {
+    create: vi.fn(),
+  };
+  const barGateway = {
+    server: {
+      to: vi.fn().mockReturnThis(),
+      emit: vi.fn(),
+    },
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CreateTableHandler,
+        { provide: TablesRepository, useValue: repository },
+        { provide: BarGateway, useValue: barGateway },
+      ],
+    }).compile();
+
+    handler = module.get<CreateTableHandler>(CreateTableHandler);
+  });
+
+  it('should create the table and emit socket event', async () => {
+    const barId = asBarId('bar-1');
+    const dto = { name: 'Mesa 1' };
+    const dbTable = {
+      id: 'table-1',
+      barId: 'bar-1',
+      name: 'Mesa 1',
+      status: 'FREE',
+      createdAt: new Date('2026-05-01T08:00:00Z'),
+      updatedAt: new Date('2026-05-01T08:00:00Z'),
+    };
+    repository.create.mockResolvedValue(dbTable);
+
+    const result = await handler.execute(new CreateTableCommand(barId, dto));
+
+    expect(repository.create).toHaveBeenCalledWith(barId, { name: 'Mesa 1' });
+    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_CREATED, expect.any(Object));
+    expect(result).toEqual({ id: asTableId('table-1') });
+  });
+});

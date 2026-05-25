@@ -20,14 +20,14 @@ export class ProductsController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getProducts(@Param('barId') barId: BarId) {
-    const products = await this._queryBus.execute(new GetProductsByBarIdQuery(barId));
+    const products = await this._queryBus.execute<GetProductsByBarIdQuery, any[]>(new GetProductsByBarIdQuery(barId));
     return products.map((p) => ProductsMapper.toDto(p));
   }
 
   @Post()
   @Roles(BarRole.OWNER)
   async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto) {
-    const result = await this._commandBus.execute(new CreateProductCommand(barId, dto)) as { id: ProductId };
+    const result = await this._commandBus.execute<CreateProductCommand, { id: ProductId }>(new CreateProductCommand(barId, dto));
     return { id: result.id };
   }
 
@@ -38,7 +38,7 @@ export class ProductsController {
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductStockDto,
   ) {
-    await this._commandBus.execute(new UpdateProductStockCommand(barId, productId, dto));
+    await this._commandBus.execute<UpdateProductStockCommand, void>(new UpdateProductStockCommand(barId, productId, dto));
     return commonMapper.getSuccessResponse();
   }
 
@@ -49,14 +49,14 @@ export class ProductsController {
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductDto,
   ) {
-    await this._commandBus.execute(new UpdateProductCommand(barId, productId, dto));
+    await this._commandBus.execute<UpdateProductCommand, void>(new UpdateProductCommand(barId, productId, dto));
     return commonMapper.getSuccessResponse();
   }
 
   @Delete(':productId')
   @Roles(BarRole.OWNER)
   async deleteProduct(@Param('barId') barId: BarId, @Param('productId') productId: ProductId) {
-    await this._commandBus.execute(new DeleteProductCommand(barId, productId));
+    await this._commandBus.execute<DeleteProductCommand, void>(new DeleteProductCommand(barId, productId));
     return commonMapper.getSuccessResponse();
   }
 }

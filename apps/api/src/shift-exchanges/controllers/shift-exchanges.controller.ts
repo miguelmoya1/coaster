@@ -18,7 +18,7 @@ export class ShiftExchangesController {
   @Get('exchanges')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getExchanges(@Param('barId') barId: BarId) {
-    const exchanges = await this._queryBus.execute(new GetPendingExchangesQuery(barId));
+    const exchanges = await this._queryBus.execute<GetPendingExchangesQuery, any[]>(new GetPendingExchangesQuery(barId));
     return exchanges.map((exchange) => ShiftExchangesMapper.toDto(exchange));
   }
 
@@ -30,9 +30,7 @@ export class ShiftExchangesController {
     @Body() dto: CreateShiftExchangeDto,
     @CurrentUser() user: User,
   ) {
-    const exchange = await this._commandBus.execute(
-      new RequestExchangeCommand(barId, shiftId, asUserId(user.id), dto),
-    );
+    const exchange = await this._commandBus.execute<RequestExchangeCommand, any>(new RequestExchangeCommand(barId, shiftId, asUserId(user.id), dto));
     return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 
@@ -43,9 +41,7 @@ export class ShiftExchangesController {
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
   ) {
-    const exchange = await this._commandBus.execute(
-      new AcceptExchangeCommand(barId, exchangeId, asUserId(user.id)),
-    );
+    const exchange = await this._commandBus.execute<AcceptExchangeCommand, any>(new AcceptExchangeCommand(barId, exchangeId, asUserId(user.id)));
     return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 }

@@ -37,31 +37,31 @@ export class OrdersController {
     @Query('date') date?: string,
   ) {
     if (date) {
-      const orders = await this._queryBus.execute(new GetOrdersByDateQuery(barId, date)) as Order[];
+      const orders = await this._queryBus.execute<GetOrdersByDateQuery, Order[]>(new GetOrdersByDateQuery(barId, date));
       return orders.map((o) => OrdersMapper.toDto(o));
     }
-    const orders = await this._queryBus.execute(new GetOrdersByBarIdQuery(barId, status)) as Order[];
+    const orders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(new GetOrdersByBarIdQuery(barId, status));
     return orders.map((o) => OrdersMapper.toDto(o));
   }
 
   @Get(':orderId')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    const order = await this._queryBus.execute(new GetOrderByIdQuery(barId, orderId)) as Order;
+    const order = await this._queryBus.execute<GetOrderByIdQuery, Order>(new GetOrderByIdQuery(barId, orderId));
     return OrdersMapper.toDto(order);
   }
 
   @Post()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async createOrder(@Param('barId') barId: BarId, @Body() dto: CreateOrderDto) {
-    const order = await this._commandBus.execute(new CreateOrderCommand(barId, dto)) as Order;
+    const order = await this._commandBus.execute<CreateOrderCommand, Order>(new CreateOrderCommand(barId, dto));
     return { id: order.id };
   }
 
   @Post(':orderId/items')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async addItems(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: AddOrderItemsDto) {
-    await this._commandBus.execute(new AddOrderItemsCommand(barId, orderId, dto));
+    await this._commandBus.execute<AddOrderItemsCommand, void>(new AddOrderItemsCommand(barId, orderId, dto));
     return commonMapper.getSuccessResponse();
   }
 
@@ -72,35 +72,35 @@ export class OrdersController {
     @Param('orderId') orderId: OrderId,
     @Body() dto: BulkUpdateDto,
   ) {
-    await this._commandBus.execute(new BulkUpdateOrderCommand(barId, orderId, dto));
+    await this._commandBus.execute<BulkUpdateOrderCommand, void>(new BulkUpdateOrderCommand(barId, orderId, dto));
     return commonMapper.getSuccessResponse();
   }
 
   @Post(':orderId/checkout')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async checkout(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    await this._commandBus.execute(new CheckoutOrderCommand(barId, orderId));
+    await this._commandBus.execute<CheckoutOrderCommand, void>(new CheckoutOrderCommand(barId, orderId));
     return commonMapper.getSuccessResponse();
   }
 
   @Post(':orderId/cancel')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async cancelOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    await this._commandBus.execute(new CancelOrderCommand(barId, orderId));
+    await this._commandBus.execute<CancelOrderCommand, void>(new CancelOrderCommand(barId, orderId));
     return commonMapper.getSuccessResponse();
   }
 
   @Post(':orderId/move')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async moveTable(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: MoveTableDto) {
-    await this._commandBus.execute(new MoveOrderTableCommand(barId, orderId, dto));
+    await this._commandBus.execute<MoveOrderTableCommand, void>(new MoveOrderTableCommand(barId, orderId, dto));
     return commonMapper.getSuccessResponse();
   }
 
   @Post('merge')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto) {
-    await this._commandBus.execute(new MergeOrdersCommand(barId, dto));
+    await this._commandBus.execute<MergeOrdersCommand, void>(new MergeOrdersCommand(barId, dto));
     return commonMapper.getSuccessResponse();
   }
 
@@ -111,14 +111,14 @@ export class OrdersController {
     @Param('orderId') orderId: OrderId,
     @Param('itemId') itemId: OrderItemId,
   ) {
-    await this._commandBus.execute(new RemoveOrderItemCommand(barId, orderId, itemId));
+    await this._commandBus.execute<RemoveOrderItemCommand, void>(new RemoveOrderItemCommand(barId, orderId, itemId));
     return commonMapper.getSuccessResponse();
   }
 
   @Delete(':orderId')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    await this._commandBus.execute(new DeleteOrderCommand(barId, orderId));
+    await this._commandBus.execute<DeleteOrderCommand, void>(new DeleteOrderCommand(barId, orderId));
     return commonMapper.getSuccessResponse();
   }
 }
