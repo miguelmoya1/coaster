@@ -235,12 +235,6 @@ export class OrdersStore {
   public async create(barId: BarId, dto: CreateOrderDto) {
     try {
       const order = await this.#createOrder.execute(barId, dto);
-
-      this.#ordersResource.update((orders) => {
-        if (!orders) return [order];
-        const exists = orders.some((o) => o.id === order.id);
-        return exists ? orders : [...orders, order];
-      });
       return { order, error: null };
     } catch (error) {
       return { order: null, error: handleErrorFormField(error) };
@@ -262,16 +256,7 @@ export class OrdersStore {
 
   public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
     try {
-      const order = await this.#manageOrder.bulkUpdate(barId, orderId, dto);
-      this.#ordersResource.update((orders) => {
-        if (!orders) return [order];
-        return orders.map((o) => (o.id === order.id ? order : o));
-      });
-      this.#historyResource.update((orders) => {
-        if (!orders) return [order];
-        return orders.map((o) => (o.id === order.id ? order : o));
-      });
-      return order;
+      return await this.#manageOrder.bulkUpdate(barId, orderId, dto);
     } catch (error) {
       this.#toastService.error('ERR_PAYMENT');
       throw error;
@@ -279,29 +264,18 @@ export class OrdersStore {
   }
 
   public async checkout(barId: BarId, orderId: OrderId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => ({ ...i, paymentStatus: asPaymentStatus('PAID'), paidQuantity: i.quantity }));
-      return { ...order, status: OrderStatus.CLOSED, items };
-    });
-
     try {
       return await this.#manageOrder.checkout(barId, orderId);
     } catch (error) {
-      this.revertUpdate(original);
       this.#toastService.error('ERR_CHECKOUT');
       throw error;
     }
   }
 
   public async cancel(barId: BarId, orderId: OrderId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      return { ...order, status: OrderStatus.CANCELLED };
-    });
-
     try {
       return await this.#manageOrder.cancel(barId, orderId);
     } catch (error) {
-      this.revertUpdate(original);
       this.#toastService.error('ERR_CANCEL_ORDER');
       throw error;
     }
@@ -326,15 +300,9 @@ export class OrdersStore {
   }
 
   public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.filter((i) => i.id !== itemId);
-      return { ...order, items };
-    });
-
     try {
       return await this.#manageOrder.removeItem(barId, orderId, itemId);
     } catch (error) {
-      this.revertUpdate(original);
       this.#toastService.error('ERR_REMOVE_ITEM');
       throw error;
     }
@@ -343,10 +311,6 @@ export class OrdersStore {
   public async deleteOrder(barId: BarId, orderId: OrderId) {
     try {
       await this.#deleteOrder.execute(barId, orderId);
-      this.#historyResource.update((orders) => {
-        if (!orders) return undefined;
-        return orders.filter((o) => o.id !== orderId);
-      });
     } catch (error) {
       this.#toastService.error('ERR_DELETE_ORDER');
       throw error;

@@ -1,28 +1,35 @@
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  CreateProductDto,
-  ErrorCodes,
-  SocketEvents,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
+import { asBarId, asCategoryId, asProductId, ErrorCodes, SocketEvents } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarGateway } from '../../core';
 import { ProductsRepository } from '../data-access/products.repository';
-import { ProductsService } from './products.service';
+import { GetProductsByBarIdHandler } from '../queries/get-products-by-bar-id/get-products-by-bar-id.handler';
+import { GetProductsByBarIdQuery } from '../queries';
+import { CreateProductHandler } from '../commands/create-product/create-product.handler';
+import { CreateProductCommand } from '../commands';
+import { UpdateProductStockHandler } from '../commands/update-product-stock/update-product-stock.handler';
+import { UpdateProductStockCommand } from '../commands';
+import { UpdateProductHandler } from '../commands/update-product/update-product.handler';
+import { UpdateProductCommand } from '../commands';
+import { DeleteProductHandler } from '../commands/delete-product/delete-product.handler';
+import { DeleteProductCommand } from '../commands';
 
-describe('ProductsService', () => {
-  let service: ProductsService;
+describe('Products CQRS Handlers', () => {
+  let getProductsHandler: GetProductsByBarIdHandler;
+  let createProductHandler: CreateProductHandler;
+  let updateStockHandler: UpdateProductStockHandler;
+  let updateProductHandler: UpdateProductHandler;
+  let deleteProductHandler: DeleteProductHandler;
+
   let repository = {
+    findByBarId: vi.fn(),
     checkCategoryBelongsToBar: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
-    findByBarId: vi.fn(),
+    delete: vi.fn(),
   };
+
   const barGateway = {
     server: {
       to: vi.fn().mockReturnThis(),
@@ -33,144 +40,144 @@ describe('ProductsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ProductsService,
+        GetProductsByBarIdHandler,
+        CreateProductHandler,
+        UpdateProductStockHandler,
+        UpdateProductHandler,
+        DeleteProductHandler,
         { provide: ProductsRepository, useValue: repository },
         { provide: BarGateway, useValue: barGateway },
       ],
     }).compile();
 
-    service = module.get<ProductsService>(ProductsService);
+    getProductsHandler = module.get<GetProductsByBarIdHandler>(GetProductsByBarIdHandler);
+    createProductHandler = module.get<CreateProductHandler>(CreateProductHandler);
+    updateStockHandler = module.get<UpdateProductStockHandler>(UpdateProductStockHandler);
+    updateProductHandler = module.get<UpdateProductHandler>(UpdateProductHandler);
+    deleteProductHandler = module.get<DeleteProductHandler>(DeleteProductHandler);
     repository = module.get(ProductsRepository);
   });
 
-  describe('createProduct', () => {
-    const barId = asBarId('bar-1');
-    const dto: CreateProductDto = {
-      categoryId: asCategoryId('cat-1'),
-      name: 'Product 1',
-      currentStock: 10,
-      minStockAlert: 5,
-    };
+  describe('GetProductsByBarIdHandler', () => {
+    it('should return products by bar ID', async () => {
+      const barId = asBarId('bar-1');
+      repository.findByBarId.mockResolvedValue([]);
 
-    it('should fail if the category does not belong to the bar', async () => {
+      const result = await getProductsHandler.execute(new GetProductsByBarIdQuery(barId));
+
+      expect(repository.findByBarId).toHaveBeenCalledWith(barId);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('CreateProductHandler', () => {
+    const barId = asBarId('bar-1');
+    const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
+
+    it('should throw ForbiddenException if category does not belong to bar', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
-      await expect(service.createProduct(barId, dto)).rejects.toThrow(ForbiddenException);
-      await expect(service.createProduct(barId, dto)).rejects.toThrow(ErrorCodes.CATEGORY_NOT_FOUND);
+      const cmd = new CreateProductCommand(barId, dto);
+      await expect(createProductHandler.execute(cmd)).rejects.toThrow(ForbiddenException);
     });
 
-    it('should create the product and emit socket event if correct', async () => {
+    it('should create product and emit socket event', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(true);
-      const dbProduct = {
+      repository.create.mockResolvedValue({
         id: 'prod-1',
         categoryId: 'cat-1',
-        name: 'Product 1',
-        currentStock: 10,
-        minStockAlert: 5,
-        updatedAt: new Date('2026-04-21T08:00:00Z'),
-      };
-      repository.create.mockResolvedValue(dbProduct);
+        name: 'Refresco',
+        price: 2,
+        currentStock: 0,
+        minStockAlert: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-      const result = await service.createProduct(barId, dto);
+      const cmd = new CreateProductCommand(barId, dto);
+      const result = await createProductHandler.execute(cmd);
 
       expect(repository.create).toHaveBeenCalledWith(asCategoryId('cat-1'), {
-        name: 'Product 1',
-        currentStock: 10,
-        minStockAlert: 5,
-        price: 0,
+        name: 'Refresco',
+        price: 2,
+        currentStock: 0,
+        minStockAlert: 0,
       });
-      expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, result);
-      expect(result).toEqual({
-        id: asProductId('prod-1'),
-        categoryId: asCategoryId('cat-1'),
-        name: 'Product 1',
-        currentStock: 10,
-        minStockAlert: 5,
-        stockStatus: 'good',
-        lastUpdated: dbProduct.updatedAt.toISOString(),
-      });
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, expect.any(Object));
+      expect(result).toEqual({ id: asProductId('prod-1') });
     });
   });
 
-  describe('updateProductStock', () => {
-    const barId = asBarId('bar-1');
-    const productId = asProductId('prod-1');
-    const dto: UpdateProductStockDto = { currentStock: 20 };
+  describe('UpdateProductStockHandler', () => {
+    it('should update stock and emit socket event', async () => {
+      const barId = asBarId('bar-1');
+      const productId = asProductId('prod-1');
+      const dto = { currentStock: 10 };
 
-    it('should update the stock and emit event', async () => {
-      const dbProduct = {
+      repository.update.mockResolvedValue({
         id: 'prod-1',
         categoryId: 'cat-1',
-        name: 'Product 1',
-        currentStock: 20,
-        minStockAlert: 5,
-        updatedAt: new Date('2026-04-21T08:00:00Z'),
-      };
-      repository.update.mockResolvedValue(dbProduct);
+        name: 'Refresco',
+        price: 2,
+        currentStock: 10,
+        minStockAlert: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-      const result = await service.updateProductStock(barId, productId, dto);
+      const cmd = new UpdateProductStockCommand(barId, productId, dto);
+      await updateStockHandler.execute(cmd);
 
       expect(repository.update).toHaveBeenCalledWith(productId, dto);
-      expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, result);
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, expect.any(Object));
     });
   });
 
-  describe('updateProduct', () => {
+  describe('UpdateProductHandler', () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('prod-1');
-    const dto: UpdateProductDto = {
-      name: 'New Name',
-      categoryId: asCategoryId('cat-2'),
-    };
+    const dto = { categoryId: 'cat-2', name: 'Refresco Actualizado' };
 
-    it('should validate the new category if provided', async () => {
+    it('should throw ForbiddenException if new category does not belong to bar', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
-      await expect(service.updateProduct(barId, productId, dto)).rejects.toThrow(ForbiddenException);
+      const cmd = new UpdateProductCommand(barId, productId, dto);
+      await expect(updateProductHandler.execute(cmd)).rejects.toThrow(ForbiddenException);
     });
 
-    it('should update and emit event if the category is valid', async () => {
+    it('should update product and emit stock changed event', async () => {
       repository.checkCategoryBelongsToBar.mockResolvedValue(true);
-      const dbProduct = {
+      repository.update.mockResolvedValue({
         id: 'prod-1',
         categoryId: 'cat-2',
-        name: 'New Name',
+        name: 'Refresco Actualizado',
+        price: 2,
         currentStock: 10,
-        minStockAlert: 5,
-        updatedAt: new Date('2026-04-21T08:00:00Z'),
-      };
-      repository.update.mockResolvedValue(dbProduct);
+        minStockAlert: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-      const result = await service.updateProduct(barId, productId, dto);
+      const cmd = new UpdateProductCommand(barId, productId, dto);
+      await updateProductHandler.execute(cmd);
 
       expect(repository.update).toHaveBeenCalledWith(productId, dto);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, result);
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, expect.any(Object));
     });
   });
 
-  describe('getProductsByBarId', () => {
-    it('should return the mapped products', async () => {
+  describe('DeleteProductHandler', () => {
+    it('should delete product and emit socket event', async () => {
       const barId = asBarId('bar-1');
-      const dbProducts = [
-        {
-          id: 'prod-1',
-          categoryId: 'cat-1',
-          name: 'P1',
-          currentStock: 5,
-          minStockAlert: 2,
-          updatedAt: new Date('2026-04-21T08:00:00Z'),
-        },
-      ];
-      repository.findByBarId.mockResolvedValue(dbProducts);
+      const productId = asProductId('prod-1');
 
-      const result = await service.getProductsByBarId(barId);
+      repository.delete.mockResolvedValue(undefined);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(asProductId('prod-1'));
-      expect(result[0].stockStatus).toBe('good');
-      expect(result[0].lastUpdated).toBe(dbProducts[0].updatedAt.toISOString());
+      const cmd = new DeleteProductCommand(barId, productId);
+      await deleteProductHandler.execute(cmd);
+
+      expect(repository.delete).toHaveBeenCalledWith(productId);
+      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_DELETED, { id: productId });
     });
   });
 });

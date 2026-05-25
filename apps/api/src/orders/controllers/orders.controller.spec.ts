@@ -3,31 +3,38 @@ import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { OrdersService } from '../services/orders.service';
 import { OrdersController } from './orders.controller';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  CreateOrderCommand,
+  AddOrderItemsCommand,
+  BulkUpdateOrderCommand,
+  CheckoutOrderCommand,
+  CancelOrderCommand,
+  MoveOrderTableCommand,
+  MergeOrdersCommand,
+  RemoveOrderItemCommand,
+  DeleteOrderCommand
+} from '../commands';
+import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
 describe('OrdersController', () => {
   let controller: OrdersController;
-  let service: Mocked<OrdersService>;
+  let commandBus: Mocked<CommandBus>;
+  let queryBus: Mocked<QueryBus>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
   beforeEach(async () => {
-    const mockService = {
-      getOrdersByBarId: vi.fn(),
-      getOrderById: vi.fn(),
-      createOrder: vi.fn(),
-      addItems: vi.fn(),
-      bulkUpdate: vi.fn(),
-      checkout: vi.fn(),
-      cancelOrder: vi.fn(),
-      moveTable: vi.fn(),
-      mergeOrders: vi.fn(),
-    };
+    const mockCommandBus = { execute: vi.fn() };
+    const mockQueryBus = { execute: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrdersController],
-      providers: [{ provide: OrdersService, useValue: mockService }],
+      providers: [
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: mockQueryBus },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
@@ -36,83 +43,117 @@ describe('OrdersController', () => {
       .compile();
 
     controller = module.get<OrdersController>(OrdersController);
-    service = module.get(OrdersService);
+    commandBus = module.get(CommandBus);
+    queryBus = module.get(QueryBus);
   });
 
-  it('getOrders should delegate to the service', async () => {
-    service.getOrdersByBarId.mockResolvedValue([]);
+  it('getOrders should delegate to query bus for bar ID when no date is provided', async () => {
+    queryBus.execute.mockResolvedValue([]);
 
     await controller.getOrders(asBarId('bar-1'), 'OPEN');
 
-    expect(service.getOrdersByBarId).toHaveBeenCalledWith('bar-1', 'OPEN');
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByBarIdQuery));
   });
 
-  it('getOrder should delegate to the service', async () => {
-    service.getOrderById.mockResolvedValue({} as Order);
+  it('getOrders should delegate to query bus for date when date is provided', async () => {
+    queryBus.execute.mockResolvedValue([]);
+
+    await controller.getOrders(asBarId('bar-1'), undefined, '2026-05-01');
+
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByDateQuery));
+  });
+
+  it('getOrder should delegate to query bus', async () => {
+    queryBus.execute.mockResolvedValue({} as Order);
 
     await controller.getOrder(asBarId('bar-1'), asOrderId('order-1'));
 
-    expect(service.getOrderById).toHaveBeenCalledWith('bar-1', 'order-1');
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrderByIdQuery));
   });
 
-  it('createOrder should delegate to the service', async () => {
-    service.createOrder.mockResolvedValue({} as Order);
+  it('createOrder should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue({ id: 'order-1' });
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
-    await controller.createOrder(asBarId('bar-1'), dto);
+    const result = await controller.createOrder(asBarId('bar-1'), dto as any);
 
-    expect(service.createOrder).toHaveBeenCalledWith('bar-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateOrderCommand));
+    expect(result).toEqual({ id: 'order-1' });
   });
 
-  it('addItems should delegate to the service', async () => {
-    service.addItems.mockResolvedValue({} as Order);
+  it('addItems should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
-    await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto);
+    const result = await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto as any);
 
-    expect(service.addItems).toHaveBeenCalledWith('bar-1', 'order-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AddOrderItemsCommand));
+    expect(result).toEqual({ success: true });
   });
 
-  it('bulkUpdate should delegate to the service', async () => {
-    service.bulkUpdate.mockResolvedValue({} as Order);
+  it('bulkUpdate should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
-    await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto);
+    const result = await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto as any);
 
-    expect(service.bulkUpdate).toHaveBeenCalledWith('bar-1', 'order-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(BulkUpdateOrderCommand));
+    expect(result).toEqual({ success: true });
   });
 
-  it('checkout should delegate to the service', async () => {
-    service.checkout.mockResolvedValue({} as Order);
+  it('checkout should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.checkout(asBarId('bar-1'), asOrderId('order-1'));
+    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'));
 
-    expect(service.checkout).toHaveBeenCalledWith('bar-1', 'order-1');
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CheckoutOrderCommand));
+    expect(result).toEqual({ success: true });
   });
 
-  it('cancelOrder should delegate to the service', async () => {
-    service.cancelOrder.mockResolvedValue({} as Order);
+  it('cancelOrder should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.cancelOrder(asBarId('bar-1'), asOrderId('order-1'));
+    const result = await controller.cancelOrder(asBarId('bar-1'), asOrderId('order-1'));
 
-    expect(service.cancelOrder).toHaveBeenCalledWith('bar-1', 'order-1');
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CancelOrderCommand));
+    expect(result).toEqual({ success: true });
   });
 
-  it('moveTable should delegate to the service', async () => {
-    service.moveTable.mockResolvedValue({} as Order);
+  it('moveTable should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { tableId: 'table-2' };
 
-    await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
+    const result = await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
 
-    expect(service.moveTable).toHaveBeenCalledWith('bar-1', 'order-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MoveOrderTableCommand));
+    expect(result).toEqual({ success: true });
   });
 
-  it('mergeOrders should delegate to the service', async () => {
-    service.mergeOrders.mockResolvedValue({} as Order);
+  it('removeItem should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    const result = await controller.removeItem(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1'));
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RemoveOrderItemCommand));
+    expect(result).toEqual({ success: true });
+  });
+
+  it('mergeOrders should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { orderIds: ['order-1', 'order-2'] };
 
-    await controller.mergeOrders(asBarId('bar-1'), dto);
+    const result = await controller.mergeOrders(asBarId('bar-1'), dto as any);
 
-    expect(service.mergeOrders).toHaveBeenCalledWith('bar-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MergeOrdersCommand));
+    expect(result).toEqual({ success: true });
+  });
+
+  it('deleteOrder should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    const result = await controller.deleteOrder(asBarId('bar-1'), asOrderId('order-1'));
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteOrderCommand));
+    expect(result).toEqual({ success: true });
   });
 });

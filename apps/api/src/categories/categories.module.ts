@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { CategoriesController } from './controllers/categories.controller';
 import { CategoriesRepository } from './data-access/categories.repository';
-import { CategoriesService } from './services/categories.service';
+import { CommandHandlers } from './commands';
+import { QueryHandlers } from './queries';
 
 @Module({
+  imports: [CqrsModule],
   controllers: [CategoriesController],
-  providers: [CategoriesService, CategoriesRepository],
-  exports: [CategoriesService],
+  providers: [CategoriesRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class CategoriesModule {}

@@ -57,20 +57,8 @@ export class CategoriesStore {
     }
 
     try {
-      const category = await this.#createCategory.execute(barId, createCategoryDto);
-
-      if (!this.#categoriesResource.hasValue()) {
-        this.#categoriesResource.set([category]);
-        return null;
-      }
-
-      const categories = this.#categoriesResource.value();
-      if (!categories) {
-        this.#categoriesResource.set([category]);
-        return null;
-      }
-
-      this.#categoriesResource.update((categories) => [...categories, category]);
+      await this.#createCategory.execute(barId, createCategoryDto);
+      this.reloadCategories();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -85,20 +73,8 @@ export class CategoriesStore {
     }
 
     try {
-      const category = await this.#updateCategory.execute(barId, categoryId, updateCategoryDto);
-
-      if (!this.#categoriesResource.hasValue()) {
-        this.#categoriesResource.set([category]);
-        return null;
-      }
-
-      const categories = this.#categoriesResource.value();
-      if (!categories) {
-        this.#categoriesResource.set([category]);
-        return null;
-      }
-
-      this.#categoriesResource.update((categories) => categories.map((c) => (c.id === categoryId ? category : c)));
+      await this.#updateCategory.execute(barId, categoryId, updateCategoryDto);
+      this.reloadCategories();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -114,19 +90,6 @@ export class CategoriesStore {
 
     try {
       await this.#deleteCategory.execute(barId, categoryId);
-
-      if (!this.#categoriesResource.hasValue()) {
-        this.#categoriesResource.set([]);
-        return null;
-      }
-
-      const categories = this.#categoriesResource.value();
-      if (!categories) {
-        this.#categoriesResource.set([]);
-        return null;
-      }
-
-      this.#categoriesResource.update((categories) => categories.filter((c) => c.id !== categoryId));
       return null;
     } catch (error) {
       return handleErrorFormField(error);

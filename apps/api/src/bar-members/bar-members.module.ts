@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { BarMembersController } from './controllers/bar-members.controller';
 import { BarMembersRepository } from './data-access/bar-members.repository';
-import { BarMembersService } from './services/bar-members.service';
+import { CommandHandlers } from './commands';
+import { QueryHandlers } from './queries';
 
 @Module({
-  providers: [BarMembersRepository, BarMembersService],
+  imports: [CqrsModule],
   controllers: [BarMembersController],
+  providers: [BarMembersRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class BarMembersModule {}

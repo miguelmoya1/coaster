@@ -47,21 +47,8 @@ export class ShiftsStore {
     }
 
     try {
-      const shift = await this.#createShift.execute(barId, createShiftDto);
-
-      if (!this.#shiftsResource.hasValue()) {
-        this.#shiftsResource.set([shift]);
-        return null;
-      }
-
-      const shifts = this.#shiftsResource.value();
-
-      if (!shifts) {
-        this.#shiftsResource.set([shift]);
-        return null;
-      }
-
-      this.#shiftsResource.set([...shifts, shift]);
+      await this.#createShift.execute(barId, createShiftDto);
+      this.reload();
       return null;
     } catch (error) {
       return handleErrorFormField(error);

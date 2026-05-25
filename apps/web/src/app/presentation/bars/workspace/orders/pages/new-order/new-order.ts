@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, OrderId, Product, TableId, asOrderId } from '@coaster/common';
+import { BarId, OrderId, Product, TableId, asOrderId, asProductId, asTableId } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { CoasterTitle, Loading } from '@coaster/shared';
@@ -133,7 +133,7 @@ class NewOrder {
     this.isSubmitting.set(true);
     try {
       const itemDtos = items.map((item) => ({
-        productId: item.productId,
+        productId: asProductId(item.productId),
         quantity: item.quantity,
       }));
 
@@ -142,7 +142,7 @@ class NewOrder {
         await this.#ordersStore.addItems(this.barId(), orderId, { items: itemDtos });
       } else {
         await this.#ordersStore.create(this.barId(), {
-          tableId: this.selectedTableId(),
+          tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
         });
       }

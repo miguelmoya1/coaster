@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { TemplatesController } from './controllers/templates.controller';
 import { TemplatesRepository } from './data-access/templates.repository';
-import { TemplatesService } from './services/templates.service';
+import { CommandHandlers } from './commands';
+import { QueryHandlers } from './queries';
 
 @Module({
+  imports: [CqrsModule],
   controllers: [TemplatesController],
-  providers: [TemplatesService, TemplatesRepository],
-  exports: [TemplatesService],
+  providers: [TemplatesRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class TemplatesModule {}

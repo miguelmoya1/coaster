@@ -109,15 +109,7 @@ export class ProductsStore {
     }
 
     try {
-      const product = await this.#createProduct.execute(barId, createProductDto);
-
-      this.#productsResource.update((products) => {
-        if (!products) {
-          return [product];
-        }
-        const exists = products.some((p) => p.id === product.id);
-        return exists ? products : [...products, product];
-      });
+      await this.#createProduct.execute(barId, createProductDto);
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -131,21 +123,7 @@ export class ProductsStore {
     }
 
     try {
-      const product = await this.#updateProduct.execute(barId, productId, updateProductDto);
-
-      if (!this.#productsResource.hasValue()) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      const products = this.#productsResource.value();
-
-      if (!products) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      this.#productsResource.set(products.map((p) => (p.id === productId ? product : p)));
+      await this.#updateProduct.execute(barId, productId, updateProductDto);
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -159,21 +137,7 @@ export class ProductsStore {
     }
 
     try {
-      const product = await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
-
-      if (!this.#productsResource.hasValue()) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      const products = this.#productsResource.value();
-
-      if (!products) {
-        this.#productsResource.set([product]);
-        return null;
-      }
-
-      this.#productsResource.set(products.map((p) => (p.id === productId ? product : p)));
+      await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -188,18 +152,6 @@ export class ProductsStore {
 
     try {
       await this.#deleteProduct.execute(barId, productId);
-
-      if (!this.#productsResource.hasValue()) {
-        return null;
-      }
-
-      const products = this.#productsResource.value();
-
-      if (!products) {
-        return null;
-      }
-
-      this.#productsResource.set(products.filter((p) => p.id !== productId));
       return null;
     } catch (error) {
       return handleErrorFormField(error);

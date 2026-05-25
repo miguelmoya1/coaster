@@ -43,21 +43,8 @@ export class BarsStore {
 
   public async create(createBarDto: CreateBarDto) {
     try {
-      const bar = await this.#createBar.execute(createBarDto);
-
-      if (!this.#myBarsResource.hasValue()) {
-        this.#myBarsResource.set([bar]);
-        return null;
-      }
-
-      const myBars = this.#myBarsResource.value();
-
-      if (!myBars) {
-        this.#myBarsResource.set([bar]);
-        return null;
-      }
-
-      this.#myBarsResource.set([...myBars, bar]);
+      await this.#createBar.execute(createBarDto);
+      this.reloadMyBars();
       return null;
     } catch (error) {
       return handleErrorFormField(error);

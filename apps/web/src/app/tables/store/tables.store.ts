@@ -122,15 +122,7 @@ export class TablesStore {
       return handleErrorFormField('NO_BAR_SELECTED');
     }
     try {
-      const table = await this.#createTable.execute(barId, createTableDto);
-
-      this.#listResource.update((tables) => {
-        if (!tables) {
-          return [table];
-        }
-        const exists = tables.some((t) => t.id === table.id);
-        return exists ? tables : [...tables, table];
-      });
+      await this.#createTable.execute(barId, createTableDto);
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -145,18 +137,6 @@ export class TablesStore {
     }
     try {
       await this.#deleteTable.execute(barId, tableId);
-
-      if (!this.#listResource.hasValue()) {
-        return null;
-      }
-
-      const tables = this.#listResource.value();
-
-      if (!tables) {
-        return null;
-      }
-
-      this.#listResource.set(tables.filter((t) => t.id !== tableId));
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -170,19 +150,7 @@ export class TablesStore {
       return handleErrorFormField('NO_BAR_SELECTED');
     }
     try {
-      const table = await this.#updateTable.execute(barId, tableId, updateTableDto);
-
-      if (!this.#listResource.hasValue()) {
-        return null;
-      }
-
-      const tables = this.#listResource.value();
-
-      if (!tables) {
-        return null;
-      }
-
-      this.#listResource.set(tables.map((t) => (t.id === tableId ? table : t)));
+      await this.#updateTable.execute(barId, tableId, updateTableDto);
       return null;
     } catch (error) {
       return handleErrorFormField(error);

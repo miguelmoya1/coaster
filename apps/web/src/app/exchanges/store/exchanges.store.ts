@@ -40,22 +40,8 @@ export class ExchangesStore {
     }
 
     try {
-      const exchange = await this.#acceptExchange.execute(barId, exchangeId);
-
-      if (!this.#exchangesResource.hasValue()) {
-        this.#exchangesResource.set([exchange]);
-        return null;
-      }
-
-      const currentExchanges = this.#exchangesResource.value();
-
-      if (!currentExchanges) {
-        this.#exchangesResource.set([exchange]);
-        return null;
-      }
-
-      this.#exchangesResource.update((exchanges) => exchanges.map((e) => (e.id === exchange.id ? exchange : e)));
-
+      await this.#acceptExchange.execute(barId, exchangeId);
+      this.reload();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -70,22 +56,8 @@ export class ExchangesStore {
     }
 
     try {
-      const exchange = await this.#requestExchange.execute(barId, shiftId, dto);
-
-      if (!this.#exchangesResource.hasValue()) {
-        this.#exchangesResource.set([exchange]);
-        return null;
-      }
-
-      const currentExchanges = this.#exchangesResource.value();
-
-      if (!currentExchanges) {
-        this.#exchangesResource.set([exchange]);
-        return null;
-      }
-
-      this.#exchangesResource.update((exchanges) => exchanges.map((e) => (e.id === exchange.id ? exchange : e)));
-
+      await this.#requestExchange.execute(barId, shiftId, dto);
+      this.reload();
       return null;
     } catch (error) {
       return handleErrorFormField(error);

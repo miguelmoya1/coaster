@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId } from '@coaster/common';
+import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
@@ -258,7 +258,7 @@ class OrderDetail {
     const itemsToUpdate = this.selectedItemsList()
       .filter((s) => s.paidQty !== 0 || s.serveQty !== 0)
       .map((s) => {
-        const update: BulkUpdateItemDto = { itemId: s.itemId };
+        const update: BulkUpdateItemDto = { itemId: asOrderItemId(s.itemId) };
         if (s.paidQty !== 0) {
           update.paidQuantity = s.item!.paidQuantity + s.paidQty;
         }
@@ -354,7 +354,7 @@ class OrderDetail {
 
     if (targetTableId) {
       try {
-        await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: targetTableId });
+        await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: asTableId(targetTableId) });
         this.#ordersStore.reloadOrders();
         this.#tablesStore.reload();
       } catch (e) {
@@ -375,7 +375,7 @@ class OrderDetail {
     if (targetOrderId) {
       try {
         await this.#ordersStore.merge(this.barId(), {
-          orderIds: [order.id, targetOrderId],
+          orderIds: [order.id, asOrderId(targetOrderId)],
         });
         this.#ordersStore.reloadOrders();
         this.#tablesStore.reload();

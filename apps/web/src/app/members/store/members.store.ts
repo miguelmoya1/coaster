@@ -60,21 +60,8 @@ export class MembersStore {
     }
 
     try {
-      const member = await this.#inviteMember.execute(barId, inviteDto);
-
-      if (!this.#membersResource.hasValue()) {
-        this.#membersResource.set([member]);
-        return null;
-      }
-
-      const members = this.#membersResource.value();
-
-      if (!members) {
-        this.#membersResource.set([member]);
-        return null;
-      }
-
-      this.#membersResource.update((members) => [...members, member]);
+      await this.#inviteMember.execute(barId, inviteDto);
+      this.reload();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -89,13 +76,6 @@ export class MembersStore {
 
     try {
       await this.#removeMember.execute(barId, memberId);
-
-      const members = this.#membersResource.value();
-      if (!members) {
-        return null;
-      }
-
-      this.#membersResource.set(members.filter((m) => m.id !== memberId));
       return null;
     } catch (error) {
       return handleErrorFormField(error);
