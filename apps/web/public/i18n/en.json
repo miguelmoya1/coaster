@@ -274,7 +274,8 @@
     "serve_selected": "Serve Selected ({{count}} u.)",
     "quantity_to_pay": "Pay",
     "quantity_to_serve": "Serve",
-    "selected_total_amount": "Selected total"
+    "selected_total_amount": "Selected total",
+    "confirm_changes": "Confirm changes"
   },
   "history": {
     "title": "Order History",

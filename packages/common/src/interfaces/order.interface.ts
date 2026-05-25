@@ -38,12 +38,12 @@ export interface Order {
 }
 
 export interface CreateOrderItemDto {
-  productId: string;
+  productId: ProductId;
   quantity: number;
 }
 
 export interface CreateOrderDto {
-  tableId?: string;
+  tableId?: TableId;
   items: CreateOrderItemDto[];
 }
 
@@ -52,29 +52,20 @@ export interface AddOrderItemsDto {
 }
 
 export interface MoveTableDto {
-  tableId: string;
+  tableId: TableId;
 }
 
 export interface MergeOrdersDto {
-  orderIds: string[];
-  targetTableId?: string;
+  orderIds: OrderId[];
+  targetTableId?: TableId;
 }
 
-export interface BulkPayItemDto {
-  itemId: string;
-  paidQuantity: number;
+export interface BulkUpdateItemDto {
+  itemId: OrderItemId;
+  paidQuantity?: number;
+  servedQuantity?: number;
 }
 
-export interface BulkPayDto {
-  items: BulkPayItemDto[];
+export interface BulkUpdateDto {
+  items: BulkUpdateItemDto[];
 }
-
-export interface BulkServeItemDto {
-  itemId: string;
-  servedQuantity: number;
-}
-
-export interface BulkServeDto {
-  items: BulkServeItemDto[];
-}
-

@@ -4,8 +4,7 @@ import {
   AddOrderItemsDto,
   asPaymentStatus,
   BarId,
-  BulkPayDto,
-  BulkServeDto,
+  BulkUpdateDto,
   CreateOrderDto,
   MergeOrdersDto,
   MoveTableDto,
@@ -261,9 +260,9 @@ export class OrdersStore {
     }
   }
 
-  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
+  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
     try {
-      const order = await this.#manageOrder.bulkPay(barId, orderId, dto);
+      const order = await this.#manageOrder.bulkUpdate(barId, orderId, dto);
       this.#ordersResource.update((orders) => {
         if (!orders) return [order];
         return orders.map((o) => (o.id === order.id ? order : o));
@@ -275,24 +274,6 @@ export class OrdersStore {
       return order;
     } catch (error) {
       this.#toastService.error('ERR_PAYMENT');
-      throw error;
-    }
-  }
-
-  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
-    try {
-      const order = await this.#manageOrder.bulkServe(barId, orderId, dto);
-      this.#ordersResource.update((orders) => {
-        if (!orders) return [order];
-        return orders.map((o) => (o.id === order.id ? order : o));
-      });
-      this.#historyResource.update((orders) => {
-        if (!orders) return [order];
-        return orders.map((o) => (o.id === order.id ? order : o));
-      });
-      return order;
-    } catch (error) {
-      this.#toastService.error('ERR_DELIVERY');
       throw error;
     }
   }

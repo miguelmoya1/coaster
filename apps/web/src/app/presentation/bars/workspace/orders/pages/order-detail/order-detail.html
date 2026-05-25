@@ -34,12 +34,16 @@
   <div class="flex flex-col gap-2">
     @for (item of order.items; track item.id) {
       <div
-        class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200"
+        class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
         [class.opacity-50]="item.paymentStatus === 'PAID' && item.deliveryStatus === 'SERVED'"
         [class.border-primary/20]="isItemSelected(item.id)"
         [class.bg-primary/5]="isItemSelected(item.id)"
         [class.cursor-pointer]="order.status === 'OPEN'"
+        [attr.role]="order.status === 'OPEN' ? 'button' : null"
+        [attr.tabindex]="order.status === 'OPEN' ? 0 : null"
         (click)="order.status === 'OPEN' && toggleSelectItem(item)"
+        (keydown.enter)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
+        (keydown.space)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
       >
         <!-- Selection Checkbox -->
         @if (order.status === 'OPEN') {
@@ -66,10 +70,10 @@
           @if (item.quantity > 1) {
             <div class="flex flex-col gap-0.5 mt-1">
               <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.paid_units' | translate:{ paid: item.paidQuantity, total: item.quantity } }}
+                {{ 'orders.paid_units' | translate: { paid: item.paidQuantity, total: item.quantity } }}
               </span>
               <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.served_units' | translate:{ served: item.servedQuantity, total: item.quantity } }}
+                {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
               </span>
             </div>
           }
@@ -99,45 +103,58 @@
         @if (order.status === 'OPEN') {
           <div class="flex items-center gap-2 shrink-0">
             @if (isItemSelected(item.id)) {
-              <div class="flex flex-col gap-1.5 justify-end items-end" (click)="$event.stopPropagation()">
+              <div class="flex flex-col gap-1.5 justify-end items-end">
                 <!-- Pay adjustment -->
-                <div class="flex items-center gap-1.5 bg-secondary/5 rounded-lg p-0.5 border border-secondary/10">
-                  <span class="text-xxs font-bold text-secondary px-1.5">{{ 'orders.quantity_to_pay' | translate }}</span>
+                <div
+                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1 border border-outline-variant/20"
+                >
+                  <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
+                    'orders.quantity_to_pay' | translate
+                  }}</span>
                   <button
-                    class="w-6 h-6 rounded bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
                     (click)="decrementPayQty(item.id, -item.paidQuantity, $event)"
                     [disabled]="getSelectedQuantities(item.id)?.paidQty === -item.paidQuantity"
                   >
                     <ng-icon name="lucideMinus" size="10" />
                   </button>
-                  <span class="text-xs font-semibold text-secondary min-w-6 text-center">
-                    {{ (getSelectedQuantities(item.id)!.paidQty > 0 ? '+' : '') + getSelectedQuantities(item.id)?.paidQty }}
+                  <span class="text-xs font-semibold text-on-surface min-w-6 text-center">
+                    {{
+                      (getSelectedQuantities(item.id)!.paidQty > 0 ? '+' : '') + getSelectedQuantities(item.id)?.paidQty
+                    }}
                   </span>
                   <button
-                    class="w-6 h-6 rounded bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
                     (click)="incrementPayQty(item.id, item.quantity - item.paidQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.paidQty === (item.quantity - item.paidQuantity)"
+                    [disabled]="getSelectedQuantities(item.id)?.paidQty === item.quantity - item.paidQuantity"
                   >
                     <ng-icon name="lucidePlus" size="10" />
                   </button>
                 </div>
                 <!-- Serve adjustment -->
-                <div class="flex items-center gap-1.5 bg-primary/5 rounded-lg p-0.5 border border-primary/10">
-                  <span class="text-xxs font-bold text-primary px-1.5">{{ 'orders.quantity_to_serve' | translate }}</span>
+                <div
+                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1 border border-outline-variant/20"
+                >
+                  <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
+                    'orders.quantity_to_serve' | translate
+                  }}</span>
                   <button
-                    class="w-6 h-6 rounded bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
                     (click)="decrementServeQty(item.id, -item.servedQuantity, $event)"
                     [disabled]="getSelectedQuantities(item.id)?.serveQty === -item.servedQuantity"
                   >
                     <ng-icon name="lucideMinus" size="10" />
                   </button>
-                  <span class="text-xs font-semibold text-primary min-w-6 text-center">
-                    {{ (getSelectedQuantities(item.id)!.serveQty > 0 ? '+' : '') + getSelectedQuantities(item.id)?.serveQty }}
+                  <span class="text-xs font-semibold text-on-surface min-w-6 text-center">
+                    {{
+                      (getSelectedQuantities(item.id)!.serveQty > 0 ? '+' : '') +
+                        getSelectedQuantities(item.id)?.serveQty
+                    }}
                   </span>
                   <button
-                    class="w-6 h-6 rounded bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
                     (click)="incrementServeQty(item.id, item.quantity - item.servedQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.serveQty === (item.quantity - item.servedQuantity)"
+                    [disabled]="getSelectedQuantities(item.id)?.serveQty === item.quantity - item.servedQuantity"
                   >
                     <ng-icon name="lucidePlus" size="10" />
                   </button>
@@ -160,14 +177,16 @@
 
   <!-- Gorgeous Glassmorphic Floating Group Action Bar -->
   @if (totalSelectedItemsCount() > 0) {
-    <div class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300">
+    <div
+      class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
+    >
       <div class="flex items-center gap-4">
         <div class="flex flex-col gap-0.5">
           <span class="text-xs font-bold text-primary tracking-wide uppercase">
             {{ 'orders.bulk_actions_title' | translate }}
           </span>
           <span class="text-sm font-semibold text-on-surface">
-            {{ 'orders.selected_items_count' | translate:{ count: totalSelectedItemsCount() } }}
+            {{ 'orders.selected_items_count' | translate: { count: totalSelectedItemsCount() } }}
           </span>
         </div>
         <div class="h-8 w-px bg-outline/25 hidden md:block"></div>
@@ -182,35 +201,20 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button
-          coaster-btn
-          variant="outline"
-          (click)="clearSelection()"
-          class="h-10 px-4 rounded-xl text-xs font-semibold"
-        >
-          <ng-icon name="lucideX" size="14" class="mr-1.5" />
+        <button coaster-btn variant="outline" (click)="clearSelection()" class="h-12! px-4! text-xs!">
+          <ng-icon name="lucideX" size="14" />
           {{ 'common.cancel' | translate }}
         </button>
-        
+
         <button
           coaster-btn
-          variant="outline"
-          class="h-10 px-4 rounded-xl text-xs font-semibold bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary!"
-          [disabled]="totalServeUnitsDiff() === 0"
-          (click)="serveSelectedGroup()"
+          variant="primary"
+          [disabled]="totalPaidUnitsDiff() === 0 && totalServeUnitsDiff() === 0"
+          (click)="applySelectedChanges()"
+          class="h-12! px-4! text-xs!"
         >
-          <ng-icon name="lucideChefHat" size="14" class="mr-1.5" />
-          {{ 'orders.serve_selected' | translate:{ count: totalServeUnitsDiff() } }}
-        </button>
-        
-        <button
-          coaster-btn
-          class="h-10 px-4 rounded-xl text-xs font-semibold bg-secondary text-on-secondary"
-          [disabled]="totalPaidUnitsDiff() === 0"
-          (click)="paySelectedGroup()"
-        >
-          <ng-icon name="lucideCreditCard" size="14" class="mr-1.5" />
-          {{ 'orders.pay_selected' | translate:{ amount: (selectedTotalAmount() | price) } }}
+          <ng-icon name="lucideCheck" size="14" />
+          {{ 'orders.confirm_changes' | translate }}
         </button>
       </div>
     </div>

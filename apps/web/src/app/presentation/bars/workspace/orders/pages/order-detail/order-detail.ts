@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, Order, OrderItem, asOrderId } from '@coaster/common';
+import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId } from '@coaster/common';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
@@ -8,16 +8,17 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideArrowRightLeft,
+  lucideCheck,
+  lucideCheckSquare,
   lucideChefHat,
   lucideCreditCard,
   lucideMerge,
+  lucideMinus,
   lucidePackagePlus,
+  lucidePlus,
+  lucideSquare,
   lucideTrash2,
   lucideX,
-  lucidePlus,
-  lucideMinus,
-  lucideSquare,
-  lucideCheckSquare,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
@@ -51,6 +52,7 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
       lucideMinus,
       lucideSquare,
       lucideCheckSquare,
+      lucideCheck,
     }),
   ],
   host: { class: 'flex flex-col gap-4' },
@@ -82,21 +84,23 @@ class OrderDetail {
   // Helper computed signals
   protected readonly selectedItemsList = computed(() => {
     const selected = this.selectedItems();
-    return Array.from(selected.entries()).map(([itemId, qtys]) => {
-      const item = this.displayOrderViewModel()?.items.find((i) => i.id === itemId);
-      return {
-        item,
-        itemId,
-        ...qtys,
-      };
-    }).filter(x => !!x.item);
+    return Array.from(selected.entries())
+      .map(([itemId, qtys]) => {
+        const item = this.displayOrderViewModel()?.items.find((i) => i.id === itemId);
+        return {
+          item,
+          itemId,
+          ...qtys,
+        };
+      })
+      .filter((x) => !!x.item);
   });
 
   protected readonly totalSelectedItemsCount = computed(() => this.selectedItems().size);
 
   protected readonly selectedTotalAmount = computed(() => {
     return this.selectedItemsList().reduce((sum, s) => {
-      return sum + (s.paidQty * s.item!.priceAtPurchase);
+      return sum + s.paidQty * s.item!.priceAtPurchase;
     }, 0);
   });
 
@@ -247,43 +251,28 @@ class OrderDetail {
     this.selectedItems.set(new Map());
   }
 
-  protected async paySelectedGroup() {
+  protected async applySelectedChanges() {
     const order = this.displayOrder();
     if (!order) return;
 
-    const itemsToPay = this.selectedItemsList()
-      .filter((s) => s.paidQty !== 0)
-      .map((s) => ({ itemId: s.itemId, paidQuantity: s.item!.paidQuantity + s.paidQty }));
+    const itemsToUpdate = this.selectedItemsList()
+      .filter((s) => s.paidQty !== 0 || s.serveQty !== 0)
+      .map((s) => {
+        const update: BulkUpdateItemDto = { itemId: s.itemId };
+        if (s.paidQty !== 0) {
+          update.paidQuantity = s.item!.paidQuantity + s.paidQty;
+        }
+        if (s.serveQty !== 0) {
+          update.servedQuantity = s.item!.servedQuantity + s.serveQty;
+        }
+        return update;
+      });
 
-    if (itemsToPay.length === 0) return;
-
-    try {
-      this.isLoading.set(true);
-      const updated = await this.#ordersStore.bulkPay(this.barId(), order.id, { items: itemsToPay });
-      if (updated) {
-        this.fetchedOrder.set(updated);
-      }
-      this.clearSelection();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      this.isLoading.set(false);
-    }
-  }
-
-  protected async serveSelectedGroup() {
-    const order = this.displayOrder();
-    if (!order) return;
-
-    const itemsToServe = this.selectedItemsList()
-      .filter((s) => s.serveQty !== 0)
-      .map((s) => ({ itemId: s.itemId, servedQuantity: s.item!.servedQuantity + s.serveQty }));
-
-    if (itemsToServe.length === 0) return;
+    if (itemsToUpdate.length === 0) return;
 
     try {
       this.isLoading.set(true);
-      const updated = await this.#ordersStore.bulkServe(this.barId(), order.id, { items: itemsToServe });
+      const updated = await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
       if (updated) {
         this.fetchedOrder.set(updated);
       }

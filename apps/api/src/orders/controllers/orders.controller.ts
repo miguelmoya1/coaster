@@ -2,8 +2,7 @@ import { type BarId, BarRole, type OrderId, type OrderItemId } from '@coaster/co
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
-import { BulkPayDto } from '../dto/bulk-pay.dto';
-import { BulkServeDto } from '../dto/bulk-serve.dto';
+import { BulkUpdateDto } from '../dto/bulk-update.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
@@ -47,25 +46,10 @@ export class OrdersController {
     return OrdersMapper.toDto(order);
   }
 
-  @Patch(':orderId/items/bulk-pay')
+  @Patch(':orderId/items/bulk')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async bulkPay(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Body() dto: BulkPayDto,
-  ) {
-    const order = await this._ordersService.bulkPay(barId, orderId, dto);
-    return OrdersMapper.toDto(order);
-  }
-
-  @Patch(':orderId/items/bulk-serve')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
-  async bulkServe(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Body() dto: BulkServeDto,
-  ) {
-    const order = await this._ordersService.bulkServe(barId, orderId, dto);
+  async bulkUpdate(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: BulkUpdateDto) {
+    const order = await this._ordersService.bulkUpdate(barId, orderId, dto);
     return OrdersMapper.toDto(order);
   }
 

@@ -1,4 +1,4 @@
-import { asBarId, asOrderId, asOrderItemId, ErrorCodes, SocketEvents } from '@coaster/common';
+import { asBarId, asOrderId, ErrorCodes, SocketEvents } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -44,8 +44,7 @@ describe('OrdersService', () => {
     createOrder: vi.fn(),
     addItemsToOrder: vi.fn(),
     updateOrderItem: vi.fn(),
-    bulkPay: vi.fn(),
-    bulkServe: vi.fn(),
+    bulkUpdate: vi.fn(),
     checkoutOrder: vi.fn(),
     cancelOrder: vi.fn(),
     moveTable: vi.fn(),
@@ -210,60 +209,69 @@ describe('OrdersService', () => {
     });
   });
 
-  describe('bulkPay', () => {
+  describe('bulkUpdate', () => {
     const barId = asBarId('bar-1');
     const orderId = asOrderId('order-1');
-    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2 }] };
+    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
     it('should throw if order not found', async () => {
       repository.findById.mockResolvedValue(null);
 
-      await expect(service.bulkPay(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
+      await expect(service.bulkUpdate(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
     });
 
     it('should throw if order is not open', async () => {
       repository.findById.mockResolvedValue(makeOrderDb({ status: 'CLOSED' }));
 
-      await expect(service.bulkPay(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
+      await expect(service.bulkUpdate(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
     });
 
-    it('should call repository bulkPay and emit event', async () => {
+    it('should throw if item not found in order', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb({ items: [] }));
+
+      await expect(service.bulkUpdate(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    });
+
+    it('should throw if paidQuantity exceeds item quantity', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+
+      await expect(
+        service.bulkUpdate(barId, orderId, { items: [{ itemId: 'item-1', paidQuantity: 5 }] }),
+      ).rejects.toThrow('PAY_QUANTITY_EXCEEDS_TOTAL');
+    });
+
+    it('should throw if paidQuantity is negative', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+
+      await expect(
+        service.bulkUpdate(barId, orderId, { items: [{ itemId: 'item-1', paidQuantity: -1 }] }),
+      ).rejects.toThrow('PAY_QUANTITY_CANNOT_BE_NEGATIVE');
+    });
+
+    it('should throw if servedQuantity exceeds item quantity', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+
+      await expect(
+        service.bulkUpdate(barId, orderId, { items: [{ itemId: 'item-1', servedQuantity: 5 }] }),
+      ).rejects.toThrow('SERVE_QUANTITY_EXCEEDS_TOTAL');
+    });
+
+    it('should throw if servedQuantity is negative', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb());
+
+      await expect(
+        service.bulkUpdate(barId, orderId, { items: [{ itemId: 'item-1', servedQuantity: -1 }] }),
+      ).rejects.toThrow('SERVE_QUANTITY_CANNOT_BE_NEGATIVE');
+    });
+
+    it('should call repository bulkUpdate and emit event', async () => {
       const orderDb = makeOrderDb();
       repository.findById.mockResolvedValue(orderDb);
-      repository.bulkPay.mockResolvedValue(orderDb);
+      repository.bulkUpdate.mockResolvedValue(orderDb);
 
-      const result = await service.bulkPay(barId, orderId, dto);
+      const result = await service.bulkUpdate(barId, orderId, dto);
 
-      expect(repository.bulkPay).toHaveBeenCalledWith(orderId, dto.items);
-      expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
-    });
-  });
-
-  describe('bulkServe', () => {
-    const barId = asBarId('bar-1');
-    const orderId = asOrderId('order-1');
-    const dto = { items: [{ itemId: 'item-1', servedQuantity: 2 }] };
-
-    it('should throw if order not found', async () => {
-      repository.findById.mockResolvedValue(null);
-
-      await expect(service.bulkServe(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
-    });
-
-    it('should throw if order is not open', async () => {
-      repository.findById.mockResolvedValue(makeOrderDb({ status: 'CLOSED' }));
-
-      await expect(service.bulkServe(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
-    });
-
-    it('should call repository bulkServe and emit event', async () => {
-      const orderDb = makeOrderDb();
-      repository.findById.mockResolvedValue(orderDb);
-      repository.bulkServe.mockResolvedValue(orderDb);
-
-      const result = await service.bulkServe(barId, orderId, dto);
-
-      expect(repository.bulkServe).toHaveBeenCalledWith(orderId, dto.items);
+      expect(repository.bulkUpdate).toHaveBeenCalledWith(orderId, dto.items);
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
   });
@@ -435,6 +443,4 @@ describe('OrdersService', () => {
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CANCELLED, { id: 'order-2' });
     });
   });
-
-
 });

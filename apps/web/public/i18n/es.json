@@ -274,7 +274,8 @@
     "serve_selected": "Servir Seleccionados ({{count}} u.)",
     "quantity_to_pay": "Pagar",
     "quantity_to_serve": "Servir",
-    "selected_total_amount": "Total seleccionados"
+    "selected_total_amount": "Total seleccionados",
+    "confirm_changes": "Confirmar cambios"
   },
   "history": {
     "title": "Historial de Pedidos",

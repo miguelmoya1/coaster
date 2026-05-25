@@ -122,28 +122,14 @@ describe('OrderRepository', () => {
     });
   });
 
-  describe('bulkPay', () => {
+  describe('bulkUpdate', () => {
     const barId = asBarId('bar-1');
     const orderId = asOrderId('order-1');
-    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2 }] };
+    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
-    it('should call bulkPay endpoint', async () => {
-      const promise = service.bulkPay(barId, orderId, dto);
-      const req = httpMock.expectOne(service.routes.bulkPay(barId, orderId));
-      expect(req.request.method).toBe('PATCH');
-      req.flush(mockOrder);
-      await promise;
-    });
-  });
-
-  describe('bulkServe', () => {
-    const barId = asBarId('bar-1');
-    const orderId = asOrderId('order-1');
-    const dto = { items: [{ itemId: 'item-1', servedQuantity: 2 }] };
-
-    it('should call bulkServe endpoint', async () => {
-      const promise = service.bulkServe(barId, orderId, dto);
-      const req = httpMock.expectOne(service.routes.bulkServe(barId, orderId));
+    it('should call bulkUpdate endpoint', async () => {
+      const promise = service.bulkUpdate(barId, orderId, dto);
+      const req = httpMock.expectOne(service.routes.bulkUpdate(barId, orderId));
       expect(req.request.method).toBe('PATCH');
       req.flush(mockOrder);
       await promise;

@@ -18,8 +18,7 @@ describe('OrdersController', () => {
       getOrderById: vi.fn(),
       createOrder: vi.fn(),
       addItems: vi.fn(),
-      bulkPay: vi.fn(),
-      bulkServe: vi.fn(),
+      bulkUpdate: vi.fn(),
       checkout: vi.fn(),
       cancelOrder: vi.fn(),
       moveTable: vi.fn(),
@@ -74,22 +73,13 @@ describe('OrdersController', () => {
     expect(service.addItems).toHaveBeenCalledWith('bar-1', 'order-1', dto);
   });
 
-  it('bulkPay should delegate to the service', async () => {
-    service.bulkPay.mockResolvedValue({} as Order);
-    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2 }] };
+  it('bulkUpdate should delegate to the service', async () => {
+    service.bulkUpdate.mockResolvedValue({} as Order);
+    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
-    await controller.bulkPay(asBarId('bar-1'), asOrderId('order-1'), dto);
+    await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto);
 
-    expect(service.bulkPay).toHaveBeenCalledWith('bar-1', 'order-1', dto);
-  });
-
-  it('bulkServe should delegate to the service', async () => {
-    service.bulkServe.mockResolvedValue({} as Order);
-    const dto = { items: [{ itemId: 'item-1', servedQuantity: 2 }] };
-
-    await controller.bulkServe(asBarId('bar-1'), asOrderId('order-1'), dto);
-
-    expect(service.bulkServe).toHaveBeenCalledWith('bar-1', 'order-1', dto);
+    expect(service.bulkUpdate).toHaveBeenCalledWith('bar-1', 'order-1', dto);
   });
 
   it('checkout should delegate to the service', async () => {

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AddOrderItemsDto, BarId, BulkPayDto, BulkServeDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
+import { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Injectable({
@@ -20,12 +20,8 @@ export class ManageOrder {
     return await this.#orderRepository.addItems(barId, orderId, dto);
   }
 
-  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
-    return await this.#orderRepository.bulkPay(barId, orderId, dto);
-  }
-
-  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
-    return await this.#orderRepository.bulkServe(barId, orderId, dto);
+  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
+    return await this.#orderRepository.bulkUpdate(barId, orderId, dto);
   }
 
   public async checkout(barId: BarId, orderId: OrderId) {

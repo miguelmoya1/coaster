@@ -3,8 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import {
   AddOrderItemsDto,
   BarId,
-  BulkPayDto,
-  BulkServeDto,
+  BulkUpdateDto,
   CreateOrderDto,
   DeleteResponse,
   MergeOrdersDto,
@@ -30,10 +29,8 @@ export class OrderRepository {
     create: (barId: BarId) => `/bars/${barId}/orders`,
     delete: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}`,
     addItems: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/items`,
-    bulkPay: (barId: BarId, orderId: OrderId) =>
-      `/bars/${barId}/orders/${orderId}/items/bulk-pay`,
-    bulkServe: (barId: BarId, orderId: OrderId) =>
-      `/bars/${barId}/orders/${orderId}/items/bulk-serve`,
+    bulkUpdate: (barId: BarId, orderId: OrderId) =>
+      `/bars/${barId}/orders/${orderId}/items/bulk`,
     checkout: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/checkout`,
     cancel: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/cancel`,
     moveTable: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/move-table`,
@@ -60,15 +57,9 @@ export class OrderRepository {
     );
   }
 
-  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
+  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
     return firstValueFrom(
-      this.#http.patch<Order>(this.routes.bulkPay(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
-    );
-  }
-
-  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
-    return firstValueFrom(
-      this.#http.patch<Order>(this.routes.bulkServe(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.patch<Order>(this.routes.bulkUpdate(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
     );
   }
 
