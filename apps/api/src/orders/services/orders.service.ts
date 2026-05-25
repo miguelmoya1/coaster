@@ -14,8 +14,8 @@ import {
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BarGateway } from '../../core';
 import { OrdersRepository } from '../data-access/orders.repository';
-import { PayUnitsDto } from '../dto/pay-units.dto';
-import { ServeUnitsDto } from '../dto/serve-units.dto';
+import { BulkPayDto } from '../dto/bulk-pay.dto';
+import { BulkServeDto } from '../dto/bulk-serve.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 
 @Injectable()
@@ -141,7 +141,7 @@ export class OrdersService {
     return mapped;
   }
 
-  async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+  async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -150,26 +150,16 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+    const updated = await this._ordersRepository.bulkPay(orderId, dto.items);
+    if (!updated) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
-    if (item.paymentStatus === 'PAID') {
-      throw new BadRequestException(ErrorCodes.ORDER_ALREADY_PAID);
-    }
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      paymentStatus: 'PAID',
-      paidQuantity: item.quantity,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    const mapped = OrdersMapper.toDomain(updated);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
     return mapped;
   }
 
-  async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+  async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
     const order = await this._ordersRepository.findById(orderId);
     if (!order || order.barId !== barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -178,154 +168,11 @@ export class OrdersService {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    }
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      deliveryStatus: 'SERVED',
-      servedQuantity: item.quantity,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
-    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
-    return mapped;
-  }
-
-  async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: PayUnitsDto) {
-    const order = await this._ordersRepository.findById(orderId);
-    if (!order || order.barId !== barId) {
+    const updated = await this._ordersRepository.bulkServe(orderId, dto.items);
+    if (!updated) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
-    if (order.status !== 'OPEN') {
-      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
-    }
-
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    }
-    if (item.paymentStatus === 'PAID') {
-      throw new BadRequestException(ErrorCodes.ORDER_ALREADY_PAID);
-    }
-
-    const newPaidQuantity = (item.paidQuantity ?? 0) + dto.quantityToPay;
-    if (newPaidQuantity > item.quantity) {
-      throw new BadRequestException('PAY_QUANTITY_EXCEEDS_TOTAL');
-    }
-
-    const newPaymentStatus = newPaidQuantity === item.quantity ? 'PAID' : 'PARTIAL';
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      paidQuantity: newPaidQuantity,
-      paymentStatus: newPaymentStatus,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
-    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
-    return mapped;
-  }
-
-  async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, dto: ServeUnitsDto) {
-    const order = await this._ordersRepository.findById(orderId);
-    if (!order || order.barId !== barId) {
-      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
-    }
-    if (order.status !== 'OPEN') {
-      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
-    }
-
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    }
-    if (item.deliveryStatus === 'SERVED') {
-      throw new BadRequestException('ORDER_ITEM_ALREADY_SERVED');
-    }
-
-    const newServedQuantity = (item.servedQuantity ?? 0) + dto.quantityToServe;
-    if (newServedQuantity > item.quantity) {
-      throw new BadRequestException('SERVE_QUANTITY_EXCEEDS_TOTAL');
-    }
-
-    const newDeliveryStatus = newServedQuantity === item.quantity ? 'SERVED' : 'PARTIAL';
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      servedQuantity: newServedQuantity,
-      deliveryStatus: newDeliveryStatus,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
-    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
-    return mapped;
-  }
-
-  async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const order = await this._ordersRepository.findById(orderId);
-    if (!order || order.barId !== barId) {
-      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
-    }
-    if (order.status !== 'OPEN') {
-      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
-    }
-
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    }
-
-    const paidQty = item.paidQuantity ?? 0;
-    if (paidQty <= 0) {
-      throw new BadRequestException('CANNOT_DECREMENT_PAID_QUANTITY');
-    }
-
-    const newPaidQuantity = paidQty - 1;
-    const newPaymentStatus = newPaidQuantity === 0 ? 'PENDING' : 'PARTIAL';
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      paidQuantity: newPaidQuantity,
-      paymentStatus: newPaymentStatus,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
-    this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
-    return mapped;
-  }
-
-  async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const order = await this._ordersRepository.findById(orderId);
-    if (!order || order.barId !== barId) {
-      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
-    }
-    if (order.status !== 'OPEN') {
-      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
-    }
-
-    const item = order.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    }
-
-    const servedQty = item.servedQuantity ?? 0;
-    if (servedQty <= 0) {
-      throw new BadRequestException('CANNOT_DECREMENT_SERVED_QUANTITY');
-    }
-
-    const newServedQuantity = servedQty - 1;
-    const newDeliveryStatus = newServedQuantity === 0 ? 'PENDING' : 'PARTIAL';
-
-    await this._ordersRepository.updateOrderItem(itemId, {
-      servedQuantity: newServedQuantity,
-      deliveryStatus: newDeliveryStatus,
-    });
-
-    const updatedOrder = await this._ordersRepository.findById(orderId);
-    const mapped = OrdersMapper.toDomain(updatedOrder!);
+    const mapped = OrdersMapper.toDomain(updated);
     this._barGateway.server.to(barId).emit(SocketEvents.ORDER_UPDATED, mapped);
     return mapped;
   }

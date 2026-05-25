@@ -2,11 +2,11 @@ import { type BarId, BarRole, type OrderId, type OrderItemId } from '@coaster/co
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
+import { BulkPayDto } from '../dto/bulk-pay.dto';
+import { BulkServeDto } from '../dto/bulk-serve.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
-import { PayUnitsDto } from '../dto/pay-units.dto';
-import { ServeUnitsDto } from '../dto/serve-units.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 import { OrdersService } from '../services/orders.service';
 
@@ -47,71 +47,25 @@ export class OrdersController {
     return OrdersMapper.toDto(order);
   }
 
-  @Patch(':orderId/items/:itemId/pay')
+  @Patch(':orderId/items/bulk-pay')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async payItem(
+  async bulkPay(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
+    @Body() dto: BulkPayDto,
   ) {
-    const order = await this._ordersService.payItem(barId, orderId, itemId);
+    const order = await this._ordersService.bulkPay(barId, orderId, dto);
     return OrdersMapper.toDto(order);
   }
 
-  @Patch(':orderId/items/:itemId/deliver')
+  @Patch(':orderId/items/bulk-serve')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async deliverItem(
+  async bulkServe(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
+    @Body() dto: BulkServeDto,
   ) {
-    const order = await this._ordersService.deliverItem(barId, orderId, itemId);
-    return OrdersMapper.toDto(order);
-  }
-
-  @Patch(':orderId/items/:itemId/pay-units')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
-  async payUnits(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
-    @Body() dto: PayUnitsDto,
-  ) {
-    const order = await this._ordersService.payUnits(barId, orderId, itemId, dto);
-    return OrdersMapper.toDto(order);
-  }
-
-  @Patch(':orderId/items/:itemId/unpay-unit')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
-  async unpayUnit(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
-  ) {
-    const order = await this._ordersService.unpayUnit(barId, orderId, itemId);
-    return OrdersMapper.toDto(order);
-  }
-
-  @Patch(':orderId/items/:itemId/serve-units')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
-  async serveUnits(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
-    @Body() dto: ServeUnitsDto,
-  ) {
-    const order = await this._ordersService.serveUnits(barId, orderId, itemId, dto);
-    return OrdersMapper.toDto(order);
-  }
-
-  @Patch(':orderId/items/:itemId/unserve-unit')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
-  async unserveUnit(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Param('itemId') itemId: OrderItemId,
-  ) {
-    const order = await this._ordersService.unserveUnit(barId, orderId, itemId);
+    const order = await this._ordersService.bulkServe(barId, orderId, dto);
     return OrdersMapper.toDto(order);
   }
 

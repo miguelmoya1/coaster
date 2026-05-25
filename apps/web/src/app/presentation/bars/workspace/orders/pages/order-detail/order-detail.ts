@@ -16,11 +16,12 @@ import {
   lucideX,
   lucidePlus,
   lucideMinus,
+  lucideSquare,
+  lucideCheckSquare,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
-import { OrderItemControlsComponent } from './components/order-item-controls/order-item-controls';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -35,7 +36,6 @@ import { OrderItemControlsComponent } from './components/order-item-controls/ord
     ConfirmDialogComponent,
     MoveTableDialog,
     MergeOrdersDialog,
-    OrderItemControlsComponent,
   ],
   viewProviders: [
     provideIcons({
@@ -49,6 +49,8 @@ import { OrderItemControlsComponent } from './components/order-item-controls/ord
       lucideX,
       lucidePlus,
       lucideMinus,
+      lucideSquare,
+      lucideCheckSquare,
     }),
   ],
   host: { class: 'flex flex-col gap-4' },
@@ -73,6 +75,42 @@ class OrderDetail {
 
   readonly fetchedOrder = signal<Order | null>(null);
   readonly isLoading = signal(false);
+
+  // Local multi-selection state: maps itemId to selected paid and served quantities
+  protected readonly selectedItems = signal<Map<string, { paidQty: number; serveQty: number }>>(new Map());
+
+  // Helper computed signals
+  protected readonly selectedItemsList = computed(() => {
+    const selected = this.selectedItems();
+    return Array.from(selected.entries()).map(([itemId, qtys]) => {
+      const item = this.displayOrderViewModel()?.items.find((i) => i.id === itemId);
+      return {
+        item,
+        itemId,
+        ...qtys,
+      };
+    }).filter(x => !!x.item);
+  });
+
+  protected readonly totalSelectedItemsCount = computed(() => this.selectedItems().size);
+
+  protected readonly selectedTotalAmount = computed(() => {
+    return this.selectedItemsList().reduce((sum, s) => {
+      return sum + (s.paidQty * s.item!.priceAtPurchase);
+    }, 0);
+  });
+
+  protected readonly totalPaidUnitsDiff = computed(() => {
+    return this.selectedItemsList().reduce((sum, s) => {
+      return sum + Math.abs(s.paidQty);
+    }, 0);
+  });
+
+  protected readonly totalServeUnitsDiff = computed(() => {
+    return this.selectedItemsList().reduce((sum, s) => {
+      return sum + Math.abs(s.serveQty);
+    }, 0);
+  });
 
   readonly currentOrder = computed(() => {
     const orders = this.#ordersStore.openOrders();
@@ -144,65 +182,116 @@ class OrderDetail {
     this.#router.navigate(['/bars', this.barId(), 'orders', order.id, 'add']);
   }
 
-  async onPayItem(item: OrderItem) {
-    const order = this.currentOrder();
-    if (!order) return;
-    try {
-      await this.#ordersStore.payItem(this.barId(), order.id, item.id);
-    } catch (e) {
-      console.error(e);
+  protected isItemSelected(itemId: string): boolean {
+    return this.selectedItems().has(itemId);
+  }
+
+  protected getSelectedQuantities(itemId: string) {
+    return this.selectedItems().get(itemId);
+  }
+
+  protected toggleSelectItem(item: OrderItem) {
+    const current = new Map(this.selectedItems());
+    if (current.has(item.id)) {
+      current.delete(item.id);
+    } else {
+      current.set(item.id, {
+        paidQty: 0,
+        serveQty: 0,
+      });
+    }
+    this.selectedItems.set(current);
+  }
+
+  protected incrementPayQty(itemId: string, max: number, event: MouseEvent) {
+    event.stopPropagation();
+    const current = new Map(this.selectedItems());
+    const qtys = current.get(itemId);
+    if (qtys && qtys.paidQty < max) {
+      current.set(itemId, { ...qtys, paidQty: qtys.paidQty + 1 });
+      this.selectedItems.set(current);
     }
   }
 
-  async onPayUnit(item: OrderItem) {
-    const order = this.currentOrder();
-    if (!order) return;
-    try {
-      await this.#ordersStore.payUnits(this.barId(), order.id, item.id, 1);
-    } catch (e) {
-      console.error(e);
+  protected decrementPayQty(itemId: string, min: number, event: MouseEvent) {
+    event.stopPropagation();
+    const current = new Map(this.selectedItems());
+    const qtys = current.get(itemId);
+    if (qtys && qtys.paidQty > min) {
+      current.set(itemId, { ...qtys, paidQty: qtys.paidQty - 1 });
+      this.selectedItems.set(current);
     }
   }
 
-  async onUnpayUnit(item: OrderItem) {
-    const order = this.currentOrder();
-    if (!order) return;
-    try {
-      await this.#ordersStore.unpayUnit(this.barId(), order.id, item.id);
-    } catch (e) {
-      console.error(e);
+  protected incrementServeQty(itemId: string, max: number, event: MouseEvent) {
+    event.stopPropagation();
+    const current = new Map(this.selectedItems());
+    const qtys = current.get(itemId);
+    if (qtys && qtys.serveQty < max) {
+      current.set(itemId, { ...qtys, serveQty: qtys.serveQty + 1 });
+      this.selectedItems.set(current);
     }
   }
 
-  async onDeliverItem(item: OrderItem) {
-    const order = this.currentOrder();
-    if (!order) {
-      return;
-    }
-    try {
-      await this.#ordersStore.deliverItem(this.barId(), order.id, item.id);
-    } catch (e) {
-      console.error(e);
+  protected decrementServeQty(itemId: string, min: number, event: MouseEvent) {
+    event.stopPropagation();
+    const current = new Map(this.selectedItems());
+    const qtys = current.get(itemId);
+    if (qtys && qtys.serveQty > min) {
+      current.set(itemId, { ...qtys, serveQty: qtys.serveQty - 1 });
+      this.selectedItems.set(current);
     }
   }
 
-  async onDeliverUnit(item: OrderItem) {
-    const order = this.currentOrder();
+  protected clearSelection() {
+    this.selectedItems.set(new Map());
+  }
+
+  protected async paySelectedGroup() {
+    const order = this.displayOrder();
     if (!order) return;
+
+    const itemsToPay = this.selectedItemsList()
+      .filter((s) => s.paidQty !== 0)
+      .map((s) => ({ itemId: s.itemId, paidQuantity: s.item!.paidQuantity + s.paidQty }));
+
+    if (itemsToPay.length === 0) return;
+
     try {
-      await this.#ordersStore.serveUnits(this.barId(), order.id, item.id, 1);
+      this.isLoading.set(true);
+      const updated = await this.#ordersStore.bulkPay(this.barId(), order.id, { items: itemsToPay });
+      if (updated) {
+        this.fetchedOrder.set(updated);
+      }
+      this.clearSelection();
     } catch (e) {
       console.error(e);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
-  async onUnserveUnit(item: OrderItem) {
-    const order = this.currentOrder();
+  protected async serveSelectedGroup() {
+    const order = this.displayOrder();
     if (!order) return;
+
+    const itemsToServe = this.selectedItemsList()
+      .filter((s) => s.serveQty !== 0)
+      .map((s) => ({ itemId: s.itemId, servedQuantity: s.item!.servedQuantity + s.serveQty }));
+
+    if (itemsToServe.length === 0) return;
+
     try {
-      await this.#ordersStore.unserveUnit(this.barId(), order.id, item.id);
+      this.isLoading.set(true);
+      const updated = await this.#ordersStore.bulkServe(this.barId(), order.id, { items: itemsToServe });
+      if (updated) {
+        this.fetchedOrder.set(updated);
+      }
+      this.clearSelection();
     } catch (e) {
       console.error(e);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 

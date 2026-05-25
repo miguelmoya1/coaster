@@ -2,9 +2,10 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
   AddOrderItemsDto,
-  asDeliveryStatus,
   asPaymentStatus,
   BarId,
+  BulkPayDto,
+  BulkServeDto,
   CreateOrderDto,
   MergeOrdersDto,
   MoveTableDto,
@@ -260,139 +261,37 @@ export class OrdersStore {
     }
   }
 
-  public async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) =>
-        i.id === itemId ? { ...i, paymentStatus: asPaymentStatus('PAID'), paidQuantity: i.quantity } : i,
-      );
-      return { ...order, items };
-    });
-
+  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
     try {
-      return await this.#manageOrder.payItem(barId, orderId, itemId);
+      const order = await this.#manageOrder.bulkPay(barId, orderId, dto);
+      this.#ordersResource.update((orders) => {
+        if (!orders) return [order];
+        return orders.map((o) => (o.id === order.id ? order : o));
+      });
+      this.#historyResource.update((orders) => {
+        if (!orders) return [order];
+        return orders.map((o) => (o.id === order.id ? order : o));
+      });
+      return order;
     } catch (error) {
-      this.revertUpdate(original);
       this.#toastService.error('ERR_PAYMENT');
       throw error;
     }
   }
 
-  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => {
-        if (i.id === itemId) {
-          const newPaid = i.paidQuantity + quantityToPay;
-          const newStatus = newPaid === i.quantity ? 'PAID' : 'PARTIAL';
-          return {
-            ...i,
-            paidQuantity: newPaid,
-            paymentStatus: asPaymentStatus(newStatus),
-          };
-        }
-        return i;
+  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
+    try {
+      const order = await this.#manageOrder.bulkServe(barId, orderId, dto);
+      this.#ordersResource.update((orders) => {
+        if (!orders) return [order];
+        return orders.map((o) => (o.id === order.id ? order : o));
       });
-      return { ...order, items };
-    });
-
-    try {
-      return await this.#manageOrder.payUnits(barId, orderId, itemId, quantityToPay);
-    } catch (error) {
-      this.revertUpdate(original);
-      this.#toastService.error('ERR_PAYMENT');
-      throw error;
-    }
-  }
-
-  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => {
-        if (i.id === itemId) {
-          const newPaid = Math.max(0, i.paidQuantity - 1);
-          const newStatus = newPaid === 0 ? 'PENDING' : 'PARTIAL';
-          return {
-            ...i,
-            paidQuantity: newPaid,
-            paymentStatus: asPaymentStatus(newStatus),
-          };
-        }
-        return i;
+      this.#historyResource.update((orders) => {
+        if (!orders) return [order];
+        return orders.map((o) => (o.id === order.id ? order : o));
       });
-      return { ...order, items };
-    });
-
-    try {
-      return await this.#manageOrder.unpayUnit(barId, orderId, itemId);
+      return order;
     } catch (error) {
-      this.revertUpdate(original);
-      this.#toastService.error('ERR_PAYMENT');
-      throw error;
-    }
-  }
-
-  public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) =>
-        i.id === itemId ? { ...i, deliveryStatus: asDeliveryStatus('SERVED'), servedQuantity: i.quantity } : i,
-      );
-      return { ...order, items };
-    });
-
-    try {
-      return await this.#manageOrder.deliverItem(barId, orderId, itemId);
-    } catch (error) {
-      this.revertUpdate(original);
-      this.#toastService.error('ERR_DELIVERY');
-      throw error;
-    }
-  }
-
-  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => {
-        if (i.id === itemId) {
-          const newServed = i.servedQuantity + quantityToServe;
-          const newStatus = newServed === i.quantity ? 'SERVED' : 'PARTIAL';
-          return {
-            ...i,
-            servedQuantity: newServed,
-            deliveryStatus: asDeliveryStatus(newStatus),
-          };
-        }
-        return i;
-      });
-      return { ...order, items };
-    });
-
-    try {
-      return await this.#manageOrder.serveUnits(barId, orderId, itemId, quantityToServe);
-    } catch (error) {
-      this.revertUpdate(original);
-      this.#toastService.error('ERR_DELIVERY');
-      throw error;
-    }
-  }
-
-  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    const original = this.optimisticUpdate(orderId, (order) => {
-      const items = order.items.map((i) => {
-        if (i.id === itemId) {
-          const newServed = Math.max(0, i.servedQuantity - 1);
-          const newStatus = newServed === 0 ? 'PENDING' : 'PARTIAL';
-          return {
-            ...i,
-            servedQuantity: newServed,
-            deliveryStatus: asDeliveryStatus(newStatus),
-          };
-        }
-        return i;
-      });
-      return { ...order, items };
-    });
-
-    try {
-      return await this.#manageOrder.unserveUnit(barId, orderId, itemId);
-    } catch (error) {
-      this.revertUpdate(original);
       this.#toastService.error('ERR_DELIVERY');
       throw error;
     }

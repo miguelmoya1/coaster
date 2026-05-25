@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AddOrderItemsDto, BarId, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
+import { AddOrderItemsDto, BarId, BulkPayDto, BulkServeDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Injectable({
@@ -20,28 +20,12 @@ export class ManageOrder {
     return await this.#orderRepository.addItems(barId, orderId, dto);
   }
 
-  public async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return await this.#orderRepository.payItem(barId, orderId, itemId);
+  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
+    return await this.#orderRepository.bulkPay(barId, orderId, dto);
   }
 
-  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
-    return await this.#orderRepository.payUnits(barId, orderId, itemId, quantityToPay);
-  }
-
-  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return await this.#orderRepository.unpayUnit(barId, orderId, itemId);
-  }
-
-  public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return await this.#orderRepository.deliverItem(barId, orderId, itemId);
-  }
-
-  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
-    return await this.#orderRepository.serveUnits(barId, orderId, itemId, quantityToServe);
-  }
-
-  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return await this.#orderRepository.unserveUnit(barId, orderId, itemId);
+  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
+    return await this.#orderRepository.bulkServe(barId, orderId, dto);
   }
 
   public async checkout(barId: BarId, orderId: OrderId) {

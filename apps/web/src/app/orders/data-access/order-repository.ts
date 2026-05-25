@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import {
   AddOrderItemsDto,
   BarId,
+  BulkPayDto,
+  BulkServeDto,
   CreateOrderDto,
   DeleteResponse,
   MergeOrdersDto,
@@ -28,18 +30,10 @@ export class OrderRepository {
     create: (barId: BarId) => `/bars/${barId}/orders`,
     delete: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}`,
     addItems: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/items`,
-    payItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/pay`,
-    payUnits: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/pay-units`,
-    unpayUnit: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/unpay-unit`,
-    deliverItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/deliver`,
-    serveUnits: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/serve-units`,
-    unserveUnit: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
-      `/bars/${barId}/orders/${orderId}/items/${itemId}/unserve-unit`,
+    bulkPay: (barId: BarId, orderId: OrderId) =>
+      `/bars/${barId}/orders/${orderId}/items/bulk-pay`,
+    bulkServe: (barId: BarId, orderId: OrderId) =>
+      `/bars/${barId}/orders/${orderId}/items/bulk-serve`,
     checkout: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/checkout`,
     cancel: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/cancel`,
     moveTable: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/move-table`,
@@ -66,49 +60,15 @@ export class OrderRepository {
     );
   }
 
-  public async payItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+  public async bulkPay(barId: BarId, orderId: OrderId, dto: BulkPayDto) {
     return firstValueFrom(
-      this.#http.patch<Order>(this.routes.payItem(barId, orderId, itemId), {}).pipe(map((order) => orderMapper(order))),
+      this.#http.patch<Order>(this.routes.bulkPay(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
     );
   }
 
-  public async payUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToPay: number) {
+  public async bulkServe(barId: BarId, orderId: OrderId, dto: BulkServeDto) {
     return firstValueFrom(
-      this.#http
-        .patch<Order>(this.routes.payUnits(barId, orderId, itemId), { quantityToPay })
-        .pipe(map((order) => orderMapper(order))),
-    );
-  }
-
-  public async unpayUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return firstValueFrom(
-      this.#http
-        .patch<Order>(this.routes.unpayUnit(barId, orderId, itemId), {})
-        .pipe(map((order) => orderMapper(order))),
-    );
-  }
-
-  public async deliverItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return firstValueFrom(
-      this.#http
-        .patch<Order>(this.routes.deliverItem(barId, orderId, itemId), {})
-        .pipe(map((order) => orderMapper(order))),
-    );
-  }
-
-  public async serveUnits(barId: BarId, orderId: OrderId, itemId: OrderItemId, quantityToServe: number) {
-    return firstValueFrom(
-      this.#http
-        .patch<Order>(this.routes.serveUnits(barId, orderId, itemId), { quantityToServe })
-        .pipe(map((order) => orderMapper(order))),
-    );
-  }
-
-  public async unserveUnit(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
-    return firstValueFrom(
-      this.#http
-        .patch<Order>(this.routes.unserveUnit(barId, orderId, itemId), {})
-        .pipe(map((order) => orderMapper(order))),
+      this.#http.patch<Order>(this.routes.bulkServe(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
     );
   }
 

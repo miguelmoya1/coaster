@@ -267,7 +267,14 @@
     "remove_item_title": "Eliminar Artículo",
     "remove_item_message": "¿Eliminar este artículo del pedido?",
     "order_not_found": "El pedido ya no está disponible o ha sido cerrado.",
-    "assign_table": "Asignar Mesa"
+    "assign_table": "Asignar Mesa",
+    "bulk_actions_title": "Acciones en Grupo",
+    "selected_items_count": "{{count}} seleccionados",
+    "pay_selected": "Pagar Seleccionados ({{amount}})",
+    "serve_selected": "Servir Seleccionados ({{count}} u.)",
+    "quantity_to_pay": "Pagar",
+    "quantity_to_serve": "Servir",
+    "selected_total_amount": "Total seleccionados"
   },
   "history": {
     "title": "Historial de Pedidos",

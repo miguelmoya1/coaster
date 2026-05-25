@@ -19,8 +19,8 @@ describe('ManageOrder', () => {
 
   const orderRepoMock = {
     addItems: vi.fn(),
-    payItem: vi.fn(),
-    deliverItem: vi.fn(),
+    bulkPay: vi.fn(),
+    bulkServe: vi.fn(),
     checkout: vi.fn(),
     cancel: vi.fn(),
     moveTable: vi.fn(),
@@ -83,24 +83,26 @@ describe('ManageOrder', () => {
     });
   });
 
-  describe('payItem', () => {
+  describe('bulkPay', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock.payItem.mockResolvedValue(mockOrder);
+      const dto = { items: [{ itemId: 'item-1', paidQuantity: 2 }] };
+      orderRepoMock.bulkPay.mockResolvedValue(mockOrder);
 
-      const result = await service.payItem(barId, orderId, itemId);
+      const result = await service.bulkPay(barId, orderId, dto);
 
-      expect(orderRepoMock.payItem).toHaveBeenCalledWith(barId, orderId, itemId);
+      expect(orderRepoMock.bulkPay).toHaveBeenCalledWith(barId, orderId, dto);
       expect(result).toEqual(mockOrder);
     });
   });
 
-  describe('deliverItem', () => {
+  describe('bulkServe', () => {
     it('should delegate to repository', async () => {
-      orderRepoMock.deliverItem.mockResolvedValue(mockOrder);
+      const dto = { items: [{ itemId: 'item-1', servedQuantity: 2 }] };
+      orderRepoMock.bulkServe.mockResolvedValue(mockOrder);
 
-      const result = await service.deliverItem(barId, orderId, itemId);
+      const result = await service.bulkServe(barId, orderId, dto);
 
-      expect(orderRepoMock.deliverItem).toHaveBeenCalledWith(barId, orderId, itemId);
+      expect(orderRepoMock.bulkServe).toHaveBeenCalledWith(barId, orderId, dto);
       expect(result).toEqual(mockOrder);
     });
   });

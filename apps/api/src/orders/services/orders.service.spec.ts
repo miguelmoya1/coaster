@@ -44,6 +44,8 @@ describe('OrdersService', () => {
     createOrder: vi.fn(),
     addItemsToOrder: vi.fn(),
     updateOrderItem: vi.fn(),
+    bulkPay: vi.fn(),
+    bulkServe: vi.fn(),
     checkoutOrder: vi.fn(),
     cancelOrder: vi.fn(),
     moveTable: vi.fn(),
@@ -208,82 +210,60 @@ describe('OrdersService', () => {
     });
   });
 
-  describe('payItem', () => {
+  describe('bulkPay', () => {
     const barId = asBarId('bar-1');
     const orderId = asOrderId('order-1');
-    const itemId = asOrderItemId('item-1');
+    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2 }] };
 
     it('should throw if order not found', async () => {
       repository.findById.mockResolvedValue(null);
 
-      await expect(service.payItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
+      await expect(service.bulkPay(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
     });
 
     it('should throw if order is not open', async () => {
       repository.findById.mockResolvedValue(makeOrderDb({ status: 'CLOSED' }));
 
-      await expect(service.payItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
+      await expect(service.bulkPay(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
     });
 
-    it('should throw if item not found in order', async () => {
-      repository.findById.mockResolvedValue(makeOrderDb({ items: [] }));
+    it('should call repository bulkPay and emit event', async () => {
+      const orderDb = makeOrderDb();
+      repository.findById.mockResolvedValue(orderDb);
+      repository.bulkPay.mockResolvedValue(orderDb);
 
-      await expect(service.payItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_ITEM_NOT_FOUND);
-    });
+      const result = await service.bulkPay(barId, orderId, dto);
 
-    it('should throw if item already paid', async () => {
-      const order = makeOrderDb();
-      order.items[0].paymentStatus = 'PAID';
-      repository.findById.mockResolvedValue(order);
-
-      await expect(service.payItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_ALREADY_PAID);
-    });
-
-    it('should mark item as paid and emit event', async () => {
-      repository.findById
-        .mockResolvedValueOnce(makeOrderDb())
-        .mockResolvedValueOnce(makeOrderDb());
-      repository.updateOrderItem.mockResolvedValue({});
-
-      const result = await service.payItem(barId, orderId, itemId);
-
-      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
-        paymentStatus: 'PAID',
-        paidQuantity: 2,
-      });
+      expect(repository.bulkPay).toHaveBeenCalledWith(orderId, dto.items);
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
   });
 
-  describe('deliverItem', () => {
+  describe('bulkServe', () => {
     const barId = asBarId('bar-1');
     const orderId = asOrderId('order-1');
-    const itemId = asOrderItemId('item-1');
+    const dto = { items: [{ itemId: 'item-1', servedQuantity: 2 }] };
 
     it('should throw if order not found', async () => {
       repository.findById.mockResolvedValue(null);
 
-      await expect(service.deliverItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
+      await expect(service.bulkServe(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_FOUND);
     });
 
-    it('should throw if item not found in order', async () => {
-      repository.findById.mockResolvedValue(makeOrderDb({ items: [] }));
+    it('should throw if order is not open', async () => {
+      repository.findById.mockResolvedValue(makeOrderDb({ status: 'CLOSED' }));
 
-      await expect(service.deliverItem(barId, orderId, itemId)).rejects.toThrow(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+      await expect(service.bulkServe(barId, orderId, dto)).rejects.toThrow(ErrorCodes.ORDER_NOT_OPEN);
     });
 
-    it('should mark item as served and emit event', async () => {
-      repository.findById
-        .mockResolvedValueOnce(makeOrderDb())
-        .mockResolvedValueOnce(makeOrderDb());
-      repository.updateOrderItem.mockResolvedValue({});
+    it('should call repository bulkServe and emit event', async () => {
+      const orderDb = makeOrderDb();
+      repository.findById.mockResolvedValue(orderDb);
+      repository.bulkServe.mockResolvedValue(orderDb);
 
-      const result = await service.deliverItem(barId, orderId, itemId);
+      const result = await service.bulkServe(barId, orderId, dto);
 
-      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
-        deliveryStatus: 'SERVED',
-        servedQuantity: 2,
-      });
+      expect(repository.bulkServe).toHaveBeenCalledWith(orderId, dto.items);
       expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, result);
     });
   });
@@ -456,81 +436,5 @@ describe('OrdersService', () => {
     });
   });
 
-  describe('payUnits', () => {
-    const barId = asBarId('bar-1');
-    const orderId = asOrderId('order-1');
-    const itemId = asOrderItemId('item-1');
 
-    it('should throw if pay units exceeds total quantity', async () => {
-      repository.findById.mockResolvedValue(makeOrderDb());
-
-      await expect(service.payUnits(barId, orderId, itemId, { quantityToPay: 3 })).rejects.toThrow('PAY_QUANTITY_EXCEEDS_TOTAL');
-    });
-
-    it('should partially pay items', async () => {
-      repository.findById
-        .mockResolvedValueOnce(makeOrderDb())
-        .mockResolvedValueOnce(makeOrderDb({
-          items: [{
-            id: 'item-1',
-            orderId: 'order-1',
-            productId: 'prod-1',
-            quantity: 2,
-            priceAtPurchase: 250,
-            paymentStatus: 'PARTIAL',
-            deliveryStatus: 'PENDING',
-            paidQuantity: 1,
-            servedQuantity: 0,
-            product: { name: 'Cerveza' },
-            createdAt: new Date('2026-05-01T08:00:00Z'),
-            updatedAt: new Date('2026-05-01T08:00:00Z'),
-          }]
-        }));
-      await service.payUnits(barId, orderId, itemId, { quantityToPay: 1 });
-
-      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
-        paidQuantity: 1,
-        paymentStatus: 'PARTIAL',
-      });
-    });
-  });
-
-  describe('serveUnits', () => {
-    const barId = asBarId('bar-1');
-    const orderId = asOrderId('order-1');
-    const itemId = asOrderItemId('item-1');
-
-    it('should throw if serve units exceeds total quantity', async () => {
-      repository.findById.mockResolvedValue(makeOrderDb());
-
-      await expect(service.serveUnits(barId, orderId, itemId, { quantityToServe: 3 })).rejects.toThrow('SERVE_QUANTITY_EXCEEDS_TOTAL');
-    });
-
-    it('should partially serve items', async () => {
-      repository.findById
-        .mockResolvedValueOnce(makeOrderDb())
-        .mockResolvedValueOnce(makeOrderDb({
-          items: [{
-            id: 'item-1',
-            orderId: 'order-1',
-            productId: 'prod-1',
-            quantity: 2,
-            priceAtPurchase: 250,
-            paymentStatus: 'PENDING',
-            deliveryStatus: 'PARTIAL',
-            paidQuantity: 0,
-            servedQuantity: 1,
-            product: { name: 'Cerveza' },
-            createdAt: new Date('2026-05-01T08:00:00Z'),
-            updatedAt: new Date('2026-05-01T08:00:00Z'),
-          }]
-        }));
-      await service.serveUnits(barId, orderId, itemId, { quantityToServe: 1 });
-
-      expect(repository.updateOrderItem).toHaveBeenCalledWith(itemId, {
-        servedQuantity: 1,
-        deliveryStatus: 'PARTIAL',
-      });
-    });
-  });
 });

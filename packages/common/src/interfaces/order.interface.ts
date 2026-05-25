@@ -59,3 +59,22 @@ export interface MergeOrdersDto {
   orderIds: string[];
   targetTableId?: string;
 }
+
+export interface BulkPayItemDto {
+  itemId: string;
+  paidQuantity: number;
+}
+
+export interface BulkPayDto {
+  items: BulkPayItemDto[];
+}
+
+export interface BulkServeItemDto {
+  itemId: string;
+  servedQuantity: number;
+}
+
+export interface BulkServeDto {
+  items: BulkServeItemDto[];
+}
+

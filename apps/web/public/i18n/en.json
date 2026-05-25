@@ -267,7 +267,14 @@
     "remove_item_title": "Remove Item",
     "remove_item_message": "Remove this item from the order?",
     "order_not_found": "The order is no longer available or has been closed.",
-    "assign_table": "Assign Table"
+    "assign_table": "Assign Table",
+    "bulk_actions_title": "Group Actions",
+    "selected_items_count": "{{count}} selected",
+    "pay_selected": "Pay Selected ({{amount}})",
+    "serve_selected": "Serve Selected ({{count}} u.)",
+    "quantity_to_pay": "Pay",
+    "quantity_to_serve": "Serve",
+    "selected_total_amount": "Selected total"
   },
   "history": {
     "title": "Order History",

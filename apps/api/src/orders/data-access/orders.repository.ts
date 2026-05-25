@@ -1,5 +1,5 @@
-import { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
-import { Injectable } from '@nestjs/common';
+import { AddOrderItemsDto, BarId, CreateOrderDto, ErrorCodes, OrderId, OrderItemId, TableId } from '@coaster/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core';
 
 @Injectable()
@@ -205,6 +205,76 @@ export class OrdersRepository {
     return this._prisma.orderItem.update({
       where: { id: itemId },
       data,
+    });
+  }
+
+  async bulkPay(orderId: OrderId, updates: { itemId: string; paidQuantity: number }[]) {
+    return this._prisma.$transaction(async (tx) => {
+      for (const update of updates) {
+        const item = await tx.orderItem.findUnique({ where: { id: update.itemId } });
+        if (!item || item.orderId !== orderId) {
+          throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+        }
+        const newPaidQuantity = update.paidQuantity;
+        if (newPaidQuantity > item.quantity) {
+          throw new BadRequestException('PAY_QUANTITY_EXCEEDS_TOTAL');
+        }
+        if (newPaidQuantity < 0) {
+          throw new BadRequestException('PAY_QUANTITY_CANNOT_BE_NEGATIVE');
+        }
+        const newPaymentStatus =
+          newPaidQuantity === item.quantity ? 'PAID' : newPaidQuantity === 0 ? 'PENDING' : 'PARTIAL';
+        await tx.orderItem.update({
+          where: { id: update.itemId },
+          data: {
+            paidQuantity: newPaidQuantity,
+            paymentStatus: newPaymentStatus,
+          },
+        });
+      }
+
+      return tx.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          table: true,
+        },
+      });
+    });
+  }
+
+  async bulkServe(orderId: OrderId, updates: { itemId: string; servedQuantity: number }[]) {
+    return this._prisma.$transaction(async (tx) => {
+      for (const update of updates) {
+        const item = await tx.orderItem.findUnique({ where: { id: update.itemId } });
+        if (!item || item.orderId !== orderId) {
+          throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
+        }
+        const newServedQuantity = update.servedQuantity;
+        if (newServedQuantity > item.quantity) {
+          throw new BadRequestException('SERVE_QUANTITY_EXCEEDS_TOTAL');
+        }
+        if (newServedQuantity < 0) {
+          throw new BadRequestException('SERVE_QUANTITY_CANNOT_BE_NEGATIVE');
+        }
+        const newDeliveryStatus =
+          newServedQuantity === item.quantity ? 'SERVED' : newServedQuantity === 0 ? 'PENDING' : 'PARTIAL';
+        await tx.orderItem.update({
+          where: { id: update.itemId },
+          data: {
+            servedQuantity: newServedQuantity,
+            deliveryStatus: newDeliveryStatus,
+          },
+        });
+      }
+
+      return tx.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          table: true,
+        },
+      });
     });
   }
 
