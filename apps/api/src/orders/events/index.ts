@@ -5,6 +5,7 @@ import { OrderCancelledHandler } from './order-cancelled/order-cancelled.handler
 import { OrderClosedHandler } from './order-closed/order-closed.handler';
 import { OrdersMergedHandler } from './orders-merged/orders-merged.handler';
 import { OrderTableMovedHandler } from './order-table-moved/order-table-moved.handler';
+import { OrderItemRemovedHandler } from './order-item-removed/order-item-removed.handler';
 
 export * from './order-created/order-created.event';
 export * from './order-created/order-created.handler';
@@ -20,6 +21,8 @@ export * from './orders-merged/orders-merged.event';
 export * from './orders-merged/orders-merged.handler';
 export * from './order-table-moved/order-table-moved.event';
 export * from './order-table-moved/order-table-moved.handler';
+export * from './order-item-removed/order-item-removed.event';
+export * from './order-item-removed/order-item-removed.handler';
 
 export const EventHandlers = [
   OrderCreatedHandler,
@@ -29,4 +32,5 @@ export const EventHandlers = [
   OrderClosedHandler,
   OrdersMergedHandler,
   OrderTableMovedHandler,
+  OrderItemRemovedHandler,
 ];

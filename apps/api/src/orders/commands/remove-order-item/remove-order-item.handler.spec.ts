@@ -5,7 +5,7 @@ import { RemoveOrderItemCommand } from './remove-order-item.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
-import { OrderUpdatedEvent } from '../../events';
+import { OrderUpdatedEvent, OrderItemRemovedEvent } from '../../events';
 
 describe('RemoveOrderItemHandler', () => {
   let handler: RemoveOrderItemHandler;
@@ -50,6 +50,12 @@ describe('RemoveOrderItemHandler', () => {
 
     await handler.execute(new RemoveOrderItemCommand(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1')));
 
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        barId: 'bar-1',
+        removedItem: { productId: 'p1', quantity: 1 },
+      })
+    );
     expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object)));
   });
 });

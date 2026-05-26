@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { RemoveOrderItemCommand } from './remove-order-item.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderCancelledEvent, OrderUpdatedEvent } from '../../events';
-import { asTableId, ErrorCodes, Order } from '@coaster/common';
+import { asProductId, asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { RemoveOrderItemCommand } from './remove-order-item.command';
 
 @CommandHandler(RemoveOrderItemCommand)
 export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCommand, Order> {
@@ -30,14 +30,22 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
     const remainingItems = order.items.filter((i) => i.id !== command.itemId);
 
     if (remainingItems.length === 0) {
-      const cancelled = await this._ordersRepository.removeLastItemAndCancel(command.orderId, command.itemId, order.tableId);
+      const cancelled = await this._ordersRepository.removeLastItemAndCancel(
+        command.orderId,
+        command.itemId,
+        order.tableId,
+      );
       const mapped = OrdersMapper.toDomain(cancelled);
+
       this._eventBus.publish(
-        new OrderCancelledEvent(
-          command.barId,
-          mapped,
-          order.tableId ? asTableId(order.tableId) : null,
-        ),
+        new OrderItemRemovedEvent(command.barId, mapped, {
+          productId: asProductId(item.productId),
+          quantity: item.quantity,
+        }),
+      );
+
+      this._eventBus.publish(
+        new OrderCancelledEvent(command.barId, mapped, order.tableId ? asTableId(order.tableId) : null),
       );
 
       return mapped;
@@ -45,6 +53,14 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
     const result = await this._ordersRepository.removeItemAndRecalculate(command.orderId, command.itemId);
     const mapped = OrdersMapper.toDomain(result);
+
+    this._eventBus.publish(
+      new OrderItemRemovedEvent(command.barId, mapped, {
+        productId: asProductId(item.productId),
+        quantity: item.quantity,
+      }),
+    );
+
     this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
     return mapped;
   }

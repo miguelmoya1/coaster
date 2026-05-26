@@ -49,4 +49,48 @@ describe('AddOrderItemsHandler', () => {
       handler.execute(new AddOrderItemsCommand(barId, orderId, dto))
     ).rejects.toThrow(BadRequestException);
   });
+
+  it('should add items and publish OrderItemsAddedEvent', async () => {
+    const order = {
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'OPEN',
+      totalAmount: 10,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      items: [],
+    };
+    repository.findById.mockResolvedValue(order);
+    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 5 }]);
+    repository.addItemsToOrder.mockResolvedValue({
+      ...order,
+      totalAmount: 15,
+      items: [
+        {
+          id: 'item-1',
+          orderId: 'order-1',
+          productId: 'prod-1',
+          quantity: 1,
+          priceAtPurchase: 5,
+          paidQuantity: 0,
+          servedQuantity: 0,
+          paymentStatus: 'PENDING',
+          deliveryStatus: 'PENDING',
+          product: { name: 'prod-1' },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+
+    const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as any));
+
+    expect(result).toBeDefined();
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        barId: 'bar-1',
+        addedItems: [{ productId: 'prod-1', quantity: 1 }],
+      })
+    );
+  });
 });
