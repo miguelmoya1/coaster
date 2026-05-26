@@ -5,6 +5,7 @@ import {
   asOrderId,
   asOrderItemId,
   asProductId,
+  asTableId,
   DeliveryStatus,
   Order,
   OrderStatus,
@@ -71,7 +72,7 @@ describe('ManageOrder', () => {
 
   describe('addItems', () => {
     it('should delegate to repository', async () => {
-      const dto = { items: [{ productId: 'prod-2', quantity: 3 }] };
+      const dto = { items: [{ productId: asProductId('prod-2'), quantity: 3 }] };
       orderRepoMock.addItems.mockResolvedValue(mockOrder);
 
       const result = await service.addItems(barId, orderId, dto);
@@ -83,7 +84,7 @@ describe('ManageOrder', () => {
 
   describe('bulkUpdate', () => {
     it('should delegate to repository', async () => {
-      const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
+      const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
       orderRepoMock.bulkUpdate.mockResolvedValue(mockOrder);
 
       const result = await service.bulkUpdate(barId, orderId, dto);
@@ -117,7 +118,7 @@ describe('ManageOrder', () => {
 
   describe('moveTable', () => {
     it('should delegate to repository', async () => {
-      const dto = { tableId: 'table-2' };
+      const dto = { tableId: asTableId('table-2') };
       orderRepoMock.moveTable.mockResolvedValue(mockOrder);
 
       const result = await service.moveTable(barId, orderId, dto);
@@ -129,7 +130,7 @@ describe('ManageOrder', () => {
 
   describe('merge', () => {
     it('should delegate to repository', async () => {
-      const dto = { orderIds: ['o1', 'o2'] };
+      const dto = { orderIds: [asOrderId('o1'), asOrderId('o2')] };
       orderRepoMock.merge.mockResolvedValue(mockOrder);
 
       const result = await service.merge(barId, dto);

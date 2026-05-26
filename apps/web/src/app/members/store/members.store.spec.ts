@@ -143,6 +143,8 @@ describe('MembersStore', () => {
       TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush([]);
       TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
 
       const newMember: BarMember = {
         ...mockMembers[0],
@@ -159,6 +161,14 @@ describe('MembersStore', () => {
       await invitePromise;
       TestBed.tick();
 
+      // invite calls reload(), which triggers a new GET
+      const reloadReq = httpMock.expectOne(`/bars/${barId}/members`);
+      expect(reloadReq.request.method).toBe('GET');
+      reloadReq.flush([newMember]);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
       expect(store.list.value()).toContainEqual(newMember);
     });
   });
@@ -169,6 +179,8 @@ describe('MembersStore', () => {
       store.setBarId(barId);
       TestBed.tick();
       httpMock.expectOne(`/bars/${barId}/members`).flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
       TestBed.tick();
 
       const memberIdToRemove = mockMembers[0].id;

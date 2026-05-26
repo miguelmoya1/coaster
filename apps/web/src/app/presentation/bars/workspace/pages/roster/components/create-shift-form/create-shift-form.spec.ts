@@ -98,10 +98,16 @@ describe('CreateShiftForm', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
+      const selectedDate = new Date('2026-05-23T00:00:00.000Z');
+      const expectedStart = new Date(selectedDate);
+      expectedStart.setHours(8, 0, 0, 0);
+      const expectedEnd = new Date(selectedDate);
+      expectedEnd.setHours(16, 0, 0, 0);
+
       expect(mockShiftsStore.create).toHaveBeenCalledWith({
         userId: 'user-1',
-        startTime: '2026-05-23T08:00:00.000Z',
-        endTime: '2026-05-23T16:00:00.000Z',
+        startTime: expectedStart.toISOString(),
+        endTime: expectedEnd.toISOString(),
         notes: 'Lunch break at 12:00',
       });
     });

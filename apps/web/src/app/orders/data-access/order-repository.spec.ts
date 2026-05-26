@@ -6,6 +6,7 @@ import {
   asOrderId,
   asOrderItemId,
   asProductId,
+  asTableId,
   DeliveryStatus,
   Order,
   OrderStatus,
@@ -77,7 +78,7 @@ describe('OrderRepository', () => {
 
   describe('create', () => {
     const barId = asBarId('bar-1');
-    const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
+    const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }] };
 
     it('should call create endpoint', async () => {
       const promise = service.create(barId, dto);
@@ -125,7 +126,7 @@ describe('OrderRepository', () => {
   describe('bulkUpdate', () => {
     const barId = asBarId('bar-1');
     const orderId = asOrderId('order-1');
-    const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
+    const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
 
     it('should call bulkUpdate endpoint', async () => {
       const promise = service.bulkUpdate(barId, orderId, dto);
@@ -141,7 +142,7 @@ describe('OrderRepository', () => {
     const orderId = asOrderId('order-1');
 
     it('should call moveTable endpoint', async () => {
-      const promise = service.moveTable(barId, orderId, { tableId: 'table-2' });
+      const promise = service.moveTable(barId, orderId, { tableId: asTableId('table-2') });
       const req = httpMock.expectOne(service.routes.moveTable(barId, orderId));
       expect(req.request.method).toBe('PATCH');
       req.flush(mockOrder);
@@ -153,7 +154,7 @@ describe('OrderRepository', () => {
     const barId = asBarId('bar-1');
 
     it('should call merge endpoint', async () => {
-      const promise = service.merge(barId, { orderIds: ['o1', 'o2'] });
+      const promise = service.merge(barId, { orderIds: [asOrderId('o1'), asOrderId('o2')] });
       const req = httpMock.expectOne(service.routes.merge(barId));
       expect(req.request.method).toBe('POST');
       req.flush(mockOrder);

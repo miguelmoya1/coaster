@@ -56,7 +56,7 @@ describe('CreateOrder', () => {
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
-      const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
+      const dto = { items: [{ productId: asProductId('prod-1'), quantity: 1 }] };
       orderRepoMock['create'].mockResolvedValue(mockOrder);
 
       const result = await service.execute(barId, dto);
