@@ -1,4 +1,4 @@
-import { ShiftExchangeStatus } from '../constants/enums';
+import { ShiftExchangeStatus } from '../constants/shift-exchange-status.enum';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';

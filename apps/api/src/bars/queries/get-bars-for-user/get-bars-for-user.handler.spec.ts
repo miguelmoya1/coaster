@@ -1,4 +1,4 @@
-import { asUserId } from '@coaster/common';
+import { asUserId, Role } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../../data-access/bar.repository';
@@ -20,7 +20,7 @@ describe('GetBarsForUserHandler', () => {
   });
 
   it('should return bars for user', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: Role.USER };
     repository.findByUserId.mockResolvedValue([]);
 
     const result = await handler.execute(new GetBarsForUserQuery(user));

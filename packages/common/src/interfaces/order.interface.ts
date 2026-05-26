@@ -1,4 +1,6 @@
-import { DeliveryStatus, OrderStatus, PaymentStatus } from '../constants/enums';
+import { DeliveryStatus } from '../constants/delivery-status.enum';
+import { OrderStatus } from '../constants/order-status.enum';
+import { PaymentStatus } from '../constants/payment-status.enum';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ProductId } from './product.interface';

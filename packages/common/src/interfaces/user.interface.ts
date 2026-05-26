@@ -1,4 +1,4 @@
-import { Role } from '../constants/enums';
+import { Role } from '../constants/role.enum';
 import { Brand } from './brand.type';
 
 export type UserId = Brand<string, 'UserId'>;

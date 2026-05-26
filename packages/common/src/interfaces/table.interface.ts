@@ -1,4 +1,4 @@
-import { TableStatus } from '../constants/enums';
+import { TableStatus } from '../constants/table-status.enum';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 
