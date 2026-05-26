@@ -6,7 +6,7 @@ import { beforeAll } from 'vitest';
 setupTestBed();
 
 beforeAll(() => {
-  const polyfillDialog = (proto: any) => {
+  const polyfillDialog = (proto: { show?: unknown; showModal?: unknown; close?: unknown }) => {
     if (!proto) return;
     if (typeof proto.show !== 'function') {
       proto.show = function (this: HTMLElement) {
@@ -28,20 +28,20 @@ beforeAll(() => {
   };
 
   if (typeof globalThis !== 'undefined') {
-    if (!(globalThis as any).HTMLDialogElement) {
-      (globalThis as any).HTMLDialogElement = class extends (globalThis as any).HTMLElement {};
+    if (!globalThis.HTMLDialogElement) {
+      globalThis.HTMLDialogElement = class extends globalThis.HTMLElement {} as unknown as typeof HTMLDialogElement;
     }
-    polyfillDialog((globalThis as any).HTMLDialogElement.prototype);
-    polyfillDialog((globalThis as any).HTMLElement.prototype);
+    polyfillDialog(globalThis.HTMLDialogElement.prototype);
+    polyfillDialog(
+      globalThis.HTMLElement.prototype as unknown as { show?: unknown; showModal?: unknown; close?: unknown },
+    );
   }
 
   if (typeof window !== 'undefined') {
-    if (!(window as any).HTMLDialogElement) {
-      (window as any).HTMLDialogElement = class extends (window as any).HTMLElement {};
+    if (!window.HTMLDialogElement) {
+      window.HTMLDialogElement = class extends window.HTMLElement {} as unknown as typeof HTMLDialogElement;
     }
-    polyfillDialog((window as any).HTMLDialogElement.prototype);
-    polyfillDialog((window as any).HTMLElement.prototype);
+    polyfillDialog(window.HTMLDialogElement.prototype);
+    polyfillDialog(window.HTMLElement.prototype as unknown as { show?: unknown; showModal?: unknown; close?: unknown });
   }
 });
-
-

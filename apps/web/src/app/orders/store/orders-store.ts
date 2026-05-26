@@ -2,7 +2,6 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
   AddOrderItemsDto,
-  asPaymentStatus,
   BarId,
   BulkUpdateDto,
   CreateOrderDto,
