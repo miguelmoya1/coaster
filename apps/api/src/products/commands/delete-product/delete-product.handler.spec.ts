@@ -3,19 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DeleteProductHandler } from './delete-product.handler';
 import { DeleteProductCommand } from './delete-product.command';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asProductId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asProductId } from '@coaster/common';
+import { ProductDeletedEvent } from '../../events';
 
 describe('DeleteProductHandler', () => {
   let handler: DeleteProductHandler;
   let repository = {
     delete: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -23,14 +21,14 @@ describe('DeleteProductHandler', () => {
       providers: [
         DeleteProductHandler,
         { provide: ProductsRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
     handler = module.get<DeleteProductHandler>(DeleteProductHandler);
   });
 
-  it('should delete product and emit socket event', async () => {
+  it('should delete product and publish event', async () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('prod-1');
 
@@ -40,6 +38,6 @@ describe('DeleteProductHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.delete).toHaveBeenCalledWith(productId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_DELETED, { id: productId });
+    expect(eventBus.publish).toHaveBeenCalledWith(new ProductDeletedEvent(barId, productId));
   });
 });

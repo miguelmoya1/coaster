@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BulkUpdateOrderHandler } from './bulk-update-order.handler';
 import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
+import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asOrderId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 
@@ -13,11 +13,8 @@ describe('BulkUpdateOrderHandler', () => {
     findById: vi.fn(),
     bulkUpdate: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +22,7 @@ describe('BulkUpdateOrderHandler', () => {
       providers: [
         BulkUpdateOrderHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 

@@ -1,16 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { UpdateProductCommand } from './update-product.command';
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductsMapper } from '../../mappers/products.mapper';
-import { BarGateway } from '../../../core';
-import { asCategoryId, ErrorCodes, SocketEvents } from '@coaster/common';
+import { ProductStockChangedEvent } from '../../events';
+import { asCategoryId, ErrorCodes } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 
 @CommandHandler(UpdateProductCommand)
 export class UpdateProductHandler implements ICommandHandler<UpdateProductCommand, void> {
   constructor(
     private readonly _productsRepository: ProductsRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateProductCommand): Promise<void> {
@@ -25,6 +25,6 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
 
     const product = await this._productsRepository.update(command.productId, command.dto);
     const mapped = ProductsMapper.toDomain(product);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.PRODUCT_STOCK_CHANGED, mapped);
+    this._eventBus.publish(new ProductStockChangedEvent(command.barId, mapped));
   }
 }

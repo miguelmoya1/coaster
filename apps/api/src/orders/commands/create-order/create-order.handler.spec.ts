@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateOrderHandler } from './create-order.handler';
 import { CreateOrderCommand } from './create-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asOrderId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asOrderId } from '@coaster/common';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { OrderCreatedEvent } from '../../events';
 
 describe('CreateOrderHandler', () => {
   let handler: CreateOrderHandler;
@@ -14,11 +15,8 @@ describe('CreateOrderHandler', () => {
     findTableById: vi.fn(),
     createOrder: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -26,7 +24,7 @@ describe('CreateOrderHandler', () => {
       providers: [
         CreateOrderHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -53,7 +51,7 @@ describe('CreateOrderHandler', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should create order and update table status', async () => {
+  it('should create order and publish event', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
     repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'FREE', name: 'Mesa 1' });
     repository.createOrder.mockResolvedValue({
@@ -71,7 +69,6 @@ describe('CreateOrderHandler', () => {
     const result = await handler.execute(new CreateOrderCommand(barId, dto));
 
     expect(result.id).toBe('order-1');
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CREATED, expect.any(Object));
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, { id: 'table-1', status: 'OCCUPIED' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object), expect.any(String)));
   });
 });

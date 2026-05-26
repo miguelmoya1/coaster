@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RemoveMemberHandler } from './remove-member.handler';
 import { RemoveMemberCommand } from './remove-member.command';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asBarMemberId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asBarMemberId } from '@coaster/common';
+import { MemberRemovedEvent } from '../../events';
 
 describe('RemoveMemberHandler', () => {
   let handler: RemoveMemberHandler;
@@ -12,11 +13,8 @@ describe('RemoveMemberHandler', () => {
     getMembersByBar: vi.fn(),
     removeMember: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -24,14 +22,14 @@ describe('RemoveMemberHandler', () => {
       providers: [
         RemoveMemberHandler,
         { provide: BarMembersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
     handler = module.get<RemoveMemberHandler>(RemoveMemberHandler);
   });
 
-  it('should remove member and emit event', async () => {
+  it('should remove member and publish event', async () => {
     const barId = asBarId('bar-1');
     const memberId = asBarMemberId('mem-1');
     repository.getMembersByBar.mockResolvedValue([
@@ -42,6 +40,6 @@ describe('RemoveMemberHandler', () => {
     await handler.execute(new RemoveMemberCommand(barId, memberId));
 
     expect(repository.removeMember).toHaveBeenCalledWith(memberId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.MEMBER_REMOVED, { id: memberId });
+    expect(eventBus.publish).toHaveBeenCalledWith(new MemberRemovedEvent(barId, memberId));
   });
 });

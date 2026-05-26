@@ -1,16 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { AddOrderItemsCommand } from './add-order-items.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
-import { BarGateway } from '../../../core';
-import { ErrorCodes, SocketEvents, Order } from '@coaster/common';
+import { OrderItemsAddedEvent } from '../../events';
+import { ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 @CommandHandler(AddOrderItemsCommand)
 export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsCommand, Order> {
   constructor(
     private readonly _ordersRepository: OrdersRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: AddOrderItemsCommand): Promise<Order> {
@@ -43,7 +43,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     );
 
     const mapped = OrdersMapper.toDomain(order);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.ORDER_ITEM_ADDED, mapped);
+    this._eventBus.publish(new OrderItemsAddedEvent(command.barId, mapped));
     return mapped;
   }
 }

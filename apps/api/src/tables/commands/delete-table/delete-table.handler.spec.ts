@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DeleteTableHandler } from './delete-table.handler';
 import { DeleteTableCommand } from './delete-table.command';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asTableId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asTableId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { TableDeletedEvent } from '../../events';
 
 describe('DeleteTableHandler', () => {
   let handler: DeleteTableHandler;
@@ -13,11 +14,8 @@ describe('DeleteTableHandler', () => {
     findById: vi.fn(),
     delete: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('DeleteTableHandler', () => {
       providers: [
         DeleteTableHandler,
         { provide: TablesRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -42,7 +40,7 @@ describe('DeleteTableHandler', () => {
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
   });
 
-  it('should delete the table and emit socket event', async () => {
+  it('should delete the table and publish event', async () => {
     repository.findById.mockResolvedValue({ id: 'table-1', barId: 'bar-1' });
     repository.delete.mockResolvedValue(undefined);
 
@@ -50,6 +48,6 @@ describe('DeleteTableHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.delete).toHaveBeenCalledWith(tableId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_DELETED, { id: tableId });
+    expect(eventBus.publish).toHaveBeenCalledWith(new TableDeletedEvent(barId, tableId));
   });
 });

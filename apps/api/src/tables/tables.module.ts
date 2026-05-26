@@ -4,10 +4,11 @@ import { TablesController } from './controllers/tables.controller';
 import { TablesRepository } from './data-access/tables.repository';
 import { CommandHandlers } from './commands';
 import { QueryHandlers } from './queries';
+import { EventHandlers } from './events';
 
 @Module({
   imports: [CqrsModule],
   controllers: [TablesController],
-  providers: [TablesRepository, ...CommandHandlers, ...QueryHandlers],
+  providers: [TablesRepository, ...CommandHandlers, ...QueryHandlers, ...EventHandlers],
 })
 export class TablesModule {}

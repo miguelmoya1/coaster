@@ -1,16 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { CreateProductCommand } from './create-product.command';
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductsMapper } from '../../mappers/products.mapper';
-import { BarGateway } from '../../../core';
-import { asCategoryId, ErrorCodes, SocketEvents, ProductId } from '@coaster/common';
+import { ProductCreatedEvent } from '../../events';
+import { asCategoryId, ErrorCodes, ProductId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductHandler implements ICommandHandler<CreateProductCommand, { id: ProductId }> {
   constructor(
     private readonly _productsRepository: ProductsRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: CreateProductCommand): Promise<{ id: ProductId }> {
@@ -31,7 +31,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
     const product = await this._productsRepository.create(validCategoryId, createData);
     const mapped = ProductsMapper.toDomain(product);
 
-    this._barGateway.server.to(command.barId).emit(SocketEvents.PRODUCT_CREATED, mapped);
+    this._eventBus.publish(new ProductCreatedEvent(command.barId, mapped));
     return { id: mapped.id };
   }
 }

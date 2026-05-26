@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RemoveOrderItemHandler } from './remove-order-item.handler';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asOrderId, asOrderItemId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
+import { OrderUpdatedEvent } from '../../events';
 
 describe('RemoveOrderItemHandler', () => {
   let handler: RemoveOrderItemHandler;
@@ -12,11 +13,8 @@ describe('RemoveOrderItemHandler', () => {
     findById: vi.fn(),
     removeItemAndRecalculate: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -24,7 +22,7 @@ describe('RemoveOrderItemHandler', () => {
       providers: [
         RemoveOrderItemHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -52,6 +50,6 @@ describe('RemoveOrderItemHandler', () => {
 
     await handler.execute(new RemoveOrderItemCommand(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1')));
 
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, expect.any(Object));
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object)));
   });
 });

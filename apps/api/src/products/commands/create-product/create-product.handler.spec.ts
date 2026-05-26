@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateProductHandler } from './create-product.handler';
 import { CreateProductCommand } from './create-product.command';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asCategoryId, asProductId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
+import { ProductCreatedEvent } from '../../events';
 
 describe('CreateProductHandler', () => {
   let handler: CreateProductHandler;
@@ -13,11 +14,8 @@ describe('CreateProductHandler', () => {
     checkCategoryBelongsToBar: vi.fn(),
     create: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('CreateProductHandler', () => {
       providers: [
         CreateProductHandler,
         { provide: ProductsRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -42,7 +40,7 @@ describe('CreateProductHandler', () => {
     await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
   });
 
-  it('should create product and emit socket event', async () => {
+  it('should create product and publish event', async () => {
     repository.checkCategoryBelongsToBar.mockResolvedValue(true);
     repository.create.mockResolvedValue({
       id: 'prod-1',
@@ -64,7 +62,7 @@ describe('CreateProductHandler', () => {
       currentStock: 0,
       minStockAlert: 0,
     });
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_CREATED, expect.any(Object));
+    expect(eventBus.publish).toHaveBeenCalledWith(new ProductCreatedEvent(barId, expect.any(Object)));
     expect(result).toEqual({ id: asProductId('prod-1') });
   });
 });

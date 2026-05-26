@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CancelOrderHandler } from './cancel-order.handler';
 import { CancelOrderCommand } from './cancel-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asOrderId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asOrderId } from '@coaster/common';
+import { OrderCancelledEvent } from '../../events';
 
 describe('CancelOrderHandler', () => {
   let handler: CancelOrderHandler;
@@ -12,11 +13,8 @@ describe('CancelOrderHandler', () => {
     findById: vi.fn(),
     cancelOrder: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -24,7 +22,7 @@ describe('CancelOrderHandler', () => {
       providers: [
         CancelOrderHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -37,7 +35,6 @@ describe('CancelOrderHandler', () => {
 
     await handler.execute(new CancelOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CANCELLED, expect.any(Object));
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, { id: 'table-1', status: 'FREE' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderCancelledEvent(asBarId('bar-1'), expect.any(Object), expect.any(String)));
   });
 });

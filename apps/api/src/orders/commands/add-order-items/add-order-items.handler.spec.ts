@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AddOrderItemsHandler } from './add-order-items.handler';
 import { AddOrderItemsCommand } from './add-order-items.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
+import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asOrderId } from '@coaster/common';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
@@ -14,11 +14,8 @@ describe('AddOrderItemsHandler', () => {
     findProductsByIds: vi.fn(),
     addItemsToOrder: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -26,7 +23,7 @@ describe('AddOrderItemsHandler', () => {
       providers: [
         AddOrderItemsHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 

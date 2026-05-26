@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateProductHandler } from './update-product.handler';
 import { UpdateProductCommand } from './update-product.command';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asProductId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asProductId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
+import { ProductStockChangedEvent } from '../../events';
 
 describe('UpdateProductHandler', () => {
   let handler: UpdateProductHandler;
@@ -13,11 +14,8 @@ describe('UpdateProductHandler', () => {
     checkCategoryBelongsToBar: vi.fn(),
     update: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('UpdateProductHandler', () => {
       providers: [
         UpdateProductHandler,
         { provide: ProductsRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -43,7 +41,7 @@ describe('UpdateProductHandler', () => {
     await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
   });
 
-  it('should update product and emit stock changed event', async () => {
+  it('should update product and publish stock changed event', async () => {
     repository.checkCategoryBelongsToBar.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',
@@ -60,6 +58,6 @@ describe('UpdateProductHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, dto);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, expect.any(Object));
+    expect(eventBus.publish).toHaveBeenCalledWith(new ProductStockChangedEvent(barId, expect.any(Object)));
   });
 });

@@ -4,10 +4,11 @@ import { CategoriesController } from './controllers/categories.controller';
 import { CategoriesRepository } from './data-access/categories.repository';
 import { CommandHandlers } from './commands';
 import { QueryHandlers } from './queries';
+import { EventHandlers } from './events';
 
 @Module({
   imports: [CqrsModule],
   controllers: [CategoriesController],
-  providers: [CategoriesRepository, ...CommandHandlers, ...QueryHandlers],
+  providers: [CategoriesRepository, ...CommandHandlers, ...QueryHandlers, ...EventHandlers],
 })
 export class CategoriesModule {}

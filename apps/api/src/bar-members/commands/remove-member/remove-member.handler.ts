@@ -1,15 +1,15 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { RemoveMemberCommand } from './remove-member.command';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { BarGateway } from '../../../core';
-import { BarRole, ErrorCodes, SocketEvents } from '@coaster/common';
+import { MemberRemovedEvent } from '../../events';
+import { BarRole, ErrorCodes } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 
 @CommandHandler(RemoveMemberCommand)
 export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand, void> {
   constructor(
     private readonly repository: BarMembersRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveMemberCommand): Promise<void> {
@@ -24,6 +24,6 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
     }
 
     await this.repository.removeMember(command.memberId);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.MEMBER_REMOVED, { id: command.memberId });
+    this._eventBus.publish(new MemberRemovedEvent(command.barId, command.memberId));
   }
 }

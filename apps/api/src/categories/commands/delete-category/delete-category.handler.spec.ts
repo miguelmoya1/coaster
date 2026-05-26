@@ -3,19 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DeleteCategoryHandler } from './delete-category.handler';
 import { DeleteCategoryCommand } from './delete-category.command';
 import { CategoriesRepository } from '../../data-access/categories.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asCategoryId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asCategoryId } from '@coaster/common';
+import { CategoryDeletedEvent } from '../../events';
 
 describe('DeleteCategoryHandler', () => {
   let handler: DeleteCategoryHandler;
   let repository = {
     delete: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -23,14 +21,14 @@ describe('DeleteCategoryHandler', () => {
       providers: [
         DeleteCategoryHandler,
         { provide: CategoriesRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
     handler = module.get<DeleteCategoryHandler>(DeleteCategoryHandler);
   });
 
-  it('should delete category and emit event', async () => {
+  it('should delete category and publish event', async () => {
     const barId = asBarId('bar-1');
     const catId = asCategoryId('cat-1');
     repository.delete.mockResolvedValue(undefined);
@@ -38,6 +36,6 @@ describe('DeleteCategoryHandler', () => {
     await handler.execute(new DeleteCategoryCommand(barId, catId));
 
     expect(repository.delete).toHaveBeenCalledWith(catId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.CATEGORY_DELETED, { id: catId });
+    expect(eventBus.publish).toHaveBeenCalledWith(new CategoryDeletedEvent(barId, catId));
   });
 });

@@ -1,15 +1,15 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { DeleteTableCommand } from './delete-table.command';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { BarGateway } from '../../../core';
-import { ErrorCodes, SocketEvents } from '@coaster/common';
+import { TableDeletedEvent } from '../../events';
+import { ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(DeleteTableCommand)
 export class DeleteTableHandler implements ICommandHandler<DeleteTableCommand, void> {
   constructor(
     private readonly _tablesRepository: TablesRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: DeleteTableCommand): Promise<void> {
@@ -19,6 +19,6 @@ export class DeleteTableHandler implements ICommandHandler<DeleteTableCommand, v
     }
 
     await this._tablesRepository.delete(command.tableId);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.TABLE_DELETED, { id: command.tableId });
+    this._eventBus.publish(new TableDeletedEvent(command.barId, command.tableId));
   }
 }

@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CheckoutOrderHandler } from './checkout-order.handler';
 import { CheckoutOrderCommand } from './checkout-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asOrderId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asOrderId } from '@coaster/common';
+import { OrderClosedEvent } from '../../events';
 
 describe('CheckoutOrderHandler', () => {
   let handler: CheckoutOrderHandler;
@@ -12,11 +13,8 @@ describe('CheckoutOrderHandler', () => {
     findById: vi.fn(),
     checkoutOrder: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -24,7 +22,7 @@ describe('CheckoutOrderHandler', () => {
       providers: [
         CheckoutOrderHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -37,7 +35,6 @@ describe('CheckoutOrderHandler', () => {
 
     await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CLOSED, expect.any(Object));
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, { id: 'table-1', status: 'FREE' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderClosedEvent(asBarId('bar-1'), expect.any(Object), expect.any(String)));
   });
 });

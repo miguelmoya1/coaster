@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MergeOrdersHandler } from './merge-orders.handler';
 import { MergeOrdersCommand } from './merge-orders.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId } from '@coaster/common';
+import { OrdersMergedEvent } from '../../events';
 
 describe('MergeOrdersHandler', () => {
   let handler: MergeOrdersHandler;
@@ -13,11 +14,8 @@ describe('MergeOrdersHandler', () => {
     findTableById: vi.fn(),
     mergeOrders: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('MergeOrdersHandler', () => {
       providers: [
         MergeOrdersHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -42,7 +40,6 @@ describe('MergeOrdersHandler', () => {
 
     await handler.execute(new MergeOrdersCommand(asBarId('bar-1'), { orderIds: ['order-1', 'order-2'], targetTableId: 'table-1' }));
 
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, expect.any(Object));
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CANCELLED, { id: 'order-2' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object), expect.any(Array)));
   });
 });

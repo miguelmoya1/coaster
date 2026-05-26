@@ -1,16 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
-import { BarGateway } from '../../../core';
-import { ErrorCodes, SocketEvents, Order } from '@coaster/common';
+import { OrderUpdatedEvent } from '../../events';
+import { ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 @CommandHandler(BulkUpdateOrderCommand)
 export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCommand, Order> {
   constructor(
     private readonly _ordersRepository: OrdersRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: BulkUpdateOrderCommand): Promise<Order> {
@@ -54,7 +54,7 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     const mapped = OrdersMapper.toDomain(updated);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.ORDER_UPDATED, mapped);
+    this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
     return mapped;
   }
 }

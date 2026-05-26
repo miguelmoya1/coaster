@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateTableHandler } from './update-table.handler';
 import { UpdateTableCommand } from './update-table.command';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asTableId, SocketEvents, ErrorCodes } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asTableId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { TableUpdatedEvent } from '../../events';
 
 describe('UpdateTableHandler', () => {
   let handler: UpdateTableHandler;
@@ -13,11 +14,8 @@ describe('UpdateTableHandler', () => {
     findById: vi.fn(),
     update: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('UpdateTableHandler', () => {
       providers: [
         UpdateTableHandler,
         { provide: TablesRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -50,7 +48,7 @@ describe('UpdateTableHandler', () => {
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
   });
 
-  it('should update the table and emit socket event', async () => {
+  it('should update the table and publish event', async () => {
     repository.findById.mockResolvedValue({ id: 'table-1', barId: 'bar-1' });
     const dbTable = {
       id: 'table-1',
@@ -66,6 +64,6 @@ describe('UpdateTableHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(tableId, dto);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_UPDATED, expect.any(Object));
+    expect(eventBus.publish).toHaveBeenCalledWith(new TableUpdatedEvent(barId, expect.any(Object)));
   });
 });

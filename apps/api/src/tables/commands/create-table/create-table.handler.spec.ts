@@ -3,19 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateTableHandler } from './create-table.handler';
 import { CreateTableCommand } from './create-table.command';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asTableId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asTableId } from '@coaster/common';
+import { TableCreatedEvent } from '../../events';
 
 describe('CreateTableHandler', () => {
   let handler: CreateTableHandler;
   let repository = {
     create: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -23,14 +21,14 @@ describe('CreateTableHandler', () => {
       providers: [
         CreateTableHandler,
         { provide: TablesRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
     handler = module.get<CreateTableHandler>(CreateTableHandler);
   });
 
-  it('should create the table and emit socket event', async () => {
+  it('should create the table and publish event', async () => {
     const barId = asBarId('bar-1');
     const dto = { name: 'Mesa 1' };
     const dbTable = {
@@ -46,8 +44,7 @@ describe('CreateTableHandler', () => {
     const result = await handler.execute(new CreateTableCommand(barId, dto));
 
     expect(repository.create).toHaveBeenCalledWith(barId, { name: 'Mesa 1' });
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_CREATED, expect.any(Object));
+    expect(eventBus.publish).toHaveBeenCalledWith(new TableCreatedEvent(barId, expect.any(Object)));
     expect(result).toEqual({ id: asTableId('table-1') });
   });
 });

@@ -1,16 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { MergeOrdersCommand } from './merge-orders.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
-import { BarGateway } from '../../../core';
-import { asOrderId, asTableId, ErrorCodes, SocketEvents, Order } from '@coaster/common';
+import { OrdersMergedEvent } from '../../events';
+import { asOrderId, asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 @CommandHandler(MergeOrdersCommand)
 export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, Order> {
   constructor(
     private readonly _ordersRepository: OrdersRepository,
-    private readonly _barGateway: BarGateway,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: MergeOrdersCommand): Promise<Order> {
@@ -48,17 +48,16 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, O
     );
 
     const mapped = OrdersMapper.toDomain(result);
-    this._barGateway.server.to(command.barId).emit(SocketEvents.ORDER_UPDATED, mapped);
-
-    for (const source of sourceOrders) {
-      this._barGateway.server.to(command.barId).emit(SocketEvents.ORDER_CANCELLED, { id: source.id });
-      if (source.tableId) {
-        this._barGateway.server.to(command.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
-          id: source.tableId,
-          status: 'FREE',
-        });
-      }
-    }
+    this._eventBus.publish(
+      new OrdersMergedEvent(
+        command.barId,
+        mapped,
+        sourceOrders.map((o) => ({
+          id: asOrderId(o.id),
+          tableId: o.tableId ? asTableId(o.tableId) : null,
+        })),
+      ),
+    );
 
     return mapped;
   }

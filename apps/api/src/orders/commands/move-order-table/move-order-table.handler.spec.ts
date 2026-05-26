@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MoveOrderTableHandler } from './move-order-table.handler';
 import { MoveOrderTableCommand } from './move-order-table.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { BarGateway } from '../../../core';
-import { asBarId, asOrderId, SocketEvents } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asOrderId } from '@coaster/common';
+import { OrderTableMovedEvent } from '../../events';
 
 describe('MoveOrderTableHandler', () => {
   let handler: MoveOrderTableHandler;
@@ -13,11 +14,8 @@ describe('MoveOrderTableHandler', () => {
     findTableById: vi.fn(),
     moveTable: vi.fn(),
   };
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +23,7 @@ describe('MoveOrderTableHandler', () => {
       providers: [
         MoveOrderTableHandler,
         { provide: OrdersRepository, useValue: repository },
-        { provide: BarGateway, useValue: barGateway },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -39,7 +37,6 @@ describe('MoveOrderTableHandler', () => {
 
     await handler.execute(new MoveOrderTableCommand(asBarId('bar-1'), asOrderId('order-1'), { tableId: 'table-2' }));
 
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, { id: 'table-1', status: 'FREE' });
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, { id: 'table-2', status: 'OCCUPIED' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderTableMovedEvent(asBarId('bar-1'), expect.any(Object), expect.any(String), expect.any(String)));
   });
 });
