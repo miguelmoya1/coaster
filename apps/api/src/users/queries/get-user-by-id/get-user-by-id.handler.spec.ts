@@ -13,10 +13,7 @@ describe('GetUserByIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetUserByIdHandler,
-        { provide: UserRepository, useValue: repository },
-      ],
+      providers: [GetUserByIdHandler, { provide: UserRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetUserByIdHandler>(GetUserByIdHandler);

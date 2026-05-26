@@ -18,10 +18,7 @@ describe('ImportTemplatesToBarHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ImportTemplatesToBarHandler,
-        { provide: TemplatesRepository, useValue: repository },
-      ],
+      providers: [ImportTemplatesToBarHandler, { provide: TemplatesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<ImportTemplatesToBarHandler>(ImportTemplatesToBarHandler);
@@ -30,16 +27,16 @@ describe('ImportTemplatesToBarHandler', () => {
   const barId = asBarId('bar-1');
 
   it('should throw BadRequestException if categoryTemplateIds is empty', async () => {
-    await expect(
-      handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: [] }))
-    ).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: [] }))).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should throw NotFoundException if no category templates are found', async () => {
     repository.findCategoryTemplatesByIds.mockResolvedValue([]);
 
     await expect(
-      handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['id-1'] }))
+      handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['id-1'] })),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -65,13 +62,12 @@ describe('ImportTemplatesToBarHandler', () => {
     repository.findProductsByCategoryIds.mockResolvedValue([]);
     repository.createManyProducts.mockResolvedValue({ count: 2 });
 
-    const result = await handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['temp-cat-1'] }));
+    const result = await handler.execute(
+      new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['temp-cat-1'] }),
+    );
 
     expect(repository.findCategoryTemplatesByIds).toHaveBeenCalledWith(['temp-cat-1']);
-    expect(repository.createManyCategories).toHaveBeenCalledWith(
-      [{ barId, name: 'Bebidas', icon: 'cup' }],
-      true
-    );
+    expect(repository.createManyCategories).toHaveBeenCalledWith([{ barId, name: 'Bebidas', icon: 'cup' }], true);
     expect(result).toEqual({ success: true, created: 3, modified: 0 });
   });
 });

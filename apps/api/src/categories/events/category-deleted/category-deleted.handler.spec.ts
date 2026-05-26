@@ -1,9 +1,9 @@
+import { asBarId, asCategoryId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoryDeletedHandler } from './category-deleted.handler';
-import { CategoryDeletedEvent } from './category-deleted.event';
 import { BarGateway } from '../../../core';
-import { asBarId, asCategoryId, SocketEvents } from '@coaster/common';
+import { CategoryDeletedEvent } from './category-deleted.event';
+import { CategoryDeletedHandler } from './category-deleted.handler';
 
 describe('CategoryDeletedHandler', () => {
   let handler: CategoryDeletedHandler;
@@ -16,10 +16,7 @@ describe('CategoryDeletedHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CategoryDeletedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [CategoryDeletedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<CategoryDeletedHandler>(CategoryDeletedHandler);

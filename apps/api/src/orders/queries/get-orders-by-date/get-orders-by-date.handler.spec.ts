@@ -13,10 +13,7 @@ describe('GetOrdersByDateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetOrdersByDateHandler,
-        { provide: OrdersRepository, useValue: repository },
-      ],
+      providers: [GetOrdersByDateHandler, { provide: OrdersRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetOrdersByDateHandler>(GetOrdersByDateHandler);

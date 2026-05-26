@@ -14,10 +14,7 @@ describe('GetShiftsHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetShiftsHandler,
-        { provide: ShiftsRepository, useValue: repository },
-      ],
+      providers: [GetShiftsHandler, { provide: ShiftsRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetShiftsHandler>(GetShiftsHandler);
@@ -58,7 +55,7 @@ describe('GetShiftsHandler', () => {
 
   it('should throw error if a datetime query param is invalid', async () => {
     await expect(
-      handler.execute(new GetShiftsQuery(asBarId('bar-1'), 'invalida', '2026-01-01T00:00:00Z'))
+      handler.execute(new GetShiftsQuery(asBarId('bar-1'), 'invalida', '2026-01-01T00:00:00Z')),
     ).rejects.toThrow(BadRequestException);
   });
 });

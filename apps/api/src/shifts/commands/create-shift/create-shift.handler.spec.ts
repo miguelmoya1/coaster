@@ -15,10 +15,7 @@ describe('CreateShiftHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateShiftHandler,
-        { provide: ShiftsRepository, useValue: repository },
-      ],
+      providers: [CreateShiftHandler, { provide: ShiftsRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<CreateShiftHandler>(CreateShiftHandler);
@@ -71,8 +68,8 @@ describe('CreateShiftHandler', () => {
   it('should block creation if user is not a member', async () => {
     repository.isUserMemberOfBar.mockResolvedValue(false);
 
-    await expect(
-      handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto))
-    ).rejects.toThrow(ForbiddenException);
+    await expect(handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto))).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 });

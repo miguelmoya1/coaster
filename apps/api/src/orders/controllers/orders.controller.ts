@@ -18,7 +18,7 @@ import {
   MoveOrderTableCommand,
   MergeOrdersCommand,
   RemoveOrderItemCommand,
-  DeleteOrderCommand
+  DeleteOrderCommand,
 } from '../commands';
 
 @Controller('bars/:barId/orders')
@@ -31,16 +31,14 @@ export class OrdersController {
 
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async getOrders(
-    @Param('barId') barId: BarId,
-    @Query('status') status?: string,
-    @Query('date') date?: string,
-  ) {
+  async getOrders(@Param('barId') barId: BarId, @Query('status') status?: string, @Query('date') date?: string) {
     if (date) {
       const orders = await this._queryBus.execute<GetOrdersByDateQuery, Order[]>(new GetOrdersByDateQuery(barId, date));
       return orders.map((o) => OrdersMapper.toDto(o));
     }
-    const orders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(new GetOrdersByBarIdQuery(barId, status));
+    const orders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(
+      new GetOrdersByBarIdQuery(barId, status),
+    );
     return orders.map((o) => OrdersMapper.toDto(o));
   }
 
@@ -61,18 +59,18 @@ export class OrdersController {
   @Post(':orderId/items')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async addItems(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: AddOrderItemsDto) {
-    const order = await this._commandBus.execute<AddOrderItemsCommand, Order>(new AddOrderItemsCommand(barId, orderId, dto));
+    const order = await this._commandBus.execute<AddOrderItemsCommand, Order>(
+      new AddOrderItemsCommand(barId, orderId, dto),
+    );
     return OrdersMapper.toDto(order);
   }
 
   @Patch(':orderId/items/bulk')
   @Roles(BarRole.OWNER, BarRole.STAFF)
-  async bulkUpdate(
-    @Param('barId') barId: BarId,
-    @Param('orderId') orderId: OrderId,
-    @Body() dto: BulkUpdateDto,
-  ) {
-    const order = await this._commandBus.execute<BulkUpdateOrderCommand, Order>(new BulkUpdateOrderCommand(barId, orderId, dto));
+  async bulkUpdate(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: BulkUpdateDto) {
+    const order = await this._commandBus.execute<BulkUpdateOrderCommand, Order>(
+      new BulkUpdateOrderCommand(barId, orderId, dto),
+    );
     return OrdersMapper.toDto(order);
   }
 
@@ -93,7 +91,9 @@ export class OrdersController {
   @Patch(':orderId/move-table')
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async moveTable(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: MoveTableDto) {
-    const order = await this._commandBus.execute<MoveOrderTableCommand, Order>(new MoveOrderTableCommand(barId, orderId, dto));
+    const order = await this._commandBus.execute<MoveOrderTableCommand, Order>(
+      new MoveOrderTableCommand(barId, orderId, dto),
+    );
     return OrdersMapper.toDto(order);
   }
 
@@ -111,7 +111,9 @@ export class OrdersController {
     @Param('orderId') orderId: OrderId,
     @Param('itemId') itemId: OrderItemId,
   ) {
-    const order = await this._commandBus.execute<RemoveOrderItemCommand, Order>(new RemoveOrderItemCommand(barId, orderId, itemId));
+    const order = await this._commandBus.execute<RemoveOrderItemCommand, Order>(
+      new RemoveOrderItemCommand(barId, orderId, itemId),
+    );
     return OrdersMapper.toDto(order);
   }
 

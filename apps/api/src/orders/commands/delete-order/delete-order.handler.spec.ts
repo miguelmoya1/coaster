@@ -15,25 +15,34 @@ describe('DeleteOrderHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        DeleteOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
-      ],
+      providers: [DeleteOrderHandler, { provide: OrdersRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<DeleteOrderHandler>(DeleteOrderHandler);
   });
 
   it('should throw BadRequestException if order is open', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', createdAt: new Date(), updatedAt: new Date() });
+    repository.findById.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'OPEN',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-    await expect(
-      handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')))
-    ).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')))).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should delete past-today closed order successfully', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'CLOSED', createdAt: new Date(), updatedAt: new Date() });
+    repository.findById.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'CLOSED',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     await handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 

@@ -13,10 +13,7 @@ describe('BulkUpsertTemplatesHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BulkUpsertTemplatesHandler,
-        { provide: TemplatesRepository, useValue: repository },
-      ],
+      providers: [BulkUpsertTemplatesHandler, { provide: TemplatesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<BulkUpsertTemplatesHandler>(BulkUpsertTemplatesHandler);
@@ -48,20 +45,9 @@ describe('BulkUpsertTemplatesHandler', () => {
 
     const result = await handler.execute(new BulkUpsertTemplatesCommand(categoriesJson));
 
-    expect(repository.upsertCategoryTemplate).toHaveBeenCalledWith(
-      'templates.categories.cafeteria',
-      'coffee'
-    );
-    expect(repository.upsertProductTemplate).toHaveBeenCalledWith(
-      'templates.products.cafe_solo',
-      120,
-      'cat-1'
-    );
-    expect(repository.upsertProductTemplate).toHaveBeenCalledWith(
-      'templates.products.te_verde',
-      150,
-      'cat-1'
-    );
+    expect(repository.upsertCategoryTemplate).toHaveBeenCalledWith('templates.categories.cafeteria', 'coffee');
+    expect(repository.upsertProductTemplate).toHaveBeenCalledWith('templates.products.cafe_solo', 120, 'cat-1');
+    expect(repository.upsertProductTemplate).toHaveBeenCalledWith('templates.products.te_verde', 150, 'cat-1');
     expect(result).toEqual({ success: true });
   });
 });

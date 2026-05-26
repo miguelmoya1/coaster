@@ -1,22 +1,19 @@
+import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BarRepository } from '../../data-access/bar.repository';
 import { GetBarsForUserHandler } from './get-bars-for-user.handler';
 import { GetBarsForUserQuery } from './get-bars-for-user.query';
-import { BarRepository } from '../../data-access/bar.repository';
-import { asUserId } from '@coaster/common';
 
 describe('GetBarsForUserHandler', () => {
   let handler: GetBarsForUserHandler;
-  let repository = {
+  const repository = {
     findByUserId: vi.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetBarsForUserHandler,
-        { provide: BarRepository, useValue: repository },
-      ],
+      providers: [GetBarsForUserHandler, { provide: BarRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetBarsForUserHandler>(GetBarsForUserHandler);

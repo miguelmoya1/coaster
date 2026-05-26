@@ -17,10 +17,7 @@ describe('TableCreatedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TableCreatedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [TableCreatedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<TableCreatedHandler>(TableCreatedHandler);

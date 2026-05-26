@@ -17,10 +17,7 @@ describe('OrdersMergedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        OrdersMergedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [OrdersMergedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<OrdersMergedHandler>(OrdersMergedHandler);
@@ -39,7 +36,7 @@ describe('OrdersMergedHandler', () => {
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, primaryOrder);
-    
+
     // Check first source order cancellation and table freeing
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CANCELLED, { id: 'order-s1' });
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {

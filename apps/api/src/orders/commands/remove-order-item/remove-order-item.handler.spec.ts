@@ -38,8 +38,30 @@ describe('RemoveOrderItemHandler', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       items: [
-        { id: 'item-1', orderId: 'order-1', productId: 'p1', quantity: 1, priceAtPurchase: 2, product: { name: 'P1' }, createdAt: new Date(), updatedAt: new Date(), paymentStatus: 'PENDING', deliveryStatus: 'PENDING' },
-        { id: 'item-2', orderId: 'order-1', productId: 'p2', quantity: 1, priceAtPurchase: 3, product: { name: 'P2' }, createdAt: new Date(), updatedAt: new Date(), paymentStatus: 'PENDING', deliveryStatus: 'PENDING' },
+        {
+          id: 'item-1',
+          orderId: 'order-1',
+          productId: 'p1',
+          quantity: 1,
+          priceAtPurchase: 2,
+          product: { name: 'P1' },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          paymentStatus: 'PENDING',
+          deliveryStatus: 'PENDING',
+        },
+        {
+          id: 'item-2',
+          orderId: 'order-1',
+          productId: 'p2',
+          quantity: 1,
+          priceAtPurchase: 3,
+          product: { name: 'P2' },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          paymentStatus: 'PENDING',
+          deliveryStatus: 'PENDING',
+        },
       ],
     };
     repository.findById.mockResolvedValue(order);
@@ -54,7 +76,7 @@ describe('RemoveOrderItemHandler', () => {
       expect.objectContaining({
         barId: 'bar-1',
         removedItem: { productId: 'p1', quantity: 1 },
-      })
+      }),
     );
     expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object)));
   });

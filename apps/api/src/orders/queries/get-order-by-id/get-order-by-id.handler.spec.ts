@@ -14,10 +14,7 @@ describe('GetOrderByIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetOrderByIdHandler,
-        { provide: OrdersRepository, useValue: repository },
-      ],
+      providers: [GetOrderByIdHandler, { provide: OrdersRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetOrderByIdHandler>(GetOrderByIdHandler);
@@ -26,9 +23,9 @@ describe('GetOrderByIdHandler', () => {
   it('should throw NotFoundException if order does not exist', async () => {
     repository.findById.mockResolvedValue(null);
 
-    await expect(
-      handler.execute(new GetOrderByIdQuery(asBarId('bar-1'), asOrderId('order-1')))
-    ).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new GetOrderByIdQuery(asBarId('bar-1'), asOrderId('order-1')))).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should return mapped order', async () => {

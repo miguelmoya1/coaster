@@ -17,10 +17,7 @@ describe('OrderTableMovedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        OrderTableMovedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [OrderTableMovedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<OrderTableMovedHandler>(OrderTableMovedHandler);

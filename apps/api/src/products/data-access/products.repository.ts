@@ -10,7 +10,7 @@ export class ProductsRepository {
     const category = await this._prisma.category.findUnique({
       where: { id: categoryId },
     });
-    
+
     if (!category) {
       return false;
     }

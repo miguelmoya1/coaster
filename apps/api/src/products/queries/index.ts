@@ -2,6 +2,4 @@ import { GetProductsByBarIdHandler } from './get-products-by-bar-id/get-products
 
 export { GetProductsByBarIdQuery } from './get-products-by-bar-id/get-products-by-bar-id.query';
 
-export const QueryHandlers = [
-  GetProductsByBarIdHandler,
-];
+export const QueryHandlers = [GetProductsByBarIdHandler];

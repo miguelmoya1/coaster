@@ -15,10 +15,7 @@ describe('AcceptExchangeHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AcceptExchangeHandler,
-        { provide: ShiftExchangesRepository, useValue: repository },
-      ],
+      providers: [AcceptExchangeHandler, { provide: ShiftExchangesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<AcceptExchangeHandler>(AcceptExchangeHandler);
@@ -30,9 +27,9 @@ describe('AcceptExchangeHandler', () => {
   it('should fail if the exchange does not exist', async () => {
     repository.getExchangeById.mockResolvedValue(null);
 
-    await expect(
-      handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')))
-    ).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')))).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should approve if everything is correct and swap the shift', async () => {

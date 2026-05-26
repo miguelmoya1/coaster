@@ -9,8 +9,4 @@ export * from './product-deleted/product-deleted.handler';
 export * from './product-stock-changed/product-stock-changed.event';
 export * from './product-stock-changed/product-stock-changed.handler';
 
-export const EventHandlers = [
-  ProductCreatedHandler,
-  ProductDeletedHandler,
-  ProductStockChangedHandler,
-];
+export const EventHandlers = [ProductCreatedHandler, ProductDeletedHandler, ProductStockChangedHandler];

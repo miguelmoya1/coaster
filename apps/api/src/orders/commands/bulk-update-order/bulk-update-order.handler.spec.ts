@@ -1,15 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BulkUpdateOrderHandler } from './bulk-update-order.handler';
-import { BulkUpdateOrderCommand } from './bulk-update-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asOrderId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { BulkUpdateOrderCommand } from './bulk-update-order.command';
+import { BulkUpdateOrderHandler } from './bulk-update-order.handler';
 
 describe('BulkUpdateOrderHandler', () => {
   let handler: BulkUpdateOrderHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     bulkUpdate: vi.fn(),
   };
@@ -36,8 +36,6 @@ describe('BulkUpdateOrderHandler', () => {
   it('should throw NotFoundException if order item not found', async () => {
     repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', items: [] });
 
-    await expect(
-      handler.execute(new BulkUpdateOrderCommand(barId, orderId, dto))
-    ).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new BulkUpdateOrderCommand(barId, orderId, dto))).rejects.toThrow(NotFoundException);
   });
 });

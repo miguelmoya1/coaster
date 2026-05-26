@@ -13,10 +13,7 @@ describe('UpdateUserHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UpdateUserHandler,
-        { provide: UserRepository, useValue: repository },
-      ],
+      providers: [UpdateUserHandler, { provide: UserRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);
@@ -34,10 +31,12 @@ describe('UpdateUserHandler', () => {
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(new UpdateUserCommand(asUserId('user-1'), {
-      name: 'Updated Name',
-      photoUrl: 'http://photo.com/2',
-    }));
+    const result = await handler.execute(
+      new UpdateUserCommand(asUserId('user-1'), {
+        name: 'Updated Name',
+        photoUrl: 'http://photo.com/2',
+      }),
+    );
 
     expect(repository.update).toHaveBeenCalledWith('user-1', {
       name: 'Updated Name',

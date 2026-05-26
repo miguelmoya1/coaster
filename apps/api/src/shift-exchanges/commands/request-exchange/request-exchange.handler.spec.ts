@@ -16,10 +16,7 @@ describe('RequestExchangeHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        RequestExchangeHandler,
-        { provide: ShiftExchangesRepository, useValue: repository },
-      ],
+      providers: [RequestExchangeHandler, { provide: ShiftExchangesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<RequestExchangeHandler>(RequestExchangeHandler);
@@ -42,9 +39,9 @@ describe('RequestExchangeHandler', () => {
       updatedAt: new Date(),
     });
 
-    await expect(
-      handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto))
-    ).rejects.toThrow(ForbiddenException);
+    await expect(handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto))).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 
   it('should create the exchange correctly if all rules validate', async () => {

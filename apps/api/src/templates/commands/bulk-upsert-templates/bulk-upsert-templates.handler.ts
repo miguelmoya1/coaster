@@ -13,10 +13,7 @@ export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTem
       const categoryNameKey = `templates.categories.${categorySlug}`;
       const categoryIcon = categoryJson.icon ?? null;
 
-      const categoryTemplate = await this._templatesRepository.upsertCategoryTemplate(
-        categoryNameKey,
-        categoryIcon,
-      );
+      const categoryTemplate = await this._templatesRepository.upsertCategoryTemplate(categoryNameKey, categoryIcon);
 
       if (categoryJson.products && Array.isArray(categoryJson.products)) {
         for (const productJson of categoryJson.products) {
@@ -24,11 +21,7 @@ export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTem
           const productNameKey = `templates.products.${productSlug}`;
           const productPrice = productJson.price ?? 0;
 
-          await this._templatesRepository.upsertProductTemplate(
-            productNameKey,
-            productPrice,
-            categoryTemplate.id,
-          );
+          await this._templatesRepository.upsertProductTemplate(productNameKey, productPrice, categoryTemplate.id);
         }
       }
     }

@@ -1,15 +1,15 @@
+import { asBarId, asOrderId } from '@coaster/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AddOrderItemsHandler } from './add-order-items.handler';
-import { AddOrderItemsCommand } from './add-order-items.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asOrderId } from '@coaster/common';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { AddOrderItemsCommand } from './add-order-items.command';
+import { AddOrderItemsHandler } from './add-order-items.handler';
 
 describe('AddOrderItemsHandler', () => {
   let handler: AddOrderItemsHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     findProductsByIds: vi.fn(),
     addItemsToOrder: vi.fn(),
@@ -37,17 +37,13 @@ describe('AddOrderItemsHandler', () => {
   it('should throw NotFoundException if order not found', async () => {
     repository.findById.mockResolvedValue(null);
 
-    await expect(
-      handler.execute(new AddOrderItemsCommand(barId, orderId, dto))
-    ).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new AddOrderItemsCommand(barId, orderId, dto))).rejects.toThrow(NotFoundException);
   });
 
   it('should throw BadRequestException if order is not open', async () => {
     repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'CLOSED' });
 
-    await expect(
-      handler.execute(new AddOrderItemsCommand(barId, orderId, dto))
-    ).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new AddOrderItemsCommand(barId, orderId, dto))).rejects.toThrow(BadRequestException);
   });
 
   it('should add items and publish OrderItemsAddedEvent', async () => {
@@ -90,7 +86,7 @@ describe('AddOrderItemsHandler', () => {
       expect.objectContaining({
         barId: 'bar-1',
         addedItems: [{ productId: 'prod-1', quantity: 1 }],
-      })
+      }),
     );
   });
 });

@@ -1,22 +1,19 @@
+import { asBarId, asCategoryId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateCategoryHandler } from './update-category.handler';
-import { UpdateCategoryCommand } from './update-category.command';
 import { CategoriesRepository } from '../../data-access/categories.repository';
-import { asBarId, asCategoryId } from '@coaster/common';
+import { UpdateCategoryCommand } from './update-category.command';
+import { UpdateCategoryHandler } from './update-category.handler';
 
 describe('UpdateCategoryHandler', () => {
   let handler: UpdateCategoryHandler;
-  let repository = {
+  const repository = {
     update: vi.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UpdateCategoryHandler,
-        { provide: CategoriesRepository, useValue: repository },
-      ],
+      providers: [UpdateCategoryHandler, { provide: CategoriesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<UpdateCategoryHandler>(UpdateCategoryHandler);

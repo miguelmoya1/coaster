@@ -32,14 +32,42 @@ describe('MergeOrdersHandler', () => {
 
   it('should merge orders', async () => {
     repository.findOrdersByIds.mockResolvedValue([
-      { id: 'order-1', barId: 'bar-1', status: 'OPEN', tableId: 'table-1', items: [], createdAt: new Date(), updatedAt: new Date() },
-      { id: 'order-2', barId: 'bar-1', status: 'OPEN', tableId: 'table-2', items: [], createdAt: new Date(), updatedAt: new Date() },
+      {
+        id: 'order-1',
+        barId: 'bar-1',
+        status: 'OPEN',
+        tableId: 'table-1',
+        items: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'order-2',
+        barId: 'bar-1',
+        status: 'OPEN',
+        tableId: 'table-2',
+        items: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]);
     repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'OCCUPIED' });
-    repository.mergeOrders.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', tableId: 'table-1', items: [], createdAt: new Date(), updatedAt: new Date() });
+    repository.mergeOrders.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'OPEN',
+      tableId: 'table-1',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-    await handler.execute(new MergeOrdersCommand(asBarId('bar-1'), { orderIds: ['order-1', 'order-2'], targetTableId: 'table-1' }));
+    await handler.execute(
+      new MergeOrdersCommand(asBarId('bar-1'), { orderIds: ['order-1', 'order-2'], targetTableId: 'table-1' }),
+    );
 
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object), expect.any(Array)));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object), expect.any(Array)),
+    );
   });
 });

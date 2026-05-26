@@ -13,10 +13,7 @@ describe('GetTablesByBarIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetTablesByBarIdHandler,
-        { provide: TablesRepository, useValue: repository },
-      ],
+      providers: [GetTablesByBarIdHandler, { provide: TablesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetTablesByBarIdHandler>(GetTablesByBarIdHandler);

@@ -30,7 +30,12 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
       throw new BadRequestException(ErrorCodes.TABLE_ALREADY_OCCUPIED);
     }
 
-    const order = await this._ordersRepository.moveTable(command.orderId, existingOrder.tableId, command.dto.tableId, newTable.name);
+    const order = await this._ordersRepository.moveTable(
+      command.orderId,
+      existingOrder.tableId,
+      command.dto.tableId,
+      newTable.name,
+    );
     const mapped = OrdersMapper.toDomain(order);
     this._eventBus.publish(
       new OrderTableMovedEvent(

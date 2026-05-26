@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { CheckoutOrderCommand } from './checkout-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderClosedEvent } from '../../events';
 import { ErrorCodes, Order, asTableId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderClosedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { CheckoutOrderCommand } from './checkout-order.command';
 
 @CommandHandler(CheckoutOrderCommand)
 export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderCommand, Order> {
@@ -25,11 +25,7 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
     const order = await this._ordersRepository.checkoutOrder(command.orderId, existingOrder.tableId);
     const mapped = OrdersMapper.toDomain(order);
     this._eventBus.publish(
-      new OrderClosedEvent(
-        command.barId,
-        mapped,
-        existingOrder.tableId ? asTableId(existingOrder.tableId) : null,
-      ),
+      new OrderClosedEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
     );
 
     return mapped;

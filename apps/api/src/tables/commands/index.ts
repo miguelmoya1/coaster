@@ -6,8 +6,4 @@ export { CreateTableCommand } from './create-table/create-table.command';
 export { UpdateTableCommand } from './update-table/update-table.command';
 export { DeleteTableCommand } from './delete-table/delete-table.command';
 
-export const CommandHandlers = [
-  CreateTableHandler,
-  UpdateTableHandler,
-  DeleteTableHandler,
-];
+export const CommandHandlers = [CreateTableHandler, UpdateTableHandler, DeleteTableHandler];

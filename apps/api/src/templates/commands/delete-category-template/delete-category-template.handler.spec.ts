@@ -12,10 +12,7 @@ describe('DeleteCategoryTemplateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        DeleteCategoryTemplateHandler,
-        { provide: TemplatesRepository, useValue: repository },
-      ],
+      providers: [DeleteCategoryTemplateHandler, { provide: TemplatesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<DeleteCategoryTemplateHandler>(DeleteCategoryTemplateHandler);

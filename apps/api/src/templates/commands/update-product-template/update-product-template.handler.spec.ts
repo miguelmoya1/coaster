@@ -12,10 +12,7 @@ describe('UpdateProductTemplateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UpdateProductTemplateHandler,
-        { provide: TemplatesRepository, useValue: repository },
-      ],
+      providers: [UpdateProductTemplateHandler, { provide: TemplatesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<UpdateProductTemplateHandler>(UpdateProductTemplateHandler);

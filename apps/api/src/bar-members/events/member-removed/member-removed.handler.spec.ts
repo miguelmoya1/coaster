@@ -1,9 +1,9 @@
+import { asBarId, asBarMemberId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemberRemovedHandler } from './member-removed.handler';
-import { MemberRemovedEvent } from './member-removed.event';
 import { BarGateway } from '../../../core';
-import { asBarId, asBarMemberId, SocketEvents } from '@coaster/common';
+import { MemberRemovedEvent } from './member-removed.event';
+import { MemberRemovedHandler } from './member-removed.handler';
 
 describe('MemberRemovedHandler', () => {
   let handler: MemberRemovedHandler;
@@ -16,10 +16,7 @@ describe('MemberRemovedHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        MemberRemovedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [MemberRemovedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<MemberRemovedHandler>(MemberRemovedHandler);

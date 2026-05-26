@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { CancelOrderCommand } from './cancel-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderCancelledEvent } from '../../events';
 import { ErrorCodes, Order, asTableId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderCancelledEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { CancelOrderCommand } from './cancel-order.command';
 
 @CommandHandler(CancelOrderCommand)
 export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, Order> {
@@ -25,11 +25,7 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, O
     const order = await this._ordersRepository.cancelOrder(command.orderId, existingOrder.tableId);
     const mapped = OrdersMapper.toDomain(order);
     this._eventBus.publish(
-      new OrderCancelledEvent(
-        command.barId,
-        mapped,
-        existingOrder.tableId ? asTableId(existingOrder.tableId) : null,
-      ),
+      new OrderCancelledEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
     );
 
     return mapped;

@@ -17,10 +17,7 @@ describe('OrderItemsAddedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        OrderItemsAddedHandler,
-        { provide: BarGateway, useValue: barGateway },
-      ],
+      providers: [OrderItemsAddedHandler, { provide: BarGateway, useValue: barGateway }],
     }).compile();
 
     handler = module.get<OrderItemsAddedHandler>(OrderItemsAddedHandler);

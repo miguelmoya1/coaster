@@ -13,10 +13,7 @@ describe('GetPendingExchangesHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetPendingExchangesHandler,
-        { provide: ShiftExchangesRepository, useValue: repository },
-      ],
+      providers: [GetPendingExchangesHandler, { provide: ShiftExchangesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetPendingExchangesHandler>(GetPendingExchangesHandler);

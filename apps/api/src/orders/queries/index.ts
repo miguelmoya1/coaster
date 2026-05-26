@@ -6,8 +6,4 @@ export { GetOrdersByBarIdQuery } from './get-orders-by-bar-id/get-orders-by-bar-
 export { GetOrdersByDateQuery } from './get-orders-by-date/get-orders-by-date.query';
 export { GetOrderByIdQuery } from './get-order-by-id/get-order-by-id.query';
 
-export const QueryHandlers = [
-  GetOrdersByBarIdHandler,
-  GetOrdersByDateHandler,
-  GetOrderByIdHandler,
-];
+export const QueryHandlers = [GetOrdersByBarIdHandler, GetOrdersByDateHandler, GetOrderByIdHandler];

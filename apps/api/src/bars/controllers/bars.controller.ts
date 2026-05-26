@@ -1,11 +1,11 @@
-import { type BarId, BarRole, type User, type Bar } from '@coaster/common';
+import { type Bar, type BarId, BarRole, type User } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { CreateBarCommand } from '../commands';
 import { CreateBarDto } from '../dto/create-bar.dto';
 import { BarsMapper } from '../mappers/bars.mapper';
 import { GetBarByIdQuery, GetBarsForUserQuery } from '../queries';
-import { CreateBarCommand } from '../commands';
 
 @Controller('bars')
 @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -17,7 +17,9 @@ export class BarsController {
 
   @Post()
   async createBar(@Body() createBarDto: CreateBarDto, @CurrentUser() user: User) {
-    const result = await this._commandBus.execute<CreateBarCommand, { id: BarId }>(new CreateBarCommand(createBarDto, user));
+    const result = await this._commandBus.execute<CreateBarCommand, { id: BarId }>(
+      new CreateBarCommand(createBarDto, user),
+    );
     return { id: result.id };
   }
 

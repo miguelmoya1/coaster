@@ -23,7 +23,10 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
     }
 
     const categoryNames = categoryTemplates.map((ct) => ct.name);
-    const existingCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(command.barId, categoryNames);
+    const existingCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(
+      command.barId,
+      categoryNames,
+    );
     const existingCategoryNames = new Set(existingCategories.map((c) => c.name));
 
     const categoryDataToInsert = categoryTemplates
@@ -38,7 +41,10 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
       await this._templatesRepository.createManyCategories(categoryDataToInsert, true);
     }
 
-    const createdCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(command.barId, categoryNames);
+    const createdCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(
+      command.barId,
+      categoryNames,
+    );
 
     const categoryMap = new Map<string, string>();
     for (const cat of createdCategories) {

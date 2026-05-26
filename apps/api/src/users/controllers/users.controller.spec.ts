@@ -18,9 +18,7 @@ describe('UsersController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [
-        { provide: CommandBus, useValue: mockCommandBus },
-      ],
+      providers: [{ provide: CommandBus, useValue: mockCommandBus }],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)

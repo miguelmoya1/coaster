@@ -205,7 +205,9 @@ describe('TemplatesRepository', () => {
       const result = await repository.upsertProductTemplate('name', 10, 'cat1');
 
       expect(prisma.productTemplate.findFirst).toHaveBeenCalledWith({ where: { name: 'name', categoryId: 'cat1' } });
-      expect(prisma.productTemplate.create).toHaveBeenCalledWith({ data: { name: 'name', price: 10, categoryId: 'cat1' } });
+      expect(prisma.productTemplate.create).toHaveBeenCalledWith({
+        data: { name: 'name', price: 10, categoryId: 'cat1' },
+      });
       expect(result).toEqual({ id: 'p1', name: 'name', price: 10, categoryId: 'cat1' });
     });
 
@@ -271,5 +273,3 @@ describe('TemplatesRepository', () => {
     });
   });
 });
-
-

@@ -1,11 +1,11 @@
-import { type BarId, type BarMemberId, BarRole, type User, type BarMember } from '@coaster/common';
+import { type BarId, type BarMember, type BarMemberId, BarRole, type User } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { commonMapper, CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { GetMembersQuery } from '../queries';
-import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 
 @Controller('bars/:barId/members')
 @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -25,7 +25,9 @@ export class BarMembersController {
   @Post()
   @Roles(BarRole.OWNER)
   async inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
-    const member = await this._commandBus.execute<InviteMemberCommand, BarMember>(new InviteMemberCommand(barId, dto.email, dto.role, user));
+    const member = await this._commandBus.execute<InviteMemberCommand, BarMember>(
+      new InviteMemberCommand(barId, dto.email, dto.role, user),
+    );
     return BarMembersMapper.toDto(member);
   }
 

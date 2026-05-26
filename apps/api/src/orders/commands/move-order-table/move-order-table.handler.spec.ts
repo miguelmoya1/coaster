@@ -31,12 +31,30 @@ describe('MoveOrderTableHandler', () => {
   });
 
   it('should move table and update statuses', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', tableId: 'table-1', items: [], createdAt: new Date(), updatedAt: new Date() });
+    repository.findById.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'OPEN',
+      tableId: 'table-1',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     repository.findTableById.mockResolvedValue({ id: 'table-2', barId: 'bar-1', status: 'FREE', name: 'Mesa 2' });
-    repository.moveTable.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', tableId: 'table-2', items: [], createdAt: new Date(), updatedAt: new Date() });
+    repository.moveTable.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: 'OPEN',
+      tableId: 'table-2',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     await handler.execute(new MoveOrderTableCommand(asBarId('bar-1'), asOrderId('order-1'), { tableId: 'table-2' }));
 
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderTableMovedEvent(asBarId('bar-1'), expect.any(Object), expect.any(String), expect.any(String)));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new OrderTableMovedEvent(asBarId('bar-1'), expect.any(Object), expect.any(String), expect.any(String)),
+    );
   });
 });

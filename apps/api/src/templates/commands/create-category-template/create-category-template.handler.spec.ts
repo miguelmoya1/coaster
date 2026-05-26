@@ -12,10 +12,7 @@ describe('CreateCategoryTemplateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateCategoryTemplateHandler,
-        { provide: TemplatesRepository, useValue: repository },
-      ],
+      providers: [CreateCategoryTemplateHandler, { provide: TemplatesRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<CreateCategoryTemplateHandler>(CreateCategoryTemplateHandler);

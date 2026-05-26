@@ -14,7 +14,7 @@ import {
   MoveOrderTableCommand,
   MergeOrdersCommand,
   RemoveOrderItemCommand,
-  DeleteOrderCommand
+  DeleteOrderCommand,
 } from '../commands';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 

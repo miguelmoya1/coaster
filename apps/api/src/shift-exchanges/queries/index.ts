@@ -2,6 +2,4 @@ import { GetPendingExchangesHandler } from './get-pending-exchanges/get-pending-
 
 export { GetPendingExchangesQuery } from './get-pending-exchanges/get-pending-exchanges.query';
 
-export const QueryHandlers = [
-  GetPendingExchangesHandler,
-];
+export const QueryHandlers = [GetPendingExchangesHandler];

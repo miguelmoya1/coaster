@@ -47,7 +47,12 @@ describe('ShiftsController', () => {
 
   it('createShift should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({});
-    const dto = { userId: asUserId('user-1'), startTime: '2026-05-01T08:00:00Z', endTime: '2026-05-01T16:00:00Z', role: 'staff' };
+    const dto = {
+      userId: asUserId('user-1'),
+      startTime: '2026-05-01T08:00:00Z',
+      endTime: '2026-05-01T16:00:00Z',
+      role: 'staff',
+    };
 
     await controller.createShift(asBarId('bar-1'), dto);
 

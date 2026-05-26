@@ -1,16 +1,16 @@
+import { asBarId } from '@coaster/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateOrderHandler } from './create-order.handler';
-import { CreateOrderCommand } from './create-order.command';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asOrderId } from '@coaster/common';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrderCreatedEvent } from '../../events';
+import { CreateOrderCommand } from './create-order.command';
+import { CreateOrderHandler } from './create-order.handler';
 
 describe('CreateOrderHandler', () => {
   let handler: CreateOrderHandler;
-  let repository = {
+  const repository = {
     findProductsByIds: vi.fn(),
     findTableById: vi.fn(),
     createOrder: vi.fn(),
@@ -37,18 +37,14 @@ describe('CreateOrderHandler', () => {
   it('should throw NotFoundException if products not found', async () => {
     repository.findProductsByIds.mockResolvedValue([]);
 
-    await expect(
-      handler.execute(new CreateOrderCommand(barId, dto))
-    ).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(NotFoundException);
   });
 
   it('should throw BadRequestException if table is occupied', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
     repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'OCCUPIED' });
 
-    await expect(
-      handler.execute(new CreateOrderCommand(barId, dto))
-    ).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(BadRequestException);
   });
 
   it('should create order and publish event', async () => {

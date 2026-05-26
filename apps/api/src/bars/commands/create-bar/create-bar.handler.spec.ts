@@ -1,29 +1,26 @@
+import { asBarId, asUserId, Role } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateBarHandler } from './create-bar.handler';
-import { CreateBarCommand } from './create-bar.command';
 import { BarRepository } from '../../data-access/bar.repository';
-import { asBarId, asUserId } from '@coaster/common';
+import { CreateBarCommand } from './create-bar.command';
+import { CreateBarHandler } from './create-bar.handler';
 
 describe('CreateBarHandler', () => {
   let handler: CreateBarHandler;
-  let repository = {
+  const repository = {
     create: vi.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateBarHandler,
-        { provide: BarRepository, useValue: repository },
-      ],
+      providers: [CreateBarHandler, { provide: BarRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<CreateBarHandler>(CreateBarHandler);
   });
 
   it('should create a bar', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: Role.USER };
     const dto = { name: 'New Bar' };
     repository.create.mockResolvedValue({
       id: 'bar-new',

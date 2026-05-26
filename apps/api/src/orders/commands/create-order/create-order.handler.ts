@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { CreateOrderCommand } from './create-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderCreatedEvent } from '../../events';
 import { asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderCreatedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { CreateOrderCommand } from './create-order.command';
 
 @CommandHandler(CreateOrderCommand)
 export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, Order> {
@@ -31,7 +31,10 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, O
     }
 
     const priceMap = new Map(products.map((p) => [p.id, p.price]));
-    const totalAmount = command.dto.items.reduce((sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity, 0);
+    const totalAmount = command.dto.items.reduce(
+      (sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity,
+      0,
+    );
 
     let resolvedTableName: string | null = null;
     if (command.dto.tableId) {
@@ -39,15 +42,17 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, O
       resolvedTableName = table?.name ?? null;
     }
 
-    const order = await this._ordersRepository.createOrder(command.barId, command.dto, priceMap, totalAmount, resolvedTableName);
+    const order = await this._ordersRepository.createOrder(
+      command.barId,
+      command.dto,
+      priceMap,
+      totalAmount,
+      resolvedTableName,
+    );
     const mapped = OrdersMapper.toDomain(order);
 
     this._eventBus.publish(
-      new OrderCreatedEvent(
-        command.barId,
-        mapped,
-        command.dto.tableId ? asTableId(command.dto.tableId) : null,
-      ),
+      new OrderCreatedEvent(command.barId, mapped, command.dto.tableId ? asTableId(command.dto.tableId) : null),
     );
 
     return mapped;

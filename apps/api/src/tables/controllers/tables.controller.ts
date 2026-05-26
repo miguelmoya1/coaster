@@ -26,7 +26,9 @@ export class TablesController {
   @Post()
   @Roles(BarRole.OWNER)
   async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto) {
-    const result = await this._commandBus.execute<CreateTableCommand, { id: TableId }>(new CreateTableCommand(barId, dto));
+    const result = await this._commandBus.execute<CreateTableCommand, { id: TableId }>(
+      new CreateTableCommand(barId, dto),
+    );
     return { id: result.id };
   }
 

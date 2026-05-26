@@ -7,7 +7,12 @@ import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { ProductsMapper } from '../mappers/products.mapper';
 import { GetProductsByBarIdQuery } from '../queries';
-import { CreateProductCommand, UpdateProductStockCommand, UpdateProductCommand, DeleteProductCommand } from '../commands';
+import {
+  CreateProductCommand,
+  UpdateProductStockCommand,
+  UpdateProductCommand,
+  DeleteProductCommand,
+} from '../commands';
 
 @Controller('bars/:barId/products')
 @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -20,14 +25,18 @@ export class ProductsController {
   @Get()
   @Roles(BarRole.OWNER, BarRole.STAFF)
   async getProducts(@Param('barId') barId: BarId) {
-    const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(new GetProductsByBarIdQuery(barId));
+    const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(
+      new GetProductsByBarIdQuery(barId),
+    );
     return products.map((p) => ProductsMapper.toDto(p));
   }
 
   @Post()
   @Roles(BarRole.OWNER)
   async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto) {
-    const result = await this._commandBus.execute<CreateProductCommand, { id: ProductId }>(new CreateProductCommand(barId, dto));
+    const result = await this._commandBus.execute<CreateProductCommand, { id: ProductId }>(
+      new CreateProductCommand(barId, dto),
+    );
     return { id: result.id };
   }
 
@@ -38,7 +47,9 @@ export class ProductsController {
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductStockDto,
   ) {
-    await this._commandBus.execute<UpdateProductStockCommand, void>(new UpdateProductStockCommand(barId, productId, dto));
+    await this._commandBus.execute<UpdateProductStockCommand, void>(
+      new UpdateProductStockCommand(barId, productId, dto),
+    );
     return commonMapper.getSuccessResponse();
   }
 

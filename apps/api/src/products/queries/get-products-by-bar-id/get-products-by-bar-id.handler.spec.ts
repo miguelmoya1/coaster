@@ -13,10 +13,7 @@ describe('GetProductsByBarIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GetProductsByBarIdHandler,
-        { provide: ProductsRepository, useValue: repository },
-      ],
+      providers: [GetProductsByBarIdHandler, { provide: ProductsRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetProductsByBarIdHandler>(GetProductsByBarIdHandler);
