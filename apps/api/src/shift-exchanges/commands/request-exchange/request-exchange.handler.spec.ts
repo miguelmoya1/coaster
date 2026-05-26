@@ -1,14 +1,15 @@
+import { asBarId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/common';
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RequestExchangeHandler } from './request-exchange.handler';
-import { RequestExchangeCommand } from './request-exchange.command';
+
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
-import { asBarId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/common';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { RequestExchangeCommand } from './request-exchange.command';
+import { RequestExchangeHandler } from './request-exchange.handler';
 
 describe('RequestExchangeHandler', () => {
   let handler: RequestExchangeHandler;
-  let repository = {
+  const repository = {
     getShiftById: vi.fn(),
     hasPendingExchangeForShift: vi.fn(),
     createExchange: vi.fn(),

@@ -1,13 +1,14 @@
+import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateUserHandler } from './update-user.handler';
-import { UpdateUserCommand } from './update-user.command';
+
 import { UserRepository } from '../../data-access/user.repository';
-import { asUserId } from '@coaster/common';
+import { UpdateUserCommand } from './update-user.command';
+import { UpdateUserHandler } from './update-user.handler';
 
 describe('UpdateUserHandler', () => {
   let handler: UpdateUserHandler;
-  let repository = {
+  const repository = {
     update: vi.fn(),
   };
 

@@ -1,9 +1,10 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetOrderByIdQuery } from './get-order-by-id.query';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
 import { Order, ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { GetOrderByIdQuery } from './get-order-by-id.query';
 
 @QueryHandler(GetOrderByIdQuery)
 export class GetOrderByIdHandler implements IQueryHandler<GetOrderByIdQuery, Order> {

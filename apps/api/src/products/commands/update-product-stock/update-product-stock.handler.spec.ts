@@ -1,15 +1,16 @@
+import { asBarId, asProductId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateProductStockHandler } from './update-product-stock.handler';
-import { UpdateProductStockCommand } from './update-product-stock.command';
+
 import { ProductsRepository } from '../../data-access/products.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asProductId } from '@coaster/common';
 import { ProductStockChangedEvent } from '../../events';
+import { UpdateProductStockCommand } from './update-product-stock.command';
+import { UpdateProductStockHandler } from './update-product-stock.handler';
 
 describe('UpdateProductStockHandler', () => {
   let handler: UpdateProductStockHandler;
-  let repository = {
+  const repository = {
     update: vi.fn(),
   };
   const eventBus = {

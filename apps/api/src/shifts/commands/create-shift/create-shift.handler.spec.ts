@@ -1,14 +1,15 @@
+import { asBarId, asUserId } from '@coaster/common';
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateShiftHandler } from './create-shift.handler';
-import { CreateShiftCommand } from './create-shift.command';
+
 import { ShiftsRepository } from '../../data-access/shifts.repository';
-import { asBarId, asUserId } from '@coaster/common';
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { CreateShiftCommand } from './create-shift.command';
+import { CreateShiftHandler } from './create-shift.handler';
 
 describe('CreateShiftHandler', () => {
   let handler: CreateShiftHandler;
-  let repository = {
+  const repository = {
     isUserMemberOfBar: vi.fn(),
     create: vi.fn(),
   };

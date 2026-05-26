@@ -1,8 +1,9 @@
+import { BarMember } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetMembersQuery } from './get-members.query';
+
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';
-import { BarMember } from '@coaster/common';
+import { GetMembersQuery } from './get-members.query';
 
 @QueryHandler(GetMembersQuery)
 export class GetMembersHandler implements IQueryHandler<GetMembersQuery, BarMember[]> {

@@ -1,8 +1,9 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DeleteOrderCommand } from './delete-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { DeleteOrderCommand } from './delete-order.command';
 
 @CommandHandler(DeleteOrderCommand)
 export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, void> {

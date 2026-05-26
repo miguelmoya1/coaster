@@ -1,4 +1,5 @@
 import { asBarId, asTableId, asTableStatus, Table } from '@coaster/common';
+
 import { Table as TableDb } from '../../core';
 
 export const TablesMapper = {

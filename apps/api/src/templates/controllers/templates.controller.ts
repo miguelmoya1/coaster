@@ -1,6 +1,7 @@
 import { BarRole, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+
 import { FirebaseAuthGuard, Roles, RolesGuard, UserRoles, UserRolesGuard } from '../../core';
 import {
   BulkCategoryTemplateInput,

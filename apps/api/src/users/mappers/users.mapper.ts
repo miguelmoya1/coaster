@@ -1,4 +1,5 @@
 import { asUserId, User, Role } from '@coaster/common';
+
 import { User as UserDb } from '../../core';
 
 export const UsersMapper = {

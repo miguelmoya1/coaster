@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { BarGateway } from './bar.gateway';
 
 describe('BarGateway', () => {

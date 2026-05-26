@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateCategoryTemplateCommand } from './update-category-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { TemplatesMapper } from '../../mappers/templates.mapper';
+import { UpdateCategoryTemplateCommand } from './update-category-template.command';
 
 @CommandHandler(UpdateCategoryTemplateCommand)
 export class UpdateCategoryTemplateHandler implements ICommandHandler<UpdateCategoryTemplateCommand, any> {

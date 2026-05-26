@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
+
 import { FirebaseAuthGuard } from './auth/guards/firebase-auth.guard';
 import { OptionalFirebaseAuthGuard } from './auth/guards/optional-firebase-auth.guard';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';

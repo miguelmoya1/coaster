@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+
 import { commonMapper } from '../../../core/mappers/common.mapper';
+import { TemplatesRepository } from '../../data-access/templates.repository';
+import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
 
 @CommandHandler(BulkUpsertTemplatesCommand)
 export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTemplatesCommand, any> {

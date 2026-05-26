@@ -1,7 +1,8 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ProductCreatedEvent } from './product-created.event';
-import { BarGateway } from '../../../core';
 import { SocketEvents } from '@coaster/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { BarGateway } from '../../../core';
+import { ProductCreatedEvent } from './product-created.event';
 
 @EventsHandler(ProductCreatedEvent)
 export class ProductCreatedHandler implements IEventHandler<ProductCreatedEvent> {

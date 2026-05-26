@@ -1,12 +1,13 @@
-import { asBarId, asTableId, type Table } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { TablesController } from './tables.controller';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { GetTablesByBarIdQuery } from '../queries';
+import { TablesController } from './tables.controller';
 
 describe('TablesController', () => {
   let controller: TablesController;

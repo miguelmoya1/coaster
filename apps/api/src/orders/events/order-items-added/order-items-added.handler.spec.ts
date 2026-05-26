@@ -1,9 +1,10 @@
+import { asBarId, asProductId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrderItemsAddedHandler } from './order-items-added.handler';
-import { OrderItemsAddedEvent } from './order-items-added.event';
+
 import { BarGateway } from '../../../core';
-import { asBarId, asProductId, SocketEvents } from '@coaster/common';
+import { OrderItemsAddedEvent } from './order-items-added.event';
+import { OrderItemsAddedHandler } from './order-items-added.handler';
 
 describe('OrderItemsAddedHandler', () => {
   let handler: OrderItemsAddedHandler;

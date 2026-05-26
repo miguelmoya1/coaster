@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { UpdateProductCommand } from './update-product.command';
-import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductsMapper } from '../../mappers/products.mapper';
-import { ProductStockChangedEvent } from '../../events';
 import { asCategoryId, ErrorCodes } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { ProductsRepository } from '../../data-access/products.repository';
+import { ProductStockChangedEvent } from '../../events';
+import { ProductsMapper } from '../../mappers/products.mapper';
+import { UpdateProductCommand } from './update-product.command';
 
 @CommandHandler(UpdateProductCommand)
 export class UpdateProductHandler implements ICommandHandler<UpdateProductCommand, void> {

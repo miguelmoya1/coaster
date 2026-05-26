@@ -1,7 +1,8 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { OrderTableMovedEvent } from './order-table-moved.event';
-import { BarGateway } from '../../../core';
 import { SocketEvents } from '@coaster/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { BarGateway } from '../../../core';
+import { OrderTableMovedEvent } from './order-table-moved.event';
 
 @EventsHandler(OrderTableMovedEvent)
 export class OrderTableMovedHandler implements IEventHandler<OrderTableMovedEvent> {

@@ -1,15 +1,16 @@
+import { asBarId, asTableId, OrderId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MergeOrdersHandler } from './merge-orders.handler';
-import { MergeOrdersCommand } from './merge-orders.command';
+
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId } from '@coaster/common';
 import { OrdersMergedEvent } from '../../events';
+import { MergeOrdersCommand } from './merge-orders.command';
+import { MergeOrdersHandler } from './merge-orders.handler';
 
 describe('MergeOrdersHandler', () => {
   let handler: MergeOrdersHandler;
-  let repository = {
+  const repository = {
     findOrdersByIds: vi.fn(),
     findTableById: vi.fn(),
     mergeOrders: vi.fn(),
@@ -63,7 +64,10 @@ describe('MergeOrdersHandler', () => {
     });
 
     await handler.execute(
-      new MergeOrdersCommand(asBarId('bar-1'), { orderIds: ['order-1', 'order-2'], targetTableId: 'table-1' }),
+      new MergeOrdersCommand(asBarId('bar-1'), {
+        orderIds: ['order-1', 'order-2'] as OrderId[],
+        targetTableId: asTableId('table-1'),
+      }),
     );
 
     expect(eventBus.publish).toHaveBeenCalledWith(

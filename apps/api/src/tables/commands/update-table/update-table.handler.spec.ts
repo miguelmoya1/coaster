@@ -1,16 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateTableHandler } from './update-table.handler';
-import { UpdateTableCommand } from './update-table.command';
-import { TablesRepository } from '../../data-access/tables.repository';
-import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asTableId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { TablesRepository } from '../../data-access/tables.repository';
 import { TableUpdatedEvent } from '../../events';
+import { UpdateTableCommand } from './update-table.command';
+import { UpdateTableHandler } from './update-table.handler';
 
 describe('UpdateTableHandler', () => {
   let handler: UpdateTableHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     update: vi.fn(),
   };

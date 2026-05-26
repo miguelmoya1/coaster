@@ -1,15 +1,16 @@
+import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RemoveOrderItemHandler } from './remove-order-item.handler';
-import { RemoveOrderItemCommand } from './remove-order-item.command';
+
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
-import { OrderUpdatedEvent, OrderItemRemovedEvent } from '../../events';
+import { OrderUpdatedEvent } from '../../events';
+import { RemoveOrderItemCommand } from './remove-order-item.command';
+import { RemoveOrderItemHandler } from './remove-order-item.handler';
 
 describe('RemoveOrderItemHandler', () => {
   let handler: RemoveOrderItemHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     removeItemAndRecalculate: vi.fn(),
   };

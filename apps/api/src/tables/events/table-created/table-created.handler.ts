@@ -1,7 +1,8 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { TableCreatedEvent } from './table-created.event';
-import { BarGateway } from '../../../core';
 import { SocketEvents } from '@coaster/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { BarGateway } from '../../../core';
+import { TableCreatedEvent } from './table-created.event';
 
 @EventsHandler(TableCreatedEvent)
 export class TableCreatedHandler implements IEventHandler<TableCreatedEvent> {

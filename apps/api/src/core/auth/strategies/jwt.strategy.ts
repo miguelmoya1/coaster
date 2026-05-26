@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
+
 import { PrismaService } from '../../prisma/services/prisma.service';
 
 @Injectable()

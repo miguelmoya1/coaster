@@ -1,15 +1,16 @@
+import { asBarId, asTableId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateTableHandler } from './create-table.handler';
-import { CreateTableCommand } from './create-table.command';
+
 import { TablesRepository } from '../../data-access/tables.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asTableId } from '@coaster/common';
 import { TableCreatedEvent } from '../../events';
+import { CreateTableCommand } from './create-table.command';
+import { CreateTableHandler } from './create-table.handler';
 
 describe('CreateTableHandler', () => {
   let handler: CreateTableHandler;
-  let repository = {
+  const repository = {
     create: vi.fn(),
   };
   const eventBus = {

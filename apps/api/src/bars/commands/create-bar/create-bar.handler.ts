@@ -1,8 +1,9 @@
+import { BarId } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateBarCommand } from './create-bar.command';
+
 import { BarRepository } from '../../data-access/bar.repository';
 import { BarsMapper } from '../../mappers/bars.mapper';
-import { Bar, BarId } from '@coaster/common';
+import { CreateBarCommand } from './create-bar.command';
 
 @CommandHandler(CreateBarCommand)
 export class CreateBarHandler implements ICommandHandler<CreateBarCommand, { id: BarId }> {

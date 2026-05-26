@@ -1,4 +1,5 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductStockChangedEvent } from '../../events';
 import { ProductsMapper } from '../../mappers/products.mapper';

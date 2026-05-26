@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeleteProductTemplateHandler } from './delete-product-template.handler';
-import { DeleteProductTemplateCommand } from './delete-product-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
+import { DeleteProductTemplateCommand } from './delete-product-template.command';
+import { DeleteProductTemplateHandler } from './delete-product-template.handler';
 
 describe('DeleteProductTemplateHandler', () => {
   let handler: DeleteProductTemplateHandler;
-  let repository = {
+  const repository = {
     deleteProductTemplate: vi.fn(),
   };
 

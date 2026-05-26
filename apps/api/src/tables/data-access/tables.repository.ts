@@ -1,5 +1,6 @@
 import { BarId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
+
 import { Prisma, PrismaService } from '../../core';
 
 @Injectable()

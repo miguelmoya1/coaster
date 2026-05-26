@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { TemplatesRepository } from '../../data-access/templates.repository';
 import { FindAllProductTemplatesHandler } from './find-all-product-templates.handler';
 import { FindAllProductTemplatesQuery } from './find-all-product-templates.query';
-import { TemplatesRepository } from '../../data-access/templates.repository';
 
 describe('FindAllProductTemplatesHandler', () => {
   let handler: FindAllProductTemplatesHandler;
-  let repository = {
+  const repository = {
     findAllProductTemplates: vi.fn(),
   };
 

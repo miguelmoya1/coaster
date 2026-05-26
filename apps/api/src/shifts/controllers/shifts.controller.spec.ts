@@ -1,12 +1,13 @@
 import { asBarId, asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { ShiftsController } from './shifts.controller';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
+import { ShiftsController } from './shifts.controller';
 
 describe('ShiftsController', () => {
   let controller: ShiftsController;

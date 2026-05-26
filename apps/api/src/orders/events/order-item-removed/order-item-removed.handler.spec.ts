@@ -1,8 +1,9 @@
+import { asBarId, asProductId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { OrderItemRemovedHandler } from './order-item-removed.handler';
+
 import { OrderItemRemovedEvent } from './order-item-removed.event';
-import { asBarId, asProductId } from '@coaster/common';
+import { OrderItemRemovedHandler } from './order-item-removed.handler';
 
 describe('OrderItemRemovedHandler', () => {
   let handler: OrderItemRemovedHandler;

@@ -1,15 +1,16 @@
+import { asBarId, asOrderId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MoveOrderTableHandler } from './move-order-table.handler';
-import { MoveOrderTableCommand } from './move-order-table.command';
+
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asOrderId } from '@coaster/common';
 import { OrderTableMovedEvent } from '../../events';
+import { MoveOrderTableCommand } from './move-order-table.command';
+import { MoveOrderTableHandler } from './move-order-table.handler';
 
 describe('MoveOrderTableHandler', () => {
   let handler: MoveOrderTableHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     findTableById: vi.fn(),
     moveTable: vi.fn(),

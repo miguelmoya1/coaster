@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { UpdateProductStockCommand } from './update-product-stock.command';
+
 import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductsMapper } from '../../mappers/products.mapper';
 import { ProductStockChangedEvent } from '../../events';
+import { ProductsMapper } from '../../mappers/products.mapper';
+import { UpdateProductStockCommand } from './update-product-stock.command';
 
 @CommandHandler(UpdateProductStockCommand)
 export class UpdateProductStockHandler implements ICommandHandler<UpdateProductStockCommand, void> {

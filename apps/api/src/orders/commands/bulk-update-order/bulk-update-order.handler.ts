@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { BulkUpdateOrderCommand } from './bulk-update-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderUpdatedEvent } from '../../events';
 import { ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderUpdatedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 
 @CommandHandler(BulkUpdateOrderCommand)
 export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCommand, Order> {

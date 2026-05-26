@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BulkUpsertTemplatesHandler } from './bulk-upsert-templates.handler';
-import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
+import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
+import { BulkUpsertTemplatesHandler } from './bulk-upsert-templates.handler';
 
 describe('BulkUpsertTemplatesHandler', () => {
   let handler: BulkUpsertTemplatesHandler;
-  let repository = {
+  const repository = {
     upsertCategoryTemplate: vi.fn(),
     upsertProductTemplate: vi.fn(),
   };

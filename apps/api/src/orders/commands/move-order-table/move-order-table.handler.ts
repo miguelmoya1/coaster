@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { MoveOrderTableCommand } from './move-order-table.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrderTableMovedEvent } from '../../events';
 import { asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrderTableMovedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { MoveOrderTableCommand } from './move-order-table.command';
 
 @CommandHandler(MoveOrderTableCommand)
 export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableCommand, Order> {

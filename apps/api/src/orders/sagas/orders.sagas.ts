@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ICommand, ofType, Saga } from '@nestjs/cqrs';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
+
 import { AdjustProductStockCommand } from '../../products/commands/adjust-product-stock/adjust-product-stock.command';
 import { OrderCancelledEvent } from '../events/order-cancelled/order-cancelled.event';
 import { OrderCreatedEvent } from '../events/order-created/order-created.event';

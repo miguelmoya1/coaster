@@ -1,8 +1,9 @@
+import { Table } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetTablesByBarIdQuery } from './get-tables-by-bar-id.query';
+
 import { TablesRepository } from '../../data-access/tables.repository';
 import { TablesMapper } from '../../mappers/tables.mapper';
-import { Table } from '@coaster/common';
+import { GetTablesByBarIdQuery } from './get-tables-by-bar-id.query';
 
 @QueryHandler(GetTablesByBarIdQuery)
 export class GetTablesByBarIdHandler implements IQueryHandler<GetTablesByBarIdQuery, Table[]> {

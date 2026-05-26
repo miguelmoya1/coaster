@@ -1,14 +1,8 @@
 import { type BarId, BarRole, type Order, type OrderId, type OrderItemId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
-import { AddOrderItemsDto } from '../dto/add-order-items.dto';
-import { CreateOrderDto } from '../dto/create-order.dto';
-import { MergeOrdersDto } from '../dto/merge-orders.dto';
-import { MoveTableDto } from '../dto/move-table.dto';
-import { BulkUpdateDto } from '../dto/bulk-update.dto';
-import { OrdersMapper } from '../mappers/orders.mapper';
-import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 import {
   CreateOrderCommand,
   AddOrderItemsCommand,
@@ -20,6 +14,13 @@ import {
   RemoveOrderItemCommand,
   DeleteOrderCommand,
 } from '../commands';
+import { AddOrderItemsDto } from '../dto/add-order-items.dto';
+import { BulkUpdateDto } from '../dto/bulk-update.dto';
+import { CreateOrderDto } from '../dto/create-order.dto';
+import { MergeOrdersDto } from '../dto/merge-orders.dto';
+import { MoveTableDto } from '../dto/move-table.dto';
+import { OrdersMapper } from '../mappers/orders.mapper';
+import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
 @Controller('bars/:barId/orders')
 @UseGuards(FirebaseAuthGuard, RolesGuard)

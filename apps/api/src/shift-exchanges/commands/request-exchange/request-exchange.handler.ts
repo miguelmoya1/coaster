@@ -1,8 +1,9 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RequestExchangeCommand } from './request-exchange.command';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { RequestExchangeCommand } from './request-exchange.command';
 
 @CommandHandler(RequestExchangeCommand)
 export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCommand, any> {

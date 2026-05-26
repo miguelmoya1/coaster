@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GetOrderByIdHandler } from './get-order-by-id.handler';
-import { GetOrderByIdQuery } from './get-order-by-id.query';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { asBarId, asOrderId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { GetOrderByIdHandler } from './get-order-by-id.handler';
+import { GetOrderByIdQuery } from './get-order-by-id.query';
 
 describe('GetOrderByIdHandler', () => {
   let handler: GetOrderByIdHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
   };
 

@@ -1,8 +1,9 @@
+import { Order } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetOrdersByBarIdQuery } from './get-orders-by-bar-id.query';
+
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
-import { Order } from '@coaster/common';
+import { GetOrdersByBarIdQuery } from './get-orders-by-bar-id.query';
 
 @QueryHandler(GetOrdersByBarIdQuery)
 export class GetOrdersByBarIdHandler implements IQueryHandler<GetOrdersByBarIdQuery, Order[]> {

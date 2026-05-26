@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ImportTemplatesToBarHandler } from './import-templates-to-bar.handler';
-import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
-import { TemplatesRepository } from '../../data-access/templates.repository';
 import { asBarId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { TemplatesRepository } from '../../data-access/templates.repository';
+import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
+import { ImportTemplatesToBarHandler } from './import-templates-to-bar.handler';
 
 describe('ImportTemplatesToBarHandler', () => {
   let handler: ImportTemplatesToBarHandler;
-  let repository = {
+  const repository = {
     findCategoryTemplatesByIds: vi.fn(),
     createManyCategories: vi.fn(),
     findCategoriesByBarIdAndNames: vi.fn(),

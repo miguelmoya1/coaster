@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateProductTemplateHandler } from './update-product-template.handler';
-import { UpdateProductTemplateCommand } from './update-product-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
+import { UpdateProductTemplateCommand } from './update-product-template.command';
+import { UpdateProductTemplateHandler } from './update-product-template.handler';
 
 describe('UpdateProductTemplateHandler', () => {
   let handler: UpdateProductTemplateHandler;
-  let repository = {
+  const repository = {
     updateProductTemplate: vi.fn(),
   };
 

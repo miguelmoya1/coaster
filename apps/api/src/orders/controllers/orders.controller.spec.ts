@@ -1,10 +1,10 @@
 import { asBarId, asOrderId, asOrderItemId, type Order } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { OrdersController } from './orders.controller';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CreateOrderCommand,
   AddOrderItemsCommand,
@@ -16,6 +16,7 @@ import {
   RemoveOrderItemCommand,
   DeleteOrderCommand,
 } from '../commands';
+import { OrdersController } from './orders.controller';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
 describe('OrdersController', () => {

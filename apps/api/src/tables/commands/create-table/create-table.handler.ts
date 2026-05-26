@@ -1,9 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { CreateTableCommand } from './create-table.command';
-import { TablesRepository } from '../../data-access/tables.repository';
-import { TablesMapper } from '../../mappers/tables.mapper';
-import { TableCreatedEvent } from '../../events';
 import { TableId } from '@coaster/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { TablesRepository } from '../../data-access/tables.repository';
+import { TableCreatedEvent } from '../../events';
+import { TablesMapper } from '../../mappers/tables.mapper';
+import { CreateTableCommand } from './create-table.command';
 
 @CommandHandler(CreateTableCommand)
 export class CreateTableHandler implements ICommandHandler<CreateTableCommand, { id: TableId }> {

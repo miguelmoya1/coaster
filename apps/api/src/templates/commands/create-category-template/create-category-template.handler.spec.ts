@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateCategoryTemplateHandler } from './create-category-template.handler';
-import { CreateCategoryTemplateCommand } from './create-category-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
+import { CreateCategoryTemplateCommand } from './create-category-template.command';
+import { CreateCategoryTemplateHandler } from './create-category-template.handler';
 
 describe('CreateCategoryTemplateHandler', () => {
   let handler: CreateCategoryTemplateHandler;
-  let repository = {
+  const repository = {
     createCategoryTemplate: vi.fn(),
   };
 

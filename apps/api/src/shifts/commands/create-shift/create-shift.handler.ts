@@ -1,9 +1,10 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateShiftCommand } from './create-shift.command';
-import { ShiftsRepository } from '../../data-access/shifts.repository';
-import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { Shift, ErrorCodes } from '@coaster/common';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { ShiftsRepository } from '../../data-access/shifts.repository';
+import { ShiftsMapper } from '../../mappers/shifts.mapper';
+import { CreateShiftCommand } from './create-shift.command';
 
 @CommandHandler(CreateShiftCommand)
 export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, Shift> {

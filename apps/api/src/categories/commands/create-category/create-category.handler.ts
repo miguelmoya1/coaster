@@ -1,8 +1,9 @@
+import { Category } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateCategoryCommand } from './create-category.command';
+
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CategoriesMapper } from '../../mappers/categories.mapper';
-import { Category, CategoryId } from '@coaster/common';
+import { CreateCategoryCommand } from './create-category.command';
 
 @CommandHandler(CreateCategoryCommand)
 export class CreateCategoryHandler implements ICommandHandler<CreateCategoryCommand, Category> {

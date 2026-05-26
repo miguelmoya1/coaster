@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { UpdateTableCommand } from './update-table.command';
-import { TablesRepository } from '../../data-access/tables.repository';
-import { TablesMapper } from '../../mappers/tables.mapper';
-import { TableUpdatedEvent } from '../../events';
 import { ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { TablesRepository } from '../../data-access/tables.repository';
+import { TableUpdatedEvent } from '../../events';
+import { TablesMapper } from '../../mappers/tables.mapper';
+import { UpdateTableCommand } from './update-table.command';
 
 @CommandHandler(UpdateTableCommand)
 export class UpdateTableHandler implements ICommandHandler<UpdateTableCommand, void> {

@@ -1,9 +1,10 @@
+import { asBarId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProductStockChangedHandler } from './product-stock-changed.handler';
-import { ProductStockChangedEvent } from './product-stock-changed.event';
+
 import { BarGateway } from '../../../core';
-import { asBarId, SocketEvents } from '@coaster/common';
+import { ProductStockChangedEvent } from './product-stock-changed.event';
+import { ProductStockChangedHandler } from './product-stock-changed.handler';
 
 describe('ProductStockChangedHandler', () => {
   let handler: ProductStockChangedHandler;

@@ -5,6 +5,9 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
+    ignores: ['src/core/prisma/client/**'],
+  },
+  {
     languageOptions: {
       parserOptions: {
         project: ['./tsconfig.json'],
@@ -20,6 +23,7 @@ export default defineConfig(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       '@typescript-eslint/no-unsafe-call': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
   {

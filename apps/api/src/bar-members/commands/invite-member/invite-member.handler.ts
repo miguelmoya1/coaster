@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InviteMemberCommand } from './invite-member.command';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { EmailService } from '../../../core';
-import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { BarMember, ErrorCodes } from '@coaster/common';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { EmailService } from '../../../core';
+import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersMapper } from '../../mappers/bar-members.mapper';
+import { InviteMemberCommand } from './invite-member.command';
 
 @CommandHandler(InviteMemberCommand)
 export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand, BarMember> {

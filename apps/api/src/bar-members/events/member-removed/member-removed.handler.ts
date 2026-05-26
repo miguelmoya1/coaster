@@ -1,7 +1,8 @@
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { MemberRemovedEvent } from './member-removed.event';
-import { BarGateway } from '../../../core';
 import { SocketEvents } from '@coaster/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { BarGateway } from '../../../core';
+import { MemberRemovedEvent } from './member-removed.event';
 
 @EventsHandler(MemberRemovedEvent)
 export class MemberRemovedHandler implements IEventHandler<MemberRemovedEvent> {

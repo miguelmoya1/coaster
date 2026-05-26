@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { MergeOrdersCommand } from './merge-orders.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMapper } from '../../mappers/orders.mapper';
-import { OrdersMergedEvent } from '../../events';
 import { asOrderId, asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrdersMergedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { MergeOrdersCommand } from './merge-orders.command';
 
 @CommandHandler(MergeOrdersCommand)
 export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, Order> {

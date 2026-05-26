@@ -1,9 +1,10 @@
+import { asBarId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TableCreatedHandler } from './table-created.handler';
-import { TableCreatedEvent } from './table-created.event';
+
 import { BarGateway } from '../../../core';
-import { asBarId, SocketEvents } from '@coaster/common';
+import { TableCreatedEvent } from './table-created.event';
+import { TableCreatedHandler } from './table-created.handler';
 
 describe('TableCreatedHandler', () => {
   let handler: TableCreatedHandler;

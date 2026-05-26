@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeleteCategoryTemplateHandler } from './delete-category-template.handler';
-import { DeleteCategoryTemplateCommand } from './delete-category-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
+import { DeleteCategoryTemplateCommand } from './delete-category-template.command';
+import { DeleteCategoryTemplateHandler } from './delete-category-template.handler';
 
 describe('DeleteCategoryTemplateHandler', () => {
   let handler: DeleteCategoryTemplateHandler;
-  let repository = {
+  const repository = {
     deleteCategoryTemplate: vi.fn(),
   };
 

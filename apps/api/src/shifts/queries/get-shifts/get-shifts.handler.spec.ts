@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GetShiftsHandler } from './get-shifts.handler';
-import { GetShiftsQuery } from './get-shifts.query';
-import { ShiftsRepository } from '../../data-access/shifts.repository';
 import { asBarId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ShiftsRepository } from '../../data-access/shifts.repository';
+import { GetShiftsHandler } from './get-shifts.handler';
+import { GetShiftsQuery } from './get-shifts.query';
 
 describe('GetShiftsHandler', () => {
   let handler: GetShiftsHandler;
-  let repository = {
+  const repository = {
     findByBarId: vi.fn(),
   };
 

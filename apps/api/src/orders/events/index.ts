@@ -1,11 +1,11 @@
-import { OrderCreatedHandler } from './order-created/order-created.handler';
-import { OrderItemsAddedHandler } from './order-items-added/order-items-added.handler';
-import { OrderUpdatedHandler } from './order-updated/order-updated.handler';
 import { OrderCancelledHandler } from './order-cancelled/order-cancelled.handler';
 import { OrderClosedHandler } from './order-closed/order-closed.handler';
-import { OrdersMergedHandler } from './orders-merged/orders-merged.handler';
-import { OrderTableMovedHandler } from './order-table-moved/order-table-moved.handler';
+import { OrderCreatedHandler } from './order-created/order-created.handler';
 import { OrderItemRemovedHandler } from './order-item-removed/order-item-removed.handler';
+import { OrderItemsAddedHandler } from './order-items-added/order-items-added.handler';
+import { OrderTableMovedHandler } from './order-table-moved/order-table-moved.handler';
+import { OrderUpdatedHandler } from './order-updated/order-updated.handler';
+import { OrdersMergedHandler } from './orders-merged/orders-merged.handler';
 
 export * from './order-created/order-created.event';
 export * from './order-created/order-created.handler';

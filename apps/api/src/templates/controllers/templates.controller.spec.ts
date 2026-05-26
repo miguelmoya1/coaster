@@ -1,11 +1,12 @@
-import { BarRole, Role } from '@coaster/common';
+import { asCategoryId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { TemplatesController } from './templates.controller';
+
 import { FirebaseAuthGuard, RolesGuard, UserRolesGuard } from '../../core';
 import {
+  BulkUpsertTemplatesCommand,
   CreateCategoryTemplateCommand,
   CreateProductTemplateCommand,
   DeleteCategoryTemplateCommand,
@@ -13,9 +14,9 @@ import {
   ImportTemplatesToBarCommand,
   UpdateCategoryTemplateCommand,
   UpdateProductTemplateCommand,
-  BulkUpsertTemplatesCommand,
 } from '../commands';
 import { FindAllCategoryTemplatesQuery, FindAllProductTemplatesQuery } from '../queries';
+import { TemplatesController } from './templates.controller';
 
 describe('TemplatesController', () => {
   let controller: TemplatesController;
@@ -57,14 +58,14 @@ describe('TemplatesController', () => {
   it('createCategoryTemplate should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'cat-t1' });
     const dto = { name: 'Category 1', description: 'Desc 1' };
-    await controller.createCategoryTemplate(dto as any);
+    await controller.createCategoryTemplate(dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateCategoryTemplateCommand));
   });
 
   it('updateCategoryTemplate should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Updated Name', description: 'Updated Desc' };
-    await controller.updateCategoryTemplate('cat-t1', dto as any);
+    await controller.updateCategoryTemplate('cat-t1', dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateCategoryTemplateCommand));
   });
 
@@ -82,15 +83,20 @@ describe('TemplatesController', () => {
 
   it('createProductTemplate should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'prod-t1' });
-    const dto = { name: 'Prod 1', price: 10, categoryTemplateId: 'cat-t1' };
-    await controller.createProductTemplate(dto as any);
+    const dto = {
+      name: 'Prod 1',
+      price: 10,
+      categoryTemplateId: asCategoryId('cat-t1'),
+      categoryId: asCategoryId('cat-1'),
+    };
+    await controller.createProductTemplate(dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateProductTemplateCommand));
   });
 
   it('updateProductTemplate should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Updated Prod', price: 12 };
-    await controller.updateProductTemplate('prod-t1', dto as any);
+    await controller.updateProductTemplate('prod-t1', dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateProductTemplateCommand));
   });
 
@@ -103,14 +109,14 @@ describe('TemplatesController', () => {
   it('importTemplatesToBar should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue({ success: true, created: 2, modified: 1 });
     const dto = { categoryTemplateIds: ['cat-t1'], productTemplateIds: ['prod-t1'] };
-    await controller.importTemplatesToBar('bar-1', dto as any);
+    await controller.importTemplatesToBar('bar-1', dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ImportTemplatesToBarCommand));
   });
 
   it('bulkUpsertTemplates should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const body = [{ name: 'Cat 1', products: [{ name: 'Prod 1', price: 5 }] }];
-    await controller.bulkUpsertTemplates(body as any);
+    await controller.bulkUpsertTemplates(body);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(BulkUpsertTemplatesCommand));
   });
 });

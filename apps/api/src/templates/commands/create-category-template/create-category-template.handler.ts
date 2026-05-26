@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateCategoryTemplateCommand } from './create-category-template.command';
+
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { TemplatesMapper } from '../../mappers/templates.mapper';
+import { CreateCategoryTemplateCommand } from './create-category-template.command';
 
 @CommandHandler(CreateCategoryTemplateCommand)
 export class CreateCategoryTemplateHandler implements ICommandHandler<CreateCategoryTemplateCommand, any> {

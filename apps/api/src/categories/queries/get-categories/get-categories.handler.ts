@@ -1,8 +1,9 @@
+import { Category } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetCategoriesQuery } from './get-categories.query';
+
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CategoriesMapper } from '../../mappers/categories.mapper';
-import { Category } from '@coaster/common';
+import { GetCategoriesQuery } from './get-categories.query';
 
 @QueryHandler(GetCategoriesQuery)
 export class GetCategoriesHandler implements IQueryHandler<GetCategoriesQuery, Category[]> {

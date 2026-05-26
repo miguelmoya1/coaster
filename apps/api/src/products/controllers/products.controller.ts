@@ -1,18 +1,19 @@
 import { type BarId, BarRole, type ProductId, type Product } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
-import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
-import { UpdateProductDto } from '../dto/update-product.dto';
-import { ProductsMapper } from '../mappers/products.mapper';
-import { GetProductsByBarIdQuery } from '../queries';
 import {
   CreateProductCommand,
   UpdateProductStockCommand,
   UpdateProductCommand,
   DeleteProductCommand,
 } from '../commands';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
+import { ProductsMapper } from '../mappers/products.mapper';
+import { GetProductsByBarIdQuery } from '../queries';
 
 @Controller('bars/:barId/products')
 @UseGuards(FirebaseAuthGuard, RolesGuard)

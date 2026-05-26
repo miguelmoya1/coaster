@@ -1,15 +1,16 @@
+import { asBarId, asCategoryId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeleteCategoryHandler } from './delete-category.handler';
-import { DeleteCategoryCommand } from './delete-category.command';
+
 import { CategoriesRepository } from '../../data-access/categories.repository';
-import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asCategoryId } from '@coaster/common';
 import { CategoryDeletedEvent } from '../../events';
+import { DeleteCategoryCommand } from './delete-category.command';
+import { DeleteCategoryHandler } from './delete-category.handler';
 
 describe('DeleteCategoryHandler', () => {
   let handler: DeleteCategoryHandler;
-  let repository = {
+  const repository = {
     delete: vi.fn(),
   };
   const eventBus = {

@@ -1,8 +1,9 @@
+import { User } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateUserCommand } from './update-user.command';
+
 import { UserRepository } from '../../data-access/user.repository';
 import { UsersMapper } from '../../mappers/users.mapper';
-import { User } from '@coaster/common';
+import { UpdateUserCommand } from './update-user.command';
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, User> {

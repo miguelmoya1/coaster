@@ -1,11 +1,12 @@
 import { asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
-import { UsersController } from './users.controller';
-import { CommandBus } from '@nestjs/cqrs';
 import { UpdateUserCommand } from '../commands';
+import { UsersController } from './users.controller';
 
 describe('UsersController', () => {
   let controller: UsersController;

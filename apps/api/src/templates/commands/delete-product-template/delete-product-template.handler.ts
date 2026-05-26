@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DeleteProductTemplateCommand } from './delete-product-template.command';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+
 import { commonMapper } from '../../../core/mappers/common.mapper';
+import { TemplatesRepository } from '../../data-access/templates.repository';
+import { DeleteProductTemplateCommand } from './delete-product-template.command';
 
 @CommandHandler(DeleteProductTemplateCommand)
 export class DeleteProductTemplateHandler implements ICommandHandler<DeleteProductTemplateCommand, any> {

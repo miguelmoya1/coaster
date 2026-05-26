@@ -1,14 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeleteOrderHandler } from './delete-order.handler';
-import { DeleteOrderCommand } from './delete-order.command';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { asBarId, asOrderId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { DeleteOrderCommand } from './delete-order.command';
+import { DeleteOrderHandler } from './delete-order.handler';
 
 describe('DeleteOrderHandler', () => {
   let handler: DeleteOrderHandler;
-  let repository = {
+  const repository = {
     findById: vi.fn(),
     deleteOrder: vi.fn(),
   };

@@ -1,16 +1,17 @@
 import { asBarId, asProductId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { ProductsController } from './products.controller';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CreateProductCommand,
   UpdateProductStockCommand,
   UpdateProductCommand,
   DeleteProductCommand,
 } from '../commands';
+import { ProductsController } from './products.controller';
 import { GetProductsByBarIdQuery } from '../queries';
 
 describe('ProductsController', () => {

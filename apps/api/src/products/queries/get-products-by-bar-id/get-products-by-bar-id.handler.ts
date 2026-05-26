@@ -1,8 +1,9 @@
+import { Product } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetProductsByBarIdQuery } from './get-products-by-bar-id.query';
+
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductsMapper } from '../../mappers/products.mapper';
-import { Product } from '@coaster/common';
+import { GetProductsByBarIdQuery } from './get-products-by-bar-id.query';
 
 @QueryHandler(GetProductsByBarIdQuery)
 export class GetProductsByBarIdHandler implements IQueryHandler<GetProductsByBarIdQuery, Product[]> {

@@ -1,8 +1,9 @@
+import { ShiftExchange } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetPendingExchangesQuery } from './get-pending-exchanges.query';
+
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { ShiftExchangesMapper } from '../../mappers/shift-exchanges.mapper';
-import { ShiftExchange } from '@coaster/common';
+import { GetPendingExchangesQuery } from './get-pending-exchanges.query';
 
 @QueryHandler(GetPendingExchangesQuery)
 export class GetPendingExchangesHandler implements IQueryHandler<GetPendingExchangesQuery, ShiftExchange[]> {

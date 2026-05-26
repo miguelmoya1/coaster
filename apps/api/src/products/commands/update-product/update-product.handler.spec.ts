@@ -1,16 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpdateProductHandler } from './update-product.handler';
-import { UpdateProductCommand } from './update-product.command';
-import { ProductsRepository } from '../../data-access/products.repository';
-import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asProductId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductStockChangedEvent } from '../../events';
+import { UpdateProductCommand } from './update-product.command';
+import { UpdateProductHandler } from './update-product.handler';
 
 describe('UpdateProductHandler', () => {
   let handler: UpdateProductHandler;
-  let repository = {
+  const repository = {
     checkCategoryBelongsToBar: vi.fn(),
     update: vi.fn(),
   };

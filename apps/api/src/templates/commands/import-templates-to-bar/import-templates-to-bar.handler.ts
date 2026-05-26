@@ -1,9 +1,10 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
-import { TemplatesRepository } from '../../data-access/templates.repository';
 import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { commonMapper } from '../../../core/mappers/common.mapper';
+import { TemplatesRepository } from '../../data-access/templates.repository';
+import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
 
 @CommandHandler(ImportTemplatesToBarCommand)
 export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTemplatesToBarCommand, any> {

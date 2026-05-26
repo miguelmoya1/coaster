@@ -1,9 +1,10 @@
+import { asBarId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TableUpdatedHandler } from './table-updated.handler';
-import { TableUpdatedEvent } from './table-updated.event';
+
 import { BarGateway } from '../../../core';
-import { asBarId, SocketEvents } from '@coaster/common';
+import { TableUpdatedEvent } from './table-updated.event';
+import { TableUpdatedHandler } from './table-updated.handler';
 
 describe('TableUpdatedHandler', () => {
   let handler: TableUpdatedHandler;
@@ -25,7 +26,12 @@ describe('TableUpdatedHandler', () => {
 
   it('should emit TABLE_UPDATED event', () => {
     const barId = asBarId('bar-1');
-    const table = { id: 'table-1', name: 'Table 1 Updated' } as any;
+    const table = {
+      id: asTableId('table-1'),
+      name: 'Table 1 Updated',
+      status: TableStatus.FREE,
+      barId: asBarId('bar-1'),
+    };
     const event = new TableUpdatedEvent(barId, table);
 
     handler.handle(event);

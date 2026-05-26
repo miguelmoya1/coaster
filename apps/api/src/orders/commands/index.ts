@@ -1,12 +1,12 @@
-import { CreateOrderHandler } from './create-order/create-order.handler';
 import { AddOrderItemsHandler } from './add-order-items/add-order-items.handler';
 import { BulkUpdateOrderHandler } from './bulk-update-order/bulk-update-order.handler';
-import { CheckoutOrderHandler } from './checkout-order/checkout-order.handler';
 import { CancelOrderHandler } from './cancel-order/cancel-order.handler';
-import { MoveOrderTableHandler } from './move-order-table/move-order-table.handler';
-import { MergeOrdersHandler } from './merge-orders/merge-orders.handler';
-import { RemoveOrderItemHandler } from './remove-order-item/remove-order-item.handler';
+import { CheckoutOrderHandler } from './checkout-order/checkout-order.handler';
+import { CreateOrderHandler } from './create-order/create-order.handler';
 import { DeleteOrderHandler } from './delete-order/delete-order.handler';
+import { MergeOrdersHandler } from './merge-orders/merge-orders.handler';
+import { MoveOrderTableHandler } from './move-order-table/move-order-table.handler';
+import { RemoveOrderItemHandler } from './remove-order-item/remove-order-item.handler';
 
 export { CreateOrderCommand } from './create-order/create-order.command';
 export { AddOrderItemsCommand } from './add-order-items/add-order-items.command';

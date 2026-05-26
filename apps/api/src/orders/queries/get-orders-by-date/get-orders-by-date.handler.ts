@@ -1,8 +1,9 @@
+import { Order } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetOrdersByDateQuery } from './get-orders-by-date.query';
+
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
-import { Order } from '@coaster/common';
+import { GetOrdersByDateQuery } from './get-orders-by-date.query';
 
 @QueryHandler(GetOrdersByDateQuery)
 export class GetOrdersByDateHandler implements IQueryHandler<GetOrdersByDateQuery, Order[]> {
