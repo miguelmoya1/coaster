@@ -1,7 +1,6 @@
-import { asBarId, SocketEvents } from '@coaster/common';
+import { asBarId, SocketEvents, Table } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { TableCreatedEvent } from './table-created.event';
 import { TableCreatedHandler } from './table-created.handler';
@@ -26,7 +25,7 @@ describe('TableCreatedHandler', () => {
 
   it('should emit TABLE_CREATED event', () => {
     const barId = asBarId('bar-1');
-    const table = { id: 'table-1', name: 'Table 1' } as any;
+    const table = { id: 'table-1', name: 'Table 1' } as unknown as Table;
     const event = new TableCreatedEvent(barId, table);
 
     handler.handle(event);

@@ -1,7 +1,6 @@
 import { asBarId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { GetOrdersByBarIdHandler } from './get-orders-by-bar-id.handler';
 import { GetOrdersByBarIdQuery } from './get-orders-by-bar-id.query';

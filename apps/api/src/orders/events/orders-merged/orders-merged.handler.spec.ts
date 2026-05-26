@@ -1,7 +1,6 @@
-import { asBarId, asOrderId, asTableId, SocketEvents } from '@coaster/common';
+import { asBarId, asOrderId, asTableId, Order, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { OrdersMergedEvent } from './orders-merged.event';
 import { OrdersMergedHandler } from './orders-merged.handler';
@@ -26,7 +25,7 @@ describe('OrdersMergedHandler', () => {
 
   it('should emit ORDER_UPDATED for primary order, cancel source orders and free their tables', () => {
     const barId = asBarId('bar-1');
-    const primaryOrder = { id: 'order-primary' } as any;
+    const primaryOrder = { id: 'order-primary' } as unknown as Order;
     const sourceOrders = [
       { id: asOrderId('order-s1'), tableId: asTableId('table-1') },
       { id: asOrderId('order-s2'), tableId: null },

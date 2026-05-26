@@ -1,7 +1,6 @@
 import { ErrorCodes, ShiftExchangeStatus, asShiftId } from '@coaster/common';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { AcceptExchangeCommand } from './accept-exchange.command';
 

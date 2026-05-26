@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import { FirebaseAuthGuard } from './firebase-auth.guard';
 
 describe('FirebaseAuthGuard', () => {

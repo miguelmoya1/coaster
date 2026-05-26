@@ -3,7 +3,6 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import {
   CreateOrderCommand,
@@ -16,6 +15,10 @@ import {
   RemoveOrderItemCommand,
   DeleteOrderCommand,
 } from '../commands';
+import { AddOrderItemsDto } from '../dto/add-order-items.dto';
+import { BulkUpdateDto } from '../dto/bulk-update.dto';
+import { CreateOrderDto } from '../dto/create-order.dto';
+import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { OrdersController } from './orders.controller';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
@@ -76,7 +79,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue({ id: 'order-1' });
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
-    const result = await controller.createOrder(asBarId('bar-1'), dto as any);
+    const result = await controller.createOrder(asBarId('bar-1'), dto as unknown as CreateOrderDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateOrderCommand));
     expect(result).toEqual({ id: 'order-1' });
@@ -95,7 +98,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
-    const result = await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto as any);
+    const result = await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto as unknown as AddOrderItemsDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AddOrderItemsCommand));
     expect(result.id).toBe('order-1');
@@ -105,7 +108,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
-    const result = await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto as any);
+    const result = await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto as unknown as BulkUpdateDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(BulkUpdateOrderCommand));
     expect(result.id).toBe('order-1');
@@ -152,7 +155,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(mockOrder);
     const dto = { orderIds: ['order-1', 'order-2'] };
 
-    const result = await controller.mergeOrders(asBarId('bar-1'), dto as any);
+    const result = await controller.mergeOrders(asBarId('bar-1'), dto as unknown as MergeOrdersDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MergeOrdersCommand));
     expect(result.id).toBe('order-1');

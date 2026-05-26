@@ -1,7 +1,6 @@
 import { ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { TablesRepository } from '../../data-access/tables.repository';
 import { TableUpdatedEvent } from '../../events';
 import { TablesMapper } from '../../mappers/tables.mapper';

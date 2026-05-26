@@ -1,7 +1,6 @@
-import { asBarId, asProductId, SocketEvents } from '@coaster/common';
+import { asBarId, asProductId, Order, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { OrderItemsAddedEvent } from './order-items-added.event';
 import { OrderItemsAddedHandler } from './order-items-added.handler';
@@ -26,7 +25,7 @@ describe('OrderItemsAddedHandler', () => {
 
   it('should emit ORDER_ITEM_ADDED event', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const addedItems = [{ productId: asProductId('prod-1'), quantity: 3 }];
     const event = new OrderItemsAddedEvent(barId, order, addedItems);
 

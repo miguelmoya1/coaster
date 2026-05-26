@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductDeletedEvent } from '../../events';
 import { DeleteProductCommand } from './delete-product.command';

@@ -1,6 +1,5 @@
 import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-
 import { PrismaService } from '../../core';
 
 @Injectable()

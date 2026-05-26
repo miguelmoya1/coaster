@@ -1,8 +1,7 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asBarId, asOrderId, Order, TableId } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderClosedEvent } from '../../events';
 import { CheckoutOrderCommand } from './checkout-order.command';
@@ -53,7 +52,7 @@ describe('CheckoutOrderHandler', () => {
     await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrderClosedEvent(asBarId('bar-1'), expect.any(Object), expect.any(String)),
+      new OrderClosedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),
     );
   });
 });

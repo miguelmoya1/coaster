@@ -1,7 +1,6 @@
 import { asTableId, ErrorCodes, Order } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderTableMovedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';

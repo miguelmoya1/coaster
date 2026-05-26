@@ -1,7 +1,6 @@
 import { BarMember, ErrorCodes } from '@coaster/common';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
 import { EmailService } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';

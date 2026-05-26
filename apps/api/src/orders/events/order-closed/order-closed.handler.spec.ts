@@ -1,7 +1,6 @@
-import { asBarId, asTableId, SocketEvents } from '@coaster/common';
+import { asBarId, asTableId, Order, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { OrderClosedEvent } from './order-closed.event';
 import { OrderClosedHandler } from './order-closed.handler';
@@ -26,7 +25,7 @@ describe('OrderClosedHandler', () => {
 
   it('should emit ORDER_CLOSED event and set table status to FREE if table exists', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const tableId = asTableId('table-1');
     const event = new OrderClosedEvent(barId, order, tableId);
 
@@ -42,7 +41,7 @@ describe('OrderClosedHandler', () => {
 
   it('should only emit ORDER_CLOSED event if no table exists', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const event = new OrderClosedEvent(barId, order, null);
 
     handler.handle(event);

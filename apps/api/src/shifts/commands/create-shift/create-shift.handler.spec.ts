@@ -2,7 +2,6 @@ import { asBarId, asUserId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { ShiftsRepository } from '../../data-access/shifts.repository';
 import { CreateShiftCommand } from './create-shift.command';
 import { CreateShiftHandler } from './create-shift.handler';

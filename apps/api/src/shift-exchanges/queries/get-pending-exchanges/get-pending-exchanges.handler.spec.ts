@@ -1,7 +1,6 @@
 import { asBarId, ShiftExchangeStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { GetPendingExchangesHandler } from './get-pending-exchanges.handler';
 import { GetPendingExchangesQuery } from './get-pending-exchanges.query';

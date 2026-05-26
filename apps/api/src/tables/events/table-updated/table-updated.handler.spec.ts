@@ -1,7 +1,6 @@
 import { asBarId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { TableUpdatedEvent } from './table-updated.event';
 import { TableUpdatedHandler } from './table-updated.handler';

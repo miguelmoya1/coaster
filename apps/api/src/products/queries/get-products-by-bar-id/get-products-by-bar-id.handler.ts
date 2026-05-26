@@ -1,6 +1,5 @@
 import { Product } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductsMapper } from '../../mappers/products.mapper';
 import { GetProductsByBarIdQuery } from './get-products-by-bar-id.query';

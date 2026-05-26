@@ -1,6 +1,5 @@
 import { Bar } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-
 import { BarRepository } from '../../data-access/bar.repository';
 import { BarsMapper } from '../../mappers/bars.mapper';
 import { GetBarByIdQuery } from './get-bar-by-id.query';

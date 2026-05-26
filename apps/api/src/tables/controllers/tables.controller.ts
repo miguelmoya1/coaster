@@ -1,7 +1,6 @@
 import { type BarId, BarRole, type Table, type TableId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { CreateTableDto } from '../dto/create-table.dto';

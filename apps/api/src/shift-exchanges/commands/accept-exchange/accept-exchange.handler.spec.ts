@@ -2,7 +2,6 @@ import { asBarId, asShiftExchangeId, asUserId, ShiftExchangeStatus } from '@coas
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { AcceptExchangeCommand } from './accept-exchange.command';
 import { AcceptExchangeHandler } from './accept-exchange.handler';

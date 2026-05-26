@@ -1,5 +1,4 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { TemplatesMapper } from '../../mappers/templates.mapper';
 import { FindAllProductTemplatesQuery } from './find-all-product-templates.query';

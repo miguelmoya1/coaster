@@ -1,9 +1,8 @@
-import { asBarId, asUserId } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
@@ -49,7 +48,7 @@ describe('BarMembersController', () => {
   it('inviteMember should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({});
     const user = { id: asUserId('admin-id'), name: 'Admin', email: 'a@a.com', active: true };
-    const dto = { email: 'new@staff.com', role: 'staff' as any };
+    const dto = { email: 'new@staff.com', role: BarRole.STAFF };
 
     await controller.inviteMember(asBarId('bar-1'), dto, user);
 
@@ -59,7 +58,7 @@ describe('BarMembersController', () => {
   it('removeMember should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.removeMember(asBarId('bar-1'), 'mem-1' as any);
+    await controller.removeMember(asBarId('bar-1'), asBarMemberId('mem-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RemoveMemberCommand));
   });

@@ -1,7 +1,6 @@
 import { asBarId, asUserId, Role } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarRepository } from '../../data-access/bar.repository';
 import { CreateBarCommand } from './create-bar.command';
 import { CreateBarHandler } from './create-bar.handler';

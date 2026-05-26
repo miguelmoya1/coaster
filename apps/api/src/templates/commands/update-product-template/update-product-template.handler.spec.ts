@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { UpdateProductTemplateCommand } from './update-product-template.command';
 import { UpdateProductTemplateHandler } from './update-product-template.handler';

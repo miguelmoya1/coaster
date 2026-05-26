@@ -1,9 +1,8 @@
-import { asBarId, asProductId } from '@coaster/common';
+import { asBarId, asProductId, CreateProductDto } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-
 import { FirebaseAuthGuard, RolesGuard } from '../../core';
 import {
   CreateProductCommand,
@@ -55,7 +54,7 @@ describe('ProductsController', () => {
     commandBus.execute.mockResolvedValue({ id: 'prod-1' });
     const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
 
-    await controller.createProduct(asBarId('bar-1'), dto as any);
+    await controller.createProduct(asBarId('bar-1'), dto as unknown as CreateProductDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateProductCommand));
   });

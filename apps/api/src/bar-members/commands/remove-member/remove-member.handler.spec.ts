@@ -2,7 +2,6 @@ import { asBarId, asBarMemberId } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';

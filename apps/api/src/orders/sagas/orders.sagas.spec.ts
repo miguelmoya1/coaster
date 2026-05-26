@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';
 import { beforeEach, describe, expect, it } from 'vitest';
-
 import { AdjustProductStockCommand } from '../../products/commands/adjust-product-stock/adjust-product-stock.command';
 import { OrderCancelledEvent } from '../events/order-cancelled/order-cancelled.event';
 import { OrderCreatedEvent } from '../events/order-created/order-created.event';

@@ -1,7 +1,6 @@
 import { type BarId, BarRole, type Order, type OrderId, type OrderItemId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-
 import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import {
   CreateOrderCommand,

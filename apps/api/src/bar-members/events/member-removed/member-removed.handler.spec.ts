@@ -1,7 +1,6 @@
 import { asBarId, asBarMemberId, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { MemberRemovedEvent } from './member-removed.event';
 import { MemberRemovedHandler } from './member-removed.handler';

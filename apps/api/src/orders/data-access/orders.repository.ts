@@ -1,6 +1,5 @@
 import { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-
 import { PrismaService } from '../../core';
 
 @Injectable()
@@ -217,7 +216,7 @@ export class OrdersRepository {
           continue;
         }
 
-        const dataToUpdate: any = {};
+        const dataToUpdate: Record<string, unknown> = {};
 
         if (update.paidQuantity !== undefined) {
           const newPaidQuantity = update.paidQuantity;

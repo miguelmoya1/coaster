@@ -1,8 +1,7 @@
-import { asBarId, asOrderId, asOrderItemId } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId, Order } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderUpdatedEvent } from '../../events';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
@@ -79,6 +78,6 @@ describe('RemoveOrderItemHandler', () => {
         removedItem: { productId: 'p1', quantity: 1 },
       }),
     );
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object)));
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order));
   });
 });

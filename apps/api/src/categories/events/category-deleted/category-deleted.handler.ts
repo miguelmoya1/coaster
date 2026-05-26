@@ -1,6 +1,5 @@
 import { SocketEvents } from '@coaster/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-
 import { BarGateway } from '../../../core';
 import { CategoryDeletedEvent } from './category-deleted.event';
 

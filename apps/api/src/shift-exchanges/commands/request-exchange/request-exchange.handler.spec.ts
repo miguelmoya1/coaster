@@ -2,7 +2,6 @@ import { asBarId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/comm
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { RequestExchangeCommand } from './request-exchange.command';
 import { RequestExchangeHandler } from './request-exchange.handler';

@@ -1,7 +1,6 @@
 import { type BarId, BarRole, type Shift } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-
 import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
 import { CreateShiftCommand } from '../commands';
 import { CreateShiftDto } from '../dto/create-shift.dto';

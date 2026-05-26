@@ -1,9 +1,8 @@
-import { asBarId } from '@coaster/common';
+import { asBarId, Order, TableId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderCreatedEvent } from '../../events';
 import { CreateOrderCommand } from './create-order.command';
@@ -66,6 +65,6 @@ describe('CreateOrderHandler', () => {
     const result = await handler.execute(new CreateOrderCommand(barId, dto));
 
     expect(result.id).toBe('order-1');
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object), expect.any(String)));
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId));
   });
 });

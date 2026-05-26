@@ -1,7 +1,6 @@
 import * as Coaster from '@coaster/common';
 import { Type } from 'class-transformer';
 import { ArrayMinSize, IsArray, IsOptional, IsUUID, ValidateNested } from 'class-validator';
-
 import { CreateOrderItemDto } from './create-order-item.dto';
 
 export class CreateOrderDto implements Coaster.CreateOrderDto {

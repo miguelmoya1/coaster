@@ -1,8 +1,7 @@
-import { asBarId, asProductId } from '@coaster/common';
+import { asBarId, asProductId, Product } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { ProductsRepository } from '../../data-access/products.repository';
 import { ProductStockChangedEvent } from '../../events';
 import { UpdateProductStockCommand } from './update-product-stock.command';
@@ -49,6 +48,6 @@ describe('UpdateProductStockHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, dto);
-    expect(eventBus.publish).toHaveBeenCalledWith(new ProductStockChangedEvent(barId, expect.any(Object)));
+    expect(eventBus.publish).toHaveBeenCalledWith(new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product));
   });
 });

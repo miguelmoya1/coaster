@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CategoryDeletedEvent } from '../../events';
 import { DeleteCategoryCommand } from './delete-category.command';

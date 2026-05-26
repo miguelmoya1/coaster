@@ -1,7 +1,6 @@
 import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { UserRepository } from '../../data-access/user.repository';
 import { GetUserByIdHandler } from './get-user-by-id.handler';
 import { GetUserByIdQuery } from './get-user-by-id.query';

@@ -1,6 +1,5 @@
 import { TableId } from '@coaster/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { TablesRepository } from '../../data-access/tables.repository';
 import { TableCreatedEvent } from '../../events';
 import { TablesMapper } from '../../mappers/tables.mapper';

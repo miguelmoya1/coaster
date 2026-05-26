@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { CommandHandlers } from './commands';
 import { ShiftsController } from './controllers/shifts.controller';
 import { ShiftsRepository } from './data-access/shifts.repository';

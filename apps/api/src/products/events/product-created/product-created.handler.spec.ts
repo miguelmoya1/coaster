@@ -1,7 +1,6 @@
-import { asBarId, SocketEvents } from '@coaster/common';
+import { asBarId, Product, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { ProductCreatedEvent } from './product-created.event';
 import { ProductCreatedHandler } from './product-created.handler';
@@ -26,7 +25,7 @@ describe('ProductCreatedHandler', () => {
 
   it('should emit PRODUCT_CREATED event', () => {
     const barId = asBarId('bar-1');
-    const product = { id: 'prod-1', name: 'Soda' } as any;
+    const product = { id: 'prod-1', name: 'Soda' } as unknown as Product;
     const event = new ProductCreatedEvent(barId, product);
 
     handler.handle(event);

@@ -1,7 +1,6 @@
-import { asBarId, asTableId, SocketEvents } from '@coaster/common';
+import { asBarId, asTableId, Order, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { OrderTableMovedEvent } from './order-table-moved.event';
 import { OrderTableMovedHandler } from './order-table-moved.handler';
@@ -26,7 +25,7 @@ describe('OrderTableMovedHandler', () => {
 
   it('should emit ORDER_UPDATED event, free the old table, and occupy the new table', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const oldTableId = asTableId('table-1');
     const newTableId = asTableId('table-2');
     const event = new OrderTableMovedEvent(barId, order, oldTableId, newTableId);
@@ -47,7 +46,7 @@ describe('OrderTableMovedHandler', () => {
 
   it('should emit ORDER_UPDATED event and occupy the new table if there was no old table', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const newTableId = asTableId('table-2');
     const event = new OrderTableMovedEvent(barId, order, null, newTableId);
 

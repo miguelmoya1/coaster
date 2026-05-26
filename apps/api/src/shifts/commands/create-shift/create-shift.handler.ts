@@ -1,7 +1,6 @@
 import { Shift, ErrorCodes } from '@coaster/common';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
 import { ShiftsRepository } from '../../data-access/shifts.repository';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { CreateShiftCommand } from './create-shift.command';

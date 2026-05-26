@@ -1,8 +1,7 @@
-import { asBarId, asTableId, OrderId } from '@coaster/common';
+import { asBarId, asTableId, Order, OrderId, TableId } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMergedEvent } from '../../events';
 import { MergeOrdersCommand } from './merge-orders.command';
@@ -71,7 +70,7 @@ describe('MergeOrdersHandler', () => {
     );
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object), expect.any(Array)),
+      new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(Array) as unknown as { id: OrderId; tableId: TableId | null }[]),
     );
   });
 });

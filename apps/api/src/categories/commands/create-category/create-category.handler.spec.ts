@@ -1,7 +1,6 @@
 import { asBarId, asCategoryId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CreateCategoryCommand } from './create-category.command';
 import { CreateCategoryHandler } from './create-category.handler';

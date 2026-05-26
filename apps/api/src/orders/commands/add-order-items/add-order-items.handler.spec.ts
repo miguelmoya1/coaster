@@ -1,9 +1,8 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { AddOrderItemsDto, asBarId, asOrderId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { AddOrderItemsCommand } from './add-order-items.command';
 import { AddOrderItemsHandler } from './add-order-items.handler';
@@ -80,7 +79,7 @@ describe('AddOrderItemsHandler', () => {
       ],
     });
 
-    const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as any));
+    const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as AddOrderItemsDto));
 
     expect(result).toBeDefined();
     expect(eventBus.publish).toHaveBeenCalledWith(

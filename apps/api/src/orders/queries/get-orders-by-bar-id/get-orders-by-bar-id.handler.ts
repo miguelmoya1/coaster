@@ -1,6 +1,5 @@
 import { Order } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { GetOrdersByBarIdQuery } from './get-orders-by-bar-id.query';

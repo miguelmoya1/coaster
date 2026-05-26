@@ -1,5 +1,4 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-
 import { OrderItemRemovedEvent } from './order-item-removed.event';
 
 @EventsHandler(OrderItemRemovedEvent)

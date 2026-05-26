@@ -1,6 +1,5 @@
 import { Category } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CategoriesMapper } from '../../mappers/categories.mapper';
 import { CreateCategoryCommand } from './create-category.command';

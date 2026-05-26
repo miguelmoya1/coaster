@@ -1,9 +1,8 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId, Table } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { TablesRepository } from '../../data-access/tables.repository';
 import { TableUpdatedEvent } from '../../events';
 import { UpdateTableCommand } from './update-table.command';
@@ -65,6 +64,6 @@ describe('UpdateTableHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(tableId, dto);
-    expect(eventBus.publish).toHaveBeenCalledWith(new TableUpdatedEvent(barId, expect.any(Object)));
+    expect(eventBus.publish).toHaveBeenCalledWith(new TableUpdatedEvent(barId, expect.any(Object) as unknown as Table));
   });
 });

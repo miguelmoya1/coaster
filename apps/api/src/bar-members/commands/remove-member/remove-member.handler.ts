@@ -1,7 +1,6 @@
 import { BarRole, ErrorCodes } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';

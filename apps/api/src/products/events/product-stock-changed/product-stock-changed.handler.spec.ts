@@ -1,7 +1,6 @@
-import { asBarId, SocketEvents } from '@coaster/common';
+import { asBarId, Product, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { ProductStockChangedEvent } from './product-stock-changed.event';
 import { ProductStockChangedHandler } from './product-stock-changed.handler';
@@ -26,7 +25,7 @@ describe('ProductStockChangedHandler', () => {
 
   it('should emit PRODUCT_STOCK_CHANGED event', () => {
     const barId = asBarId('bar-1');
-    const product = { id: 'prod-1', name: 'Soda', currentStock: 10 } as any;
+    const product = { id: 'prod-1', name: 'Soda', currentStock: 10 } as unknown as Product;
     const event = new ProductStockChangedEvent(barId, product);
 
     handler.handle(event);

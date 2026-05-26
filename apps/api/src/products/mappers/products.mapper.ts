@@ -1,5 +1,4 @@
 import { asCategoryId, asProductId, Product, resolveStockStatus } from '@coaster/common';
-
 import { Product as ProductDb } from '../../core';
 
 export const ProductsMapper = {

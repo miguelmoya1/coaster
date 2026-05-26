@@ -1,7 +1,6 @@
 import { asBarId, BarRole } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-
 import { PrismaService } from '../../core';
 import { BarMembersRepository } from './bar-members.repository';
 

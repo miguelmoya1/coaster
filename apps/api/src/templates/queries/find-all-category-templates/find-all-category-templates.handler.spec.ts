@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { FindAllCategoryTemplatesHandler } from './find-all-category-templates.handler';
 import { FindAllCategoryTemplatesQuery } from './find-all-category-templates.query';

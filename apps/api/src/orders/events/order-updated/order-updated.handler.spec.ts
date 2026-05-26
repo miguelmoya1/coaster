@@ -1,7 +1,6 @@
-import { asBarId, SocketEvents } from '@coaster/common';
+import { asBarId, Order, SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { BarGateway } from '../../../core';
 import { OrderUpdatedEvent } from './order-updated.event';
 import { OrderUpdatedHandler } from './order-updated.handler';
@@ -26,7 +25,7 @@ describe('OrderUpdatedHandler', () => {
 
   it('should emit ORDER_UPDATED event', () => {
     const barId = asBarId('bar-1');
-    const order = { id: 'order-1' } as any;
+    const order = { id: 'order-1' } as unknown as Order;
     const event = new OrderUpdatedEvent(barId, order);
 
     handler.handle(event);

@@ -2,7 +2,6 @@ import { asBarId, asOrderId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { DeleteOrderCommand } from './delete-order.command';
 import { DeleteOrderHandler } from './delete-order.handler';
