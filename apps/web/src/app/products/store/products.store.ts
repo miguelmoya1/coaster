@@ -109,7 +109,14 @@ export class ProductsStore {
     }
 
     try {
-      await this.#createProduct.execute(barId, createProductDto);
+      const created = await this.#createProduct.execute(barId, createProductDto);
+      this.#productsResource.update((products) => {
+        if (!products) {
+          return [created];
+        }
+        const exists = products.some((p) => p.id === created.id);
+        return exists ? products : [...products, created];
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -123,7 +130,13 @@ export class ProductsStore {
     }
 
     try {
-      await this.#updateProduct.execute(barId, productId, updateProductDto);
+      const updated = await this.#updateProduct.execute(barId, productId, updateProductDto);
+      this.#productsResource.update((products) => {
+        if (!products) {
+          return undefined;
+        }
+        return products.map((p) => (p.id === updated.id ? updated : p));
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -137,7 +150,13 @@ export class ProductsStore {
     }
 
     try {
-      await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+      const updated = await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+      this.#productsResource.update((products) => {
+        if (!products) {
+          return undefined;
+        }
+        return products.map((p) => (p.id === updated.id ? updated : p));
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -152,6 +171,12 @@ export class ProductsStore {
 
     try {
       await this.#deleteProduct.execute(barId, productId);
+      this.#productsResource.update((products) => {
+        if (!products) {
+          return undefined;
+        }
+        return products.filter((p) => p.id !== productId);
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);

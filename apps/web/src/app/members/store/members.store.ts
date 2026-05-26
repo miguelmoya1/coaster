@@ -76,6 +76,12 @@ export class MembersStore {
 
     try {
       await this.#removeMember.execute(barId, memberId);
+      this.#membersResource.update((members) => {
+        if (!members) {
+          return undefined;
+        }
+        return members.filter((m) => m.id !== memberId);
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);

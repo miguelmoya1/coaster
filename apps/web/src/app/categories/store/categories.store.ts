@@ -90,6 +90,12 @@ export class CategoriesStore {
 
     try {
       await this.#deleteCategory.execute(barId, categoryId);
+      this.#categoriesResource.update((categories) => {
+        if (!categories) {
+          return undefined;
+        }
+        return categories.filter((c) => c.id !== categoryId);
+      });
       return null;
     } catch (error) {
       return handleErrorFormField(error);

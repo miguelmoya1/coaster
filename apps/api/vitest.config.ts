@@ -13,6 +13,17 @@ export default defineConfig({
     swc.vite({
       module: { type: 'es6' },
       swcrc: false,
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          decorators: true,
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+          useDefineForClassFields: false,
+        },
+      },
     }),
   ],
   resolve: {
