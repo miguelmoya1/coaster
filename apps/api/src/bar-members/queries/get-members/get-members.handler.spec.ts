@@ -48,6 +48,7 @@ describe('GetMembersHandler', () => {
         barId: 'bar-1',
         active: true,
         role: BarRole.OWNER,
+        permissions: [],
         userName: 'admin',
         userImage: 'http://user-1.jpg',
         userEmail: 'admin@mail.com',

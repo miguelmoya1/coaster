@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { BarId, BarMember, BarRole } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -37,27 +37,15 @@ export default class Staff {
   public readonly barId = input.required<BarId>();
 
   readonly #membersStore = inject(MembersStore);
-  readonly #currentUser = inject(CurrentUser);
+  readonly #barsStore = inject(BarsStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
   protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
-  protected readonly userMember = computed(() => {
-    if (!this.#membersStore.list.hasValue()) {
-      return undefined;
-    }
-
-    if (!this.#currentUser.current.hasValue()) {
-      return undefined;
-    }
-
-    const user = this.#currentUser.current.value();
-
-    return this.#membersStore.list.value().find((member) => member.userId === user?.id);
-  });
-  protected readonly isOwner = computed(() => this.userMember()?.role === BarRole.OWNER);
+  protected readonly userMember = this.#barsStore.myMember.value;
+  protected readonly isOwner = this.#barsStore.isOwner;
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];

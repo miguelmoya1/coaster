@@ -13,6 +13,7 @@ describe('MemberRepository', () => {
     userId: asUserId('user-1'),
     barId: asBarId('bar-1'),
     role: BarRole.STAFF,
+    permissions: [],
     active: true,
     userName: 'John Doe',
     userEmail: 'john@test.com',

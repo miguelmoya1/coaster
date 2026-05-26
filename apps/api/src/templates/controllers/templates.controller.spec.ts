@@ -3,7 +3,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard, UserRolesGuard } from '../../core';
+import { FirebaseAuthGuard, PermissionsGuard, UserRolesGuard } from '../../core';
 import {
   BulkUpsertTemplatesCommand,
   CreateCategoryTemplateCommand,
@@ -39,7 +39,7 @@ describe('TemplatesController', () => {
       .useValue(mockGuard)
       .overrideGuard(UserRolesGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 

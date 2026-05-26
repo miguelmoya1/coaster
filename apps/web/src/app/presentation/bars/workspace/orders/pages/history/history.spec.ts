@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { BarsStore } from '@coaster/bars';
 import { OrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -31,6 +30,10 @@ describe('History', () => {
     setBarId: vi.fn(),
   };
 
+  const barsStoreMock = {
+    isOwner: signal(false),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [History],
@@ -38,17 +41,7 @@ describe('History', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: OrdersStore, useValue: ordersStoreMock },
-        {
-          provide: CurrentUser,
-          useValue: { current: { value: vi.fn().mockReturnValue(null), hasValue: vi.fn().mockReturnValue(false) } },
-        },
-        {
-          provide: MembersStore,
-          useValue: {
-            list: { value: vi.fn().mockReturnValue([]), hasValue: vi.fn().mockReturnValue(false) },
-            setBarId: vi.fn(),
-          },
-        },
+        { provide: BarsStore, useValue: barsStoreMock },
       ],
     }).compileComponents();
 

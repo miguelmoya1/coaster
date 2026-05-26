@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
 import { OrdersStore } from '@coaster/orders';
 import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe, StatusCard } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -21,8 +20,7 @@ class History {
   public readonly barId = input.required<BarId>();
 
   readonly #ordersStore = inject(OrdersStore);
-  readonly #currentUser = inject(CurrentUser);
-  readonly #membersStore = inject(MembersStore);
+  readonly #barsStore = inject(BarsStore);
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -31,7 +29,6 @@ class History {
     effect(() => {
       const barId = this.barId();
       this.#ordersStore.setBarId(barId);
-      this.#membersStore.setBarId(barId);
     });
   }
 
@@ -44,14 +41,7 @@ class History {
   protected readonly orderToDelete = signal<Order | null>(null);
 
   readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
-  readonly isOwner = computed(() => {
-    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
-      return false;
-    }
-    const members = this.#membersStore.list.value() ?? [];
-    const userId = this.#currentUser.current.value()?.id;
-    return members.find((m) => m.userId === userId)?.role === 'OWNER';
-  });
+  readonly isOwner = this.#barsStore.isOwner;
 
   readonly totalRevenue = this.#ordersStore.historyTotalRevenue;
   readonly averageTicket = this.#ordersStore.averageTicket;

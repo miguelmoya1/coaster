@@ -3,7 +3,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
 import {
   CreateProductCommand,
   UpdateProductStockCommand,
@@ -33,7 +33,7 @@ describe('ProductsController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 

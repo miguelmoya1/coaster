@@ -9,10 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, Category, Product } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { BarId, BarPermission, Category, Product } from '@coaster/common';
 import { ProductsStore } from '@coaster/products';
 import {
   BottomSheet,
@@ -75,11 +74,12 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 
+  protected readonly barsStore = inject(BarsStore);
+  protected readonly BarPermission = BarPermission;
+
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
-  readonly #currentUser = inject(CurrentUser);
   readonly #translate = inject(TranslateService);
-  readonly #membersStore = inject(MembersStore);
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -111,11 +111,6 @@ export default class Pantry {
 
   readonly isModalOpen = linkedSignal(() => {
     return this.productSelected() || this.productToEdit() || this.categoryToEdit() || this.isCreateMode();
-  });
-
-  readonly currentUserRole = computed(() => {
-    const barMember = this.#membersStore.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
-    return barMember?.role;
   });
 
   readonly tabs = computed(() => {
@@ -155,7 +150,6 @@ export default class Pantry {
       const barId = this.barId();
       this.#categoriesStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
-      this.#membersStore.setBarId(barId);
     });
   }
 

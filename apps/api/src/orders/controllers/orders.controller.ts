@@ -1,7 +1,7 @@
-import { type BarId, BarRole, type Order, type OrderId, type OrderItemId } from '@coaster/common';
+import { type BarId, BarPermission, type Order, type OrderId, type OrderItemId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
 import {
   CreateOrderCommand,
   AddOrderItemsCommand,
@@ -22,7 +22,7 @@ import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
 @Controller('bars/:barId/orders')
-@UseGuards(FirebaseAuthGuard, RolesGuard)
+@UseGuards(FirebaseAuthGuard, PermissionsGuard)
 export class OrdersController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -30,7 +30,7 @@ export class OrdersController {
   ) {}
 
   @Get()
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.VIEW_ORDERS)
   async getOrders(@Param('barId') barId: BarId, @Query('status') status?: string, @Query('date') date?: string) {
     if (date) {
       const orders = await this._queryBus.execute<GetOrdersByDateQuery, Order[]>(new GetOrdersByDateQuery(barId, date));
@@ -43,21 +43,21 @@ export class OrdersController {
   }
 
   @Get(':orderId')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.VIEW_ORDERS)
   async getOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
     const order = await this._queryBus.execute<GetOrderByIdQuery, Order>(new GetOrderByIdQuery(barId, orderId));
     return OrdersMapper.toDto(order);
   }
 
   @Post()
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.CREATE_ORDER)
   async createOrder(@Param('barId') barId: BarId, @Body() dto: CreateOrderDto) {
     const order = await this._commandBus.execute<CreateOrderCommand, Order>(new CreateOrderCommand(barId, dto));
     return { id: order.id };
   }
 
   @Post(':orderId/items')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.UPDATE_ORDER)
   async addItems(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: AddOrderItemsDto) {
     const order = await this._commandBus.execute<AddOrderItemsCommand, Order>(
       new AddOrderItemsCommand(barId, orderId, dto),
@@ -66,7 +66,7 @@ export class OrdersController {
   }
 
   @Patch(':orderId/items/bulk')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.UPDATE_ORDER)
   async bulkUpdate(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: BulkUpdateDto) {
     const order = await this._commandBus.execute<BulkUpdateOrderCommand, Order>(
       new BulkUpdateOrderCommand(barId, orderId, dto),
@@ -75,21 +75,21 @@ export class OrdersController {
   }
 
   @Post(':orderId/checkout')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.CHECKOUT_ORDER)
   async checkout(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
     const order = await this._commandBus.execute<CheckoutOrderCommand, Order>(new CheckoutOrderCommand(barId, orderId));
     return OrdersMapper.toDto(order);
   }
 
   @Post(':orderId/cancel')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.CANCEL_ORDER)
   async cancelOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
     const order = await this._commandBus.execute<CancelOrderCommand, Order>(new CancelOrderCommand(barId, orderId));
     return OrdersMapper.toDto(order);
   }
 
   @Patch(':orderId/move-table')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.MOVE_ORDER_TABLE)
   async moveTable(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: MoveTableDto) {
     const order = await this._commandBus.execute<MoveOrderTableCommand, Order>(
       new MoveOrderTableCommand(barId, orderId, dto),
@@ -98,14 +98,14 @@ export class OrdersController {
   }
 
   @Post('merge')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.MERGE_ORDERS)
   async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto) {
     const order = await this._commandBus.execute<MergeOrdersCommand, Order>(new MergeOrdersCommand(barId, dto));
     return OrdersMapper.toDto(order);
   }
 
   @Delete(':orderId/items/:itemId')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.DELETE_ORDER_ITEM)
   async removeItem(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -118,7 +118,7 @@ export class OrdersController {
   }
 
   @Delete(':orderId')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.DELETE_ORDER)
   async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
     await this._commandBus.execute<DeleteOrderCommand, void>(new DeleteOrderCommand(barId, orderId));
     return commonMapper.getSuccessResponse();

@@ -1,7 +1,7 @@
-import { BarRole, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
+import { BarPermission, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard, Roles, RolesGuard, UserRoles, UserRolesGuard } from '../../core';
+import { FirebaseAuthGuard, Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
 import {
   BulkCategoryTemplateInput,
   BulkUpsertTemplatesCommand,
@@ -91,8 +91,8 @@ export class TemplatesController {
   }
 
   @Post('bar/:barId')
-  @Roles(BarRole.OWNER)
-  @UseGuards(RolesGuard)
+  @Permissions(BarPermission.IMPORT_TEMPLATES)
+  @UseGuards(PermissionsGuard)
   async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto) {
     return this._commandBus.execute<
       ImportTemplatesToBarCommand,

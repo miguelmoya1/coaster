@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { BarsStore } from '@coaster/bars';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -39,6 +38,10 @@ describe('Tables', () => {
     delete: vi.fn(),
   };
 
+  const barsStoreMock = {
+    isOwner: signal(false),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Tables],
@@ -47,23 +50,7 @@ describe('Tables', () => {
         provideRouter([]),
         { provide: OrdersStore, useValue: ordersStoreMock },
         { provide: TablesStore, useValue: tablesStoreMock },
-        {
-          provide: CurrentUser,
-          useValue: {
-            current: { value: vi.fn().mockReturnValue({ id: 'u-1' }), hasValue: vi.fn().mockReturnValue(true) },
-          },
-        },
-        {
-          provide: MembersStore,
-          useValue: {
-            list: {
-              value: vi.fn().mockReturnValue([]),
-              hasValue: vi.fn().mockReturnValue(true),
-              isLoading: vi.fn().mockReturnValue(false),
-            },
-            setBarId: vi.fn(),
-          },
-        },
+        { provide: BarsStore, useValue: barsStoreMock },
       ],
     }).compileComponents();
 

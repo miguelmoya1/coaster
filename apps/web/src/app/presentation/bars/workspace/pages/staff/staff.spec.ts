@@ -1,6 +1,7 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentUser } from '@coaster/core';
+import { BarsStore } from '@coaster/bars';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -21,11 +22,11 @@ describe('Staff', () => {
     remove: vi.fn(),
   };
 
-  const currentUserMock = {
-    current: {
-      value: vi.fn().mockReturnValue({ id: 'u-1' }),
-      hasValue: vi.fn().mockReturnValue(true),
+  const barsStoreMock = {
+    myMember: {
+      value: vi.fn().mockReturnValue(undefined),
     },
+    isOwner: signal(false),
   };
 
   beforeEach(async () => {
@@ -35,7 +36,7 @@ describe('Staff', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
-        { provide: CurrentUser, useValue: currentUserMock },
+        { provide: BarsStore, useValue: barsStoreMock },
       ],
     }).compileComponents();
 

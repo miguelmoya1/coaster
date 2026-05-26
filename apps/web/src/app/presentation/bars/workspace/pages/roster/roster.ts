@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { BarId, BarRole, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { CurrentUser, DateFormatterService } from '@coaster/core';
+import { DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';
@@ -45,7 +46,7 @@ export default class Roster {
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #dateFormatter = inject(DateFormatterService);
   readonly #membersStore = inject(MembersStore);
-  readonly #currentUser = inject(CurrentUser);
+  readonly #barsStore = inject(BarsStore);
   readonly #exchangesStore = inject(ExchangesStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -64,12 +65,9 @@ export default class Roster {
   );
 
   readonly membersList = computed(() => this.#membersStore.list.value());
-  readonly currentUserId = computed(() => this.#currentUser.current.value()?.id);
+  readonly currentUserId = computed(() => this.#barsStore.myMember.value()?.userId);
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
-  readonly currentUserRole = computed(() => {
-    const barMember = this.#membersStore.list.value()?.find((m) => m.userId === this.#currentUser.current.value()?.id);
-    return barMember?.role;
-  });
+  readonly currentUserRole = computed(() => this.#barsStore.myMember.value()?.role);
   readonly pendingShiftIds = computed(() => {
     if (!this.pendingExchanges.hasValue()) {
       return new Set<string>();

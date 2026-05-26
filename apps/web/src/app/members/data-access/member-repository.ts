@@ -12,8 +12,15 @@ export class MemberRepository {
   public readonly routes = {
     list: (barId: BarId) => `/bars/${barId}/members`,
     invite: (barId: BarId) => `/bars/${barId}/members`,
+    me: (barId: BarId) => `/bars/${barId}/members/me`,
     remove: (barId: BarId, memberId: string) => `/bars/${barId}/members/${memberId}`,
   };
+
+  public async me(barId: BarId) {
+    return firstValueFrom(
+      this.#http.get<BarMember>(this.routes.me(barId)).pipe(map((member) => memberMapper(member))),
+    );
+  }
 
   public async invite(barId: BarId, dto: InviteBarMemberDto) {
     return firstValueFrom(

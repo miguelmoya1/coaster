@@ -9,9 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { BarId, Order, Table } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
 import { OrdersStore } from '@coaster/orders';
 import {
   BottomSheet,
@@ -54,8 +53,7 @@ class Tables {
 
   readonly #tablesStore = inject(TablesStore);
   readonly #ordersStore = inject(OrdersStore);
-  readonly #currentUser = inject(CurrentUser);
-  readonly #membersStore = inject(MembersStore);
+  readonly #barsStore = inject(BarsStore);
 
   readonly #router = inject(Router);
 
@@ -64,7 +62,6 @@ class Tables {
       const barId = this.barId();
       this.#tablesStore.setBarId(barId);
       this.#ordersStore.setBarId(barId);
-      this.#membersStore.setBarId(barId);
     });
   }
 
@@ -73,12 +70,7 @@ class Tables {
   readonly tableToDelete = signal<Table | null>(null);
   readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
 
-  readonly isOwner = computed(() => {
-    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) return false;
-    const members = this.#membersStore.list.value() ?? [];
-    const userId = this.#currentUser.current.value()?.id;
-    return members.find((m) => m.userId === userId)?.role === 'OWNER';
-  });
+  readonly isOwner = this.#barsStore.isOwner;
 
   protected readonly freeCount = this.#tablesStore.freeCount;
   protected readonly occupiedCount = this.#tablesStore.occupiedCount;

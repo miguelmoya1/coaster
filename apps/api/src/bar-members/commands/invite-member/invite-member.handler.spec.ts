@@ -72,6 +72,7 @@ describe('InviteMemberHandler', () => {
       userId: 'some-user',
       barId: 'bar-1',
       role: BarRole.STAFF,
+      permissions: expect.any(Array),
       active: true,
       userName: 'User',
       userEmail: 'user@test.com',

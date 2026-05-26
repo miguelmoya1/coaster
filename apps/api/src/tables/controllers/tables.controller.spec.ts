@@ -3,7 +3,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { GetTablesByBarIdQuery } from '../queries';
 import { TablesController } from './tables.controller';
@@ -28,7 +28,7 @@ describe('TablesController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 

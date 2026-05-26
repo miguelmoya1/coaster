@@ -1,6 +1,7 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentUser } from '@coaster/core';
+import { BarsStore } from '@coaster/bars';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { ShiftsStore } from '@coaster/shifts';
@@ -32,10 +33,9 @@ describe('Roster', () => {
     reload: vi.fn(),
   };
 
-  const currentUserMock = {
-    current: {
-      value: vi.fn().mockReturnValue({ id: 'u-1' }),
-      hasValue: vi.fn().mockReturnValue(true),
+  const barsStoreMock = {
+    myMember: {
+      value: vi.fn().mockReturnValue(undefined),
     },
   };
 
@@ -59,7 +59,7 @@ describe('Roster', () => {
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
-        { provide: CurrentUser, useValue: currentUserMock },
+        { provide: BarsStore, useValue: barsStoreMock },
         { provide: ExchangesStore, useValue: exchangesMock },
       ],
     }).compileComponents();

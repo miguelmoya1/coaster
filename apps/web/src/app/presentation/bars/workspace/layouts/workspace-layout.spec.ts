@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -23,6 +24,7 @@ describe('WorkspaceLayout', () => {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
     },
+    isOwner: signal(false),
     setBarId: vi.fn(),
   };
 

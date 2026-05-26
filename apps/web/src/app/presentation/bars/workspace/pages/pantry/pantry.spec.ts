@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import { Product } from '@coaster/common';
-import { CurrentUser } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,20 +39,15 @@ describe('Pantry', () => {
     setBarId: vi.fn(),
   };
 
-  const currentUserMock = {
-    current: {
-      value: vi.fn().mockReturnValue({ id: 'u-1' }),
-      hasValue: vi.fn().mockReturnValue(true),
+  const barsStoreMock = {
+    myMember: {
+      value: vi.fn().mockReturnValue({
+        role: 'STAFF',
+        permissions: [],
+      }),
     },
-  };
-
-  const membersStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setBarId: vi.fn(),
+    isOwner: signal(false),
+    hasPermission: vi.fn().mockReturnValue(false),
   };
 
   beforeEach(async () => {
@@ -63,8 +58,7 @@ describe('Pantry', () => {
         provideRouter([]),
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
-        { provide: CurrentUser, useValue: currentUserMock },
-        { provide: MembersStore, useValue: membersStoreMock },
+        { provide: BarsStore, useValue: barsStoreMock },
       ],
     }).compileComponents();
 
@@ -164,10 +158,6 @@ describe('Pantry', () => {
       const tabs = component.tabs();
       expect(tabs.length).toBeGreaterThanOrEqual(1);
       expect(tabs[0].id).toBe('ALL');
-    });
-
-    it('should return undefined currentUserRole when no matching member', () => {
-      expect(component.currentUserRole()).toBeUndefined();
     });
   });
 

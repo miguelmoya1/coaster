@@ -35,20 +35,7 @@ export default class WorkspaceLayout {
   protected readonly currentUser = this.#currentUser.current;
   protected readonly currentBar = this.#barsStore.current;
 
-  protected readonly isOwner = computed(() => {
-    if (!this.#membersStore.list.hasValue() || !this.#currentUser.current.hasValue()) {
-      return false;
-    }
-
-    const members = this.#membersStore.list.value();
-    if (!members) {
-      return false;
-    }
-
-    const userId = this.#currentUser.current.value().id;
-
-    return members.find((m) => m.userId === userId)?.role === 'OWNER';
-  });
+  protected readonly isOwner = this.#barsStore.isOwner;
 
   protected readonly titleToShow = computed(() => {
     if (!this.currentBar.hasValue() || !this.currentUser.hasValue()) {

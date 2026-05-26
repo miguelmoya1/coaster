@@ -1,8 +1,8 @@
-import { asBarRole, BarRole, ErrorCodes } from '@coaster/common';
+import { asBarRole, BarPermission, ErrorCodes, hasPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 
 interface RequestWithUser {
   user: { id: string };
@@ -10,26 +10,27 @@ interface RequestWithUser {
 }
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class PermissionsGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
     private _prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this._reflector.getAllAndOverride<BarRole[]>(ROLES_KEY, [
+    const requiredPermissions = this._reflector.getAllAndOverride<BarPermission[]>(PERMISSIONS_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    if (!requiredRoles) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
-
     const barId = request.params.barId;
+
+    // If no permissions are specified and there is no barId parameter,
+    // this route doesn't require bar-specific permission/membership verification.
+    if (!requiredPermissions && !barId) {
+      return true;
+    }
 
     if (!user) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
@@ -52,10 +53,15 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    const hasRole = requiredRoles.includes(asBarRole(membership.role));
+    if (requiredPermissions && requiredPermissions.length > 0) {
+      const role = asBarRole(membership.role);
+      const hasAllPermissions = requiredPermissions.every((permission) =>
+        hasPermission(role, permission),
+      );
 
-    if (!hasRole) {
-      throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
+      if (!hasAllPermissions) {
+        throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
+      }
     }
 
     return true;

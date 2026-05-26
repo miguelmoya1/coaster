@@ -1,7 +1,7 @@
 import {
   asUserId,
   type BarId,
-  BarRole,
+  BarPermission,
   type ShiftExchangeId,
   type ShiftId,
   type User,
@@ -9,14 +9,14 @@ import {
 } from '@coaster/common';
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 import { ShiftExchangesMapper, ExchangeWithRelations } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
 import { RequestExchangeCommand, AcceptExchangeCommand } from '../commands';
 
 @Controller('bars/:barId')
-@UseGuards(FirebaseAuthGuard, RolesGuard)
+@UseGuards(FirebaseAuthGuard, PermissionsGuard)
 export class ShiftExchangesController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -24,7 +24,7 @@ export class ShiftExchangesController {
   ) {}
 
   @Get('exchanges')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.VIEW_EXCHANGES)
   async getExchanges(@Param('barId') barId: BarId) {
     const exchanges = await this._queryBus.execute<GetPendingExchangesQuery, ShiftExchange[]>(
       new GetPendingExchangesQuery(barId),
@@ -33,7 +33,7 @@ export class ShiftExchangesController {
   }
 
   @Post('shifts/:shiftId/exchanges')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.CREATE_EXCHANGE)
   async createExchange(
     @Param('barId') barId: BarId,
     @Param('shiftId') shiftId: ShiftId,
@@ -47,7 +47,7 @@ export class ShiftExchangesController {
   }
 
   @Patch('exchanges/:exchangeId/accept')
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.ACCEPT_EXCHANGE)
   async acceptExchange(
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,

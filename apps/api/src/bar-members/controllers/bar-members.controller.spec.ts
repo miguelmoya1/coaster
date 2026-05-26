@@ -1,9 +1,9 @@
-import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole, Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
 import { BarMembersController } from './bar-members.controller';
@@ -28,7 +28,7 @@ describe('BarMembersController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -45,9 +45,34 @@ describe('BarMembersController', () => {
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetMembersQuery));
   });
 
+  it('getMyMember should delegate to query bus with user id', async () => {
+    queryBus.execute.mockResolvedValue({
+      id: asBarMemberId('mem-1'),
+      userId: asUserId('user-1'),
+      barId: asBarId('bar-1'),
+      role: BarRole.STAFF,
+      permissions: [],
+      active: true,
+      userName: 'John Doe',
+      userImage: '',
+      userEmail: 'john@test.com',
+    });
+
+    const user = { id: asUserId('user-1'), name: 'John Doe', email: 'john@test.com', active: true, role: Role.USER };
+    const result = await controller.getMyMember(asBarId('bar-1'), user);
+
+    expect(result.id).toBe(asBarMemberId('mem-1'));
+    expect(queryBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        barId: asBarId('bar-1'),
+        userId: asUserId('user-1'),
+      }),
+    );
+  });
+
   it('inviteMember should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({});
-    const user = { id: asUserId('admin-id'), name: 'Admin', email: 'a@a.com', active: true };
+    const user = { id: asUserId('admin-id'), name: 'Admin', email: 'a@a.com', active: true, role: Role.ADMIN };
     const dto = { email: 'new@staff.com', role: BarRole.STAFF };
 
     await controller.inviteMember(asBarId('bar-1'), dto, user);
