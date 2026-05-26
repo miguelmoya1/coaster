@@ -45,6 +45,7 @@ describe('Pantry', () => {
         role: 'STAFF',
         permissions: [],
       }),
+      hasValue: vi.fn().mockReturnValue(true),
     },
     isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(false),
@@ -122,7 +123,7 @@ describe('Pantry', () => {
       productsStoreMock.list.hasValue.mockReturnValue(true);
 
       component.selectedCategoryId.set('cat-1');
-      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+      expect(component.filteredProducts()).toEqual([{ ...mockProducts[0], showEditButton: false }]);
     });
 
     it('should filter products by search query case-insensitively', () => {
@@ -135,10 +136,10 @@ describe('Pantry', () => {
 
       component.selectedCategoryId.set('ALL');
       component.searchQuery.set('vod');
-      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+      expect(component.filteredProducts()).toEqual([{ ...mockProducts[0], showEditButton: false }]);
 
       component.searchQuery.set('  RON  ');
-      expect(component.filteredProducts()).toEqual([mockProducts[1]]);
+      expect(component.filteredProducts()).toEqual([{ ...mockProducts[1], showEditButton: false }]);
     });
 
     it('should filter products by both category and search query', () => {
@@ -151,7 +152,7 @@ describe('Pantry', () => {
 
       component.selectedCategoryId.set('cat-1');
       component.searchQuery.set('Vodka');
-      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+      expect(component.filteredProducts()).toEqual([{ ...mockProducts[0], showEditButton: false }]);
     });
 
     it('should return tabs with ALL as first option', () => {

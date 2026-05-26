@@ -21,7 +21,7 @@
   <div class="flex-1 min-w-0">
     <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
   </div>
-  @if (barsStore.hasPermission(BarPermission.IMPORT_TEMPLATES)) {
+  @if (canImportTemplates()) {
     <button class="w-14! h-14! shrink-0" coaster-btn variant="outline" [routerLink]="['import']">
       <ng-icon name="lucideDownload" class="text-xl" />
     </button>
@@ -36,7 +36,7 @@
       (tabSelected)="selectedCategoryId.set($event)"
     />
   </div>
-  @if (barsStore.hasPermission(BarPermission.UPDATE_CATEGORY) && selectedCategoryId() !== 'ALL') {
+  @if (canUpdateCategory() && selectedCategoryId() !== 'ALL') {
     <button class="w-12! h-12!" coaster-btn (click)="onEditCategoryClicked()">
       <ng-icon name="lucidePencil" class="text-xl" />
     </button>
@@ -56,7 +56,7 @@
         [qty]="product.currentStock"
         [price]="product.price"
         [statusLevel]="product.stockStatus"
-        [showEditButton]="barsStore.hasPermission(BarPermission.UPDATE_PRODUCT)"
+        [showEditButton]="canUpdateProduct()"
         (click)="onProductClicked(product)"
         (editClicked)="onEditProductClicked(product)"
         (deleteClicked)="handleDeleteProductClicked(product)"
@@ -67,7 +67,7 @@
   </div>
 </div>
 
-@if (barsStore.hasPermission(BarPermission.CREATE_PRODUCT)) {
+@if (canCreateProduct()) {
   <coaster-fab routerLink="new" />
 }
 

@@ -38,11 +38,17 @@ export class BarsStore {
   public readonly myMember = this.#myMemberResource.asReadonly();
 
   public readonly isOwner = computed(() => {
+    if (!this.myMember.hasValue()) {
+      return false;
+    }
     const member = this.myMember.value();
     return member?.role === BarRole.OWNER;
   });
 
   public hasPermission(permission: BarPermission): boolean {
+    if (!this.myMember.hasValue()) {
+      return false;
+    }
     const member = this.myMember.value();
     return member ? hasPermission(member.role, permission) : false;
   }

@@ -26,10 +26,10 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
-import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PantrySearch } from './components/pantry-search/pantry-search';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
@@ -74,8 +74,12 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 
-  protected readonly barsStore = inject(BarsStore);
-  protected readonly BarPermission = BarPermission;
+  readonly #barsStore = inject(BarsStore);
+
+  protected readonly canImportTemplates = computed(() => this.#barsStore.hasPermission(BarPermission.IMPORT_TEMPLATES));
+  protected readonly canUpdateCategory = computed(() => this.#barsStore.hasPermission(BarPermission.UPDATE_CATEGORY));
+  protected readonly canUpdateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.UPDATE_PRODUCT));
+  protected readonly canCreateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.CREATE_PRODUCT));
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
@@ -140,10 +144,6 @@ export default class Pantry {
 
     return allProducts;
   });
-
-  trackProductBy(index: number, product: Product) {
-    return product.id;
-  }
 
   constructor() {
     effect(() => {

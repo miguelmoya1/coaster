@@ -44,7 +44,12 @@ export default class Staff {
   protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
-  protected readonly userMember = this.#barsStore.myMember.value;
+  protected readonly userMember = computed(() => {
+    if (!this.#barsStore.myMember.hasValue()) {
+      return undefined;
+    }
+    return this.#barsStore.myMember.value();
+  });
   protected readonly isOwner = this.#barsStore.isOwner;
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {

@@ -36,6 +36,7 @@ describe('Roster', () => {
   const barsStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue(undefined),
+      hasValue: vi.fn().mockReturnValue(true),
     },
   };
 

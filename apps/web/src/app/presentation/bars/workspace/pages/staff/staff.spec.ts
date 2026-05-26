@@ -25,6 +25,7 @@ describe('Staff', () => {
   const barsStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue(undefined),
+      hasValue: vi.fn().mockReturnValue(true),
     },
     isOwner: signal(false),
   };

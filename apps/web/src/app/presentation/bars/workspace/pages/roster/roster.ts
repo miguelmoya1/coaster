@@ -64,10 +64,25 @@ export default class Roster {
     this.#router,
   );
 
-  readonly membersList = computed(() => this.#membersStore.list.value());
-  readonly currentUserId = computed(() => this.#barsStore.myMember.value()?.userId);
+  readonly membersList = computed(() => {
+    if (!this.#membersStore.list.hasValue()) {
+      return [];
+    }
+    return this.#membersStore.list.value() ?? [];
+  });
+  readonly currentUserId = computed(() => {
+    if (!this.#barsStore.myMember.hasValue()) {
+      return undefined;
+    }
+    return this.#barsStore.myMember.value()?.userId;
+  });
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
-  readonly currentUserRole = computed(() => this.#barsStore.myMember.value()?.role);
+  readonly currentUserRole = computed(() => {
+    if (!this.#barsStore.myMember.hasValue()) {
+      return undefined;
+    }
+    return this.#barsStore.myMember.value()?.role;
+  });
   readonly pendingShiftIds = computed(() => {
     if (!this.pendingExchanges.hasValue()) {
       return new Set<string>();
