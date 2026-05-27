@@ -14,7 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
         animate.leave="fade-slide-out"
       >
         @for (error of errors(); track error) {
-          <span class="text-error text-xs font-medium">{{ error.message | translate }}</span>
+          <span class="text-error text-xs font-medium">{{ (error.message || error.kind) | translate: error }}</span>
         }
       </div>
     }
@@ -22,7 +22,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     @if (disabled() && disabledReasons().length > 0) {
       <div class="flex flex-col gap-1 mt-1 ml-1" animate.enter="fade-slide-in" animate.leave="fade-slide-out">
         @for (reason of disabledReasons(); track reason) {
-          <span class="text-on-surface-variant text-xs font-medium">{{ reason.message | translate }}</span>
+          <span class="text-on-surface-variant text-xs font-medium">{{ reason.message | translate: reason }}</span>
         }
       </div>
     }
