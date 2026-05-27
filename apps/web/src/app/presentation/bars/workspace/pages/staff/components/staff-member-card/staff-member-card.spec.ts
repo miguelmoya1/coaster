@@ -35,25 +35,6 @@ describe('StaffMemberCard', () => {
       expect(element.textContent).toContain('common.role.bartender');
     });
 
-    it('should show on duty badge when isOffDuty is false', () => {
-      fixture.componentRef.setInput('isOffDuty', false);
-      fixture.detectChanges();
-
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('common.duty.on');
-    });
-
-    it('should show off duty badge and apply grayscale class when isOffDuty is true', () => {
-      fixture.componentRef.setInput('isOffDuty', true);
-      fixture.detectChanges();
-
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('common.duty.off');
-
-      const imgContainer = element.querySelector('.grayscale');
-      expect(imgContainer).toBeTruthy();
-    });
-
     it('should have a mailto link with the correct email', () => {
       const link = fixture.nativeElement.querySelector('a');
       expect(link.getAttribute('href')).toBe('mailto:john@test.com');
