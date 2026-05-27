@@ -106,7 +106,8 @@
               <div class="flex flex-col gap-1.5 justify-end items-end">
                 <!-- Pay adjustment -->
                 <div
-                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1 border border-outline-variant/20"
+                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
+                  (click)="$event.stopPropagation()"
                 >
                   <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
                     'orders.quantity_to_pay' | translate
@@ -133,7 +134,8 @@
                 </div>
                 <!-- Serve adjustment -->
                 <div
-                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1 border border-outline-variant/20"
+                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
+                  (click)="$event.stopPropagation()"
                 >
                   <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
                     'orders.quantity_to_serve' | translate
@@ -221,27 +223,27 @@
   }
 
   @if (order.status === 'OPEN') {
-    <div class="grid grid-cols-2 gap-2 mt-2">
-      <button coaster-btn variant="outline" (click)="onAddItems()">
+    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-2">
+      <button coaster-btn variant="outline" (click)="onAddItems()" class="w-full!">
         <ng-icon name="lucidePackagePlus" size="18" />
         {{ 'orders.add_items' | translate }}
       </button>
-      <button coaster-btn (click)="handleOpenCheckout()">
+      <button coaster-btn (click)="handleOpenCheckout()" class="w-full!">
         <ng-icon name="lucideCreditCard" size="18" />
         {{ 'orders.checkout' | translate }}
       </button>
     </div>
 
-    <div class="grid grid-cols-3 gap-2">
-      <button coaster-btn variant="outline" (click)="onMoveTable()">
+    <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
+      <button coaster-btn variant="outline" (click)="onMoveTable()" class="w-full!">
         <ng-icon name="lucideArrowRightLeft" size="16" />
         {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
       </button>
-      <button coaster-btn variant="outline" (click)="onMerge()">
+      <button coaster-btn variant="outline" (click)="onMerge()" class="w-full!">
         <ng-icon name="lucideMerge" size="16" />
         {{ 'orders.merge' | translate }}
       </button>
-      <button coaster-btn variant="outline" class="text-error!" (click)="handleCancelOrder()">
+      <button coaster-btn variant="outline" class="text-error! w-full!" (click)="handleCancelOrder()">
         <ng-icon name="lucideX" size="16" />
         {{ 'orders.cancel_order' | translate }}
       </button>

@@ -11,11 +11,10 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Auth } from '@coaster/core';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
-import { CoasterTitle } from '../typography/typography';
 
 @Component({
   selector: 'coaster-top-app-bar',
-  imports: [AvatarBadge, CoasterTitle, RouterLink, NgIcon, TranslatePipe],
+  imports: [AvatarBadge, RouterLink, NgIcon, TranslatePipe],
   hostDirectives: [Toolbar],
   viewProviders: [
     provideIcons({
@@ -27,16 +26,16 @@ import { CoasterTitle } from '../typography/typography';
   ],
   host: {
     class:
-      'fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 shadow-elevated',
+      'w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 shadow-elevated shrink-0',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <header class="flex items-center justify-center gap-6">
+    <header class="flex items-center gap-2 sm:gap-6 min-w-0 flex-1 mr-4">
       @if (image(); as image) {
-        <coaster-avatar-badge [imageSrc]="image" altText="User profile" />
+        <coaster-avatar-badge [imageSrc]="image" altText="User profile" class="shrink-0" />
       }
 
-      <h1 coaster-title>{{ label() }}</h1>
+      <h1 coaster-title class="font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">{{ label() }}</h1>
     </header>
 
     <div class="relative">

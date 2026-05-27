@@ -35,18 +35,18 @@ interface NavItem {
     <nav
       ngToolbar
       orientation="horizontal"
-      class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 h-20 bg-surface-container/90 backdrop-blur-2xl rounded-t-nav z-50 shadow-nav pb-safe"
+      class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md flex justify-around items-center px-4 h-16 bg-surface-container-high/80 backdrop-blur-2xl rounded-full z-50 shadow-elevated border border-outline-variant/20 shrink-0"
     >
       @for (item of visibleNavItems(); track item.value) {
         <a
           ngToolbarWidget
           [value]="item.value"
           [routerLink]="item.link"
-          routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-110"
-          class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
+          routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-105 sm:scale-110"
+          class="flex flex-col items-center justify-center text-on-surface-variant px-3 sm:px-5 py-1.5 sm:py-2 hover:text-white transition-all active:scale-95 duration-150 gap-0 sm:gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
         >
-          <ng-icon [name]="item.icon" class="text-2xl" />
-          <span class="font-bold text-xxs-plus uppercase tracking-wider">
+          <ng-icon [name]="item.icon" class="text-xl sm:text-2xl" />
+          <span class="font-bold text-xxs sm:text-xxs-plus uppercase tracking-wider hidden sm:block">
             {{ item.labelKey | translate }}
           </span>
         </a>

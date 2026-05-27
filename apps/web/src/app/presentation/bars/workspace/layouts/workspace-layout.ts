@@ -14,14 +14,14 @@ import { BottomNav, TopAppBar } from '@coaster/shared';
       <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
 
-    <main class="w-full max-w-xl mt-12 md:mt-24 pb-workspace">
+    <main class="w-full max-w-xl flex-1 min-h-0 overflow-y-auto px-4 pt-4 pb-28 hide-scrollbar">
       <router-outlet />
     </main>
 
     <coaster-bottom-nav [barId]="barId()" [isOwner]="isOwner()" />
   `,
   host: {
-    class: 'min-h-screen flex flex-col items-center',
+    class: 'h-svh w-full flex flex-col items-center overflow-hidden relative',
   },
 })
 export default class WorkspaceLayout {
