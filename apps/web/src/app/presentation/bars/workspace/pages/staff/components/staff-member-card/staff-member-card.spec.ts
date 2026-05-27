@@ -63,6 +63,7 @@ describe('StaffMemberCard', () => {
   describe('states', () => {
     it('should apply disabled styles and attributes when disabled is true', () => {
       fixture.componentRef.setInput('disabled', true);
+      fixture.componentRef.setInput('showDeleteButton', true);
       fixture.detectChanges();
 
       const hostElement: HTMLElement = fixture.nativeElement;
@@ -71,6 +72,10 @@ describe('StaffMemberCard', () => {
 
       const button = fixture.nativeElement.querySelector('button');
       expect(button.disabled).toBe(true);
+
+      const link = fixture.nativeElement.querySelector('a');
+      expect(link.getAttribute('href')).toBeNull();
+      expect(link.classList.contains('pointer-events-none')).toBe(true);
     });
   });
 });

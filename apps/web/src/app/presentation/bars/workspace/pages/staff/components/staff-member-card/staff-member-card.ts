@@ -41,26 +41,23 @@ import { TranslatePipe } from '@ngx-translate/core';
     </div>
 
     <div class="flex gap-2">
-      <!-- <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
-        <ng-icon name="lucidePhone" class="text-xl" />
-      </button>
-      <button [disabled]="disabled()" [class]="'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' + (isOffDuty() ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-bright text-primary hover:bg-surface-container-highest')">
-        <ng-icon name="lucideMessageSquare" class="text-xl" />
-      </button> -->
-
-      <button
-        [disabled]="disabled()"
-        [class]="
-          'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 ' +
-          (isOffDuty()
-            ? 'bg-surface-container-high text-on-surface-variant'
-            : 'bg-surface-bright text-primary hover:bg-surface-container-highest')
-        "
-      >
-        <a [href]="'mailto:' + staffEmail()">
+      @if (!isCurrentUser()) {
+        <a
+          [attr.href]="disabled() ? null : 'mailto:' + staffEmail()"
+          target="_blank"
+          rel="noopener noreferrer"
+          [class]="
+            'w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer ' +
+            (disabled()
+              ? 'pointer-events-none opacity-50 bg-surface-container-high text-on-surface-variant'
+              : isOffDuty()
+                ? 'bg-surface-container-high text-on-surface-variant'
+                : 'bg-surface-bright text-primary hover:bg-surface-container-highest')
+          "
+        >
           <ng-icon name="lucideMail" class="text-xl" />
         </a>
-      </button>
+      }
 
       @if (showDeleteButton()) {
         @if (isCurrentUser()) {
