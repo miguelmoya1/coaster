@@ -109,14 +109,8 @@ export class ProductsStore {
     }
 
     try {
-      const created = await this.#createProduct.execute(barId, createProductDto);
-      this.#productsResource.update((products) => {
-        if (!products) {
-          return [created];
-        }
-        const exists = products.some((p) => p.id === created.id);
-        return exists ? products : [...products, created];
-      });
+      await this.#createProduct.execute(barId, createProductDto);
+      this.reloadProducts();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -130,12 +124,12 @@ export class ProductsStore {
     }
 
     try {
-      const updated = await this.#updateProduct.execute(barId, productId, updateProductDto);
+      await this.#updateProduct.execute(barId, productId, updateProductDto);
       this.#productsResource.update((products) => {
         if (!products) {
           return undefined;
         }
-        return products.map((p) => (p.id === updated.id ? updated : p));
+        return products.map((p) => (p.id === productId ? { ...p, ...updateProductDto } : p));
       });
       return null;
     } catch (error) {
@@ -150,12 +144,12 @@ export class ProductsStore {
     }
 
     try {
-      const updated = await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+      await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
       this.#productsResource.update((products) => {
         if (!products) {
           return undefined;
         }
-        return products.map((p) => (p.id === updated.id ? updated : p));
+        return products.map((p) => (p.id === productId ? { ...p, ...updateProductStockDto } : p));
       });
       return null;
     } catch (error) {

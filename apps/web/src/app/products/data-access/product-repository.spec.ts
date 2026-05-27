@@ -70,16 +70,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockProduct);
+      req.flush({ id: asProductId('prod-1') });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return product creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.create(barId)).flush({ id: asProductId('prod-1') });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ id: asProductId('prod-1') });
     });
   });
 
@@ -93,16 +93,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.update(barId, productId));
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockProduct);
+      req.flush({ success: true });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return success response', async () => {
       const res = service.update(barId, productId, dto);
-      httpMock.expectOne(service.routes.update(barId, productId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.update(barId, productId)).flush({ success: true });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ success: true });
     });
   });
 
@@ -116,16 +116,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.updateStock(barId, productId));
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockProduct);
+      req.flush({ success: true });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return success response', async () => {
       const res = service.updateStock(barId, productId, dto);
-      httpMock.expectOne(service.routes.updateStock(barId, productId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.updateStock(barId, productId)).flush({ success: true });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ success: true });
     });
   });
 });

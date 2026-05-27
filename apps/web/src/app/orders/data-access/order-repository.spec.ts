@@ -84,14 +84,14 @@ describe('OrderRepository', () => {
       const promise = service.create(barId, dto);
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockOrder);
+      req.flush({ id: asOrderId('order-1') });
       await promise;
     });
 
-    it('should return mapped order', async () => {
+    it('should return order creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(mockOrder);
-      expect(await res).toEqual(mockOrder);
+      httpMock.expectOne(service.routes.create(barId)).flush({ id: asOrderId('order-1') });
+      expect(await res).toEqual({ id: asOrderId('order-1') });
     });
   });
 

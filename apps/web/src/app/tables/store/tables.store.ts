@@ -122,14 +122,8 @@ export class TablesStore {
       return handleErrorFormField('NO_BAR_SELECTED');
     }
     try {
-      const created = await this.#createTable.execute(barId, createTableDto);
-      this.#listResource.update((tables) => {
-        if (!tables) {
-          return [created];
-        }
-        const exists = tables.some((t) => t.id === created.id);
-        return exists ? tables : [...tables, created];
-      });
+      await this.#createTable.execute(barId, createTableDto);
+      this.reload();
       return null;
     } catch (error) {
       return handleErrorFormField(error);
@@ -163,12 +157,12 @@ export class TablesStore {
       return handleErrorFormField('NO_BAR_SELECTED');
     }
     try {
-      const updated = await this.#updateTable.execute(barId, tableId, updateTableDto);
+      await this.#updateTable.execute(barId, tableId, updateTableDto);
       this.#listResource.update((tables) => {
         if (!tables) {
           return undefined;
         }
-        return tables.map((t) => (t.id === updated.id ? updated : t));
+        return tables.map((t) => (t.id === tableId ? { ...t, ...updateTableDto } : t));
       });
       return null;
     } catch (error) {

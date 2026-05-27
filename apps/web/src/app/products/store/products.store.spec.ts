@@ -99,12 +99,6 @@ describe('ProductsStore', () => {
 
       expect(store.list.value()?.length).toBe(2);
 
-      const updatedProduct: Product = {
-        ...mockProducts[0],
-        name: 'Vodka Premium Extra',
-        price: 1800,
-      };
-
       const updatePromise = store.update(mockProducts[0].id, {
         name: 'Vodka Premium Extra',
         price: 1800,
@@ -112,7 +106,11 @@ describe('ProductsStore', () => {
 
       const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}`);
       expect(patchReq.request.method).toBe('PATCH');
-      patchReq.flush(updatedProduct);
+      patchReq.flush({ success: true });
+      
+      // Wait for repository PATCH promise to resolve and local update to execute
+      TestBed.tick();
+      await Promise.resolve();
       TestBed.tick();
 
       await updatePromise;
@@ -140,18 +138,17 @@ describe('ProductsStore', () => {
 
       expect(store.list.value()?.length).toBe(2);
 
-      const updatedProduct: Product = {
-        ...mockProducts[0],
-        currentStock: 15,
-      };
-
       const updateStockPromise = store.updateStock(mockProducts[0].id, {
         currentStock: 15,
       });
 
       const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}/stock`);
       expect(patchReq.request.method).toBe('PATCH');
-      patchReq.flush(updatedProduct);
+      patchReq.flush({ success: true });
+      
+      // Wait for repository PATCH promise to resolve and local update to execute
+      TestBed.tick();
+      await Promise.resolve();
       TestBed.tick();
 
       await updateStockPromise;

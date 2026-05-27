@@ -32,7 +32,10 @@ export class BarsController {
   @Get(':barId')
   async getBar(@Param('barId') barId: BarId) {
     const bar = await this._queryBus.execute<GetBarByIdQuery, Bar | null>(new GetBarByIdQuery(barId));
-    if (!bar) return null;
+    if (!bar) {
+      return null;
+    }
+
     return BarsMapper.toDto(bar);
   }
 }

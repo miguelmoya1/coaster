@@ -57,14 +57,14 @@ describe('TableRepository', () => {
       const promise = service.create(barId, dto);
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockTable);
+      req.flush({ id: asTableId('table-1') });
       await promise;
     });
 
-    it('should return mapped table', async () => {
+    it('should return table creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(mockTable);
-      expect(await res).toEqual(mockTable);
+      httpMock.expectOne(service.routes.create(barId)).flush({ id: asTableId('table-1') });
+      expect(await res).toEqual({ id: asTableId('table-1') });
     });
   });
 
@@ -77,15 +77,14 @@ describe('TableRepository', () => {
       const promise = service.update(barId, tableId, dto);
       const req = httpMock.expectOne(service.routes.update(barId, tableId));
       expect(req.request.method).toBe('PATCH');
-      req.flush({ ...mockTable, name: 'Mesa Actualizada' });
+      req.flush({ success: true });
       await promise;
     });
 
-    it('should return mapped table', async () => {
-      const updated = { ...mockTable, name: 'Mesa Actualizada' };
+    it('should return success response', async () => {
       const res = service.update(barId, tableId, dto);
-      httpMock.expectOne(service.routes.update(barId, tableId)).flush(updated);
-      expect(await res).toEqual(updated);
+      httpMock.expectOne(service.routes.update(barId, tableId)).flush({ success: true });
+      expect(await res).toEqual({ success: true });
     });
   });
 

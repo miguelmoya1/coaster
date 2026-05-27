@@ -5,6 +5,7 @@ import {
   BarId,
   BulkUpdateDto,
   CreateOrderDto,
+  CreateResponse,
   DeleteResponse,
   MergeOrdersDto,
   MoveTableDto,
@@ -45,9 +46,9 @@ export class OrderRepository {
     );
   }
 
-  public async create(barId: BarId, dto: CreateOrderDto) {
+  public async create(barId: BarId, dto: CreateOrderDto): Promise<CreateResponse<OrderId>> {
     return firstValueFrom(
-      this.#http.post<Order>(this.routes.create(barId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.post<CreateResponse<OrderId>>(this.routes.create(barId), dto)
     );
   }
 
