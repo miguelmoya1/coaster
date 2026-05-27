@@ -23,7 +23,7 @@ export class StockStatusPipe implements PipeTransform {
           case 'bg-color':
             return 'bg-error';
           case 'label':
-            return 'Critical';
+            return 'pantry.status.ALERT';
           case 'badge-variant':
             return 'error';
         }
@@ -37,7 +37,7 @@ export class StockStatusPipe implements PipeTransform {
           case 'bg-color':
             return 'bg-tertiary';
           case 'label':
-            return 'Low Stock';
+            return 'pantry.status.WARNING';
           case 'badge-variant':
             return 'warning';
         }
@@ -51,7 +51,7 @@ export class StockStatusPipe implements PipeTransform {
           case 'bg-color':
             return 'bg-secondary';
           case 'label':
-            return 'Good';
+            return 'pantry.status.GOOD';
           case 'badge-variant':
             return 'success';
         }

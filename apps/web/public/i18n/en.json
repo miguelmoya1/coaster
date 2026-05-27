@@ -138,13 +138,6 @@
       "manage_staff": "MANAGE STAFF",
       "security": "SECURITY"
     },
-    "pantry": {
-      "status": {
-        "critical": "CRITICAL LOW",
-        "good": "STOCK SECURE",
-        "low": "REORDER SOON"
-      }
-    },
     "roster": {
       "status": {
         "current": "CURRENT SHIFT",
@@ -273,6 +266,11 @@
     "unserve_unit": "Subtract 1 served"
   },
   "pantry": {
+    "status": {
+      "ALERT": "CRITICAL LOW",
+      "GOOD": "STOCK SECURE",
+      "WARNING": "REORDER SOON"
+    },
     "alerts": "Alerts",
     "all": "All",
     "category": "Category",

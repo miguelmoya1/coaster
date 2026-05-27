@@ -138,13 +138,6 @@
       "manage_staff": "GESTIONAR",
       "security": "SEGURIDAD"
     },
-    "pantry": {
-      "status": {
-        "critical": "STOCK CRÍTICO",
-        "good": "STOCK SEGURO",
-        "low": "REPOSICIÓN PRÓXIMA"
-      }
-    },
     "roster": {
       "status": {
         "current": "TURNO ACTUAL",
@@ -273,6 +266,11 @@
     "unserve_unit": "Restar 1 servido"
   },
   "pantry": {
+    "status": {
+      "ALERT": "STOCK CRÍTICO",
+      "GOOD": "STOCK SEGURO",
+      "WARNING": "REPOSICIÓN PRÓXIMA"
+    },
     "alerts": "Alertas",
     "all": "Todos",
     "category": "Categoría",

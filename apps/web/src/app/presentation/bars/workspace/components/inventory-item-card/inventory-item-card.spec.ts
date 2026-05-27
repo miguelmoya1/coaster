@@ -38,7 +38,7 @@ describe('InventoryItemCard', () => {
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('Critical');
+      expect(element.textContent).toContain('pantry.status.ALERT');
 
       const hostElement: HTMLElement = fixture.nativeElement;
       expect(hostElement.classList.contains('border-error')).toBe(true);
@@ -49,7 +49,7 @@ describe('InventoryItemCard', () => {
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('Low Stock');
+      expect(element.textContent).toContain('pantry.status.WARNING');
 
       const hostElement: HTMLElement = fixture.nativeElement;
       expect(hostElement.classList.contains('border-tertiary')).toBe(true);

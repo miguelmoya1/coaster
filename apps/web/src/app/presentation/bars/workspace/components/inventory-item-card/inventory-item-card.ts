@@ -48,7 +48,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           [variant]="statusLevel() | stockStatus: 'badge-variant'"
           class="scale-90 sm:scale-100 origin-right"
         >
-          {{ statusLevel() | stockStatus: 'label' }}
+          {{ statusLevel() | stockStatus: 'label' | translate }}
         </span>
       </div>
     </div>
