@@ -60,7 +60,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
   ],
   viewProviders: [provideIcons({ lucidePencil, lucideSearch, lucideX, lucideDownload })],
   host: {
-    class: 'flex flex-col gap-2 h-full',
+    class: 'flex flex-col gap-2',
   },
   templateUrl: './pantry.html',
   styles: `

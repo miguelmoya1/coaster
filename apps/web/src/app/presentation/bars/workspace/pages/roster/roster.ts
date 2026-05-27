@@ -34,7 +34,7 @@ import { ShiftCard } from './components/shift-card/shift-card';
   providers: [RosterStateService],
   viewProviders: [provideIcons({ lucideClock, lucideRepeat2 })],
   host: {
-    class: 'flex flex-col gap-2 relative h-full',
+    class: 'flex flex-col gap-2 relative',
   },
   templateUrl: './roster.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

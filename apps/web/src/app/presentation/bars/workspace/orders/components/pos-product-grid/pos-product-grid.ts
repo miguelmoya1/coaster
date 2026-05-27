@@ -65,7 +65,7 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
       </div>
 
       <!-- Products Grid -->
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         @for (product of filteredProducts(); track product.id) {
           <button
             class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
@@ -78,10 +78,10 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
             >
               {{ product.name | translate }}
             </span>
-            <div class="flex items-center gap-1.5 mt-0.5">
+            <div class="flex flex-col items-center gap-1 mt-0.5 w-full">
               <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
               <span
-                class="text-[0.65rem] px-1.5 py-0.5 rounded font-bold"
+                class="text-[0.65rem] px-1.5 py-0.5 rounded font-bold w-fit text-center"
                 [class]="product.currentStock > 0 ? 'bg-surface-container-highest text-on-surface-variant' : 'bg-error/10 text-error'"
               >
                 {{ product.currentStock > 0 ? ('orders.stock' | translate: { count: product.currentStock }) : ('orders.no_stock' | translate) }}
