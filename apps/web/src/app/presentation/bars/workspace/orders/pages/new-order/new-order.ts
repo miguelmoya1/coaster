@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, OrderId, Product, TableId, asOrderId, asProductId, asTableId } from '@coaster/common';
+import { BarId, OrderId, TableId, asOrderId, asProductId, asTableId } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
-import { ProductsStore } from '@coaster/products';
+import { Product, ProductsStore } from '@coaster/products';
 import { CoasterTitle, Loading } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';

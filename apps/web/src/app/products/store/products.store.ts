@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
-import { productArrayMapper } from '../mappers/product.mapper';
+import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
 import { CreateProduct } from '../services/create-product';
 import { DeleteProduct } from '../services/delete-product';
@@ -33,12 +33,13 @@ export class ProductsStore {
     effect(() => {
       const created = this.#socketService.productCreated();
       if (created) {
+        const mappedCreated = productMapper(created);
         this.#productsResource.update((products) => {
           if (!products) {
-            return [created];
+            return [mappedCreated];
           }
-          const exists = products.some((p) => p.id === created.id);
-          return exists ? products : [...products, created];
+          const exists = products.some((p) => p.id === mappedCreated.id);
+          return exists ? products : [...products, mappedCreated];
         });
       }
     });
@@ -47,11 +48,12 @@ export class ProductsStore {
     effect(() => {
       const updated = this.#socketService.productStockChanged();
       if (updated) {
+        const mappedUpdated = productMapper(updated);
         this.#productsResource.update((products) => {
           if (!products) {
             return undefined;
           }
-          return products.map((p) => (p.id === updated.id ? updated : p));
+          return products.map((p) => (p.id === mappedUpdated.id ? mappedUpdated : p));
         });
       }
     });
@@ -88,7 +90,7 @@ export class ProductsStore {
 
   public readonly lowStock = computed(() => {
     if (this.#productsResource.hasValue()) {
-      return this.#productsResource.value().filter((p) => p.stockStatus === 'low').length ?? 0;
+      return this.#productsResource.value().filter((p) => p.stockStatus === 'WARNING').length ?? 0;
     }
 
     return undefined;
@@ -96,7 +98,7 @@ export class ProductsStore {
 
   public readonly criticalStock = computed(() => {
     if (this.#productsResource.hasValue()) {
-      return this.#productsResource.value().filter((p) => p.stockStatus === 'critical').length ?? 0;
+      return this.#productsResource.value().filter((p) => p.stockStatus === 'ALERT').length ?? 0;
     }
 
     return undefined;
@@ -129,7 +131,7 @@ export class ProductsStore {
         if (!products) {
           return undefined;
         }
-        return products.map((p) => (p.id === productId ? { ...p, ...updateProductDto } : p));
+        return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductDto }) : p));
       });
       return null;
     } catch (error) {
@@ -149,7 +151,7 @@ export class ProductsStore {
         if (!products) {
           return undefined;
         }
-        return products.map((p) => (p.id === productId ? { ...p, ...updateProductStockDto } : p));
+        return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductStockDto }) : p));
       });
       return null;
     } catch (error) {

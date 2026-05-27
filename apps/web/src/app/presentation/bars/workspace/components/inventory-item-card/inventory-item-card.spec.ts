@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { InventoryItemCard } from './inventory-item-card';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { InventoryItemCard } from './inventory-item-card';
 
 describe('InventoryItemCard', () => {
   let component: InventoryItemCard;
@@ -33,8 +33,8 @@ describe('InventoryItemCard', () => {
       expect(element.textContent).toContain('10');
     });
 
-    it('should apply critical styles and text when statusLevel is critical', () => {
-      fixture.componentRef.setInput('statusLevel', 'critical');
+    it('should apply critical styles and text when statusLevel is ALERT', () => {
+      fixture.componentRef.setInput('statusLevel', 'ALERT');
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;
@@ -44,8 +44,8 @@ describe('InventoryItemCard', () => {
       expect(hostElement.classList.contains('border-error')).toBe(true);
     });
 
-    it('should apply low stock styles and text when statusLevel is low', () => {
-      fixture.componentRef.setInput('statusLevel', 'low');
+    it('should apply low stock styles and text when statusLevel is WARNING', () => {
+      fixture.componentRef.setInput('statusLevel', 'WARNING');
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;

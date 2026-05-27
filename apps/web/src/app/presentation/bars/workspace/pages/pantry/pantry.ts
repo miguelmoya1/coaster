@@ -11,8 +11,8 @@ import {
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, BarPermission, Category, Product } from '@coaster/common';
-import { ProductsStore } from '@coaster/products';
+import { BarId, BarPermission, Category } from '@coaster/common';
+import { Product, ProductsStore } from '@coaster/products';
 import {
   BottomSheet,
   CoasterBtn,

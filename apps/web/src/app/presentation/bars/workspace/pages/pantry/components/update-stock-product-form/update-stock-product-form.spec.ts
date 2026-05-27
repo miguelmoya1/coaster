@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asCategoryId, asProductId, Product } from '@coaster/common';
-import { ProductsStore } from '@coaster/products';
+import { asCategoryId, asProductId } from '@coaster/common';
+import { Product, ProductsStore } from '@coaster/products';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateStockProductForm } from './update-stock-product-form';
@@ -19,7 +19,7 @@ describe('UpdateStockProductForm', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
-    stockStatus: 'good',
+    stockStatus: 'GOOD',
     lastUpdated: new Date().toISOString(),
   };
 
@@ -30,9 +30,7 @@ describe('UpdateStockProductForm', () => {
 
     await TestBed.configureTestingModule({
       imports: [UpdateStockProductForm, TranslateModule.forRoot()],
-      providers: [
-        { provide: ProductsStore, useValue: productsStoreMock }
-      ]
+      providers: [{ provide: ProductsStore, useValue: productsStoreMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UpdateStockProductForm);

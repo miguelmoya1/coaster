@@ -1,31 +1,19 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import {
-    asBarId,
-    asCategoryId,
-    asProductId,
-    CreateProductDto,
-    Product,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  asBarId,
+  asCategoryId,
+  asProductId,
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from './product-repository';
 
 describe('ProductRepository', () => {
   let service: ProductRepository;
   let httpMock: HttpTestingController;
-
-  const mockProduct: Product = {
-    id: asProductId('prod-1'),
-    categoryId: asCategoryId('cat-1'),
-    name: 'Product 1',
-    price: 1050,
-    currentStock: 10,
-    minStockAlert: 5,
-    stockStatus: 'good',
-    lastUpdated: new Date().toISOString(),
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({

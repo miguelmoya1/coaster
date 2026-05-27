@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { StockStatus } from '@coaster/common';
 import { BadgeVariant } from '@coaster/shared';
+import { StockStatus } from '../models/product.interface';
 
 @Pipe({
   name: 'stockStatus',
@@ -14,7 +14,7 @@ export class StockStatusPipe implements PipeTransform {
     type: 'border' | 'text-color' | 'bg-color' | 'label' | 'badge-variant',
   ): string | BadgeVariant {
     switch (status) {
-      case 'critical':
+      case 'ALERT':
         switch (type) {
           case 'border':
             return 'border-error';
@@ -28,7 +28,7 @@ export class StockStatusPipe implements PipeTransform {
             return 'error';
         }
         break;
-      case 'low':
+      case 'WARNING':
         switch (type) {
           case 'border':
             return 'border-tertiary';
@@ -42,7 +42,7 @@ export class StockStatusPipe implements PipeTransform {
             return 'warning';
         }
         break;
-      case 'good':
+      case 'GOOD':
         switch (type) {
           case 'border':
             return 'border-secondary';

@@ -70,8 +70,8 @@ export class Dashboard {
     }
 
     return products
-      .filter((p) => p.stockStatus === 'critical' || p.stockStatus === 'low')
-      .sort((a, b) => (a.stockStatus === 'critical' && b.stockStatus !== 'critical' ? -1 : 1));
+      .filter((p) => p.stockStatus === 'ALERT' || p.stockStatus === 'WARNING')
+      .sort((a, b) => (a.stockStatus === 'ALERT' && b.stockStatus !== 'ALERT' ? -1 : 1));
   });
 
   readonly activeShifts = computed(() => {

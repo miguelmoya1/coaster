@@ -1,27 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { CoasterBadge, CoasterTitle } from '@coaster/shared';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import { CoasterTitle } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMail, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [NgIcon, TranslatePipe, CoasterBadge, CoasterTitle],
+  imports: [NgIcon, TranslatePipe, CoasterTitle],
   viewProviders: [provideIcons({ lucideMail, lucideTrash2 })],
   template: `
     <!-- Main Content Area (Row) -->
     <div class="flex items-center w-full min-w-0">
       <!-- Avatar Badge -->
-      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-surface-container-highest">
+      <div
+        class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-surface-container-highest"
+      >
         @if (staffImage() && !imageFailed()) {
-          <img
-            [src]="staffImage()"
-            (error)="onImageError()"
-            class="w-full h-full object-cover"
-            alt="Staff Member"
-          />
+          <img [src]="staffImage()" (error)="onImageError()" class="w-full h-full object-cover" alt="Staff Member" />
         } @else {
-          <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 text-primary font-black text-lg">
+          <div
+            class="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 text-primary font-black text-lg"
+          >
             {{ staffInitials() }}
           </div>
         }
@@ -40,7 +39,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 
     <!-- Actions Column / Row -->
     @if (showActions()) {
-      <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/10 sm:border-t-0 shrink-0">
+      <div
+        class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/10 sm:border-t-0 shrink-0"
+      >
         @if (!isCurrentUser()) {
           <a
             [attr.href]="disabled() ? null : 'mailto:' + staffEmail()"

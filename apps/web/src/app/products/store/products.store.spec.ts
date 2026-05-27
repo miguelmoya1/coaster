@@ -2,8 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId, Product } from '@coaster/common';
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
 import { Socket } from '@coaster/core';
+import { Product } from '@coaster/products';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductsStore } from './products.store';
 
@@ -16,14 +17,13 @@ describe('ProductsStore', () => {
     productDeleted: signal<{ id: string } | null>(null),
   };
 
-  const mockProducts: Product[] = [
+  const mockProductsRaw = [
     {
       id: asProductId('p-1'),
       name: 'Vodka Superior',
       price: 1500,
       currentStock: 10,
       minStockAlert: 5,
-      stockStatus: 'good',
       categoryId: asCategoryId('cat-1'),
       lastUpdated: new Date().toISOString(),
     },
@@ -33,9 +33,19 @@ describe('ProductsStore', () => {
       price: 1200,
       currentStock: 3,
       minStockAlert: 5,
-      stockStatus: 'low',
       categoryId: asCategoryId('cat-2'),
       lastUpdated: new Date().toISOString(),
+    },
+  ];
+
+  const mockProducts: Product[] = [
+    {
+      ...mockProductsRaw[0],
+      stockStatus: 'GOOD',
+    },
+    {
+      ...mockProductsRaw[1],
+      stockStatus: 'WARNING',
     },
   ];
 
@@ -75,7 +85,7 @@ describe('ProductsStore', () => {
 
       const req = httpMock.expectOne(`/bars/${barId}/products`);
       expect(req.request.method).toBe('GET');
-      req.flush(mockProducts);
+      req.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -92,7 +102,7 @@ describe('ProductsStore', () => {
       TestBed.tick();
 
       const getReq = httpMock.expectOne(`/bars/${barId}/products`);
-      getReq.flush(mockProducts);
+      getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -107,7 +117,7 @@ describe('ProductsStore', () => {
       const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}`);
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
-      
+
       // Wait for repository PATCH promise to resolve and local update to execute
       TestBed.tick();
       await Promise.resolve();
@@ -131,7 +141,7 @@ describe('ProductsStore', () => {
       TestBed.tick();
 
       const getReq = httpMock.expectOne(`/bars/${barId}/products`);
-      getReq.flush(mockProducts);
+      getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -145,7 +155,7 @@ describe('ProductsStore', () => {
       const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}/stock`);
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
-      
+
       // Wait for repository PATCH promise to resolve and local update to execute
       TestBed.tick();
       await Promise.resolve();

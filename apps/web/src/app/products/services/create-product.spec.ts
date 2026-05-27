@@ -15,7 +15,6 @@ describe('CreateProduct', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
-    stockStatus: 'good',
     lastUpdated: new Date().toISOString(),
   };
 

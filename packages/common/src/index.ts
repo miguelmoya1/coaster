@@ -20,4 +20,3 @@ export * from './interfaces/table.interface';
 export * from './interfaces/template.interface';
 export * from './interfaces/user.interface';
 export * from './security/bar-member.security';
-export * from './utilities/stock-status';

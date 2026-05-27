@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { Category, Product } from '@coaster/common';
+import { Category } from '@coaster/common';
+import { Product } from '@coaster/products';
 import { PricePipe } from '@coaster/shared';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSearch, lucideX } from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-pos-product-grid',
@@ -18,7 +19,10 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
       <div class="relative w-full">
-        <ng-icon name="lucideSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg" />
+        <ng-icon
+          name="lucideSearch"
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg"
+        />
         <input
           type="text"
           [value]="searchQuery()"
@@ -82,9 +86,17 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
               <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
               <span
                 class="text-[0.65rem] px-1.5 py-0.5 rounded font-bold w-fit text-center"
-                [class]="product.currentStock > 0 ? 'bg-surface-container-highest text-on-surface-variant' : 'bg-error/10 text-error'"
+                [class]="
+                  product.currentStock > 0
+                    ? 'bg-surface-container-highest text-on-surface-variant'
+                    : 'bg-error/10 text-error'
+                "
               >
-                {{ product.currentStock > 0 ? ('orders.stock' | translate: { count: product.currentStock }) : ('orders.no_stock' | translate) }}
+                {{
+                  product.currentStock > 0
+                    ? ('orders.stock' | translate: { count: product.currentStock })
+                    : ('orders.no_stock' | translate)
+                }}
               </span>
             </div>
           </button>
@@ -127,4 +139,3 @@ export class PosProductGrid {
     this.searchQuery.set(input.value);
   }
 }
-

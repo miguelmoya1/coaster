@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { asBarId, asCategoryId, asProductId, Category } from '@coaster/common';
+import { Product } from '@coaster/products';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PosProductGrid } from './pos-product-grid';
-import { Category, Product, asCategoryId, asProductId, asBarId } from '@coaster/common';
 
 describe('PosProductGrid', () => {
   let component: PosProductGrid;
@@ -22,7 +23,7 @@ describe('PosProductGrid', () => {
       categoryId: asCategoryId('cat-1'),
       currentStock: 10,
       minStockAlert: 5,
-      stockStatus: 'good',
+      stockStatus: 'GOOD',
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -32,7 +33,7 @@ describe('PosProductGrid', () => {
       categoryId: asCategoryId('cat-2'),
       currentStock: 5,
       minStockAlert: 10,
-      stockStatus: 'low',
+      stockStatus: 'WARNING',
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -42,7 +43,7 @@ describe('PosProductGrid', () => {
       categoryId: asCategoryId('cat-2'),
       currentStock: 20,
       minStockAlert: 5,
-      stockStatus: 'good',
+      stockStatus: 'GOOD',
       lastUpdated: new Date().toISOString(),
     },
   ];
@@ -50,13 +51,11 @@ describe('PosProductGrid', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PosProductGrid],
-      providers: [
-        provideTranslateService(),
-      ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
-    
+
     // Stub translation keys to return specific values for testing search
     vi.spyOn(translateService, 'instant').mockImplementation((key: string | string[]) => {
       if (typeof key === 'string') {
@@ -71,7 +70,7 @@ describe('PosProductGrid', () => {
 
     fixture.componentRef.setInput('categories', mockCategories);
     fixture.componentRef.setInput('products', mockProducts);
-    
+
     fixture.detectChanges();
     await fixture.whenStable();
   });
@@ -104,7 +103,7 @@ describe('PosProductGrid', () => {
     it('should show "no products" message if no match is found', () => {
       component.searchQuery.set('xyz');
       fixture.detectChanges();
-      
+
       const noProductsElement = fixture.nativeElement.querySelector('.col-span-full');
       expect(noProductsElement).toBeTruthy();
       expect(component.filteredProducts().length).toBe(0);
@@ -116,7 +115,7 @@ describe('PosProductGrid', () => {
       const emitSpy = vi.spyOn(component.productClicked, 'emit');
       const productButton = fixture.nativeElement.querySelector('.grid button');
       expect(productButton).toBeTruthy();
-      
+
       productButton.click();
       expect(emitSpy).toHaveBeenCalledWith(mockProducts[0]);
     });
@@ -126,7 +125,7 @@ describe('PosProductGrid', () => {
       // The first category button after "All Categories" is at index 1
       const categoryButtons = fixture.nativeElement.querySelectorAll('.overflow-x-auto button');
       expect(categoryButtons.length).toBeGreaterThan(1);
-      
+
       categoryButtons[1].click();
       expect(emitSpy).toHaveBeenCalledWith('cat-1');
     });
