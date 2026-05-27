@@ -63,7 +63,7 @@ export class InviteMemberForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = this.#membersStore.invite(payload);
+          const error = await this.#membersStore.invite(payload);
 
           if (error) {
             return error;
