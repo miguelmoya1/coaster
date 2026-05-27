@@ -255,6 +255,8 @@
     "remove_item_message": "¿Eliminar este artículo del pedido?",
     "remove_item_title": "Eliminar Artículo",
     "search_placeholder": "Buscar productos...",
+    "stock": "Stock: {{count}}",
+    "no_stock": "Sin Stock",
     "selected_items_count": "{{count}} seleccionados",
     "selected_total_amount": "Total seleccionados",
     "send_order": "Enviar Pedido",

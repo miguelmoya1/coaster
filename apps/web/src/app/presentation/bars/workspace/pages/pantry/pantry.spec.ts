@@ -155,6 +155,25 @@ describe('Pantry', () => {
       expect(component.filteredProducts()).toEqual([mockProducts[0]]);
     });
 
+    it('should sort products alphabetically by translated name', () => {
+      const mockProducts = [
+        { id: 'p-1', name: 'Vodka', categoryId: 'cat-1' },
+        { id: 'p-2', name: 'Absolut Vodka', categoryId: 'cat-1' },
+        { id: 'p-3', name: 'Zinebra', categoryId: 'cat-1' },
+      ] as Product[];
+      productsStoreMock.list.value.mockReturnValue(mockProducts);
+      productsStoreMock.list.hasValue.mockReturnValue(true);
+
+      // Trigger re-evaluation of the computed signal by changing its state
+      component.selectedCategoryId.set('TEMP_VAL');
+      component.selectedCategoryId.set('ALL');
+
+      const filtered = component.filteredProducts();
+      expect(filtered[0].id).toBe('p-2'); // Absolut Vodka
+      expect(filtered[1].id).toBe('p-1'); // Vodka
+      expect(filtered[2].id).toBe('p-3'); // Zinebra
+    });
+
     it('should return tabs with ALL as first option', () => {
       const tabs = component.tabs();
       expect(tabs.length).toBeGreaterThanOrEqual(1);

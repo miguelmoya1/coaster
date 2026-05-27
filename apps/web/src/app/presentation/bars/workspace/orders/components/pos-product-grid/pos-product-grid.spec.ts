@@ -130,5 +130,16 @@ describe('PosProductGrid', () => {
       categoryButtons[1].click();
       expect(emitSpy).toHaveBeenCalledWith('cat-1');
     });
+
+    it('should not disable the button but add error border when product is out of stock', () => {
+      const outOfStockProducts = [...mockProducts];
+      outOfStockProducts[1] = { ...outOfStockProducts[1], currentStock: 0 };
+      fixture.componentRef.setInput('products', outOfStockProducts);
+      fixture.detectChanges();
+
+      const productButtons = fixture.nativeElement.querySelectorAll('.grid button');
+      expect(productButtons[1].disabled).toBe(false);
+      expect(productButtons[1].className).toContain('border-error/30');
+    });
   });
 });

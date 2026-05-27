@@ -8,7 +8,7 @@ import { CoasterTitle, Loading } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CartItem, PosCart } from '../../components/pos-cart/pos-cart';
 import { PosProductGrid } from '../../components/pos-product-grid/pos-product-grid';
 
@@ -30,6 +30,7 @@ class NewOrder {
   readonly #tablesStore = inject(TablesStore);
   readonly #ordersStore = inject(OrdersStore);
   readonly #router = inject(Router);
+  readonly #translate = inject(TranslateService);
 
   readonly selectedCategory = signal<string | undefined>(undefined);
   readonly cart = signal<Map<string, CartItem>>(new Map());
@@ -54,8 +55,24 @@ class NewOrder {
   protected readonly filteredProducts = computed(() => {
     if (!this.#productsStore.list.hasValue()) return [];
     const products = this.#productsStore.list.value() ?? [];
+    const cartMap = this.cart();
+    const productsWithOptimisticStock = products.map((p) => {
+      const cartItem = cartMap.get(p.id);
+      const quantityInCart = cartItem ? cartItem.quantity : 0;
+      return {
+        ...p,
+        currentStock: Math.max(0, p.currentStock - quantityInCart),
+      };
+    });
     const categoryId = this.selectedCategory();
-    return categoryId ? products.filter((p) => p.categoryId === categoryId) : products;
+    const filtered = categoryId
+      ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
+      : productsWithOptimisticStock;
+    return [...filtered].sort((a, b) => {
+      const nameA = this.#translate.instant(a.name) || a.name;
+      const nameB = this.#translate.instant(b.name) || b.name;
+      return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
   });
 
   constructor() {

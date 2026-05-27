@@ -255,6 +255,8 @@
     "remove_item_message": "Remove this item from the order?",
     "remove_item_title": "Remove Item",
     "search_placeholder": "Search products...",
+    "stock": "Stock: {{count}}",
+    "no_stock": "Out of Stock",
     "selected_items_count": "{{count}} selected",
     "selected_total_amount": "Selected total",
     "send_order": "Send Order",

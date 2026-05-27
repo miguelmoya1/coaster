@@ -83,7 +83,7 @@
 @if (isCreateMode()) {
   <coaster-bottom-sheet (closed)="handleCloseModal()">
     <coaster-create-shift-form
-      [members]="membersList() ?? []"
+      [members]="membersList()"
       (canceled)="handleCloseModal()"
       (created)="handleCreateShift()"
     />

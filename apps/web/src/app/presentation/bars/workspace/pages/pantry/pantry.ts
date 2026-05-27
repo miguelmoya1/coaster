@@ -142,7 +142,11 @@ export default class Pantry {
       allProducts = allProducts.filter((p) => p.name.toLowerCase().includes(query));
     }
 
-    return allProducts;
+    return [...allProducts].sort((a, b) => {
+      const nameA = this.#translate.instant(a.name) || a.name;
+      const nameB = this.#translate.instant(b.name) || b.name;
+      return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
   });
 
   constructor() {

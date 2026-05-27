@@ -2,6 +2,7 @@ export * from './errors/api-error';
 export * from './guards/admin-guard';
 export * from './guards/auth-guard';
 export * from './guards/no-auth-guard';
+export * from './guards/permission.guard';
 export * from './interceptors/error.interceptor';
 export * from './interceptors/id-token-interceptor';
 export * from './interceptors/unauthorized-interceptor';

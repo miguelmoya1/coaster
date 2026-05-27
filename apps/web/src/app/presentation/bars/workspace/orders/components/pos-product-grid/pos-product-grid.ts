@@ -69,6 +69,7 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
         @for (product of filteredProducts(); track product.id) {
           <button
             class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
+            [class.border-error/30]="product.currentStock <= 0"
             (click)="productClicked.emit(product)"
           >
             <span
@@ -77,7 +78,15 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
             >
               {{ product.name | translate }}
             </span>
-            <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
+              <span
+                class="text-[0.65rem] px-1.5 py-0.5 rounded font-bold"
+                [class]="product.currentStock > 0 ? 'bg-surface-container-highest text-on-surface-variant' : 'bg-error/10 text-error'"
+              >
+                {{ product.currentStock > 0 ? ('orders.stock' | translate: { count: product.currentStock }) : ('orders.no_stock' | translate) }}
+              </span>
+            </div>
           </button>
         } @empty {
           <div class="col-span-full text-center text-on-surface-variant py-8">

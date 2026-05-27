@@ -83,7 +83,6 @@ export class BottomNav {
       link: `/bars/${this.barId()}/pantry`,
       icon: 'lucidePackage',
       labelKey: 'nav.pantry',
-      ownerOnly: true,
     },
     {
       value: 'staff',
