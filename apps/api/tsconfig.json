@@ -3,9 +3,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
-    "paths": {
-      "@coaster/common": ["../../packages/common/dist/index.d.ts"]
-    },
+
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
