@@ -42,8 +42,8 @@ COPY apps/web/package.json ./apps/web/
 RUN npm ci --omit=dev
 
 # Copy generated Prisma Client from builder into node_modules of production deps
-COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
+# COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+# COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 
 # Stage 3: Runner stage (slim runtime)
 FROM node:22-alpine AS runner
