@@ -11,10 +11,10 @@ CREATE TYPE "TableStatus" AS ENUM ('FREE', 'OCCUPIED');
 CREATE TYPE "OrderStatus" AS ENUM ('OPEN', 'CLOSED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PAID');
+CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PARTIAL', 'PAID');
 
 -- CreateEnum
-CREATE TYPE "DeliveryStatus" AS ENUM ('PENDING', 'SERVED');
+CREATE TYPE "DeliveryStatus" AS ENUM ('PENDING', 'PARTIAL', 'SERVED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -144,6 +144,7 @@ CREATE TABLE "Order" (
     "id" TEXT NOT NULL,
     "barId" TEXT NOT NULL,
     "tableId" TEXT,
+    "tableName" TEXT,
     "status" "OrderStatus" NOT NULL DEFAULT 'OPEN',
     "totalAmount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -159,6 +160,8 @@ CREATE TABLE "OrderItem" (
     "productId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "priceAtPurchase" INTEGER NOT NULL,
+    "paidQuantity" INTEGER NOT NULL DEFAULT 0,
+    "servedQuantity" INTEGER NOT NULL DEFAULT 0,
     "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
     "deliveryStatus" "DeliveryStatus" NOT NULL DEFAULT 'PENDING',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
