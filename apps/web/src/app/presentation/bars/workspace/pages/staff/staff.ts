@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarId, BarMember, BarRole } from '@coaster/common';
+import { BarId, BarMember } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { BottomSheet, ConfirmDialogComponent, Fab, Loading, SectionTitle } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';

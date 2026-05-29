@@ -56,7 +56,7 @@
             (click)="toggleSelectItem(item); $event.stopPropagation()"
           >
             @if (isItemSelected(item.id)) {
-              <ng-icon name="lucideCheck" size="14" class="stroke-[3]" />
+              <ng-icon name="lucideCheck" size="14" class="stroke-3" />
             }
           </button>
         }
@@ -108,6 +108,9 @@
                 <div
                   class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
                   (click)="$event.stopPropagation()"
+                  (keydown.enter)="decrementPayQty(item.id, -item.paidQuantity, $event)"
+                  (keydown.space)="decrementPayQty(item.id, -item.paidQuantity, $event)"
+                  [attr.tabindex]="isItemSelected(item.id) ? 0 : null"
                 >
                   <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
                     'orders.quantity_to_pay' | translate
@@ -136,6 +139,9 @@
                 <div
                   class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
                   (click)="$event.stopPropagation()"
+                  (keydown.enter)="decrementServeQty(item.id, -item.servedQuantity, $event)"
+                  (keydown.space)="decrementServeQty(item.id, -item.servedQuantity, $event)"
+                  [attr.tabindex]="isItemSelected(item.id) ? 0 : null"
                 >
                   <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
                     'orders.quantity_to_serve' | translate

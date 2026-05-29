@@ -217,7 +217,7 @@ class OrderDetail {
     }
   }
 
-  protected decrementPayQty(itemId: string, min: number, event: MouseEvent) {
+  protected decrementPayQty(itemId: string, min: number, event: Event) {
     event.stopPropagation();
     const current = new Map(this.selectedItems());
     const qtys = current.get(itemId);
@@ -237,7 +237,7 @@ class OrderDetail {
     }
   }
 
-  protected decrementServeQty(itemId: string, min: number, event: MouseEvent) {
+  protected decrementServeQty(itemId: string, min: number, event: Event) {
     event.stopPropagation();
     const current = new Map(this.selectedItems());
     const qtys = current.get(itemId);

@@ -1,19 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asTableId, Table, TableStatus } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/common';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TableRepository } from './table-repository';
 
 describe('TableRepository', () => {
   let service: TableRepository;
   let httpMock: HttpTestingController;
-
-  const mockTable: Table = {
-    id: asTableId('table-1'),
-    barId: asBarId('bar-1'),
-    name: 'Mesa 1',
-    status: TableStatus.FREE,
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
