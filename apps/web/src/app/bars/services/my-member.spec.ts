@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
+import { asBarId } from '@coaster/common';
 import { Auth } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemberRepository } from '../../members/data-access/member-repository';

@@ -57,3 +57,6 @@ vitest.config.*.timestamp*
 .firebase-data
 
 firebase-debug.log
+
+# TypeScript build cache
+*.tsbuildinfo

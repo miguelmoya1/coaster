@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
-import { firstValueFrom, Observable } from 'rxjs';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
+import { firstValueFrom, Observable } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { permissionGuard } from './permission.guard';
 
 describe('permissionGuard', () => {
@@ -26,12 +26,14 @@ describe('permissionGuard', () => {
   };
 
   const getMockRoute = (barId: string | null, parentBarId: string | null = null) => {
-    const parentRoute = parentBarId ? {
-      paramMap: {
-        get: vi.fn((key: string) => (key === 'barId' ? parentBarId : null)),
-      },
-      parent: null,
-    } : null;
+    const parentRoute = parentBarId
+      ? {
+          paramMap: {
+            get: vi.fn((key: string) => (key === 'barId' ? parentBarId : null)),
+          },
+          parent: null,
+        }
+      : null;
 
     return {
       paramMap: {
@@ -58,7 +60,7 @@ describe('permissionGuard', () => {
   it('should allow navigation if user has permission', async () => {
     const route = getMockRoute('bar-1');
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -71,12 +73,12 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars', 'bar-1', 'dashboard']);
-    expect((result as any).path).toEqual(['/bars', 'bar-1', 'dashboard']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/bars', 'bar-1', 'dashboard']);
   });
 
   it('should set bar ID in store if it does not match current route bar ID', async () => {
@@ -84,7 +86,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -101,7 +103,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -114,12 +116,12 @@ describe('permissionGuard', () => {
 
   it('should find barId in parent route snapshot if not present in child', async () => {
     const route = getMockRoute(null, 'bar-parent');
-    
+
     // For this test, set currentId to something else so we can see it set the parent's barId
     currentId.set('bar-other');
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -131,11 +133,11 @@ describe('permissionGuard', () => {
     const route = getMockRoute(null, null);
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as any);
+      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return guard as unknown as Promise<boolean | UrlTree>;
     });
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/']);
-    expect((result as any).path).toEqual(['/']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/']);
   });
 });
