@@ -66,8 +66,8 @@ COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 
-EXPOSE 3000
+EXPOSE 8080
 
-ENV PORT=3000
+ENV PORT=8080
 
 CMD ["node", "apps/api/dist/main"]
