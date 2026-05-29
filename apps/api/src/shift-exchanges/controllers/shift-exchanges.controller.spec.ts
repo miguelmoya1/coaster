@@ -1,88 +1,84 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, User } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { ShiftExchangesService } from '../services/shift-exchanges.service';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { RequestExchangeCommand, AcceptExchangeCommand } from '../commands';
+import { GetPendingExchangesQuery } from '../queries';
 import { ShiftExchangesController } from './shift-exchanges.controller';
 
 describe('ShiftExchangesController', () => {
   let controller: ShiftExchangesController;
-  let service: Mocked<ShiftExchangesService>;
+  let commandBus: Mocked<CommandBus>;
+  let queryBus: Mocked<QueryBus>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
-  const fakeUser = {
-    id: asUserId('user-1'),
-    email: 'test@mail.com',
-    name: 'Test',
-    active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    googleId: 'g-123',
-  } as User;
-
   beforeEach(async () => {
-    const mockService = {
-      getPendingExchanges: vi.fn(),
-      requestExchange: vi.fn(),
-      acceptExchange: vi.fn(),
-    };
+    const mockCommandBus = { execute: vi.fn() };
+    const mockQueryBus = { execute: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ShiftExchangesController],
-      providers: [{ provide: ShiftExchangesService, useValue: mockService }],
+      providers: [
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: mockQueryBus },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
     controller = module.get<ShiftExchangesController>(ShiftExchangesController);
-    service = module.get(ShiftExchangesService);
+    commandBus = module.get(CommandBus);
+    queryBus = module.get(QueryBus);
   });
 
-  it('getExchanges should delegate to the service', async () => {
-    service.getPendingExchanges.mockResolvedValue([]);
+  it('getExchanges should delegate to query bus', async () => {
+    queryBus.execute.mockResolvedValue([]);
 
     await controller.getExchanges(asBarId('bar-1'));
 
-    expect(service.getPendingExchanges).toHaveBeenCalledWith('bar-1');
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetPendingExchangesQuery));
   });
 
-  it("createExchange should delegate to the service with the authenticated user's userId", async () => {
-    service.requestExchange.mockResolvedValue({
-      id: 'exc-1',
+  it('createExchange should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue({
+      id: 'exch-1',
       shiftId: 'shift-1',
       requesterId: 'user-1',
-      targetId: 'target-1',
+      targetId: 'user-2',
       status: 'PENDING',
       createdAt: new Date(),
       shift: { startTime: new Date(), endTime: new Date() },
-      requester: { id: 'user-1', name: 'Test' },
-    } as Awaited<ReturnType<typeof ShiftExchangesService.prototype.requestExchange>>);
-    const dto = { targetId: asUserId('target-1') };
+      requester: { id: 'user-1', name: 'User 1' },
+    });
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
+    const dto = { targetId: asUserId('user-2') };
 
-    await controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto, fakeUser);
+    await controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto, user);
 
-    expect(service.requestExchange).toHaveBeenCalledWith('bar-1', 'shift-1', 'user-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RequestExchangeCommand));
   });
 
-  it("acceptExchange should delegate to the service with the authenticated user's userId", async () => {
-    service.acceptExchange.mockResolvedValue({
-      id: 'exc-1',
+  it('acceptExchange should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue({
+      id: 'exch-1',
       shiftId: 'shift-1',
       requesterId: 'user-1',
-      targetId: 'target-1',
+      targetId: 'user-2',
       status: 'ACCEPTED',
       createdAt: new Date(),
       shift: { startTime: new Date(), endTime: new Date() },
-      requester: { id: 'user-1', name: 'Test' },
-    } as Awaited<ReturnType<typeof ShiftExchangesService.prototype.acceptExchange>>);
+      requester: { id: 'user-1', name: 'User 1' },
+    });
+    const user = { id: asUserId('user-2'), name: 'User 2', email: 'u2@u.com', active: true };
 
-    await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exc-1'), fakeUser);
+    await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
 
-    expect(service.acceptExchange).toHaveBeenCalledWith('bar-1', 'exc-1', 'user-1');
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AcceptExchangeCommand));
   });
 });

@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ShiftExchangesRepository } from './data-access/shift-exchanges.repository';
+import { CqrsModule } from '@nestjs/cqrs';
+import { CommandHandlers } from './commands';
 import { ShiftExchangesController } from './controllers/shift-exchanges.controller';
-import { ShiftExchangesService } from './services/shift-exchanges.service';
+import { ShiftExchangesRepository } from './data-access/shift-exchanges.repository';
+import { QueryHandlers } from './queries';
 
 @Module({
+  imports: [CqrsModule],
   controllers: [ShiftExchangesController],
-  providers: [ShiftExchangesRepository, ShiftExchangesService],
+  providers: [ShiftExchangesRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class ShiftExchangesModule {}

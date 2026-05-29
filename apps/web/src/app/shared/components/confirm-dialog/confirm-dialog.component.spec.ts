@@ -1,37 +1,22 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
   let component: ConfirmDialogComponent;
   let fixture: ComponentFixture<ConfirmDialogComponent>;
-  let dialogRefMock: Record<string, Mock>;
-
-  const mockData: ConfirmDialogData = {
-    title: 'Test Title',
-    message: 'Test Message',
-    confirmText: 'Confirm',
-    cancelText: 'Cancel',
-    isDestructive: true,
-  };
 
   beforeEach(async () => {
-    dialogRefMock = {
-      close: vi.fn(),
-    };
-
     await TestBed.configureTestingModule({
       imports: [ConfirmDialogComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: DialogRef, useValue: dialogRefMock },
-        { provide: DIALOG_DATA, useValue: mockData },
-      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmDialogComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput('isOpen', true);
+
     fixture.detectChanges();
   });
 
@@ -39,7 +24,11 @@ describe('ConfirmDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display title and message from data', () => {
+  it('should display title and message from inputs', () => {
+    fixture.componentRef.setInput('title', 'Test Title');
+    fixture.componentRef.setInput('message', 'Test Message');
+    fixture.detectChanges();
+
     const compiled = fixture.nativeElement as HTMLElement;
     const title = compiled.querySelector('h2');
     const message = compiled.querySelector('p');
@@ -48,23 +37,25 @@ describe('ConfirmDialogComponent', () => {
     expect(message?.textContent).toContain('Test Message');
   });
 
-  it('should call dialogRef.close(false) when cancel button is clicked', () => {
+  it('should emit cancelled event when cancel button is clicked', () => {
+    const cancelledSpy = vi.spyOn(component.cancelled, 'emit');
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
-    const cancelButton = buttons[0]; // First button is cancel
+    const cancelButton = buttons[0];
 
     cancelButton.click();
 
-    expect(dialogRefMock['close']).toHaveBeenCalledWith(false);
+    expect(cancelledSpy).toHaveBeenCalled();
   });
 
-  it('should call dialogRef.close(true) when confirm button is clicked', () => {
+  it('should emit confirmed event when confirm button is clicked', () => {
+    const confirmedSpy = vi.spyOn(component.confirmed, 'emit');
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('button');
-    const confirmButton = buttons[1]; // Second button is confirm
+    const confirmButton = buttons[1];
 
     confirmButton.click();
 
-    expect(dialogRefMock['close']).toHaveBeenCalledWith(true);
+    expect(confirmedSpy).toHaveBeenCalled();
   });
 });

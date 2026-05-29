@@ -1,45 +1,54 @@
-import { type BarId, BarRole, type CategoryId } from '@coaster/common';
+import { type BarId, BarPermission, type Category, type CategoryId } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { commonMapper, FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { CreateCategoryCommand, DeleteCategoryCommand, UpdateCategoryCommand } from '../commands';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { CategoriesMapper } from '../mappers/categories.mapper';
-import { CategoriesService } from '../services/categories.service';
+import { GetCategoriesQuery } from '../queries';
 
 @Controller('bars/:barId/categories')
-@UseGuards(FirebaseAuthGuard, RolesGuard)
+@UseGuards(FirebaseAuthGuard, PermissionsGuard)
 export class CategoriesController {
-  constructor(private readonly _categoriesService: CategoriesService) {}
+  constructor(
+    private readonly _queryBus: QueryBus,
+    private readonly _commandBus: CommandBus,
+  ) {}
 
   @Get()
-  @Roles(BarRole.OWNER, BarRole.STAFF)
+  @Permissions(BarPermission.VIEW_CATEGORIES)
   async getCategories(@Param('barId') barId: BarId) {
-    const categories = await this._categoriesService.getCategories(barId);
+    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
     return categories.map((category) => CategoriesMapper.toDto(category));
   }
 
   @Post()
-  @Roles(BarRole.OWNER)
+  @Permissions(BarPermission.CREATE_CATEGORY)
   async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
-    const category = await this._categoriesService.createCategory(barId, dto);
+    const category = await this._commandBus.execute<CreateCategoryCommand, Category>(
+      new CreateCategoryCommand(barId, dto),
+    );
     return CategoriesMapper.toDto(category);
   }
 
   @Patch(':categoryId')
-  @Roles(BarRole.OWNER)
+  @Permissions(BarPermission.UPDATE_CATEGORY)
   async updateCategory(
     @Param('barId') barId: BarId,
-    @Param('categoryId') categoryId: string,
+    @Param('categoryId') categoryId: CategoryId,
     @Body() dto: UpdateCategoryDto,
   ) {
-    const category = await this._categoriesService.updateCategory(barId, categoryId, dto);
+    const category = await this._commandBus.execute<UpdateCategoryCommand, Category>(
+      new UpdateCategoryCommand(barId, categoryId, dto),
+    );
     return CategoriesMapper.toDto(category);
   }
 
   @Delete(':categoryId')
-  @Roles(BarRole.OWNER)
+  @Permissions(BarPermission.DELETE_CATEGORY)
   async deleteCategory(@Param('barId') barId: BarId, @Param('categoryId') categoryId: CategoryId) {
-    await this._categoriesService.deleteCategory(barId, categoryId);
+    await this._commandBus.execute<DeleteCategoryCommand, void>(new DeleteCategoryCommand(barId, categoryId));
     return commonMapper.getSuccessResponse();
   }
 }

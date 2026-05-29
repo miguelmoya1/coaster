@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asBarRole, asUserId, BarMember } from '@coaster/common';
+import { asBarId, asBarMemberId, asBarRole, asUserId, BarMember, getRolePermissions } from '@coaster/common';
 
 export const BarMembersMapper = {
   toDomain(member: {
@@ -9,11 +9,13 @@ export const BarMembersMapper = {
     active: boolean;
     user: { name: string; photoUrl: string | null; email: string };
   }): BarMember {
+    const role = asBarRole(member.role);
     return {
       id: asBarMemberId(member.id),
       userId: asUserId(member.userId),
       barId: asBarId(member.barId),
-      role: asBarRole(member.role),
+      role,
+      permissions: getRolePermissions(role),
       active: member.active,
       userName: member.user.name,
       userImage: member.user.photoUrl ?? '',

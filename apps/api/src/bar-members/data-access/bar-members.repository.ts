@@ -51,6 +51,22 @@ export class BarMembersRepository {
     });
   }
 
+  async getMemberByUserAndBar(userId: string, barId: string) {
+    return this.prisma.barMember.findUnique({
+      where: {
+        userId_barId: {
+          userId,
+          barId,
+        },
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, photoUrl: true },
+        },
+      },
+    });
+  }
+
   async removeMember(memberId: string) {
     return this.prisma.barMember.delete({
       where: { id: memberId },

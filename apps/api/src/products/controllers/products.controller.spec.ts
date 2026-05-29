@@ -1,61 +1,87 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asBarId, asProductId, CreateProductDto } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mocked } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { ProductsService } from '../services/products.service';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import {
+  CreateProductCommand,
+  UpdateProductStockCommand,
+  UpdateProductCommand,
+  DeleteProductCommand,
+} from '../commands';
 import { ProductsController } from './products.controller';
+import { GetProductsByBarIdQuery } from '../queries';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
-  let service: Mocked<ProductsService>;
+  let commandBus: Mocked<CommandBus>;
+  let queryBus: Mocked<QueryBus>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
   beforeEach(async () => {
-    const mockService = {
-      getProductsByBarId: vi.fn(),
-      createProduct: vi.fn(),
-      updateProductStock: vi.fn(),
-    };
+    const mockCommandBus = { execute: vi.fn() };
+    const mockQueryBus = { execute: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductsController],
-      providers: [{ provide: ProductsService, useValue: mockService }],
+      providers: [
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: mockQueryBus },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
     controller = module.get<ProductsController>(ProductsController);
-    service = module.get(ProductsService);
+    commandBus = module.get(CommandBus);
+    queryBus = module.get(QueryBus);
   });
 
-  it('getProducts should delegate to the service', async () => {
-    service.getProductsByBarId.mockResolvedValue([]);
+  it('getProducts should delegate to the query bus', async () => {
+    queryBus.execute.mockResolvedValue([]);
 
     await controller.getProducts(asBarId('bar-1'));
 
-    expect(service.getProductsByBarId).toHaveBeenCalledWith('bar-1');
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetProductsByBarIdQuery));
   });
 
-  it('createProduct should delegate to the service', async () => {
-    service.createProduct.mockResolvedValue({});
-    const dto = { name: 'Coca Cola', categoryId: asCategoryId('cat-1') };
+  it('createProduct should delegate to the command bus', async () => {
+    commandBus.execute.mockResolvedValue({ id: 'prod-1' });
+    const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
 
-    await controller.createProduct(asBarId('bar-1'), dto);
+    await controller.createProduct(asBarId('bar-1'), dto as unknown as CreateProductDto);
 
-    expect(service.createProduct).toHaveBeenCalledWith('bar-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateProductCommand));
   });
 
-  it('updateProductStock should delegate to the service', async () => {
-    service.updateProductStock.mockResolvedValue({});
-    const dto = { currentStock: 2, minStockAlert: 5 };
+  it('updateStock should delegate to the command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+    const dto = { currentStock: 10 };
 
     await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);
 
-    expect(service.updateProductStock).toHaveBeenCalledWith('bar-1', 'prod-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateProductStockCommand));
+  });
+
+  it('updateProduct should delegate to the command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+    const dto = { name: 'Refresco VIP' };
+
+    await controller.updateProduct(asBarId('bar-1'), asProductId('prod-1'), dto);
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateProductCommand));
+  });
+
+  it('deleteProduct should delegate to the command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    await controller.deleteProduct(asBarId('bar-1'), asProductId('prod-1'));
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteProductCommand));
   });
 });

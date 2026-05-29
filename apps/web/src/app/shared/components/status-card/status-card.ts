@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { StatusLevelColorPipe } from '../../pipes/status-level';
 
 export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
 
@@ -6,7 +7,7 @@ export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
   selector: 'coaster-status-card',
   template: `
     @if (status() !== 'none') {
-      <div [class]="'absolute top-0 left-0 w-1 h-full ' + statusColorClass()"></div>
+      <div [class]="'absolute top-0 left-0 w-1 h-full ' + (status() | statusLevelColor)"></div>
     }
 
     <ng-content />
@@ -14,23 +15,9 @@ export type StatusLevel = 'none' | 'success' | 'warning' | 'error' | 'primary';
   host: {
     class: 'bg-surface-container-high p-6 flex flex-col justify-between rounded-xl relative overflow-hidden',
   },
+  imports: [StatusLevelColorPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusCard {
   readonly status = input<StatusLevel>('none');
-
-  readonly statusColorClass = computed(() => {
-    switch (this.status()) {
-      case 'error':
-        return 'bg-error';
-      case 'warning':
-        return 'bg-tertiary';
-      case 'success':
-        return 'bg-secondary';
-      case 'primary':
-        return 'bg-primary';
-      default:
-        return '';
-    }
-  });
 }

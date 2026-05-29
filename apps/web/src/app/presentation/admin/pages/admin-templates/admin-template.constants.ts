@@ -1,0 +1,120 @@
+export const STANDARD_TEMPLATES_JSON = `[
+  {
+    "name": "Cafetería",
+    "icon": "coffee",
+    "products": [
+      { "name": "COFFEE_BLACK", "price": 120 },
+      { "name": "COFFEE_WITH_MILK", "price": 150 },
+      { "name": "COFFEE_CAPPUCCINO", "price": 220 },
+      { "name": "COFFEE_TEA", "price": 140 },
+      { "name": "COFFEE_COLACAO", "price": 160 },
+      { "name": "COFFEE_ESPRESSO", "price": 130 },
+      { "name": "COFFEE_CORTADO", "price": 140 },
+      { "name": "COFFEE_CARAJILLO", "price": 250 }
+    ]
+  },
+  {
+    "name": "Refrescos y Aguas",
+    "icon": "water-drop",
+    "products": [
+      { "name": "SOFT_DRINK_WATER_500ML", "price": 150 },
+      { "name": "SOFT_DRINK_SPARKLING_WATER", "price": 170 },
+      { "name": "SOFT_DRINK_COCA_COLA", "price": 230 },
+      { "name": "SOFT_DRINK_COCA_COLA_ZERO", "price": 230 },
+      { "name": "SOFT_DRINK_FANTA_ORANGE", "price": 220 },
+      { "name": "SOFT_DRINK_FANTA_LEMON", "price": 220 },
+      { "name": "SOFT_DRINK_NESTEA", "price": 240 },
+      { "name": "SOFT_DRINK_AQUARIUS_LEMON", "price": 240 },
+      { "name": "SOFT_DRINK_SPRITE", "price": 230 },
+      { "name": "SOFT_DRINK_TONIC", "price": 220 }
+    ]
+  },
+  {
+    "name": "Cervezas",
+    "icon": "beer",
+    "products": [
+      { "name": "BEER_DRAUGHT_SMALL", "price": 220 },
+      { "name": "BEER_DRAUGHT_LARGE", "price": 300 },
+      { "name": "BEER_ESTRELLA_GALICIA", "price": 280 },
+      { "name": "BEER_MAHOU_5_ESTRELLAS", "price": 270 },
+      { "name": "BEER_EL_AGUILA_UNFILTERED", "price": 300 },
+      { "name": "BEER_1906", "price": 340 },
+      { "name": "BEER_MAHOU_ROSE", "price": 280 },
+      { "name": "BEER_PAULANER", "price": 450 },
+      { "name": "BEER_HEINEKEN", "price": 290 },
+      { "name": "BEER_CORONA", "price": 320 },
+      { "name": "BEER_ALHAMBRA_1925", "price": 350 },
+      { "name": "BEER_MAHOU_NON_ALC_TOASTED", "price": 260 },
+      { "name": "BEER_HEINEKEN_NON_ALC", "price": 270 },
+      { "name": "BEER_TINTO_VERANO", "price": 350 }
+    ]
+  },
+  {
+    "name": "Vinos y Licores",
+    "icon": "wine",
+    "products": [
+      { "name": "WINE_RED_GLASS", "price": 280 },
+      { "name": "WINE_WHITE_GLASS", "price": 260 },
+      { "name": "WINE_RED_BOTTLE", "price": 1400 },
+      { "name": "WINE_WHITE_BOTTLE", "price": 1200 },
+      { "name": "WINE_VERMOUTH_GLASS", "price": 350 },
+      { "name": "WHISKY_JB_NEAT", "price": 500 },
+      { "name": "WHISKY_JB_COKE", "price": 750 },
+      { "name": "WHISKY_JACK_DANIELS_NEAT", "price": 650 },
+      { "name": "WHISKY_JACK_DANIELS_COKE", "price": 850 },
+      { "name": "WHISKY_MACALLAN_NEAT", "price": 950 },
+      { "name": "GIN_BEEFEATER_NEAT", "price": 500 },
+      { "name": "GIN_BEEFEATER_TONIC", "price": 750 },
+      { "name": "GIN_HENDRICKS_NEAT", "price": 800 },
+      { "name": "GIN_HENDRICKS_TONIC", "price": 1050 },
+      { "name": "ROM_BARCELO_NEAT", "price": 500 },
+      { "name": "ROM_BARCELO_COKE", "price": 750 },
+      { "name": "ROM_SANTA_TERESA_NEAT", "price": 600 },
+      { "name": "ROM_SANTA_TERESA_COKE", "price": 850 },
+      { "name": "ROM_HAVANA_7_NEAT", "price": 700 },
+      { "name": "ROM_HAVANA_7_COKE", "price": 900 },
+      { "name": "VODKA_ABSOLUT_NEAT", "price": 500 },
+      { "name": "VODKA_ABSOLUT_COKE", "price": 750 },
+      { "name": "LIQUEUR_BAILEYS", "price": 450 },
+      { "name": "LIQUEUR_HERBAL_SHOT", "price": 200 },
+      { "name": "LIQUEUR_JAGER_SHOT", "price": 250 }
+    ]
+  },
+  {
+    "name": "Tapas y Raciones",
+    "icon": "restaurant",
+    "products": [
+      { "name": "TAPAS_BRAVAS", "price": 650 },
+      { "name": "TAPAS_RUSSIAN_SALAD", "price": 580 },
+      { "name": "TAPAS_CROQUETTES_HAM", "price": 720 },
+      { "name": "TAPAS_CALAMARI", "price": 890 },
+      { "name": "TAPAS_CHEESE_BOARD", "price": 1200 },
+      { "name": "TAPAS_CHICKEN_WINGS", "price": 600 },
+      { "name": "TAPAS_IBERIAN_HAM", "price": 1500 },
+      { "name": "TAPAS_PADRON_PEPPERS", "price": 550 }
+    ]
+  },
+  {
+    "name": "Bocadillos y Hamburguesas",
+    "icon": "lunch-dining",
+    "products": [
+      { "name": "SANDWICH_CALAMARI", "price": 550 },
+      { "name": "SANDWICH_CHIVITO", "price": 620 },
+      { "name": "SANDWICH_POTATO_OMELETTE", "price": 450 },
+      { "name": "SANDWICH_CLASSIC_BURGER", "price": 850 },
+      { "name": "SANDWICH_SPECIAL_BURGER", "price": 1150 },
+      { "name": "SANDWICH_HAM_CHEESE", "price": 350 },
+      { "name": "SANDWICH_HOT_DOG", "price": 450 }
+    ]
+  },
+  {
+    "name": "Postres",
+    "icon": "cake",
+    "products": [
+      { "name": "DESSERT_CHEESECAKE", "price": 450 },
+      { "name": "DESSERT_CHOCOLATE_CAKE", "price": 450 },
+      { "name": "DESSERT_FLAN", "price": 300 },
+      { "name": "DESSERT_ICE_CREAM", "price": 350 }
+    ]
+  }
+]`;

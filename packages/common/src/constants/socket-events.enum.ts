@@ -8,4 +8,13 @@ export enum SocketEvents {
   PRODUCT_DELETED = 'productDeleted',
   CATEGORY_DELETED = 'categoryDeleted',
   MEMBER_REMOVED = 'memberRemoved',
+  TABLE_STATUS_CHANGED = 'tableStatusChanged',
+  TABLE_CREATED = 'tableCreated',
+  TABLE_UPDATED = 'tableUpdated',
+  TABLE_DELETED = 'tableDeleted',
+  ORDER_CREATED = 'orderCreated',
+  ORDER_UPDATED = 'orderUpdated',
+  ORDER_ITEM_ADDED = 'orderItemAdded',
+  ORDER_CLOSED = 'orderClosed',
+  ORDER_CANCELLED = 'orderCancelled',
 }

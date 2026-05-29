@@ -13,6 +13,7 @@ describe('InviteMember', () => {
     userId: asUserId('user-1'),
     barId: asBarId('bar-1'),
     role: BarRole.STAFF,
+    permissions: [],
     active: true,
     userName: 'John Doe',
     userEmail: 'john@test.com',
@@ -41,7 +42,7 @@ describe('InviteMember', () => {
       const dto = { email: 'john@test.com', role: BarRole.STAFF };
       memberRepoMock['invite'].mockResolvedValue(mockMember);
 
-      const result = await service.invite(barId, dto);
+      const result = await service.execute(barId, dto);
 
       expect(memberRepoMock['invite']).toHaveBeenCalledWith(barId, dto);
       expect(result).toEqual(mockMember);

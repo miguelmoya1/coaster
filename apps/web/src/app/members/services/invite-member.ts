@@ -6,7 +6,7 @@ import { MemberRepository } from '../data-access/member-repository';
 export class InviteMember {
   readonly #memberRepo = inject(MemberRepository);
 
-  public async invite(barId: BarId, dto: InviteBarMemberDto) {
-    return this.#memberRepo.invite(barId, dto);
+  public async execute(barId: BarId, inviteDto: InviteBarMemberDto) {
+    return this.#memberRepo.invite(barId, inviteDto);
   }
 }

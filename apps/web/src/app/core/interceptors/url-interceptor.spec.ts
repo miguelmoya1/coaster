@@ -23,10 +23,8 @@ describe('urlInterceptor', () => {
     const testPath = '/test';
     const httpClient = TestBed.inject(HttpClient);
 
-    // We fetch a relative URL
     httpClient.get(testPath).subscribe();
 
-    // It should be intercepted and transformed
     const req = httpMock.expectOne((request) => request.url.includes('/api/v1/test'));
     expect(req.request.url).toMatch(/http:\/\/localhost:3000\/api\/v1\/test|https:\/\/api.coaster.app\/api\/v1\/test/);
   });

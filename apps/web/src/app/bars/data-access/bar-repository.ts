@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateBarDto } from '@coaster/common';
-import { firstValueFrom, map } from 'rxjs';
-import { barMapper } from '../mappers/bar.mapper';
+import { BarId, CreateBarDto, CreateResponse } from '@coaster/common';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +15,7 @@ export class BarRepository {
     create: '/bars',
   };
 
-  public async create(createBarDto: CreateBarDto) {
-    return firstValueFrom(this.#http.post(this.routes.create, createBarDto).pipe(map((bar) => barMapper(bar))));
+  public async create(createBarDto: CreateBarDto): Promise<CreateResponse<BarId>> {
+    return firstValueFrom(this.#http.post<CreateResponse<BarId>>(this.routes.create, createBarDto));
   }
 }

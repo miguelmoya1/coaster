@@ -48,32 +48,20 @@ describe('BarRepository', () => {
       const res = service.create({ name: 'Test Bar' });
 
       const req = httpMock.expectOne(service.routes.create);
-      req.flush({ id: asBarId('1'), name: 'Test Bar' });
+      req.flush({ id: asBarId('1') });
       expect(req.request.method).toBe('POST');
 
       await res;
     });
 
-    it('should return the created bar', async () => {
-      const bar: Bar = { id: asBarId('1'), name: 'Test Bar' };
+    it('should return the created bar id response', async () => {
+      const expected = { id: asBarId('1') };
       const res = service.create({ name: 'Test Bar' });
 
       const req = httpMock.expectOne(service.routes.create);
-      req.flush(bar);
+      req.flush(expected);
 
-      expect(await res).toEqual(bar);
-    });
-
-    describe('mapper', () => {
-      it('should map the response to a bar', async () => {
-        const bar: Bar = { id: asBarId('1'), name: 'Test Bar' };
-        const res = service.create({ name: 'Test Bar' });
-
-        const req = httpMock.expectOne(service.routes.create);
-        req.flush(bar);
-
-        expect(await res).toEqual(bar);
-      });
+      expect(await res).toEqual(expected);
     });
   });
 });

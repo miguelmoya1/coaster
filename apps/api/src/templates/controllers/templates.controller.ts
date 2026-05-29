@@ -1,75 +1,109 @@
-import { BarRole, Role } from '@coaster/common';
+import { BarPermission, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { FirebaseAuthGuard, Roles, RolesGuard, UserRoles, UserRolesGuard } from '../../core';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { FirebaseAuthGuard, Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
+import {
+  BulkCategoryTemplateInput,
+  BulkUpsertTemplatesCommand,
+  CreateCategoryTemplateCommand,
+  CreateProductTemplateCommand,
+  DeleteCategoryTemplateCommand,
+  DeleteProductTemplateCommand,
+  ImportTemplatesToBarCommand,
+  UpdateCategoryTemplateCommand,
+  UpdateProductTemplateCommand,
+} from '../commands';
 import { CreateCategoryTemplateDto } from '../dto/create-category-template.dto';
 import { CreateProductTemplateDto } from '../dto/create-product-template.dto';
 import { ImportTemplatesDto } from '../dto/import-templates.dto';
 import { UpdateCategoryTemplateDto } from '../dto/update-category-template.dto';
 import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
-import { TemplatesService } from '../services/templates.service';
+import { FindAllCategoryTemplatesQuery, FindAllProductTemplatesQuery } from '../queries';
 
 @Controller('templates')
+@UseGuards(FirebaseAuthGuard)
 export class TemplatesController {
-  constructor(private readonly _templatesService: TemplatesService) {}
+  constructor(
+    private readonly _queryBus: QueryBus,
+    private readonly _commandBus: CommandBus,
+  ) {}
 
   @Get('categories')
-  @UseGuards(FirebaseAuthGuard)
   async findAllCategoryTemplates() {
-    return this._templatesService.findAllCategoryTemplates();
+    return this._queryBus.execute<FindAllCategoryTemplatesQuery, ICategoryTemplate[]>(
+      new FindAllCategoryTemplatesQuery(),
+    );
   }
 
   @Post('categories')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async createCategoryTemplate(@Body() createCategoryTemplateDto: CreateCategoryTemplateDto) {
-    return this._templatesService.createCategoryTemplate(createCategoryTemplateDto);
+    return this._commandBus.execute<CreateCategoryTemplateCommand, { id: string }>(
+      new CreateCategoryTemplateCommand(createCategoryTemplateDto),
+    );
   }
 
   @Put('categories/:id')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async updateCategoryTemplate(@Param('id') id: string, @Body() updateCategoryTemplateDto: UpdateCategoryTemplateDto) {
-    return this._templatesService.updateCategoryTemplate(id, updateCategoryTemplateDto);
+    return this._commandBus.execute<UpdateCategoryTemplateCommand, void>(
+      new UpdateCategoryTemplateCommand(id, updateCategoryTemplateDto),
+    );
   }
 
   @Delete('categories/:id')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async deleteCategoryTemplate(@Param('id') id: string) {
-    return this._templatesService.deleteCategoryTemplate(id);
+    return this._commandBus.execute<DeleteCategoryTemplateCommand, void>(new DeleteCategoryTemplateCommand(id));
   }
 
   @Get('products')
-  @UseGuards(FirebaseAuthGuard)
   async findAllProductTemplates() {
-    return this._templatesService.findAllProductTemplates();
+    return this._queryBus.execute<FindAllProductTemplatesQuery, IProductTemplate[]>(new FindAllProductTemplatesQuery());
   }
 
   @Post('products')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async createProductTemplate(@Body() createProductTemplateDto: CreateProductTemplateDto) {
-    return this._templatesService.createProductTemplate(createProductTemplateDto);
+    return this._commandBus.execute<CreateProductTemplateCommand, { id: string }>(
+      new CreateProductTemplateCommand(createProductTemplateDto),
+    );
   }
 
   @Put('products/:id')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async updateProductTemplate(@Param('id') id: string, @Body() updateProductTemplateDto: UpdateProductTemplateDto) {
-    return this._templatesService.updateProductTemplate(id, updateProductTemplateDto);
+    return this._commandBus.execute<UpdateProductTemplateCommand, void>(
+      new UpdateProductTemplateCommand(id, updateProductTemplateDto),
+    );
   }
 
   @Delete('products/:id')
   @UserRoles(Role.ADMIN)
-  @UseGuards(FirebaseAuthGuard, UserRolesGuard)
+  @UseGuards(UserRolesGuard)
   async deleteProductTemplate(@Param('id') id: string) {
-    return this._templatesService.deleteProductTemplate(id);
+    return this._commandBus.execute<DeleteProductTemplateCommand, void>(new DeleteProductTemplateCommand(id));
   }
 
   @Post('bar/:barId')
-  @Roles(BarRole.OWNER)
-  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Permissions(BarPermission.IMPORT_TEMPLATES)
+  @UseGuards(PermissionsGuard)
   async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto) {
-    return this._templatesService.importTemplatesToBar(barId, importDto);
+    return this._commandBus.execute<
+      ImportTemplatesToBarCommand,
+      { success: boolean; created: number; modified: number }
+    >(new ImportTemplatesToBarCommand(barId, importDto));
+  }
+
+  @Post('bulk')
+  @UserRoles(Role.ADMIN)
+  @UseGuards(UserRolesGuard)
+  async bulkUpsertTemplates(@Body() body: BulkCategoryTemplateInput[]) {
+    return this._commandBus.execute<BulkUpsertTemplatesCommand, void>(new BulkUpsertTemplatesCommand(body));
   }
 }

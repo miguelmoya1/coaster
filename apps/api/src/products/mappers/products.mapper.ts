@@ -1,4 +1,4 @@
-import { asCategoryId, asProductId, Product, resolveStockStatus } from '@coaster/common';
+import { asCategoryId, asProductId, Product } from '@coaster/common';
 import { Product as ProductDb } from '../../core';
 
 export const ProductsMapper = {
@@ -10,7 +10,6 @@ export const ProductsMapper = {
       price: dbProduct.price,
       currentStock: dbProduct.currentStock,
       minStockAlert: dbProduct.minStockAlert,
-      stockStatus: resolveStockStatus(dbProduct.currentStock, dbProduct.minStockAlert),
       lastUpdated: dbProduct.updatedAt.toISOString(),
     };
   },

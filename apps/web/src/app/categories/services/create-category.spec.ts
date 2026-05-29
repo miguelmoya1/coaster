@@ -27,12 +27,12 @@ describe('CreateCategory', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('create function', () => {
-    it('should call repository.create on create', async () => {
+  describe('execute function', () => {
+    it('should call repository.create on execute', async () => {
       const barId = asBarId('bar-1');
       const dto = { name: 'New Category' };
 
-      await service.create(barId, dto);
+      await service.execute(barId, dto);
 
       expect(repositoryMock.create).toHaveBeenCalledWith(barId, dto);
     });
@@ -43,7 +43,7 @@ describe('CreateCategory', () => {
       const dto = { name: 'New Category' };
       repositoryMock.create.mockResolvedValue(category);
 
-      const result = await service.create(barId, dto);
+      const result = await service.execute(barId, dto);
 
       expect(result).toEqual(category);
     });

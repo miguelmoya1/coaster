@@ -1,17 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
-    BarId,
-    CreateProductDto,
-    DeleteResponse,
-    Product,
-    ProductId,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  BarId,
+  CreateProductDto,
+  CreateResponse,
+  DeleteResponse,
+  ProductId,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
+import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
-import { deleteResponseMapper } from '../../core/mappers/common.mapper';
-import { productMapper } from '../mappers/product.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -27,27 +26,21 @@ export class ProductRepository {
     delete: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
   };
 
-  public async create(barId: BarId, createProductDto: CreateProductDto) {
+  public async create(barId: BarId, createProductDto: CreateProductDto): Promise<CreateResponse<ProductId>> {
     return firstValueFrom(
-      this.#http
-        .post<Product>(this.routes.create(barId), createProductDto)
-        .pipe(map((product) => productMapper(product))),
+      this.#http.post<CreateResponse<ProductId>>(this.routes.create(barId), createProductDto)
     );
   }
 
-  public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto) {
+  public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto): Promise<DeleteResponse> {
     return firstValueFrom(
-      this.#http
-        .patch<Product>(this.routes.update(barId, productId), updateProductDto)
-        .pipe(map((product) => productMapper(product))),
+      this.#http.patch<DeleteResponse>(this.routes.update(barId, productId), updateProductDto)
     );
   }
 
-  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
+  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto): Promise<DeleteResponse> {
     return firstValueFrom(
-      this.#http
-        .patch<Product>(this.routes.updateStock(barId, productId), updateProductStockDto)
-        .pipe(map((product) => productMapper(product))),
+      this.#http.patch<DeleteResponse>(this.routes.updateStock(barId, productId), updateProductStockDto)
     );
   }
 
@@ -59,3 +52,4 @@ export class ProductRepository {
     );
   }
 }
+

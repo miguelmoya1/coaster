@@ -1,31 +1,19 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import {
-    asBarId,
-    asCategoryId,
-    asProductId,
-    CreateProductDto,
-    Product,
-    UpdateProductDto,
-    UpdateProductStockDto,
+  asBarId,
+  asCategoryId,
+  asProductId,
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateProductStockDto,
 } from '@coaster/common';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from './product-repository';
 
 describe('ProductRepository', () => {
   let service: ProductRepository;
   let httpMock: HttpTestingController;
-
-  const mockProduct: Product = {
-    id: asProductId('prod-1'),
-    categoryId: asCategoryId('cat-1'),
-    name: 'Product 1',
-    price: 1050,
-    currentStock: 10,
-    minStockAlert: 5,
-    stockStatus: 'good',
-    lastUpdated: new Date().toISOString(),
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -70,16 +58,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockProduct);
+      req.flush({ id: asProductId('prod-1') });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return product creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.create(barId)).flush({ id: asProductId('prod-1') });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ id: asProductId('prod-1') });
     });
   });
 
@@ -93,16 +81,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.update(barId, productId));
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockProduct);
+      req.flush({ success: true });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return success response', async () => {
       const res = service.update(barId, productId, dto);
-      httpMock.expectOne(service.routes.update(barId, productId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.update(barId, productId)).flush({ success: true });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ success: true });
     });
   });
 
@@ -116,16 +104,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.updateStock(barId, productId));
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockProduct);
+      req.flush({ success: true });
 
       await promise;
     });
 
-    it('should return mapped product', async () => {
+    it('should return success response', async () => {
       const res = service.updateStock(barId, productId, dto);
-      httpMock.expectOne(service.routes.updateStock(barId, productId)).flush(mockProduct);
+      httpMock.expectOne(service.routes.updateStock(barId, productId)).flush({ success: true });
 
-      expect(await res).toEqual(mockProduct);
+      expect(await res).toEqual({ success: true });
     });
   });
 });

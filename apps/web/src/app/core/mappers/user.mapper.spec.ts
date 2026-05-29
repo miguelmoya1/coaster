@@ -1,4 +1,4 @@
-import { asUserId, User } from '@coaster/common';
+import { asUserId, User, Role } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { checkIsUser, userMapper } from './user.mapper';
 
@@ -8,6 +8,7 @@ describe('User Mapper', () => {
     email: 'test@example.com',
     name: 'Test User',
     active: true,
+    role: Role.USER,
   };
 
   describe('checkIsUser', () => {

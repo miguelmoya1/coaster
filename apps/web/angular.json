@@ -3,7 +3,12 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": ["angular-eslint", "@schematics/angular", "playwright-ng-schematics"]
+    "schematicCollections": [
+      "angular-eslint",
+      "@schematics/angular",
+      "playwright-ng-schematics"
+    ],
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {

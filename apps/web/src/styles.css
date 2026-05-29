@@ -24,7 +24,6 @@
 }
 
 @theme {
-  /* Surfaces */
   --color-surface: var(--color-surface-base);
   --color-surface-container-lowest: var(--color-surface-lowest);
   --color-surface-container-low: var(--color-surface-container-low);
@@ -33,31 +32,25 @@
   --color-surface-container-highest: var(--color-surface-highest);
   --color-surface-bright: var(--color-surface-bright);
 
-  /* Brand / Primary */
   --color-primary: var(--color-primary);
   --color-primary-container: var(--color-primary-dim);
   --color-on-primary: var(--color-text-on-primary);
   --color-on-primary-fixed: var(--color-text-on-primary);
 
-  /* Secondary & Tertiary */
   --color-secondary: var(--color-secondary);
   --color-tertiary: #facc15;
 
-  /* Status */
   --color-error: var(--color-error);
   --color-success: var(--color-success);
 
-  /* Texts */
   --color-on-surface: var(--color-text-main);
   --color-on-surface-variant: var(--color-text-muted);
 
-  /* Outlines */
   --color-outline: var(--color-border-strong);
   --color-outline-variant: var(--color-border-ghost);
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  /* Custom design system scales to avoid [] arbitrary values */
   --shadow-elevated: 0px 20px 40px rgba(0, 0, 0, 0.4);
   --shadow-elevated-primary: 0px 20px 40px rgba(255, 145, 89, 0.3);
   --shadow-nav: 0px -10px 30px rgba(0, 0, 0, 0.5);
@@ -91,3 +84,16 @@ html,
 body {
   height: 100%;
 }
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-workspace {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+

@@ -1,3 +1,4 @@
+import { Role } from '../constants/role.enum';
 import { Brand } from './brand.type';
 
 export type UserId = Brand<string, 'UserId'>;
@@ -11,6 +12,7 @@ export interface User {
   googleId?: string;
   active: boolean;
   photoUrl?: string;
+  role: Role;
 }
 
 export interface CreateUserDto {

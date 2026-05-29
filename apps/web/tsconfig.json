@@ -13,7 +13,19 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@coaster/common": ["../../packages/common/src/index.ts"]
+      "@coaster/bars": ["./src/app/bars/index.ts"],
+      "@coaster/categories": ["./src/app/categories/index.ts"],
+      "@coaster/core": ["./src/app/core/index.ts"],
+      "@coaster/exchanges": ["./src/app/exchanges/index.ts"],
+      "@coaster/members": ["./src/app/members/index.ts"],
+      "@coaster/orders": ["./src/app/orders/index.ts"],
+      "@coaster/products": ["./src/app/products/index.ts"],
+      "@coaster/roster": ["./src/app/roster/index.ts"],
+      "@coaster/shared": ["./src/app/shared/index.ts"],
+      "@coaster/shifts": ["./src/app/shifts/index.ts"],
+      "@coaster/tables": ["./src/app/tables/index.ts"],
+      "@coaster/templates": ["./src/app/templates/index.ts"],
+      "@coaster/env": ["./src/environments/environment.ts"]
     }
   },
   "angularCompilerOptions": {

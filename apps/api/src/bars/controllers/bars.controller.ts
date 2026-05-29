@@ -1,33 +1,41 @@
-import { type BarId, BarRole, type User } from '@coaster/common';
+import { type Bar, type BarId, type User } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { FirebaseAuthGuard, Roles, RolesGuard } from '../../core';
-import { CurrentUser } from '../../core/auth/decorators/current-user.decorator';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CurrentUser, FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { CreateBarCommand } from '../commands';
 import { CreateBarDto } from '../dto/create-bar.dto';
 import { BarsMapper } from '../mappers/bars.mapper';
-import { BarsService } from '../services/bars.service';
+import { GetBarByIdQuery, GetBarsForUserQuery } from '../queries';
 
 @Controller('bars')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, PermissionsGuard)
 export class BarsController {
-  constructor(private readonly _barsService: BarsService) {}
+  constructor(
+    private readonly _queryBus: QueryBus,
+    private readonly _commandBus: CommandBus,
+  ) {}
+
+  @Post()
+  async createBar(@Body() createBarDto: CreateBarDto, @CurrentUser() user: User) {
+    const result = await this._commandBus.execute<CreateBarCommand, { id: BarId }>(
+      new CreateBarCommand(createBarDto, user),
+    );
+    return { id: result.id };
+  }
 
   @Get()
-  async getMyBars(@CurrentUser() user: User) {
-    const bars = await this._barsService.getForUser(user);
-    return bars.map((bar) => BarsMapper.toDto(bar));
+  async getBars(@CurrentUser() user: User) {
+    const bars = await this._queryBus.execute<GetBarsForUserQuery, Bar[]>(new GetBarsForUserQuery(user));
+    return bars.map((b) => BarsMapper.toDto(b));
   }
 
   @Get(':barId')
-  @UseGuards(RolesGuard)
-  @Roles(BarRole.OWNER, BarRole.STAFF)
   async getBar(@Param('barId') barId: BarId) {
-    const bar = await this._barsService.get(barId);
-    return bar ? BarsMapper.toDto(bar) : null;
-  }
+    const bar = await this._queryBus.execute<GetBarByIdQuery, Bar | null>(new GetBarByIdQuery(barId));
+    if (!bar) {
+      return null;
+    }
 
-  @Post()
-  async createBar(@CurrentUser() user: User, @Body() dto: CreateBarDto) {
-    const bar = await this._barsService.create(dto, user);
     return BarsMapper.toDto(bar);
   }
 }

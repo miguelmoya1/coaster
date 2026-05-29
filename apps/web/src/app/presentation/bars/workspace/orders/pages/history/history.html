@@ -1,0 +1,127 @@
+<div class="flex items-center justify-between bg-surface-container rounded-2xl p-3 gap-2">
+  <button
+    class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-transform text-on-surface-variant hover:text-on-surface cursor-pointer"
+    (click)="prevDay()"
+  >
+    <ng-icon name="lucideChevronLeft" size="20" />
+  </button>
+
+  <div class="flex items-center gap-2 flex-1 justify-center">
+    <ng-icon name="lucideCalendar" size="18" class="text-primary" />
+    <input
+      type="date"
+      class="bg-transparent text-on-surface font-bold text-center outline-none cursor-pointer"
+      [value]="selectedDate()"
+      [max]="today"
+      (change)="onDateChange($event)"
+    />
+  </div>
+
+  <button
+    class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+    [class]="isToday() ? 'text-outline/30 cursor-not-allowed' : 'text-on-surface-variant hover:text-on-surface'"
+    [disabled]="isToday()"
+    (click)="nextDay()"
+  >
+    <ng-icon name="lucideChevronRight" size="20" />
+  </button>
+</div>
+
+<div class="flex items-center gap-2">
+  <button coaster-btn variant="outline" class="text-xs! py-1! px-3!" (click)="goToday()">
+    {{ 'history.today' | translate }}
+  </button>
+  <button coaster-btn variant="outline" class="text-xs! py-1! px-3!" (click)="goYesterday()">
+    {{ 'history.yesterday' | translate }}
+  </button>
+</div>
+
+<div class="grid grid-cols-2 gap-3">
+  <coaster-status-card status="primary">
+    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.revenue' | translate }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalRevenue() | price }}</div>
+  </coaster-status-card>
+
+  <coaster-status-card status="success">
+    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.total_orders' | translate }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalClosed() }}</div>
+  </coaster-status-card>
+
+  <coaster-status-card status="error">
+    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.cancelled' | translate }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ totalCancelled() }}</div>
+  </coaster-status-card>
+
+  <coaster-status-card status="warning">
+    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.avg_ticket' | translate }}</div>
+    <div class="text-2xl font-black text-on-surface">{{ averageTicket() | price }}</div>
+  </coaster-status-card>
+</div>
+
+<h2 coaster-title>{{ 'history.orders_list' | translate }}</h2>
+
+@if (isLoading()) {
+  <coaster-loading />
+}
+
+<div class="flex flex-col gap-3">
+  @for (order of ordersViewModel(); track order.original.id) {
+    <div
+      role="button"
+      tabindex="0"
+      class="rounded-2xl border border-outline-variant/20 bg-surface-container p-4 flex flex-col gap-2 transition-colors cursor-pointer hover:bg-surface-container-high text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
+      (click)="onOrderClicked(order.original)"
+      (keydown.enter)="onOrderClicked(order.original)"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-on-surface">{{ order.tableName }}</span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full" [class]="order.statusClass">
+            {{ order.statusLabel | translate }}
+          </span>
+        </div>
+        <span class="text-sm text-on-surface-variant">{{ order.formattedTime }}</span>
+      </div>
+
+      <div class="flex flex-col gap-1 text-sm text-on-surface-variant">
+        @for (item of order.original.items; track item.id) {
+          <div class="flex justify-between">
+            <span
+              >{{ (item.productName ?? item.productId) | translate }} <span class="text-xs">x{{ item.quantity }}</span></span
+            >
+            <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-lg font-black text-primary">{{ order.original.totalAmount | price }}</span>
+
+        @if (isOwner() && isToday()) {
+          <button
+            class="w-9 h-9 rounded-xl flex items-center justify-center text-error active:scale-90 transition-transform hover:bg-error/10 cursor-pointer"
+            (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
+          >
+            <ng-icon name="lucideTrash2" size="18" />
+          </button>
+        }
+      </div>
+    </div>
+  } @empty {
+    @if (!isLoading()) {
+      <div class="text-center text-on-surface-variant py-8">
+        {{ 'history.no_orders' | translate }}
+      </div>
+    }
+  }
+</div>
+
+<coaster-confirm-dialog
+  [isOpen]="!!orderToDelete()"
+  (cancelled)="handleCancelDeleteOrder()"
+  (confirmed)="handleDeleteOrderConfirmed()"
+  isDestructive
+>
+  <ng-container coaster-title>{{ 'history.delete_title' | translate }}</ng-container>
+  <ng-container>{{ 'history.delete_message' | translate }}</ng-container>
+</coaster-confirm-dialog>

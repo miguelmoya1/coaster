@@ -15,7 +15,6 @@ describe('CreateProduct', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
-    stockStatus: 'good',
     lastUpdated: new Date().toISOString(),
   };
 
@@ -35,7 +34,7 @@ describe('CreateProduct', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('create', () => {
+  describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
       const barId = asBarId('bar-1');
       const dto: CreateProductDto = {
@@ -46,7 +45,7 @@ describe('CreateProduct', () => {
       };
       productRepoMock['create'].mockResolvedValue(mockProduct);
 
-      const result = await service.create(barId, dto);
+      const result = await service.execute(barId, dto);
 
       expect(productRepoMock['create']).toHaveBeenCalledWith(barId, dto);
       expect(result).toEqual(mockProduct);

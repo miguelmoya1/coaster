@@ -1,62 +1,66 @@
-import { asUserId, User } from '@coaster/common';
+import { asBarId, asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PrismaService, RolesGuard } from '../../core';
-import { BarsService } from '../services/bars.service';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { CreateBarCommand } from '../commands';
+import { GetBarByIdQuery, GetBarsForUserQuery } from '../queries';
 import { BarsController } from './bars.controller';
 
 describe('BarsController', () => {
   let controller: BarsController;
-  let service: Mocked<BarsService>;
+  let commandBus: Mocked<CommandBus>;
+  let queryBus: Mocked<QueryBus>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
-  const fakeUser: User = {
-    id: asUserId('user-1'),
-    email: 'test@mail.com',
-    name: 'Test',
-    active: true,
-  };
-
   beforeEach(async () => {
-    const mockService = {
-      create: vi.fn(),
-      getForUser: vi.fn(),
-    };
+    const mockCommandBus = { execute: vi.fn() };
+    const mockQueryBus = { execute: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BarsController],
       providers: [
-        { provide: BarsService, useValue: mockService },
-        { provide: PrismaService, useValue: {} },
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: mockQueryBus },
       ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
     controller = module.get<BarsController>(BarsController);
-    service = module.get(BarsService);
+    commandBus = module.get(CommandBus);
+    queryBus = module.get(QueryBus);
   });
 
-  it('createBar should delegate to the service', async () => {
-    service.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
+  it('createBar should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue({ id: 'bar-1' });
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
+    const dto = { name: 'El Bar' };
 
-    const result = await controller.createBar(fakeUser, { name: 'Mi Bar' });
+    await controller.createBar(dto, user);
 
-    expect(service.create).toHaveBeenCalledWith({ name: 'Mi Bar' }, fakeUser);
-    expect(result).toEqual({ id: 'bar-1', name: 'Mi Bar' });
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateBarCommand));
   });
 
-  it('getMyBars should delegate to the service', async () => {
-    service.getForUser.mockResolvedValue([]);
+  it('getBars should delegate to query bus', async () => {
+    queryBus.execute.mockResolvedValue([]);
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
 
-    const result = await controller.getMyBars(fakeUser);
+    await controller.getBars(user);
 
-    expect(service.getForUser).toHaveBeenCalledWith(fakeUser);
-    expect(result).toEqual([]);
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetBarsForUserQuery));
+  });
+
+  it('getBar should delegate to query bus', async () => {
+    queryBus.execute.mockResolvedValue({ id: 'bar-1' });
+
+    await controller.getBar(asBarId('bar-1'));
+
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetBarByIdQuery));
   });
 });

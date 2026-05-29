@@ -81,6 +81,50 @@ export class TemplatesRepository {
     });
   }
 
+  async findCategoryTemplateByName(name: string) {
+    return this._prisma.categoryTemplate.findFirst({
+      where: { name },
+    });
+  }
+
+  async upsertCategoryTemplate(name: string, icon?: string | null) {
+    const existing = await this.findCategoryTemplateByName(name);
+    if (existing) {
+      if (existing.icon !== icon) {
+        return this._prisma.categoryTemplate.update({
+          where: { id: existing.id },
+          data: { icon },
+        });
+      }
+      return existing;
+    }
+    return this._prisma.categoryTemplate.create({
+      data: { name, icon },
+    });
+  }
+
+  async findProductTemplateByNameAndCategoryId(name: string, categoryId: string) {
+    return this._prisma.productTemplate.findFirst({
+      where: { name, categoryId },
+    });
+  }
+
+  async upsertProductTemplate(name: string, price: number, categoryId: string) {
+    const existing = await this.findProductTemplateByNameAndCategoryId(name, categoryId);
+    if (existing) {
+      if (existing.price !== price) {
+        return this._prisma.productTemplate.update({
+          where: { id: existing.id },
+          data: { price },
+        });
+      }
+      return existing;
+    }
+    return this._prisma.productTemplate.create({
+      data: { name, price, categoryId },
+    });
+  }
+
   async findCategoryTemplatesByIds(ids: string[]) {
     return this._prisma.categoryTemplate.findMany({
       where: {
@@ -107,6 +151,16 @@ export class TemplatesRepository {
         barId,
         name: {
           in: names,
+        },
+      },
+    });
+  }
+
+  async findProductsByCategoryIds(categoryIds: string[]) {
+    return this._prisma.product.findMany({
+      where: {
+        categoryId: {
+          in: categoryIds,
         },
       },
     });

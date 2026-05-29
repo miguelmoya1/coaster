@@ -30,7 +30,7 @@ describe('DeleteCategory', () => {
       const categoryId = asCategoryId('cat-1');
       categoryRepoMock['delete'].mockResolvedValue({ success: true });
 
-      const result = await service.delete(barId, categoryId);
+      const result = await service.execute(barId, categoryId);
 
       expect(categoryRepoMock['delete']).toHaveBeenCalledWith(barId, categoryId);
       expect(result).toEqual({ success: true });

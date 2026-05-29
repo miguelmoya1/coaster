@@ -10,7 +10,7 @@ export class ProductsRepository {
     const category = await this._prisma.category.findUnique({
       where: { id: categoryId },
     });
-    
+
     if (!category) {
       return false;
     }
@@ -30,7 +30,7 @@ export class ProductsRepository {
   async update(productId: ProductId, updateData: Prisma.ProductUpdateInput) {
     return this._prisma.product.update({
       where: { id: productId },
-      data: { ...updateData, price: updateData.price ?? 0 },
+      data: updateData,
     });
   }
 

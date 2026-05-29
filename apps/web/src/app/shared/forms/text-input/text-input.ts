@@ -66,21 +66,17 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TextInput implements FormValueControl<string> {
-  // Required for FormValueControl
   readonly value = model<string>('');
   readonly id = input<string>(crypto.randomUUID());
 
-  // Custom props
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
   readonly icon = input<string>();
   readonly type = input<'text' | 'email' | 'password' | 'tel' | 'url' | 'time' | 'datetime-local'>('text');
 
-  // Writable interaction state
   readonly touched = model<boolean>(false);
 
-  // Read-only state from form system
   readonly disabled = input<boolean>(false);
   readonly disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
   readonly readonly = input<boolean>(false);

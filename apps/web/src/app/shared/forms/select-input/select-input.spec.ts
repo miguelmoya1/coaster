@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { SelectInput, SelectOption } from './select-input';
 
 describe('SelectInput', () => {
@@ -37,32 +37,31 @@ describe('SelectInput', () => {
     it('should show placeholder when no value is selected', () => {
       fixture.componentRef.setInput('placeholder', 'Pick one');
       fixture.detectChanges();
-      const trigger = fixture.nativeElement.querySelector('button');
-      expect(trigger.textContent).toContain('Pick one');
+      const select = fixture.nativeElement.querySelector('select');
+      const placeholderOption = select.querySelector('option[disabled]');
+      expect(placeholderOption.textContent).toContain('Pick one');
     });
 
-    it('should show display value when an option is selected', () => {
+    it('should set select value when an option is selected', () => {
       fixture.componentRef.setInput('value', '1');
       fixture.detectChanges();
-      const trigger = fixture.nativeElement.querySelector('button');
-      expect(trigger.textContent).toContain('Option 1');
+      const select = fixture.nativeElement.querySelector('select');
+      expect(select.value).toBe('1');
     });
   });
 
   describe('actions', () => {
-    it('should toggle isOpen state on click', () => {
-      const trigger = fixture.nativeElement.querySelector('button');
-      trigger.click();
-      expect(component.isOpen()).toBe(true);
-
-      trigger.click();
-      expect(component.isOpen()).toBe(false);
+    it('should set touched on blur', () => {
+      const select = fixture.nativeElement.querySelector('select');
+      select.dispatchEvent(new Event('blur'));
+      expect(component.touched()).toBe(true);
     });
 
-    it('should set touched on blur', () => {
-      const trigger = fixture.nativeElement.querySelector('button');
-      trigger.dispatchEvent(new Event('blur'));
-      expect(component.touched()).toBe(true);
+    it('should update value on change', () => {
+      const select = fixture.nativeElement.querySelector('select');
+      select.value = '2';
+      select.dispatchEvent(new Event('change'));
+      expect(component.value()).toBe('2');
     });
   });
 
@@ -70,16 +69,16 @@ describe('SelectInput', () => {
     it('should apply border-error when invalid', () => {
       fixture.componentRef.setInput('invalid', true);
       fixture.detectChanges();
-      const trigger = fixture.nativeElement.querySelector('button');
-      expect(trigger.classList.contains('border-error')).toBe(true);
+      const select = fixture.nativeElement.querySelector('select');
+      expect(select.classList.contains('border-error')).toBe(true);
     });
 
-    it('should disable the trigger button', () => {
+    it('should disable the select element', () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
-      const trigger = fixture.nativeElement.querySelector('button');
-      expect(trigger.classList.contains('opacity-50')).toBe(true);
-      expect(trigger.classList.contains('pointer-events-none')).toBe(true);
+      const select = fixture.nativeElement.querySelector('select');
+      expect(select.disabled).toBe(true);
+      expect(select.classList.contains('opacity-50')).toBe(true);
     });
   });
 });

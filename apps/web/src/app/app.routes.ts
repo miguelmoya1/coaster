@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard } from './core';
+import { adminGuard, authGuard, noAuthGuard } from './core';
 
 export const appRoutes: Routes = [
   {
@@ -10,12 +10,17 @@ export const appRoutes: Routes = [
   {
     path: 'login',
     canActivate: [noAuthGuard],
-    loadChildren: () => import('./pages/auth/auth.routes'),
+    loadChildren: () => import('./presentation/auth/auth.routes'),
   },
   {
     path: 'bars',
     canActivate: [authGuard],
-    loadChildren: () => import('./pages/bars/bars.routes'),
+    loadChildren: () => import('./presentation/bars/bars.routes'),
+  },
+  {
+    path: 'admin/templates',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./presentation/admin/pages/admin-templates/admin-templates'),
   },
   {
     path: '**',

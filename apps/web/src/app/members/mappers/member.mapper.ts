@@ -1,5 +1,5 @@
 import { BarMember } from '@coaster/common';
-import { prepareDefaultProfileImage } from '../../core';
+import { prepareDefaultProfileImage } from '@coaster/core';
 
 export const checkIsMember = (member: unknown): member is BarMember => {
   return (

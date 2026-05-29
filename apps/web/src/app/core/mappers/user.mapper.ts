@@ -5,7 +5,13 @@ export type MappedUser = User & { photoUrl: string };
 
 export const checkIsUser = (user: unknown): user is User => {
   return (
-    typeof user === 'object' && user !== null && 'id' in user && 'email' in user && 'name' in user && 'active' in user
+    typeof user === 'object' &&
+    user !== null &&
+    'id' in user &&
+    'email' in user &&
+    'name' in user &&
+    'active' in user &&
+    'role' in user
   );
 };
 
@@ -14,7 +20,7 @@ export const userMapper = (user: unknown): MappedUser => {
     throw new Error('Invalid user');
   }
 
-  const { id, email, name, active, photoUrl } = user;
+  const { id, email, name, active, photoUrl, role } = user;
 
   return {
     id,
@@ -22,5 +28,6 @@ export const userMapper = (user: unknown): MappedUser => {
     name,
     active,
     photoUrl: prepareDefaultProfileImage(photoUrl, name),
+    role,
   };
 };

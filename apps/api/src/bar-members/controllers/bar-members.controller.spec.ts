@@ -1,67 +1,90 @@
-import { asBarId, asBarMemberId, asUserId, BarRole, User } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole, Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, RolesGuard } from '../../core';
-import { BarMembersService } from '../services/bar-members.service';
+import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
+import { GetMembersQuery } from '../queries';
 import { BarMembersController } from './bar-members.controller';
 
 describe('BarMembersController', () => {
   let controller: BarMembersController;
-  let service: Mocked<BarMembersService>;
+  let commandBus: Mocked<CommandBus>;
+  let queryBus: Mocked<QueryBus>;
 
   const mockGuard: CanActivate = { canActivate: () => true };
 
-  const fakeUser: User = {
-    id: asUserId('admin-1'),
-    email: 'admin@test.com',
-    name: 'Admin',
-    active: true,
-  };
-
   beforeEach(async () => {
-    const mockService = {
-      getMembers: vi.fn(),
-      invite: vi.fn(),
-    };
+    const mockCommandBus = { execute: vi.fn() };
+    const mockQueryBus = { execute: vi.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BarMembersController],
-      providers: [{ provide: BarMembersService, useValue: mockService }],
+      providers: [
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: mockQueryBus },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
+      .overrideGuard(PermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
     controller = module.get<BarMembersController>(BarMembersController);
-    service = module.get(BarMembersService);
+    commandBus = module.get(CommandBus);
+    queryBus = module.get(QueryBus);
   });
 
-  it('getMembers should delegate to the service', async () => {
-    service.getMembers.mockResolvedValue([]);
+  it('getMembers should delegate to query bus', async () => {
+    queryBus.execute.mockResolvedValue([]);
 
     await controller.getMembers(asBarId('bar-1'));
 
-    expect(service.getMembers).toHaveBeenCalledWith('bar-1');
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetMembersQuery));
   });
 
-  it('inviteMember should delegate to the service', async () => {
-    const dto = { email: 'new@mail.com', role: BarRole.STAFF };
-    service.invite.mockResolvedValue({
-      id: asBarMemberId('member-1'),
-      barId: asBarId('bar-1'),
+  it('getMyMember should delegate to query bus with user id', async () => {
+    queryBus.execute.mockResolvedValue({
+      id: asBarMemberId('mem-1'),
       userId: asUserId('user-1'),
+      barId: asBarId('bar-1'),
       role: BarRole.STAFF,
+      permissions: [],
       active: true,
-      userName: 'User',
-      userEmail: 'new@mail.com',
-      userImage: 'image',
+      userName: 'John Doe',
+      userImage: '',
+      userEmail: 'john@test.com',
     });
 
-    await controller.inviteMember(asBarId('bar-1'), dto, fakeUser);
+    const user = { id: asUserId('user-1'), name: 'John Doe', email: 'john@test.com', active: true, role: Role.USER };
+    const result = await controller.getMyMember(asBarId('bar-1'), user);
 
-    expect(service.invite).toHaveBeenCalledWith('bar-1', 'new@mail.com', BarRole.STAFF, fakeUser);
+    expect(result.id).toBe(asBarMemberId('mem-1'));
+    expect(queryBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        barId: asBarId('bar-1'),
+        userId: asUserId('user-1'),
+      }),
+    );
+  });
+
+  it('inviteMember should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue({});
+    const user = { id: asUserId('admin-id'), name: 'Admin', email: 'a@a.com', active: true, role: Role.ADMIN };
+    const dto = { email: 'new@staff.com', role: BarRole.STAFF };
+
+    await controller.inviteMember(asBarId('bar-1'), dto, user);
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(InviteMemberCommand));
+  });
+
+  it('removeMember should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    await controller.removeMember(asBarId('bar-1'), asBarMemberId('mem-1'));
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RemoveMemberCommand));
   });
 });

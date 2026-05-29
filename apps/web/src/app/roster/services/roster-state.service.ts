@@ -1,8 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { DateFormatterService } from '@coaster/core';
 import { addDays, isSameDay, subDays } from 'date-fns';
-import { DateFormatterService } from '../../core';
-import { ScrollerDay } from '../../shifts';
 
+export interface ScrollerDay {
+  id: string;
+  dayName: string;
+  dayNumber: number;
+  monthLabel?: string;
+  isActive: boolean;
+}
 const TOTAL_DAYS = 15;
 
 @Injectable()

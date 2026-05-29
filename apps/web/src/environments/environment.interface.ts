@@ -11,4 +11,5 @@ export interface Environment {
     messagingSenderId: string;
     appId: string;
   };
+  apiUrl: string;
 }

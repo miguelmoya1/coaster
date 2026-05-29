@@ -1,10 +1,3 @@
-export * from './components/create-product-form/create-product-form';
-export * from './components/inventory-item-card/inventory-item-card';
-export * from './components/update-product-form/update-product-form';
-export * from './components/edit-product-form/edit-product-form';
-export * from './data-access/product-repository';
-export * from './services/bar-products';
-export * from './services/create-product';
-export * from './services/update-product-stock';
-export * from './services/edit-product';
-export * from './services/delete-product';
+export * from './models/product.interface';
+export { StockStatusPipe } from './pipes/stock-status';
+export { ProductsStore } from './store/products.store';

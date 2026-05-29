@@ -1,0 +1,64 @@
+import { asOrderId, asTableId, ErrorCodes, Order } from '@coaster/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrdersMergedEvent } from '../../events';
+import { OrdersMapper } from '../../mappers/orders.mapper';
+import { MergeOrdersCommand } from './merge-orders.command';
+
+@CommandHandler(MergeOrdersCommand)
+export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, Order> {
+  constructor(
+    private readonly _ordersRepository: OrdersRepository,
+    private readonly _eventBus: EventBus,
+  ) {}
+
+  async execute(command: MergeOrdersCommand): Promise<Order> {
+    const orders = await this._ordersRepository.findOrdersByIds(command.dto.orderIds);
+    if (orders.length !== command.dto.orderIds.length) {
+      throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+
+    const nonBarOrders = orders.filter((o) => o.barId !== command.barId);
+    if (nonBarOrders.length > 0) {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+
+    const nonOpenOrders = orders.filter((o) => o.status !== 'OPEN');
+    if (nonOpenOrders.length > 0) {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+    }
+
+    if (command.dto.targetTableId) {
+      const targetTable = await this._ordersRepository.findTableById(asTableId(command.dto.targetTableId));
+      if (!targetTable || targetTable.barId !== command.barId) {
+        throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
+      }
+    }
+
+    const [primaryOrder, ...sourceOrders] = orders;
+    const sourceOrdersData = sourceOrders.map((o) => ({ id: asOrderId(o.id), tableId: o.tableId }));
+
+    const result = await this._ordersRepository.mergeOrders(
+      asOrderId(primaryOrder.id),
+      sourceOrdersData,
+      command.dto.targetTableId ?? null,
+      primaryOrder.tableId,
+      primaryOrder.tableName,
+    );
+
+    const mapped = OrdersMapper.toDomain(result);
+    this._eventBus.publish(
+      new OrdersMergedEvent(
+        command.barId,
+        mapped,
+        sourceOrders.map((o) => ({
+          id: asOrderId(o.id),
+          tableId: o.tableId ? asTableId(o.tableId) : null,
+        })),
+      ),
+    );
+
+    return mapped;
+  }
+}
