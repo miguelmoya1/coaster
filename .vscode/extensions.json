@@ -1,9 +1,17 @@
 {
+  // See https://go.microsoft.com/fwlink/?LinkId=827846 to learn about workspace recommendations.
+  // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
+
+  // List of extensions which should be recommended for users of this workspace.
   "recommendations": [
     "angular.ng-template",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "vitest.explorer",
-    "prisma.prisma"
-  ]
+    "prisma.prisma",
+    "ms-azuretools.vscode-docker",
+    "vercel.vercel"
+  ],
+  // List of extensions recommended by Antigravity IDE that should not be recommended for users of this workspace.
+  "unwantedRecommendations": []
 }
