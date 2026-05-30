@@ -1,5 +1,4 @@
 <div class="p-6 max-w-2xl mx-auto flex flex-col gap-8 pb-workspace">
-  <!-- SECTION 1: FINANCIAL OVERVIEW -->
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
@@ -8,10 +7,10 @@
       </h2>
     </header>
 
-    <!-- Key Metrics Grid -->
     <div class="grid grid-cols-3 gap-3">
-      <!-- Today's Revenue -->
-      <div class="bg-surface-container-high rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-primary relative overflow-hidden transition-all hover:translate-y-[-2px] hover:shadow-lg">
+      <div
+        class="bg-surface-container-high rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-primary relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg"
+      >
         <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
           {{ 'dashboard.financials.today' | translate }}
         </span>
@@ -20,8 +19,9 @@
         </span>
       </div>
 
-      <!-- Yesterday's Revenue -->
-      <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:translate-y-[-2px] hover:shadow-lg">
+      <div
+        class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:-translate-y-0.5 hover:shadow-lg"
+      >
         <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
           {{ 'dashboard.financials.yesterday' | translate }}
         </span>
@@ -30,18 +30,18 @@
         </span>
       </div>
 
-      <!-- Weekly Revenue -->
-      <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:translate-y-[-2px] hover:shadow-lg">
+      <div
+        class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:-translate-y-0.5 hover:shadow-lg"
+      >
         <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
           {{ 'dashboard.financials.weekly' | translate }}
         </span>
-        <span class="text-lg font-black text-on-surface tracking-tight text-primary">
+        <span class="text-lg font-black tracking-tight text-primary">
           {{ financialStats().weeklyRevenue | price }}
         </span>
       </div>
     </div>
 
-    <!-- Interactive Custom SVG Area Chart -->
     <div class="bg-surface-container rounded-2xl p-5 shadow-md flex flex-col gap-4 border border-outline-variant/30">
       <div class="flex justify-between items-center">
         <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">
@@ -53,8 +53,8 @@
         </span>
       </div>
 
-      <div class="relative w-full h-[130px] flex flex-col justify-end">
-        <svg viewBox="0 0 380 110" class="w-full h-[100px] overflow-visible" preserveAspectRatio="none">
+      <div class="relative w-full h-32.5 flex flex-col justify-end">
+        <svg viewBox="0 0 380 110" class="w-full h-25 overflow-visible" preserveAspectRatio="none">
           <defs>
             <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
@@ -62,36 +62,69 @@
             </linearGradient>
           </defs>
 
-          <!-- Grid Lines (Horizontal) -->
-          <line x1="20" y1="20" x2="360" y2="20" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
-          <line x1="20" y1="55" x2="360" y2="55" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
-          <line x1="20" y1="90" x2="360" y2="90" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
+          <line
+            x1="20"
+            y1="20"
+            x2="360"
+            y2="20"
+            stroke="var(--color-border-ghost)"
+            stroke-opacity="0.2"
+            stroke-dasharray="3"
+          />
+          <line
+            x1="20"
+            y1="55"
+            x2="360"
+            y2="55"
+            stroke="var(--color-border-ghost)"
+            stroke-opacity="0.2"
+            stroke-dasharray="3"
+          />
+          <line
+            x1="20"
+            y1="90"
+            x2="360"
+            y2="90"
+            stroke="var(--color-border-ghost)"
+            stroke-opacity="0.2"
+            stroke-dasharray="3"
+          />
 
           @if (chartPaths().points.length > 0) {
-            <!-- Filled Area Under Curve -->
             <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
 
-            <!-- Stroke Line -->
-            <path [attr.d]="chartPaths().linePath" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              [attr.d]="chartPaths().linePath"
+              fill="none"
+              stroke="var(--color-primary)"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
 
-            <!-- Highlight Dots & Tooltips -->
             @for (pt of chartPaths().points; track pt.dayName) {
-              <!-- Vertical guides -->
-              <line [attr.x1]="pt.x" [attr.y1]="pt.y" [attr.x2]="pt.x" y2="100" stroke="var(--color-primary)" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="2" />
-              
-              <!-- Value labels on top of peak points -->
+              <line
+                [attr.x1]="pt.x"
+                [attr.y1]="pt.y"
+                [attr.x2]="pt.x"
+                y2="100"
+                stroke="var(--color-primary)"
+                stroke-opacity="0.15"
+                stroke-width="1.5"
+                stroke-dasharray="2"
+              />
+
               @if (pt.amount > 0) {
-                <text 
-                  [attr.x]="pt.x" 
-                  [attr.y]="pt.y - 8" 
-                  text-anchor="middle" 
+                <text
+                  [attr.x]="pt.x"
+                  [attr.y]="pt.y - 8"
+                  text-anchor="middle"
                   class="fill-on-surface text-[8px] font-black tracking-tighter"
                 >
                   {{ pt.amount | price }}
                 </text>
               }
 
-              <!-- Vertex circles -->
               <circle
                 [attr.cx]="pt.x"
                 [attr.cy]="pt.y"
@@ -102,7 +135,6 @@
           }
         </svg>
 
-        <!-- Day Names Row -->
         <div class="flex justify-between px-3 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
           @for (dr of financialStats().dailyRevenues; track dr.dateStr) {
             <span class="text-center w-10 uppercase select-none">{{ dr.dayName }}</span>
@@ -112,7 +144,6 @@
     </div>
   </section>
 
-  <!-- SECTION 2: CRITICAL STOCK -->
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
@@ -147,7 +178,6 @@
     </div>
   </section>
 
-  <!-- SECTION 3: ROSTER -->
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
@@ -163,10 +193,13 @@
       </a>
     </header>
 
-    <!-- Empty Shift Warning -->
     @if (totalAssignedToday() === 0) {
-      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-amber-500/15">
-        <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 animate-pulse">
+      <div
+        class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-amber-500/15"
+      >
+        <div
+          class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 animate-pulse"
+        >
           <ng-icon name="lucideAlertCircle" class="text-2xl" />
         </div>
         <div class="flex flex-col gap-1">
@@ -182,10 +215,11 @@
         </a>
       </div>
     } @else {
-      <!-- Roster Shifts List -->
       <div class="flex flex-col gap-3">
         @for (shift of rosterOverview(); track shift.id) {
-          <div class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md border border-outline-variant/10">
+          <div
+            class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md border border-outline-variant/10"
+          >
             <div class="relative">
               <img
                 [src]="shift.userImage"
