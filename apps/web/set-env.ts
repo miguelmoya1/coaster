@@ -17,7 +17,11 @@ const envConfig: Environment = {
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '774617138158',
     appId: process.env.FIREBASE_APP_ID || '1:774617138158:web:5be3f0bc2147226ac684ff',
   },
-  apiUrl: process.env.API_URL || (process.env.PRODUCTION === 'true' ? 'https://api.coaster.app' : 'http://localhost:3000'),
+  apiUrl:
+    process.env.API_URL ||
+    (process.env.PRODUCTION === 'true'
+      ? 'https://api-774617138158.europe-southwest1.run.app'
+      : 'http://localhost:3000'),
 };
 
 const objectString = JSON.stringify(envConfig, null, 2).replace(/"([^"]+)":/g, '$1:');

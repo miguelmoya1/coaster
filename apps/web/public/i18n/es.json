@@ -76,14 +76,14 @@
       "brand": "COASTER",
       "google_button": "Iniciar sesión con Google",
       "heading": "Acceso Seguro",
-      "subtitle": "Autorización requerida para operaciones de terminal.",
-      "tagline": "Ventaja táctica para la gestión moderna de bares"
+      "subtitle": "Accede a tu panel de control de Coaster.",
+      "tagline": "Plataforma inteligente para la gestión moderna de bares"
     }
   },
   "bars": {
     "create": {
-      "badge": "Entrada de Sistema",
-      "description": "Inicializa un nuevo nodo de hospitalidad en la red cinética de Coaster. Asegúrate de que todos los datos tácticos sean precisos para la sincronización en tiempo real.",
+      "badge": "Nuevo Bar",
+      "description": "Crea un nuevo bar para gestionar tu equipo, pedidos e inventario. Solo necesitas introducir su nombre para comenzar.",
       "fields": {
         "capacity": "Capacidad de Staff",
         "capacity_placeholder": "00",
@@ -106,7 +106,7 @@
         "area": "Área Total",
         "staff": "Staff Activo Global"
       },
-      "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
+      "subtitle": "Plataforma de Gestión de Hostelería",
       "title": "Selecciona tu Bar Activo"
     }
   },
@@ -139,12 +139,25 @@
       "security": "SEGURIDAD"
     },
     "roster": {
+      "no_shifts_warning": "¡Atención! No hay ningún empleado asignado a los turnos de hoy.",
+      "assign_shifts": "Programar Turnos",
       "status": {
         "current": "TURNO ACTUAL",
         "next": "SIGUIENTE"
       }
     },
+    "pantry": {
+      "more_issues": "+{{count}} productos más con incidencias. Ver todos"
+    },
+    "financials": {
+      "today": "Facturación Hoy",
+      "yesterday": "Facturación Ayer",
+      "weekly": "Facturación Semanal",
+      "chart_title": "Distribución de Ventas Semanales",
+      "no_revenue": "Sin ingresos"
+    },
     "sections": {
+      "financials": "Resumen Financiero",
       "overview": "Resumen de Personal",
       "overview_stats": "{{clockedIn}} En Turno • {{assigned}} Asignados",
       "pantry": "Alertas Críticas de Despensa",

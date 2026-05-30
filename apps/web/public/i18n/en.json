@@ -76,14 +76,14 @@
       "brand": "COASTER",
       "google_button": "Login with Google",
       "heading": "Secure Access",
-      "subtitle": "Authorization required for terminal operations.",
-      "tagline": "Tactical edge for modern bar management"
+      "subtitle": "Access your Coaster dashboard.",
+      "tagline": "Intelligent platform for modern bar management"
     }
   },
   "bars": {
     "create": {
-      "badge": "System Entry",
-      "description": "Initialize a new hospitality node within the Coaster kinetic network. Ensure all tactical data is accurate for real-time synchronization.",
+      "badge": "New Bar",
+      "description": "Create a new bar to manage your team, orders, and inventory. You only need to enter its name to get started.",
       "fields": {
         "capacity": "Staff Capacity",
         "capacity_placeholder": "00",
@@ -106,7 +106,7 @@
         "area": "Total Venue Area",
         "staff": "Global Active Staff"
       },
-      "subtitle": "KINETIC HOSPITALITY MANAGEMENT",
+      "subtitle": "Hospitality Management Platform",
       "title": "Select Your Active Bar"
     }
   },
@@ -139,12 +139,25 @@
       "security": "SECURITY"
     },
     "roster": {
+      "no_shifts_warning": "Attention! No staff assigned to shifts today.",
+      "assign_shifts": "Assign Shifts",
       "status": {
         "current": "CURRENT SHIFT",
         "next": "NEXT UP"
       }
     },
+    "pantry": {
+      "more_issues": "+{{count}} more products with issues. View all"
+    },
+    "financials": {
+      "today": "Revenue Today",
+      "yesterday": "Revenue Yesterday",
+      "weekly": "Weekly Revenue",
+      "chart_title": "Weekly Sales Distribution",
+      "no_revenue": "No revenue"
+    },
     "sections": {
+      "financials": "Financial Overview",
       "overview": "Staff Overview",
       "overview_stats": "{{clockedIn}} Clocked In • {{assigned}} Assigned",
       "pantry": "Critical Pantry Alerts",
