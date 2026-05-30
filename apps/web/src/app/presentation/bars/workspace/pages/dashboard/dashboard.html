@@ -1,109 +1,219 @@
-<div class="p-6 max-w-2xl mx-auto flex flex-col gap-10">
-      <section class="flex flex-col gap-4">
-        <header class="flex justify-between items-end">
-          <h2 class="text-primary font-bold tracking-tight text-lg">
-            {{ 'dashboard.sections.pantry' | translate }}
-          </h2>
-          <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
-            {{ 'dashboard.sections.pantry_issues' | translate: { count: pantryAlerts().length } }}
-          </span>
-        </header>
+<div class="p-6 max-w-2xl mx-auto flex flex-col gap-8 pb-workspace">
+  <!-- SECTION 1: FINANCIAL OVERVIEW -->
+  <section class="flex flex-col gap-4">
+    <header class="flex justify-between items-end">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <ng-icon name="lucideTrendingUp" class="text-primary text-xl" />
+        {{ 'dashboard.sections.financials' | translate }}
+      </h2>
+    </header>
 
-        <div class="flex flex-col gap-3">
-          @for (product of pantryAlerts(); track product.id) {
-            <coaster-inventory-item-card
-              [itemName]="product.name"
-              [qty]="product.currentStock"
-              [statusLevel]="product.stockStatus"
-              [price]="product.price"
-              [routerLink]="['/bars', barId(), 'pantry']"
-            />
-          }
-        </div>
-      </section>
+    <!-- Key Metrics Grid -->
+    <div class="grid grid-cols-3 gap-3">
+      <!-- Today's Revenue -->
+      <div class="bg-surface-container-high rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-primary relative overflow-hidden transition-all hover:translate-y-[-2px] hover:shadow-lg">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.today' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight">
+          {{ financialStats().todayRevenue | price }}
+        </span>
+      </div>
 
-      <section class="flex flex-col gap-4">
-        <header class="flex justify-between items-end">
-          <h2 class="text-on-surface font-bold tracking-tight text-lg">
-            {{ 'dashboard.sections.roster' | translate }}
-          </h2>
-          <a
-            [routerLink]="['/bars', barId(), 'roster']"
-            class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
-          >
-            {{ 'dashboard.sections.roster_full' | translate }}
-            <ng-icon name="lucideArrowRight" />
-          </a>
-        </header>
+      <!-- Yesterday's Revenue -->
+      <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:translate-y-[-2px] hover:shadow-lg">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.yesterday' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface-variant tracking-tight">
+          {{ financialStats().yesterdayRevenue | price }}
+        </span>
+      </div>
 
-        <div class="flex flex-col gap-3">
-          @for (shift of rosterOverview(); track shift.id) {
-            <div class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md">
-              <div class="relative">
-                <img
-                  [src]="shift.userImage"
-                  class="w-14 h-14 rounded-xl object-cover border border-outline-variant bg-surface-container-high"
-                  [alt]="shift.userName"
-                />
-              </div>
+      <!-- Weekly Revenue -->
+      <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:translate-y-[-2px] hover:shadow-lg">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.weekly' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight text-primary">
+          {{ financialStats().weeklyRevenue | price }}
+        </span>
+      </div>
+    </div>
 
-              <div class="flex-1 flex flex-col justify-center">
-                <h4 class="text-on-surface font-bold text-base leading-tight">{{ shift.userName }}</h4>
-                <p class="text-on-surface-variant text-sm font-medium">{{ shift.roleLabel }}</p>
-              </div>
+    <!-- Interactive Custom SVG Area Chart -->
+    <div class="bg-surface-container rounded-2xl p-5 shadow-md flex flex-col gap-4 border border-outline-variant/30">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">
+          <ng-icon name="lucideCalendar" class="text-primary text-sm" />
+          {{ 'dashboard.financials.chart_title' | translate }}
+        </h3>
+        <span class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-0.5 rounded-full uppercase">
+          {{ 'history.today' | translate }}
+        </span>
+      </div>
 
-              <div class="flex flex-col items-end gap-1">
-                <span class="text-on-surface font-bold text-sm tracking-tighter">
-                  {{ shift.timeRange }}
-                </span>
-                <span
-                  class="text-xxs font-black tracking-widest uppercase"
-                  [class.text-primary]="shift.status === 'current'"
-                  [class.text-on-surface-variant]="shift.status === 'next'"
+      <div class="relative w-full h-[130px] flex flex-col justify-end">
+        <svg viewBox="0 0 380 110" class="w-full h-[100px] overflow-visible" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          <!-- Grid Lines (Horizontal) -->
+          <line x1="20" y1="20" x2="360" y2="20" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
+          <line x1="20" y1="55" x2="360" y2="55" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
+          <line x1="20" y1="90" x2="360" y2="90" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
+
+          @if (chartPaths().points.length > 0) {
+            <!-- Filled Area Under Curve -->
+            <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
+
+            <!-- Stroke Line -->
+            <path [attr.d]="chartPaths().linePath" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- Highlight Dots & Tooltips -->
+            @for (pt of chartPaths().points; track pt.dayName) {
+              <!-- Vertical guides -->
+              <line [attr.x1]="pt.x" [attr.y1]="pt.y" [attr.x2]="pt.x" y2="100" stroke="var(--color-primary)" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="2" />
+              
+              <!-- Value labels on top of peak points -->
+              @if (pt.amount > 0) {
+                <text 
+                  [attr.x]="pt.x" 
+                  [attr.y]="pt.y - 8" 
+                  text-anchor="middle" 
+                  class="fill-on-surface text-[8px] font-black tracking-tighter"
                 >
-                  {{ 'dashboard.roster.status.' + shift.status | translate }}
-                </span>
-              </div>
-            </div>
+                  {{ pt.amount | price }}
+                </text>
+              }
+
+              <!-- Vertex circles -->
+              <circle
+                [attr.cx]="pt.x"
+                [attr.cy]="pt.y"
+                r="4.5"
+                class="fill-primary stroke-surface stroke-[2.5] transition-all hover:r-[6] cursor-pointer"
+              />
+            }
+          }
+        </svg>
+
+        <!-- Day Names Row -->
+        <div class="flex justify-between px-3 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
+          @for (dr of financialStats().dailyRevenues; track dr.dateStr) {
+            <span class="text-center w-10 uppercase select-none">{{ dr.dayName }}</span>
           }
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
 
-      <!-- <section class="flex flex-col gap-4">
-        <header class="flex flex-col gap-0.5">
-          <h2 class="text-on-surface font-bold tracking-tight text-lg">
-            {{ 'dashboard.sections.overview' | translate }}
-          </h2>
-          <p class="text-on-surface-variant text-sm font-medium">
-            {{
-              'dashboard.sections.overview_stats'
-                | translate: { clockedIn: activeShifts().length, assigned: totalAssignedToday() }
-            }}
-          </p>
-        </header>
+  <!-- SECTION 2: CRITICAL STOCK -->
+  <section class="flex flex-col gap-4">
+    <header class="flex justify-between items-end">
+      <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
+        <ng-icon name="lucideAlertTriangle" class="text-primary text-xl" />
+        {{ 'dashboard.sections.pantry' | translate }}
+      </h2>
+      <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
+        {{ 'dashboard.sections.pantry_issues' | translate: { count: pantryAlerts().length } }}
+      </span>
+    </header>
 
-        <div class="grid grid-cols-2 gap-3">
-          @for (stat of overviewStats(); track stat.label) {
-            <div
-              class="bg-surface-container rounded-2xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm border-b-2 border-transparent hover:border-primary transition-colors"
-              [class.opacity-50]="stat.count === 0"
-            >
-              <span class="text-3xl font-black text-on-surface">{{ stat.count }}</span>
-              <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase text-center">
-                {{ stat.label | translate }}
+    <div class="flex flex-col gap-3">
+      @for (product of pantryAlertsSliced(); track product.id) {
+        <coaster-inventory-item-card
+          [itemName]="product.name"
+          [qty]="product.currentStock"
+          [statusLevel]="product.stockStatus"
+          [price]="product.price"
+          [routerLink]="['/bars', barId(), 'pantry']"
+        />
+      }
+
+      @if (hasMorePantryAlerts()) {
+        <a
+          [routerLink]="['/bars', barId(), 'pantry']"
+          class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
+        >
+          <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
+          <ng-icon name="lucideChevronRight" class="text-lg" />
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- SECTION 3: ROSTER -->
+  <section class="flex flex-col gap-4">
+    <header class="flex justify-between items-end">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <ng-icon name="lucideUsers" class="text-on-surface text-xl" />
+        {{ 'dashboard.sections.roster' | translate }}
+      </h2>
+      <a
+        [routerLink]="['/bars', barId(), 'roster']"
+        class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
+      >
+        {{ 'dashboard.sections.roster_full' | translate }}
+        <ng-icon name="lucideArrowRight" />
+      </a>
+    </header>
+
+    <!-- Empty Shift Warning -->
+    @if (totalAssignedToday() === 0) {
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-amber-500/15">
+        <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 animate-pulse">
+          <ng-icon name="lucideAlertCircle" class="text-2xl" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <h4 class="text-on-surface font-bold text-sm tracking-tight">
+            {{ 'dashboard.roster.no_shifts_warning' | translate }}
+          </h4>
+        </div>
+        <a
+          [routerLink]="['/bars', barId(), 'roster']"
+          class="w-full bg-primary hover:bg-primary-container text-on-primary font-black py-3 px-4 rounded-xl text-xxs-plus tracking-widest uppercase transition-all shadow-md active:scale-95 text-center"
+        >
+          {{ 'dashboard.roster.assign_shifts' | translate }}
+        </a>
+      </div>
+    } @else {
+      <!-- Roster Shifts List -->
+      <div class="flex flex-col gap-3">
+        @for (shift of rosterOverview(); track shift.id) {
+          <div class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md border border-outline-variant/10">
+            <div class="relative">
+              <img
+                [src]="shift.userImage"
+                class="w-14 h-14 rounded-xl object-cover border border-outline-variant bg-surface-container-high"
+                [alt]="shift.userName"
+              />
+            </div>
+
+            <div class="flex-1 flex flex-col justify-center">
+              <h4 class="text-on-surface font-bold text-base leading-tight">{{ shift.userName }}</h4>
+              <p class="text-on-surface-variant text-sm font-medium">{{ shift.roleLabel }}</p>
+            </div>
+
+            <div class="flex flex-col items-end gap-1">
+              <span class="text-on-surface font-bold text-sm tracking-tighter">
+                {{ shift.timeRange }}
+              </span>
+              <span
+                class="text-xxs font-black tracking-widest uppercase"
+                [class.text-primary]="shift.status === 'current'"
+                [class.text-on-surface-variant]="shift.status === 'next'"
+              >
+                {{ 'dashboard.roster.status.' + shift.status | translate }}
               </span>
             </div>
-          }
-
-          <div
-            [routerLink]="['/bars', barId(), 'staff']"
-            class="bg-surface-container-high rounded-2xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm border-b-2 border-transparent hover:border-primary transition-colors cursor-pointer active:scale-95"
-          >
-            <ng-icon name="lucidePlus" class="text-primary text-xl mb-1" />
-            <span class="text-xxs-plus font-bold text-primary tracking-widest uppercase text-center">
-              {{ 'dashboard.overview.manage_staff' | translate }}
-            </span>
           </div>
-        </div>
-      </section> -->
-    </div>
+        }
+      </div>
+    }
+  </section>
+</div>
