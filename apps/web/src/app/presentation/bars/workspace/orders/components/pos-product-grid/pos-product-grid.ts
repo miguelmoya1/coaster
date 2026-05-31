@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { Category } from '@coaster/common';
 import { Product } from '@coaster/products';
-import { PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-pos-product-grid',

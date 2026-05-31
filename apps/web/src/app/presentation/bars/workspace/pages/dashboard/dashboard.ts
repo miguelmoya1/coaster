@@ -2,24 +2,24 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input } f
 import { RouterLink } from '@angular/router';
 import { BarId, OrderStatus } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
+import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
-import { OrdersStore } from '@coaster/orders';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideAlertCircle,
   lucideAlertTriangle,
   lucideArrowRight,
+  lucideCalendar,
   lucideCheckCircle2,
   lucideChevronRight,
   lucidePlus,
-  lucideUsers,
   lucideTrendingUp,
-  lucideCalendar,
+  lucideUsers,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
-import { PricePipe } from '@coaster/shared';
+import { PricePipe } from '../../pipes/price/price';
 
 @Component({
   selector: 'coaster-dashboard',
@@ -272,7 +272,7 @@ export class Dashboard {
       return { x, y, amount: r.amount, dayName: r.dayName };
     });
 
-    const linePath = 'M ' + points.map(p => `${p.x},${p.y}`).join(' L ');
+    const linePath = 'M ' + points.map((p) => `${p.x},${p.y}`).join(' L ');
     const areaPath = `${linePath} L ${points[points.length - 1].x},100 L ${points[0].x},100 Z`;
 
     return {

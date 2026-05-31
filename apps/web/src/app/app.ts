@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { environment } from '@coaster/env';
 import { inject as injectAnalytics } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
-import { ToastContainer } from './shared/components/toast/toast-container';
+import { ToastContainer } from './presentation/components/toast/toast-container';
 
 @Component({
   selector: 'coaster-root',

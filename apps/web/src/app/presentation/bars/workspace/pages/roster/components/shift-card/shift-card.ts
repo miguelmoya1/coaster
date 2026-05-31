@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CoasterBadge, CoasterBtn } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBadge } from '../../../../../../components/badge/badge';
+import { CoasterBtn } from '../../../../../../components/button/button';
 
 @Component({
   selector: 'coaster-shift-card',

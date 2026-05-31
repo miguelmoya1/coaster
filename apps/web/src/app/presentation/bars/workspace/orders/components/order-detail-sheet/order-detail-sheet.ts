@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Order, OrderItemId } from '@coaster/common';
-import { CoasterBtn, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowRightLeft,
@@ -12,6 +11,8 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-detail-sheet',
@@ -43,7 +44,9 @@ import { TranslatePipe } from '@ngx-translate/core';
             [class.opacity-50]="item.paymentStatus === 'PAID'"
           >
             <div class="flex-1 flex flex-col gap-1">
-              <span class="font-semibold text-on-surface text-sm">{{ (item.productName ?? item.productId) | translate }}</span>
+              <span class="font-semibold text-on-surface text-sm">{{
+                item.productName ?? item.productId | translate
+              }}</span>
               <div class="flex gap-2 items-center">
                 <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
                 <span class="text-xs font-bold text-on-surface">{{

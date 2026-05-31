@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Table, TableStatus } from '@coaster/common';
-import { CoasterBtn, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { PricePipe } from '../../../pipes/price/price';
 
 export interface CartItem {
   productId: string;

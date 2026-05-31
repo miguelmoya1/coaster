@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, model, signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
-import { TextInput } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
+import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-pantry-search',

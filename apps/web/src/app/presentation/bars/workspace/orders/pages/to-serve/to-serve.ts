@@ -1,22 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId } from '@coaster/common';
+import { BarId, BulkUpdateItemDto, OrderItem, asOrderId, asOrderItemId } from '@coaster/common';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
-import { CoasterBtn, CoasterTitle, Loading, CoasterQtyAdjuster } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChefHat, lucideCoffee, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { Loading } from '../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../components/typography/typography';
+import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
 
 @Component({
   selector: 'coaster-to-serve',
-  imports: [
-    Loading,
-    CoasterTitle,
-    CoasterBtn,
-    TranslatePipe,
-    NgIcon,
-    OrderTitlePipe,
-    CoasterQtyAdjuster,
-  ],
+  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, OrderTitlePipe, CoasterQtyAdjuster],
   viewProviders: [
     provideIcons({
       lucideCoffee,
@@ -37,7 +32,9 @@ class ToServe {
   readonly isLoading = signal(false);
 
   // Map of selected items: itemId -> { orderId, item, serveQty }
-  protected readonly selectedItems = signal<Map<string, { orderId: string; item: OrderItem; serveQty: number }>>(new Map());
+  protected readonly selectedItems = signal<Map<string, { orderId: string; item: OrderItem; serveQty: number }>>(
+    new Map(),
+  );
 
   protected readonly totalSelectedItemsCount = computed(() => this.selectedItems().size);
 
@@ -124,7 +121,7 @@ class ToServe {
 
       // Group changes by orderId
       const groups = new Map<string, BulkUpdateItemDto[]>();
-      for (const [_, val] of this.selectedItems()) {
+      for (const val of this.selectedItems().values()) {
         if (!groups.has(val.orderId)) {
           groups.set(val.orderId, []);
         }

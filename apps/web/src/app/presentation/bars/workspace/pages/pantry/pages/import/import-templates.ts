@@ -1,36 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { CategoriesStore } from '@coaster/categories';
 import { BarId } from '@coaster/common';
 import { Toast } from '@coaster/core';
-import { CategoriesStore } from '@coaster/categories';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
-import { CoasterBtn, CoasterTitle, Loading, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+  lucideCheck,
   lucideChevronLeft,
-  lucideSearch,
-  lucideX,
+  lucideDownload,
   lucideFolder,
   lucidePackage,
-  lucideCheck,
-  lucideDownload,
+  lucideSearch,
+  lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { Loading } from '../../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../../components/typography/typography';
+import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-import-templates',
-  imports: [
-    RouterLink,
-    NgIcon,
-    TranslatePipe,
-    CoasterBtn,
-    CoasterTitle,
-    Loading,
-    PricePipe,
-    LowerCasePipe,
-  ],
+  imports: [RouterLink, NgIcon, TranslatePipe, CoasterBtn, CoasterTitle, Loading, PricePipe, LowerCasePipe],
   viewProviders: [
     provideIcons({
       lucideChevronLeft,
@@ -78,7 +72,6 @@ export default class ImportTemplates {
     }
     return total;
   });
-
 
   // Join categories and products locally in the client reactively
   readonly matchedTemplates = computed(() => {

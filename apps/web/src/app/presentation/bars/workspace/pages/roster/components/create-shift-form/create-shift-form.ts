@@ -1,10 +1,14 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { BarMember, asUserId } from '@coaster/common';
-import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '@coaster/shared';
+import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
-import { RosterStateService } from '@coaster/roster';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
+import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
+import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { TextareaInput } from '../../../../../../components/forms/textarea-input/textarea-input';
 
 @Component({
   selector: 'coaster-create-shift-form',

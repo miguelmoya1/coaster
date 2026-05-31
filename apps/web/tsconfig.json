@@ -21,7 +21,6 @@
       "@coaster/orders": ["./src/app/orders/index.ts"],
       "@coaster/products": ["./src/app/products/index.ts"],
       "@coaster/roster": ["./src/app/roster/index.ts"],
-      "@coaster/shared": ["./src/app/shared/index.ts"],
       "@coaster/shifts": ["./src/app/shifts/index.ts"],
       "@coaster/tables": ["./src/app/tables/index.ts"],
       "@coaster/templates": ["./src/app/templates/index.ts"],

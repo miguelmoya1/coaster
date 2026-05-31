@@ -13,24 +13,22 @@ import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import { BarId, BarPermission, Category } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
-import {
-  BottomSheet,
-  CoasterBtn,
-  CoasterTitle,
-  ConfirmDialogComponent,
-  Fab,
-  Loading,
-  StatusCard,
-  Tabs,
-} from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../components/button/button';
+import { Loading } from '../../../../components/loading/loading';
+import { StatusCard } from '../../../../components/status-card/status-card';
+import { CoasterTitle } from '../../../../components/typography/typography';
+import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { PantrySearch } from './components/pantry-search/pantry-search';
+import { Tabs } from './components/tabs/tabs';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 

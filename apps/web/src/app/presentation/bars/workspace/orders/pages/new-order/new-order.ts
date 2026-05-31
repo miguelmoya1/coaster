@@ -4,11 +4,12 @@ import { CategoriesStore } from '@coaster/categories';
 import { BarId, OrderId, TableId, asOrderId, asProductId, asTableId } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
-import { CoasterTitle, Loading } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Loading } from '../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../components/typography/typography';
 import { CartItem, PosCart } from '../../components/pos-cart/pos-cart';
 import { PosProductGrid } from '../../components/pos-product-grid/pos-product-grid';
 

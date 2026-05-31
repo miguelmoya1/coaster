@@ -2,8 +2,10 @@ import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { CategoriesStore } from '@coaster/categories';
 import { CreateCategoryDto } from '@coaster/common';
-import { CoasterBtn, FormFieldMessages, TextInput } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
+import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-category-form',

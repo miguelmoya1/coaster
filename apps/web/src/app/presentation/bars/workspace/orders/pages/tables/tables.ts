@@ -12,20 +12,18 @@ import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
-import {
-  BottomSheet,
-  CoasterBtn,
-  CoasterTitle,
-  ConfirmDialogComponent,
-  Fab,
-  Loading,
-  PricePipe,
-  StatusCard,
-} from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { Loading } from '../../../../../components/loading/loading';
+import { StatusCard } from '../../../../../components/status-card/status-card';
+import { CoasterTitle } from '../../../../../components/typography/typography';
+import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { Fab } from '../../../components/fab/fab';
+import { PricePipe } from '../../../pipes/price/price';
 import { TableCard } from './components/table-card/table-card';
 
 @Component({

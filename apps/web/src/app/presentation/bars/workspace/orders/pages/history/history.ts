@@ -3,10 +3,15 @@ import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { BarId, Order, OrderStatus, asOrderId } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe, StatusCard } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { Loading } from '../../../../../components/loading/loading';
+import { StatusCard } from '../../../../../components/status-card/status-card';
+import { CoasterTitle } from '../../../../../components/typography/typography';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',

@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { Router } from '@angular/router';
 import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe, CoasterQtyAdjuster } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -19,8 +18,14 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { Loading } from '../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../components/typography/typography';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
+import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
 
 @Component({
   selector: 'coaster-order-detail',

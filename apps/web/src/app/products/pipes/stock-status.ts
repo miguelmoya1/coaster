@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { BadgeVariant } from '@coaster/shared';
+import { BadgeVariant } from '../../presentation/components/badge/badge';
 import { StockStatus } from '../models/product.interface';
 
 @Pipe({
