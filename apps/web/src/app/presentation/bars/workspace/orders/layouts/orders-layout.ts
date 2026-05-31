@@ -17,6 +17,13 @@ import { TranslatePipe } from '@ngx-translate/core';
       </a>
       <a
         class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+        [routerLink]="['/bars', barId(), 'orders', 'to-serve']"
+        routerLinkActive="text-on-primary! bg-primary"
+      >
+        {{ 'orders.to_serve_title' | translate }}
+      </a>
+      <a
+        class="flex-1 text-center py-2.5 rounded-xl font-bold text-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
         [routerLink]="['/bars', barId(), 'orders', 'history']"
         routerLinkActive="text-on-primary! bg-primary"
       >

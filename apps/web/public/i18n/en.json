@@ -274,6 +274,9 @@
     "table_name_placeholder": "e.g. Table 1",
     "table_occupied": "Occupied",
     "tables_title": "Tables",
+    "to_serve_title": "To serve",
+    "all_served_title": "All served!",
+    "all_served_desc": "There are no pending orders to serve at the bar right now.",
     "total": "Total",
     "unpay_unit": "Subtract 1 paid",
     "unserve_unit": "Subtract 1 served"

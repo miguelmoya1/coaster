@@ -14,4 +14,5 @@ export * from './components/tabs/tabs';
 export * from './components/top-app-bar/top-app-bar';
 export * from './components/typography/typography';
 export * from './forms';
+export * from './components/qty-adjuster/qty-adjuster';
 export * from './pipes/status-level';

@@ -1,0 +1,136 @@
+<h2 coaster-title class="mb-4">{{ 'orders.to_serve_title' | translate }}</h2>
+
+@if (isLoading()) {
+  <coaster-loading />
+}
+
+<div class="flex flex-col gap-4 pb-workspace">
+  @for (order of ordersToServe(); track order.id) {
+    <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3 shadow-md border border-outline-variant/10">
+      
+      <!-- Order Header -->
+      <div class="flex justify-between items-center pb-2 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <ng-icon name="lucideCoffee" size="16" />
+          </div>
+          <span class="font-bold text-on-surface text-base">{{ order | orderTitle }}</span>
+        </div>
+        <span class="text-xs text-on-surface-variant font-medium bg-surface-container-highest px-2.5 py-1 rounded-lg">
+          {{ formatTime(order.createdAt) }}
+        </span>
+      </div>
+
+      <!-- Items List -->
+      <div class="flex flex-col gap-2">
+        @for (item of order.items; track item.id) {
+          <div
+            class="bg-surface-container-low border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200"
+            [class.border-primary/20]="isItemSelected(item.id)"
+            [class.bg-primary/5]="isItemSelected(item.id)"
+            [class.cursor-pointer]="true"
+            role="button"
+            [attr.tabindex]="0"
+            (click)="toggleSelectItem(order.id, item)"
+            (keydown.enter)="toggleSelectItem(order.id, item); $event.preventDefault()"
+            (keydown.space)="toggleSelectItem(order.id, item); $event.preventDefault()"
+          >
+            <!-- Checkbox Selection -->
+            <button
+              class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
+              [class.border-primary]="isItemSelected(item.id)"
+              [class.bg-primary]="isItemSelected(item.id)"
+              [class.text-on-primary]="isItemSelected(item.id)"
+              [class.border-on-surface-variant]="!isItemSelected(item.id)"
+              (click)="toggleSelectItem(order.id, item); $event.stopPropagation()"
+            >
+              @if (isItemSelected(item.id)) {
+                <ng-icon name="lucideCheck" size="14" class="stroke-3" />
+              }
+            </button>
+
+            <!-- Item details -->
+            <div class="flex-1 flex flex-col min-w-0">
+              <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName | translate }}</span>
+              <div class="flex gap-2 items-center mt-1">
+                <span class="text-xs font-bold text-primary">x{{ item.quantity - item.servedQuantity }}</span>
+                <span class="text-xxs text-on-surface-variant">
+                  {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
+                </span>
+              </div>
+            </div>
+
+            <!-- In-row Compact Adjustment Controls -->
+            @if (isItemSelected(item.id)) {
+              <coaster-qty-adjuster
+                [value]="selectedItems().get(item.id)!.serveQty"
+                (valueChange)="updateSelectedQty(item.id, $event)"
+                [min]="1"
+                [max]="item.quantity - item.servedQuantity"
+              />
+            }
+
+            <!-- Quick Action button -->
+            <button
+              class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-primary/20 shrink-0"
+              (click)="serveSingleItem(order.id, item); $event.stopPropagation()"
+              [title]="'orders.mark_served' | translate"
+            >
+              <ng-icon name="lucideChefHat" size="18" />
+            </button>
+
+          </div>
+        }
+      </div>
+
+    </div>
+  } @empty {
+    @if (!isLoading()) {
+      <div class="flex flex-col items-center gap-4 py-16 text-center">
+        <div class="w-16 h-16 rounded-full bg-success/15 text-success flex items-center justify-center mb-2">
+          <ng-icon name="lucideCheck" size="32" class="stroke-3" />
+        </div>
+        <span class="text-on-surface font-bold text-lg">{{ 'orders.all_served_title' | translate }}</span>
+        <span class="text-on-surface-variant text-sm max-w-xs">
+          {{ 'orders.all_served_desc' | translate }}
+        </span>
+      </div>
+    }
+  }
+</div>
+
+<!-- Gorgeous Glassmorphic Floating Group Action Bar -->
+@if (totalSelectedItemsCount() > 0) {
+  <div
+    class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
+  >
+    <div class="flex items-center gap-4">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-xs font-bold text-primary tracking-wide uppercase">
+          {{ 'orders.bulk_actions_title' | translate }}
+        </span>
+        <span class="text-sm font-semibold text-on-surface">
+          {{ 'orders.selected_items_count' | translate: { count: totalSelectedItemsCount() } }}
+          ({{ totalSelectedUnitsCount() }} u.)
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <button coaster-btn variant="outline" (click)="clearSelection()" class="h-12! px-4! text-xs!">
+        <ng-icon name="lucideX" size="14" />
+        {{ 'common.cancel' | translate }}
+      </button>
+
+      <button
+        coaster-btn
+        variant="primary"
+        (click)="applySelectedChanges()"
+        class="h-12! px-4! text-xs!"
+      >
+        <ng-icon name="lucideCheck" size="14" />
+        {{ 'orders.mark_served' | translate }}
+      </button>
+    </div>
+  </div>
+}

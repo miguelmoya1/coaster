@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { Router } from '@angular/router';
 import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '@coaster/shared';
+import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe, CoasterQtyAdjuster } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -13,9 +13,7 @@ import {
   lucideChefHat,
   lucideCreditCard,
   lucideMerge,
-  lucideMinus,
   lucidePackagePlus,
-  lucidePlus,
   lucideSquare,
   lucideTrash2,
   lucideX,
@@ -37,6 +35,7 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
     ConfirmDialogComponent,
     MoveTableDialog,
     MergeOrdersDialog,
+    CoasterQtyAdjuster,
   ],
   viewProviders: [
     provideIcons({
@@ -48,8 +47,6 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
       lucideMerge,
       lucideTrash2,
       lucideX,
-      lucidePlus,
-      lucideMinus,
       lucideSquare,
       lucideCheckSquare,
       lucideCheck,
@@ -207,42 +204,20 @@ class OrderDetail {
     this.selectedItems.set(current);
   }
 
-  protected incrementPayQty(itemId: string, max: number, event: MouseEvent) {
-    event.stopPropagation();
+  protected updateSelectedPayQty(itemId: string, qty: number) {
     const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.paidQty < max) {
-      current.set(itemId, { ...qtys, paidQty: qtys.paidQty + 1 });
+    const val = current.get(itemId);
+    if (val) {
+      current.set(itemId, { ...val, paidQty: qty });
       this.selectedItems.set(current);
     }
   }
 
-  protected decrementPayQty(itemId: string, min: number, event: Event) {
-    event.stopPropagation();
+  protected updateSelectedServeQty(itemId: string, qty: number) {
     const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.paidQty > min) {
-      current.set(itemId, { ...qtys, paidQty: qtys.paidQty - 1 });
-      this.selectedItems.set(current);
-    }
-  }
-
-  protected incrementServeQty(itemId: string, max: number, event: MouseEvent) {
-    event.stopPropagation();
-    const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.serveQty < max) {
-      current.set(itemId, { ...qtys, serveQty: qtys.serveQty + 1 });
-      this.selectedItems.set(current);
-    }
-  }
-
-  protected decrementServeQty(itemId: string, min: number, event: Event) {
-    event.stopPropagation();
-    const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.serveQty > min) {
-      current.set(itemId, { ...qtys, serveQty: qtys.serveQty - 1 });
+    const val = current.get(itemId);
+    if (val) {
+      current.set(itemId, { ...val, serveQty: qty });
       this.selectedItems.set(current);
     }
   }

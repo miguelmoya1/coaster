@@ -10,6 +10,10 @@ const ordersRoutes: Routes = [
         loadComponent: () => import('./pages/tables/tables'),
       },
       {
+        path: 'to-serve',
+        loadComponent: () => import('./pages/to-serve/to-serve'),
+      },
+      {
         path: 'history',
         loadComponent: () => import('./pages/history/history'),
       },
