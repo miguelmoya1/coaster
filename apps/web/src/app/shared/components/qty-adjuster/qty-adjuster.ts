@@ -8,7 +8,7 @@ import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
   viewProviders: [provideIcons({ lucideMinus, lucidePlus })],
   host: {
     class: 'flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20 shrink-0',
-    '(click)': '$event.stopPropagation()',
+    '(click)': 'onHostClick($event)',
   },
   template: `
     @if (label()) {
@@ -16,9 +16,12 @@ import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
     }
     <button
       type="button"
-      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center transition-transform shrink-0"
+      [class.opacity-30]="value() <= min()"
+      [class.cursor-not-allowed]="value() <= min()"
+      [class.cursor-pointer]="value() > min()"
+      [class.active:scale-90]="value() > min()"
       (click)="decrement($event)"
-      [disabled]="value() <= min()"
     >
       <ng-icon name="lucideMinus" size="10" />
     </button>
@@ -29,9 +32,12 @@ import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
 
     <button
       type="button"
-      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center transition-transform shrink-0"
+      [class.opacity-30]="value() >= max()"
+      [class.cursor-not-allowed]="value() >= max()"
+      [class.cursor-pointer]="value() < max()"
+      [class.active:scale-90]="value() < max()"
       (click)="increment($event)"
-      [disabled]="value() >= max()"
     >
       <ng-icon name="lucidePlus" size="10" />
     </button>
@@ -52,6 +58,10 @@ export class CoasterQtyAdjuster {
     }
     return `${val}`;
   });
+
+  onHostClick(event: Event) {
+    event.stopPropagation();
+  }
 
   decrement(event: Event) {
     event.stopPropagation();
