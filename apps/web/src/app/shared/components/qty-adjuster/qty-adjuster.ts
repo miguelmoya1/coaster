@@ -6,31 +6,35 @@ import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
   selector: 'coaster-qty-adjuster',
   imports: [NgIcon],
   viewProviders: [provideIcons({ lucideMinus, lucidePlus })],
+  host: {
+    class: 'flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20 shrink-0',
+    '(click)': '$event.stopPropagation()',
+  },
   template: `
-    <div class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20 shrink-0">
-      @if (label()) {
-        <span class="text-xxs font-bold text-on-surface-variant px-1.5 select-none">{{ label() }}</span>
-      }
-      <button
-        type="button"
-        class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-        (click)="decrement($event)"
-        [disabled]="value() <= min()"
-      >
-        <ng-icon name="lucideMinus" size="10" />
-      </button>
-      <span class="text-xs font-semibold text-on-surface min-w-6 text-center select-none">
-        {{ valueLabel() }}
-      </span>
-      <button
-        type="button"
-        class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-        (click)="increment($event)"
-        [disabled]="value() >= max()"
-      >
-        <ng-icon name="lucidePlus" size="10" />
-      </button>
-    </div>
+    @if (label()) {
+      <span class="text-xxs font-bold text-on-surface-variant px-1.5 select-none">{{ label() }}</span>
+    }
+    <button
+      type="button"
+      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+      (click)="decrement($event)"
+      [disabled]="value() <= min()"
+    >
+      <ng-icon name="lucideMinus" size="10" />
+    </button>
+
+    <span class="text-xs font-semibold text-on-surface min-w-6 text-center select-none">
+      {{ valueLabel() }}
+    </span>
+
+    <button
+      type="button"
+      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+      (click)="increment($event)"
+      [disabled]="value() >= max()"
+    >
+      <ng-icon name="lucidePlus" size="10" />
+    </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
