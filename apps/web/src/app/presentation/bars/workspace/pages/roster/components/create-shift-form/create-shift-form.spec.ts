@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
 import { RosterStateService } from '@coaster/roster';
+import { DateFormatterService } from '@coaster/core';
 
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;
@@ -38,6 +39,7 @@ describe('CreateShiftForm', () => {
     await TestBed.configureTestingModule({
       imports: [CreateShiftForm, TranslateModule.forRoot()],
       providers: [
+        DateFormatterService,
         { provide: ShiftsStore, useValue: mockShiftsStore },
         { provide: RosterStateService, useValue: mockRosterState },
       ],

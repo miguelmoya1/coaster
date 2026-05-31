@@ -15,14 +15,14 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
   ],
   template: `
     <!-- Month/Year Category Label at the top -->
-    <div class="mb-1 select-none">
+    <div class="mb-1 select-none text-center md:text-left">
       <span class="text-on-surface-variant font-black uppercase tracking-widest text-[10px] sm:text-xs">
         {{ displayMonthYear() }}
       </span>
     </div>
 
     <!-- Main Header Action Row -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 mt-1">
+    <div class="flex flex-col items-center md:flex-row md:items-center justify-between gap-4 mb-5 mt-1">
       <!-- Left Side: Title & Navigation Chevrons -->
       <div class="flex items-center gap-3.5 shrink-0">
         <h1
@@ -59,7 +59,7 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
 
       <!-- Right Side: Segmented View Toggle (Perfectly centered vertically on desktop/tablet) -->
       <div
-        class="flex items-center bg-surface-container rounded-2xl p-1 border border-outline-variant/15 max-w-max self-start md:self-auto"
+        class="flex items-center bg-surface-container rounded-2xl p-1 border border-outline-variant/15 max-w-max self-center md:self-auto"
       >
         <button
           (click)="viewChanged.emit('day')"

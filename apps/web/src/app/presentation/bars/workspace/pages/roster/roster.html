@@ -11,7 +11,7 @@
 @if (viewMode() === 'day') {
   <h2 coaster-title class="mb-4 flex items-center gap-2 text-on-surface">
     <ng-icon name="lucideClock" class="text-primary text-xl" />
-    {{ 'roster.daily_assignments' | translate }}
+    {{ 'roster.daily_assignments' | translate }}: {{ displaySelectedDate() }}
   </h2>
 
   @if (shifts.isLoading()) {
@@ -61,7 +61,7 @@
   } @else {
     <coaster-roster-monthly-grid
       [calendarDays]="calendarMonthDaysWithShifts()"
-      (daySelected)="handleDaySelected($event); handleSetView('day')"
+      (daySelected)="handleDaySelected($event)"
     />
   }
 }
@@ -97,7 +97,7 @@
 
 <!-- Float Action button for Owners -->
 @if (currentUserRole() === 'OWNER') {
-  <coaster-fab routerLink="new" />
+  <coaster-fab routerLink="new" queryParamsHandling="preserve" />
 }
 
 <!-- Create Shift Dialog Sheet -->

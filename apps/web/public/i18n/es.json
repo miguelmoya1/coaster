@@ -346,6 +346,8 @@
   },
   "roster": {
     "create_shift": {
+      "title": "Crear Turno",
+      "date_label": "Para el día",
       "end_time_label": "Hora de Fin",
       "notes_label": "Notas (Opcional)",
       "notes_placeholder": "Ej. Cubrir hora punta de la noche",

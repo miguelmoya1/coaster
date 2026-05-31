@@ -19,6 +19,7 @@ export interface WeeklyDayItem {
   dayNumber: number;
   shifts: WeeklyShiftItem[];
   isToday: boolean;
+  isActive: boolean;
 }
 
 @Component({
@@ -61,9 +62,10 @@ export interface WeeklyDayItem {
       @for (day of weekDays(); track day.dayId) {
         <div
           class="border border-outline-variant/10 rounded-3xl p-5 flex flex-col gap-3 relative transition-all"
-          [class.bg-surface-container-high]="day.isToday"
-          [class.border-primary/25]="day.isToday"
-          [class.bg-surface-container-low]="!day.isToday"
+          [class.bg-surface-container-high]="day.isActive || day.isToday"
+          [class.border-primary/45]="day.isActive"
+          [class.border-primary/25]="!day.isActive && day.isToday"
+          [class.bg-surface-container-low]="!day.isActive && !day.isToday"
         >
           <div class="flex items-center justify-between pb-2 border-b border-outline-variant/10">
             <div class="flex items-center gap-2">

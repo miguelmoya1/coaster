@@ -31,6 +31,7 @@ describe('RosterWeeklyGrid', () => {
       dayNumber: 31,
       shifts: [mockShift],
       isToday: true,
+      isActive: true,
     },
   ];
 

@@ -346,6 +346,8 @@
   },
   "roster": {
     "create_shift": {
+      "title": "Create Shift",
+      "date_label": "For date",
       "end_time_label": "End Time",
       "notes_label": "Notes (Optional)",
       "notes_placeholder": "e.g. Cover for evening rush",

@@ -103,6 +103,9 @@ export default class Roster {
   readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
   readonly displayMonthYear = this.#state.displayMonthYear;
+  readonly displaySelectedDate = computed(() => {
+    return this.#dateFormatter.formatShortDate(this.#state.selectedDate());
+  });
   readonly displayToday = this.#state.displayToday;
   readonly scrollerDays = this.#state.scrollerDays;
   readonly viewMode = this.#state.viewMode;
@@ -199,6 +202,7 @@ export default class Roster {
         dayNumber: date.getDate(),
         shifts: dayShifts,
         isToday: isSameDay(date, new Date()),
+        isActive: isSameDay(date, this.#state.selectedDate()),
       };
     });
   });
@@ -399,8 +403,12 @@ export default class Roster {
   }
 
   protected handleQuickCreateForDate(date: Date) {
-    this.#updateQueryParams(date, this.viewMode());
-    this.#router.navigate(['/bars', this.barId(), 'roster', 'new']);
+    this.#router.navigate(['/bars', this.barId(), 'roster', 'new'], {
+      queryParams: {
+        date: this.#dateFormatter.formatDayId(date),
+        view: this.viewMode(),
+      },
+    });
   }
 
   protected handleOpenReplicateConfirm() {
