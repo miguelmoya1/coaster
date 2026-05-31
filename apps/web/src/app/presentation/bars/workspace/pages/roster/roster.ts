@@ -151,28 +151,28 @@ export default class Roster {
   protected async handleAcceptExchange(exchangeId: ShiftExchangeId) {
     this.isSubmitting.set(true);
 
-    try {
-      await this.#exchangesStore.accept(exchangeId);
-    } catch {
+    const error = await this.#exchangesStore.accept(exchangeId);
+    if (error) {
       this.isSubmitting.set(false);
       return;
     }
 
     this.#shiftsStore.reload();
+    this.#exchangesStore.reload();
     this.isSubmitting.set(false);
   }
 
   protected async handleOfferExchange(shiftId: ShiftId) {
     this.isSubmitting.set(true);
 
-    try {
-      await this.#exchangesStore.request(shiftId, {});
-    } catch {
+    const error = await this.#exchangesStore.request(shiftId, {});
+    if (error) {
       this.isSubmitting.set(false);
       return;
     }
 
     this.#shiftsStore.reload();
+    this.#exchangesStore.reload();
     this.isSubmitting.set(false);
   }
 }

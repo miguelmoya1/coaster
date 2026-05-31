@@ -96,10 +96,6 @@ export class OrdersStore {
       return targetDate === this.#historyDate();
     };
 
-    effect(() => {
-      console.log(this.#historyDate());
-    });
-
     // Order created
     effect(() => {
       const created = this.#socketService.orderCreated();
