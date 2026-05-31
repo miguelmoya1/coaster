@@ -38,6 +38,7 @@
         [staffImage]="shift.userImage"
         [isOwn]="shift.isOwn"
         [hasPendingExchange]="shift.hasPendingExchange"
+        [isPast]="shift.isPast"
         [disabled]="isSubmitting()"
         roleColorClass="bg-primary text-primary"
         (offerExchange)="handleOfferExchange(shift.id)"

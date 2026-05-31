@@ -70,19 +70,23 @@ export default class Roster {
     }
     return this.#membersStore.list.value() ?? [];
   });
+
   readonly currentUserId = computed(() => {
     if (!this.#barsStore.myMember.hasValue()) {
       return undefined;
     }
     return this.#barsStore.myMember.value()?.userId;
   });
+
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
+
   readonly currentUserRole = computed(() => {
     if (!this.#barsStore.myMember.hasValue()) {
       return undefined;
     }
     return this.#barsStore.myMember.value()?.role;
   });
+
   readonly pendingShiftIds = computed(() => {
     if (!this.pendingExchanges.hasValue()) {
       return new Set<string>();
@@ -91,10 +95,13 @@ export default class Roster {
     const exchanges = this.pendingExchanges.value();
     return new Set(exchanges.map((e) => e.shiftId));
   });
+
   readonly dailyShifts = computed(() => {
     if (!this.shifts.hasValue()) {
       return [];
     }
+
+    const now = new Date();
 
     return this.shifts.value().map((shift) => ({
       ...shift,
@@ -102,6 +109,7 @@ export default class Roster {
       roleName: BarRole.STAFF,
       hasPendingExchange: this.pendingShiftIds().has(shift.id),
       isOwn: shift.userId === this.currentUserId(),
+      isPast: new Date(shift.startTime) < now,
     }));
   });
   readonly pendingExchangesList = computed(() => {

@@ -28,7 +28,7 @@ import { TranslatePipe } from '@ngx-translate/core';
         coaster-btn
         variant="outline"
         class="w-auto! h-12! px-4 shrink-0"
-        [disabled]="disabled() || hasPendingExchange()"
+        [disabled]="disabled() || hasPendingExchange() || isPast()"
         (click)="offerExchange.emit(); $event.stopPropagation()"
       >
         <ng-icon name="lucideRepeat2" class="text-base" />
@@ -58,5 +58,6 @@ export class ShiftCard {
   readonly disabled = input(false);
   readonly isOwn = input(false);
   readonly hasPendingExchange = input(false);
+  readonly isPast = input(false);
   readonly offerExchange = output<void>();
 }
