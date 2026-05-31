@@ -14,11 +14,18 @@ export class ShiftRepository {
     list: (barId: BarId, startDate: string, endDate: string) =>
       `/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`,
     create: (barId: BarId) => `/bars/${barId}/shifts`,
+    delete: (barId: BarId, shiftId: string) => `/bars/${barId}/shifts/${shiftId}`,
   };
 
   public async create(barId: BarId, createShiftDto: CreateShiftDto) {
     return firstValueFrom(
       this.#http.post<Shift>(this.routes.create(barId), createShiftDto).pipe(map((shift) => shiftMapper(shift))),
+    );
+  }
+
+  public async delete(barId: BarId, shiftId: string) {
+    return firstValueFrom(
+      this.#http.delete<{ success: boolean }>(this.routes.delete(barId, shiftId)),
     );
   }
 }

@@ -27,6 +27,7 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
     BarPermission.VIEW_EXCHANGES,
     BarPermission.CREATE_EXCHANGE,
     BarPermission.ACCEPT_EXCHANGE,
+    BarPermission.DELETE_EXCHANGE,
   ],
 };
 

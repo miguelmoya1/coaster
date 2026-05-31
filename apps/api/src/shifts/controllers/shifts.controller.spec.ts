@@ -4,7 +4,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
-import { CreateShiftCommand } from '../commands';
+import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
 import { ShiftsController } from './shifts.controller';
 
@@ -57,5 +57,13 @@ describe('ShiftsController', () => {
     await controller.createShift(asBarId('bar-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateShiftCommand));
+  });
+
+  it('deleteShift should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    await controller.deleteShift(asBarId('bar-1'), 'shift-1');
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteShiftCommand));
   });
 });

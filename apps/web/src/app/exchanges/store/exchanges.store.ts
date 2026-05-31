@@ -5,6 +5,7 @@ import { handleErrorFormField } from '@coaster/core';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 import { AcceptExchange } from '../services/accept-exchange';
 import { BarExchanges } from '../services/bar-exchanges';
+import { DeleteExchange } from '../services/delete-exchange';
 import { RequestExchange } from '../services/request-exchange';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class ExchangesStore {
   readonly #barExchanges = inject(BarExchanges);
   readonly #acceptExchange = inject(AcceptExchange);
   readonly #requestExchange = inject(RequestExchange);
+  readonly #deleteExchange = inject(DeleteExchange);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
 
@@ -57,6 +59,22 @@ export class ExchangesStore {
 
     try {
       await this.#requestExchange.execute(barId, shiftId, dto);
+      this.reload();
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+
+  public async delete(exchangeId: ShiftExchangeId) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      this.reload();
+      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+    }
+
+    try {
+      await this.#deleteExchange.execute(barId, exchangeId);
       this.reload();
       return null;
     } catch (error) {

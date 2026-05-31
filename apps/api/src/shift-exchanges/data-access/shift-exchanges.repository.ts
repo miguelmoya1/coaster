@@ -75,4 +75,10 @@ export class ShiftExchangesRepository {
       }),
     ]);
   }
+
+  async deleteExchange(exchangeId: ShiftExchangeId) {
+    return this.prisma.shiftExchange.delete({
+      where: { id: exchangeId },
+    });
+  }
 }

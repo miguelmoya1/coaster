@@ -1,8 +1,8 @@
 import { type BarId, BarPermission, type Shift } from '@coaster/common';
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
-import { CreateShiftCommand } from '../commands';
+import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 import { ShiftsMapper } from '../mappers/shifts.mapper';
 import { GetShiftsQuery } from '../queries';
@@ -31,5 +31,12 @@ export class ShiftsController {
   async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto) {
     const shift = await this._commandBus.execute<CreateShiftCommand, Shift>(new CreateShiftCommand(barId, dto));
     return ShiftsMapper.toDto(shift);
+  }
+
+  @Delete(':shiftId')
+  @Permissions(BarPermission.DELETE_SHIFT)
+  async deleteShift(@Param('barId') barId: BarId, @Param('shiftId') shiftId: string) {
+    await this._commandBus.execute(new DeleteShiftCommand(barId, shiftId));
+    return { success: true };
   }
 }

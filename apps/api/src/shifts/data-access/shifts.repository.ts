@@ -41,4 +41,16 @@ export class ShiftsRepository {
       orderBy: { startTime: 'asc' },
     });
   }
+
+  async findById(shiftId: string) {
+    return this.prisma.shift.findUnique({
+      where: { id: shiftId },
+    });
+  }
+
+  async delete(shiftId: string) {
+    return this.prisma.shift.delete({
+      where: { id: shiftId },
+    });
+  }
 }

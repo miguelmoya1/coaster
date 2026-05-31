@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideRepeat2 } from '@ng-icons/lucide';
+import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBadge } from '../../../../../../components/badge/badge';
 import { CoasterBtn } from '../../../../../../components/button/button';
@@ -8,7 +8,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
 @Component({
   selector: 'coaster-shift-card',
   imports: [CoasterBadge, CoasterBtn, NgIcon, TranslatePipe],
-  viewProviders: [provideIcons({ lucideRepeat2 })],
+  viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
   template: `
     <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0">
       <img [src]="staffImage()" alt="Staff Portrait" class="w-full h-full object-cover" />
@@ -40,6 +40,18 @@ import { CoasterBtn } from '../../../../../../components/button/button';
         }
       </button>
     }
+
+    @if (showDelete()) {
+      <button
+        coaster-btn
+        variant="outline"
+        class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+        [disabled]="disabled()"
+        (click)="delete.emit(); $event.stopPropagation()"
+      >
+        <ng-icon name="lucideTrash2" class="text-lg" />
+      </button>
+    }
   `,
   host: {
     '[class.opacity-50]': 'disabled()',
@@ -60,5 +72,7 @@ export class ShiftCard {
   readonly isOwn = input(false);
   readonly hasPendingExchange = input(false);
   readonly isPast = input(false);
+  readonly showDelete = input(false);
   readonly offerExchange = output<void>();
+  readonly delete = output<void>();
 }

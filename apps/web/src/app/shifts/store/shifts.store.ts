@@ -1,10 +1,11 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateShiftDto } from '@coaster/common';
+import { asShiftId, BarId, CreateShiftDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';
+import { DeleteShift } from '../services/delete-shift';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { CreateShift } from '../services/create-shift';
 export class ShiftsStore {
   readonly #barshifts = inject(BarShifts);
   readonly #createShift = inject(CreateShift);
+  readonly #deleteShift = inject(DeleteShift);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
   readonly #startDate = signal<string | undefined>(undefined);
@@ -48,6 +50,22 @@ export class ShiftsStore {
 
     try {
       await this.#createShift.execute(barId, createShiftDto);
+      this.reload();
+      return null;
+    } catch (error) {
+      return handleErrorFormField(error);
+    }
+  }
+
+  public async delete(shiftId: string) {
+    const barId = this.#currentBarId();
+
+    if (!barId) {
+      return null;
+    }
+
+    try {
+      await this.#deleteShift.execute(barId, asShiftId(shiftId));
       this.reload();
       return null;
     } catch (error) {

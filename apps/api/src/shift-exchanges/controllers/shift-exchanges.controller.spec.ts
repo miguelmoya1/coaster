@@ -4,7 +4,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
-import { RequestExchangeCommand, AcceptExchangeCommand } from '../commands';
+import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 import { GetPendingExchangesQuery } from '../queries';
 import { ShiftExchangesController } from './shift-exchanges.controller';
 
@@ -80,5 +80,14 @@ describe('ShiftExchangesController', () => {
     await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AcceptExchangeCommand));
+  });
+
+  it('deleteExchange should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
+
+    await controller.deleteExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteExchangeCommand));
   });
 });

@@ -38,11 +38,13 @@ export enum BarPermission {
   // Shift management
   VIEW_SHIFTS = 'bar:view-shifts',
   CREATE_SHIFT = 'bar:create-shift',
+  DELETE_SHIFT = 'bar:delete-shift',
 
   // Shift Exchange management
   VIEW_EXCHANGES = 'bar:view-exchanges',
   CREATE_EXCHANGE = 'bar:create-exchange',
   ACCEPT_EXCHANGE = 'bar:accept-exchange',
+  DELETE_EXCHANGE = 'bar:delete-exchange',
 
   // Template management
   IMPORT_TEMPLATES = 'bar:import-templates',

@@ -7,13 +7,13 @@ import {
   type User,
   type ShiftExchange,
 } from '@coaster/common';
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 import { ShiftExchangesMapper, ExchangeWithRelations } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
-import { RequestExchangeCommand, AcceptExchangeCommand } from '../commands';
+import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 
 @Controller('bars/:barId')
 @UseGuards(FirebaseAuthGuard, PermissionsGuard)
@@ -57,5 +57,16 @@ export class ShiftExchangesController {
       new AcceptExchangeCommand(barId, exchangeId, asUserId(user.id)),
     );
     return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
+  }
+
+  @Delete('exchanges/:exchangeId')
+  @Permissions(BarPermission.DELETE_EXCHANGE)
+  async deleteExchange(
+    @Param('barId') barId: BarId,
+    @Param('exchangeId') exchangeId: ShiftExchangeId,
+    @CurrentUser() user: User,
+  ) {
+    await this._commandBus.execute(new DeleteExchangeCommand(barId, exchangeId, asUserId(user.id)));
+    return { success: true };
   }
 }

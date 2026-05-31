@@ -14,6 +14,7 @@ export class ExchangeRepository {
     listPending: (barId: BarId) => `/bars/${barId}/exchanges`,
     request: (barId: BarId, shiftId: ShiftId) => `/bars/${barId}/shifts/${shiftId}/exchanges`,
     accept: (barId: BarId, exchangeId: ShiftExchangeId) => `/bars/${barId}/exchanges/${exchangeId}/accept`,
+    delete: (barId: BarId, exchangeId: ShiftExchangeId) => `/bars/${barId}/exchanges/${exchangeId}`,
   };
 
   public async request(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto) {
@@ -30,5 +31,9 @@ export class ExchangeRepository {
         .patch<ShiftExchange>(this.routes.accept(barId, exchangeId), {})
         .pipe(map((exchange) => exchangeMapper(exchange))),
     );
+  }
+
+  public async delete(barId: BarId, exchangeId: ShiftExchangeId) {
+    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.delete(barId, exchangeId)));
   }
 }

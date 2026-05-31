@@ -354,6 +354,8 @@
       "start_time_label": "Hora de Inicio"
     },
     "daily_assignments": "Asignaciones Diarias",
+    "delete_shift_title": "Eliminar turno",
+    "delete_shift_confirm": "¿Estás seguro de que quieres eliminar este turno? Esta acción no se puede deshacer.",
     "exchange_pending": "Pendiente",
     "exchanges": {
       "offered_by": "Ofrecido por",
@@ -361,13 +363,37 @@
       "period_evening": "Turno de Noche",
       "period_morning": "Turno de Mañana",
       "title": "Intercambios Pendientes",
-      "your_request": "Tu petición"
+      "your_request": "Tu petición",
+      "delete_title": "Eliminar intercambio",
+      "delete_confirm": "¿Estás seguro de que quieres eliminar esta oferta de intercambio?",
+      "delete": "Eliminar"
     },
     "no_shifts": "No hay turnos seleccionados para este día",
     "offer_exchange": "Ofrecer",
     "title": "Turnos",
     "today": "Hoy",
-    "unassigned": "Sin Asignar"
+    "unassigned": "Sin Asignar",
+    "views": {
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes"
+    },
+    "days": {
+      "lun": "Lun",
+      "mar": "Mar",
+      "mie": "Mié",
+      "jue": "Jue",
+      "vie": "Vie",
+      "sab": "Sáb",
+      "dom": "Dom"
+    },
+    "replication": {
+      "title": "Planificación Rápida",
+      "description": "Copia de forma masiva toda la distribución de turnos de la semana anterior a la actual.",
+      "button": "Replicar Semana Anterior",
+      "confirm_title": "Replicar Turnos",
+      "confirm_msg": "¿Estás seguro de que deseas copiar todos los turnos de la semana pasada a la actual? Si ya existen turnos, los nuevos se sumarán."
+    }
   },
   "templates": {
     "categories": {
