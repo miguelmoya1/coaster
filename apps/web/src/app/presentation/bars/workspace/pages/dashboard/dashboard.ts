@@ -281,6 +281,114 @@ export class Dashboard {
       points,
     };
   });
+
+  readonly currentMonthName = computed(() => {
+    const now = new Date();
+    const monthName = now.toLocaleDateString(navigator.language, { month: 'long' });
+    return monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  });
+
+  readonly previousMonthName = computed(() => {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const monthName = d.toLocaleDateString(navigator.language, { month: 'long' });
+    return monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  });
+
+  readonly currentYear = computed(() => new Date().getFullYear());
+  readonly currentMonthIndex = computed(() => new Date().getMonth());
+
+  readonly monthlyAndYearlyStats = computed(() => {
+    if (!this.#ordersStore.list.hasValue()) {
+      return {
+        currentMonthRevenue: 0,
+        previousMonthRevenue: 0,
+        yearlyRevenue: 0,
+        monthlyBreakdown: Array.from({ length: 12 }, (_, i) => {
+          const d = new Date(new Date().getFullYear(), i, 1);
+          const monthName = d.toLocaleDateString(navigator.language, { month: 'short' }).replace('.', '');
+          return {
+            monthIndex: i,
+            monthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+            amount: 0,
+          };
+        }),
+        percentageChange: 0,
+        isPositiveChange: true,
+        maxMonthRevenue: 1,
+      };
+    }
+
+    const allOrders = this.#ordersStore.list.value() ?? [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    let currentMonthRevenue = 0;
+    let previousMonthRevenue = 0;
+    let yearlyRevenue = 0;
+
+    let prevMonth = currentMonth - 1;
+    let prevMonthYear = currentYear;
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevMonthYear = currentYear - 1;
+    }
+
+    const monthlyBreakdown = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(currentYear, i, 1);
+      const monthName = d.toLocaleDateString(navigator.language, { month: 'short' }).replace('.', '');
+      return {
+        monthIndex: i,
+        monthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+        amount: 0,
+      };
+    });
+
+    allOrders.forEach((order) => {
+      if (order.status !== OrderStatus.CLOSED) return;
+      if (!order.createdAt) return;
+
+      const orderDate = new Date(order.createdAt);
+      const orderYear = orderDate.getFullYear();
+      const orderMonth = orderDate.getMonth();
+
+      if (orderYear === currentYear) {
+        yearlyRevenue += order.totalAmount;
+        monthlyBreakdown[orderMonth].amount += order.totalAmount;
+
+        if (orderMonth === currentMonth) {
+          currentMonthRevenue += order.totalAmount;
+        }
+      }
+
+      if (orderYear === prevMonthYear && orderMonth === prevMonth) {
+        previousMonthRevenue += order.totalAmount;
+      }
+    });
+
+    let percentageChange = 0;
+    let isPositiveChange = true;
+    if (previousMonthRevenue > 0) {
+      percentageChange = Math.round(((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100);
+      isPositiveChange = currentMonthRevenue >= previousMonthRevenue;
+    } else if (currentMonthRevenue > 0) {
+      percentageChange = 100;
+      isPositiveChange = true;
+    }
+
+    const maxMonthRevenue = Math.max(...monthlyBreakdown.map((m) => m.amount), 1);
+
+    return {
+      currentMonthRevenue,
+      previousMonthRevenue,
+      yearlyRevenue,
+      monthlyBreakdown,
+      percentageChange: Math.abs(percentageChange),
+      isPositiveChange,
+      maxMonthRevenue,
+    };
+  });
 }
 
 export default Dashboard;

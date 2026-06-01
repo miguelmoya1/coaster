@@ -154,10 +154,18 @@
       "yesterday": "Revenue Yesterday",
       "weekly": "Weekly Revenue",
       "chart_title": "Weekly Sales Distribution",
-      "no_revenue": "No revenue"
+      "no_revenue": "No revenue",
+      "current_month": "Current Month",
+      "previous_month": "Previous Month",
+      "previous_month_short": "prev. month",
+      "yearly": "Yearly Revenue",
+      "yearly_progress": "Monthly Year Distribution",
+      "no_change": "No change",
+      "closed_revenue": "Total revenue"
     },
     "sections": {
       "financials": "Financial Overview",
+      "monthly_yearly": "Monthly & Yearly Analysis",
       "overview": "Staff Overview",
       "overview_stats": "{{clockedIn}} Clocked In • {{assigned}} Assigned",
       "pantry": "Critical Pantry Alerts",

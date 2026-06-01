@@ -146,6 +146,115 @@
 
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <ng-icon name="lucideTrendingUp" class="text-primary text-xl" />
+        {{ 'dashboard.sections.monthly_yearly' | translate }}
+      </h2>
+    </header>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div
+        class="bg-surface-container rounded-2xl p-4 flex flex-col gap-2 shadow-md border-l-4 border-primary hover:-translate-y-0.5 hover:shadow-lg transition-all"
+      >
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.current_month' | translate }} ({{ currentMonthName() }})
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight">
+          {{ monthlyAndYearlyStats().currentMonthRevenue | price }}
+        </span>
+        @if (monthlyAndYearlyStats().percentageChange > 0) {
+          <div class="flex items-center gap-1">
+            <span
+              class="text-[10px] font-black flex items-center gap-0.5"
+              [class.text-success]="monthlyAndYearlyStats().isPositiveChange"
+              [class.text-error]="!monthlyAndYearlyStats().isPositiveChange"
+            >
+              {{ monthlyAndYearlyStats().isPositiveChange ? '▲' : '▼' }}
+              {{ monthlyAndYearlyStats().percentageChange }}%
+            </span>
+            <span class="text-xxs text-on-surface-variant">vs {{ 'dashboard.financials.previous_month_short' | translate }}</span>
+          </div>
+        } @else {
+          <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.no_change' | translate }}</span>
+        }
+      </div>
+
+      <div
+        class="bg-surface-container rounded-2xl p-4 flex flex-col gap-2 shadow-md border-l-4 border-outline-variant hover:-translate-y-0.5 hover:shadow-lg transition-all"
+      >
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.previous_month' | translate }} ({{ previousMonthName() }})
+        </span>
+        <span class="text-lg font-black text-on-surface-variant tracking-tight">
+          {{ monthlyAndYearlyStats().previousMonthRevenue | price }}
+        </span>
+        <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.closed_revenue' | translate }}</span>
+      </div>
+    </div>
+
+    <div
+      class="bg-surface-container rounded-2xl p-5 shadow-md flex flex-col gap-4 border border-outline-variant/30 relative overflow-hidden"
+    >
+      <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+
+      <div class="flex justify-between items-center z-10">
+        <div class="flex flex-col">
+          <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">
+            <ng-icon name="lucideCalendar" class="text-primary text-sm" />
+            {{ 'dashboard.financials.yearly' | translate }}
+          </h3>
+          <span class="text-2xl font-black text-on-surface tracking-tight mt-1">
+            {{ monthlyAndYearlyStats().yearlyRevenue | price }}
+          </span>
+        </div>
+        <span
+          class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-1 rounded-full uppercase self-start"
+        >
+          {{ currentYear() }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2.5 mt-2 z-10">
+        <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
+          {{ 'dashboard.financials.yearly_progress' | translate }}
+        </span>
+
+        <div class="flex items-end justify-between h-20 pt-4 px-1 gap-1.5">
+          @for (m of monthlyAndYearlyStats().monthlyBreakdown; track m.monthIndex) {
+            <div class="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer relative">
+              <div
+                class="absolute bottom-full mb-2 bg-surface-container-high border border-outline-variant text-[10px] font-black text-on-surface px-2 py-1 rounded-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none whitespace-nowrap shadow-elevated z-20"
+              >
+                {{ m.amount | price }}
+              </div>
+
+              <div
+                class="w-full rounded-t-xs transition-all duration-300 group-hover:brightness-110"
+                [style.height.%]="(m.amount / monthlyAndYearlyStats().maxMonthRevenue) * 80 + 20"
+                [class.bg-primary]="m.monthIndex === currentMonthIndex() && m.amount > 0"
+                [class.bg-outline]="m.monthIndex === currentMonthIndex() && m.amount === 0"
+                [class.bg-primary/40]="m.monthIndex !== currentMonthIndex() && m.amount > 0"
+                [class.bg-outline-variant/20]="m.amount === 0"
+                [class.border-t-2]="m.amount > 0"
+                [class.border-primary]="m.amount > 0"
+              ></div>
+
+              <span
+                class="text-[9px] font-black uppercase transition-colors"
+                [class.text-primary]="m.monthIndex === currentMonthIndex()"
+                [class.text-on-surface-variant]="m.monthIndex !== currentMonthIndex()"
+              >
+                {{ m.monthName.slice(0, 3) }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-4">
+    <header class="flex justify-between items-end">
       <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
         <ng-icon name="lucideAlertTriangle" class="text-primary text-xl" />
         {{ 'dashboard.sections.pantry' | translate }}
