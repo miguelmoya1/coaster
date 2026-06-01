@@ -150,15 +150,15 @@
       "more_issues": "+{{count}} more products with issues. View all"
     },
     "financials": {
-      "today": "Revenue Today",
-      "yesterday": "Revenue Yesterday",
-      "weekly": "Weekly Revenue",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "weekly": "This Week",
       "chart_title": "Weekly Sales Distribution",
       "no_revenue": "No revenue",
-      "current_month": "Current Month",
-      "previous_month": "Previous Month",
+      "current_month": "This Month",
+      "previous_month": "Last Month",
       "previous_month_short": "prev. month",
-      "yearly": "Yearly Revenue",
+      "yearly": "This Year",
       "yearly_progress": "Monthly Year Distribution",
       "no_change": "No change",
       "closed_revenue": "Total revenue"

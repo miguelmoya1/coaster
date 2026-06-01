@@ -150,15 +150,15 @@
       "more_issues": "+{{count}} productos más con incidencias. Ver todos"
     },
     "financials": {
-      "today": "Facturación Hoy",
-      "yesterday": "Facturación Ayer",
-      "weekly": "Facturación Semanal",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "weekly": "Esta Semana",
       "chart_title": "Distribución de Ventas Semanales",
       "no_revenue": "Sin ingresos",
-      "current_month": "Mes en Curso",
+      "current_month": "Este Mes",
       "previous_month": "Mes Anterior",
       "previous_month_short": "mes ant.",
-      "yearly": "Facturación Anual",
+      "yearly": "Este Año",
       "yearly_progress": "Distribución Mensual del Año",
       "no_change": "Sin variación",
       "closed_revenue": "Total facturado"

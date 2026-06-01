@@ -24,6 +24,7 @@
       "@coaster/shifts": ["./src/app/shifts/index.ts"],
       "@coaster/tables": ["./src/app/tables/index.ts"],
       "@coaster/templates": ["./src/app/templates/index.ts"],
+      "@coaster/stats": ["./src/app/stats/index.ts"],
       "@coaster/env": ["./src/environments/environment.ts"]
     }
   },

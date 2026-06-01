@@ -4,6 +4,7 @@ import { MembersStore } from '@coaster/members';
 import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
+import { StatsStore } from '@coaster/stats';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Dashboard from './dashboard';
@@ -49,6 +50,27 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
+  const statsStoreMock = {
+    stats: {
+      value: vi.fn().mockReturnValue({
+        todayRevenue: 0,
+        yesterdayRevenue: 0,
+        weeklyRevenue: 0,
+        dailyRevenues: [],
+        currentMonthRevenue: 0,
+        previousMonthRevenue: 0,
+        yearlyRevenue: 0,
+        monthlyBreakdown: [],
+        percentageChange: 0,
+        isPositiveChange: true,
+        maxMonthRevenue: 1,
+      }),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Dashboard],
@@ -59,6 +81,7 @@ describe('Dashboard', () => {
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: OrdersStore, useValue: ordersStoreMock },
+        { provide: StatsStore, useValue: statsStoreMock },
       ],
     }).compileComponents();
 

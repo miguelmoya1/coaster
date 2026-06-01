@@ -35,7 +35,7 @@ export class OrdersStore {
   readonly #currentBarId = signal<BarId | undefined>(undefined);
   readonly #historyDate = signal<string>(new Date().toISOString().split('T')[0]);
 
-  readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId()), {
+  readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId(), 'OPEN'), {
     parse: (orders) => orderArrayMapper(orders),
   });
 

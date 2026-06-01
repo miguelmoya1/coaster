@@ -8,9 +8,13 @@ import { OrderRepository } from '../data-access/order-repository';
 export class BarOrders {
   readonly #orderRepository = inject(OrderRepository);
 
-  public execute(barId: BarId | undefined) {
+  public execute(barId: BarId | undefined, status?: string) {
     if (!barId) {
       return undefined;
+    }
+
+    if (status) {
+      return this.#orderRepository.routes.listByStatus(barId, status);
     }
 
     return this.#orderRepository.routes.list(barId);

@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BarId, OrderStatus } from '@coaster/common';
+import { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
+import { StatsStore } from '@coaster/stats';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideAlertCircle,
@@ -47,6 +48,9 @@ export class Dashboard {
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #ordersStore = inject(OrdersStore);
+  readonly #statsStore = inject(StatsStore);
+
+  public readonly stats = this.#statsStore.stats;
 
   constructor() {
     effect(() => {
@@ -63,6 +67,7 @@ export class Dashboard {
       this.#productsStore.setBarId(barId);
       this.#shiftsStore.setBarId(barId);
       this.#ordersStore.setBarId(barId);
+      this.#statsStore.setBarId(barId);
     });
   }
 
@@ -174,93 +179,14 @@ export class Dashboard {
     ];
   });
 
-  readonly financialStats = computed(() => {
-    if (!this.#ordersStore.list.hasValue()) {
-      return {
-        todayRevenue: 0,
-        yesterdayRevenue: 0,
-        weeklyRevenue: 0,
-        dailyRevenues: [],
-        maxDayRevenue: 0,
-      };
-    }
-
-    const allOrders = this.#ordersStore.list.value() ?? [];
-    const now = new Date();
-
-    const formatDate = (date: Date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    const todayStr = formatDate(now);
-
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const yesterdayStr = formatDate(yesterday);
-
-    const currentDay = now.getDay();
-    const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - distanceToMonday);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    let todayRevenue = 0;
-    let yesterdayRevenue = 0;
-    let weeklyRevenue = 0;
-
-    const dailyRevenues: { dayName: string; amount: number; dateStr: string }[] = [];
-    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      dailyRevenues.push({
-        dayName: days[i],
-        amount: 0,
-        dateStr: formatDate(d),
-      });
-    }
-
-    allOrders.forEach((order) => {
-      if (order.status !== OrderStatus.CLOSED) return;
-      if (!order.createdAt) return;
-
-      const orderDate = new Date(order.createdAt);
-      const orderDateStr = formatDate(orderDate);
-
-      if (orderDateStr === todayStr) {
-        todayRevenue += order.totalAmount;
-      }
-      if (orderDateStr === yesterdayStr) {
-        yesterdayRevenue += order.totalAmount;
-      }
-      if (orderDate >= startOfWeek) {
-        weeklyRevenue += order.totalAmount;
-      }
-
-      const dayIndex = dailyRevenues.findIndex((dr) => dr.dateStr === orderDateStr);
-      if (dayIndex !== -1) {
-        dailyRevenues[dayIndex].amount += order.totalAmount;
-      }
-    });
-
-    const maxDayRevenue = Math.max(...dailyRevenues.map((dr) => dr.amount), 1);
-
-    return {
-      todayRevenue,
-      yesterdayRevenue,
-      weeklyRevenue,
-      dailyRevenues,
-      maxDayRevenue,
-    };
-  });
-
   readonly chartPaths = computed(() => {
-    const stats = this.financialStats();
-    const revenues = stats.dailyRevenues;
-    const max = stats.maxDayRevenue;
+    const statsData = this.stats.value();
+    if (!statsData) {
+      return { linePath: '', areaPath: '', points: [] };
+    }
+
+    const revenues = statsData.dailyRevenues;
+    const max = statsData.maxMonthRevenue || Math.max(...revenues.map((r) => r.amount), 1);
 
     if (revenues.length === 0) {
       return { linePath: '', areaPath: '', points: [] };
@@ -297,98 +223,6 @@ export class Dashboard {
 
   readonly currentYear = computed(() => new Date().getFullYear());
   readonly currentMonthIndex = computed(() => new Date().getMonth());
-
-  readonly monthlyAndYearlyStats = computed(() => {
-    if (!this.#ordersStore.list.hasValue()) {
-      return {
-        currentMonthRevenue: 0,
-        previousMonthRevenue: 0,
-        yearlyRevenue: 0,
-        monthlyBreakdown: Array.from({ length: 12 }, (_, i) => {
-          const d = new Date(new Date().getFullYear(), i, 1);
-          const monthName = d.toLocaleDateString(navigator.language, { month: 'short' }).replace('.', '');
-          return {
-            monthIndex: i,
-            monthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
-            amount: 0,
-          };
-        }),
-        percentageChange: 0,
-        isPositiveChange: true,
-        maxMonthRevenue: 1,
-      };
-    }
-
-    const allOrders = this.#ordersStore.list.value() ?? [];
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    let currentMonthRevenue = 0;
-    let previousMonthRevenue = 0;
-    let yearlyRevenue = 0;
-
-    let prevMonth = currentMonth - 1;
-    let prevMonthYear = currentYear;
-    if (prevMonth < 0) {
-      prevMonth = 11;
-      prevMonthYear = currentYear - 1;
-    }
-
-    const monthlyBreakdown = Array.from({ length: 12 }, (_, i) => {
-      const d = new Date(currentYear, i, 1);
-      const monthName = d.toLocaleDateString(navigator.language, { month: 'short' }).replace('.', '');
-      return {
-        monthIndex: i,
-        monthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
-        amount: 0,
-      };
-    });
-
-    allOrders.forEach((order) => {
-      if (order.status !== OrderStatus.CLOSED) return;
-      if (!order.createdAt) return;
-
-      const orderDate = new Date(order.createdAt);
-      const orderYear = orderDate.getFullYear();
-      const orderMonth = orderDate.getMonth();
-
-      if (orderYear === currentYear) {
-        yearlyRevenue += order.totalAmount;
-        monthlyBreakdown[orderMonth].amount += order.totalAmount;
-
-        if (orderMonth === currentMonth) {
-          currentMonthRevenue += order.totalAmount;
-        }
-      }
-
-      if (orderYear === prevMonthYear && orderMonth === prevMonth) {
-        previousMonthRevenue += order.totalAmount;
-      }
-    });
-
-    let percentageChange = 0;
-    let isPositiveChange = true;
-    if (previousMonthRevenue > 0) {
-      percentageChange = Math.round(((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100);
-      isPositiveChange = currentMonthRevenue >= previousMonthRevenue;
-    } else if (currentMonthRevenue > 0) {
-      percentageChange = 100;
-      isPositiveChange = true;
-    }
-
-    const maxMonthRevenue = Math.max(...monthlyBreakdown.map((m) => m.amount), 1);
-
-    return {
-      currentMonthRevenue,
-      previousMonthRevenue,
-      yearlyRevenue,
-      monthlyBreakdown,
-      percentageChange: Math.abs(percentageChange),
-      isPositiveChange,
-      maxMonthRevenue,
-    };
-  });
 }
 
 export default Dashboard;
