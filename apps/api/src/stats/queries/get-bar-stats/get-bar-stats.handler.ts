@@ -1,8 +1,10 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { BarStats, DailyRevenue, MonthlyRevenue } from '@coaster/common';
+import { Injectable } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { StatsRepository } from '../../data-access/stats.repository';
 import { GetBarStatsQuery } from './get-bar-stats.query';
 
+@Injectable()
 @QueryHandler(GetBarStatsQuery)
 export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarStats> {
   constructor(private readonly _statsRepository: StatsRepository) {}
@@ -11,14 +13,11 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-11
-    
+
     // Previous Year Start (to calculate previous month if current month is January)
     const startOfPrevYear = new Date(currentYear - 1, 0, 1);
 
-    const closedOrders = await this._statsRepository.findClosedOrdersForStats(
-      query.barId,
-      startOfPrevYear
-    );
+    const closedOrders = await this._statsRepository.findClosedOrdersForStats(query.barId, startOfPrevYear);
 
     const formatDate = (date: Date) => {
       const y = date.getFullYear();
