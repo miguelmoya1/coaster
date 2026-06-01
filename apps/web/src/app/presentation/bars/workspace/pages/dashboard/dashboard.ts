@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input } f
 import { RouterLink } from '@angular/router';
 import { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
-import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
@@ -21,10 +20,11 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
+import { Loading } from '../../../../components/loading/loading';
 
 @Component({
   selector: 'coaster-dashboard',
-  imports: [TranslatePipe, NgIcon, RouterLink, InventoryItemCard, PricePipe],
+  imports: [TranslatePipe, NgIcon, RouterLink, InventoryItemCard, PricePipe, Loading],
   templateUrl: './dashboard.html',
   viewProviders: [
     provideIcons({
@@ -47,7 +47,6 @@ export class Dashboard {
   readonly #productsStore = inject(ProductsStore);
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
-  readonly #ordersStore = inject(OrdersStore);
   readonly #statsStore = inject(StatsStore);
 
   public readonly stats = this.#statsStore.stats;
@@ -66,7 +65,6 @@ export class Dashboard {
       this.#membersStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
       this.#shiftsStore.setBarId(barId);
-      this.#ordersStore.setBarId(barId);
       this.#statsStore.setBarId(barId);
     });
   }
@@ -114,6 +112,9 @@ export class Dashboard {
   });
 
   readonly totalAssignedToday = computed(() => {
+    if (!this.#shiftsStore.shifts.hasValue()) {
+      return 0;
+    }
     return this.#shiftsStore.shifts.value()?.length ?? 0;
   });
 
@@ -180,6 +181,9 @@ export class Dashboard {
   });
 
   readonly chartPaths = computed(() => {
+    if (!this.stats.hasValue()) {
+      return { linePath: '', areaPath: '', points: [] };
+    }
     const statsData = this.stats.value();
     if (!statsData) {
       return { linePath: '', areaPath: '', points: [] };

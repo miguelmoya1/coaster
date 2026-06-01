@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MembersStore } from '@coaster/members';
-import { OrdersStore } from '@coaster/orders';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
@@ -41,15 +40,6 @@ describe('Dashboard', () => {
     setDateRange: vi.fn(),
   };
 
-  const ordersStoreMock = {
-    list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
-    },
-    setBarId: vi.fn(),
-  };
-
   const statsStoreMock = {
     stats: {
       value: vi.fn().mockReturnValue({
@@ -80,7 +70,6 @@ describe('Dashboard', () => {
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
-        { provide: OrdersStore, useValue: ordersStoreMock },
         { provide: StatsStore, useValue: statsStoreMock },
       ],
     }).compileComponents();
