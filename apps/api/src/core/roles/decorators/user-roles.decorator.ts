@@ -1,4 +1,4 @@
-import { Role } from '@coaster/common';
+import { Role } from '../..';
 import { SetMetadata } from '@nestjs/common';
 
 export const USER_ROLES_KEY = 'user_roles';

@@ -1,13 +1,10 @@
-import { ShiftExchangeStatus } from '../constants/shift-exchange-status.enum';
+import { ShiftExchangeStatus } from '../constants/shift-exchange-status.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
 
 export type ShiftId = Brand<string, 'ShiftId'>;
 export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
-
-export const asShiftId = (id: string): ShiftId => id as ShiftId;
-export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
 
 export interface Shift {
   id: ShiftId;

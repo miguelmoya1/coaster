@@ -1,8 +1,10 @@
-import { asBarRole, BarPermission, ErrorCodes, hasPermission } from '@coaster/common';
+import { asBarRole, ErrorCodes, hasPermission } from '../..';
+import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
+
 
 interface RequestWithUser {
   user: { id: string };

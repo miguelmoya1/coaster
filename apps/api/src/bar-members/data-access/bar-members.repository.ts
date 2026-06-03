@@ -1,4 +1,4 @@
-import { BarId } from '@coaster/common';
+import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaService } from '../../core';
 
@@ -7,17 +7,17 @@ export class BarMembersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findBarById(barId: BarId) {
-    return this.prisma.bar.findUnique({ where: { id: barId } });
+    return this.prisma.dbBar.findUnique({ where: { id: barId } });
   }
 
   async inviteMember(
     barId: BarId,
     email: string,
-    createBarMemberDto: Omit<Prisma.BarMemberCreateInput, 'bar' | 'user'>,
+    createBarMemberDto: Omit<Prisma.DbBarMemberCreateInput, 'bar' | 'user'>,
   ) {
     const nameFromEmail = email.split('@')[0];
 
-    const user = await this.prisma.user.upsert({
+    const user = await this.prisma.dbUser.upsert({
       where: { email },
       update: {},
       create: {
@@ -26,7 +26,7 @@ export class BarMembersRepository {
       },
     });
 
-    return this.prisma.barMember.create({
+    return this.prisma.dbBarMember.create({
       data: {
         ...createBarMemberDto,
         bar: { connect: { id: barId } },
@@ -41,7 +41,7 @@ export class BarMembersRepository {
   }
 
   async getMembersByBar(barId: BarId) {
-    return this.prisma.barMember.findMany({
+    return this.prisma.dbBarMember.findMany({
       where: { barId, active: true },
       include: {
         user: {
@@ -51,8 +51,8 @@ export class BarMembersRepository {
     });
   }
 
-  async getMemberByUserAndBar(userId: string, barId: string) {
-    return this.prisma.barMember.findUnique({
+  async getMemberByUserAndBar(userId: UserId, barId: BarId) {
+    return this.prisma.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId,
@@ -67,8 +67,8 @@ export class BarMembersRepository {
     });
   }
 
-  async removeMember(memberId: string) {
-    return this.prisma.barMember.delete({
+  async removeMember(memberId: BarMemberId) {
+    return this.prisma.dbBarMember.delete({
       where: { id: memberId },
     });
   }

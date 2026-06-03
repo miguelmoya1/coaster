@@ -1,12 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  asBarId,
-  asShiftExchangeId,
-  asShiftId,
-  asUserId,
-  ShiftExchange,
-  ShiftExchangeStatus,
-} from '@coaster/common';
+import type { ShiftExchange } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { AcceptExchange } from './accept-exchange';

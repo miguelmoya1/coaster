@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, OrderId, TableId, asOrderId, asProductId, asTableId } from '@coaster/common';
+import type { BarId, OrderId, TableId } from '@coaster/common';
+import { asOrderId, asProductId, asTableId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';

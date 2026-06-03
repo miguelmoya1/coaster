@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCopy, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BarRole, Shift } from '@coaster/common';
+import type { Shift, BarRole } from '@coaster/common';
 
 export interface WeeklyShiftItem extends Shift {
   timeRange: string;

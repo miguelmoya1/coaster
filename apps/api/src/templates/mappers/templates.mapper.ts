@@ -1,4 +1,4 @@
-import { ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
 import { CategoryTemplate, ProductTemplate } from '../../core';
 
 export class TemplatesMapper {

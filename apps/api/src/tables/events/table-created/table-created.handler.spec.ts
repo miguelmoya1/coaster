@@ -1,4 +1,5 @@
-import { asBarId, SocketEvents, Table } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { asBarId, SocketEvents } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarGateway } from '../../../core';

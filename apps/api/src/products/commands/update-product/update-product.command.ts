@@ -1,4 +1,4 @@
-import { BarId, ProductId, UpdateProductDto } from '@coaster/common';
+import type { BarId, ProductId, UpdateProductDto } from '@coaster/common';
 
 export class UpdateProductCommand {
   constructor(

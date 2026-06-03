@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';

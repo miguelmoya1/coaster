@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { RosterMonthlyGrid, MonthlyDayItem, MonthlyShiftItem } from './roster-monthly-grid';
-import { asShiftId } from '@coaster/common';
+import { asShiftId } from '@coaster/core';
 import { describe, expect, it, beforeEach } from 'vitest';
 
 describe('RosterMonthlyGrid', () => {

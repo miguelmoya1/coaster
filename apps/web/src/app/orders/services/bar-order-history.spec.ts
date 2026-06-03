@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
 import { BarOrderHistory } from './bar-order-history';

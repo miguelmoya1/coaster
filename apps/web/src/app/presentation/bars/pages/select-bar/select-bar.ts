@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { Role } from '@coaster/common';
+import { Role } from '@coaster/core';
 import { CurrentUser } from '@coaster/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle, lucideSettings } from '@ng-icons/lucide';

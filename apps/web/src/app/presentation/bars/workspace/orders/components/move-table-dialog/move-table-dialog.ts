@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Table, TableStatus } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DialogComponent } from '../../../components/dialog/dialog.component';
 

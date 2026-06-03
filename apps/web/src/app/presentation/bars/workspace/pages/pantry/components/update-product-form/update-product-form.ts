@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
-import { asCategoryId, Category, UpdateProductDto } from '@coaster/common';
+import type { Category, UpdateProductDto } from '@coaster/common';
+import { asCategoryId } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CoasterBtn } from '../../../../../../components/button/button';

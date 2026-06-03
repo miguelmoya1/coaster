@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, CategoryId, UpdateCategoryDto } from '@coaster/common';
+import type { BarId, CategoryId, UpdateCategoryDto } from '@coaster/common';
 import { CategoryRepository } from '../data-access/category-repository';
 
 @Injectable({

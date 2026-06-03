@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

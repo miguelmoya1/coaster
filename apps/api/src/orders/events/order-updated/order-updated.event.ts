@@ -1,4 +1,4 @@
-import { BarId, Order } from '@coaster/common';
+import type { BarId, Order } from '@coaster/common';
 
 export class OrderUpdatedEvent {
   constructor(

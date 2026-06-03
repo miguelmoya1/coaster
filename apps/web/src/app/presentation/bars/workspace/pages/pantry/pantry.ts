@@ -11,7 +11,8 @@ import {
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId, BarPermission, Category } from '@coaster/common';
+import type { BarId, Category } from '@coaster/common';
+import { BarPermission } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';

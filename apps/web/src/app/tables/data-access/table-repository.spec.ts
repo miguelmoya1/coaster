@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TableRepository } from './table-repository';
 

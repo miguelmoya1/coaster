@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
 
 @Pipe({

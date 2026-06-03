@@ -1,17 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import {
-  asBarId,
-  asOrderId,
-  asOrderItemId,
-  asProductId,
-  asTableId,
-  DeliveryStatus,
-  Order,
-  OrderStatus,
-  PaymentStatus,
-} from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
 import { OrderRepository } from './order-repository';
 
 describe('OrderRepository', () => {

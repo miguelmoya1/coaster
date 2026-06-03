@@ -1,8 +1,8 @@
-import { asBarId, asUserId, BarRole, Role } from '@coaster/common';
+import { Role } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EmailService } from '../../../core';
+import { asBarId, asUserId, EmailService } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';
@@ -34,7 +34,7 @@ describe('InviteMemberHandler', () => {
     name: 'Admin Name',
     email: 'admin@test.com',
     active: true,
-    role: Role.USER,
+    role: 'USER' as Role,
   };
 
   it('should invite and send email', async () => {
@@ -49,7 +49,7 @@ describe('InviteMemberHandler', () => {
       id: 'new-member',
       userId: 'some-user',
       barId: 'bar-1',
-      role: BarRole.STAFF,
+      role: 'STAFF' as Role,
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -61,17 +61,15 @@ describe('InviteMemberHandler', () => {
       },
     });
 
-    const result = await handler.execute(
-      new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser),
-    );
+    const result = await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', 'STAFF', fakeUser));
 
-    expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: BarRole.STAFF });
+    expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
     expect(emailService.sendInviteEmail).toHaveBeenCalledWith('new@test.com', 'Test Bar', 'Admin Name');
     expect(result).toEqual({
       id: 'new-member',
       userId: 'some-user',
       barId: 'bar-1',
-      role: BarRole.STAFF,
+      role: 'STAFF' as Role,
       permissions: expect.any(Array),
       active: true,
       userName: 'User',
@@ -84,7 +82,7 @@ describe('InviteMemberHandler', () => {
     repository.findBarById.mockResolvedValue(null);
 
     await expect(
-      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)),
+      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', 'STAFF', fakeUser)),
     ).rejects.toThrow(NotFoundException);
   });
 });

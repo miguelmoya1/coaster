@@ -1,4 +1,4 @@
-import { BarRole, ErrorCodes, ShiftExchangeStatus } from '@coaster/common';
+import { BarRole, ErrorCodes, ShiftExchangeStatus } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../core';

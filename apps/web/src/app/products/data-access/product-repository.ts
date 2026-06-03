@@ -1,14 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import {
-  BarId,
-  CreateProductDto,
-  CreateResponse,
-  DeleteResponse,
-  ProductId,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
+import type { BarId, CreateProductDto, CreateResponse, DeleteResponse, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 

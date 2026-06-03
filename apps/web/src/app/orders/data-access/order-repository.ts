@@ -1,18 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import {
-  AddOrderItemsDto,
-  BarId,
-  BulkUpdateDto,
-  CreateOrderDto,
-  CreateResponse,
-  DeleteResponse,
-  MergeOrdersDto,
-  MoveTableDto,
-  Order,
-  OrderId,
-  OrderItemId,
-} from '@coaster/common';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, CreateResponse, DeleteResponse, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { orderMapper } from '../mappers/order.mapper';
 

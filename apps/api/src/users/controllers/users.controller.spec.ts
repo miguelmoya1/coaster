@@ -1,4 +1,5 @@
-import { asUserId } from '@coaster/common';
+import { asUserId } from '../../core';
+import type { Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -31,14 +32,14 @@ describe('UsersController', () => {
   });
 
   it('findMe should return the user directly using mappers', () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as Role };
     const result = controller.findMe(user);
     expect(result.id).toBe(user.id);
   });
 
   it('updateMe should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'user-1', name: 'New Name' });
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as Role };
     const dto = { name: 'New Name' };
 
     const result = await controller.updateMe(user, dto);

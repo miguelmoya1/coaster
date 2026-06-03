@@ -10,7 +10,7 @@ import {
   addDays,
 } from 'date-fns';
 import { BarsStore } from '@coaster/bars';
-import { BarId, BarRole, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId, BarRole } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
@@ -167,7 +167,7 @@ export default class Roster {
       .map((shift) => ({
         ...shift,
         timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-        roleName: BarRole.STAFF,
+        roleName: 'STAFF' as BarRole,
         hasPendingExchange: this.pendingShiftIds().has(shift.id),
         isOwn: shift.userId === this.currentUserId(),
         isPast: new Date(shift.startTime) < now,
@@ -189,7 +189,7 @@ export default class Roster {
         .map((shift) => ({
           ...shift,
           timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: BarRole.STAFF,
+          roleName: 'STAFF' as BarRole,
           hasPendingExchange: this.pendingShiftIds().has(shift.id),
           isOwn: shift.userId === this.currentUserId(),
           isPast: new Date(shift.startTime) < now,
@@ -221,7 +221,7 @@ export default class Roster {
         .map((shift) => ({
           ...shift,
           timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: BarRole.STAFF,
+          roleName: 'STAFF' as BarRole,
           hasPendingExchange: this.pendingShiftIds().has(shift.id),
           isOwn: shift.userId === this.currentUserId(),
           isPast: new Date(shift.startTime) < now,
@@ -245,7 +245,7 @@ export default class Roster {
       day: this.#dateFormatter.formatDay(exchange.shiftStartTime),
       shiftPeriod: 'roster.exchanges.period_' + this.#dateFormatter.formatShiftPeriod(exchange.shiftStartTime),
       timeRange: this.#dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime),
-      roleName: BarRole.STAFF,
+      roleName: 'STAFF' as BarRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
     }));
   });

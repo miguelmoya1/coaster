@@ -1,4 +1,4 @@
-import { type Bar, type BarId, type User } from '@coaster/common';
+import type { Bar, BarId, User } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard, PermissionsGuard } from '../../core';

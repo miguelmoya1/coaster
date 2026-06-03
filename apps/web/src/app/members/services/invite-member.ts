@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, InviteBarMemberDto } from '@coaster/common';
+import type { BarId, InviteBarMemberDto } from '@coaster/common';
 import { MemberRepository } from '../data-access/member-repository';
 
 @Injectable({ providedIn: 'root' })

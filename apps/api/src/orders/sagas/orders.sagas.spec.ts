@@ -1,4 +1,5 @@
-import { asBarId, asOrderId, asProductId, Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asOrderId, asProductId } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';

@@ -1,4 +1,5 @@
-import { ErrorCodes, CreateBarDto as ICreateBarDto } from '@coaster/common';
+import type { CreateBarDto as ICreateBarDto } from '@coaster/common';
+import { ErrorCodes } from '../../core';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateBarDto implements ICreateBarDto {

@@ -1,4 +1,5 @@
-import { asBarId, Order, TableId } from '@coaster/common';
+import type { Order, TableId } from '@coaster/common';
+import { asBarId, asTableId, asProductId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -32,7 +33,7 @@ describe('CreateOrderHandler', () => {
   });
 
   const barId = asBarId('bar-1');
-  const dto = { items: [{ productId: 'prod-1', quantity: 2 }], tableId: 'table-1' };
+  const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }], tableId: asTableId('table-1') };
 
   it('should throw NotFoundException if products not found', async () => {
     repository.findProductsByIds.mockResolvedValue([]);

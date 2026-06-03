@@ -1,4 +1,4 @@
-import { BarStats, DailyRevenue, MonthlyRevenue } from '@coaster/common';
+import type { BarStats, DailyRevenue, MonthlyRevenue } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { StatsRepository } from '../../data-access/stats.repository';

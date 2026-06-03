@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarId, BarMember } from '@coaster/common';
+import type { BarId, BarMember } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';

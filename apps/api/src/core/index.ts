@@ -11,3 +11,7 @@ export * from './roles/guards/user-roles.guard';
 export * from './permissions/decorators/permissions.decorator';
 export * from './permissions/guards/permissions.guard';
 export * from './websockets/bar.gateway';
+export * from './utils/brands';
+export * from './permissions/bar-member.security';
+export * from './constants';
+

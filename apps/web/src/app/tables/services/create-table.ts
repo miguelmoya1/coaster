@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateTableDto } from '@coaster/common';
+import type { BarId, CreateTableDto } from '@coaster/common';
 import { TableRepository } from '../data-access/table-repository';
 
 @Injectable({

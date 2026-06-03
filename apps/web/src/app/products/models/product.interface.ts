@@ -1,4 +1,4 @@
-import { Product as CommonProduct } from '@coaster/common';
+import type { Product as CommonProduct } from '@coaster/common';
 
 export type StockStatus = 'GOOD' | 'WARNING' | 'ALERT';
 

@@ -2,7 +2,7 @@ import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { Toast } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';

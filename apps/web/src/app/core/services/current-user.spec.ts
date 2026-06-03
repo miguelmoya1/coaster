@@ -1,7 +1,8 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asUserId, User, Role } from '@coaster/common';
+import type { User } from '@coaster/common';
+import { asUserId, Role } from '@coaster/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth, UserProfile } from './auth';
 import { CurrentUser } from './current-user';

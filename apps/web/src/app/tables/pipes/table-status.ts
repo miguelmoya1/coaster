@@ -1,12 +1,12 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { TableStatus } from '@coaster/common';
+import type { TableStatus } from '@coaster/common';
 
 @Pipe({
   name: 'tableStatus',
 })
 export class TableStatusPipe implements PipeTransform {
   transform(status: TableStatus, type: 'class' | 'icon' | 'label') {
-    const isOccupied = status === TableStatus.OCCUPIED;
+    const isOccupied = status === 'OCCUPIED';
 
     switch (type) {
       case 'class':

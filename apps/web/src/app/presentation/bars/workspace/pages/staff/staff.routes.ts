@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { BarPermission } from '@coaster/common';
+import { BarPermission } from '@coaster/core';
 import { permissionGuard } from '@coaster/core';
 
 const staffRoutes: Routes = [

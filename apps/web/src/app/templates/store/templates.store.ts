@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import type { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { GetCategoryTemplates } from '../services/get-category-templates';
 import { GetProductTemplates } from '../services/get-product-templates';

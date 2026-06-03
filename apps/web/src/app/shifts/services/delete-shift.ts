@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, ShiftId } from '@coaster/common';
+import type { BarId, ShiftId } from '@coaster/common';
 import { ShiftRepository } from '../data-access/shift-repository';
 
 @Injectable({

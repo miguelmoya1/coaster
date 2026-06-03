@@ -1,4 +1,4 @@
-import { BarId, CategoryId, ProductId } from '@coaster/common';
+import type { BarId, CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaService } from '../../core';
 

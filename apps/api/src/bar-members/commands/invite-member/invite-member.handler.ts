@@ -1,4 +1,5 @@
-import { BarMember, ErrorCodes } from '@coaster/common';
+import type { BarMember } from '@coaster/common';
+import { ErrorCodes } from '../../../core';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EmailService } from '../../../core';

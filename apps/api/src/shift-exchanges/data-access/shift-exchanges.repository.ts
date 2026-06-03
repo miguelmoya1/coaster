@@ -1,4 +1,5 @@
-import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId } from '@coaster/common';
+import type { BarId, ShiftExchangeId, ShiftId, UserId } from '@coaster/common';
+import { ShiftExchangeStatus } from '../../core';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core';
 

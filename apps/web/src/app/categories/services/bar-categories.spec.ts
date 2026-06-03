@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
 import { BarCategories } from './bar-categories';

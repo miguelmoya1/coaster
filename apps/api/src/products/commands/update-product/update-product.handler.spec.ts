@@ -1,4 +1,5 @@
-import { asBarId, asProductId, Product } from '@coaster/common';
+import type { Product } from '@coaster/common';
+import { asBarId, asProductId, asCategoryId } from '../../../core';
 import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -32,7 +33,7 @@ describe('UpdateProductHandler', () => {
 
   const barId = asBarId('bar-1');
   const productId = asProductId('prod-1');
-  const dto = { categoryId: 'cat-2', name: 'Refresco Actualizado' };
+  const dto = { categoryId: asCategoryId('cat-2'), name: 'Refresco Actualizado' };
 
   it('should throw ForbiddenException if new category does not belong to bar', async () => {
     repository.checkCategoryBelongsToBar.mockResolvedValue(false);

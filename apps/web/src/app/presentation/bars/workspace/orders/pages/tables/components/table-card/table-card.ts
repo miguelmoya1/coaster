@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Table } from '@coaster/common';
+import type { Table } from '@coaster/common';
 import { TableStatusPipe } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';

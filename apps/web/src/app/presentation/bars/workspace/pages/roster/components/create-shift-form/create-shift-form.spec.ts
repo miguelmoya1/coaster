@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import type { BarMember } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/core';
 import { ShiftsStore } from '@coaster/shifts';
 import { signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';

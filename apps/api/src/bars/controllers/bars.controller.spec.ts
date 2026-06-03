@@ -1,4 +1,5 @@
-import { asBarId, asUserId } from '@coaster/common';
+import { asBarId, asUserId } from '../../core';
+import type { Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -39,7 +40,7 @@ describe('BarsController', () => {
 
   it('createBar should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'bar-1' });
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as Role };
     const dto = { name: 'El Bar' };
 
     await controller.createBar(dto, user);
@@ -49,7 +50,7 @@ describe('BarsController', () => {
 
   it('getBars should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as Role };
 
     await controller.getBars(user);
 

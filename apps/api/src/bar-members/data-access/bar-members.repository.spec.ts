@@ -1,7 +1,6 @@
-import { asBarId, BarRole } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { PrismaService } from '../../core';
+import { asBarId, DbBarRole, PrismaService } from '../../core';
 import { BarMembersRepository } from './bar-members.repository';
 
 describe('BarMembersRepository', () => {
@@ -43,7 +42,7 @@ describe('BarMembersRepository', () => {
       prisma.user.upsert.mockResolvedValue({ id: 'new-user' });
       prisma.barMember.create.mockResolvedValue({ id: 'member-1' });
 
-      const result = await repository.inviteMember(asBarId('bar-1'), 'new@test.com', { role: BarRole.STAFF });
+      const result = await repository.inviteMember(asBarId('bar-1'), 'new@test.com', { role: DbBarRole.STAFF });
 
       expect(prisma.user.upsert).toHaveBeenCalledWith({
         where: { email: 'new@test.com' },
@@ -51,7 +50,7 @@ describe('BarMembersRepository', () => {
         create: { email: 'new@test.com', name: 'new' },
       });
       expect(prisma.barMember.create).toHaveBeenCalledWith({
-        data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: BarRole.STAFF },
+        data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: DbBarRole.STAFF },
         include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
       });
       expect(result).toEqual({ id: 'member-1' });

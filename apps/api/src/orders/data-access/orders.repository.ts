@@ -1,4 +1,4 @@
-import { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core';
 

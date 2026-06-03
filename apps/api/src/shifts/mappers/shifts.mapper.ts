@@ -1,4 +1,5 @@
-import { asBarId, asShiftId, asUserId, Shift as IShift } from '@coaster/common';
+import type { Shift as IShift } from '@coaster/common';
+import { asBarId, asShiftId, asUserId } from '../../core';
 import { Shift as ShiftDb } from '../../core';
 
 export type ShiftWithUser = ShiftDb & { user: { id: string; name: string; photoUrl: string | null } | null };

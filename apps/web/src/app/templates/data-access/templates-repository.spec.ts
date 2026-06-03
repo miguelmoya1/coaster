@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { TemplatesRepository } from './templates-repository';
 
 describe('TemplatesRepository', () => {

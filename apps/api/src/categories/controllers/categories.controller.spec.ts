@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asBarId, asCategoryId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -58,7 +58,7 @@ describe('CategoriesController', () => {
     commandBus.execute.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
     const dto = { name: 'Bebidas' };
 
-    await controller.updateCategory(asBarId('bar-1'), 'cat-1', dto);
+    await controller.updateCategory(asBarId('bar-1'), asCategoryId('cat-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateCategoryCommand));
   });

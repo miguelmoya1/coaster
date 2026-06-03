@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateBarDto, CreateResponse } from '@coaster/common';
+import type { BarId, CreateBarDto, CreateResponse } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({

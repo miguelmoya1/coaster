@@ -1,15 +1,5 @@
-import {
-  asBarId,
-  asDeliveryStatus,
-  asOrderId,
-  asOrderItemId,
-  asOrderStatus,
-  asPaymentStatus,
-  asProductId,
-  asTableId,
-  Order,
-  OrderItem,
-} from '@coaster/common';
+import type { Order, OrderItem } from '@coaster/common';
+import { asBarId, asDeliveryStatus, asOrderId, asOrderItemId, asOrderStatus, asPaymentStatus, asProductId, asTableId } from '../../core';
 import { Order as OrderDb, OrderItem as OrderItemDb } from '../../core';
 
 type OrderItemWithProduct = OrderItemDb & {

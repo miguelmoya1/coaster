@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asTableId, Table, TableStatus } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { asBarId, asTableId, TableStatus } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TableRepository } from '../data-access/table-repository';
 import { CreateTable } from './create-table';

@@ -1,7 +1,7 @@
 import { Component, inject, input, linkedSignal, output } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { CategoriesStore } from '@coaster/categories';
-import { Category } from '@coaster/common';
+import type { Category } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn } from '../../../../../../components/button/button';
 import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';

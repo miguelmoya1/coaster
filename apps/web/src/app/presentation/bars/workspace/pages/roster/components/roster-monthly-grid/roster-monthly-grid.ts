@@ -1,7 +1,7 @@
 import { SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ShiftId } from '@coaster/common';
+import type { ShiftId } from '@coaster/common';
 
 export interface MonthlyShiftItem {
   id: ShiftId;

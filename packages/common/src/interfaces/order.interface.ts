@@ -1,6 +1,6 @@
-import { DeliveryStatus } from '../constants/delivery-status.enum';
-import { OrderStatus } from '../constants/order-status.enum';
-import { PaymentStatus } from '../constants/payment-status.enum';
+import { DeliveryStatus } from '../constants/delivery-status.type';
+import { OrderStatus } from '../constants/order-status.type';
+import { PaymentStatus } from '../constants/payment-status.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ProductId } from './product.interface';
@@ -8,9 +8,6 @@ import { TableId } from './table.interface';
 
 export type OrderId = Brand<string, 'OrderId'>;
 export type OrderItemId = Brand<string, 'OrderItemId'>;
-
-export const asOrderId = (id: string): OrderId => id as OrderId;
-export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;
 
 export interface OrderItem {
   id: OrderItemId;

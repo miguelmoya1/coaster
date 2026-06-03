@@ -1,4 +1,5 @@
-import { asBarId, asOrderId, asOrderItemId, type Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId, asTableId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -134,7 +135,7 @@ describe('OrdersController', () => {
 
   it('moveTable should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(mockOrder);
-    const dto = { tableId: 'table-2' };
+    const dto = { tableId: asTableId('table-2') };
 
     const result = await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
 

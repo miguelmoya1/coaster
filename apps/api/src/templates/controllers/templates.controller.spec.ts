@@ -1,4 +1,4 @@
-import { asCategoryId } from '@coaster/common';
+import { asCategoryId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

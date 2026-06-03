@@ -1,5 +1,5 @@
-import { BarPermission } from '@coaster/common';
-import { ForbiddenException } from '@nestjs/common';
+import { BarPermission } from '../..';
+import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, Mocked, vi } from 'vitest';
@@ -35,7 +35,7 @@ describe('PermissionsGuard', () => {
     switchToHttp: () => ({
       getRequest: () => ({ user, params: { barId } }),
     }),
-  });
+  }) as unknown as ExecutionContext;
 
   it('should allow access if no permissions are required and no barId is present', async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);

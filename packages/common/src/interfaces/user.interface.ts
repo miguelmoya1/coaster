@@ -1,9 +1,7 @@
-import { Role } from '../constants/role.enum';
+import { Role } from '../constants/role.type';
 import { Brand } from './brand.type';
 
 export type UserId = Brand<string, 'UserId'>;
-
-export const asUserId = (id: string): UserId => id as UserId;
 
 export interface User {
   id: UserId;

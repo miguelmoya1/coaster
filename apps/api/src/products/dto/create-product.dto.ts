@@ -1,4 +1,5 @@
-import { type CategoryId, ErrorCodes, CreateProductDto as ICreateProductDto } from '@coaster/common';
+import type { CategoryId, CreateProductDto as ICreateProductDto } from '@coaster/common';
+import { ErrorCodes } from '../../core';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProductDto implements ICreateProductDto {

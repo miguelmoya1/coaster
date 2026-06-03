@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarPermission } from '@coaster/common';
+import { BarPermission } from '@coaster/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { permissionGuard } from './permission.guard';

@@ -1,4 +1,4 @@
-import { SocketEvents } from '@coaster/common';
+import { SocketEvents } from '../../../core';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { BarGateway } from '../../../core';
 import { OrderCreatedEvent } from './order-created.event';

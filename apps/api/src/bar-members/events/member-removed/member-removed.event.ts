@@ -1,4 +1,4 @@
-import { BarId, BarMemberId } from '@coaster/common';
+import type { BarId, BarMemberId } from '@coaster/common';
 
 export class MemberRemovedEvent {
   constructor(

@@ -1,4 +1,4 @@
-import { Category } from '@coaster/common';
+import type { Category } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { CategoriesMapper } from '../../mappers/categories.mapper';

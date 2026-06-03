@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';

@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asBarId, asCategoryId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

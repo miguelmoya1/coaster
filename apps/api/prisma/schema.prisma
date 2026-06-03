@@ -13,187 +13,220 @@ datasource db {
   provider = "postgresql"
 }
 
-enum BarRole {
+enum DbBarRole {
   OWNER
   STAFF
+
+  @@map("BarRole")
 }
 
-enum Role {
+enum DbRole {
   USER
   ADMIN
+
+  @@map("Role")
 }
 
-enum TableStatus {
+enum DbTableStatus {
   FREE
   OCCUPIED
+
+  @@map("TableStatus")
 }
 
-enum OrderStatus {
+enum DbOrderStatus {
   OPEN
   CLOSED
   CANCELLED
+
+  @@map("OrderStatus")
 }
 
-enum PaymentStatus {
+enum DbPaymentStatus {
   PENDING
   PARTIAL
   PAID
+
+  @@map("PaymentStatus")
 }
 
-enum DeliveryStatus {
+enum DbDeliveryStatus {
   PENDING
   PARTIAL
   SERVED
+
+  @@map("DeliveryStatus")
 }
 
-model User {
-  id             String          @id @default(uuid())
-  email          String          @unique
-  googleId       String?         @unique
+model DbUser {
+  id             String            @id @default(uuid())
+  email          String            @unique
+  googleId       String?           @unique
   name           String
   photoUrl       String?
-  active         Boolean         @default(true)
-  role           Role            @default(USER)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  memberships    BarMember[]
-  shifts         Shift[]
-  shiftRequests  ShiftExchange[] @relation("Requester")
-  shiftApprovals ShiftExchange[] @relation("Target")
+  active         Boolean           @default(true)
+  role           DbRole            @default(USER)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  memberships    DbBarMember[]
+  shifts         DbShift[]
+  shiftRequests  DbShiftExchange[] @relation("Requester")
+  shiftApprovals DbShiftExchange[] @relation("Target")
+
+  @@map("User")
 }
 
-model Bar {
-  id         String      @id @default(uuid())
+model DbBar {
+  id         String        @id @default(uuid())
   name       String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  members    BarMember[]
-  shifts     Shift[]
-  categories Category[]
-  tables     Table[]
-  orders     Order[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  members    DbBarMember[]
+  shifts     DbShift[]
+  categories DbCategory[]
+  tables     DbTable[]
+  orders     DbOrder[]
+
+  @@map("Bar")
 }
 
-model BarMember {
-  id        String   @id @default(uuid())
+model DbBarMember {
+  id        String    @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      DbUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
   barId     String
-  bar       Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
-  role      BarRole  @default(STAFF)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  bar       DbBar     @relation(fields: [barId], references: [id], onDelete: Cascade)
+  role      DbBarRole @default(STAFF)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([userId, barId])
 }
 
-model Shift {
-  id        String   @id @default(uuid())
+model DbShift {
+  id        String           @id @default(uuid())
   startTime DateTime
   endTime   DateTime
-
-  userId   String
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barId    String
-  bar      Bar            @relation(fields: [barId], references: [id], onDelete: Cascade)
-  notes    String?
-  exchange ShiftExchange?
+  userId    String
+  user      DbUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId     String
+  bar       DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  notes     String?
+  exchange  DbShiftExchange?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("Shift")
 }
 
-model ShiftExchange {
+model DbShiftExchange {
   id          String   @id @default(uuid())
   shiftId     String   @unique
-  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shift       DbShift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   requesterId String
-  requester   User     @relation("Requester", fields: [requesterId], references: [id])
+  requester   DbUser   @relation("Requester", fields: [requesterId], references: [id])
   targetId    String?
-  target      User?    @relation("Target", fields: [targetId], references: [id])
+  target      DbUser?  @relation("Target", fields: [targetId], references: [id])
   status      String   @default("PENDING")
   createdAt   DateTime @default(now())
+
+  @@map("ShiftExchange")
 }
 
-model Category {
-  id       String    @id @default(uuid())
+model DbCategory {
+  id       String      @id @default(uuid())
   barId    String
-  bar      Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  bar      DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
   name     String
   icon     String?
-  products Product[]
+  products DbProduct[]
+
+  @@map("Category")
 }
 
-model Product {
-  id            String      @id @default(uuid())
+model DbProduct {
+  id            String        @id @default(uuid())
   name          String
-  price         Int         @default(0)
+  price         Int           @default(0)
   categoryId    String
-  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  currentStock  Int         @default(0)
-  minStockAlert Int         @default(0)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  orderItems    OrderItem[]
+  category      DbCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  currentStock  Int           @default(0)
+  minStockAlert Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  orderItems    DbOrderItem[]
+
+  @@map("Product")
 }
 
-model CategoryTemplate {
-  id        String            @id @default(uuid())
+model DbCategoryTemplate {
+  id        String              @id @default(uuid())
   name      String
   icon      String?
-  products  ProductTemplate[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  products  DbProductTemplate[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@map("CategoryTemplate")
 }
 
-model ProductTemplate {
-  id         String           @id @default(uuid())
+model DbProductTemplate {
+  id         String             @id @default(uuid())
   name       String
-  price      Int              @default(0)
+  price      Int                @default(0)
   categoryId String
-  category   CategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  category   DbCategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@map("ProductTemplate")
 }
 
-model Table {
-  id        String      @id @default(uuid())
+model DbTable {
+  id        String        @id @default(uuid())
   name      String
-  status    TableStatus @default(FREE)
+  status    DbTableStatus @default(FREE)
   barId     String
-  bar       Bar         @relation(fields: [barId], references: [id], onDelete: Cascade)
-  orders    Order[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  bar       DbBar         @relation(fields: [barId], references: [id], onDelete: Cascade)
+  orders    DbOrder[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("Table")
 }
 
-model Order {
-  id          String      @id @default(uuid())
+model DbOrder {
+  id          String        @id @default(uuid())
   barId       String
-  bar         Bar         @relation(fields: [barId], references: [id], onDelete: Cascade)
+  bar         DbBar         @relation(fields: [barId], references: [id], onDelete: Cascade)
   tableId     String?
-  table       Table?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  table       DbTable?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
   tableName   String?
-  status      OrderStatus @default(OPEN)
-  totalAmount Int         @default(0)
-  items       OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  status      DbOrderStatus @default(OPEN)
+  totalAmount Int           @default(0)
+  items       DbOrderItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("Order")
 }
 
-model OrderItem {
-  id              String         @id @default(uuid())
+model DbOrderItem {
+  id              String           @id @default(uuid())
   orderId         String
-  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order           DbOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId       String
-  product         Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product         DbProduct        @relation(fields: [productId], references: [id], onDelete: Restrict)
   quantity        Int
   priceAtPurchase Int
-  paidQuantity    Int            @default(0)
-  servedQuantity  Int            @default(0)
-  paymentStatus   PaymentStatus  @default(PENDING)
-  deliveryStatus  DeliveryStatus @default(PENDING)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  paidQuantity    Int              @default(0)
+  servedQuantity  Int              @default(0)
+  paymentStatus   DbPaymentStatus  @default(PENDING)
+  deliveryStatus  DbDeliveryStatus @default(PENDING)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("OrderItem")
 }

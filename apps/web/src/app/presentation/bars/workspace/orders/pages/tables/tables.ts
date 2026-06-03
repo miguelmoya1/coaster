@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarId, Order, Table } from '@coaster/common';
+import type { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';

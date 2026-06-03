@@ -1,4 +1,4 @@
-import { BarId, ShiftExchangeId, UserId } from '@coaster/common';
+import type { BarId, ShiftExchangeId, UserId } from '@coaster/common';
 
 export class DeleteExchangeCommand {
   constructor(

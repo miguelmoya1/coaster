@@ -1,12 +1,13 @@
-import { BarRole, ErrorCodes, InviteBarMemberDto as IInviteBarMemberDto } from '@coaster/common';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import type { BarRole, InviteBarMemberDto as IInviteBarMemberDto } from '@coaster/common';
+import { IsEmail, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
+import { ErrorCodes } from '../../core';
 
 export class InviteBarMemberDto implements IInviteBarMemberDto {
   @IsEmail({}, { message: ErrorCodes.INVALID_EMAIL })
   @IsNotEmpty({ message: ErrorCodes.REQUIRED })
-  declare email: string;
+  email!: string;
 
   @IsOptional()
-  @IsEnum(BarRole, { message: ErrorCodes.INVALID_ROLE })
-  declare role: BarRole;
+  @IsIn(['OWNER', 'STAFF'])
+  role?: BarRole;
 }

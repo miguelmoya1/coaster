@@ -2,7 +2,6 @@ import { Brand } from './brand.type';
 import { Category, CategoryId } from './category.interface';
 
 export type ProductId = Brand<string, 'ProductId'>;
-export const asProductId = (id: string): ProductId => id as ProductId;
 
 export interface Product {
   id: ProductId;

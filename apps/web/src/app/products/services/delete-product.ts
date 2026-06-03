@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BarId, ProductId } from '@coaster/common';
+import type { BarId, ProductId } from '@coaster/common';
 import { ProductRepository } from '../data-access/product-repository';
 
 @Injectable({

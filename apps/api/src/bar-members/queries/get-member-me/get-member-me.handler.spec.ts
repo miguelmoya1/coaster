@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';

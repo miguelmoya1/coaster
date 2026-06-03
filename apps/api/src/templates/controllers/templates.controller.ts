@@ -1,4 +1,5 @@
-import { BarPermission, Role, type ICategoryTemplate, type IProductTemplate } from '@coaster/common';
+import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import { BarPermission, Role } from '../../core';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard, Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';

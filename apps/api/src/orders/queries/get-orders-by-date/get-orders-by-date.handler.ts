@@ -1,4 +1,4 @@
-import { Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';

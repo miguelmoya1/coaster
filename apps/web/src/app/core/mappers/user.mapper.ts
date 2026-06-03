@@ -1,4 +1,4 @@
-import { User } from '@coaster/common';
+import type { User } from '@coaster/common';
 import { prepareDefaultProfileImage } from '../utils/user.utils';
 
 export type MappedUser = User & { photoUrl: string };

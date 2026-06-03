@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

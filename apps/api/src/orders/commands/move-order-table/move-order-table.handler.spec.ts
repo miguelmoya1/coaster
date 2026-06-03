@@ -1,4 +1,5 @@
-import { asBarId, asOrderId, Order, TableId } from '@coaster/common';
+import type { Order, TableId } from '@coaster/common';
+import { asBarId, asOrderId, asTableId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -51,7 +52,7 @@ describe('MoveOrderTableHandler', () => {
       updatedAt: new Date(),
     });
 
-    await handler.execute(new MoveOrderTableCommand(asBarId('bar-1'), asOrderId('order-1'), { tableId: 'table-2' }));
+    await handler.execute(new MoveOrderTableCommand(asBarId('bar-1'), asOrderId('order-1'), { tableId: asTableId('table-2') }));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       new OrderTableMovedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId | null, expect.any(String) as unknown as TableId),

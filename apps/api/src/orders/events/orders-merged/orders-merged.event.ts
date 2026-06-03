@@ -1,4 +1,4 @@
-import { BarId, Order, OrderId, TableId } from '@coaster/common';
+import type { BarId, Order, OrderId, TableId } from '@coaster/common';
 
 export class OrdersMergedEvent {
   constructor(

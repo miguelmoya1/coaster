@@ -1,4 +1,5 @@
-import { type BarId, BarPermission, type Table, type TableId } from '@coaster/common';
+import type { BarId, Table, TableId } from '@coaster/common';
+import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';

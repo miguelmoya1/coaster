@@ -1,4 +1,4 @@
-import { User } from '@coaster/common';
+import type { User } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../data-access/user.repository';
 import { UsersMapper } from '../../mappers/users.mapper';

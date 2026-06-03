@@ -1,4 +1,4 @@
-import { Shift } from '@coaster/common';
+import type { Shift } from '@coaster/common';
 import { prepareDefaultProfileImage } from '@coaster/core';
 
 export type MappedShift = Shift & { userImage: string };

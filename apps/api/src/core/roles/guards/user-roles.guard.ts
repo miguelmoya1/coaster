@@ -1,4 +1,4 @@
-import { asRole, ErrorCodes, Role } from '@coaster/common';
+import { asRole, ErrorCodes, Role } from '../..';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/services/prisma.service';

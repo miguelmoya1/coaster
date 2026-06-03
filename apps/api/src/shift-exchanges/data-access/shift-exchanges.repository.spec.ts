@@ -1,4 +1,4 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { PrismaService } from '../../core';

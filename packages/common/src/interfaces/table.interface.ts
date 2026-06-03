@@ -1,9 +1,8 @@
-import { TableStatus } from '../constants/table-status.enum';
+import { TableStatus } from '../constants/table-status.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 
 export type TableId = Brand<string, 'TableId'>;
-export const asTableId = (id: string): TableId => id as TableId;
 
 export interface Table {
   id: TableId;

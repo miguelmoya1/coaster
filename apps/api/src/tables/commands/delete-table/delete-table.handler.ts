@@ -1,4 +1,4 @@
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { TablesRepository } from '../../data-access/tables.repository';

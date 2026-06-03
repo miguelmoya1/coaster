@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DialogComponent } from '../../../components/dialog/dialog.component';
 import { PricePipe } from '../../../pipes/price/price';

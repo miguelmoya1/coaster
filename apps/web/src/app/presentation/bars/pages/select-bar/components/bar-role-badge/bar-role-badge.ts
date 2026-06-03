@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { BarRole } from '@coaster/common';
+import type { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -27,9 +27,9 @@ export class BarRoleBadge {
 
   public readonly dotColorClass = computed(() => {
     switch (this.role()) {
-      case BarRole.OWNER:
+      case 'OWNER':
         return 'bg-primary text-primary';
-      case BarRole.STAFF:
+      case 'STAFF':
         return 'bg-orange-500 text-orange-500';
       default:
         return 'bg-primary shadow-[0_0_8px_rgba(var(--color-primary),0.8)] text-primary';
@@ -38,9 +38,9 @@ export class BarRoleBadge {
 
   public readonly labelKey = computed(() => {
     switch (this.role()) {
-      case BarRole.OWNER:
+      case 'OWNER':
         return 'common.role.owner';
-      case BarRole.STAFF:
+      case 'STAFF':
         return 'common.role.staff';
       default:
         return 'bars.select.operational';

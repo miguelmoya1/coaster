@@ -1,4 +1,4 @@
-import { ErrorCodes, SocketEvents } from '@coaster/common';
+import { ErrorCodes, SocketEvents } from '../constants';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
@@ -14,7 +14,7 @@ describe('BarGateway', () => {
     }).compile();
 
     gateway = module.get<BarGateway>(BarGateway);
-    gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() };
+    gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() } as any;
 
     vi.spyOn(Logger.prototype, 'debug').mockImplementation(() => {
       // do nothing
@@ -25,7 +25,7 @@ describe('BarGateway', () => {
     id: 'mock-socket-id',
     join: vi.fn(),
     leave: vi.fn(),
-  });
+  }) as any;
 
   describe('handleConnection / handleDisconnect', () => {
     it('should not fail on connect', () => {
@@ -50,8 +50,8 @@ describe('BarGateway', () => {
     it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleJoinBar(socket, null)).toThrow(WsException);
-      expect(() => gateway.handleJoinBar(socket, null)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(WsException);
+      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.join).not.toHaveBeenCalled();
     });
 
@@ -76,8 +76,8 @@ describe('BarGateway', () => {
     it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleLeaveBar(socket, null)).toThrow(WsException);
-      expect(() => gateway.handleLeaveBar(socket, null)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(WsException);
+      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.leave).not.toHaveBeenCalled();
     });
   });

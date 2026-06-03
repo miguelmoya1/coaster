@@ -1,10 +1,8 @@
-import { BarRole } from '../constants/bar-role.enum';
+import { BarRole } from '../constants/bar-role.type';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
 
 export type BarId = Brand<string, 'BarId'>;
-
-export const asBarId = (id: string): BarId => id as BarId;
 
 export interface Bar {
   id: BarId;

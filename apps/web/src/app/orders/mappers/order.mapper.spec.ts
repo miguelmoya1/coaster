@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, Order, OrderStatus, PaymentStatus } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
 import { checkIsOrder, orderArrayMapper, orderMapper } from './order.mapper';
 
 describe('Order Mapper', () => {

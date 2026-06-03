@@ -1,4 +1,4 @@
-import { BarId, OrderId, OrderItemId } from '@coaster/common';
+import type { BarId, OrderId, OrderItemId } from '@coaster/common';
 
 export class RemoveOrderItemCommand {
   constructor(

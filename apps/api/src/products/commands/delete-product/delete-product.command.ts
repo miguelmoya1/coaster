@@ -1,4 +1,4 @@
-import { BarId, ProductId } from '@coaster/common';
+import type { BarId, ProductId } from '@coaster/common';
 
 export class DeleteProductCommand {
   constructor(

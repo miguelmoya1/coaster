@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Order, OrderItemId } from '@coaster/common';
+import type { Order, OrderItemId } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowRightLeft,

@@ -1,4 +1,4 @@
-import { BarId, CreateShiftDto } from '@coaster/common';
+import type { BarId, CreateShiftDto } from '@coaster/common';
 
 export class CreateShiftCommand {
   constructor(

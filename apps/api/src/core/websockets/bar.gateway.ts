@@ -1,4 +1,4 @@
-import { ErrorCodes, SocketEvents } from '@coaster/common';
+import { ErrorCodes, SocketEvents } from '../constants';
 import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,

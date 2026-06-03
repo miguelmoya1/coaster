@@ -1,4 +1,4 @@
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../..';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as admin from 'firebase-admin';

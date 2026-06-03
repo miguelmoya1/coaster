@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';

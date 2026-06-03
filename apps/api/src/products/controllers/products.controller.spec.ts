@@ -1,4 +1,5 @@
-import { asBarId, asProductId, CreateProductDto } from '@coaster/common';
+import type { CreateProductDto } from '@coaster/common';
+import { asBarId, asProductId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

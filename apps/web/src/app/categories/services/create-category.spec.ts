@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, Category } from '@coaster/common';
+import type { Category } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
 import { CreateCategory } from './create-category';

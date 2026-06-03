@@ -1,4 +1,5 @@
-import { asBarId, asProductId, Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asProductId } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { OrderItemRemovedEvent } from './order-item-removed.event';

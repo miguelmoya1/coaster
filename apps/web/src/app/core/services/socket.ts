@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Order, Product, SocketEvents, Table } from '@coaster/common';
+import type { Order, Product, Table } from '@coaster/common';
+import { SocketEvents } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 

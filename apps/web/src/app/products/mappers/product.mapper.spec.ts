@@ -1,4 +1,4 @@
-import { asCategoryId, asProductId } from '@coaster/common';
+import { asCategoryId, asProductId } from '@coaster/core';
 import { Product } from '@coaster/products';
 import { describe, expect, it } from 'vitest';
 import { checkIsProduct, productArrayMapper, productMapper } from './product.mapper';

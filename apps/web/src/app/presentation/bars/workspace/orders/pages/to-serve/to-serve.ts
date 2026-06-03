@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { BarId, BulkUpdateItemDto, OrderItem, asOrderId, asOrderItemId } from '@coaster/common';
+import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
+import { asOrderId, asOrderItemId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChefHat, lucideCoffee, lucideX } from '@ng-icons/lucide';

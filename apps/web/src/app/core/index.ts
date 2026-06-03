@@ -16,3 +16,7 @@ export * from './services/socket';
 export * from './services/toast';
 export * from './utils/errors.utils';
 export * from './utils/user.utils';
+export * from './utils/brands';
+export * from './permissions/bar-member.security';
+export * from './constants';
+

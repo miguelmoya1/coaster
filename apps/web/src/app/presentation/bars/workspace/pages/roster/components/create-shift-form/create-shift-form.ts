@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
-import { BarMember, asUserId } from '@coaster/common';
+import type { BarMember } from '@coaster/common';
+import { asUserId } from '@coaster/core';
 import { DateFormatterService } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';

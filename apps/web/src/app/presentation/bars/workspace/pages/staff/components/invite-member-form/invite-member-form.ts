@@ -1,6 +1,6 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
-import { InviteBarMemberDto } from '@coaster/common';
+import type { InviteBarMemberDto } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CoasterBtn } from '../../../../../../components/button/button';

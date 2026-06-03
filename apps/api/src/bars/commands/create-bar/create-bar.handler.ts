@@ -1,4 +1,4 @@
-import { BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BarRepository } from '../../data-access/bar.repository';
 import { BarsMapper } from '../../mappers/bars.mapper';

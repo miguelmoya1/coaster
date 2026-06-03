@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { asBarId, Bar, Role } from '@coaster/common';
+import type { Bar } from '@coaster/common';
+import { asBarId, Role } from '@coaster/core';
 import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

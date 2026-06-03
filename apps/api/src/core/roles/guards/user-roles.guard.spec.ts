@@ -1,4 +1,4 @@
-import { Role } from '@coaster/common';
+import { Role } from '../..';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';

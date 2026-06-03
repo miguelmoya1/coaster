@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BarId, CreateShiftExchangeDto, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { BarId, CreateShiftExchangeDto, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { exchangeMapper } from '../mappers/exchange.mapper';
 

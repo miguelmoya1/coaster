@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
+import type { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { categoryArrayMapper } from '../mappers/category.mapper';
 import { BarCategories } from '../services/bar-categories';
