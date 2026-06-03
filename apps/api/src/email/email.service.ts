@@ -6,12 +6,18 @@ import { Resend } from 'resend';
 export class EmailService {
   #resend: Resend;
   #logger = new Logger(EmailService.name);
+  #resendActive: boolean;
 
   constructor(private readonly _configService: ConfigService) {
     this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY'));
+    this.#resendActive = this._configService.get<string>('NODE_ENV') === 'production';
   }
 
   async sendInviteEmail(to: string, barName: string, inviterName: string) {
+    if (!this.#resendActive) {
+      this.#logger.debug('Resend is not active');
+      return;
+    }
     try {
       const template = await this.#resend.templates.get('invite-email');
 

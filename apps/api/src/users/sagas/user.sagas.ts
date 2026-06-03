@@ -12,7 +12,7 @@ export class UserSagas {
     return events$.pipe(
       ofType(PrepareUserForInviteEvent),
       map((event) => {
-        this.#logger.debug(`prepareUserForInvite ${event.email}`);
+        this.#logger.debug(`Catching PrepareUserForInviteEvent...`);
         return new PrepareUserForInviteCommand(event.email, { barId: event.barId, role: event.role });
       }),
     );

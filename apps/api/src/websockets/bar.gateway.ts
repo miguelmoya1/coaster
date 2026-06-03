@@ -1,31 +1,30 @@
-import { ErrorCodes, SocketEvents } from '../core/constants';
 import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ErrorCodes, SocketEvents } from '../core/constants';
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
+// implements OnGatewayConnection, OnGatewayDisconnect
+export class BarGateway {
   @WebSocketServer()
   declare server: Server;
 
   private readonly _logger = new Logger(BarGateway.name);
 
-  handleConnection(client: Socket) {
-    this._logger.debug(`Cliente conectado: ${client.id}`);
-  }
+  // handleConnection(client: Socket) {
+  //   // this._logger.debug(`Cliente conectado: ${client.id}`);
+  // }
 
-  handleDisconnect(client: Socket) {
-    this._logger.debug(`Cliente desconectado: ${client.id}`);
-  }
+  // handleDisconnect(client: Socket) {
+  //   // this._logger.debug(`Cliente desconectado: ${client.id}`);
+  // }
 
   @SubscribeMessage(SocketEvents.JOIN_BAR)
   handleJoinBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {

@@ -1,7 +1,6 @@
 import { UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbUserCreateInput, DbUserUpdateInput, DbService } from '../../db';;
-
+import { DbService, DbUserCreateInput, DbUserUpdateInput } from '../../db';
 @Injectable()
 export class UserRepository {
   constructor(private readonly db: DbService) {}
