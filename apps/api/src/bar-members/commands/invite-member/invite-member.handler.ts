@@ -1,5 +1,5 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { userInvitedEvent } from '../../../core';
+import { UserInvitedEvent } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 
@@ -15,6 +15,6 @@ export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand,
 
     const response = await this.repository.inviteMember(barId, userId, { role });
 
-    this.eventBus.publish(new userInvitedEvent(response.user.email, response.bar.name));
+    this.eventBus.publish(new UserInvitedEvent(response.user.name, response.user.email, response.bar.name));
   }
 }

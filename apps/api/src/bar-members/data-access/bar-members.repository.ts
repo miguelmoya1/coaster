@@ -1,13 +1,13 @@
 import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbBarMemberCreateInput, PrismaService } from '../../core';
+import { DbBarMemberCreateInput, DbService } from '../../db';
 
 @Injectable()
 export class BarMembersRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DbService) {}
 
   async isMember(barId: BarId, email: string) {
-    return this.prisma.dbBarMember.findFirst({
+    return this.db.dbBarMember.findFirst({
       where: {
         barId,
         user: { email },
@@ -16,25 +16,25 @@ export class BarMembersRepository {
   }
 
   async findBarById(barId: BarId) {
-    return this.prisma.dbBar.findUnique({ where: { id: barId } });
+    return this.db.dbBar.findUnique({ where: { id: barId } });
   }
 
   async inviteMember(barId: BarId, userId: UserId, createBarMemberDto: Omit<DbBarMemberCreateInput, 'bar' | 'user'>) {
-    return this.prisma.dbBarMember.create({
+    return this.db.dbBarMember.create({
       data: {
         ...createBarMemberDto,
         bar: { connect: { id: barId } },
         user: { connect: { id: userId } },
       },
       include: {
-        user: { select: { email: true } },
+        user: { select: { email: true, name: true } },
         bar: { select: { name: true } },
       },
     });
   }
 
   async getMembersByBar(barId: BarId) {
-    return this.prisma.dbBarMember.findMany({
+    return this.db.dbBarMember.findMany({
       where: { barId, active: true },
       include: {
         user: {
@@ -45,7 +45,7 @@ export class BarMembersRepository {
   }
 
   async getMemberByUserAndBar(userId: UserId, barId: BarId) {
-    return this.prisma.dbBarMember.findUnique({
+    return this.db.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId,
@@ -61,7 +61,7 @@ export class BarMembersRepository {
   }
 
   async removeMember(memberId: BarMemberId) {
-    return this.prisma.dbBarMember.delete({
+    return this.db.dbBarMember.delete({
       where: { id: memberId },
     });
   }

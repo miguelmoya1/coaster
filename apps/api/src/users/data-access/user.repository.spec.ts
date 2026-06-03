@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { PrismaService } from '../../core';
+import { DbService } from '../../db';;
 import { UserRepository } from './user.repository';
 
 describe('UserRepository', () => {
   let repository: UserRepository;
-  let prisma: { dbUser: { findUnique: Mock; update: Mock; upsert: Mock } };
+  let db: { dbUser: { findUnique: Mock; update: Mock; upsert: Mock } };
 
   const mockPrisma = {
     dbUser: {
@@ -17,27 +17,27 @@ describe('UserRepository', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserRepository, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [UserRepository, { provide: DbService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<UserRepository>(UserRepository);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
 
     vi.clearAllMocks();
   });
 
   describe('getById', () => {
-    it('should call prisma.dbUser.findUnique with the id', async () => {
-      prisma.dbUser.findUnique.mockResolvedValue({ id: 'u1' });
+    it('should call db.dbUser.findUnique with the id', async () => {
+      db.dbUser.findUnique.mockResolvedValue({ id: 'u1' });
 
       const result = await repository.getById('u1');
 
-      expect(prisma.dbUser.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
+      expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
       expect(result).toEqual({ id: 'u1' });
     });
 
     it('should return null if it does not exist', async () => {
-      prisma.dbUser.findUnique.mockResolvedValue(null);
+      db.dbUser.findUnique.mockResolvedValue(null);
 
       const result = await repository.getById('no-exist');
 
@@ -46,17 +46,17 @@ describe('UserRepository', () => {
   });
 
   describe('getByEmail', () => {
-    it('should call prisma.dbUser.findUnique with the email', async () => {
-      prisma.dbUser.findUnique.mockResolvedValue({ email: 'emailPrueba@prueba.com' });
+    it('should call db.dbUser.findUnique with the email', async () => {
+      db.dbUser.findUnique.mockResolvedValue({ email: 'emailPrueba@prueba.com' });
 
       const result = await repository.getByEmail('emailPrueba@prueba.com');
 
-      expect(prisma.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'emailPrueba@prueba.com' } });
+      expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'emailPrueba@prueba.com' } });
       expect(result).toEqual({ email: 'emailPrueba@prueba.com' });
     });
 
     it('should return null if it does not exist', async () => {
-      prisma.dbUser.findUnique.mockResolvedValue(null);
+      db.dbUser.findUnique.mockResolvedValue(null);
 
       const result = await repository.getByEmail('emailPrueba@prueba.com');
 
@@ -65,19 +65,19 @@ describe('UserRepository', () => {
   });
 
   describe('update', () => {
-    it('should call prisma.dbUser.update with the id and data', async () => {
-      prisma.dbUser.update.mockResolvedValue({ id: 'u1', name: 'Test' });
+    it('should call db.dbUser.update with the id and data', async () => {
+      db.dbUser.update.mockResolvedValue({ id: 'u1', name: 'Test' });
 
       const result = await repository.update('u1', { name: 'Test' });
 
-      expect(prisma.dbUser.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { name: 'Test' } });
+      expect(db.dbUser.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { name: 'Test' } });
       expect(result).toEqual({ id: 'u1', name: 'Test' });
     });
   });
 
   describe('upsert', () => {
-    it('should call prisma.dbUser.upsert with the correct fields', async () => {
-      prisma.dbUser.upsert.mockResolvedValue({ id: 'uuid' });
+    it('should call db.dbUser.upsert with the correct fields', async () => {
+      db.dbUser.upsert.mockResolvedValue({ id: 'uuid' });
 
       const result = await repository.upsert('emailPrueba@prueba.com', {
         email: 'emailPrueba@prueba.com',
@@ -87,7 +87,7 @@ describe('UserRepository', () => {
         active: true,
       });
 
-      expect(prisma.dbUser.upsert).toHaveBeenCalledWith({
+      expect(db.dbUser.upsert).toHaveBeenCalledWith({
         where: { email: 'emailPrueba@prueba.com' },
         update: { name: 'Test', googleId: 'googleId', photoUrl: 'photoUrl', active: true },
         create: {

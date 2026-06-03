@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asUserId, DbRole } from '../../../core';
+import { asUserId } from '../../../core';
+import { DbRole } from '../../../db';;
 import { UserRepository } from '../../data-access/user.repository';
 import { GetUserByEmailHandler } from './get-user-by-email.handler';
 import { GetUserByEmailQuery } from './get-user-by-email.query';

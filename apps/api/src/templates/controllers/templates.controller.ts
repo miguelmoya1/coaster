@@ -1,5 +1,6 @@
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { BarPermission, DbRole } from '../../core';
+import { BarPermission } from '../../core';
+import { DbRole } from '../../db';;
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';

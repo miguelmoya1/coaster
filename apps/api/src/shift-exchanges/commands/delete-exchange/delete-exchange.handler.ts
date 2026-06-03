@@ -1,7 +1,8 @@
-import { DbBarRole, ErrorCodes, ShiftExchangeStatus } from '../../../core';
+import { ErrorCodes, ShiftExchangeStatus } from '../../../core';
+import { DbBarRole } from '../../../db';;
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PrismaService } from '../../../core';
+import { DbService } from '../../../db';;
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { DeleteExchangeCommand } from './delete-exchange.command';
 
@@ -9,7 +10,7 @@ import { DeleteExchangeCommand } from './delete-exchange.command';
 export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeCommand, void> {
   constructor(
     private readonly _repository: ShiftExchangesRepository,
-    private readonly _prisma: PrismaService,
+    private readonly _prisma: DbService,
   ) {}
 
   async execute(command: DeleteExchangeCommand): Promise<void> {

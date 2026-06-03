@@ -17,15 +17,11 @@ export class MemberRepository {
   };
 
   public async me(barId: BarId) {
-    return firstValueFrom(
-      this.#http.get<BarMember>(this.routes.me(barId)).pipe(map((member) => memberMapper(member))),
-    );
+    return firstValueFrom(this.#http.get<BarMember>(this.routes.me(barId)).pipe(map((member) => memberMapper(member))));
   }
 
   public async invite(barId: BarId, dto: InviteBarMemberDto) {
-    return firstValueFrom(
-      this.#http.post<BarMember>(this.routes.invite(barId), dto).pipe(map((member) => memberMapper(member))),
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.invite(barId), dto));
   }
 
   public async remove(barId: BarId, memberId: BarMemberId) {

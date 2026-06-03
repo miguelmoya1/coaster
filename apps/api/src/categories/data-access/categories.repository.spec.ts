@@ -1,12 +1,12 @@
 import { asBarId } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { PrismaService } from '../../core';
+import { DbService } from '../../db';;
 import { CategoriesRepository } from './categories.repository';
 
 describe('CategoriesRepository', () => {
   let repository: CategoriesRepository;
-  let prisma: {
+  let db: {
     dbCategory: { create: Mock; findMany: Mock };
   };
 
@@ -16,20 +16,20 @@ describe('CategoriesRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CategoriesRepository, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [CategoriesRepository, { provide: DbService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<CategoriesRepository>(CategoriesRepository);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
   });
 
   describe('create', () => {
     it('should create a category with included products', async () => {
-      prisma.dbCategory.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
+      db.dbCategory.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
 
       const result = await repository.create(asBarId('bar-1'), { name: 'Bebidas', icon: 'beer' });
 
-      expect(prisma.dbCategory.create).toHaveBeenCalledWith({
+      expect(db.dbCategory.create).toHaveBeenCalledWith({
         data: { bar: { connect: { id: 'bar-1' } }, name: 'Bebidas', icon: 'beer' },
       });
       expect(result).toEqual({ id: 'cat-1', name: 'Bebidas' });
@@ -38,11 +38,11 @@ describe('CategoriesRepository', () => {
 
   describe('findByBarId', () => {
     it('should find bar categories with sorted products', async () => {
-      prisma.dbCategory.findMany.mockResolvedValue([{ id: 'cat-1' }]);
+      db.dbCategory.findMany.mockResolvedValue([{ id: 'cat-1' }]);
 
       const result = await repository.findByBarId(asBarId('bar-1'));
 
-      expect(prisma.dbCategory.findMany).toHaveBeenCalledWith({
+      expect(db.dbCategory.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
         orderBy: { name: 'asc' },
       });

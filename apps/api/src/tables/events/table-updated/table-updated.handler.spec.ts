@@ -1,4 +1,5 @@
-import { asBarId, asTableId, SocketEvents, DbTableStatus } from '../../../core';
+import { asBarId, asTableId, SocketEvents } from '../../../core';
+import { DbTableStatus } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarGateway } from '../../../websockets';

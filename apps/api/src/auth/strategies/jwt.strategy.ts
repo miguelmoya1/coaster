@@ -2,11 +2,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
-import { ErrorCodes, PrismaService } from '../../core';
+import { ErrorCodes } from '../../core';
+import { DbService } from '../../db';;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
-  constructor(private readonly _prisma: PrismaService) {
+  constructor(private readonly _prisma: DbService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });

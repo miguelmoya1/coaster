@@ -1,4 +1,5 @@
-import { asBarId, asTableId, DbTableStatus } from '../../../core';
+import { asBarId, asTableId } from '../../../core';
+import { DbTableStatus } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';

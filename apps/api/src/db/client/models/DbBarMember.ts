@@ -993,7 +993,7 @@ export interface DbBarMemberDelegate<ExtArgs extends runtime.Types.Extensions.In
    * // Ordered by age ascending
    * // Where email contains prisma.io
    * // Limited to the 10 users
-   * const aggregations = await prisma.dbUser.aggregate({
+   * const aggregations = await prisma.user.aggregate({
    *   _avg: {
    *     age: true,
    *   },
@@ -1017,7 +1017,7 @@ export interface DbBarMemberDelegate<ExtArgs extends runtime.Types.Extensions.In
    * @param {DbBarMemberGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
-   * const result = await prisma.dbUser.groupBy({
+   * const result = await prisma.user.groupBy({
    *   by: ['city', 'createdAt'],
    *   orderBy: {
    *     createdAt: true

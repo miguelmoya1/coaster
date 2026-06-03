@@ -1,15 +1,15 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PrismaService } from './prisma.service';
+import { DbService } from './db.service';
 
-describe('PrismaService', () => {
-  let service: PrismaService;
+describe('DbService', () => {
+  let service: DbService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        PrismaService,
+        DbService,
         {
           provide: ConfigService,
           useValue: {
@@ -19,7 +19,7 @@ describe('PrismaService', () => {
       ],
     }).compile();
 
-    service = module.get<PrismaService>(PrismaService);
+    service = module.get<DbService>(DbService);
   });
 
   it('should be defined', () => {

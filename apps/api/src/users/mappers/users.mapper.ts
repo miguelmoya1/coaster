@@ -1,5 +1,6 @@
 import type { User } from '@coaster/common';
-import { asUserId, type DbUser } from '../../core';
+import { asUserId } from '../../core';
+import type { DbUser } from '../../db';
 
 export const UsersMapper = {
   toDomain(dbUser: DbUser): User {

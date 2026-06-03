@@ -1,7 +1,7 @@
-import { ErrorCodes, DbRole } from '../..';
+import { ErrorCodes } from '../..';
+import { DbRole, DbService } from '../../../db';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../../prisma/services/prisma.service';
 import { USER_ROLES_KEY } from '../decorators/user-roles.decorator';
 
 interface RequestWithUser {
@@ -12,7 +12,7 @@ interface RequestWithUser {
 export class UserRolesGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
-    private _prisma: PrismaService,
+    private _prisma: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

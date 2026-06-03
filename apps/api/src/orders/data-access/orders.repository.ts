@@ -1,10 +1,10 @@
 import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
+import { DbService } from '../../db';;
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+  constructor(private readonly _prisma: DbService) {}
 
   async findByBarId(barId: BarId, status?: string) {
     return this._prisma.dbOrder.findMany({

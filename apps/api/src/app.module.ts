@@ -5,6 +5,7 @@ import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { CoreModule } from './core/core.module';
+import { DbModule } from './db';
 import { EmailModule } from './email/email.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
@@ -22,6 +23,7 @@ import { WebsocketsModule } from './websockets/websockets.module';
       isGlobal: true,
     }),
     CoreModule,
+    DbModule,
     EmailModule,
     WebsocketsModule,
     AuthModule,

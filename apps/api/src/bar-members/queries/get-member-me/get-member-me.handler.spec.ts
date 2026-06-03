@@ -1,4 +1,5 @@
-import { asBarId, asBarMemberId, asUserId, DbBarRole } from '../../../core';
+import { asBarId, asBarMemberId, asUserId } from '../../../core';
+import { DbBarRole } from '../../../db';;
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';

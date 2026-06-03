@@ -1,10 +1,10 @@
 import type { BarId, CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../core';
+import { Db, DbService } from '../../db';;
 
 @Injectable()
 export class ProductsRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+  constructor(private readonly _prisma: DbService) {}
 
   async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
     const category = await this._prisma.dbCategory.findUnique({
@@ -17,7 +17,7 @@ export class ProductsRepository {
     return category.barId === barId;
   }
 
-  async create(categoryId: CategoryId, createProductDto: Omit<Prisma.DbProductCreateInput, 'category'>) {
+  async create(categoryId: CategoryId, createProductDto: Omit<Db.DbProductCreateInput, 'category'>) {
     return this._prisma.dbProduct.create({
       data: {
         ...createProductDto,
@@ -27,7 +27,7 @@ export class ProductsRepository {
     });
   }
 
-  async update(productId: ProductId, updateData: Prisma.DbProductUpdateInput) {
+  async update(productId: ProductId, updateData: Db.DbProductUpdateInput) {
     return this._prisma.dbProduct.update({
       where: { id: productId },
       data: updateData,

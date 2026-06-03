@@ -1,4 +1,5 @@
-import { asUserId, DbRole } from '../../../core';
+import { asUserId } from '../../../core';
+import { DbRole } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../../data-access/bar.repository';

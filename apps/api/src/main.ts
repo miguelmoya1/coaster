@@ -15,7 +15,12 @@ async function bootstrap() {
     });
   }
 
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+  const isProduction = process.env.NODE_ENV === 'production';
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
+    logger: isProduction
+      ? ['error', 'warn']
+      : ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
 
   app.useWebSocketAdapter(new IoAdapter(app));
 

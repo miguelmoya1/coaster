@@ -3,7 +3,8 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventBus } from '@nestjs/cqrs';
-import { asBarId, asUserId, userInvitedEvent } from '../../../core';
+import { asBarId, asUserId } from '../../../core';
+import { UserInvitedEvent } from '../../../core/events/impl/user-invited.event';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';
@@ -38,10 +39,11 @@ describe('InviteMemberHandler', () => {
     role: 'USER' as Role,
   };
 
-  it('should invite and publish userInvitedEvent', async () => {
+  it('should invite and publish UserInvitedEvent', async () => {
     repository.inviteMember.mockResolvedValue({
       id: 'new-member',
       user: {
+        name: 'User',
         email: 'new@test.com',
       },
       bar: {
@@ -52,7 +54,7 @@ describe('InviteMemberHandler', () => {
     await handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF'));
 
     expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
-    expect(eventBus.publish).toHaveBeenCalledWith(new userInvitedEvent('new@test.com', 'Test Bar'));
+    expect(eventBus.publish).toHaveBeenCalledWith(new UserInvitedEvent('User', 'new@test.com', 'Test Bar'));
   });
 
   it('should fail if the repository fails', async () => {

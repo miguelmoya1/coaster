@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/core/prisma/client"
+  output   = "../src/db/client"
 }
 
 datasource db {
@@ -102,6 +102,7 @@ model DbBarMember {
   updatedAt DateTime  @updatedAt
 
   @@unique([userId, barId])
+  @@map("BarMember")
 }
 
 model DbShift {

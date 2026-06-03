@@ -1,13 +1,13 @@
 import type { BarId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../core';
+import { Db, DbService } from '../../db';;
 
 @Injectable()
 export class ShiftsRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DbService) {}
 
   async isUserMemberOfBar(userId: UserId, barId: BarId) {
-    const member = await this.prisma.dbBarMember.findUnique({
+    const member = await this.db.dbBarMember.findUnique({
       where: {
         userId_barId: { userId, barId },
       },
@@ -16,8 +16,8 @@ export class ShiftsRepository {
     return !!member && member.active;
   }
 
-  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Prisma.DbShiftCreateInput, 'bar' | 'user'>) {
-    return this.prisma.dbShift.create({
+  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Db.DbShiftCreateInput, 'bar' | 'user'>) {
+    return this.db.dbShift.create({
       data: {
         ...createShiftDto,
         bar: { connect: { id: barId } },
@@ -30,7 +30,7 @@ export class ShiftsRepository {
   }
 
   async findByBarId(barId: BarId, startDate?: Date, endDate?: Date) {
-    return this.prisma.dbShift.findMany({
+    return this.db.dbShift.findMany({
       where: {
         barId,
         ...(startDate && endDate ? { startTime: { gte: startDate, lte: endDate } } : {}),
@@ -43,13 +43,13 @@ export class ShiftsRepository {
   }
 
   async findById(shiftId: string) {
-    return this.prisma.dbShift.findUnique({
+    return this.db.dbShift.findUnique({
       where: { id: shiftId },
     });
   }
 
   async delete(shiftId: string) {
-    return this.prisma.dbShift.delete({
+    return this.db.dbShift.delete({
       where: { id: shiftId },
     });
   }

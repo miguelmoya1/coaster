@@ -1,4 +1,4 @@
-import { DbRole } from '../..';
+import { DbRole } from '../../../db';
 import { SetMetadata } from '@nestjs/common';
 
 export const USER_ROLES_KEY = 'user_roles';

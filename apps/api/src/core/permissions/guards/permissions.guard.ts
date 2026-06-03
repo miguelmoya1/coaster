@@ -2,7 +2,7 @@ import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { asBarRole, ErrorCodes, hasPermission } from '../..';
-import { PrismaService } from '../../prisma/services/prisma.service';
+import { DbService } from '../../../db';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 
 interface RequestWithUser {
@@ -14,7 +14,7 @@ interface RequestWithUser {
 export class PermissionsGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
-    private _prisma: PrismaService,
+    private _prisma: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

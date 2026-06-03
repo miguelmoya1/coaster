@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/prisma/services/prisma.service';
+import { DbService } from '../../db';
 import { CreateCategoryTemplateDto } from '../dto/create-category-template.dto';
 import { CreateProductTemplateDto } from '../dto/create-product-template.dto';
 import { UpdateCategoryTemplateDto } from '../dto/update-category-template.dto';
@@ -7,7 +7,7 @@ import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
 
 @Injectable()
 export class TemplatesRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+  constructor(private readonly _prisma: DbService) {}
 
   async findAllCategoryTemplates() {
     return this._prisma.dbCategoryTemplate.findMany({
