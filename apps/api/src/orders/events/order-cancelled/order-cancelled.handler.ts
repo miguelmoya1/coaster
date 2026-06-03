@@ -1,6 +1,6 @@
 import { SocketEvents } from '../../../core';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { BarGateway } from '../../../core';
+import { BarGateway } from '../../../websockets';
 import { OrderCancelledEvent } from './order-cancelled.event';
 
 @EventsHandler(OrderCancelledEvent)

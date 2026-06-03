@@ -1,5 +1,4 @@
 export * from './constants';
-export * from './email/email.service';
 export * from './events';
 export * from './mappers/common.mapper';
 export * from './permissions/bar-member.security';
@@ -11,4 +10,3 @@ export * from './prisma/services/prisma.service';
 export * from './roles/decorators/user-roles.decorator';
 export * from './roles/guards/user-roles.guard';
 export * from './utils/brands';
-export * from './websockets/bar.gateway';

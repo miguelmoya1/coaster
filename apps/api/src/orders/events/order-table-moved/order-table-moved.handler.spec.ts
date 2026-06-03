@@ -2,7 +2,7 @@ import type { Order } from '@coaster/common';
 import { asBarId, asTableId, SocketEvents } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../../core';
+import { BarGateway } from '../../../websockets';
 import { OrderTableMovedEvent } from './order-table-moved.event';
 import { OrderTableMovedHandler } from './order-table-moved.handler';
 

@@ -5,6 +5,7 @@ import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { CoreModule } from './core/core.module';
+import { EmailModule } from './email/email.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
@@ -13,6 +14,7 @@ import { StatsModule } from './stats/stats.module';
 import { TablesModule } from './tables/tables.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
+import { WebsocketsModule } from './websockets/websockets.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { UserModule } from './users/user.module';
       isGlobal: true,
     }),
     CoreModule,
+    EmailModule,
+    WebsocketsModule,
     AuthModule,
     UserModule,
     BarsModule,

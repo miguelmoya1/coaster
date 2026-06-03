@@ -7,7 +7,7 @@ import { PrepareUserForInviteCommand } from '../commands';
 @Injectable()
 export class UserSagas {
   @Saga()
-  prepareUserForInvite = (events$: Observable<unknown>) => {
+  prepareUserForInvite = (events$: Observable<any>) => {
     return events$.pipe(
       ofType(PrepareUserForInviteEvent),
       map((event) => new PrepareUserForInviteCommand(event.email, { barId: event.barId, role: event.role })),

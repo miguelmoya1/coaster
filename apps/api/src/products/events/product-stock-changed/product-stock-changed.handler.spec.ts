@@ -2,7 +2,7 @@ import type { Product } from '@coaster/common';
 import { asBarId, SocketEvents } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../../core';
+import { BarGateway } from '../../../websockets';
 import { ProductStockChangedEvent } from './product-stock-changed.event';
 import { ProductStockChangedHandler } from './product-stock-changed.handler';
 

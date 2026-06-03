@@ -1,7 +1,7 @@
 import { asBarId, asCategoryId, SocketEvents } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../../core';
+import { BarGateway } from '../../../websockets';
 import { CategoryDeletedEvent } from './category-deleted.event';
 import { CategoryDeletedHandler } from './category-deleted.handler';
 

@@ -1,4 +1,4 @@
-import { ErrorCodes, SocketEvents } from '../constants';
+import { ErrorCodes, SocketEvents } from '../core/constants';
 import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,

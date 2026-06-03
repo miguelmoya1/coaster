@@ -1,8 +1,8 @@
-import { Role } from '@coaster/common';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asUserId, EmailService } from '../../../core';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, PrepareUserForInviteEvent } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { PrepareInviteMemberCommand } from './prepare-invite-member.command';
 import { PrepareInviteMemberHandler } from './prepare-invite-member.handler';
@@ -10,19 +10,19 @@ import { PrepareInviteMemberHandler } from './prepare-invite-member.handler';
 describe('PrepareInviteMemberHandler', () => {
   let handler: PrepareInviteMemberHandler;
   const repository = {
-    findBarById: vi.fn(),
-    PrepareinviteMember: vi.fn(),
+    isMember: vi.fn(),
   };
-  const emailService = {
-    sendInviteEmail: vi.fn(),
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PrepareInviteMemberHandler,
         { provide: BarMembersRepository, useValue: repository },
-        { provide: EmailService, useValue: emailService },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
@@ -30,61 +30,29 @@ describe('PrepareInviteMemberHandler', () => {
   });
 
   const fakeUser = {
-    id: asUserId('admin-id'),
+    id: 'admin-id' as any,
     name: 'Admin Name',
     email: 'admin@test.com',
     active: true,
-    role: 'USER' as Role,
+    role: 'USER' as any,
   };
 
-  it('should invite and send email', async () => {
-    repository.findBarById.mockResolvedValue({
-      id: 'bar-1',
-      name: 'Test Bar',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+  it('should publish PrepareUserForInviteEvent when member is not registered', async () => {
+    repository.isMember.mockResolvedValue(false);
 
-    repository.PrepareinviteMember.mockResolvedValue({
-      id: 'new-member',
-      userId: 'some-user',
-      barId: 'bar-1',
-      role: 'STAFF' as Role,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      user: {
-        id: 'some-user',
-        name: 'User',
-        email: 'user@test.com',
-        photoUrl: 'img',
-      },
-    });
+    await handler.execute(new PrepareInviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF'));
 
-    const result = await handler.execute(
-      new PrepareInviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF'),
-    );
-
-    expect(repository.PrepareinviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
-    expect(emailService.sendInviteEmail).toHaveBeenCalledWith('new@test.com', 'Test Bar', 'Admin Name');
-    expect(result).toEqual({
-      id: 'new-member',
-      userId: 'some-user',
-      barId: 'bar-1',
-      role: 'STAFF' as Role,
-      permissions: expect.any(Array),
-      active: true,
-      userName: 'User',
-      userEmail: 'user@test.com',
-      userImage: 'img',
-    });
+    expect(repository.isMember).toHaveBeenCalledWith(asBarId('bar-1'), 'new@test.com');
+    expect(eventBus.publish).toHaveBeenCalledWith(new PrepareUserForInviteEvent(asBarId('bar-1'), 'new@test.com', 'STAFF'));
   });
 
-  it('should fail if the bar does not exist and NOT send email', async () => {
-    repository.findBarById.mockResolvedValue(null);
+  it('should throw ConflictException if the user is already a member', async () => {
+    repository.isMember.mockResolvedValue(true);
 
     await expect(
       handler.execute(new PrepareInviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF')),
-    ).rejects.toThrow(NotFoundException);
+    ).rejects.toThrow(ConflictException);
+
+    expect(eventBus.publish).not.toHaveBeenCalled();
   });
 });

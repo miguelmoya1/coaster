@@ -1,7 +1,7 @@
 import { asBarId, asTableId, SocketEvents } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../../core';
+import { BarGateway } from '../../../websockets';
 import { TableDeletedEvent } from './table-deleted.event';
 import { TableDeletedHandler } from './table-deleted.handler';
 
