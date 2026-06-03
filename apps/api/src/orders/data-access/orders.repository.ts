@@ -7,7 +7,7 @@ export class OrdersRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
   async findByBarId(barId: BarId, status?: string) {
-    return this._prisma.order.findMany({
+    return this._prisma.dbOrder.findMany({
       where: {
         barId,
         ...(status ? { status: status as any } : {}),
@@ -26,7 +26,7 @@ export class OrdersRepository {
     const end = new Date(date);
     end.setHours(23, 59, 59, 999);
 
-    return this._prisma.order.findMany({
+    return this._prisma.dbOrder.findMany({
       where: {
         barId,
         createdAt: { gte: start, lte: end },
@@ -40,13 +40,13 @@ export class OrdersRepository {
   }
 
   async deleteOrder(orderId: OrderId) {
-    return this._prisma.order.delete({
+    return this._prisma.dbOrder.delete({
       where: { id: orderId },
     });
   }
 
   async findById(orderId: OrderId) {
-    return this._prisma.order.findUnique({
+    return this._prisma.dbOrder.findUnique({
       where: { id: orderId },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
@@ -56,31 +56,31 @@ export class OrdersRepository {
   }
 
   async findItemById(itemId: OrderItemId) {
-    return this._prisma.orderItem.findUnique({
+    return this._prisma.dbOrderItem.findUnique({
       where: { id: itemId },
     });
   }
 
   async findTableById(tableId: TableId) {
-    return this._prisma.table.findUnique({
+    return this._prisma.dbTable.findUnique({
       where: { id: tableId },
     });
   }
 
   async findProductsByIds(productIds: string[]) {
-    return this._prisma.product.findMany({
+    return this._prisma.dbProduct.findMany({
       where: { id: { in: productIds } },
     });
   }
 
   async removeItemAndRecalculate(orderId: OrderId, itemId: OrderItemId) {
     return this._prisma.$transaction(async (tx) => {
-      await tx.orderItem.delete({ where: { id: itemId } });
+      await tx.dbOrderItem.delete({ where: { id: itemId } });
 
-      const allItems = await tx.orderItem.findMany({ where: { orderId } });
+      const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
       const totalAmount = allItems.reduce((sum, i) => sum + i.priceAtPurchase * i.quantity, 0);
 
-      return tx.order.update({
+      return tx.dbOrder.update({
         where: { id: orderId },
         data: { totalAmount },
         include: {
@@ -93,9 +93,9 @@ export class OrdersRepository {
 
   async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: string | null) {
     return this._prisma.$transaction(async (tx) => {
-      await tx.orderItem.delete({ where: { id: itemId } });
+      await tx.dbOrderItem.delete({ where: { id: itemId } });
 
-      const updated = await tx.order.update({
+      const updated = await tx.dbOrder.update({
         where: { id: orderId },
         data: { status: 'CANCELLED', totalAmount: 0 },
         include: {
@@ -105,7 +105,7 @@ export class OrdersRepository {
       });
 
       if (tableId) {
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: tableId },
           data: { status: 'FREE' },
         });
@@ -116,7 +116,7 @@ export class OrdersRepository {
   }
 
   async findOrdersByIds(orderIds: string[]) {
-    return this._prisma.order.findMany({
+    return this._prisma.dbOrder.findMany({
       where: { id: { in: orderIds } },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
@@ -133,7 +133,7 @@ export class OrdersRepository {
     resolvedTableName: string | null,
   ) {
     return this._prisma.$transaction(async (tx) => {
-      const created = await tx.order.create({
+      const created = await tx.dbOrder.create({
         data: {
           barId,
           tableId: dto.tableId ?? null,
@@ -155,7 +155,7 @@ export class OrdersRepository {
       });
 
       if (dto.tableId) {
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: dto.tableId },
           data: { status: 'OCCUPIED' },
         });
@@ -173,7 +173,7 @@ export class OrdersRepository {
     currentTotalAmount: number,
   ) {
     return this._prisma.$transaction(async (tx) => {
-      await tx.orderItem.createMany({
+      await tx.dbOrderItem.createMany({
         data: dto.items.map((item) => ({
           orderId,
           productId: item.productId,
@@ -182,7 +182,7 @@ export class OrdersRepository {
         })),
       });
 
-      return tx.order.update({
+      return tx.dbOrder.update({
         where: { id: orderId },
         data: { totalAmount: currentTotalAmount + additionalAmount },
         include: {
@@ -202,7 +202,7 @@ export class OrdersRepository {
       servedQuantity?: number;
     },
   ) {
-    return this._prisma.orderItem.update({
+    return this._prisma.dbOrderItem.update({
       where: { id: itemId },
       data,
     });
@@ -211,7 +211,7 @@ export class OrdersRepository {
   async bulkUpdate(orderId: OrderId, updates: { itemId: string; paidQuantity?: number; servedQuantity?: number }[]) {
     return this._prisma.$transaction(async (tx) => {
       for (const update of updates) {
-        const item = await tx.orderItem.findUnique({ where: { id: update.itemId } });
+        const item = await tx.dbOrderItem.findUnique({ where: { id: update.itemId } });
         if (!item || item.orderId !== orderId) {
           continue;
         }
@@ -233,14 +233,14 @@ export class OrdersRepository {
         }
 
         if (Object.keys(dataToUpdate).length > 0) {
-          await tx.orderItem.update({
+          await tx.dbOrderItem.update({
             where: { id: update.itemId },
             data: dataToUpdate,
           });
         }
       }
 
-      return tx.order.findUnique({
+      return tx.dbOrder.findUnique({
         where: { id: orderId },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
@@ -252,7 +252,7 @@ export class OrdersRepository {
 
   async checkoutOrder(orderId: OrderId, tableId: string | null) {
     return this._prisma.$transaction(async (tx) => {
-      const unpaidItems = await tx.orderItem.findMany({
+      const unpaidItems = await tx.dbOrderItem.findMany({
         where: {
           orderId,
           NOT: { paymentStatus: 'PAID' },
@@ -260,7 +260,7 @@ export class OrdersRepository {
       });
 
       for (const item of unpaidItems) {
-        await tx.orderItem.update({
+        await tx.dbOrderItem.update({
           where: { id: item.id },
           data: {
             paymentStatus: 'PAID',
@@ -269,10 +269,10 @@ export class OrdersRepository {
         });
       }
 
-      const allItems = await tx.orderItem.findMany({ where: { orderId } });
+      const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
 
-      const closed = await tx.order.update({
+      const closed = await tx.dbOrder.update({
         where: { id: orderId },
         data: { status: 'CLOSED', totalAmount },
         include: {
@@ -282,7 +282,7 @@ export class OrdersRepository {
       });
 
       if (tableId) {
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: tableId },
           data: { status: 'FREE' },
         });
@@ -294,7 +294,7 @@ export class OrdersRepository {
 
   async cancelOrder(orderId: OrderId, tableId: string | null) {
     return this._prisma.$transaction(async (tx) => {
-      const cancelled = await tx.order.update({
+      const cancelled = await tx.dbOrder.update({
         where: { id: orderId },
         data: { status: 'CANCELLED' },
         include: {
@@ -304,7 +304,7 @@ export class OrdersRepository {
       });
 
       if (tableId) {
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: tableId },
           data: { status: 'FREE' },
         });
@@ -317,18 +317,18 @@ export class OrdersRepository {
   async moveTable(orderId: OrderId, oldTableId: string | null, newTableId: string, newTableName: string) {
     return this._prisma.$transaction(async (tx) => {
       if (oldTableId) {
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: oldTableId },
           data: { status: 'FREE' },
         });
       }
 
-      await tx.table.update({
+      await tx.dbTable.update({
         where: { id: newTableId },
         data: { status: 'OCCUPIED' },
       });
 
-      return tx.order.update({
+      return tx.dbOrder.update({
         where: { id: orderId },
         data: { tableId: newTableId, tableName: newTableName },
         include: {
@@ -348,18 +348,18 @@ export class OrdersRepository {
   ) {
     return this._prisma.$transaction(async (tx) => {
       for (const source of sourceOrdersData) {
-        await tx.orderItem.updateMany({
+        await tx.dbOrderItem.updateMany({
           where: { orderId: source.id },
           data: { orderId: primaryOrderId },
         });
 
-        await tx.order.update({
+        await tx.dbOrder.update({
           where: { id: source.id },
           data: { status: 'CANCELLED' },
         });
 
         if (source.tableId) {
-          await tx.table.update({
+          await tx.dbTable.update({
             where: { id: source.tableId },
             data: { status: 'FREE' },
           });
@@ -368,28 +368,28 @@ export class OrdersRepository {
 
       if (targetTableId) {
         if (primaryOrderTableId && primaryOrderTableId !== targetTableId) {
-          await tx.table.update({
+          await tx.dbTable.update({
             where: { id: primaryOrderTableId },
             data: { status: 'FREE' },
           });
         }
 
-        await tx.table.update({
+        await tx.dbTable.update({
           where: { id: targetTableId },
           data: { status: 'OCCUPIED' },
         });
       }
 
-      const allItems = await tx.orderItem.findMany({ where: { orderId: primaryOrderId } });
+      const allItems = await tx.dbOrderItem.findMany({ where: { orderId: primaryOrderId } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
 
       let mergedTableName = primaryOrderTableName;
       if (targetTableId) {
-        const targetTable = await tx.table.findUnique({ where: { id: targetTableId } });
+        const targetTable = await tx.dbTable.findUnique({ where: { id: targetTableId } });
         mergedTableName = targetTable?.name ?? mergedTableName;
       }
 
-      return tx.order.update({
+      return tx.dbOrder.update({
         where: { id: primaryOrderId },
         data: {
           totalAmount,

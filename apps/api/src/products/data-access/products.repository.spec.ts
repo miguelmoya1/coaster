@@ -7,14 +7,14 @@ import { ProductsRepository } from './products.repository';
 describe('ProductsRepository', () => {
   let repository: ProductsRepository;
   let prisma: {
-    category: { findUnique: Mock };
-    product: { create: Mock; update: Mock; findMany: Mock };
+    dbCategory: { findUnique: Mock };
+    dbProduct: { create: Mock; update: Mock; findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      category: { findUnique: vi.fn() },
-      product: {
+      dbCategory: { findUnique: vi.fn() },
+      dbProduct: {
         create: vi.fn(),
         update: vi.fn(),
         findMany: vi.fn(),
@@ -33,11 +33,11 @@ describe('ProductsRepository', () => {
     it('should return true if the category belongs to the bar', async () => {
       const categoryId = asCategoryId('cat-1');
       const barId = asBarId('bar-1');
-      prisma.category.findUnique.mockResolvedValue({ id: categoryId, barId });
+      prisma.dbCategory.findUnique.mockResolvedValue({ id: categoryId, barId });
 
       const result = await repository.checkCategoryBelongsToBar(categoryId, barId);
 
-      expect(prisma.category.findUnique).toHaveBeenCalledWith({
+      expect(prisma.dbCategory.findUnique).toHaveBeenCalledWith({
         where: { id: categoryId },
       });
       expect(result).toBe(true);
@@ -46,7 +46,7 @@ describe('ProductsRepository', () => {
     it('should return false if the category does not belong to the bar', async () => {
       const categoryId = asCategoryId('cat-1');
       const barId = asBarId('bar-1');
-      prisma.category.findUnique.mockResolvedValue({ id: categoryId, barId: 'otro-bar' });
+      prisma.dbCategory.findUnique.mockResolvedValue({ id: categoryId, barId: 'otro-bar' });
 
       const result = await repository.checkCategoryBelongsToBar(categoryId, barId);
 
@@ -54,7 +54,7 @@ describe('ProductsRepository', () => {
     });
 
     it('should return false if the category does not exist', async () => {
-      prisma.category.findUnique.mockResolvedValue(null);
+      prisma.dbCategory.findUnique.mockResolvedValue(null);
 
       const result = await repository.checkCategoryBelongsToBar(asCategoryId('cat-1'), asBarId('bar-1'));
 
@@ -66,11 +66,11 @@ describe('ProductsRepository', () => {
     it('should create the product connected to the category', async () => {
       const categoryId = asCategoryId('cat-1');
       const createData = { name: 'Cerveza', currentStock: 10, minStockAlert: 5 };
-      prisma.product.create.mockResolvedValue({ id: 'prod-1', ...createData, categoryId });
+      prisma.dbProduct.create.mockResolvedValue({ id: 'prod-1', ...createData, categoryId });
 
       const result = await repository.create(categoryId, createData);
 
-      expect(prisma.product.create).toHaveBeenCalledWith({
+      expect(prisma.dbProduct.create).toHaveBeenCalledWith({
         data: {
           ...createData,
           price: 0,
@@ -85,11 +85,11 @@ describe('ProductsRepository', () => {
     it('should update the product by id', async () => {
       const productId = asProductId('prod-1');
       const updateData = { currentStock: 20, price: 1 };
-      prisma.product.update.mockResolvedValue({ id: productId, ...updateData });
+      prisma.dbProduct.update.mockResolvedValue({ id: productId, ...updateData });
 
       const result = await repository.update(productId, updateData);
 
-      expect(prisma.product.update).toHaveBeenCalledWith({
+      expect(prisma.dbProduct.update).toHaveBeenCalledWith({
         where: { id: productId },
         data: updateData,
       });
@@ -99,11 +99,11 @@ describe('ProductsRepository', () => {
     it('should not overwrite the price to 0 when price is not provided in updateData', async () => {
       const productId = asProductId('prod-1');
       const updateData = { currentStock: 15 };
-      prisma.product.update.mockResolvedValue({ id: productId, currentStock: 15, price: 1200 });
+      prisma.dbProduct.update.mockResolvedValue({ id: productId, currentStock: 15, price: 1200 });
 
       const result = await repository.update(productId, updateData);
 
-      expect(prisma.product.update).toHaveBeenCalledWith({
+      expect(prisma.dbProduct.update).toHaveBeenCalledWith({
         where: { id: productId },
         data: { currentStock: 15 },
       });
@@ -114,11 +114,11 @@ describe('ProductsRepository', () => {
   describe('findByBarId', () => {
     it('should find products filtering by the category bar', async () => {
       const barId = asBarId('bar-1');
-      prisma.product.findMany.mockResolvedValue([{ id: 'prod-1', name: 'A' }]);
+      prisma.dbProduct.findMany.mockResolvedValue([{ id: 'prod-1', name: 'A' }]);
 
       const result = await repository.findByBarId(barId);
 
-      expect(prisma.product.findMany).toHaveBeenCalledWith({
+      expect(prisma.dbProduct.findMany).toHaveBeenCalledWith({
         where: { category: { barId } },
         orderBy: { name: 'asc' },
       });

@@ -6,8 +6,8 @@ import { Prisma, PrismaService } from '../../core';
 export class CategoriesRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
-  async create(barId: BarId, createCategoryDto: Omit<Prisma.CategoryCreateInput, 'bar'>) {
-    return this._prisma.category.create({
+  async create(barId: BarId, createCategoryDto: Omit<Prisma.DbCategoryCreateInput, 'bar'>) {
+    return this._prisma.dbCategory.create({
       data: {
         bar: { connect: { id: barId } },
         ...createCategoryDto,
@@ -16,21 +16,21 @@ export class CategoriesRepository {
   }
 
   async findByBarId(barId: BarId) {
-    return this._prisma.category.findMany({
+    return this._prisma.dbCategory.findMany({
       where: { barId },
       orderBy: { name: 'asc' },
     });
   }
 
-  async update(barId: BarId, categoryId: string, dtos: Prisma.CategoryUpdateInput) {
-    return this._prisma.category.update({
+  async update(barId: BarId, categoryId: string, dtos: Prisma.DbCategoryUpdateInput) {
+    return this._prisma.dbCategory.update({
       where: { id: categoryId, barId },
       data: dtos,
     });
   }
 
   async delete(categoryId: string) {
-    return this._prisma.category.delete({
+    return this._prisma.dbCategory.delete({
       where: { id: categoryId },
     });
   }

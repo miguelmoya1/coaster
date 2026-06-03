@@ -3,7 +3,8 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard, UserRolesGuard } from '../../core';
+import { PermissionsGuard, UserRolesGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   BulkUpsertTemplatesCommand,
   CreateCategoryTemplateCommand,

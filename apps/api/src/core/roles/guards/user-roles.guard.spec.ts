@@ -1,4 +1,4 @@
-import { Role } from '../..';
+import { DbRole } from '../..';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,11 +9,11 @@ import { UserRolesGuard } from './user-roles.guard';
 describe('UserRolesGuard', () => {
   let guard: UserRolesGuard;
   let reflector: Mocked<Reflector>;
-  let prisma: { user: { findUnique: Mock } };
+  let prisma: { dbUser: { findUnique: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      user: { findUnique: vi.fn() },
+      dbUser: { findUnique: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -50,38 +50,38 @@ describe('UserRolesGuard', () => {
   });
 
   it('should throw UNAUTHORIZED if there is no user in request', async () => {
-    reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
+    reflector.getAllAndOverride.mockReturnValue([DbRole.ADMIN]);
     await expect(guard.canActivate(mockContext(null) as unknown as ExecutionContext)).rejects.toThrow(
       ForbiddenException,
     );
   });
 
   it('should throw UNAUTHORIZED if user is not found in database', async () => {
-    reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-    prisma.user.findUnique.mockResolvedValue(null);
+    reflector.getAllAndOverride.mockReturnValue([DbRole.ADMIN]);
+    prisma.dbUser.findUnique.mockResolvedValue(null);
     await expect(guard.canActivate(mockContext({ id: 'u1' }) as unknown as ExecutionContext)).rejects.toThrow(
       ForbiddenException,
     );
   });
 
   it('should throw UNAUTHORIZED if user has insufficient roles', async () => {
-    reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-    prisma.user.findUnique.mockResolvedValue({ id: 'u1', role: Role.USER });
+    reflector.getAllAndOverride.mockReturnValue([DbRole.ADMIN]);
+    prisma.dbUser.findUnique.mockResolvedValue({ id: 'u1', role: DbRole.USER });
     await expect(guard.canActivate(mockContext({ id: 'u1' }) as unknown as ExecutionContext)).rejects.toThrow(
       ForbiddenException,
     );
   });
 
   it('should allow access if user has the required role', async () => {
-    reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-    prisma.user.findUnique.mockResolvedValue({ id: 'u1', role: Role.ADMIN });
+    reflector.getAllAndOverride.mockReturnValue([DbRole.ADMIN]);
+    prisma.dbUser.findUnique.mockResolvedValue({ id: 'u1', role: DbRole.ADMIN });
     const result = await guard.canActivate(mockContext({ id: 'u1' }) as unknown as ExecutionContext);
     expect(result).toBe(true);
   });
 
   it('should allow access if user has one of multiple required roles', async () => {
-    reflector.getAllAndOverride.mockReturnValue([Role.ADMIN, Role.USER]);
-    prisma.user.findUnique.mockResolvedValue({ id: 'u1', role: Role.USER });
+    reflector.getAllAndOverride.mockReturnValue([DbRole.ADMIN, DbRole.USER]);
+    prisma.dbUser.findUnique.mockResolvedValue({ id: 'u1', role: DbRole.USER });
     const result = await guard.canActivate(mockContext({ id: 'u1' }) as unknown as ExecutionContext);
     expect(result).toBe(true);
   });

@@ -1,6 +1,6 @@
 import type { Table } from '@coaster/common';
 import { asBarId, asTableId, asTableStatus } from '../../core';
-import { Table as TableDb } from '../../core';
+import { DbTable as TableDb } from '../../core';
 
 export const TablesMapper = {
   toDomain(dbTable: TableDb): Table {

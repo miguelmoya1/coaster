@@ -7,14 +7,14 @@ import { BarRepository } from './bar.repository';
 describe('BarRepository', () => {
   let repository: BarRepository;
   let prisma: {
-    bar: { create: Mock };
-    barMember: { findMany: Mock };
+    dbBar: { create: Mock };
+    dbBarMember: { findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      bar: { create: vi.fn() },
-      barMember: { findMany: vi.fn() },
+      dbBar: { create: vi.fn() },
+      dbBarMember: { findMany: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -27,11 +27,11 @@ describe('BarRepository', () => {
 
   describe('create', () => {
     it('should create a bar with an OWNER member', async () => {
-      prisma.bar.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
+      prisma.dbBar.create.mockResolvedValue({ id: 'bar-1', name: 'Mi Bar' });
 
       const result = await repository.create(asUserId('user-1'), { name: 'Mi Bar' });
 
-      expect(prisma.bar.create).toHaveBeenCalledWith({
+      expect(prisma.dbBar.create).toHaveBeenCalledWith({
         data: {
           name: 'Mi Bar',
           members: { create: { userId: 'user-1', role: 'OWNER' } },
@@ -43,14 +43,14 @@ describe('BarRepository', () => {
 
   describe('findByUserId', () => {
     it('should return the user bars', async () => {
-      prisma.barMember.findMany.mockResolvedValue([
+      prisma.dbBarMember.findMany.mockResolvedValue([
         { bar: { id: 'bar-1', name: 'Bar 1' } },
         { bar: { id: 'bar-2', name: 'Bar 2' } },
       ]);
 
       const result = await repository.findByUserId(asUserId('user-1'));
 
-      expect(prisma.barMember.findMany).toHaveBeenCalledWith({
+      expect(prisma.dbBarMember.findMany).toHaveBeenCalledWith({
         where: { userId: 'user-1' },
         include: { bar: true },
       });

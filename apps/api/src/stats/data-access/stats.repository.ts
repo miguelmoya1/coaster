@@ -7,7 +7,7 @@ export class StatsRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
   async findClosedOrdersForStats(barId: BarId, startOfPrevYear: Date) {
-    return this._prisma.order.findMany({
+    return this._prisma.dbOrder.findMany({
       where: {
         barId,
         status: 'CLOSED',

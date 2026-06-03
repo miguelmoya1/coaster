@@ -1,4 +1,4 @@
-import { asBarId, asUserId, Role } from '../../../core';
+import { asBarId, asUserId, DbRole } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../../data-access/bar.repository';
@@ -20,7 +20,7 @@ describe('CreateBarHandler', () => {
   });
 
   it('should create a bar', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: Role.USER };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER };
     const dto = { name: 'New Bar' };
     repository.create.mockResolvedValue({
       id: 'bar-new',

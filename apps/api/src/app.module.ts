@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { BarMembersModule } from './bar-members/bar-members.module';
 import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
 import { CoreModule } from './core/core.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
@@ -19,6 +20,7 @@ import { UserModule } from './users/user.module';
       isGlobal: true,
     }),
     CoreModule,
+    AuthModule,
     UserModule,
     BarsModule,
     BarMembersModule,

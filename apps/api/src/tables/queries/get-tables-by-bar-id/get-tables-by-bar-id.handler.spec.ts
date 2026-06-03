@@ -1,4 +1,4 @@
-import { asBarId, asTableId, TableStatus } from '../../../core';
+import { asBarId, asTableId, DbTableStatus } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';
@@ -37,6 +37,6 @@ describe('GetTablesByBarIdHandler', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(asTableId('table-1'));
-    expect(result[0].status).toBe(TableStatus.FREE);
+    expect(result[0].status).toBe(DbTableStatus.FREE);
   });
 });

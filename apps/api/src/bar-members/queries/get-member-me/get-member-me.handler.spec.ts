@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asUserId, BarRole } from '../../../core';
+import { asBarId, asBarMemberId, asUserId, DbBarRole } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
@@ -49,7 +49,7 @@ describe('GetMemberMeHandler', () => {
       id: asBarMemberId('member-1'),
       userId,
       barId,
-      role: BarRole.STAFF,
+      role: DbBarRole.STAFF,
       permissions: expect.any(Array),
       active: true,
       userName: 'John Doe',

@@ -1,10 +1,9 @@
-import { asBarRole, ErrorCodes, hasPermission } from '../..';
 import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { asBarRole, ErrorCodes, hasPermission } from '../..';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-
 
 interface RequestWithUser {
   user: { id: string };
@@ -42,7 +41,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.MISSING_BAR_ID);
     }
 
-    const membership = await this._prisma.barMember.findUnique({
+    const membership = await this._prisma.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId: user.id,
@@ -57,9 +56,7 @@ export class PermissionsGuard implements CanActivate {
 
     if (requiredPermissions && requiredPermissions.length > 0) {
       const role = asBarRole(membership.role);
-      const hasAllPermissions = requiredPermissions.every((permission) =>
-        hasPermission(role, permission),
-      );
+      const hasAllPermissions = requiredPermissions.every((permission) => hasPermission(role, permission));
 
       if (!hasAllPermissions) {
         throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);

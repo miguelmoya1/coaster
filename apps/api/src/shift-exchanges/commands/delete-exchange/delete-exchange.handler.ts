@@ -1,4 +1,4 @@
-import { BarRole, ErrorCodes, ShiftExchangeStatus } from '../../../core';
+import { DbBarRole, ErrorCodes, ShiftExchangeStatus } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../core';
@@ -19,7 +19,7 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
     }
 
-    const member = await this._prisma.barMember.findUnique({
+    const member = await this._prisma.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId: command.userId,
@@ -34,7 +34,7 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
     }
 
     // If the user is not an OWNER, enforce ownership of the exchange request and pending status
-    if (member.role !== BarRole.OWNER) {
+    if (member.role !== DbBarRole.OWNER) {
       if (exchange.requesterId !== command.userId) {
         throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
       }

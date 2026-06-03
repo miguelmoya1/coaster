@@ -4,7 +4,8 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateOrderCommand,
   AddOrderItemsCommand,

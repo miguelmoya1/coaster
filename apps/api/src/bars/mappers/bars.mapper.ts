@@ -1,6 +1,6 @@
 import type { Bar } from '@coaster/common';
 import { asBarId } from '../../core';
-import { Bar as BarDb } from '../../core';
+import { DbBar as BarDb } from '../../core';
 
 export const BarsMapper = {
   toDomain(dbBar: BarDb): Bar {

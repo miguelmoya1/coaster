@@ -1,4 +1,4 @@
-import { asBarId, BarRole } from '../../../core';
+import { asBarId, DbBarRole } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
@@ -26,7 +26,7 @@ describe('GetMembersHandler', () => {
         userId: 'user-1',
         barId: 'bar-1',
         active: true,
-        role: BarRole.OWNER,
+        role: DbBarRole.OWNER,
         createdAt: new Date(),
         updatedAt: new Date(),
         user: {
@@ -47,7 +47,7 @@ describe('GetMembersHandler', () => {
         userId: 'user-1',
         barId: 'bar-1',
         active: true,
-        role: BarRole.OWNER,
+        role: DbBarRole.OWNER,
         permissions: [],
         userName: 'admin',
         userImage: 'http://user-1.jpg',

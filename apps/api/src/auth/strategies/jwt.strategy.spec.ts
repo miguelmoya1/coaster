@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as admin from 'firebase-admin';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import { PrismaService } from '../../prisma/services/prisma.service';
+import { PrismaService } from '../../core';
 import { JwtStrategy } from './jwt.strategy';
 
 vi.mock('firebase-admin', () => ({
@@ -13,11 +13,11 @@ vi.mock('firebase-admin', () => ({
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let prisma: { user: { upsert: Mock } };
+  let prisma: { dbUser: { upsert: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      user: { upsert: vi.fn() },
+      dbUser: { upsert: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -40,7 +40,7 @@ describe('JwtStrategy', () => {
       picture: 'http://photo.url',
     };
     (admin.auth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
-    prisma.user.upsert.mockResolvedValue({
+    prisma.dbUser.upsert.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Test User',
@@ -50,7 +50,7 @@ describe('JwtStrategy', () => {
     const result = await strategy.validate('fake-token');
 
     expect(admin.auth().verifyIdToken).toHaveBeenCalledWith('fake-token');
-    expect(prisma.user.upsert).toHaveBeenCalledWith({
+    expect(prisma.dbUser.upsert).toHaveBeenCalledWith({
       where: { email: 'test@mail.com' },
       update: { googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
       create: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },

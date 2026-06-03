@@ -1,8 +1,9 @@
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { BarPermission, Role } from '../../core';
+import { BarPermission, DbRole } from '../../core';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard, Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
+import { Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   BulkCategoryTemplateInput,
   BulkUpsertTemplatesCommand,
@@ -37,7 +38,7 @@ export class TemplatesController {
   }
 
   @Post('categories')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async createCategoryTemplate(@Body() createCategoryTemplateDto: CreateCategoryTemplateDto) {
     return this._commandBus.execute<CreateCategoryTemplateCommand, { id: string }>(
@@ -46,7 +47,7 @@ export class TemplatesController {
   }
 
   @Put('categories/:id')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async updateCategoryTemplate(@Param('id') id: string, @Body() updateCategoryTemplateDto: UpdateCategoryTemplateDto) {
     return this._commandBus.execute<UpdateCategoryTemplateCommand, void>(
@@ -55,7 +56,7 @@ export class TemplatesController {
   }
 
   @Delete('categories/:id')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async deleteCategoryTemplate(@Param('id') id: string) {
     return this._commandBus.execute<DeleteCategoryTemplateCommand, void>(new DeleteCategoryTemplateCommand(id));
@@ -67,7 +68,7 @@ export class TemplatesController {
   }
 
   @Post('products')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async createProductTemplate(@Body() createProductTemplateDto: CreateProductTemplateDto) {
     return this._commandBus.execute<CreateProductTemplateCommand, { id: string }>(
@@ -76,7 +77,7 @@ export class TemplatesController {
   }
 
   @Put('products/:id')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async updateProductTemplate(@Param('id') id: string, @Body() updateProductTemplateDto: UpdateProductTemplateDto) {
     return this._commandBus.execute<UpdateProductTemplateCommand, void>(
@@ -85,7 +86,7 @@ export class TemplatesController {
   }
 
   @Delete('products/:id')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async deleteProductTemplate(@Param('id') id: string) {
     return this._commandBus.execute<DeleteProductTemplateCommand, void>(new DeleteProductTemplateCommand(id));
@@ -102,7 +103,7 @@ export class TemplatesController {
   }
 
   @Post('bulk')
-  @UserRoles(Role.ADMIN)
+  @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
   async bulkUpsertTemplates(@Body() body: BulkCategoryTemplateInput[]) {
     return this._commandBus.execute<BulkUpsertTemplatesCommand, void>(new BulkUpsertTemplatesCommand(body));

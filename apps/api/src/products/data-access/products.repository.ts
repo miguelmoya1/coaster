@@ -7,7 +7,7 @@ export class ProductsRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
   async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
-    const category = await this._prisma.category.findUnique({
+    const category = await this._prisma.dbCategory.findUnique({
       where: { id: categoryId },
     });
 
@@ -17,8 +17,8 @@ export class ProductsRepository {
     return category.barId === barId;
   }
 
-  async create(categoryId: CategoryId, createProductDto: Omit<Prisma.ProductCreateInput, 'category'>) {
-    return this._prisma.product.create({
+  async create(categoryId: CategoryId, createProductDto: Omit<Prisma.DbProductCreateInput, 'category'>) {
+    return this._prisma.dbProduct.create({
       data: {
         ...createProductDto,
         price: createProductDto.price ?? 0,
@@ -27,22 +27,22 @@ export class ProductsRepository {
     });
   }
 
-  async update(productId: ProductId, updateData: Prisma.ProductUpdateInput) {
-    return this._prisma.product.update({
+  async update(productId: ProductId, updateData: Prisma.DbProductUpdateInput) {
+    return this._prisma.dbProduct.update({
       where: { id: productId },
       data: updateData,
     });
   }
 
   async findByBarId(barId: BarId) {
-    return this._prisma.product.findMany({
+    return this._prisma.dbProduct.findMany({
       where: { category: { barId } },
       orderBy: { name: 'asc' },
     });
   }
 
   async delete(productId: ProductId) {
-    return this._prisma.product.delete({
+    return this._prisma.dbProduct.delete({
       where: { id: productId },
     });
   }

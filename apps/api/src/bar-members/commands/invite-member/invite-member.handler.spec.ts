@@ -61,7 +61,7 @@ describe('InviteMemberHandler', () => {
       },
     });
 
-    const result = await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', 'STAFF', fakeUser));
+    const result = await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF'));
 
     expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
     expect(emailService.sendInviteEmail).toHaveBeenCalledWith('new@test.com', 'Test Bar', 'Admin Name');
@@ -82,7 +82,7 @@ describe('InviteMemberHandler', () => {
     repository.findBarById.mockResolvedValue(null);
 
     await expect(
-      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', 'STAFF', fakeUser)),
+      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF')),
     ).rejects.toThrow(NotFoundException);
   });
 });

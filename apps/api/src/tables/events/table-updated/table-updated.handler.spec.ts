@@ -1,4 +1,4 @@
-import { asBarId, asTableId, SocketEvents, TableStatus } from '../../../core';
+import { asBarId, asTableId, SocketEvents, DbTableStatus } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarGateway } from '../../../core';
@@ -28,7 +28,7 @@ describe('TableUpdatedHandler', () => {
     const table = {
       id: asTableId('table-1'),
       name: 'Table 1 Updated',
-      status: TableStatus.FREE,
+      status: DbTableStatus.FREE,
       barId: asBarId('bar-1'),
     };
     const event = new TableUpdatedEvent(barId, table);

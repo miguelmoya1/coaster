@@ -7,7 +7,7 @@ export class ShiftsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async isUserMemberOfBar(userId: UserId, barId: BarId) {
-    const member = await this.prisma.barMember.findUnique({
+    const member = await this.prisma.dbBarMember.findUnique({
       where: {
         userId_barId: { userId, barId },
       },
@@ -16,8 +16,8 @@ export class ShiftsRepository {
     return !!member && member.active;
   }
 
-  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Prisma.ShiftCreateInput, 'bar' | 'user'>) {
-    return this.prisma.shift.create({
+  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Prisma.DbShiftCreateInput, 'bar' | 'user'>) {
+    return this.prisma.dbShift.create({
       data: {
         ...createShiftDto,
         bar: { connect: { id: barId } },
@@ -30,7 +30,7 @@ export class ShiftsRepository {
   }
 
   async findByBarId(barId: BarId, startDate?: Date, endDate?: Date) {
-    return this.prisma.shift.findMany({
+    return this.prisma.dbShift.findMany({
       where: {
         barId,
         ...(startDate && endDate ? { startTime: { gte: startDate, lte: endDate } } : {}),
@@ -43,13 +43,13 @@ export class ShiftsRepository {
   }
 
   async findById(shiftId: string) {
-    return this.prisma.shift.findUnique({
+    return this.prisma.dbShift.findUnique({
       where: { id: shiftId },
     });
   }
 
   async delete(shiftId: string) {
-    return this.prisma.shift.delete({
+    return this.prisma.dbShift.delete({
       where: { id: shiftId },
     });
   }

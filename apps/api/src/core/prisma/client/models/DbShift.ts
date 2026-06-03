@@ -1120,7 +1120,7 @@ export interface DbShiftDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    * // Ordered by age ascending
    * // Where email contains prisma.io
    * // Limited to the 10 users
-   * const aggregations = await prisma.user.aggregate({
+   * const aggregations = await prisma.dbUser.aggregate({
    *   _avg: {
    *     age: true,
    *   },
@@ -1144,7 +1144,7 @@ export interface DbShiftDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    * @param {DbShiftGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
-   * const result = await prisma.user.groupBy({
+   * const result = await prisma.dbUser.groupBy({
    *   by: ['city', 'createdAt'],
    *   orderBy: {
    *     createdAt: true

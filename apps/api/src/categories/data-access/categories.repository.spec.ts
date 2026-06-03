@@ -7,12 +7,12 @@ import { CategoriesRepository } from './categories.repository';
 describe('CategoriesRepository', () => {
   let repository: CategoriesRepository;
   let prisma: {
-    category: { create: Mock; findMany: Mock };
+    dbCategory: { create: Mock; findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      category: { create: vi.fn(), findMany: vi.fn() },
+      dbCategory: { create: vi.fn(), findMany: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -25,11 +25,11 @@ describe('CategoriesRepository', () => {
 
   describe('create', () => {
     it('should create a category with included products', async () => {
-      prisma.category.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
+      prisma.dbCategory.create.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
 
       const result = await repository.create(asBarId('bar-1'), { name: 'Bebidas', icon: 'beer' });
 
-      expect(prisma.category.create).toHaveBeenCalledWith({
+      expect(prisma.dbCategory.create).toHaveBeenCalledWith({
         data: { bar: { connect: { id: 'bar-1' } }, name: 'Bebidas', icon: 'beer' },
       });
       expect(result).toEqual({ id: 'cat-1', name: 'Bebidas' });
@@ -38,11 +38,11 @@ describe('CategoriesRepository', () => {
 
   describe('findByBarId', () => {
     it('should find bar categories with sorted products', async () => {
-      prisma.category.findMany.mockResolvedValue([{ id: 'cat-1' }]);
+      prisma.dbCategory.findMany.mockResolvedValue([{ id: 'cat-1' }]);
 
       const result = await repository.findByBarId(asBarId('bar-1'));
 
-      expect(prisma.category.findMany).toHaveBeenCalledWith({
+      expect(prisma.dbCategory.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
         orderBy: { name: 'asc' },
       });

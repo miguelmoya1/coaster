@@ -1,7 +1,8 @@
 import type { BarId, BarMember, BarMemberId, User } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { BarPermission, commonMapper, CurrentUser, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { BarPermission, commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';

@@ -1,6 +1,3 @@
-export * from './auth/decorators/current-user.decorator';
-export * from './auth/guards/firebase-auth.guard';
-export * from './auth/guards/optional-firebase-auth.guard';
 export * from './email/email.service';
 export * from './mappers/common.mapper';
 export * from './prisma/client/client';

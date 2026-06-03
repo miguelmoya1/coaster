@@ -1,7 +1,7 @@
 import type { User } from '@coaster/common';
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../auth';
 import { UpdateUserCommand } from '../commands';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UsersMapper } from '../mappers/users.mapper';

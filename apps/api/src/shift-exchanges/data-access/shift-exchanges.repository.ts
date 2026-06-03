@@ -8,18 +8,18 @@ export class ShiftExchangesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async getShiftById(shiftId: ShiftId) {
-    return this.prisma.shift.findUnique({ where: { id: shiftId } });
+    return this.prisma.dbShift.findUnique({ where: { id: shiftId } });
   }
 
   async getExchangeById(exchangeId: ShiftExchangeId) {
-    return this.prisma.shiftExchange.findUnique({
+    return this.prisma.dbShiftExchange.findUnique({
       where: { id: exchangeId },
       include: { shift: true },
     });
   }
 
   async createExchange(shiftId: ShiftId, requesterId: UserId, targetId?: UserId) {
-    return this.prisma.shiftExchange.create({
+    return this.prisma.dbShiftExchange.create({
       data: {
         shift: { connect: { id: shiftId } },
         requester: { connect: { id: requesterId } },
@@ -34,7 +34,7 @@ export class ShiftExchangesRepository {
   }
 
   async hasPendingExchangeForShift(shiftId: ShiftId): Promise<boolean> {
-    const count = await this.prisma.shiftExchange.count({
+    const count = await this.prisma.dbShiftExchange.count({
       where: {
         shiftId,
         status: ShiftExchangeStatus.PENDING,
@@ -47,7 +47,7 @@ export class ShiftExchangesRepository {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.prisma.shiftExchange.findMany({
+    return this.prisma.dbShiftExchange.findMany({
       where: {
         status: ShiftExchangeStatus.PENDING,
         shift: {
@@ -65,12 +65,12 @@ export class ShiftExchangesRepository {
 
   async acceptExchangeAndSwapShift(exchangeId: ShiftExchangeId, shiftId: ShiftId, newUserId: UserId) {
     return this.prisma.$transaction([
-      this.prisma.shiftExchange.update({
+      this.prisma.dbShiftExchange.update({
         where: { id: exchangeId },
         data: { status: ShiftExchangeStatus.APPROVED, targetId: newUserId },
         include: { shift: true, requester: { select: { id: true, name: true } } },
       }),
-      this.prisma.shift.update({
+      this.prisma.dbShift.update({
         where: { id: shiftId },
         data: { userId: newUserId },
       }),
@@ -78,7 +78,7 @@ export class ShiftExchangesRepository {
   }
 
   async deleteExchange(exchangeId: ShiftExchangeId) {
-    return this.prisma.shiftExchange.delete({
+    return this.prisma.dbShiftExchange.delete({
       where: { id: exchangeId },
     });
   }

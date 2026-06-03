@@ -4,7 +4,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
+import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../auth';
 import { UpdateUserCommand } from '../commands';
 import { UsersController } from './users.controller';
 
@@ -32,14 +32,14 @@ describe('UsersController', () => {
   });
 
   it('findMe should return the user directly using mappers', () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as Role };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as DbRole };
     const result = controller.findMe(user);
     expect(result.id).toBe(user.id);
   });
 
   it('updateMe should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'user-1', name: 'New Name' });
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as Role };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as DbRole };
     const dto = { name: 'New Name' };
 
     const result = await controller.updateMe(user, dto);

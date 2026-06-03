@@ -4,7 +4,8 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import { CreateBarCommand } from '../commands';
 import { GetBarByIdQuery, GetBarsForUserQuery } from '../queries';
 import { BarsController } from './bars.controller';
@@ -40,7 +41,7 @@ describe('BarsController', () => {
 
   it('createBar should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({ id: 'bar-1' });
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as Role };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
     const dto = { name: 'El Bar' };
 
     await controller.createBar(dto, user);
@@ -50,7 +51,7 @@ describe('BarsController', () => {
 
   it('getBars should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as Role };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
 
     await controller.getBars(user);
 

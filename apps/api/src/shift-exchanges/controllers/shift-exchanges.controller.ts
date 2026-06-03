@@ -2,7 +2,8 @@ import type { BarId, ShiftExchangeId, ShiftId, User, ShiftExchange } from '@coas
 import { asUserId, BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { Permissions, PermissionsGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 import { ShiftExchangesMapper, ExchangeWithRelations } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';

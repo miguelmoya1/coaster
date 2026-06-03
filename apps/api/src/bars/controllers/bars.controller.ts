@@ -1,7 +1,8 @@
 import type { Bar, BarId, User } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { CreateBarCommand } from '../commands';
 import { CreateBarDto } from '../dto/create-bar.dto';
 import { BarsMapper } from '../mappers/bars.mapper';

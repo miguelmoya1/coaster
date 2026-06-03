@@ -1,6 +1,6 @@
-import { asUserId } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asUserId } from '../../../core';
 import { UserRepository } from '../../data-access/user.repository';
 import { UpdateUserCommand } from './update-user.command';
 import { UpdateUserHandler } from './update-user.handler';

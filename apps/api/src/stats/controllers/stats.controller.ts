@@ -2,7 +2,8 @@ import type { BarId, BarStats } from '@coaster/common';
 import { BarPermission } from '../../core';
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { Permissions, PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import { GetBarStatsQuery } from '../queries/get-bar-stats/get-bar-stats.query';
 
 @Controller('bars/:barId/stats')
