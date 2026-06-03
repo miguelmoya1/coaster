@@ -1,42 +1,20 @@
-import type { BarMember } from '@coaster/common';
-import { ErrorCodes } from '../../../core';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { EmailService } from '../../../core';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { userInvitedEvent } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { InviteMemberCommand } from './invite-member.command';
 
 @CommandHandler(InviteMemberCommand)
-export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand, BarMember> {
+export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand, void> {
   constructor(
     private readonly repository: BarMembersRepository,
-    private readonly emailService: EmailService,
+    private readonly eventBus: EventBus,
   ) {}
 
-  async execute(command: InviteMemberCommand): Promise<BarMember> {
-    const bar = await this.repository.findBarById(command.barId);
-    if (!bar) {
-      throw new NotFoundException(ErrorCodes.BAR_NOT_FOUND);
-    }
+  async execute(command: InviteMemberCommand) {
+    const { barId, userId, role } = command;
 
-    try {
-      const membership = await this.repository.inviteMember(command.barId, command.email, {
-        role: command.role,
-      });
+    const response = await this.repository.inviteMember(barId, userId, { role });
 
-      await this.emailService.sendInviteEmail(command.email, bar.name, command.user.name);
-      return BarMembersMapper.toDomain(membership);
-    } catch (error) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as Record<string, unknown>).code === 'P2002'
-      ) {
-        throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
-      }
-      throw error;
-    }
+    this.eventBus.publish(new userInvitedEvent(response.user.email, response.bar.name));
   }
 }

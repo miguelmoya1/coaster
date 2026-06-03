@@ -1,6 +1,6 @@
-import type { BarId, BarRole, UserId } from '@coaster/common';
+import { BarId, BarRole, UserId } from '@coaster/common';
 
-export class InviteMemberCommand {
+export class UserPreparedForInviteEvent {
   constructor(
     public readonly userId: UserId,
     public readonly barId: BarId,

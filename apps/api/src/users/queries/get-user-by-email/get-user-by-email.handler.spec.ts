@@ -1,46 +1,47 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asUserId } from '../../../core';
+import { asUserId, DbRole } from '../../../core';
 import { UserRepository } from '../../data-access/user.repository';
-import { GetUserByIdHandler } from './get-user-by-id.handler';
-import { GetUserByIdQuery } from './get-user-by-id.query';
+import { GetUserByEmailHandler } from './get-user-by-email.handler';
+import { GetUserByEmailQuery } from './get-user-by-email.query';
 
-describe('GetUserByIdHandler', () => {
-  let handler: GetUserByIdHandler;
+describe('GetUserByEmailHandler', () => {
+  let handler: GetUserByEmailHandler;
   const repository = {
-    findById: vi.fn(),
+    findByEmail: vi.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetUserByIdHandler, { provide: UserRepository, useValue: repository }],
+      providers: [GetUserByEmailHandler, { provide: UserRepository, useValue: repository }],
     }).compile();
 
-    handler = module.get<GetUserByIdHandler>(GetUserByIdHandler);
+    handler = module.get<GetUserByEmailHandler>(GetUserByEmailHandler);
   });
 
   it('should return null if the user does not exist', async () => {
-    repository.findById.mockResolvedValue(null);
+    repository.findByEmail.mockResolvedValue(null);
 
-    const result = await handler.execute(new GetUserByIdQuery(asUserId('no-exist')));
+    const result = await handler.execute(new GetUserByEmailQuery('no-exist@mail.com'));
 
-    expect(repository.findById).toHaveBeenCalledWith('no-exist');
+    expect(repository.findByEmail).toHaveBeenCalledWith('no-exist@mail.com');
     expect(result).toBeNull();
   });
 
   it('should map db user to domain correctly', async () => {
-    repository.findById.mockResolvedValue({
+    repository.findByEmail.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Test',
       googleId: 'g-123',
       photoUrl: 'http://photo.com/1',
       active: true,
+      role: 'USER',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(new GetUserByIdQuery(asUserId('user-1')));
+    const result = await handler.execute(new GetUserByEmailQuery('test@mail.com'));
 
     expect(result).toEqual({
       id: asUserId('user-1'),
@@ -49,6 +50,7 @@ describe('GetUserByIdHandler', () => {
       googleId: 'g-123',
       photoUrl: 'http://photo.com/1',
       active: true,
+      role: DbRole.USER,
     });
   });
 });

@@ -1,8 +1,8 @@
-import { ErrorCodes, PrismaService } from '../../core';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
+import { ErrorCodes, PrismaService } from '../../core';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
@@ -22,17 +22,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 
+      // TODO: Replace for 2 queries and 1 command;
       const user = await this._prisma.dbUser.upsert({
         where: { email: payload.email },
         update: {
           googleId: payload.sub,
-          name: (payload.name as string | undefined) || undefined,
+          name: payload.name || undefined,
           photoUrl: payload.picture || undefined,
         },
         create: {
           email: payload.email,
           googleId: payload.sub,
-          name: (payload.name as string | undefined) || payload.email.split('@')[0],
+          name: payload.name || payload.email.split('@')[0],
           photoUrl: payload.picture || undefined,
         },
       });

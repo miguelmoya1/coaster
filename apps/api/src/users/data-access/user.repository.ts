@@ -1,22 +1,27 @@
+import { UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../core';
+import { DbUserCreateInput, DbUserUpdateInput, PrismaService } from '../../core';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async getById(id: string) {
+  public async findById(id: UserId) {
     return this.prisma.dbUser.findUnique({ where: { id } });
   }
 
-  public async update(id: string, updateUserDto: Prisma.DbUserUpdateInput) {
+  public async findByEmail(email: string) {
+    return this.prisma.dbUser.findUnique({ where: { email } });
+  }
+
+  public async update(id: UserId, updateUserDto: DbUserUpdateInput) {
     return this.prisma.dbUser.update({
       where: { id },
       data: { ...updateUserDto },
     });
   }
 
-  public async upsert(email: string, data: Prisma.DbUserCreateInput) {
+  public async upsert(email: string, data: DbUserCreateInput) {
     return this.prisma.dbUser.upsert({
       where: { email },
       update: {

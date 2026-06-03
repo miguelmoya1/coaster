@@ -1,5 +1,5 @@
-import type { Role, User } from '@coaster/common';
-import { asUserId, DbUser } from '../../core';
+import type { User } from '@coaster/common';
+import { asUserId, type DbUser } from '../../core';
 
 export const UsersMapper = {
   toDomain(dbUser: DbUser): User {
@@ -10,7 +10,7 @@ export const UsersMapper = {
       googleId: dbUser.googleId ?? undefined,
       photoUrl: dbUser.photoUrl ?? undefined,
       active: dbUser.active,
-      role: dbUser.role as Role,
+      role: dbUser.role,
     };
   },
 

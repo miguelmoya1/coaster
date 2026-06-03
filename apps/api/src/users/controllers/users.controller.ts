@@ -12,8 +12,8 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(OptionalFirebaseAuthGuard)
-  public findMe(@CurrentUser() user: User) {
-    return user ? UsersMapper.toDto(user) : user;
+  public findMe(@CurrentUser() user: User | null) {
+    return user ? UsersMapper.toDto(user) : null;
   }
 
   @Patch('me')

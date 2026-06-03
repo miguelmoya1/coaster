@@ -1,41 +1,34 @@
 import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../core';
+import { DbBarMemberCreateInput, PrismaService } from '../../core';
 
 @Injectable()
 export class BarMembersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async isMember(barId: BarId, email: string) {
+    return this.prisma.dbBarMember.findFirst({
+      where: {
+        barId,
+        user: { email },
+      },
+    });
+  }
+
   async findBarById(barId: BarId) {
     return this.prisma.dbBar.findUnique({ where: { id: barId } });
   }
 
-  async inviteMember(
-    barId: BarId,
-    email: string,
-    createBarMemberDto: Omit<Prisma.DbBarMemberCreateInput, 'bar' | 'user'>,
-  ) {
-    const nameFromEmail = email.split('@')[0];
-
-    const user = await this.prisma.dbUser.upsert({
-      where: { email },
-      update: {},
-      create: {
-        email,
-        name: nameFromEmail,
-      },
-    });
-
+  async inviteMember(barId: BarId, userId: UserId, createBarMemberDto: Omit<DbBarMemberCreateInput, 'bar' | 'user'>) {
     return this.prisma.dbBarMember.create({
       data: {
         ...createBarMemberDto,
         bar: { connect: { id: barId } },
-        user: { connect: { id: user.id } },
+        user: { connect: { id: userId } },
       },
       include: {
-        user: {
-          select: { id: true, name: true, email: true, photoUrl: true },
-        },
+        user: { select: { email: true } },
+        bar: { select: { name: true } },
       },
     });
   }

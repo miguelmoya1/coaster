@@ -2,14 +2,14 @@ import type { User } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../data-access/user.repository';
 import { UsersMapper } from '../../mappers/users.mapper';
-import { GetUserByIdQuery } from './get-user-by-id.query';
+import { GetUserByEmailQuery } from './get-user-by-email.query';
 
-@QueryHandler(GetUserByIdQuery)
-export class GetUserByIdHandler implements IQueryHandler<GetUserByIdQuery, User | null> {
+@QueryHandler(GetUserByEmailQuery)
+export class GetUserByEmailHandler implements IQueryHandler<GetUserByEmailQuery, User | null> {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(query: GetUserByIdQuery) {
-    const user = await this.userRepository.findById(query.id);
+  async execute(query: GetUserByEmailQuery) {
+    const user = await this.userRepository.findByEmail(query.email);
 
     if (!user) {
       return null;
