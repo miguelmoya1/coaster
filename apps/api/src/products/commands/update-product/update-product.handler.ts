@@ -2,7 +2,7 @@ import { asCategoryId, ErrorCodes } from '../../../core';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductStockChangedEvent } from '../../../events';
+import { ProductUpdatedEvent } from '../../../events';
 import { ProductsMapper } from '../../mappers/products.mapper';
 import { UpdateProductCommand } from './update-product.command';
 
@@ -28,7 +28,7 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
 
     const product = await this._productsRepository.update(command.productId, command.dto);
     const mapped = ProductsMapper.toDomain(product);
-    this.#logger.debug(`Publishing ProductStockChangedEvent...`);
-    this._eventBus.publish(new ProductStockChangedEvent(command.barId, mapped));
+    this.#logger.debug(`Publishing ProductUpdatedEvent...`);
+    this._eventBus.publish(new ProductUpdatedEvent(command.barId, mapped));
   }
 }

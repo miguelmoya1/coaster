@@ -32,6 +32,13 @@ export class StatsStore {
         this.reloadStats();
       }
     });
+
+    effect(() => {
+      const deleted = this.#socketService.orderDeleted();
+      if (deleted) {
+        this.reloadStats();
+      }
+    });
   }
 
   public setBarId(barId: BarId | undefined) {

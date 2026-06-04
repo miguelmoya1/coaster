@@ -175,6 +175,22 @@ export class OrdersStore {
         }
       }
     });
+
+    // Order deleted
+    effect(() => {
+      const deleted = this.#socketService.orderDeleted();
+      if (deleted) {
+        this.#ordersResource.update((orders) => {
+          if (!orders) return undefined;
+          return orders.filter((o) => o.id !== deleted.id);
+        });
+
+        this.#historyResource.update((orders) => {
+          if (!orders) return undefined;
+          return orders.filter((o) => o.id !== deleted.id);
+        });
+      }
+    });
   }
 
   public setBarId(barId: BarId | undefined) {

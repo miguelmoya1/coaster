@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { UserInvitedEvent } from '../../../events';
+import { asBarMemberId } from '../../../core';
+import { MemberInvitedEvent, UserInvitedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 
@@ -22,5 +23,7 @@ export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand,
 
     this.#logger.debug(`Publishing UserInvitedEvent...`);
     this.eventBus.publish(new UserInvitedEvent(response.user.name, response.user.email, response.bar.name));
+    this.#logger.debug(`Publishing MemberInvitedEvent...`);
+    this.eventBus.publish(new MemberInvitedEvent(barId, asBarMemberId(response.id)));
   }
 }

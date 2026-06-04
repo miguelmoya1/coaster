@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import type { BarId, CreateShiftDto } from '@coaster/common';
 import { asShiftId } from '@coaster/core';
-import { handleErrorFormField } from '@coaster/core';
+import { handleErrorFormField, Socket } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';
@@ -15,6 +15,7 @@ export class ShiftsStore {
   readonly #barshifts = inject(BarShifts);
   readonly #createShift = inject(CreateShift);
   readonly #deleteShift = inject(DeleteShift);
+  readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
   readonly #startDate = signal<string | undefined>(undefined);
@@ -28,6 +29,29 @@ export class ShiftsStore {
   );
 
   readonly shifts = this.#shiftsResource.asReadonly();
+
+  constructor() {
+    // Shift created
+    effect(() => {
+      const created = this.#socketService.shiftCreated();
+      if (created) {
+        this.reload();
+      }
+    });
+
+    // Shift deleted
+    effect(() => {
+      const deleted = this.#socketService.shiftDeleted();
+      if (deleted) {
+        this.#shiftsResource.update((shifts) => {
+          if (!shifts) {
+            return undefined;
+          }
+          return shifts.filter((s) => s.id !== deleted.id);
+        });
+      }
+    });
+  }
 
   public setBarId(barId: BarId | undefined) {
     this.#currentBarId.set(barId);

@@ -4,9 +4,13 @@ export type SocketEvents =
   | 'joined'
   | 'left'
   | 'productCreated'
+  | 'productUpdated'
   | 'productStockChanged'
   | 'productDeleted'
+  | 'categoryCreated'
+  | 'categoryUpdated'
   | 'categoryDeleted'
+  | 'memberInvited'
   | 'memberRemoved'
   | 'tableStatusChanged'
   | 'tableCreated'
@@ -16,4 +20,7 @@ export type SocketEvents =
   | 'orderUpdated'
   | 'orderItemAdded'
   | 'orderClosed'
-  | 'orderCancelled';
+  | 'orderCancelled'
+  | 'orderDeleted'
+  | 'shiftCreated'
+  | 'shiftDeleted';

@@ -44,6 +44,14 @@ export class MembersStore {
         });
       }
     });
+
+    // Member invited
+    effect(() => {
+      const invited = this.#socketService.memberInvited();
+      if (invited) {
+        this.reload();
+      }
+    });
   }
 
   public setBarId(barId: BarId | undefined) {

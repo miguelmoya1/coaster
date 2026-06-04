@@ -70,6 +70,20 @@ export class ProductsStore {
         });
       }
     });
+
+    // Product updated (name, price, category changes)
+    effect(() => {
+      const updated = this.#socketService.productUpdated();
+      if (updated) {
+        const mappedUpdated = productMapper(updated);
+        this.#productsResource.update((products) => {
+          if (!products) {
+            return undefined;
+          }
+          return products.map((p) => (p.id === mappedUpdated.id ? mappedUpdated : p));
+        });
+      }
+    });
   }
 
   public setBarId(barId: BarId | null) {

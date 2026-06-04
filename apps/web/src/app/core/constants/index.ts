@@ -44,8 +44,12 @@ export const SocketEvents = {
   LEFT: 'left',
   PRODUCT_CREATED: 'productCreated',
   PRODUCT_STOCK_CHANGED: 'productStockChanged',
+  PRODUCT_UPDATED: 'productUpdated',
   PRODUCT_DELETED: 'productDeleted',
+  CATEGORY_CREATED: 'categoryCreated',
+  CATEGORY_UPDATED: 'categoryUpdated',
   CATEGORY_DELETED: 'categoryDeleted',
+  MEMBER_INVITED: 'memberInvited',
   MEMBER_REMOVED: 'memberRemoved',
   TABLE_STATUS_CHANGED: 'tableStatusChanged',
   TABLE_CREATED: 'tableCreated',
@@ -56,6 +60,9 @@ export const SocketEvents = {
   ORDER_ITEM_ADDED: 'orderItemAdded',
   ORDER_CLOSED: 'orderClosed',
   ORDER_CANCELLED: 'orderCancelled',
+  ORDER_DELETED: 'orderDeleted',
+  SHIFT_CREATED: 'shiftCreated',
+  SHIFT_DELETED: 'shiftDeleted',
 } as const;
 
 export const BarPermission = {

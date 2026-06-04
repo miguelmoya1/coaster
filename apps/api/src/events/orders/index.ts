@@ -6,3 +6,4 @@ export * from './order-items-added.event';
 export * from './order-item-removed.event';
 export * from './order-table-moved.event';
 export * from './orders-merged.event';
+export * from './order-deleted.event';
