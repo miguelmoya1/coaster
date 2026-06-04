@@ -2,7 +2,7 @@ import type { BarId, BarMember, BarMemberId, User } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard } from '../../auth';
-import { BarPermission, commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { BarPermission, Permissions, PermissionsGuard } from '../../core';
 import { PrepareInviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
@@ -32,16 +32,12 @@ export class BarMembersController {
   @Post()
   @Permissions(BarPermission.INVITE_MEMBER)
   async inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
-    const member = await this._commandBus.execute<PrepareInviteMemberCommand, BarMember>(
-      new PrepareInviteMemberCommand(barId, dto.email, user, dto.role),
-    );
-    return BarMembersMapper.toDto(member);
+    await this._commandBus.execute(new PrepareInviteMemberCommand(barId, dto.email, user, dto.role));
   }
 
   @Delete(':memberId')
   @Permissions(BarPermission.REMOVE_MEMBER)
   async removeMember(@Param('barId') barId: BarId, @Param('memberId') memberId: BarMemberId) {
-    await this._commandBus.execute<RemoveMemberCommand, void>(new RemoveMemberCommand(barId, memberId));
-    return commonMapper.getSuccessResponse();
+    await this._commandBus.execute(new RemoveMemberCommand(barId, memberId));
   }
 }

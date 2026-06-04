@@ -1,4 +1,3 @@
-import type { User } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserPreparedForInviteEvent } from '../../../core';
@@ -7,7 +6,7 @@ import { UsersMapper } from '../../mappers/users.mapper';
 import { PrepareUserForInviteCommand } from './prepare-user-for-invite.command';
 
 @CommandHandler(PrepareUserForInviteCommand)
-export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserForInviteCommand, User> {
+export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserForInviteCommand, void> {
   readonly #logger = new Logger(PrepareUserForInviteHandler.name);
 
   constructor(
@@ -30,7 +29,5 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
 
     this.#logger.debug(`Publishing UserPreparedForInviteEvent...`);
     this.eventBus.publish(new UserPreparedForInviteEvent(userDomain.id, barId, role));
-
-    return userDomain;
   }
 }

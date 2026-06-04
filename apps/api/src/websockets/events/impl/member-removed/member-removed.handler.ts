@@ -1,13 +1,14 @@
-import { SocketEvents } from '../../../core';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { BarGateway } from '../../../websockets';
-import { MemberRemovedEvent } from './member-removed.event';
+import { MemberRemovedEvent, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
 
 @EventsHandler(MemberRemovedEvent)
 export class MemberRemovedHandler implements IEventHandler<MemberRemovedEvent> {
   constructor(private readonly _barGateway: BarGateway) {}
 
   handle(event: MemberRemovedEvent) {
-    this._barGateway.server.to(event.barId).emit(SocketEvents.MEMBER_REMOVED, { id: event.memberId });
+    const { barId, memberId } = event;
+
+    this._barGateway.server.to(barId).emit(SocketEvents.MEMBER_REMOVED, { id: memberId });
   }
 }

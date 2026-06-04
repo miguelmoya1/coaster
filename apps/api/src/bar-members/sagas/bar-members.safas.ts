@@ -8,7 +8,7 @@ import { InviteMemberCommand } from '../commands';
 export class BarMembersSagas {
   readonly #logger = new Logger(BarMembersSagas.name);
   @Saga()
-  inviteMember = (events$: Observable<any>) => {
+  inviteMember = (events$: Observable<unknown>) => {
     return events$.pipe(
       ofType(UserPreparedForInviteEvent),
       map((event) => {

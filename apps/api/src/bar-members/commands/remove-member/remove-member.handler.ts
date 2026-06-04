@@ -1,8 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
+import { ErrorCodes, MemberRemovedEvent } from '../../../core';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';
 
 @CommandHandler(RemoveMemberCommand)
@@ -13,8 +12,10 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
   ) {}
 
   async execute(command: RemoveMemberCommand): Promise<void> {
-    const members = await this.repository.getMembersByBar(command.barId);
-    const memberToRemove = members.find((m) => m.id === command.memberId);
+    const { barId, memberId } = command;
+
+    const members = await this.repository.getMembersByBar(barId);
+    const memberToRemove = members.find((m) => m.id === memberId);
 
     if (memberToRemove?.role === 'OWNER') {
       const ownerCount = members.filter((m) => m.role === 'OWNER').length;
@@ -23,7 +24,7 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
       }
     }
 
-    await this.repository.removeMember(command.memberId);
-    this._eventBus.publish(new MemberRemovedEvent(command.barId, command.memberId));
+    await this.repository.removeMember(memberId);
+    this._eventBus.publish(new MemberRemovedEvent(barId, memberId));
   }
 }
