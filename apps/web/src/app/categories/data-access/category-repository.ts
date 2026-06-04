@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { BarId, Category, CategoryId, CreateCategoryDto, DeleteResponse, UpdateCategoryDto } from '@coaster/common';
+import type { BarId, CategoryId, CreateCategoryDto, DeleteResponse, UpdateCategoryDto } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { deleteResponseMapper } from '../../core/mappers/common.mapper';
-import { categoryMapper } from '../mappers/category.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -17,19 +16,15 @@ export class CategoryRepository {
     delete: (barId: BarId, categoryId: string) => `/bars/${barId}/categories/${categoryId}`,
   };
 
-  public async create(barId: BarId, createCategoryDto: CreateCategoryDto) {
+  public async create(barId: BarId, createCategoryDto: CreateCategoryDto): Promise<void> {
     return firstValueFrom(
-      this.#http
-        .post<Category>(this.routes.create(barId), createCategoryDto)
-        .pipe(map((category) => categoryMapper(category))),
+      this.#http.post<void>(this.routes.create(barId), createCategoryDto),
     );
   }
 
-  public async update(barId: BarId, categoryId: string, updateCategoryDto: UpdateCategoryDto) {
+  public async update(barId: BarId, categoryId: string, updateCategoryDto: UpdateCategoryDto): Promise<void> {
     return firstValueFrom(
-      this.#http
-        .patch<Category>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto)
-        .pipe(map((category) => categoryMapper(category))),
+      this.#http.patch<void>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto),
     );
   }
 

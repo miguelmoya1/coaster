@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { BarId, CreateProductDto, CreateResponse, DeleteResponse, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import type { BarId, CreateProductDto, DeleteResponse, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 
@@ -18,9 +18,9 @@ export class ProductRepository {
     delete: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
   };
 
-  public async create(barId: BarId, createProductDto: CreateProductDto): Promise<CreateResponse<ProductId>> {
+  public async create(barId: BarId, createProductDto: CreateProductDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<CreateResponse<ProductId>>(this.routes.create(barId), createProductDto)
+      this.#http.post<void>(this.routes.create(barId), createProductDto)
     );
   }
 
@@ -44,4 +44,3 @@ export class ProductRepository {
     );
   }
 }
-

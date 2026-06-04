@@ -33,15 +33,14 @@ describe('CreateTable', () => {
   });
 
   describe('execute', () => {
-    it('should delegate to repository and return the result', async () => {
+    it('should delegate to repository', async () => {
       const barId = asBarId('bar-1');
       const dto = { name: 'Mesa 1' };
-      tableRepoMock['create'].mockResolvedValue(mockTable);
+      tableRepoMock['create'].mockResolvedValue(undefined);
 
-      const result = await service.execute(barId, dto);
+      await service.execute(barId, dto);
 
       expect(tableRepoMock['create']).toHaveBeenCalledWith(barId, dto);
-      expect(result).toEqual(mockTable);
     });
   });
 });

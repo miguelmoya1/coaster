@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CancelOrderCommand } from './cancel-order.command';
 
 @CommandHandler(CancelOrderCommand)
-export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, Order> {
+export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, void> {
   readonly #logger = new Logger(CancelOrderHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, O
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: CancelOrderCommand): Promise<Order> {
+  async execute(command: CancelOrderCommand): Promise<void> {
     this.#logger.debug(`Executing cancelOrder...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
@@ -32,7 +32,5 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, O
     this._eventBus.publish(
       new OrderCancelledEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
     );
-
-    return mapped;
   }
 }

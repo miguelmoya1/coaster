@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MergeOrdersCommand } from './merge-orders.command';
 
 @CommandHandler(MergeOrdersCommand)
-export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, Order> {
+export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, void> {
   readonly #logger = new Logger(MergeOrdersHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, O
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: MergeOrdersCommand): Promise<Order> {
+  async execute(command: MergeOrdersCommand): Promise<void> {
     this.#logger.debug(`Executing mergeOrders...`);
     const orders = await this._ordersRepository.findOrdersByIds(command.dto.orderIds);
     if (orders.length !== command.dto.orderIds.length) {
@@ -63,7 +63,5 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, O
         })),
       ),
     );
-
-    return mapped;
   }
 }

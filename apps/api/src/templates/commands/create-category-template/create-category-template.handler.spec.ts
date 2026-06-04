@@ -23,9 +23,8 @@ describe('CreateCategoryTemplateHandler', () => {
     const mockTemplate = { ...data, id: '2', products: [], createdAt: new Date(), updatedAt: new Date() };
     repository.createCategoryTemplate.mockResolvedValue(mockTemplate);
 
-    const result = await handler.execute(new CreateCategoryTemplateCommand(data));
+    await handler.execute(new CreateCategoryTemplateCommand(data));
 
     expect(repository.createCategoryTemplate).toHaveBeenCalledWith(data);
-    expect(result.name).toBe('New Cat');
   });
 });

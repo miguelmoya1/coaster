@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { AddOrderItemsCommand } from './add-order-items.command';
 
 @CommandHandler(AddOrderItemsCommand)
-export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsCommand, Order> {
+export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsCommand, void> {
   readonly #logger = new Logger(AddOrderItemsHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: AddOrderItemsCommand) {
+  async execute(command: AddOrderItemsCommand): Promise<void> {
     this.#logger.debug(`Executing addOrderItems...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
@@ -55,6 +55,5 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
         command.dto.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       ),
     );
-    return mapped;
   }
 }

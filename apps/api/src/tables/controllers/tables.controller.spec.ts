@@ -47,7 +47,7 @@ describe('TablesController', () => {
   });
 
   it('createTable should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'table-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Mesa 1' };
 
     await controller.createTable(asBarId('bar-1'), dto);

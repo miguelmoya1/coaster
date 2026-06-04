@@ -7,12 +7,12 @@ import { UsersMapper } from '../../mappers/users.mapper';
 import { UpdateUserCommand } from './update-user.command';
 
 @CommandHandler(UpdateUserCommand)
-export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, User> {
+export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, void> {
   readonly #logger = new Logger(UpdateUserHandler.name);
 
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(command: UpdateUserCommand) {
+  async execute(command: UpdateUserCommand): Promise<void> {
     this.#logger.debug(`Executing UpdateUser...`);
 
     const { updateUserDto, id } = command;
@@ -23,11 +23,9 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, Use
       throw new NotFoundException(ErrorCodes.USER_NOT_FOUND);
     }
 
-    const user = await this.userRepository.update(id, {
+    await this.userRepository.update(id, {
       name: updateUserDto.name,
       photoUrl: updateUserDto.photoUrl,
     });
-
-    return UsersMapper.toDomain(user);
   }
 }

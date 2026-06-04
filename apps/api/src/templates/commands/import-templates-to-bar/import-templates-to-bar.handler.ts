@@ -6,10 +6,10 @@ import { TemplatesRepository } from '../../data-access/templates.repository';
 import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
 
 @CommandHandler(ImportTemplatesToBarCommand)
-export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTemplatesToBarCommand, any> {
+export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTemplatesToBarCommand, void> {
   constructor(private readonly _templatesRepository: TemplatesRepository) {}
 
-  async execute(command: ImportTemplatesToBarCommand): Promise<any> {
+  async execute(command: ImportTemplatesToBarCommand): Promise<void> {
     const { categoryTemplateIds } = command.dto;
 
     if (!categoryTemplateIds || categoryTemplateIds.length === 0) {
@@ -85,10 +85,5 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
     if (productsDataToInsert.length > 0) {
       await this._templatesRepository.createManyProducts(productsDataToInsert, true);
     }
-
-    const created = categoryDataToInsert.length + productsDataToInsert.length;
-    const modified = 0;
-
-    return commonMapper.getSuccessResponse({ created, modified });
   }
 }

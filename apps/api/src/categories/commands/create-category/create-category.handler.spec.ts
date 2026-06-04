@@ -33,6 +33,6 @@ describe('CreateCategoryHandler', () => {
     const result = await handler.execute(new CreateCategoryCommand(barId, dto));
 
     expect(repository.create).toHaveBeenCalledWith(barId, dto);
-    expect(result.id).toBe(asCategoryId('cat-1'));
+    expect(result).toBeUndefined();
   });
 });

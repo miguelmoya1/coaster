@@ -82,7 +82,7 @@ describe('AddOrderItemsHandler', () => {
 
     const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as AddOrderItemsDto));
 
-    expect(result).toBeDefined();
+    expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
         barId: 'bar-1',

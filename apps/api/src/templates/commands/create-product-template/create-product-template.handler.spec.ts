@@ -23,9 +23,8 @@ describe('CreateProductTemplateHandler', () => {
     const mockTemplate = { ...data, id: 'p2', createdAt: new Date(), updatedAt: new Date() };
     repository.createProductTemplate.mockResolvedValue(mockTemplate);
 
-    const result = await handler.execute(new CreateProductTemplateCommand(data));
+    await handler.execute(new CreateProductTemplateCommand(data));
 
     expect(repository.createProductTemplate).toHaveBeenCalledWith(data);
-    expect(result.name).toBe('New Prod');
   });
 });

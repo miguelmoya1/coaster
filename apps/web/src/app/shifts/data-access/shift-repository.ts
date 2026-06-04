@@ -17,15 +17,15 @@ export class ShiftRepository {
     delete: (barId: BarId, shiftId: string) => `/bars/${barId}/shifts/${shiftId}`,
   };
 
-  public async create(barId: BarId, createShiftDto: CreateShiftDto) {
+  public async create(barId: BarId, createShiftDto: CreateShiftDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Shift>(this.routes.create(barId), createShiftDto).pipe(map((shift) => shiftMapper(shift))),
+      this.#http.post<void>(this.routes.create(barId), createShiftDto)
     );
   }
 
-  public async delete(barId: BarId, shiftId: string) {
+  public async delete(barId: BarId, shiftId: string): Promise<void> {
     return firstValueFrom(
-      this.#http.delete<{ success: boolean }>(this.routes.delete(barId, shiftId)),
+      this.#http.delete<void>(this.routes.delete(barId, shiftId))
     );
   }
 }

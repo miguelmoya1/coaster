@@ -8,7 +8,7 @@ import { CategoryRepository } from '../data-access/category-repository';
 export class UpdateCategory {
   readonly #categoryRepository = inject(CategoryRepository);
 
-  public async execute(barId: BarId, categoryId: CategoryId, updateCategoryDto: UpdateCategoryDto) {
-    return await this.#categoryRepository.update(barId, categoryId, updateCategoryDto);
+  public async execute(barId: BarId, categoryId: CategoryId, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.#categoryRepository.update(barId, categoryId, updateCategoryDto);
   }
 }

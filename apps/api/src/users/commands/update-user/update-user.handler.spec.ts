@@ -43,7 +43,7 @@ describe('UpdateUserHandler', () => {
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(
+    await handler.execute(
       new UpdateUserCommand(asUserId('user-1'), {
         name: 'Updated Name',
         photoUrl: 'http://photo.com/2',
@@ -53,15 +53,6 @@ describe('UpdateUserHandler', () => {
     expect(repository.update).toHaveBeenCalledWith('user-1', {
       name: 'Updated Name',
       photoUrl: 'http://photo.com/2',
-    });
-
-    expect(result).toEqual({
-      id: asUserId('user-1'),
-      email: 'test@mail.com',
-      name: 'Updated Name',
-      googleId: 'g-123',
-      photoUrl: 'http://photo.com/2',
-      active: true,
     });
   });
 

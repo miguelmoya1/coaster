@@ -7,10 +7,10 @@ import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { CreateShiftCommand } from './create-shift.command';
 
 @CommandHandler(CreateShiftCommand)
-export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, Shift> {
+export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, void> {
   constructor(private readonly _shiftsRepository: ShiftsRepository) {}
 
-  async execute(command: CreateShiftCommand): Promise<Shift> {
+  async execute(command: CreateShiftCommand): Promise<void> {
     const isMember = await this._shiftsRepository.isUserMemberOfBar(command.dto.userId, command.barId);
 
     if (!isMember) {
@@ -26,12 +26,10 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, S
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const shift = await this._shiftsRepository.create(command.barId, userId, {
+    await this._shiftsRepository.create(command.barId, userId, {
       startTime: shiftStartTime,
       endTime: shiftEndTime,
       ...rest,
     });
-
-    return ShiftsMapper.toDomain(shift);
   }
 }

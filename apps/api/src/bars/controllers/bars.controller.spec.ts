@@ -9,6 +9,7 @@ import { FirebaseAuthGuard } from '../../auth';
 import { CreateBarCommand } from '../commands';
 import { GetBarByIdQuery, GetBarsForUserQuery } from '../queries';
 import { BarsController } from './bars.controller';
+import { DbRole } from '../../db';
 
 describe('BarsController', () => {
   let controller: BarsController;
@@ -40,7 +41,7 @@ describe('BarsController', () => {
   });
 
   it('createBar should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'bar-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
     const dto = { name: 'El Bar' };
 

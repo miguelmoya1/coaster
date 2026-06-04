@@ -8,7 +8,7 @@ import { CategoryRepository } from '../data-access/category-repository';
 export class CreateCategory {
   readonly #categoryRepository = inject(CategoryRepository);
 
-  public async execute(barId: BarId, createCategoryDto: CreateCategoryDto) {
-    return await this.#categoryRepository.create(barId, createCategoryDto);
+  public async execute(barId: BarId, createCategoryDto: CreateCategoryDto): Promise<void> {
+    await this.#categoryRepository.create(barId, createCategoryDto);
   }
 }

@@ -338,7 +338,7 @@
     "empty": "No products found.",
     "import_action": "Import selected",
     "import_search_placeholder": "Search templates (categories or products)...",
-    "import_success": "Templates imported successfully! ({{created}} created, {{modified}} modified)",
+    "import_success": "Templates imported successfully!",
     "import_title": "Import Templates",
     "inventory_title": "Active Inventory",
     "no_templates_found": "No templates found.",

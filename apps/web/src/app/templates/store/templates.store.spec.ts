@@ -56,9 +56,9 @@ describe('TemplatesStore', () => {
 
     const req = httpMock.expectOne('/templates/bar/bar-123');
     expect(req.request.method).toBe('POST');
-    req.flush({ success: true, created: 3, modified: 0 });
+    req.flush(null);
 
     const result = await promise;
-    expect(result).toEqual({ counts: { success: true, created: 3, modified: 0 }, err: null });
+    expect(result).toEqual({ err: null });
   });
 });

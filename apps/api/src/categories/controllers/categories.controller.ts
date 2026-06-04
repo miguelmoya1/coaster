@@ -27,11 +27,10 @@ export class CategoriesController {
 
   @Post()
   @Permissions(BarPermission.CREATE_CATEGORY)
-  async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto) {
-    const category = await this._commandBus.execute<CreateCategoryCommand, Category>(
+  async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto): Promise<void> {
+    await this._commandBus.execute<CreateCategoryCommand, void>(
       new CreateCategoryCommand(barId, dto),
     );
-    return CategoriesMapper.toDto(category);
   }
 
   @Patch(':categoryId')
@@ -40,11 +39,10 @@ export class CategoriesController {
     @Param('barId') barId: BarId,
     @Param('categoryId') categoryId: CategoryId,
     @Body() dto: UpdateCategoryDto,
-  ) {
-    const category = await this._commandBus.execute<UpdateCategoryCommand, Category>(
+  ): Promise<void> {
+    await this._commandBus.execute<UpdateCategoryCommand, void>(
       new UpdateCategoryCommand(barId, categoryId, dto),
     );
-    return CategoriesMapper.toDto(category);
   }
 
   @Delete(':categoryId')

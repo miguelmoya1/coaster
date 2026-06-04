@@ -22,10 +22,10 @@ export class TemplatesStore {
 
   public async importToBar(barId: BarId, categoryTemplateIds: string[]) {
     try {
-      const counts = await this.#importTemplatesToBar.execute(barId, categoryTemplateIds);
-      return { counts, err: null };
+      await this.#importTemplatesToBar.execute(barId, categoryTemplateIds);
+      return { err: null };
     } catch (error) {
-      return { counts: null, err: handleErrorFormField(error) };
+      return { err: handleErrorFormField(error) };
     }
   }
 

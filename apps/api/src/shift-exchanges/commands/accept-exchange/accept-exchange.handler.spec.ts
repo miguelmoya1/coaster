@@ -55,9 +55,8 @@ describe('AcceptExchangeHandler', () => {
       },
     ]);
 
-    const result = await handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')));
+    await handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')));
 
     expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith('exc-1', 'shift-1', 'acceptor');
-    expect(result).toMatchObject({ id: 'exc-1', status: 'APPROVED' });
   });
 });

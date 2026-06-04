@@ -27,11 +27,10 @@ export class TablesController {
 
   @Post()
   @Permissions(BarPermission.CREATE_TABLE)
-  async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto) {
-    const result = await this._commandBus.execute<CreateTableCommand, { id: TableId }>(
+  async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto): Promise<void> {
+    await this._commandBus.execute<CreateTableCommand, void>(
       new CreateTableCommand(barId, dto),
     );
-    return { id: result.id };
   }
 
   @Patch(':tableId')

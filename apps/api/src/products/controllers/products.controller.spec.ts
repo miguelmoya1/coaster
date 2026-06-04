@@ -53,7 +53,7 @@ describe('ProductsController', () => {
   });
 
   it('createProduct should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'prod-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
 
     await controller.createProduct(asBarId('bar-1'), dto as unknown as CreateProductDto);

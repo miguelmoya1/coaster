@@ -35,11 +35,10 @@ export class ProductsController {
 
   @Post()
   @Permissions(BarPermission.CREATE_PRODUCT)
-  async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto) {
-    const result = await this._commandBus.execute<CreateProductCommand, { id: ProductId }>(
+  async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto): Promise<void> {
+    await this._commandBus.execute<CreateProductCommand, void>(
       new CreateProductCommand(barId, dto),
     );
-    return { id: result.id };
   }
 
   @Patch(':productId/stock')

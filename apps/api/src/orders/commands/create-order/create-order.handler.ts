@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CreateOrderCommand } from './create-order.command';
 
 @CommandHandler(CreateOrderCommand)
-export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, Order> {
+export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, void> {
   readonly #logger = new Logger(CreateOrderHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, O
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: CreateOrderCommand): Promise<Order> {
+  async execute(command: CreateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
     const products = await this._ordersRepository.findProductsByIds(productIds);
@@ -59,7 +59,5 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, O
     this._eventBus.publish(
       new OrderCreatedEvent(command.barId, mapped, command.dto.tableId ? asTableId(command.dto.tableId) : null),
     );
-
-    return mapped;
   }
 }

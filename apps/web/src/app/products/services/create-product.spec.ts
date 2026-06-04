@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import type { CreateProductDto, Product } from '@coaster/common';
-import { asBarId, asCategoryId, asProductId } from '@coaster/core';
+import type { CreateProductDto } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { CreateProduct } from './create-product';
@@ -8,16 +8,6 @@ import { CreateProduct } from './create-product';
 describe('CreateProduct', () => {
   let service: CreateProduct;
   let productRepoMock: Record<string, Mock>;
-
-  const mockProduct: Product = {
-    id: asProductId('prod-1'),
-    categoryId: asCategoryId('cat-1'),
-    name: 'Beer',
-    price: 1050,
-    currentStock: 10,
-    minStockAlert: 5,
-    lastUpdated: new Date().toISOString(),
-  };
 
   beforeEach(() => {
     productRepoMock = {
@@ -44,12 +34,12 @@ describe('CreateProduct', () => {
         minStockAlert: 5,
         price: 1050,
       };
-      productRepoMock['create'].mockResolvedValue(mockProduct);
+      productRepoMock['create'].mockResolvedValue(undefined);
 
       const result = await service.execute(barId, dto);
 
       expect(productRepoMock['create']).toHaveBeenCalledWith(barId, dto);
-      expect(result).toEqual(mockProduct);
+      expect(result).toBeUndefined();
     });
   });
 });

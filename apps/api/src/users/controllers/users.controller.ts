@@ -18,10 +18,9 @@ export class UsersController {
 
   @Patch('me')
   @UseGuards(FirebaseAuthGuard)
-  public async updateMe(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    const updated = await this._commandBus.execute<UpdateUserCommand, User>(
+  public async updateMe(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto): Promise<void> {
+    await this._commandBus.execute<UpdateUserCommand, void>(
       new UpdateUserCommand(user.id, updateUserDto),
     );
-    return UsersMapper.toDto(updated);
   }
 }

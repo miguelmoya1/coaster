@@ -44,23 +44,12 @@ describe('CreateShiftHandler', () => {
       },
     });
 
-    const result = await handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto));
+    await handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto));
 
     expect(repository.isUserMemberOfBar).toHaveBeenCalledWith('user-id', 'bar-1');
     expect(repository.create).toHaveBeenCalledWith('bar-1', 'user-id', {
       startTime: new Date('2026-03-20T10:00:00.000Z'),
       endTime: new Date('2026-03-20T10:00:00.000Z'),
-      notes: 'Test notes',
-    });
-
-    expect(result).toEqual({
-      id: 'shift-1',
-      startTime: '2026-03-20T10:00:00.000Z',
-      endTime: '2026-03-20T10:00:00.000Z',
-      userId: 'user-id',
-      userName: 'User Name',
-      userImage: 'https://photo.url/user.jpg',
-      barId: 'bar-1',
       notes: 'Test notes',
     });
   });

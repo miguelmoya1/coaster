@@ -121,7 +121,7 @@ describe('CurrentUser', () => {
 
       const req = httpMock.expectOne('/users/me');
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockUser);
+      req.flush(null);
 
       const result = await promise;
       expect(result).toEqual(mockUser);
@@ -138,7 +138,7 @@ describe('CurrentUser', () => {
 
       const req = httpMock.expectOne('/users/me');
       expect(req.request.method).toBe('PATCH');
-      req.flush(mockUser);
+      req.flush(null);
 
       await promise;
     });

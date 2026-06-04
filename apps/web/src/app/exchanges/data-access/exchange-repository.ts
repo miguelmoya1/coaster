@@ -17,23 +17,19 @@ export class ExchangeRepository {
     delete: (barId: BarId, exchangeId: ShiftExchangeId) => `/bars/${barId}/exchanges/${exchangeId}`,
   };
 
-  public async request(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto) {
+  public async request(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto): Promise<void> {
     return firstValueFrom(
-      this.#http
-        .post<ShiftExchange>(this.routes.request(barId, shiftId), dto)
-        .pipe(map((exchange) => exchangeMapper(exchange))),
+      this.#http.post<void>(this.routes.request(barId, shiftId), dto)
     );
   }
 
-  public async accept(barId: BarId, exchangeId: ShiftExchangeId) {
+  public async accept(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {
     return firstValueFrom(
-      this.#http
-        .patch<ShiftExchange>(this.routes.accept(barId, exchangeId), {})
-        .pipe(map((exchange) => exchangeMapper(exchange))),
+      this.#http.patch<void>(this.routes.accept(barId, exchangeId), {})
     );
   }
 
-  public async delete(barId: BarId, exchangeId: ShiftExchangeId) {
-    return firstValueFrom(this.#http.delete<{ success: boolean }>(this.routes.delete(barId, exchangeId)));
+  public async delete(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(this.routes.delete(barId, exchangeId)));
   }
 }

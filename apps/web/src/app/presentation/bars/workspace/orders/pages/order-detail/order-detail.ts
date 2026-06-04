@@ -253,10 +253,9 @@ class OrderDetail {
 
     try {
       this.isLoading.set(true);
-      const updated = await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
-      if (updated) {
-        this.fetchedOrder.set(updated);
-      }
+      await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
+      const updated = await this.#ordersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
       this.clearSelection();
     } catch (e) {
       console.error(e);

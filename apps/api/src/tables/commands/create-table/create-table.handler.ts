@@ -7,7 +7,7 @@ import { TablesMapper } from '../../mappers/tables.mapper';
 import { CreateTableCommand } from './create-table.command';
 
 @CommandHandler(CreateTableCommand)
-export class CreateTableHandler implements ICommandHandler<CreateTableCommand, { id: TableId }> {
+export class CreateTableHandler implements ICommandHandler<CreateTableCommand, void> {
   readonly #logger = new Logger(CreateTableHandler.name);
 
   constructor(
@@ -15,7 +15,7 @@ export class CreateTableHandler implements ICommandHandler<CreateTableCommand, {
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: CreateTableCommand): Promise<{ id: TableId }> {
+  async execute(command: CreateTableCommand): Promise<void> {
     this.#logger.debug(`Executing createTable...`);
     const table = await this._tablesRepository.create(command.barId, {
       name: command.dto.name,
@@ -24,6 +24,6 @@ export class CreateTableHandler implements ICommandHandler<CreateTableCommand, {
     const mapped = TablesMapper.toDomain(table);
     this.#logger.debug(`Publishing TableCreatedEvent...`);
     this._eventBus.publish(new TableCreatedEvent(command.barId, mapped));
-    return { id: mapped.id };
+    
   }
 }

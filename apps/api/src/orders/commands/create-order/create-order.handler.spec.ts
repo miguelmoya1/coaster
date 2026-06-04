@@ -65,7 +65,7 @@ describe('CreateOrderHandler', () => {
 
     const result = await handler.execute(new CreateOrderCommand(barId, dto));
 
-    expect(result.id).toBe('order-1');
+    expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId));
   });
 });

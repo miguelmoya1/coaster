@@ -15,9 +15,9 @@ export class TemplatesRepository {
     import: (barId: BarId) => `/templates/bar/${barId}`,
   };
 
-  public async importToBar(barId: BarId, categoryTemplateIds: string[]): Promise<IImportTemplatesResponse> {
+  public async importToBar(barId: BarId, categoryTemplateIds: string[]): Promise<void> {
     return firstValueFrom(
-      this.#http.post<IImportTemplatesResponse>(this.routes.import(barId), { categoryTemplateIds })
+      this.#http.post<void>(this.routes.import(barId), { categoryTemplateIds })
     );
   }
 }

@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CheckoutOrderCommand } from './checkout-order.command';
 
 @CommandHandler(CheckoutOrderCommand)
-export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderCommand, Order> {
+export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderCommand, void> {
   readonly #logger = new Logger(CheckoutOrderHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: CheckoutOrderCommand): Promise<Order> {
+  async execute(command: CheckoutOrderCommand): Promise<void> {
     this.#logger.debug(`Executing checkoutOrder...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
@@ -32,7 +32,5 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
     this._eventBus.publish(
       new OrderClosedEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
     );
-
-    return mapped;
   }
 }

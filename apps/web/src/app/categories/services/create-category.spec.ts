@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { Category } from '@coaster/common';
-import { asBarId, asCategoryId } from '@coaster/core';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoryRepository } from '../data-access/category-repository';
 import { CreateCategory } from './create-category';
@@ -38,15 +37,14 @@ describe('CreateCategory', () => {
       expect(repositoryMock.create).toHaveBeenCalledWith(barId, dto);
     });
 
-    it('should return the created category', async () => {
+    it('should return void', async () => {
       const barId = asBarId('bar-1');
-      const category: Category = { id: asCategoryId('1'), barId, name: 'New Category' };
       const dto = { name: 'New Category' };
-      repositoryMock.create.mockResolvedValue(category);
+      repositoryMock.create.mockResolvedValue(undefined);
 
       const result = await service.execute(barId, dto);
 
-      expect(result).toEqual(category);
+      expect(result).toBeUndefined();
     });
   });
 });

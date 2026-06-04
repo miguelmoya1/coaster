@@ -47,7 +47,7 @@ describe('CategoriesController', () => {
   });
 
   it('createCategory should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'cat-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Comida' };
 
     await controller.createCategory(asBarId('bar-1'), dto);
@@ -56,7 +56,7 @@ describe('CategoriesController', () => {
   });
 
   it('updateCategory should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Bebidas' };
 
     await controller.updateCategory(asBarId('bar-1'), asCategoryId('cat-1'), dto);

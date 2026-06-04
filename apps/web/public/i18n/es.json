@@ -338,7 +338,7 @@
     "empty": "No se encontraron productos.",
     "import_action": "Importar seleccionados",
     "import_search_placeholder": "Buscar plantillas (categorías o productos)...",
-    "import_success": "¡Plantillas importadas correctamente! ({{created}} creadas, {{modified}} modificadas)",
+    "import_success": "¡Plantillas importadas correctamente!",
     "import_title": "Importar Plantillas",
     "inventory_title": "Inventario Activo",
     "no_templates_found": "No se encontraron plantillas.",

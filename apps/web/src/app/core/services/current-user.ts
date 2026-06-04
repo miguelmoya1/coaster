@@ -32,7 +32,7 @@ export class CurrentUser {
 
   public async syncUser(user: User) {
     if (this.#checkIfUserNeedToUpdate(user)) {
-      return firstValueFrom(this.#http.patch(this.#routes.me, user));
+      await firstValueFrom(this.#http.patch<void>(this.#routes.me, user));
     }
 
     return user;

@@ -1,4 +1,3 @@
-import type { ProductId } from '@coaster/common';
 import { asCategoryId, ErrorCodes } from '../../../core';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
@@ -8,7 +7,7 @@ import { ProductsMapper } from '../../mappers/products.mapper';
 import { CreateProductCommand } from './create-product.command';
 
 @CommandHandler(CreateProductCommand)
-export class CreateProductHandler implements ICommandHandler<CreateProductCommand, { id: ProductId }> {
+export class CreateProductHandler implements ICommandHandler<CreateProductCommand, void> {
   readonly #logger = new Logger(CreateProductHandler.name);
 
   constructor(
@@ -16,7 +15,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: CreateProductCommand): Promise<{ id: ProductId }> {
+  async execute(command: CreateProductCommand): Promise<void> {
     this.#logger.debug(`Executing createProduct...`);
     const validCategoryId = asCategoryId(command.dto.categoryId);
     const isValidCategory = await this._productsRepository.checkCategoryBelongsToBar(validCategoryId, command.barId);
@@ -37,6 +36,5 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
 
     this.#logger.debug(`Publishing ProductCreatedEvent...`);
     this._eventBus.publish(new ProductCreatedEvent(command.barId, mapped));
-    return { id: mapped.id };
   }
 }

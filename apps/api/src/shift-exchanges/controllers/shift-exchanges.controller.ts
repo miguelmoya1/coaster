@@ -33,11 +33,10 @@ export class ShiftExchangesController {
     @Param('shiftId') shiftId: ShiftId,
     @Body() dto: CreateShiftExchangeDto,
     @CurrentUser() user: User,
-  ) {
-    const exchange = await this._commandBus.execute<RequestExchangeCommand, ExchangeWithRelations>(
+  ): Promise<void> {
+    await this._commandBus.execute<RequestExchangeCommand, void>(
       new RequestExchangeCommand(barId, shiftId, asUserId(user.id), dto),
     );
-    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 
   @Patch('exchanges/:exchangeId/accept')
@@ -46,11 +45,10 @@ export class ShiftExchangesController {
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
-  ) {
-    const exchange = await this._commandBus.execute<AcceptExchangeCommand, ExchangeWithRelations>(
+  ): Promise<void> {
+    await this._commandBus.execute<AcceptExchangeCommand, void>(
       new AcceptExchangeCommand(barId, exchangeId, asUserId(user.id)),
     );
-    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 
   @Delete('exchanges/:exchangeId')
@@ -59,8 +57,7 @@ export class ShiftExchangesController {
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
-  ) {
+  ): Promise<void> {
     await this._commandBus.execute(new DeleteExchangeCommand(barId, exchangeId, asUserId(user.id)));
-    return { success: true };
   }
 }

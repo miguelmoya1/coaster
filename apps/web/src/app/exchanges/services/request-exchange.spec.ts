@@ -37,16 +37,16 @@ describe('RequestExchange', () => {
   });
 
   describe('execute', () => {
-    it('should delegate to repository and return the result', async () => {
+    it('should delegate to repository and return void', async () => {
       const barId = asBarId('bar-1');
       const shiftId = asShiftId('shift-1');
       const dto: CreateShiftExchangeDto = { targetId: asUserId('user-2') };
-      exchangeRepoMock['request'].mockResolvedValue(mockExchange);
+      exchangeRepoMock['request'].mockResolvedValue(undefined);
 
       const result = await service.execute(barId, shiftId, dto);
 
       expect(exchangeRepoMock['request']).toHaveBeenCalledWith(barId, shiftId, dto);
-      expect(result).toEqual(mockExchange);
+      expect(result).toBeUndefined();
     });
   });
 });

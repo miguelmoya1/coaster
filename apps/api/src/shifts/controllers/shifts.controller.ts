@@ -30,15 +30,13 @@ export class ShiftsController {
 
   @Post()
   @Permissions(BarPermission.CREATE_SHIFT)
-  async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto) {
-    const shift = await this._commandBus.execute<CreateShiftCommand, Shift>(new CreateShiftCommand(barId, dto));
-    return ShiftsMapper.toDto(shift);
+  async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto): Promise<void> {
+    await this._commandBus.execute<CreateShiftCommand, void>(new CreateShiftCommand(barId, dto));
   }
 
   @Delete(':shiftId')
   @Permissions(BarPermission.DELETE_SHIFT)
-  async deleteShift(@Param('barId') barId: BarId, @Param('shiftId') shiftId: string) {
+  async deleteShift(@Param('barId') barId: BarId, @Param('shiftId') shiftId: string): Promise<void> {
     await this._commandBus.execute(new DeleteShiftCommand(barId, shiftId));
-    return { success: true };
   }
 }

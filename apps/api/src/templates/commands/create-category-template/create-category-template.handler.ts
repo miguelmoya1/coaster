@@ -4,11 +4,10 @@ import { TemplatesMapper } from '../../mappers/templates.mapper';
 import { CreateCategoryTemplateCommand } from './create-category-template.command';
 
 @CommandHandler(CreateCategoryTemplateCommand)
-export class CreateCategoryTemplateHandler implements ICommandHandler<CreateCategoryTemplateCommand, any> {
+export class CreateCategoryTemplateHandler implements ICommandHandler<CreateCategoryTemplateCommand, void> {
   constructor(private readonly _templatesRepository: TemplatesRepository) {}
 
-  async execute(command: CreateCategoryTemplateCommand): Promise<any> {
-    const template = await this._templatesRepository.createCategoryTemplate(command.dto);
-    return TemplatesMapper.toCategoryTemplate(template);
+  async execute(command: CreateCategoryTemplateCommand): Promise<void> {
+    await this._templatesRepository.createCategoryTemplate(command.dto);
   }
 }

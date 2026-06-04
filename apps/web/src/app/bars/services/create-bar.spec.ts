@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { Bar, BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
@@ -42,14 +42,13 @@ describe('CreateBar', () => {
       expect(repositoryMock.create).toHaveBeenCalledWith(dto);
     });
 
-    it('should return the created bar', async () => {
-      const bar: Bar = { id: asBarId('1'), name: 'New Bar' };
+    it('should return void', async () => {
       const dto = { name: 'New Bar' };
-      repositoryMock.create.mockResolvedValue(bar);
+      repositoryMock.create.mockResolvedValue(undefined);
 
       const result = await service.execute(dto);
 
-      expect(result).toEqual(bar);
+      expect(result).toBeUndefined();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { asBarId, asUserId } from '../../../core';
+import { asUserId } from '../../../core';
 import { DbRole } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -33,6 +33,6 @@ describe('CreateBarHandler', () => {
     const result = await handler.execute(new CreateBarCommand(dto, user));
 
     expect(repository.create).toHaveBeenCalledWith(user.id, dto);
-    expect(result).toEqual({ id: asBarId('bar-new') });
+    expect(result).toBeUndefined();
   });
 });

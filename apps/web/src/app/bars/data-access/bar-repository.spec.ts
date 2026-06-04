@@ -48,20 +48,19 @@ describe('BarRepository', () => {
       const res = service.create({ name: 'Test Bar' });
 
       const req = httpMock.expectOne(service.routes.create);
-      req.flush({ id: asBarId('1') });
+      req.flush(null);
       expect(req.request.method).toBe('POST');
 
       await res;
     });
 
-    it('should return the created bar id response', async () => {
-      const expected = { id: asBarId('1') };
+    it('should return void response', async () => {
       const res = service.create({ name: 'Test Bar' });
 
       const req = httpMock.expectOne(service.routes.create);
-      req.flush(expected);
+      req.flush(null);
 
-      expect(await res).toEqual(expected);
+      expect(await res).toBeUndefined();
     });
   });
 });

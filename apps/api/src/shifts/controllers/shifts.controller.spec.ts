@@ -47,7 +47,7 @@ describe('ShiftsController', () => {
   });
 
   it('createShift should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({});
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = {
       userId: asUserId('user-1'),
       startTime: '2026-05-01T08:00:00Z',
@@ -55,9 +55,10 @@ describe('ShiftsController', () => {
       role: 'staff',
     };
 
-    await controller.createShift(asBarId('bar-1'), dto);
+    const result = await controller.createShift(asBarId('bar-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateShiftCommand));
+    expect(result).toBeUndefined();
   });
 
   it('deleteShift should delegate to command bus', async () => {

@@ -34,6 +34,6 @@ describe('UpdateCategoryHandler', () => {
     const result = await handler.execute(new UpdateCategoryCommand(barId, catId, dto));
 
     expect(repository.update).toHaveBeenCalledWith(barId, catId, dto);
-    expect(result.name).toBe('Bebidas');
+    expect(result).toBeUndefined();
   });
 });

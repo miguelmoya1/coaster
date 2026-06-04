@@ -8,7 +8,7 @@ import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MoveOrderTableCommand } from './move-order-table.command';
 
 @CommandHandler(MoveOrderTableCommand)
-export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableCommand, Order> {
+export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableCommand, void> {
   readonly #logger = new Logger(MoveOrderTableHandler.name);
 
   constructor(
@@ -16,7 +16,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
     private readonly _eventBus: EventBus,
   ) {}
 
-  async execute(command: MoveOrderTableCommand): Promise<Order> {
+  async execute(command: MoveOrderTableCommand): Promise<void> {
     this.#logger.debug(`Executing moveOrderTable...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
@@ -50,7 +50,5 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
         asTableId(command.dto.tableId),
       ),
     );
-
-    return mapped;
   }
 }

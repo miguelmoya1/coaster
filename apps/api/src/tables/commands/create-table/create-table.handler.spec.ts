@@ -42,10 +42,10 @@ describe('CreateTableHandler', () => {
     };
     repository.create.mockResolvedValue(dbTable);
 
-    const result = await handler.execute(new CreateTableCommand(barId, dto));
+    await handler.execute(new CreateTableCommand(barId, dto));
 
     expect(repository.create).toHaveBeenCalledWith(barId, { name: 'Mesa 1' });
     expect(eventBus.publish).toHaveBeenCalledWith(new TableCreatedEvent(barId, expect.any(Object) as unknown as Table));
-    expect(result).toEqual({ id: asTableId('table-1') });
+    
   });
 });

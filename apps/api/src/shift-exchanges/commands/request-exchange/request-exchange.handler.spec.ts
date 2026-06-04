@@ -65,15 +65,8 @@ describe('RequestExchangeHandler', () => {
       status: ShiftExchangeStatus.PENDING,
     });
 
-    const result = await handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto));
+    await handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto));
 
     expect(repository.createExchange).toHaveBeenCalledWith('shift-1', 'requester-1', 'target-id');
-    expect(result).toMatchObject({
-      id: 'exchange-1',
-      requesterId: 'requester-1',
-      shiftId: 'shift-1',
-      status: 'PENDING',
-      targetId: 'target-id',
-    });
   });
 });

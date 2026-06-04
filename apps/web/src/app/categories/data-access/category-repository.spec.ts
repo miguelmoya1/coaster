@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { Category } from '@coaster/common';
 import { asBarId, asCategoryId } from '@coaster/core';
 import { CategoryRepository } from './category-repository';
 
@@ -46,34 +45,10 @@ describe('CategoryRepository', () => {
       const res = service.create(barId, { name: 'Test Category' });
 
       const req = httpMock.expectOne(service.routes.create(barId));
-      req.flush({ id: asCategoryId('1'), barId, name: 'Test Category' });
+      req.flush(null);
       expect(req.request.method).toBe('POST');
 
-      await res;
-    });
-
-    it('should return the created category', async () => {
-      const barId = asBarId('bar-1');
-      const category: Category = { id: asCategoryId('1'), barId, name: 'Test Category' };
-      const res = service.create(barId, { name: 'Test Category' });
-
-      const req = httpMock.expectOne(service.routes.create(barId));
-      req.flush(category);
-
-      expect(await res).toEqual(category);
-    });
-
-    describe('mapper', () => {
-      it('should map the response to a category', async () => {
-        const barId = asBarId('bar-1');
-        const category: Category = { id: asCategoryId('1'), barId, name: 'Test Category' };
-        const res = service.create(barId, { name: 'Test Category' });
-
-        const req = httpMock.expectOne(service.routes.create(barId));
-        req.flush(category);
-
-        expect(await res).toEqual(category);
-      });
+      expect(await res).toBeNull();
     });
   });
 
@@ -88,36 +63,10 @@ describe('CategoryRepository', () => {
       const res = service.update(barId, categoryId, { name: 'Updated Category' });
 
       const req = httpMock.expectOne(`/bars/bar-1/categories/${categoryId}`);
-      req.flush({ id: asCategoryId(categoryId), barId, name: 'Updated Category' });
+      req.flush(null);
       expect(req.request.method).toBe('PATCH');
 
-      await res;
-    });
-
-    it('should return the updated category', async () => {
-      const barId = asBarId('bar-1');
-      const categoryId = 'cat-1';
-      const category: Category = { id: asCategoryId(categoryId), barId, name: 'Updated Category' };
-      const res = service.update(barId, categoryId, { name: 'Updated Category' });
-
-      const req = httpMock.expectOne(`/bars/bar-1/categories/${categoryId}`);
-      req.flush(category);
-
-      expect(await res).toEqual(category);
-    });
-
-    describe('mapper', () => {
-      it('should map the response to a category', async () => {
-        const barId = asBarId('bar-1');
-        const categoryId = 'cat-1';
-        const category: Category = { id: asCategoryId(categoryId), barId, name: 'Updated Category' };
-        const res = service.update(barId, categoryId, { name: 'Updated Category' });
-
-        const req = httpMock.expectOne(`/bars/bar-1/categories/${categoryId}`);
-        req.flush(category);
-
-        expect(await res).toEqual(category);
-      });
+      expect(await res).toBeNull();
     });
   });
 });

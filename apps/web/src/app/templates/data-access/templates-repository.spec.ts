@@ -39,7 +39,7 @@ describe('TemplatesRepository', () => {
       const req = httpMock.expectOne(service.routes.import(barId));
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ categoryTemplateIds });
-      req.flush({ success: true });
+      req.flush(null);
 
       await promise;
     });

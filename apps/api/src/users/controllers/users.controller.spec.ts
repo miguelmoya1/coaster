@@ -44,21 +44,11 @@ describe('UsersController', () => {
   it('updateMe should delegate to command bus', async () => {
     const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const };
     const dto = { name: 'New Name' };
-    commandBus.execute.mockResolvedValue({
-      id: asUserId('user-1'),
-      name: 'New Name',
-      email: user.email,
-      active: user.active,
-      role: user.role,
-    });
+    commandBus.execute.mockResolvedValue(undefined);
 
     const result = await controller.updateMe(user, dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(new UpdateUserCommand(user.id, dto));
-    expect(result?.id).toBe(user.id);
-    expect(result?.name).toBe('New Name');
-    expect(result?.email).toBe(user.email);
-    expect(result?.active).toBe(user.active);
-    expect(result?.role).toBe(user.role);
+    expect(result).toBeUndefined();
   });
 });

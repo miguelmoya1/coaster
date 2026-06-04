@@ -219,10 +219,10 @@ export class OrdersStore {
 
   public async create(barId: BarId, dto: CreateOrderDto) {
     try {
-      const order = await this.#createOrder.execute(barId, dto);
-      return { order, error: null };
+      await this.#createOrder.execute(barId, dto);
+      return { error: null };
     } catch (error) {
-      return { order: null, error: handleErrorFormField(error) };
+      return { error: handleErrorFormField(error) };
     }
   }
 
@@ -230,119 +230,70 @@ export class OrdersStore {
     return await this.#manageOrder.getOrder(barId, orderId);
   }
 
-  public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto) {
+  public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
     try {
-      const updated = await this.#manageOrder.addItems(barId, orderId, dto);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.addItems(barId, orderId, dto);
     } catch (e) {
       this.#toastService.error('ERR_ADD_ITEMS');
       throw e;
     }
   }
 
-  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
+  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto): Promise<void> {
     try {
-      const updated = await this.#manageOrder.bulkUpdate(barId, orderId, dto);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.bulkUpdate(barId, orderId, dto);
     } catch (error) {
       this.#toastService.error('ERR_PAYMENT');
       throw error;
     }
   }
 
-  public async checkout(barId: BarId, orderId: OrderId) {
+  public async checkout(barId: BarId, orderId: OrderId): Promise<void> {
     try {
-      const updated = await this.#manageOrder.checkout(barId, orderId);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.checkout(barId, orderId);
     } catch (error) {
       this.#toastService.error('ERR_CHECKOUT');
       throw error;
     }
   }
 
-  public async cancel(barId: BarId, orderId: OrderId) {
+  public async cancel(barId: BarId, orderId: OrderId): Promise<void> {
     try {
-      const updated = await this.#manageOrder.cancel(barId, orderId);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.cancel(barId, orderId);
     } catch (error) {
       this.#toastService.error('ERR_CANCEL_ORDER');
       throw error;
     }
   }
 
-  public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto) {
+  public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto): Promise<void> {
     try {
-      const updated = await this.#manageOrder.moveTable(barId, orderId, dto);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.moveTable(barId, orderId, dto);
     } catch (error) {
       this.#toastService.error('ERR_MOVE_TABLE');
       throw error;
     }
   }
 
-  public async merge(barId: BarId, dto: MergeOrdersDto) {
+  public async merge(barId: BarId, dto: MergeOrdersDto): Promise<void> {
     try {
-      const updated = await this.#manageOrder.merge(barId, dto);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.merge(barId, dto);
     } catch (error) {
       this.#toastService.error('ERR_MERGE_TABLES');
       throw error;
     }
   }
 
-  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
     try {
-      const updated = await this.#manageOrder.removeItem(barId, orderId, itemId);
-      if (updated) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [updated];
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-      }
-      return updated;
+      await this.#manageOrder.removeItem(barId, orderId, itemId);
     } catch (error) {
       this.#toastService.error('ERR_REMOVE_ITEM');
       throw error;
     }
   }
 
-  public async deleteOrder(barId: BarId, orderId: OrderId) {
+  public async deleteOrder(barId: BarId, orderId: OrderId): Promise<void> {
     try {
       await this.#deleteOrder.execute(barId, orderId);
     } catch (error) {

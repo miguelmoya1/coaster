@@ -55,7 +55,7 @@ describe('CreateProductHandler', () => {
     });
 
     const cmd = new CreateProductCommand(barId, dto);
-    const result = await handler.execute(cmd);
+    await handler.execute(cmd);
 
     expect(repository.create).toHaveBeenCalledWith(asCategoryId('cat-1'), {
       name: 'Refresco',
@@ -64,6 +64,5 @@ describe('CreateProductHandler', () => {
       minStockAlert: 0,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(new ProductCreatedEvent(barId, expect.any(Object) as unknown as Product));
-    expect(result).toEqual({ id: asProductId('prod-1') });
   });
 });

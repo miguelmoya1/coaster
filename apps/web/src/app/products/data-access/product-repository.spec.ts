@@ -52,16 +52,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush({ id: asProductId('prod-1') });
+      req.flush(null);
 
       await promise;
     });
 
     it('should return product creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush({ id: asProductId('prod-1') });
+      httpMock.expectOne(service.routes.create(barId)).flush(null);
 
-      expect(await res).toEqual({ id: asProductId('prod-1') });
+      expect(await res).toBeNull();
     });
   });
 

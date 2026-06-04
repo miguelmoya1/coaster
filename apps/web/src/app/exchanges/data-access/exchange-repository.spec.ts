@@ -61,16 +61,10 @@ describe('ExchangeRepository', () => {
 
       const req = httpMock.expectOne(service.routes.request(barId, shiftId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockExchange);
+      req.flush(null);
 
-      await promise;
-    });
-
-    it('should return mapped exchange', async () => {
-      const res = service.request(barId, shiftId, dto);
-      httpMock.expectOne(service.routes.request(barId, shiftId)).flush(mockExchange);
-
-      expect(await res).toEqual(mockExchange);
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 
@@ -83,17 +77,10 @@ describe('ExchangeRepository', () => {
 
       const req = httpMock.expectOne(service.routes.accept(barId, exchangeId));
       expect(req.request.method).toBe('PATCH');
-      req.flush({ ...mockExchange, status: ShiftExchangeStatus.APPROVED });
+      req.flush(null);
 
-      await promise;
-    });
-
-    it('should return mapped exchange', async () => {
-      const approvedExchange = { ...mockExchange, status: ShiftExchangeStatus.APPROVED };
-      const res = service.accept(barId, exchangeId);
-      httpMock.expectOne(service.routes.accept(barId, exchangeId)).flush(approvedExchange);
-
-      expect(await res).toEqual(approvedExchange);
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 });
