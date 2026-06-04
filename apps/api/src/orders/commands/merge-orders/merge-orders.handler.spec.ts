@@ -4,7 +4,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMergedEvent } from '../../events';
+import { OrdersMergedEvent } from '../../../events';
 import { MergeOrdersCommand } from './merge-orders.command';
 import { MergeOrdersHandler } from './merge-orders.handler';
 

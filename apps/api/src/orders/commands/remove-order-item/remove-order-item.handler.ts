@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { asProductId, asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../events';
+import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 
 @CommandHandler(RemoveOrderItemCommand)
 export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCommand, Order> {
+  readonly #logger = new Logger(RemoveOrderItemHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveOrderItemCommand): Promise<Order> {
+    this.#logger.debug(`Executing removeOrderItem...`);
     const order = await this._ordersRepository.findById(command.orderId);
     if (!order || order.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -38,6 +41,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
       );
       const mapped = OrdersMapper.toDomain(cancelled);
 
+      this.#logger.debug(`Publishing OrderItemRemovedEvent...`);
       this._eventBus.publish(
         new OrderItemRemovedEvent(command.barId, mapped, {
           productId: asProductId(item.productId),
@@ -45,6 +49,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
         }),
       );
 
+      this.#logger.debug(`Publishing OrderCancelledEvent...`);
       this._eventBus.publish(
         new OrderCancelledEvent(command.barId, mapped, order.tableId ? asTableId(order.tableId) : null),
       );
@@ -55,6 +60,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
     const result = await this._ordersRepository.removeItemAndRecalculate(command.orderId, command.itemId);
     const mapped = OrdersMapper.toDomain(result);
 
+    this.#logger.debug(`Publishing OrderItemRemovedEvent...`);
     this._eventBus.publish(
       new OrderItemRemovedEvent(command.barId, mapped, {
         productId: asProductId(item.productId),
@@ -62,6 +68,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
       }),
     );
 
+    this.#logger.debug(`Publishing OrderUpdatedEvent...`);
     this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
     return mapped;
   }

@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderTableMovedEvent } from '../../events';
+import { OrderTableMovedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MoveOrderTableCommand } from './move-order-table.command';
 
 @CommandHandler(MoveOrderTableCommand)
 export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableCommand, Order> {
+  readonly #logger = new Logger(MoveOrderTableHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: MoveOrderTableCommand): Promise<Order> {
+    this.#logger.debug(`Executing moveOrderTable...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -38,6 +41,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
       newTable.name,
     );
     const mapped = OrdersMapper.toDomain(order);
+    this.#logger.debug(`Publishing OrderTableMovedEvent...`);
     this._eventBus.publish(
       new OrderTableMovedEvent(
         command.barId,

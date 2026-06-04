@@ -5,7 +5,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderCreatedEvent } from '../../events';
+import { OrderCreatedEvent } from '../../../events';
 import { CreateOrderCommand } from './create-order.command';
 import { CreateOrderHandler } from './create-order.handler';
 

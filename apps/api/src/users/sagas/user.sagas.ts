@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ofType, Saga } from '@nestjs/cqrs';
 import { map, Observable } from 'rxjs';
-import { PrepareUserForInviteEvent } from '../../core';
+import { PrepareUserForInviteEvent } from '../../events';
 import { PrepareUserForInviteCommand } from '../commands';
 
 @Injectable()
 export class UserSagas {
   readonly #logger = new Logger(UserSagas.name);
+
   @Saga()
   prepareUserForInvite = (events$: Observable<any>) => {
     return events$.pipe(

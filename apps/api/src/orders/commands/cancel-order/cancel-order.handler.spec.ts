@@ -4,7 +4,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderCancelledEvent } from '../../events';
+import { OrderCancelledEvent } from '../../../events';
 import { CancelOrderCommand } from './cancel-order.command';
 import { CancelOrderHandler } from './cancel-order.handler';
 

@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { UserPreparedForInviteEvent } from '../../../core';
+import { UserPreparedForInviteEvent } from '../../../events';
 import { UserRepository } from '../../data-access/user.repository';
 import { UsersMapper } from '../../mappers/users.mapper';
 import { PrepareUserForInviteCommand } from './prepare-user-for-invite.command';

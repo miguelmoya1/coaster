@@ -5,7 +5,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductCreatedEvent } from '../../events';
+import { ProductCreatedEvent } from '../../../events';
 import { CreateProductCommand } from './create-product.command';
 import { CreateProductHandler } from './create-product.handler';
 

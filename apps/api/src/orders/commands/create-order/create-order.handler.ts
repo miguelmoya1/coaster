@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderCreatedEvent } from '../../events';
+import { OrderCreatedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CreateOrderCommand } from './create-order.command';
 
 @CommandHandler(CreateOrderCommand)
 export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, Order> {
+  readonly #logger = new Logger(CreateOrderHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: CreateOrderCommand): Promise<Order> {
+    this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
     const products = await this._ordersRepository.findProductsByIds(productIds);
     if (products.length !== productIds.length) {
@@ -52,6 +55,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, O
     );
     const mapped = OrdersMapper.toDomain(order);
 
+    this.#logger.debug(`Publishing OrderCreatedEvent...`);
     this._eventBus.publish(
       new OrderCreatedEvent(command.barId, mapped, command.dto.tableId ? asTableId(command.dto.tableId) : null),
     );

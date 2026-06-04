@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderItemsAddedEvent } from '../../events';
+import { OrderItemsAddedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { AddOrderItemsCommand } from './add-order-items.command';
 
 @CommandHandler(AddOrderItemsCommand)
 export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsCommand, Order> {
+  readonly #logger = new Logger(AddOrderItemsHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: AddOrderItemsCommand) {
+    this.#logger.debug(`Executing addOrderItems...`);
     const existingOrder = await this._ordersRepository.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -44,6 +47,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     );
 
     const mapped = OrdersMapper.toDomain(order);
+    this.#logger.debug(`Publishing OrderItemsAddedEvent...`);
     this._eventBus.publish(
       new OrderItemsAddedEvent(
         command.barId,

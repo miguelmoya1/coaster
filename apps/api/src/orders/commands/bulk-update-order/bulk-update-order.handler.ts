@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderUpdatedEvent } from '../../events';
+import { OrderUpdatedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 
 @CommandHandler(BulkUpdateOrderCommand)
 export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCommand, Order> {
+  readonly #logger = new Logger(BulkUpdateOrderHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: BulkUpdateOrderCommand): Promise<Order> {
+    this.#logger.debug(`Executing bulkUpdateOrder...`);
     const order = await this._ordersRepository.findById(command.orderId);
     if (!order || order.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -55,6 +58,7 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     const mapped = OrdersMapper.toDomain(updated);
+    this.#logger.debug(`Publishing OrderUpdatedEvent...`);
     this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
     return mapped;
   }

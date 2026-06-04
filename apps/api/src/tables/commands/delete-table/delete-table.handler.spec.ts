@@ -4,7 +4,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { TableDeletedEvent } from '../../events';
+import { TableDeletedEvent } from '../../../events';
 import { DeleteTableCommand } from './delete-table.command';
 import { DeleteTableHandler } from './delete-table.handler';
 

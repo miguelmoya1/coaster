@@ -5,10 +5,12 @@ import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AdjustProductStockCommand } from '../../products/commands/adjust-product-stock/adjust-product-stock.command';
-import { OrderCancelledEvent } from '../events/order-cancelled/order-cancelled.event';
-import { OrderCreatedEvent } from '../events/order-created/order-created.event';
-import { OrderItemRemovedEvent } from '../events/order-item-removed/order-item-removed.event';
-import { OrderItemsAddedEvent } from '../events/order-items-added/order-items-added.event';
+import {
+  OrderCancelledEvent,
+  OrderCreatedEvent,
+  OrderItemRemovedEvent,
+  OrderItemsAddedEvent,
+} from '../../events';
 import { OrdersSagas } from './orders.sagas';
 
 describe('OrdersSagas', () => {

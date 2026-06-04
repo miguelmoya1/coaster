@@ -1,20 +1,23 @@
 import type { Order } from '@coaster/common';
 import { asOrderId, asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrdersMergedEvent } from '../../events';
+import { OrdersMergedEvent } from '../../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MergeOrdersCommand } from './merge-orders.command';
 
 @CommandHandler(MergeOrdersCommand)
 export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, Order> {
+  readonly #logger = new Logger(MergeOrdersHandler.name);
+
   constructor(
     private readonly _ordersRepository: OrdersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: MergeOrdersCommand): Promise<Order> {
+    this.#logger.debug(`Executing mergeOrders...`);
     const orders = await this._ordersRepository.findOrdersByIds(command.dto.orderIds);
     if (orders.length !== command.dto.orderIds.length) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -49,6 +52,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, O
     );
 
     const mapped = OrdersMapper.toDomain(result);
+    this.#logger.debug(`Publishing OrdersMergedEvent...`);
     this._eventBus.publish(
       new OrdersMergedEvent(
         command.barId,

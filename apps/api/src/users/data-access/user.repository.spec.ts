@@ -26,11 +26,11 @@ describe('UserRepository', () => {
     vi.clearAllMocks();
   });
 
-  describe('getById', () => {
+  describe('findById', () => {
     it('should call db.dbUser.findUnique with the id', async () => {
       db.dbUser.findUnique.mockResolvedValue({ id: 'u1' });
 
-      const result = await repository.getById('u1');
+      const result = await repository.findById('u1');
 
       expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
       expect(result).toEqual({ id: 'u1' });
@@ -39,17 +39,17 @@ describe('UserRepository', () => {
     it('should return null if it does not exist', async () => {
       db.dbUser.findUnique.mockResolvedValue(null);
 
-      const result = await repository.getById('no-exist');
+      const result = await repository.findById('no-exist');
 
       expect(result).toBeNull();
     });
   });
 
-  describe('getByEmail', () => {
+  describe('findByEmail', () => {
     it('should call db.dbUser.findUnique with the email', async () => {
       db.dbUser.findUnique.mockResolvedValue({ email: 'emailPrueba@prueba.com' });
 
-      const result = await repository.getByEmail('emailPrueba@prueba.com');
+      const result = await repository.findByEmail('emailPrueba@prueba.com');
 
       expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'emailPrueba@prueba.com' } });
       expect(result).toEqual({ email: 'emailPrueba@prueba.com' });
@@ -58,7 +58,7 @@ describe('UserRepository', () => {
     it('should return null if it does not exist', async () => {
       db.dbUser.findUnique.mockResolvedValue(null);
 
-      const result = await repository.getByEmail('emailPrueba@prueba.com');
+      const result = await repository.findByEmail('emailPrueba@prueba.com');
 
       expect(result).toBeNull();
     });

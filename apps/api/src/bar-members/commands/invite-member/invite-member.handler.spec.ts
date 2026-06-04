@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asUserId } from '../../../core';
-import { UserInvitedEvent } from '../../../core/events/impl/user-invited.event';
+import { UserInvitedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';

@@ -1,17 +1,21 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes, MemberRemovedEvent } from '../../../core';
+import { ErrorCodes } from '../../../core';
+import { MemberRemovedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { RemoveMemberCommand } from './remove-member.command';
 
 @CommandHandler(RemoveMemberCommand)
 export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand, void> {
+  readonly #logger = new Logger(RemoveMemberHandler.name);
+
   constructor(
     private readonly repository: BarMembersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveMemberCommand): Promise<void> {
+    this.#logger.debug(`Executing removeMember...`);
     const { barId, memberId } = command;
 
     const members = await this.repository.getMembersByBar(barId);
@@ -25,6 +29,7 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
     }
 
     await this.repository.removeMember(memberId);
+    this.#logger.debug(`Publishing MemberRemovedEvent...`);
     this._eventBus.publish(new MemberRemovedEvent(barId, memberId));
   }
 }

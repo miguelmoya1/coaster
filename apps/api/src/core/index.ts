@@ -1,5 +1,4 @@
 export * from './constants';
-export * from './events';
 export * from './mappers/common.mapper';
 export * from './permissions/bar-member.security';
 export * from './permissions/decorators/permissions.decorator';

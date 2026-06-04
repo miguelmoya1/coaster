@@ -1,35 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId, SocketEvents } from '../../../core';
-import { BarGateway } from '../../../websockets';
-import { MemberRemovedEvent } from './user-invited.event';
-import { MemberRemovedHandler } from './user-invited.handler';
+import { EmailService } from '../../email.service';
+import { UserInvitedEvent } from '../../../events';
+import { UserInvitedHandler } from './user-invited.handler';
 
-describe('MemberRemovedHandler', () => {
-  let handler: MemberRemovedHandler;
-  const barGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
+describe('UserInvitedHandler', () => {
+  let handler: UserInvitedHandler;
+  const emailService = {
+    sendInviteEmail: vi.fn(),
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MemberRemovedHandler, { provide: BarGateway, useValue: barGateway }],
+      providers: [
+        UserInvitedHandler,
+        { provide: EmailService, useValue: emailService },
+      ],
     }).compile();
 
-    handler = module.get<MemberRemovedHandler>(MemberRemovedHandler);
+    handler = module.get<UserInvitedHandler>(UserInvitedHandler);
   });
 
-  it('should emit socket event when member is removed', () => {
-    const barId = asBarId('bar-1');
-    const memberId = asBarMemberId('mem-1');
-    const event = new MemberRemovedEvent(barId, memberId);
+  it('should send invite email when user is invited', async () => {
+    const event = new UserInvitedEvent('John Doe', 'john@example.com', 'My Bar');
 
-    handler.handle(event);
+    await handler.handle(event);
 
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.MEMBER_REMOVED, { id: memberId });
+    expect(emailService.sendInviteEmail).toHaveBeenCalledWith(
+      'john@example.com',
+      'My Bar',
+      'John Doe',
+    );
   });
 });

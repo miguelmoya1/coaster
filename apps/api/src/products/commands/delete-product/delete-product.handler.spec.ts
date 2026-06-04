@@ -3,7 +3,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductDeletedEvent } from '../../events';
+import { ProductDeletedEvent } from '../../../events';
 import { DeleteProductCommand } from './delete-product.command';
 import { DeleteProductHandler } from './delete-product.handler';
 

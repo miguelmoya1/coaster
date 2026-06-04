@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { UserInvitedEvent } from '../../../core';
+import { UserInvitedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 

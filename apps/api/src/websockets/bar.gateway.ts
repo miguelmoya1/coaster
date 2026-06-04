@@ -18,13 +18,13 @@ export class BarGateway {
 
   private readonly _logger = new Logger(BarGateway.name);
 
-  // handleConnection(client: Socket) {
-  //   // this._logger.debug(`Cliente conectado: ${client.id}`);
-  // }
+  handleConnection(client: Socket) {
+    // this._logger.debug(`Cliente conectado: ${client.id}`);
+  }
 
-  // handleDisconnect(client: Socket) {
-  //   // this._logger.debug(`Cliente desconectado: ${client.id}`);
-  // }
+  handleDisconnect(client: Socket) {
+    // this._logger.debug(`Cliente desconectado: ${client.id}`);
+  }
 
   @SubscribeMessage(SocketEvents.JOIN_BAR)
   handleJoinBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {

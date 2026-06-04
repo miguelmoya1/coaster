@@ -39,20 +39,17 @@ describe('BarMembersRepository', () => {
   });
 
   describe('inviteMember', () => {
-    it('should upsert the user and create the barMember', async () => {
-      db.dbUser.upsert.mockResolvedValue({ id: 'new-user' });
+    it('should create the barMember', async () => {
       db.dbBarMember.create.mockResolvedValue({ id: 'member-1' });
 
-      const result = await repository.inviteMember(asBarId('bar-1'), 'new@test.com', { role: DbBarRole.STAFF });
+      const result = await repository.inviteMember(asBarId('bar-1'), 'new-user' as any, { role: DbBarRole.STAFF });
 
-      expect(db.dbUser.upsert).toHaveBeenCalledWith({
-        where: { email: 'new@test.com' },
-        update: {},
-        create: { email: 'new@test.com', name: 'new' },
-      });
       expect(db.dbBarMember.create).toHaveBeenCalledWith({
         data: { user: { connect: { id: 'new-user' } }, bar: { connect: { id: 'bar-1' } }, role: DbBarRole.STAFF },
-        include: { user: { select: { id: true, name: true, email: true, photoUrl: true } } },
+        include: {
+          user: { select: { email: true, name: true } },
+          bar: { select: { name: true } },
+        },
       });
       expect(result).toEqual({ id: 'member-1' });
     });

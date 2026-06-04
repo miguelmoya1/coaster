@@ -4,7 +4,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { TableCreatedEvent } from '../../events';
+import { TableCreatedEvent } from '../../../events';
 import { CreateTableCommand } from './create-table.command';
 import { CreateTableHandler } from './create-table.handler';
 
