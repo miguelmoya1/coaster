@@ -1,4 +1,4 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -31,7 +31,7 @@ describe('BulkUpdateOrderHandler', () => {
 
   const barId = asBarId('bar-1');
   const orderId = asOrderId('order-1');
-  const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
+  const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
 
   it('should throw NotFoundException if order item not found', async () => {
     repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', items: [] });

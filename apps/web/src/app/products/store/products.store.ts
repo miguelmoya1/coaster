@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { computed, effect, inject, Service, signal } from '@angular/core';
+import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
@@ -9,9 +9,7 @@ import { DeleteProduct } from '../services/delete-product';
 import { UpdateProduct } from '../services/update-product';
 import { UpdateProductStock } from '../services/update-product-stock';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ProductsStore {
   readonly #barProducts = inject(BarProducts);
   readonly #createProduct = inject(CreateProduct);
@@ -67,6 +65,20 @@ export class ProductsStore {
             return undefined;
           }
           return products.filter((p) => p.id !== deleted.id);
+        });
+      }
+    });
+
+    // Product updated (name, price, category changes)
+    effect(() => {
+      const updated = this.#socketService.productUpdated();
+      if (updated) {
+        const mappedUpdated = productMapper(updated);
+        this.#productsResource.update((products) => {
+          if (!products) {
+            return undefined;
+          }
+          return products.map((p) => (p.id === mappedUpdated.id ? mappedUpdated : p));
         });
       }
     });

@@ -1,4 +1,4 @@
-import { asBarId, ShiftExchangeStatus } from '@coaster/common';
+import { asBarId, ShiftExchangeStatus } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';

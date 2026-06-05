@@ -1,4 +1,4 @@
-import { BarId, OrderId } from '@coaster/common';
+import type { BarId, OrderId } from '@coaster/common';
 import { BulkUpdateDto } from '../../dto/bulk-update.dto';
 
 export class BulkUpdateOrderCommand {

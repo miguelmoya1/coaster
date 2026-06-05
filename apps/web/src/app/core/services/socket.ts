@@ -1,11 +1,10 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Order, Product, SocketEvents, Table } from '@coaster/common';
+import { Service, OnDestroy, signal } from '@angular/core';
+import type { Category, Order, Product, Shift, Table } from '@coaster/common';
+import { SocketEvents } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class Socket implements OnDestroy {
   #socket: SocketClient | null = null;
   readonly #connected = signal(false);
@@ -26,6 +25,13 @@ export class Socket implements OnDestroy {
   readonly tableCreated = signal<Table | null>(null);
   readonly tableUpdated = signal<Table | null>(null);
   readonly tableDeleted = signal<{ id: string } | null>(null);
+  readonly categoryCreated = signal<Category | null>(null);
+  readonly categoryUpdated = signal<Category | null>(null);
+  readonly productUpdated = signal<Product | null>(null);
+  readonly orderDeleted = signal<{ id: string } | null>(null);
+  readonly shiftCreated = signal<Shift | null>(null);
+  readonly shiftDeleted = signal<{ id: string } | null>(null);
+  readonly memberInvited = signal<{ id: string } | null>(null);
 
   constructor() {
     this.connect();
@@ -105,6 +111,34 @@ export class Socket implements OnDestroy {
 
     this.#socket.on(SocketEvents.TABLE_DELETED, (payload: { id: string }) => {
       this.tableDeleted.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.CATEGORY_CREATED, (category: Category) => {
+      this.categoryCreated.set(category);
+    });
+
+    this.#socket.on(SocketEvents.CATEGORY_UPDATED, (category: Category) => {
+      this.categoryUpdated.set(category);
+    });
+
+    this.#socket.on(SocketEvents.PRODUCT_UPDATED, (product: Product) => {
+      this.productUpdated.set(product);
+    });
+
+    this.#socket.on(SocketEvents.ORDER_DELETED, (payload: { id: string }) => {
+      this.orderDeleted.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.SHIFT_CREATED, (shift: Shift) => {
+      this.shiftCreated.set(shift);
+    });
+
+    this.#socket.on(SocketEvents.SHIFT_DELETED, (payload: { id: string }) => {
+      this.shiftDeleted.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.MEMBER_INVITED, (payload: { id: string }) => {
+      this.memberInvited.set(payload);
     });
   }
 

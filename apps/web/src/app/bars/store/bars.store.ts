@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { BarId, BarPermission, BarRole, CreateBarDto, hasPermission } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { computed, inject, Service, signal } from '@angular/core';
+import type { BarId, BarPermission, CreateBarDto } from '@coaster/common';
+import { handleErrorFormField, hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
 import { CreateBar } from '../services/create-bar';
@@ -9,9 +9,7 @@ import { CurrentBar } from '../services/current-bar';
 import { MyBars } from '../services/my-bars';
 import { MyMember } from '../services/my-member';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BarsStore {
   readonly #createBar = inject(CreateBar);
   readonly #myBars = inject(MyBars);
@@ -42,7 +40,7 @@ export class BarsStore {
       return false;
     }
     const member = this.myMember.value();
-    return member?.role === BarRole.OWNER;
+    return member?.role === 'OWNER';
   });
 
   public hasPermission(permission: BarPermission): boolean {

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SectionTitle } from '@coaster/shared';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SectionTitle } from '../../../components/section-title/section-title';
 import { CreateBarForm } from './components/create-bar-form';
 
 @Component({

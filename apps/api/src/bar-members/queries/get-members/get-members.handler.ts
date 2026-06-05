@@ -1,4 +1,4 @@
-import { BarMember } from '@coaster/common';
+import type { BarMember } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';

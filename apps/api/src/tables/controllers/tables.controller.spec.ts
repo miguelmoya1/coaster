@@ -1,9 +1,10 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { GetTablesByBarIdQuery } from '../queries';
 import { TablesController } from './tables.controller';
@@ -46,7 +47,7 @@ describe('TablesController', () => {
   });
 
   it('createTable should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'table-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Mesa 1' };
 
     await controller.createTable(asBarId('bar-1'), dto);

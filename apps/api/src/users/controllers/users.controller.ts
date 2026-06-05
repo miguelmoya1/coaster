@@ -1,7 +1,7 @@
 import type { User } from '@coaster/common';
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../auth';
 import { UpdateUserCommand } from '../commands';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UsersMapper } from '../mappers/users.mapper';
@@ -12,16 +12,15 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(OptionalFirebaseAuthGuard)
-  public findMe(@CurrentUser() user: User) {
-    return user ? UsersMapper.toDto(user) : user;
+  public findMe(@CurrentUser() user: User | null) {
+    return user ? UsersMapper.toDto(user) : null;
   }
 
   @Patch('me')
   @UseGuards(FirebaseAuthGuard)
-  public async updateMe(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
-    const updatedUser = await this._commandBus.execute<UpdateUserCommand, User>(
+  public async updateMe(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto): Promise<void> {
+    await this._commandBus.execute<UpdateUserCommand, void>(
       new UpdateUserCommand(user.id, updateUserDto),
     );
-    return UsersMapper.toDto(updatedUser);
   }
 }

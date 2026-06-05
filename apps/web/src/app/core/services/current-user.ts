@@ -1,13 +1,11 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { User } from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { User } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
 import { Auth } from './auth';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CurrentUser {
   readonly #auth = inject(Auth);
   readonly #http = inject(HttpClient);
@@ -32,7 +30,7 @@ export class CurrentUser {
 
   public async syncUser(user: User) {
     if (this.#checkIfUserNeedToUpdate(user)) {
-      return firstValueFrom(this.#http.patch(this.#routes.me, user));
+      await firstValueFrom(this.#http.patch<void>(this.#routes.me, user));
     }
 
     return user;

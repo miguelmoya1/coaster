@@ -1,24 +1,25 @@
-import { BarId, ShiftExchangeId, ShiftExchangeStatus, ShiftId, UserId } from '@coaster/common';
+import type { BarId, ShiftExchangeId, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core';
+import { ShiftExchangeStatus } from '../../core';
+import { DbService } from '../../db';
 
 @Injectable()
 export class ShiftExchangesRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DbService) {}
 
   async getShiftById(shiftId: ShiftId) {
-    return this.prisma.shift.findUnique({ where: { id: shiftId } });
+    return this.db.dbShift.findUnique({ where: { id: shiftId } });
   }
 
   async getExchangeById(exchangeId: ShiftExchangeId) {
-    return this.prisma.shiftExchange.findUnique({
+    return this.db.dbShiftExchange.findUnique({
       where: { id: exchangeId },
       include: { shift: true },
     });
   }
 
   async createExchange(shiftId: ShiftId, requesterId: UserId, targetId?: UserId) {
-    return this.prisma.shiftExchange.create({
+    return this.db.dbShiftExchange.create({
       data: {
         shift: { connect: { id: shiftId } },
         requester: { connect: { id: requesterId } },
@@ -32,8 +33,8 @@ export class ShiftExchangesRepository {
     });
   }
 
-  async hasPendingExchangeForShift(shiftId: ShiftId): Promise<boolean> {
-    const count = await this.prisma.shiftExchange.count({
+  async hasPendingExchangeForShift(shiftId: ShiftId) {
+    const count = await this.db.dbShiftExchange.count({
       where: {
         shiftId,
         status: ShiftExchangeStatus.PENDING,
@@ -46,7 +47,7 @@ export class ShiftExchangesRepository {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.prisma.shiftExchange.findMany({
+    return this.db.dbShiftExchange.findMany({
       where: {
         status: ShiftExchangeStatus.PENDING,
         shift: {
@@ -63,16 +64,22 @@ export class ShiftExchangesRepository {
   }
 
   async acceptExchangeAndSwapShift(exchangeId: ShiftExchangeId, shiftId: ShiftId, newUserId: UserId) {
-    return this.prisma.$transaction([
-      this.prisma.shiftExchange.update({
+    return this.db.$transaction([
+      this.db.dbShiftExchange.update({
         where: { id: exchangeId },
         data: { status: ShiftExchangeStatus.APPROVED, targetId: newUserId },
         include: { shift: true, requester: { select: { id: true, name: true } } },
       }),
-      this.prisma.shift.update({
+      this.db.dbShift.update({
         where: { id: shiftId },
         data: { userId: newUserId },
       }),
     ]);
+  }
+
+  async deleteExchange(exchangeId: ShiftExchangeId) {
+    return this.db.dbShiftExchange.delete({
+      where: { id: exchangeId },
+    });
   }
 }

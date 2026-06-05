@@ -1,12 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { BarId, CreateShiftDto, Shift } from '@coaster/common';
-import { firstValueFrom, map } from 'rxjs';
-import { shiftMapper } from '../mappers/shift.mapper';
+import { inject, Service } from '@angular/core';
+import type { BarId, CreateShiftDto } from '@coaster/common';
+import { firstValueFrom } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ShiftRepository {
   readonly #http = inject(HttpClient);
 
@@ -14,11 +11,18 @@ export class ShiftRepository {
     list: (barId: BarId, startDate: string, endDate: string) =>
       `/bars/${barId}/shifts?startDate=${startDate}&endDate=${endDate}`,
     create: (barId: BarId) => `/bars/${barId}/shifts`,
+    delete: (barId: BarId, shiftId: string) => `/bars/${barId}/shifts/${shiftId}`,
   };
 
-  public async create(barId: BarId, createShiftDto: CreateShiftDto) {
+  public async create(barId: BarId, createShiftDto: CreateShiftDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Shift>(this.routes.create(barId), createShiftDto).pipe(map((shift) => shiftMapper(shift))),
+      this.#http.post<void>(this.routes.create(barId), createShiftDto)
+    );
+  }
+
+  public async delete(barId: BarId, shiftId: string): Promise<void> {
+    return firstValueFrom(
+      this.#http.delete<void>(this.routes.delete(barId, shiftId))
     );
   }
 }

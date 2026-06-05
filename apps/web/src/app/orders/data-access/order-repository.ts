@@ -1,24 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import {
-  AddOrderItemsDto,
-  BarId,
-  BulkUpdateDto,
-  CreateOrderDto,
-  CreateResponse,
-  DeleteResponse,
-  MergeOrdersDto,
-  MoveTableDto,
-  Order,
-  OrderId,
-  OrderItemId,
-} from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { orderMapper } from '../mappers/order.mapper';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class OrderRepository {
   readonly #http = inject(HttpClient);
 
@@ -46,55 +32,55 @@ export class OrderRepository {
     );
   }
 
-  public async create(barId: BarId, dto: CreateOrderDto): Promise<CreateResponse<OrderId>> {
+  public async create(barId: BarId, dto: CreateOrderDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<CreateResponse<OrderId>>(this.routes.create(barId), dto)
+      this.#http.post<void>(this.routes.create(barId), dto)
     );
   }
 
-  public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto) {
+  public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Order>(this.routes.addItems(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.post<void>(this.routes.addItems(barId, orderId), dto)
     );
   }
 
-  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto) {
+  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto): Promise<void> {
     return firstValueFrom(
-      this.#http.patch<Order>(this.routes.bulkUpdate(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.patch<void>(this.routes.bulkUpdate(barId, orderId), dto)
     );
   }
 
-  public async checkout(barId: BarId, orderId: OrderId) {
+  public async checkout(barId: BarId, orderId: OrderId): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Order>(this.routes.checkout(barId, orderId), {}).pipe(map((order) => orderMapper(order))),
+      this.#http.post<void>(this.routes.checkout(barId, orderId), {})
     );
   }
 
-  public async cancel(barId: BarId, orderId: OrderId) {
+  public async cancel(barId: BarId, orderId: OrderId): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Order>(this.routes.cancel(barId, orderId), {}).pipe(map((order) => orderMapper(order))),
+      this.#http.post<void>(this.routes.cancel(barId, orderId), {})
     );
   }
 
-  public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto) {
+  public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto): Promise<void> {
     return firstValueFrom(
-      this.#http.patch<Order>(this.routes.moveTable(barId, orderId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.patch<void>(this.routes.moveTable(barId, orderId), dto)
     );
   }
 
-  public async merge(barId: BarId, dto: MergeOrdersDto) {
+  public async merge(barId: BarId, dto: MergeOrdersDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<Order>(this.routes.merge(barId), dto).pipe(map((order) => orderMapper(order))),
+      this.#http.post<void>(this.routes.merge(barId), dto)
     );
   }
 
-  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId) {
+  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
     return firstValueFrom(
-      this.#http.delete<Order>(this.routes.removeItem(barId, orderId, itemId)).pipe(map((order) => orderMapper(order))),
+      this.#http.delete<void>(this.routes.removeItem(barId, orderId, itemId))
     );
   }
 
-  public async deleteOrder(barId: BarId, orderId: OrderId) {
-    return firstValueFrom(this.#http.delete<DeleteResponse>(this.routes.delete(barId, orderId)));
+  public async deleteOrder(barId: BarId, orderId: OrderId): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(this.routes.delete(barId, orderId)));
   }
 }

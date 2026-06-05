@@ -1,4 +1,5 @@
-import { ErrorCodes, CreateTableDto as ICreateTableDto } from '@coaster/common';
+import type { CreateTableDto as ICreateTableDto } from '@coaster/common';
+import { ErrorCodes } from '../../core';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTableDto implements ICreateTableDto {

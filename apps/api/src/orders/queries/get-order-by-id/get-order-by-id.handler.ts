@@ -1,4 +1,5 @@
-import { Order, ErrorCodes } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { ErrorCodes } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { OrdersRepository } from '../../data-access/orders.repository';

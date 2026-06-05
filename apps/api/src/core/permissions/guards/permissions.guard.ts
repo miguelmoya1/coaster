@@ -1,7 +1,10 @@
-import { asBarRole, BarPermission, ErrorCodes, hasPermission } from '@coaster/common';
+import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../../prisma/services/prisma.service';
+import { DbService } from '../../../db';
+import { ErrorCodes } from '../../constants';
+import { asBarRole } from '../../utils/brands';
+import { hasPermission } from '../bar-member.security';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 
 interface RequestWithUser {
@@ -13,7 +16,7 @@ interface RequestWithUser {
 export class PermissionsGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
-    private _prisma: PrismaService,
+    private _prisma: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -26,8 +29,6 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     const barId = request.params.barId;
 
-    // If no permissions are specified and there is no barId parameter,
-    // this route doesn't require bar-specific permission/membership verification.
     if (!requiredPermissions && !barId) {
       return true;
     }
@@ -40,7 +41,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.MISSING_BAR_ID);
     }
 
-    const membership = await this._prisma.barMember.findUnique({
+    const membership = await this._prisma.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId: user.id,
@@ -55,9 +56,7 @@ export class PermissionsGuard implements CanActivate {
 
     if (requiredPermissions && requiredPermissions.length > 0) {
       const role = asBarRole(membership.role);
-      const hasAllPermissions = requiredPermissions.every((permission) =>
-        hasPermission(role, permission),
-      );
+      const hasAllPermissions = requiredPermissions.every((permission) => hasPermission(role, permission));
 
       if (!hasAllPermissions) {
         throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);

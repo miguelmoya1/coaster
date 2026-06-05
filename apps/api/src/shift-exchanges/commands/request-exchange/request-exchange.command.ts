@@ -1,4 +1,4 @@
-import { BarId, CreateShiftExchangeDto, ShiftId, UserId } from '@coaster/common';
+import type { BarId, CreateShiftExchangeDto, ShiftId, UserId } from '@coaster/common';
 
 export class RequestExchangeCommand {
   constructor(

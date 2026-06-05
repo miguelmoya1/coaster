@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Table, TableStatus } from '@coaster/common';
-import { DialogComponent } from '@coaster/shared';
+import type { Table } from '@coaster/common';
+import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { DialogComponent } from '../../../components/dialog/dialog.component';
 
 @Component({
   selector: 'coaster-move-table-dialog',
   imports: [TranslatePipe, DialogComponent],
   template: `
     <coaster-dialog [isOpen]="isOpen()" (closed)="close()">
-      <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-[360px] w-[90vw] flex flex-col gap-4">
+      <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-90 w-[90vw] flex flex-col gap-4">
         <h2 class="text-lg font-bold text-on-surface">{{ 'orders.move_table_title' | translate }}</h2>
 
         <div class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto">

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asBarId, asCategoryId, asProductId } from '@coaster/core';
 import { Socket } from '@coaster/core';
 import { Product } from '@coaster/products';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -15,6 +15,7 @@ describe('ProductsStore', () => {
     productCreated: signal<Product | null>(null),
     productStockChanged: signal<Product | null>(null),
     productDeleted: signal<{ id: string } | null>(null),
+    productUpdated: signal<Product | null>(null),
   };
 
   const mockProductsRaw = [
@@ -54,6 +55,7 @@ describe('ProductsStore', () => {
       productCreated: signal<Product | null>(null),
       productStockChanged: signal<Product | null>(null),
       productDeleted: signal<{ id: string } | null>(null),
+      productUpdated: signal<Product | null>(null),
     };
 
     TestBed.configureTestingModule({

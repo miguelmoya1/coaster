@@ -1,6 +1,7 @@
-import { asBarId, BarRole } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asBarRole, getRolePermissions } from '../../../core';
+import { DbBarRole } from '../../../db';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { GetMembersHandler } from './get-members.handler';
 import { GetMembersQuery } from './get-members.query';
@@ -26,7 +27,7 @@ describe('GetMembersHandler', () => {
         userId: 'user-1',
         barId: 'bar-1',
         active: true,
-        role: BarRole.OWNER,
+        role: DbBarRole.OWNER,
         createdAt: new Date(),
         updatedAt: new Date(),
         user: {
@@ -47,8 +48,8 @@ describe('GetMembersHandler', () => {
         userId: 'user-1',
         barId: 'bar-1',
         active: true,
-        role: BarRole.OWNER,
-        permissions: [],
+        role: DbBarRole.OWNER,
+        permissions: getRolePermissions(asBarRole(DbBarRole.OWNER)),
         userName: 'admin',
         userImage: 'http://user-1.jpg',
         userEmail: 'admin@mail.com',

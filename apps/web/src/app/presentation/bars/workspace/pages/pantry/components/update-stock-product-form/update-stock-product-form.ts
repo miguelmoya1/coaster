@@ -1,8 +1,11 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
 import { Product, ProductsStore } from '@coaster/products';
-import { CoasterBtn, CoasterTitle, FormFieldMessages, NumberInput } from '@coaster/shared';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
+import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
+import { CoasterTitle } from '../../../../../../components/typography/typography';
 
 @Component({
   selector: 'coaster-update-product-form',

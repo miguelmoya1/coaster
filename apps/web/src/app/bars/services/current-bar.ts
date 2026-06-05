@@ -1,11 +1,9 @@
-import { inject, Injectable } from '@angular/core';
-import { BarId } from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { BarId } from '@coaster/common';
 import { Auth } from '@coaster/core';
 import { BarRepository } from '../data-access/bar-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CurrentBar {
   readonly #barRepository = inject(BarRepository);
   readonly #auth = inject(Auth);

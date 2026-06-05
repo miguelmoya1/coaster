@@ -1,6 +1,7 @@
-import { asBarId, asTableId, TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asTableId } from '../../../core';
+import { DbTableStatus } from '../../../db';
 import { TablesRepository } from '../../data-access/tables.repository';
 import { GetTablesByBarIdHandler } from './get-tables-by-bar-id.handler';
 import { GetTablesByBarIdQuery } from './get-tables-by-bar-id.query';
@@ -37,6 +38,6 @@ describe('GetTablesByBarIdHandler', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(asTableId('table-1'));
-    expect(result[0].status).toBe(TableStatus.FREE);
+    expect(result[0].status).toBe(DbTableStatus.FREE);
   });
 });

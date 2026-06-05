@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { BarId, CategoryId } from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { BarId, CategoryId } from '@coaster/common';
 import { CategoryRepository } from '../data-access/category-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class DeleteCategory {
   readonly #categoryRepository = inject(CategoryRepository);
 

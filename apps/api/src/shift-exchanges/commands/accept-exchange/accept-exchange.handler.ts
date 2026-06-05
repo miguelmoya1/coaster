@@ -1,14 +1,14 @@
-import { ErrorCodes, ShiftExchangeStatus, asShiftId } from '@coaster/common';
+import { ErrorCodes, ShiftExchangeStatus, asShiftId } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { AcceptExchangeCommand } from './accept-exchange.command';
 
 @CommandHandler(AcceptExchangeCommand)
-export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeCommand, any> {
+export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeCommand, void> {
   constructor(private readonly _shiftExchangesRepository: ShiftExchangesRepository) {}
 
-  async execute(command: AcceptExchangeCommand): Promise<any> {
+  async execute(command: AcceptExchangeCommand): Promise<void> {
     const exchange = await this._shiftExchangesRepository.getExchangeById(command.exchangeId);
 
     if (!exchange) {
@@ -31,12 +31,10 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
-    const [updatedExchange] = await this._shiftExchangesRepository.acceptExchangeAndSwapShift(
+    await this._shiftExchangesRepository.acceptExchangeAndSwapShift(
       command.exchangeId,
       asShiftId(exchange.shiftId),
       command.acceptingUserId,
     );
-
-    return updatedExchange;
   }
 }

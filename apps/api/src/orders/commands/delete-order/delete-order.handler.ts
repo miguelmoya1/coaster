@@ -1,12 +1,18 @@
-import { ErrorCodes } from '@coaster/common';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { ErrorCodes } from '../../../core';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { OrderDeletedEvent } from '../../../events';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { DeleteOrderCommand } from './delete-order.command';
 
 @CommandHandler(DeleteOrderCommand)
 export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, void> {
-  constructor(private readonly _ordersRepository: OrdersRepository) {}
+  readonly #logger = new Logger(DeleteOrderHandler.name);
+
+  constructor(
+    private readonly _ordersRepository: OrdersRepository,
+    private readonly _eventBus: EventBus,
+  ) {}
 
   async execute(command: DeleteOrderCommand): Promise<void> {
     const order = await this._ordersRepository.findById(command.orderId);
@@ -26,5 +32,7 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
     }
 
     await this._ordersRepository.deleteOrder(command.orderId);
+    this.#logger.debug(`Publishing OrderDeletedEvent...`);
+    this._eventBus.publish(new OrderDeletedEvent(command.barId, command.orderId));
   }
 }

@@ -1,41 +1,29 @@
-import { BarMember, ErrorCodes } from '@coaster/common';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { EmailService } from '../../../core';
+import { Logger } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { asBarMemberId } from '../../../core';
+import { MemberInvitedEvent, UserInvitedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { InviteMemberCommand } from './invite-member.command';
 
 @CommandHandler(InviteMemberCommand)
-export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand, BarMember> {
+export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand, void> {
+  readonly #logger = new Logger(InviteMemberHandler.name);
+
   constructor(
     private readonly repository: BarMembersRepository,
-    private readonly emailService: EmailService,
+    private readonly eventBus: EventBus,
   ) {}
 
-  async execute(command: InviteMemberCommand): Promise<BarMember> {
-    const bar = await this.repository.findBarById(command.barId);
-    if (!bar) {
-      throw new NotFoundException(ErrorCodes.BAR_NOT_FOUND);
-    }
+  async execute(command: InviteMemberCommand) {
+    this.#logger.debug(`Executing inviteMember...`);
 
-    try {
-      const membership = await this.repository.inviteMember(command.barId, command.email, {
-        role: command.role,
-      });
+    const { barId, userId, role } = command;
 
-      await this.emailService.sendInviteEmail(command.email, bar.name, command.user.name);
-      return BarMembersMapper.toDomain(membership);
-    } catch (error) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as Record<string, unknown>).code === 'P2002'
-      ) {
-        throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
-      }
-      throw error;
-    }
+    const response = await this.repository.inviteMember(barId, userId, { role });
+
+    this.#logger.debug(`Publishing UserInvitedEvent...`);
+    this.eventBus.publish(new UserInvitedEvent(response.user.name, response.user.email, response.bar.name));
+    this.#logger.debug(`Publishing MemberInvitedEvent...`);
+    this.eventBus.publish(new MemberInvitedEvent(barId, asBarMemberId(response.id)));
   }
 }

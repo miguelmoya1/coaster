@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideRepeat2 } from '@ng-icons/lucide';
+import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../../components/button/button';
 
 @Component({
   selector: 'coaster-exchange-request-card',
-  imports: [NgIcon, TranslatePipe],
-  viewProviders: [provideIcons({ lucideRepeat2 })],
+  imports: [NgIcon, TranslatePipe, CoasterBtn],
+  viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
   template: `
     <div class="flex gap-4">
       <div
@@ -32,12 +33,24 @@ import { TranslatePipe } from '@ngx-translate/core';
       </div>
       @if (!isOwnRequest()) {
         <button
+          coaster-btn
           [disabled]="disabled()"
           (click)="accepted.emit(); $event.stopPropagation()"
-          class="bg-primary text-on-primary font-semibold px-6 h-12 rounded-full shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-95 active:shadow-sm transition-all uppercase tracking-wide text-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
+          class="w-auto! h-12! px-6 shrink-0 uppercase tracking-wide text-sm"
         >
           {{ 'common.accept' | translate }}
           <ng-icon name="lucideRepeat2" class="text-lg"></ng-icon>
+        </button>
+      }
+      @if (canDelete()) {
+        <button
+          coaster-btn
+          variant="outline"
+          [disabled]="disabled()"
+          (click)="delete.emit(); $event.stopPropagation()"
+          class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+        >
+          <ng-icon name="lucideTrash2" class="text-lg"></ng-icon>
         </button>
       }
     </div>
@@ -57,5 +70,7 @@ export class ExchangeRequestCard {
   readonly offeredBy = input.required<string>();
   readonly disabled = input(false);
   readonly isOwnRequest = input(false);
+  readonly canDelete = input(false);
   readonly accepted = output<void>();
+  readonly delete = output<void>();
 }

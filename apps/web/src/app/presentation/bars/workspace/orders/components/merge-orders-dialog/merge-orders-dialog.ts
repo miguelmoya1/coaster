@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Order } from '@coaster/common';
-import { DialogComponent, PricePipe } from '@coaster/shared';
+import type { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { DialogComponent } from '../../../components/dialog/dialog.component';
+import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-merge-orders-dialog',

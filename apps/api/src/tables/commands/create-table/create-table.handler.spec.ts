@@ -1,9 +1,10 @@
-import { asBarId, asTableId, Table } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { asBarId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { TableCreatedEvent } from '../../events';
+import { TableCreatedEvent } from '../../../events';
 import { CreateTableCommand } from './create-table.command';
 import { CreateTableHandler } from './create-table.handler';
 
@@ -41,10 +42,10 @@ describe('CreateTableHandler', () => {
     };
     repository.create.mockResolvedValue(dbTable);
 
-    const result = await handler.execute(new CreateTableCommand(barId, dto));
+    await handler.execute(new CreateTableCommand(barId, dto));
 
     expect(repository.create).toHaveBeenCalledWith(barId, { name: 'Mesa 1' });
     expect(eventBus.publish).toHaveBeenCalledWith(new TableCreatedEvent(barId, expect.any(Object) as unknown as Table));
-    expect(result).toEqual({ id: asTableId('table-1') });
+    
   });
 });

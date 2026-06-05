@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { Table } from '@coaster/common';
-import { PricePipe } from '@coaster/shared';
+import type { Table } from '@coaster/common';
 import { TableStatusPipe } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-table-card',

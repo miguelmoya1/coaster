@@ -1,4 +1,4 @@
-import { BarId, MoveTableDto, OrderId } from '@coaster/common';
+import type { BarId, MoveTableDto, OrderId } from '@coaster/common';
 
 export class MoveOrderTableCommand {
   constructor(

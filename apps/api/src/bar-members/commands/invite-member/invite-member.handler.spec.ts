@@ -1,8 +1,9 @@
-import { asBarId, asUserId, BarRole, Role } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EmailService } from '../../../core';
+import { EventBus } from '@nestjs/cqrs';
+import { asBarId, asUserId } from '../../../core';
+import { UserInvitedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';
@@ -10,81 +11,49 @@ import { InviteMemberHandler } from './invite-member.handler';
 describe('InviteMemberHandler', () => {
   let handler: InviteMemberHandler;
   const repository = {
-    findBarById: vi.fn(),
     inviteMember: vi.fn(),
   };
-  const emailService = {
-    sendInviteEmail: vi.fn(),
+  const eventBus = {
+    publish: vi.fn(),
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InviteMemberHandler,
         { provide: BarMembersRepository, useValue: repository },
-        { provide: EmailService, useValue: emailService },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 
     handler = module.get<InviteMemberHandler>(InviteMemberHandler);
   });
 
-  const fakeUser = {
-    id: asUserId('admin-id'),
-    name: 'Admin Name',
-    email: 'admin@test.com',
-    active: true,
-    role: Role.USER,
-  };
-
-  it('should invite and send email', async () => {
-    repository.findBarById.mockResolvedValue({
-      id: 'bar-1',
-      name: 'Test Bar',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
+  it('should invite and publish UserInvitedEvent', async () => {
     repository.inviteMember.mockResolvedValue({
       id: 'new-member',
-      userId: 'some-user',
-      barId: 'bar-1',
-      role: BarRole.STAFF,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       user: {
-        id: 'some-user',
         name: 'User',
-        email: 'user@test.com',
-        photoUrl: 'img',
+        email: 'new@test.com',
+      },
+      bar: {
+        name: 'Test Bar',
       },
     });
 
-    const result = await handler.execute(
-      new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser),
-    );
+    await handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF'));
 
-    expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: BarRole.STAFF });
-    expect(emailService.sendInviteEmail).toHaveBeenCalledWith('new@test.com', 'Test Bar', 'Admin Name');
-    expect(result).toEqual({
-      id: 'new-member',
-      userId: 'some-user',
-      barId: 'bar-1',
-      role: BarRole.STAFF,
-      permissions: expect.any(Array),
-      active: true,
-      userName: 'User',
-      userEmail: 'user@test.com',
-      userImage: 'img',
-    });
+    expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
+    expect(eventBus.publish).toHaveBeenCalledWith(new UserInvitedEvent('User', 'new@test.com', 'Test Bar'));
   });
 
-  it('should fail if the bar does not exist and NOT send email', async () => {
-    repository.findBarById.mockResolvedValue(null);
+  it('should fail if the repository fails', async () => {
+    repository.inviteMember.mockRejectedValue(new NotFoundException());
 
     await expect(
-      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, fakeUser)),
+      handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF')),
     ).rejects.toThrow(NotFoundException);
+    expect(eventBus.publish).not.toHaveBeenCalled();
   });
 });

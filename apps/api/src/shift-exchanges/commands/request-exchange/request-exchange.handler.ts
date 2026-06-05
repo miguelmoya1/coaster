@@ -1,14 +1,14 @@
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { RequestExchangeCommand } from './request-exchange.command';
 
 @CommandHandler(RequestExchangeCommand)
-export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCommand, any> {
+export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCommand, void> {
   constructor(private readonly _shiftExchangesRepository: ShiftExchangesRepository) {}
 
-  async execute(command: RequestExchangeCommand): Promise<any> {
+  async execute(command: RequestExchangeCommand): Promise<void> {
     const shift = await this._shiftExchangesRepository.getShiftById(command.shiftId);
 
     if (!shift) {
@@ -28,6 +28,6 @@ export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCo
       throw new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_PENDING);
     }
 
-    return this._shiftExchangesRepository.createExchange(command.shiftId, command.requesterId, command.dto.targetId);
+    await this._shiftExchangesRepository.createExchange(command.shiftId, command.requesterId, command.dto.targetId);
   }
 }

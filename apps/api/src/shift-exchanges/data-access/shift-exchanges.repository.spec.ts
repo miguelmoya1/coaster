@@ -1,21 +1,21 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { PrismaService } from '../../core';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '../../core';
+import { DbService } from '../../db';
 import { ShiftExchangesRepository } from './shift-exchanges.repository';
 
 describe('ShiftExchangesRepository', () => {
   let repository: ShiftExchangesRepository;
-  let prisma: {
-    shift: { findUnique: Mock };
-    shiftExchange: { findUnique: Mock; create: Mock; findMany: Mock; update: Mock };
+  let db: {
+    dbShift: { findUnique: Mock };
+    dbShiftExchange: { findUnique: Mock; create: Mock; findMany: Mock; update: Mock };
     $transaction: Mock;
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      shift: { findUnique: vi.fn(), update: vi.fn() },
-      shiftExchange: {
+      dbShift: { findUnique: vi.fn(), update: vi.fn() },
+      dbShiftExchange: {
         findUnique: vi.fn(),
         create: vi.fn(),
         findMany: vi.fn(),
@@ -25,31 +25,31 @@ describe('ShiftExchangesRepository', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ShiftExchangesRepository, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [ShiftExchangesRepository, { provide: DbService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<ShiftExchangesRepository>(ShiftExchangesRepository);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
   });
 
   describe('getShiftById', () => {
-    it('should delegate to prisma.shift.findUnique', async () => {
-      prisma.shift.findUnique.mockResolvedValue({ id: 'shift-1' });
+    it('should delegate to db.dbShift.findUnique', async () => {
+      db.dbShift.findUnique.mockResolvedValue({ id: 'shift-1' });
 
       const result = await repository.getShiftById(asShiftId('shift-1'));
 
-      expect(prisma.shift.findUnique).toHaveBeenCalledWith({ where: { id: 'shift-1' } });
+      expect(db.dbShift.findUnique).toHaveBeenCalledWith({ where: { id: 'shift-1' } });
       expect(result).toEqual({ id: 'shift-1' });
     });
   });
 
   describe('getExchangeById', () => {
     it('should include the shift in the query', async () => {
-      prisma.shiftExchange.findUnique.mockResolvedValue({ id: 'exc-1' });
+      db.dbShiftExchange.findUnique.mockResolvedValue({ id: 'exc-1' });
 
       const result = await repository.getExchangeById(asShiftExchangeId('exc-1'));
 
-      expect(prisma.shiftExchange.findUnique).toHaveBeenCalledWith({
+      expect(db.dbShiftExchange.findUnique).toHaveBeenCalledWith({
         where: { id: 'exc-1' },
         include: { shift: true },
       });
@@ -59,11 +59,11 @@ describe('ShiftExchangesRepository', () => {
 
   describe('createExchange', () => {
     it('should create with PENDING status', async () => {
-      prisma.shiftExchange.create.mockResolvedValue({ id: 'exc-1' });
+      db.dbShiftExchange.create.mockResolvedValue({ id: 'exc-1' });
 
       const result = await repository.createExchange(asShiftId('shift-1'), asUserId('requester'), asUserId('target'));
 
-      expect(prisma.shiftExchange.create).toHaveBeenCalledWith({
+      expect(db.dbShiftExchange.create).toHaveBeenCalledWith({
         data: {
           shift: { connect: { id: 'shift-1' } },
           requester: { connect: { id: 'requester' } },
@@ -81,11 +81,11 @@ describe('ShiftExchangesRepository', () => {
 
   describe('findPendingByBarId', () => {
     it('should filter by PENDING and barId', async () => {
-      prisma.shiftExchange.findMany.mockResolvedValue([{ id: 'exc-1' }]);
+      db.dbShiftExchange.findMany.mockResolvedValue([{ id: 'exc-1' }]);
 
       const result = await repository.findPendingByBarId(asBarId('bar-1'));
 
-      expect(prisma.shiftExchange.findMany).toHaveBeenCalledWith({
+      expect(db.dbShiftExchange.findMany).toHaveBeenCalledWith({
         where: {
           status: ShiftExchangeStatus.PENDING,
           shift: {
@@ -105,7 +105,7 @@ describe('ShiftExchangesRepository', () => {
 
   describe('acceptExchangeAndSwapShift', () => {
     it('should use transaction to update exchange + shift', async () => {
-      prisma.$transaction.mockResolvedValue([{ id: 'exc-1' }]);
+      db.$transaction.mockResolvedValue([{ id: 'exc-1' }]);
 
       await repository.acceptExchangeAndSwapShift(
         asShiftExchangeId('exc-1'),
@@ -113,7 +113,7 @@ describe('ShiftExchangesRepository', () => {
         asUserId('new-user'),
       );
 
-      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(db.$transaction).toHaveBeenCalled();
     });
   });
 });

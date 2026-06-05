@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { BarsStore } from '@coaster/bars';
-import { CreateBarDto } from '@coaster/common';
-import { CoasterBtn, TextInput } from '@coaster/shared';
+import type { CreateBarDto } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideLoaderCircle, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../components/button/button';
+import { TextInput } from '../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-bar-form',

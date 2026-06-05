@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { asBarId, asCategoryId, Category } from '@coaster/common';
+import type { Category } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category.mapper';
 
 describe('Category Mapper', () => {

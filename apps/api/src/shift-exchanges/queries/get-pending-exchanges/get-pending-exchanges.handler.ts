@@ -1,4 +1,4 @@
-import { ShiftExchange } from '@coaster/common';
+import type { ShiftExchange } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { ShiftExchangesMapper } from '../../mappers/shift-exchanges.mapper';

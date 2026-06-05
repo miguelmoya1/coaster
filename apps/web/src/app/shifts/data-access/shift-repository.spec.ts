@@ -1,7 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asShiftId, asUserId, CreateShiftDto, Shift } from '@coaster/common';
+import type { CreateShiftDto } from '@coaster/common';
+import { asBarId, asUserId } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftRepository } from './shift-repository';
 
@@ -39,19 +40,12 @@ describe('ShiftRepository', () => {
   });
 
   describe('create', () => {
-    it('should call the create endpoint and return mapped shift', async () => {
+    it('should call the create endpoint and resolve to void', async () => {
       const barId = asBarId('bar-1');
       const dto: CreateShiftDto = {
         startTime: '2026-03-20T08:00:00Z',
         endTime: '2026-03-20T16:00:00Z',
         userId: asUserId('user-1'),
-      };
-      const mockShift: Shift = {
-        id: asShiftId('shift-1'),
-        barId,
-        ...dto,
-        userName: 'User 1',
-        userImage: 'https://photo.url/test.jpg',
       };
 
       const promise = repository.create(barId, dto);
@@ -59,10 +53,26 @@ describe('ShiftRepository', () => {
       const req = httpMock.expectOne(repository.routes.create(barId));
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(dto);
-      req.flush(mockShift);
+      req.flush(null);
 
       const result = await promise;
-      expect(result).toEqual(mockShift);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('delete', () => {
+    it('should call the delete endpoint and resolve to void', async () => {
+      const barId = asBarId('bar-1');
+      const shiftId = 'shift-1';
+
+      const promise = repository.delete(barId, shiftId);
+
+      const req = httpMock.expectOne(repository.routes.delete(barId, shiftId));
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 });

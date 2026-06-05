@@ -23,7 +23,7 @@ describe('ImportTemplates', () => {
       isLoading: vi.fn().mockReturnValue(false),
       hasValue: vi.fn().mockReturnValue(true),
     },
-    importToBar: vi.fn().mockResolvedValue({ counts: { success: true, created: 3, modified: 0 }, err: null }),
+    importToBar: vi.fn().mockResolvedValue({ err: null }),
   };
 
   const categoriesStoreMock = {

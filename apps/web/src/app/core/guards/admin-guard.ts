@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { filter, map, switchMap, take } from 'rxjs';
 import { Auth } from '../services/auth';
 import { CurrentUser } from '../services/current-user';
-import { Role } from '@coaster/common';
+import { Role } from '@coaster/core';
 
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(Auth);

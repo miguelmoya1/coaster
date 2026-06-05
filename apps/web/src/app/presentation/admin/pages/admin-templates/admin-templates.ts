@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { Toast } from '@coaster/core';
-import { CoasterBtn, Loading, SectionTitle, TextareaInput } from '@coaster/shared';
 import { TemplatesStore } from '@coaster/templates';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -16,6 +15,10 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { CoasterBtn } from '../../../components/button/button';
+import { TextareaInput } from '../../../components/forms/textarea-input/textarea-input';
+import { Loading } from '../../../components/loading/loading';
+import { SectionTitle } from '../../../components/section-title/section-title';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({

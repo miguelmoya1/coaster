@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asBarId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -62,12 +62,11 @@ describe('ImportTemplatesToBarHandler', () => {
     repository.findProductsByCategoryIds.mockResolvedValue([]);
     repository.createManyProducts.mockResolvedValue({ count: 2 });
 
-    const result = await handler.execute(
+    await handler.execute(
       new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['temp-cat-1'] }),
     );
 
     expect(repository.findCategoryTemplatesByIds).toHaveBeenCalledWith(['temp-cat-1']);
     expect(repository.createManyCategories).toHaveBeenCalledWith([{ barId, name: 'Bebidas', icon: 'cup' }], true);
-    expect(result).toEqual({ success: true, created: 3, modified: 0 });
   });
 });

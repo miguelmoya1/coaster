@@ -1,9 +1,11 @@
-import { asBarId, asProductId, CreateProductDto } from '@coaster/common';
+import type { CreateProductDto } from '@coaster/common';
+import { asBarId, asProductId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateProductCommand,
   UpdateProductStockCommand,
@@ -51,7 +53,7 @@ describe('ProductsController', () => {
   });
 
   it('createProduct should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'prod-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
 
     await controller.createProduct(asBarId('bar-1'), dto as unknown as CreateProductDto);

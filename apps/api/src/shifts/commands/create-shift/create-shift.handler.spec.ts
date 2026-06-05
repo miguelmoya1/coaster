@@ -1,10 +1,12 @@
-import { asBarId, asUserId } from '@coaster/common';
+import { asBarId, asUserId, asShiftId } from '../../../core';
 import { ForbiddenException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftsRepository } from '../../data-access/shifts.repository';
 import { CreateShiftCommand } from './create-shift.command';
 import { CreateShiftHandler } from './create-shift.handler';
+import { ShiftCreatedEvent } from '../../../events';
 
 describe('CreateShiftHandler', () => {
   let handler: CreateShiftHandler;
@@ -12,10 +14,17 @@ describe('CreateShiftHandler', () => {
     isUserMemberOfBar: vi.fn(),
     create: vi.fn(),
   };
+  const eventBus = {
+    publish: vi.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CreateShiftHandler, { provide: ShiftsRepository, useValue: repository }],
+      providers: [
+        CreateShiftHandler,
+        { provide: ShiftsRepository, useValue: repository },
+        { provide: EventBus, useValue: eventBus },
+      ],
     }).compile();
 
     handler = module.get<CreateShiftHandler>(CreateShiftHandler);
@@ -44,7 +53,7 @@ describe('CreateShiftHandler', () => {
       },
     });
 
-    const result = await handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto));
+    await handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto));
 
     expect(repository.isUserMemberOfBar).toHaveBeenCalledWith('user-id', 'bar-1');
     expect(repository.create).toHaveBeenCalledWith('bar-1', 'user-id', {
@@ -52,17 +61,18 @@ describe('CreateShiftHandler', () => {
       endTime: new Date('2026-03-20T10:00:00.000Z'),
       notes: 'Test notes',
     });
-
-    expect(result).toEqual({
-      id: 'shift-1',
-      startTime: '2026-03-20T10:00:00.000Z',
-      endTime: '2026-03-20T10:00:00.000Z',
-      userId: 'user-id',
-      userName: 'User Name',
-      userImage: 'https://photo.url/user.jpg',
-      barId: 'bar-1',
-      notes: 'Test notes',
-    });
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new ShiftCreatedEvent(asBarId('bar-1'), {
+        id: asShiftId('shift-1'),
+        startTime: '2026-03-20T10:00:00.000Z',
+        endTime: '2026-03-20T10:00:00.000Z',
+        userId: asUserId('user-id'),
+        userName: 'User Name',
+        userImage: 'https://photo.url/user.jpg',
+        barId: asBarId('bar-1'),
+        notes: 'Test notes',
+      }),
+    );
   });
 
   it('should block creation if user is not a member', async () => {

@@ -1,9 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { TemplatesRepository } from '../data-access/templates-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class GetProductTemplates {
   readonly #repository = inject(TemplatesRepository);
 

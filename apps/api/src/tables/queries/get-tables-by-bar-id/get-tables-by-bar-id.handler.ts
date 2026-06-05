@@ -1,4 +1,4 @@
-import { Table } from '@coaster/common';
+import type { Table } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { TablesRepository } from '../../data-access/tables.repository';
 import { TablesMapper } from '../../mappers/tables.mapper';

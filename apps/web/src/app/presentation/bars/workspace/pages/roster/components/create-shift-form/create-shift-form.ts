@@ -1,15 +1,30 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
-import { BarMember, asUserId } from '@coaster/common';
-import { CoasterBtn, FormFieldMessages, SelectInput, TextInput, TextareaInput } from '@coaster/shared';
+import type { BarMember } from '@coaster/common';
+import { asUserId } from '@coaster/core';
+import { DateFormatterService } from '@coaster/core';
+import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
-import { RosterStateService } from '@coaster/roster';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
+import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
+import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { TextareaInput } from '../../../../../../components/forms/textarea-input/textarea-input';
 
 @Component({
   selector: 'coaster-create-shift-form',
   imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
   template: `
+    <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
+      <h3 class="text-white text-lg font-black uppercase tracking-tight">
+        {{ 'roster.create_shift.title' | translate }}
+      </h3>
+      <span class="text-on-surface-variant font-bold text-xs uppercase tracking-wider">
+        {{ 'roster.create_shift.date_label' | translate }}: {{ formattedSelectedDate() }}
+      </span>
+    </div>
+
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
         <coaster-select-input
@@ -76,6 +91,11 @@ export class CreateShiftForm {
 
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #rosterState = inject(RosterStateService);
+  readonly #dateFormatter = inject(DateFormatterService);
+
+  readonly formattedSelectedDate = computed(() => {
+    return this.#dateFormatter.formatShortDate(this.#rosterState.selectedDate());
+  });
 
   readonly memberOptions = computed(() => {
     return this.members().map((m) => ({

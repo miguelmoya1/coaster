@@ -1,47 +1,40 @@
-import { BarId } from '@coaster/common';
+import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../core';
+import { DbBarMemberCreateInput, DbService } from '../../db';
 
 @Injectable()
 export class BarMembersRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DbService) {}
 
-  async findBarById(barId: BarId) {
-    return this.prisma.bar.findUnique({ where: { id: barId } });
-  }
-
-  async inviteMember(
-    barId: BarId,
-    email: string,
-    createBarMemberDto: Omit<Prisma.BarMemberCreateInput, 'bar' | 'user'>,
-  ) {
-    const nameFromEmail = email.split('@')[0];
-
-    const user = await this.prisma.user.upsert({
-      where: { email },
-      update: {},
-      create: {
-        email,
-        name: nameFromEmail,
+  async isMember(barId: BarId, email: string) {
+    return this.db.dbBarMember.findFirst({
+      where: {
+        barId,
+        user: { email },
       },
     });
+  }
 
-    return this.prisma.barMember.create({
+  async findBarById(barId: BarId) {
+    return this.db.dbBar.findUnique({ where: { id: barId } });
+  }
+
+  async inviteMember(barId: BarId, userId: UserId, createBarMemberDto: Omit<DbBarMemberCreateInput, 'bar' | 'user'>) {
+    return this.db.dbBarMember.create({
       data: {
         ...createBarMemberDto,
         bar: { connect: { id: barId } },
-        user: { connect: { id: user.id } },
+        user: { connect: { id: userId } },
       },
       include: {
-        user: {
-          select: { id: true, name: true, email: true, photoUrl: true },
-        },
+        user: { select: { email: true, name: true } },
+        bar: { select: { name: true } },
       },
     });
   }
 
   async getMembersByBar(barId: BarId) {
-    return this.prisma.barMember.findMany({
+    return this.db.dbBarMember.findMany({
       where: { barId, active: true },
       include: {
         user: {
@@ -51,8 +44,8 @@ export class BarMembersRepository {
     });
   }
 
-  async getMemberByUserAndBar(userId: string, barId: string) {
-    return this.prisma.barMember.findUnique({
+  async getMemberByUserAndBar(userId: UserId, barId: BarId) {
+    return this.db.dbBarMember.findUnique({
       where: {
         userId_barId: {
           userId,
@@ -67,8 +60,8 @@ export class BarMembersRepository {
     });
   }
 
-  async removeMember(memberId: string) {
-    return this.prisma.barMember.delete({
+  async removeMember(memberId: BarMemberId) {
+    return this.db.dbBarMember.delete({
       where: { id: memberId },
     });
   }

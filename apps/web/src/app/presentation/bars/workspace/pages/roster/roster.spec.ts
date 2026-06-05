@@ -89,16 +89,16 @@ describe('Roster', () => {
       expect(title).toBeTruthy();
     });
 
-    it('should render the horizontal date scroller', () => {
+    it('should render the navigation header', () => {
       fixture.detectChanges();
-      const scroller = fixture.nativeElement.querySelector('coaster-horizontal-date-scroller');
-      expect(scroller).toBeTruthy();
+      const nav = fixture.nativeElement.querySelector('coaster-roster-navigation');
+      expect(nav).toBeTruthy();
     });
 
     it('should render daily assignments heading', () => {
       fixture.detectChanges();
       const headings = fixture.nativeElement.querySelectorAll('[coaster-title]');
-      expect(headings.length).toBeGreaterThanOrEqual(2);
+      expect(headings.length).toBeGreaterThanOrEqual(1);
     });
   });
 

@@ -1,16 +1,14 @@
 import { httpResource } from '@angular/common/http';
-import { effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
+import { effect, inject, Service, signal } from '@angular/core';
+import type { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
-import { categoryArrayMapper } from '../mappers/category.mapper';
+import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
 import { BarCategories } from '../services/bar-categories';
 import { CreateCategory } from '../services/create-category';
 import { DeleteCategory } from '../services/delete-category';
 import { UpdateCategory } from '../services/update-category';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CategoriesStore {
   readonly #categories = inject(BarCategories);
   readonly #createCategory = inject(CreateCategory);
@@ -36,6 +34,35 @@ export class CategoriesStore {
             return undefined;
           }
           return categories.filter((c) => c.id !== deleted.id);
+        });
+      }
+    });
+
+    // Category created
+    effect(() => {
+      const created = this.#socketService.categoryCreated();
+      if (created) {
+        const mappedCreated = categoryMapper(created);
+        this.#categoriesResource.update((categories) => {
+          if (!categories) {
+            return [mappedCreated];
+          }
+          const exists = categories.some((c) => c.id === mappedCreated.id);
+          return exists ? categories : [...categories, mappedCreated];
+        });
+      }
+    });
+
+    // Category updated
+    effect(() => {
+      const updated = this.#socketService.categoryUpdated();
+      if (updated) {
+        const mappedUpdated = categoryMapper(updated);
+        this.#categoriesResource.update((categories) => {
+          if (!categories) {
+            return undefined;
+          }
+          return categories.map((c) => (c.id === mappedUpdated.id ? mappedUpdated : c));
         });
       }
     });

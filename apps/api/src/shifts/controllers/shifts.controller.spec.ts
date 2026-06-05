@@ -1,10 +1,11 @@
-import { asBarId, asUserId } from '@coaster/common';
+import { asBarId, asUserId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
-import { CreateShiftCommand } from '../commands';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
+import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
 import { ShiftsController } from './shifts.controller';
 
@@ -46,7 +47,7 @@ describe('ShiftsController', () => {
   });
 
   it('createShift should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({});
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = {
       userId: asUserId('user-1'),
       startTime: '2026-05-01T08:00:00Z',
@@ -54,8 +55,17 @@ describe('ShiftsController', () => {
       role: 'staff',
     };
 
-    await controller.createShift(asBarId('bar-1'), dto);
+    const result = await controller.createShift(asBarId('bar-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateShiftCommand));
+    expect(result).toBeUndefined();
+  });
+
+  it('deleteShift should delegate to command bus', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+
+    await controller.deleteShift(asBarId('bar-1'), 'shift-1');
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteShiftCommand));
   });
 });

@@ -1,4 +1,5 @@
-import { ErrorCodes, CreateShiftDto as ICreateShiftDto, type UserId } from '@coaster/common';
+import type { CreateShiftDto as ICreateShiftDto, UserId } from '@coaster/common';
+import { ErrorCodes } from '../../core';
 import { IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateShiftDto implements ICreateShiftDto {

@@ -1,4 +1,4 @@
-import { AddOrderItemsDto, BarId, OrderId } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, OrderId } from '@coaster/common';
 
 export class AddOrderItemsCommand {
   constructor(

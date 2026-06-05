@@ -1,9 +1,10 @@
-import { asBarId, asOrderId, asOrderItemId, Order } from '@coaster/common';
+import type { Order } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderUpdatedEvent } from '../../events';
+import { OrderUpdatedEvent } from '../../../events';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 import { RemoveOrderItemHandler } from './remove-order-item.handler';
 

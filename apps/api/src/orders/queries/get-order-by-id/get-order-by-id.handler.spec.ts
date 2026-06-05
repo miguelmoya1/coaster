@@ -1,4 +1,4 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asBarId, asOrderId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

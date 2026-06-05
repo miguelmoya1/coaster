@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { TemplatesRepository } from './templates-repository';
 
 describe('TemplatesRepository', () => {
@@ -39,7 +39,7 @@ describe('TemplatesRepository', () => {
       const req = httpMock.expectOne(service.routes.import(barId));
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ categoryTemplateIds });
-      req.flush({ success: true });
+      req.flush(null);
 
       await promise;
     });

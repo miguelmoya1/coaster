@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
-import { CoasterTitle } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMail, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterTitle } from '../../../../../../components/typography/typography';
 
 @Component({
   selector: 'coaster-staff-member-card',

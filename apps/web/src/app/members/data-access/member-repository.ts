@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { BarId, BarMember, BarMemberId, DeleteResponse, InviteBarMemberDto } from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { BarId, BarMember, BarMemberId, DeleteResponse, InviteBarMemberDto } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { deleteResponseMapper } from '../../core/mappers/common.mapper';
 import { memberMapper } from '../mappers/member.mapper';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MemberRepository {
   readonly #http = inject(HttpClient);
 
@@ -17,15 +17,11 @@ export class MemberRepository {
   };
 
   public async me(barId: BarId) {
-    return firstValueFrom(
-      this.#http.get<BarMember>(this.routes.me(barId)).pipe(map((member) => memberMapper(member))),
-    );
+    return firstValueFrom(this.#http.get<BarMember>(this.routes.me(barId)).pipe(map((member) => memberMapper(member))));
   }
 
   public async invite(barId: BarId, dto: InviteBarMemberDto) {
-    return firstValueFrom(
-      this.#http.post<BarMember>(this.routes.invite(barId), dto).pipe(map((member) => memberMapper(member))),
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.invite(barId), dto));
   }
 
   public async remove(barId: BarId, memberId: BarMemberId) {

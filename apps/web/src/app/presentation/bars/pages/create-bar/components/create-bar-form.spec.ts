@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { TextInput } from '@coaster/shared';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TextInput } from '../../../../components/forms/text-input/text-input';
 import { CreateBarForm } from './create-bar-form';
 
 describe('CreateBarForm', () => {

@@ -1,10 +1,11 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarId } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
-import { BottomNav, TopAppBar } from '@coaster/shared';
+import { BottomNav } from '../components/bottom-nav/bottom-nav';
+import { TopAppBar } from '../components/top-app-bar/top-app-bar';
 
 @Component({
   selector: 'coaster-main',
@@ -26,7 +27,7 @@ import { BottomNav, TopAppBar } from '@coaster/shared';
 })
 export default class WorkspaceLayout {
   public readonly barId = input.required<BarId>();
-  
+
   readonly #currentUser = inject(CurrentUser);
   readonly #barsStore = inject(BarsStore);
   readonly #membersStore = inject(MembersStore);
@@ -54,7 +55,6 @@ export default class WorkspaceLayout {
   });
 
   constructor() {
-
     effect((cleanup) => {
       const barId = this.barId();
       this.#barsStore.setBarId(barId);

@@ -1,9 +1,10 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asBarId, asCategoryId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard } from '../../core';
+import { PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import { CreateCategoryCommand, UpdateCategoryCommand, DeleteCategoryCommand } from '../commands';
 import { GetCategoriesQuery } from '../queries';
 import { CategoriesController } from './categories.controller';
@@ -46,7 +47,7 @@ describe('CategoriesController', () => {
   });
 
   it('createCategory should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'cat-1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Comida' };
 
     await controller.createCategory(asBarId('bar-1'), dto);
@@ -55,10 +56,10 @@ describe('CategoriesController', () => {
   });
 
   it('updateCategory should delegate to command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'cat-1', name: 'Bebidas' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Bebidas' };
 
-    await controller.updateCategory(asBarId('bar-1'), 'cat-1', dto);
+    await controller.updateCategory(asBarId('bar-1'), asCategoryId('cat-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateCategoryCommand));
   });

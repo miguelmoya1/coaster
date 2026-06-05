@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { BarId, CreateResponse, CreateTableDto, DeleteResponse, TableId, UpdateTableDto } from '@coaster/common';
+import { inject, Service } from '@angular/core';
+import type { BarId, CreateTableDto, DeleteResponse, TableId, UpdateTableDto } from '@coaster/common';
 import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class TableRepository {
   readonly #http = inject(HttpClient);
 
@@ -17,9 +15,9 @@ export class TableRepository {
     delete: (barId: BarId, tableId: TableId) => `/bars/${barId}/tables/${tableId}`,
   };
 
-  public async create(barId: BarId, dto: CreateTableDto): Promise<CreateResponse<TableId>> {
+  public async create(barId: BarId, dto: CreateTableDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<CreateResponse<TableId>>(this.routes.create(barId), dto)
+      this.#http.post<void>(this.routes.create(barId), dto)
     );
   }
 

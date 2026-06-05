@@ -1,7 +1,9 @@
-import { type BarId, BarPermission, type Table, type TableId } from '@coaster/common';
+import type { BarId, Table, TableId } from '@coaster/common';
+import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { CreateTableDto } from '../dto/create-table.dto';
 import { UpdateTableDto } from '../dto/update-table.dto';
@@ -25,11 +27,10 @@ export class TablesController {
 
   @Post()
   @Permissions(BarPermission.CREATE_TABLE)
-  async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto) {
-    const result = await this._commandBus.execute<CreateTableCommand, { id: TableId }>(
+  async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto): Promise<void> {
+    await this._commandBus.execute<CreateTableCommand, void>(
       new CreateTableCommand(barId, dto),
     );
-    return { id: result.id };
   }
 
   @Patch(':tableId')

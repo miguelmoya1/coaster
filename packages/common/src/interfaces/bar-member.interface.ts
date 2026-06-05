@@ -1,12 +1,10 @@
-import { BarPermissionType } from '../constants/bar-permissions.enum';
-import { BarRole } from '../constants/bar-role.enum';
+import { BarPermissionType } from '../constants/bar-permissions.type';
+import { BarRole } from '../constants/bar-role.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
 
 export type BarMemberId = Brand<string, 'BarMemberId'>;
-
-export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
 
 export interface BarMember {
   id: BarMemberId;

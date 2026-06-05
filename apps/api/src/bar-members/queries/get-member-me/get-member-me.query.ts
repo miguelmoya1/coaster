@@ -1,4 +1,4 @@
-import { BarId, UserId } from '@coaster/common';
+import type { BarId, UserId } from '@coaster/common';
 
 export class GetMemberMeQuery {
   constructor(

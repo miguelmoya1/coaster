@@ -1,13 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import {
-  asBarId,
-  asCategoryId,
-  asProductId,
-  CreateProductDto,
-  UpdateProductDto,
-  UpdateProductStockDto,
-} from '@coaster/common';
+import type { CreateProductDto, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { asBarId, asCategoryId, asProductId } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from './product-repository';
 
@@ -58,16 +52,16 @@ describe('ProductRepository', () => {
 
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush({ id: asProductId('prod-1') });
+      req.flush(null);
 
       await promise;
     });
 
     it('should return product creation id response', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush({ id: asProductId('prod-1') });
+      httpMock.expectOne(service.routes.create(barId)).flush(null);
 
-      expect(await res).toEqual({ id: asProductId('prod-1') });
+      expect(await res).toBeNull();
     });
   });
 

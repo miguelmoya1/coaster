@@ -1,6 +1,7 @@
-import { asBarId, asUserId, Role } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asUserId } from '../../../core';
+import { DbRole } from '../../../db';
 import { BarRepository } from '../../data-access/bar.repository';
 import { CreateBarCommand } from './create-bar.command';
 import { CreateBarHandler } from './create-bar.handler';
@@ -20,7 +21,7 @@ describe('CreateBarHandler', () => {
   });
 
   it('should create a bar', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: Role.USER };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER };
     const dto = { name: 'New Bar' };
     repository.create.mockResolvedValue({
       id: 'bar-new',
@@ -32,6 +33,6 @@ describe('CreateBarHandler', () => {
     const result = await handler.execute(new CreateBarCommand(dto, user));
 
     expect(repository.create).toHaveBeenCalledWith(user.id, dto);
-    expect(result).toEqual({ id: asBarId('bar-new') });
+    expect(result).toBeUndefined();
   });
 });

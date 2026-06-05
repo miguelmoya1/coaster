@@ -1,10 +1,12 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asBarId, asOrderId } from '../../../core';
 import { BadRequestException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
 import { DeleteOrderCommand } from './delete-order.command';
 import { DeleteOrderHandler } from './delete-order.handler';
+import { OrderDeletedEvent } from '../../../events';
 
 describe('DeleteOrderHandler', () => {
   let handler: DeleteOrderHandler;
@@ -12,10 +14,17 @@ describe('DeleteOrderHandler', () => {
     findById: vi.fn(),
     deleteOrder: vi.fn(),
   };
+  const eventBus = {
+    publish: vi.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeleteOrderHandler, { provide: OrdersRepository, useValue: repository }],
+      providers: [
+        DeleteOrderHandler,
+        { provide: OrdersRepository, useValue: repository },
+        { provide: EventBus, useValue: eventBus },
+      ],
     }).compile();
 
     handler = module.get<DeleteOrderHandler>(DeleteOrderHandler);
@@ -47,5 +56,6 @@ describe('DeleteOrderHandler', () => {
     await handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 
     expect(repository.deleteOrder).toHaveBeenCalledWith(asOrderId('order-1'));
+    expect(eventBus.publish).toHaveBeenCalledWith(new OrderDeletedEvent(asBarId('bar-1'), asOrderId('order-1')));
   });
 });

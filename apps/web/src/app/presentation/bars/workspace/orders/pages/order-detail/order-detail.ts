@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BarId, BulkUpdateItemDto, Order, OrderItem, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
-import { CoasterBtn, CoasterTitle, ConfirmDialogComponent, Loading, PricePipe } from '@coaster/shared';
 import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -13,16 +13,20 @@ import {
   lucideChefHat,
   lucideCreditCard,
   lucideMerge,
-  lucideMinus,
   lucidePackagePlus,
-  lucidePlus,
   lucideSquare,
   lucideTrash2,
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../components/button/button';
+import { Loading } from '../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../components/typography/typography';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
+import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -37,6 +41,7 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
     ConfirmDialogComponent,
     MoveTableDialog,
     MergeOrdersDialog,
+    CoasterQtyAdjuster,
   ],
   viewProviders: [
     provideIcons({
@@ -48,8 +53,6 @@ import { MoveTableDialog } from '../../components/move-table-dialog/move-table-d
       lucideMerge,
       lucideTrash2,
       lucideX,
-      lucidePlus,
-      lucideMinus,
       lucideSquare,
       lucideCheckSquare,
       lucideCheck,
@@ -207,42 +210,20 @@ class OrderDetail {
     this.selectedItems.set(current);
   }
 
-  protected incrementPayQty(itemId: string, max: number, event: MouseEvent) {
-    event.stopPropagation();
+  protected updateSelectedPayQty(itemId: string, qty: number) {
     const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.paidQty < max) {
-      current.set(itemId, { ...qtys, paidQty: qtys.paidQty + 1 });
+    const val = current.get(itemId);
+    if (val) {
+      current.set(itemId, { ...val, paidQty: qty });
       this.selectedItems.set(current);
     }
   }
 
-  protected decrementPayQty(itemId: string, min: number, event: Event) {
-    event.stopPropagation();
+  protected updateSelectedServeQty(itemId: string, qty: number) {
     const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.paidQty > min) {
-      current.set(itemId, { ...qtys, paidQty: qtys.paidQty - 1 });
-      this.selectedItems.set(current);
-    }
-  }
-
-  protected incrementServeQty(itemId: string, max: number, event: MouseEvent) {
-    event.stopPropagation();
-    const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.serveQty < max) {
-      current.set(itemId, { ...qtys, serveQty: qtys.serveQty + 1 });
-      this.selectedItems.set(current);
-    }
-  }
-
-  protected decrementServeQty(itemId: string, min: number, event: Event) {
-    event.stopPropagation();
-    const current = new Map(this.selectedItems());
-    const qtys = current.get(itemId);
-    if (qtys && qtys.serveQty > min) {
-      current.set(itemId, { ...qtys, serveQty: qtys.serveQty - 1 });
+    const val = current.get(itemId);
+    if (val) {
+      current.set(itemId, { ...val, serveQty: qty });
       this.selectedItems.set(current);
     }
   }
@@ -272,10 +253,9 @@ class OrderDetail {
 
     try {
       this.isLoading.set(true);
-      const updated = await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
-      if (updated) {
-        this.fetchedOrder.set(updated);
-      }
+      await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
+      const updated = await this.#ordersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
       this.clearSelection();
     } catch (e) {
       console.error(e);

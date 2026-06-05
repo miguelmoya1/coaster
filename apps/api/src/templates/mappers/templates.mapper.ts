@@ -1,8 +1,8 @@
-import { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { CategoryTemplate, ProductTemplate } from '../../core';
+import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import { DbCategoryTemplate, DbProductTemplate } from '../../db';
 
 export class TemplatesMapper {
-  static toCategoryTemplate(categoryTemplate: CategoryTemplate): ICategoryTemplate {
+  static toCategoryTemplate(categoryTemplate: DbCategoryTemplate): ICategoryTemplate {
     return {
       id: categoryTemplate.id,
       name: categoryTemplate.name,
@@ -12,7 +12,7 @@ export class TemplatesMapper {
     };
   }
 
-  static toProductTemplate(productTemplate: ProductTemplate): IProductTemplate {
+  static toProductTemplate(productTemplate: DbProductTemplate): IProductTemplate {
     return {
       id: productTemplate.id,
       name: productTemplate.name,

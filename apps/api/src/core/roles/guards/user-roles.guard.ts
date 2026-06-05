@@ -1,7 +1,7 @@
-import { asRole, ErrorCodes, Role } from '@coaster/common';
+import { ErrorCodes } from '../..';
+import { DbRole, DbService } from '../../../db';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../../prisma/services/prisma.service';
 import { USER_ROLES_KEY } from '../decorators/user-roles.decorator';
 
 interface RequestWithUser {
@@ -12,11 +12,11 @@ interface RequestWithUser {
 export class UserRolesGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
-    private _prisma: PrismaService,
+    private _prisma: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this._reflector.getAllAndOverride<Role[]>(USER_ROLES_KEY, [
+    const requiredRoles = this._reflector.getAllAndOverride<DbRole[]>(USER_ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -32,7 +32,7 @@ export class UserRolesGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
     }
 
-    const dbUser = await this._prisma.user.findUnique({
+    const dbUser = await this._prisma.dbUser.findUnique({
       where: {
         id: user.id,
       },
@@ -42,7 +42,7 @@ export class UserRolesGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
     }
 
-    const userRole = asRole(dbUser.role);
+    const userRole = dbUser.role;
 
     const hasRole = requiredRoles.includes(userRole);
 

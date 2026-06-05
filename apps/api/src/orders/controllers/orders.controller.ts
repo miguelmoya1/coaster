@@ -1,7 +1,9 @@
-import { type BarId, BarPermission, type Order, type OrderId, type OrderItemId } from '@coaster/common';
+import type { BarId, Order, OrderId, OrderItemId } from '@coaster/common';
+import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { Permissions, PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateOrderCommand,
   AddOrderItemsCommand,
@@ -51,57 +53,56 @@ export class OrdersController {
 
   @Post()
   @Permissions(BarPermission.CREATE_ORDER)
-  async createOrder(@Param('barId') barId: BarId, @Body() dto: CreateOrderDto) {
-    const order = await this._commandBus.execute<CreateOrderCommand, Order>(new CreateOrderCommand(barId, dto));
-    return { id: order.id };
+  async createOrder(@Param('barId') barId: BarId, @Body() dto: CreateOrderDto): Promise<void> {
+    await this._commandBus.execute<CreateOrderCommand, void>(new CreateOrderCommand(barId, dto));
   }
 
   @Post(':orderId/items')
   @Permissions(BarPermission.UPDATE_ORDER)
-  async addItems(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: AddOrderItemsDto) {
-    const order = await this._commandBus.execute<AddOrderItemsCommand, Order>(
-      new AddOrderItemsCommand(barId, orderId, dto),
-    );
-    return OrdersMapper.toDto(order);
+  async addItems(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: AddOrderItemsDto,
+  ): Promise<void> {
+    await this._commandBus.execute<AddOrderItemsCommand, void>(new AddOrderItemsCommand(barId, orderId, dto));
   }
 
   @Patch(':orderId/items/bulk')
   @Permissions(BarPermission.UPDATE_ORDER)
-  async bulkUpdate(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: BulkUpdateDto) {
-    const order = await this._commandBus.execute<BulkUpdateOrderCommand, Order>(
-      new BulkUpdateOrderCommand(barId, orderId, dto),
-    );
-    return OrdersMapper.toDto(order);
+  async bulkUpdate(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: BulkUpdateDto,
+  ): Promise<void> {
+    await this._commandBus.execute<BulkUpdateOrderCommand, void>(new BulkUpdateOrderCommand(barId, orderId, dto));
   }
 
   @Post(':orderId/checkout')
   @Permissions(BarPermission.CHECKOUT_ORDER)
-  async checkout(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    const order = await this._commandBus.execute<CheckoutOrderCommand, Order>(new CheckoutOrderCommand(barId, orderId));
-    return OrdersMapper.toDto(order);
+  async checkout(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
+    await this._commandBus.execute<CheckoutOrderCommand, void>(new CheckoutOrderCommand(barId, orderId));
   }
 
   @Post(':orderId/cancel')
   @Permissions(BarPermission.CANCEL_ORDER)
-  async cancelOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
-    const order = await this._commandBus.execute<CancelOrderCommand, Order>(new CancelOrderCommand(barId, orderId));
-    return OrdersMapper.toDto(order);
+  async cancelOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
+    await this._commandBus.execute<CancelOrderCommand, void>(new CancelOrderCommand(barId, orderId));
   }
 
   @Patch(':orderId/move-table')
   @Permissions(BarPermission.MOVE_ORDER_TABLE)
-  async moveTable(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId, @Body() dto: MoveTableDto) {
-    const order = await this._commandBus.execute<MoveOrderTableCommand, Order>(
-      new MoveOrderTableCommand(barId, orderId, dto),
-    );
-    return OrdersMapper.toDto(order);
+  async moveTable(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: MoveTableDto,
+  ): Promise<void> {
+    await this._commandBus.execute<MoveOrderTableCommand, void>(new MoveOrderTableCommand(barId, orderId, dto));
   }
 
   @Post('merge')
   @Permissions(BarPermission.MERGE_ORDERS)
-  async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto) {
-    const order = await this._commandBus.execute<MergeOrdersCommand, Order>(new MergeOrdersCommand(barId, dto));
-    return OrdersMapper.toDto(order);
+  async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto): Promise<void> {
+    await this._commandBus.execute<MergeOrdersCommand, void>(new MergeOrdersCommand(barId, dto));
   }
 
   @Delete(':orderId/items/:itemId')
@@ -110,17 +111,13 @@ export class OrdersController {
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
     @Param('itemId') itemId: OrderItemId,
-  ) {
-    const order = await this._commandBus.execute<RemoveOrderItemCommand, Order>(
-      new RemoveOrderItemCommand(barId, orderId, itemId),
-    );
-    return OrdersMapper.toDto(order);
+  ): Promise<void> {
+    await this._commandBus.execute<RemoveOrderItemCommand, void>(new RemoveOrderItemCommand(barId, orderId, itemId));
   }
 
   @Delete(':orderId')
   @Permissions(BarPermission.DELETE_ORDER)
-  async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
+  async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
     await this._commandBus.execute<DeleteOrderCommand, void>(new DeleteOrderCommand(barId, orderId));
-    return commonMapper.getSuccessResponse();
   }
 }

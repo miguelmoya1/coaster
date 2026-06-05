@@ -1,10 +1,11 @@
-import { asBarId, asTableId, Table } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { asBarId, asTableId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TablesRepository } from '../../data-access/tables.repository';
-import { TableUpdatedEvent } from '../../events';
+import { TableUpdatedEvent } from '../../../events';
 import { UpdateTableCommand } from './update-table.command';
 import { UpdateTableHandler } from './update-table.handler';
 

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asTableId, Table, TableStatus } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TableRepository } from '../data-access/table-repository';
 import { CreateTable } from './create-table';
@@ -7,13 +7,6 @@ import { CreateTable } from './create-table';
 describe('CreateTable', () => {
   let service: CreateTable;
   let tableRepoMock: Record<string, Mock>;
-
-  const mockTable: Table = {
-    id: asTableId('table-1'),
-    barId: asBarId('bar-1'),
-    name: 'Mesa 1',
-    status: TableStatus.FREE,
-  };
 
   beforeEach(() => {
     tableRepoMock = {
@@ -32,15 +25,14 @@ describe('CreateTable', () => {
   });
 
   describe('execute', () => {
-    it('should delegate to repository and return the result', async () => {
+    it('should delegate to repository', async () => {
       const barId = asBarId('bar-1');
       const dto = { name: 'Mesa 1' };
-      tableRepoMock['create'].mockResolvedValue(mockTable);
+      tableRepoMock['create'].mockResolvedValue(undefined);
 
-      const result = await service.execute(barId, dto);
+      await service.execute(barId, dto);
 
       expect(tableRepoMock['create']).toHaveBeenCalledWith(barId, dto);
-      expect(result).toEqual(mockTable);
     });
   });
 });

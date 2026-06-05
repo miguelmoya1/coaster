@@ -1,19 +1,13 @@
-import {
-  asUserId,
-  type BarId,
-  BarPermission,
-  type ShiftExchangeId,
-  type ShiftId,
-  type User,
-  type ShiftExchange,
-} from '@coaster/common';
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import type { BarId, ShiftExchangeId, ShiftId, User, ShiftExchange } from '@coaster/common';
+import { asUserId, BarPermission } from '../../core';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { Permissions, PermissionsGuard } from '../../core';
+import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
-import { ShiftExchangesMapper, ExchangeWithRelations } from '../mappers/shift-exchanges.mapper';
+import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
-import { RequestExchangeCommand, AcceptExchangeCommand } from '../commands';
+import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 
 @Controller('bars/:barId')
 @UseGuards(FirebaseAuthGuard, PermissionsGuard)
@@ -39,11 +33,10 @@ export class ShiftExchangesController {
     @Param('shiftId') shiftId: ShiftId,
     @Body() dto: CreateShiftExchangeDto,
     @CurrentUser() user: User,
-  ) {
-    const exchange = await this._commandBus.execute<RequestExchangeCommand, ExchangeWithRelations>(
+  ): Promise<void> {
+    await this._commandBus.execute<RequestExchangeCommand, void>(
       new RequestExchangeCommand(barId, shiftId, asUserId(user.id), dto),
     );
-    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
   }
 
   @Patch('exchanges/:exchangeId/accept')
@@ -52,10 +45,19 @@ export class ShiftExchangesController {
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,
     @CurrentUser() user: User,
-  ) {
-    const exchange = await this._commandBus.execute<AcceptExchangeCommand, ExchangeWithRelations>(
+  ): Promise<void> {
+    await this._commandBus.execute<AcceptExchangeCommand, void>(
       new AcceptExchangeCommand(barId, exchangeId, asUserId(user.id)),
     );
-    return ShiftExchangesMapper.toDto(ShiftExchangesMapper.toDomain(exchange));
+  }
+
+  @Delete('exchanges/:exchangeId')
+  @Permissions(BarPermission.DELETE_EXCHANGE)
+  async deleteExchange(
+    @Param('barId') barId: BarId,
+    @Param('exchangeId') exchangeId: ShiftExchangeId,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    await this._commandBus.execute(new DeleteExchangeCommand(barId, exchangeId, asUserId(user.id)));
   }
 }

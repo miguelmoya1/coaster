@@ -1,36 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { BarId } from '@coaster/common';
-import { Toast } from '@coaster/core';
 import { CategoriesStore } from '@coaster/categories';
+import type { BarId } from '@coaster/common';
+import { Toast } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
-import { CoasterBtn, CoasterTitle, Loading, PricePipe } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+  lucideCheck,
   lucideChevronLeft,
-  lucideSearch,
-  lucideX,
+  lucideDownload,
   lucideFolder,
   lucidePackage,
-  lucideCheck,
-  lucideDownload,
+  lucideSearch,
+  lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../../../../components/button/button';
+import { Loading } from '../../../../../../components/loading/loading';
+import { CoasterTitle } from '../../../../../../components/typography/typography';
+import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-import-templates',
-  imports: [
-    RouterLink,
-    NgIcon,
-    TranslatePipe,
-    CoasterBtn,
-    CoasterTitle,
-    Loading,
-    PricePipe,
-    LowerCasePipe,
-  ],
+  imports: [RouterLink, NgIcon, TranslatePipe, CoasterBtn, CoasterTitle, Loading, PricePipe, LowerCasePipe],
   viewProviders: [
     provideIcons({
       lucideChevronLeft,
@@ -78,7 +72,6 @@ export default class ImportTemplates {
     }
     return total;
   });
-
 
   // Join categories and products locally in the client reactively
   readonly matchedTemplates = computed(() => {
@@ -148,7 +141,7 @@ export default class ImportTemplates {
     if (ids.length === 0) return;
 
     this.isSubmitting.set(true);
-    const { counts, err } = await this.#templatesStore.importToBar(barId, ids);
+    const { err } = await this.#templatesStore.importToBar(barId, ids);
     this.isSubmitting.set(false);
 
     if (err) {
@@ -156,13 +149,7 @@ export default class ImportTemplates {
       return;
     }
 
-    console.log('Import templates success. counts:', counts);
-    const translationResult = this.#translate.instant('pantry.import_success', {
-      created: counts?.created ?? 0,
-      modified: counts?.modified ?? 0,
-    });
-    console.log('Translation result:', translationResult);
-
+    const translationResult = this.#translate.instant('pantry.import_success');
     this.#toast.success(translationResult);
 
     // Reload stores to refresh the lists in the pantry view

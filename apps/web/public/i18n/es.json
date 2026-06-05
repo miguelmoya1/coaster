@@ -150,14 +150,22 @@
       "more_issues": "+{{count}} productos más con incidencias. Ver todos"
     },
     "financials": {
-      "today": "Facturación Hoy",
-      "yesterday": "Facturación Ayer",
-      "weekly": "Facturación Semanal",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "weekly": "Esta Semana",
       "chart_title": "Distribución de Ventas Semanales",
-      "no_revenue": "Sin ingresos"
+      "no_revenue": "Sin ingresos",
+      "current_month": "Este Mes",
+      "previous_month": "Mes Anterior",
+      "previous_month_short": "mes ant.",
+      "yearly": "Este Año",
+      "yearly_progress": "Distribución Mensual del Año",
+      "no_change": "Sin variación",
+      "closed_revenue": "Total facturado"
     },
     "sections": {
       "financials": "Resumen Financiero",
+      "monthly_yearly": "Análisis Mensual y Anual",
       "overview": "Resumen de Personal",
       "overview_stats": "{{clockedIn}} En Turno • {{assigned}} Asignados",
       "pantry": "Alertas Críticas de Despensa",
@@ -274,6 +282,9 @@
     "table_name_placeholder": "Ej. Mesa 1",
     "table_occupied": "Ocupada",
     "tables_title": "Mesas",
+    "to_serve_title": "Para servir",
+    "all_served_title": "¡Todo servido!",
+    "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
     "total": "Total",
     "unpay_unit": "Restar 1 pagado",
     "unserve_unit": "Restar 1 servido"
@@ -327,7 +338,7 @@
     "empty": "No se encontraron productos.",
     "import_action": "Importar seleccionados",
     "import_search_placeholder": "Buscar plantillas (categorías o productos)...",
-    "import_success": "¡Plantillas importadas correctamente! ({{created}} creadas, {{modified}} modificadas)",
+    "import_success": "¡Plantillas importadas correctamente!",
     "import_title": "Importar Plantillas",
     "inventory_title": "Inventario Activo",
     "no_templates_found": "No se encontraron plantillas.",
@@ -343,6 +354,8 @@
   },
   "roster": {
     "create_shift": {
+      "title": "Crear Turno",
+      "date_label": "Para el día",
       "end_time_label": "Hora de Fin",
       "notes_label": "Notas (Opcional)",
       "notes_placeholder": "Ej. Cubrir hora punta de la noche",
@@ -351,6 +364,8 @@
       "start_time_label": "Hora de Inicio"
     },
     "daily_assignments": "Asignaciones Diarias",
+    "delete_shift_title": "Eliminar turno",
+    "delete_shift_confirm": "¿Estás seguro de que quieres eliminar este turno? Esta acción no se puede deshacer.",
     "exchange_pending": "Pendiente",
     "exchanges": {
       "offered_by": "Ofrecido por",
@@ -358,13 +373,37 @@
       "period_evening": "Turno de Noche",
       "period_morning": "Turno de Mañana",
       "title": "Intercambios Pendientes",
-      "your_request": "Tu petición"
+      "your_request": "Tu petición",
+      "delete_title": "Eliminar intercambio",
+      "delete_confirm": "¿Estás seguro de que quieres eliminar esta oferta de intercambio?",
+      "delete": "Eliminar"
     },
     "no_shifts": "No hay turnos seleccionados para este día",
     "offer_exchange": "Ofrecer",
     "title": "Turnos",
     "today": "Hoy",
-    "unassigned": "Sin Asignar"
+    "unassigned": "Sin Asignar",
+    "views": {
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes"
+    },
+    "days": {
+      "lun": "Lun",
+      "mar": "Mar",
+      "mie": "Mié",
+      "jue": "Jue",
+      "vie": "Vie",
+      "sab": "Sáb",
+      "dom": "Dom"
+    },
+    "replication": {
+      "title": "Planificación Rápida",
+      "description": "Copia de forma masiva toda la distribución de turnos de la semana anterior a la actual.",
+      "button": "Replicar Semana Anterior",
+      "confirm_title": "Replicar Turnos",
+      "confirm_msg": "¿Estás seguro de que deseas copiar todos los turnos de la semana pasada a la actual? Si ya existen turnos, los nuevos se sumarán."
+    }
   },
   "templates": {
     "categories": {

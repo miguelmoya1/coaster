@@ -1,7 +1,9 @@
-import { type BarId, BarPermission, type ProductId, type Product } from '@coaster/common';
+import type { BarId, ProductId, Product } from '@coaster/common';
+import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, FirebaseAuthGuard, Permissions, PermissionsGuard } from '../../core';
+import { commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateProductCommand,
   UpdateProductStockCommand,
@@ -33,11 +35,10 @@ export class ProductsController {
 
   @Post()
   @Permissions(BarPermission.CREATE_PRODUCT)
-  async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto) {
-    const result = await this._commandBus.execute<CreateProductCommand, { id: ProductId }>(
+  async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto): Promise<void> {
+    await this._commandBus.execute<CreateProductCommand, void>(
       new CreateProductCommand(barId, dto),
     );
-    return { id: result.id };
   }
 
   @Patch(':productId/stock')

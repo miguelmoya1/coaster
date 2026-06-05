@@ -1,33 +1,33 @@
-import { asBarId, asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { PrismaService } from '../../core';
+import { asBarId, asUserId } from '../../core';
+import { DbService } from '../../db';
 import { ShiftsRepository } from './shifts.repository';
 
 describe('ShiftsRepository', () => {
   let repository: ShiftsRepository;
-  let prisma: {
-    barMember: { findUnique: Mock };
-    shift: { create: Mock; findMany: Mock };
+  let db: {
+    dbBarMember: { findUnique: Mock };
+    dbShift: { create: Mock; findMany: Mock };
   };
 
   beforeEach(async () => {
     const mockPrisma = {
-      barMember: { findUnique: vi.fn() },
-      shift: { create: vi.fn(), findMany: vi.fn() },
+      dbBarMember: { findUnique: vi.fn() },
+      dbShift: { create: vi.fn(), findMany: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ShiftsRepository, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [ShiftsRepository, { provide: DbService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<ShiftsRepository>(ShiftsRepository);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
   });
 
   describe('isUserMemberOfBar', () => {
     it('should return true if the member is active', async () => {
-      prisma.barMember.findUnique.mockResolvedValue({ active: true });
+      db.dbBarMember.findUnique.mockResolvedValue({ active: true });
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
@@ -35,7 +35,7 @@ describe('ShiftsRepository', () => {
     });
 
     it('should return false if it does not exist', async () => {
-      prisma.barMember.findUnique.mockResolvedValue(null);
+      db.dbBarMember.findUnique.mockResolvedValue(null);
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
@@ -43,7 +43,7 @@ describe('ShiftsRepository', () => {
     });
 
     it('should return false if it is inactive', async () => {
-      prisma.barMember.findUnique.mockResolvedValue({ active: false });
+      db.dbBarMember.findUnique.mockResolvedValue({ active: false });
 
       const result = await repository.isUserMemberOfBar(asUserId('u1'), asBarId('bar-1'));
 
@@ -55,7 +55,7 @@ describe('ShiftsRepository', () => {
     it('should create a shift including user', async () => {
       const startTime = new Date('2026-03-20T08:00:00Z');
       const endTime = new Date('2026-03-20T16:00:00Z');
-      prisma.shift.create.mockResolvedValue({ id: 'shift-1' });
+      db.dbShift.create.mockResolvedValue({ id: 'shift-1' });
 
       const result = await repository.create(asBarId('bar-1'), asUserId('u1'), {
         startTime,
@@ -63,7 +63,7 @@ describe('ShiftsRepository', () => {
         notes: 'notas',
       });
 
-      expect(prisma.shift.create).toHaveBeenCalledWith({
+      expect(db.dbShift.create).toHaveBeenCalledWith({
         data: {
           bar: { connect: { id: 'bar-1' } },
           user: { connect: { id: 'u1' } },
@@ -81,11 +81,11 @@ describe('ShiftsRepository', () => {
     it('should find shifts with date filter', async () => {
       const startDate = new Date('2026-03-01');
       const endDate = new Date('2026-03-31');
-      prisma.shift.findMany.mockResolvedValue([{ id: 'shift-1' }]);
+      db.dbShift.findMany.mockResolvedValue([{ id: 'shift-1' }]);
 
       const result = await repository.findByBarId(asBarId('bar-1'), startDate, endDate);
 
-      expect(prisma.shift.findMany).toHaveBeenCalledWith({
+      expect(db.dbShift.findMany).toHaveBeenCalledWith({
         where: {
           barId: 'bar-1',
           startTime: { gte: startDate, lte: endDate },
@@ -97,11 +97,11 @@ describe('ShiftsRepository', () => {
     });
 
     it('should find without date filter if none provided', async () => {
-      prisma.shift.findMany.mockResolvedValue([]);
+      db.dbShift.findMany.mockResolvedValue([]);
 
       await repository.findByBarId(asBarId('bar-1'));
 
-      expect(prisma.shift.findMany).toHaveBeenCalledWith({
+      expect(db.dbShift.findMany).toHaveBeenCalledWith({
         where: { barId: 'bar-1' },
         include: { user: { select: { id: true, name: true, photoUrl: true } } },
         orderBy: { startTime: 'asc' },

@@ -1,37 +1,104 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import { PrismaService } from '../../core';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { DbService } from '../../db';
 import { UserRepository } from './user.repository';
 
 describe('UserRepository', () => {
   let repository: UserRepository;
-  let prisma: { user: { findUnique: Mock } };
+  let db: { dbUser: { findUnique: Mock; update: Mock; upsert: Mock } };
+
+  const mockPrisma = {
+    dbUser: {
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      upsert: vi.fn(),
+    },
+  };
 
   beforeEach(async () => {
-    const mockPrisma = { user: { findUnique: vi.fn() } };
-
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserRepository, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [UserRepository, { provide: DbService, useValue: mockPrisma }],
     }).compile();
 
     repository = module.get<UserRepository>(UserRepository);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
+
+    vi.clearAllMocks();
   });
 
-  it('should call prisma.user.findUnique with the id', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'u1' });
+  describe('findById', () => {
+    it('should call db.dbUser.findUnique with the id', async () => {
+      db.dbUser.findUnique.mockResolvedValue({ id: 'u1' });
 
-    const result = await repository.getById('u1');
+      const result = await repository.findById('u1');
 
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
-    expect(result).toEqual({ id: 'u1' });
+      expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
+      expect(result).toEqual({ id: 'u1' });
+    });
+
+    it('should return null if it does not exist', async () => {
+      db.dbUser.findUnique.mockResolvedValue(null);
+
+      const result = await repository.findById('no-exist');
+
+      expect(result).toBeNull();
+    });
   });
 
-  it('should return null if it does not exist', async () => {
-    prisma.user.findUnique.mockResolvedValue(null);
+  describe('findByEmail', () => {
+    it('should call db.dbUser.findUnique with the email', async () => {
+      db.dbUser.findUnique.mockResolvedValue({ email: 'emailPrueba@prueba.com' });
 
-    const result = await repository.getById('no-exist');
+      const result = await repository.findByEmail('emailPrueba@prueba.com');
 
-    expect(result).toBeNull();
+      expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'emailPrueba@prueba.com' } });
+      expect(result).toEqual({ email: 'emailPrueba@prueba.com' });
+    });
+
+    it('should return null if it does not exist', async () => {
+      db.dbUser.findUnique.mockResolvedValue(null);
+
+      const result = await repository.findByEmail('emailPrueba@prueba.com');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('update', () => {
+    it('should call db.dbUser.update with the id and data', async () => {
+      db.dbUser.update.mockResolvedValue({ id: 'u1', name: 'Test' });
+
+      const result = await repository.update('u1', { name: 'Test' });
+
+      expect(db.dbUser.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { name: 'Test' } });
+      expect(result).toEqual({ id: 'u1', name: 'Test' });
+    });
+  });
+
+  describe('upsert', () => {
+    it('should call db.dbUser.upsert with the correct fields', async () => {
+      db.dbUser.upsert.mockResolvedValue({ id: 'uuid' });
+
+      const result = await repository.upsert('emailPrueba@prueba.com', {
+        email: 'emailPrueba@prueba.com',
+        name: 'Test',
+        googleId: 'googleId',
+        photoUrl: 'photoUrl',
+        active: true,
+      });
+
+      expect(db.dbUser.upsert).toHaveBeenCalledWith({
+        where: { email: 'emailPrueba@prueba.com' },
+        update: { name: 'Test', googleId: 'googleId', photoUrl: 'photoUrl', active: true },
+        create: {
+          email: 'emailPrueba@prueba.com',
+          name: 'Test',
+          googleId: 'googleId',
+          photoUrl: 'photoUrl',
+          active: true,
+        },
+      });
+      expect(result).toEqual({ id: 'uuid' });
+    });
   });
 });

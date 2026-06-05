@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { asBarId, asTableId, Table, TableStatus } from '@coaster/common';
+import type { Table } from '@coaster/common';
+import { asBarId, asTableId, TableStatus } from '@coaster/core';
 import { checkIsTable, tableArrayMapper, tableMapper } from './table.mapper';
 
 describe('Table Mapper', () => {

@@ -105,68 +105,23 @@
             @if (isItemSelected(item.id)) {
               <div class="flex flex-col gap-1.5 justify-end items-end">
                 <!-- Pay adjustment -->
-                <div
-                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
-                  (click)="$event.stopPropagation()"
-                  (keydown.enter)="decrementPayQty(item.id, -item.paidQuantity, $event)"
-                  (keydown.space)="decrementPayQty(item.id, -item.paidQuantity, $event)"
-                  [attr.tabindex]="isItemSelected(item.id) ? 0 : null"
-                >
-                  <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
-                    'orders.quantity_to_pay' | translate
-                  }}</span>
-                  <button
-                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                    (click)="decrementPayQty(item.id, -item.paidQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.paidQty === -item.paidQuantity"
-                  >
-                    <ng-icon name="lucideMinus" size="10" />
-                  </button>
-                  <span class="text-xs font-semibold text-on-surface min-w-6 text-center">
-                    {{
-                      (getSelectedQuantities(item.id)!.paidQty > 0 ? '+' : '') + getSelectedQuantities(item.id)?.paidQty
-                    }}
-                  </span>
-                  <button
-                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                    (click)="incrementPayQty(item.id, item.quantity - item.paidQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.paidQty === item.quantity - item.paidQuantity"
-                  >
-                    <ng-icon name="lucidePlus" size="10" />
-                  </button>
-                </div>
+                <coaster-qty-adjuster
+                  [value]="getSelectedQuantities(item.id)!.paidQty"
+                  (valueChange)="updateSelectedPayQty(item.id, $event)"
+                  [min]="-item.paidQuantity"
+                  [max]="item.quantity - item.paidQuantity"
+                  [label]="'orders.quantity_to_pay' | translate"
+                  [showPlusPrefix]="true"
+                />
                 <!-- Serve adjustment -->
-                <div
-                  class="flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20"
-                  (click)="$event.stopPropagation()"
-                  (keydown.enter)="decrementServeQty(item.id, -item.servedQuantity, $event)"
-                  (keydown.space)="decrementServeQty(item.id, -item.servedQuantity, $event)"
-                  [attr.tabindex]="isItemSelected(item.id) ? 0 : null"
-                >
-                  <span class="text-xxs font-bold text-on-surface-variant px-1.5">{{
-                    'orders.quantity_to_serve' | translate
-                  }}</span>
-                  <button
-                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                    (click)="decrementServeQty(item.id, -item.servedQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.serveQty === -item.servedQuantity"
-                  >
-                    <ng-icon name="lucideMinus" size="10" />
-                  </button>
-                  <span class="text-xs font-semibold text-on-surface min-w-6 text-center">
-                    {{
-                      (getSelectedQuantities(item.id)!.serveQty > 0 ? '+' : '') +
-                        getSelectedQuantities(item.id)?.serveQty
-                    }}
-                  </span>
-                  <button
-                    class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                    (click)="incrementServeQty(item.id, item.quantity - item.servedQuantity, $event)"
-                    [disabled]="getSelectedQuantities(item.id)?.serveQty === item.quantity - item.servedQuantity"
-                  >
-                    <ng-icon name="lucidePlus" size="10" />
-                  </button>
-                </div>
+                <coaster-qty-adjuster
+                  [value]="getSelectedQuantities(item.id)!.serveQty"
+                  (valueChange)="updateSelectedServeQty(item.id, $event)"
+                  [min]="-item.servedQuantity"
+                  [max]="item.quantity - item.servedQuantity"
+                  [label]="'orders.quantity_to_serve' | translate"
+                  [showPlusPrefix]="true"
+                />
               </div>
             }
 

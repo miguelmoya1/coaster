@@ -1,8 +1,76 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
-import { Auth as FirebaseAuth, User } from '@angular/fire/auth';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Auth } from './auth';
+import { Auth, FIREBASE_AUTH } from './auth';
+import { User, Auth as FirebaseAuth } from 'firebase/auth';
+
+vi.mock('firebase/auth', () => {
+  return {
+    onAuthStateChanged: vi.fn((auth, next) => {
+      if (auth && typeof auth.onAuthStateChanged === 'function') {
+        return auth.onAuthStateChanged(next);
+      }
+      next(null);
+      return () => {
+        /* empty */
+      };
+    }),
+    onIdTokenChanged: vi.fn((auth, next) => {
+      if (auth && typeof auth.onIdTokenChanged === 'function') {
+        return auth.onIdTokenChanged(next);
+      }
+      const mockUser = {
+        getIdToken: async () => 'mock-id-token',
+      };
+      next(mockUser);
+      return () => {
+        /* empty */
+      };
+    }),
+    signOut: vi.fn((auth) => {
+      if (auth && typeof auth.signOut === 'function') {
+        return auth.signOut();
+      }
+      return Promise.resolve();
+    }),
+    signInWithPopup: vi.fn(),
+    GoogleAuthProvider: class {},
+  };
+});
+
+vi.mock('@firebase/auth', () => {
+  return {
+    onAuthStateChanged: vi.fn((auth, next) => {
+      if (auth && typeof auth.onAuthStateChanged === 'function') {
+        return auth.onAuthStateChanged(next);
+      }
+      next(null);
+      return () => {
+        /* empty */
+      };
+    }),
+    onIdTokenChanged: vi.fn((auth, next) => {
+      if (auth && typeof auth.onIdTokenChanged === 'function') {
+        return auth.onIdTokenChanged(next);
+      }
+      const mockUser = {
+        getIdToken: async () => 'mock-id-token',
+      };
+      next(mockUser);
+      return () => {
+        /* empty */
+      };
+    }),
+    signOut: vi.fn((auth) => {
+      if (auth && typeof auth.signOut === 'function') {
+        return auth.signOut();
+      }
+      return Promise.resolve();
+    }),
+    signInWithPopup: vi.fn(),
+    GoogleAuthProvider: class {},
+  };
+});
 
 describe('Auth', () => {
   let service: Auth;
@@ -11,7 +79,7 @@ describe('Auth', () => {
 
   beforeEach(() => {
     firebaseAuthMock = {
-      app: {} as FirebaseAuth['app'],
+      app: {} as never,
       onAuthStateChanged: (next: (user: User | null) => void) => {
         next(null);
         return () => {
@@ -19,16 +87,19 @@ describe('Auth', () => {
         };
       },
       onIdTokenChanged: (next: (user: User | null) => void) => {
-        next({} as User);
+        const mockUser = {
+          getIdToken: async () => 'mock-id-token',
+        } as unknown as User;
+        next(mockUser);
         return () => {
           /* empty */
         };
       },
       signOut: vi.fn(),
-    };
+    } as unknown as FirebaseAuth;
 
     TestBed.configureTestingModule({
-      providers: [{ provide: FirebaseAuth, useValue: firebaseAuthMock }],
+      providers: [{ provide: FIREBASE_AUTH, useValue: firebaseAuthMock as FirebaseAuth }],
     });
     service = TestBed.inject(Auth);
   });

@@ -1,15 +1,21 @@
-import { Shift, ErrorCodes } from '@coaster/common';
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { ErrorCodes } from '../../../core';
+import { BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { ShiftCreatedEvent } from '../../../events';
 import { ShiftsRepository } from '../../data-access/shifts.repository';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { CreateShiftCommand } from './create-shift.command';
 
 @CommandHandler(CreateShiftCommand)
-export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, Shift> {
-  constructor(private readonly _shiftsRepository: ShiftsRepository) {}
+export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, void> {
+  readonly #logger = new Logger(CreateShiftHandler.name);
 
-  async execute(command: CreateShiftCommand): Promise<Shift> {
+  constructor(
+    private readonly _shiftsRepository: ShiftsRepository,
+    private readonly _eventBus: EventBus,
+  ) {}
+
+  async execute(command: CreateShiftCommand): Promise<void> {
     const isMember = await this._shiftsRepository.isUserMemberOfBar(command.dto.userId, command.barId);
 
     if (!isMember) {
@@ -25,12 +31,13 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, S
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const shift = await this._shiftsRepository.create(command.barId, userId, {
+    const created = await this._shiftsRepository.create(command.barId, userId, {
       startTime: shiftStartTime,
       endTime: shiftEndTime,
       ...rest,
     });
-
-    return ShiftsMapper.toDomain(shift);
+    const mapped = ShiftsMapper.toDomain(created);
+    this.#logger.debug(`Publishing ShiftCreatedEvent...`);
+    this._eventBus.publish(new ShiftCreatedEvent(command.barId, mapped));
   }
 }

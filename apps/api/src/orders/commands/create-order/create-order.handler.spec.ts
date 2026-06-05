@@ -1,10 +1,11 @@
-import { asBarId, Order, TableId } from '@coaster/common';
+import type { Order, TableId } from '@coaster/common';
+import { asBarId, asTableId, asProductId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersRepository } from '../../data-access/orders.repository';
-import { OrderCreatedEvent } from '../../events';
+import { OrderCreatedEvent } from '../../../events';
 import { CreateOrderCommand } from './create-order.command';
 import { CreateOrderHandler } from './create-order.handler';
 
@@ -32,7 +33,7 @@ describe('CreateOrderHandler', () => {
   });
 
   const barId = asBarId('bar-1');
-  const dto = { items: [{ productId: 'prod-1', quantity: 2 }], tableId: 'table-1' };
+  const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }], tableId: asTableId('table-1') };
 
   it('should throw NotFoundException if products not found', async () => {
     repository.findProductsByIds.mockResolvedValue([]);
@@ -64,7 +65,7 @@ describe('CreateOrderHandler', () => {
 
     const result = await handler.execute(new CreateOrderCommand(barId, dto));
 
-    expect(result.id).toBe('order-1');
+    expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId));
   });
 });

@@ -1,4 +1,4 @@
-import { Product as CommonProduct } from '@coaster/common';
+import type { Product as CommonProduct } from '@coaster/common';
 import { Product, calculateStockStatus } from '../models/product.interface';
 
 export const checkIsProduct = (product: unknown): product is CommonProduct => {

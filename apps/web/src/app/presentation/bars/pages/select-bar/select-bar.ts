@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
+import { Role } from '@coaster/core';
 import { CurrentUser } from '@coaster/core';
-import { Role } from '@coaster/common';
-import { CoasterBtn, Loading, SectionTitle } from '@coaster/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle, lucideSettings } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CoasterBtn } from '../../../components/button/button';
+import { Loading } from '../../../components/loading/loading';
+import { SectionTitle } from '../../../components/section-title/section-title';
 import { BarCard } from './components/bar-card/bar-card';
 
 @Component({

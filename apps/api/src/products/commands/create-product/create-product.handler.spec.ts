@@ -1,10 +1,11 @@
-import { asBarId, asCategoryId, asProductId, Product } from '@coaster/common';
+import type { Product } from '@coaster/common';
+import { asBarId, asCategoryId } from '../../../core';
 import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProductsRepository } from '../../data-access/products.repository';
-import { ProductCreatedEvent } from '../../events';
+import { ProductCreatedEvent } from '../../../events';
 import { CreateProductCommand } from './create-product.command';
 import { CreateProductHandler } from './create-product.handler';
 
@@ -31,7 +32,7 @@ describe('CreateProductHandler', () => {
   });
 
   const barId = asBarId('bar-1');
-  const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
+  const dto = { categoryId: asCategoryId('cat-1'), name: 'Refresco', price: 2 };
 
   it('should throw ForbiddenException if category does not belong to bar', async () => {
     repository.checkCategoryBelongsToBar.mockResolvedValue(false);
@@ -54,7 +55,7 @@ describe('CreateProductHandler', () => {
     });
 
     const cmd = new CreateProductCommand(barId, dto);
-    const result = await handler.execute(cmd);
+    await handler.execute(cmd);
 
     expect(repository.create).toHaveBeenCalledWith(asCategoryId('cat-1'), {
       name: 'Refresco',
@@ -63,6 +64,5 @@ describe('CreateProductHandler', () => {
       minStockAlert: 0,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(new ProductCreatedEvent(barId, expect.any(Object) as unknown as Product));
-    expect(result).toEqual({ id: asProductId('prod-1') });
   });
 });

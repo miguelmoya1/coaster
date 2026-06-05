@@ -1,29 +1,35 @@
-import { BarRole, ErrorCodes } from '@coaster/common';
-import { BadRequestException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+import { BadRequestException, Logger } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { ErrorCodes } from '../../../core';
+import { MemberRemovedEvent } from '../../../events';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
-import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';
 
 @CommandHandler(RemoveMemberCommand)
 export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand, void> {
+  readonly #logger = new Logger(RemoveMemberHandler.name);
+
   constructor(
     private readonly repository: BarMembersRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveMemberCommand): Promise<void> {
-    const members = await this.repository.getMembersByBar(command.barId);
-    const memberToRemove = members.find((m) => m.id === command.memberId);
+    this.#logger.debug(`Executing removeMember...`);
+    const { barId, memberId } = command;
 
-    if (memberToRemove?.role === BarRole.OWNER) {
-      const ownerCount = members.filter((m) => m.role === BarRole.OWNER).length;
+    const members = await this.repository.getMembersByBar(barId);
+    const memberToRemove = members.find((m) => m.id === memberId);
+
+    if (memberToRemove?.role === 'OWNER') {
+      const ownerCount = members.filter((m) => m.role === 'OWNER').length;
       if (ownerCount <= 1) {
         throw new BadRequestException(ErrorCodes.CANNOT_REMOVE_LAST_OWNER);
       }
     }
 
-    await this.repository.removeMember(command.memberId);
-    this._eventBus.publish(new MemberRemovedEvent(command.barId, command.memberId));
+    await this.repository.removeMember(memberId);
+    this.#logger.debug(`Publishing MemberRemovedEvent...`);
+    this._eventBus.publish(new MemberRemovedEvent(barId, memberId));
   }
 }

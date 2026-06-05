@@ -1,4 +1,5 @@
-import { ErrorCodes, CreateCategoryDto as ICreateCategoryDto } from '@coaster/common';
+import type { CreateCategoryDto as ICreateCategoryDto } from '@coaster/common';
+import { ErrorCodes } from '../../core';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDto implements ICreateCategoryDto {

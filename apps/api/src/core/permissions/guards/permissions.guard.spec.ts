@@ -1,41 +1,42 @@
-import { BarPermission } from '@coaster/common';
-import { ForbiddenException } from '@nestjs/common';
+import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, Mocked, vi } from 'vitest';
-import { PrismaService } from '../../prisma/services/prisma.service';
+import { BarPermission } from '../..';
+import { DbService } from '../../../db';
 import { PermissionsGuard } from './permissions.guard';
 
 describe('PermissionsGuard', () => {
   let guard: PermissionsGuard;
   let reflector: Mocked<Reflector>;
-  let prisma: { barMember: { findUnique: Mock } };
+  let db: { dbBarMember: { findUnique: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      barMember: { findUnique: vi.fn() },
+      dbBarMember: { findUnique: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PermissionsGuard,
         { provide: Reflector, useValue: { getAllAndOverride: vi.fn() } },
-        { provide: PrismaService, useValue: mockPrisma },
+        { provide: DbService, useValue: mockPrisma },
       ],
     }).compile();
 
     guard = module.get<PermissionsGuard>(PermissionsGuard);
     reflector = module.get(Reflector);
-    prisma = module.get(PrismaService);
+    db = module.get(DbService);
   });
 
-  const mockContext = (user?: unknown, barId?: string) => ({
-    getHandler: vi.fn(),
-    getClass: vi.fn(),
-    switchToHttp: () => ({
-      getRequest: () => ({ user, params: { barId } }),
-    }),
-  });
+  const mockContext = (user?: unknown, barId?: string) =>
+    ({
+      getHandler: vi.fn(),
+      getClass: vi.fn(),
+      switchToHttp: () => ({
+        getRequest: () => ({ user, params: { barId } }),
+      }),
+    }) as unknown as ExecutionContext;
 
   it('should allow access if no permissions are required and no barId is present', async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);
@@ -45,10 +46,10 @@ describe('PermissionsGuard', () => {
 
   it('should verify active membership and allow access if no permissions are required but barId is present', async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
-    expect(prisma.barMember.findUnique).toHaveBeenCalledWith({
+    expect(db.dbBarMember.findUnique).toHaveBeenCalledWith({
       where: {
         userId_barId: {
           userId: 'u1',
@@ -70,46 +71,46 @@ describe('PermissionsGuard', () => {
 
   it('should throw MEMBER_NOT_FOUND if membership does not exist', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.VIEW_ORDERS]);
-    prisma.barMember.findUnique.mockResolvedValue(null);
+    db.dbBarMember.findUnique.mockResolvedValue(null);
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
   it('should throw MEMBER_NOT_FOUND if membership exists but is inactive', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.VIEW_ORDERS]);
-    prisma.barMember.findUnique.mockResolvedValue({ active: false, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: false, role: 'STAFF' });
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
   it('should throw if the member role does not have the required permission', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.DELETE_ORDER]); // Only OWNER has this
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 
   it('should allow access if the role has the permission', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.VIEW_ORDERS]);
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
   });
 
   it('should allow OWNER all permissions', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.DELETE_ORDER]);
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'OWNER' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'OWNER' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
   });
 
   it('should check all permissions and succeed if role has all of them', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.VIEW_ORDERS, BarPermission.CREATE_ORDER]);
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     const result = await guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'));
     expect(result).toBe(true);
   });
 
   it('should check all permissions and fail if role is missing at least one of them', async () => {
     reflector.getAllAndOverride.mockReturnValue([BarPermission.VIEW_ORDERS, BarPermission.DELETE_ORDER]);
-    prisma.barMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
+    db.dbBarMember.findUnique.mockResolvedValue({ active: true, role: 'STAFF' });
     await expect(guard.canActivate(mockContext({ id: 'u1' }, 'bar-1'))).rejects.toThrow(ForbiddenException);
   });
 });

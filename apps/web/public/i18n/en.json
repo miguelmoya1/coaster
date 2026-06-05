@@ -150,14 +150,22 @@
       "more_issues": "+{{count}} more products with issues. View all"
     },
     "financials": {
-      "today": "Revenue Today",
-      "yesterday": "Revenue Yesterday",
-      "weekly": "Weekly Revenue",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "weekly": "This Week",
       "chart_title": "Weekly Sales Distribution",
-      "no_revenue": "No revenue"
+      "no_revenue": "No revenue",
+      "current_month": "This Month",
+      "previous_month": "Last Month",
+      "previous_month_short": "prev. month",
+      "yearly": "This Year",
+      "yearly_progress": "Monthly Year Distribution",
+      "no_change": "No change",
+      "closed_revenue": "Total revenue"
     },
     "sections": {
       "financials": "Financial Overview",
+      "monthly_yearly": "Monthly & Yearly Analysis",
       "overview": "Staff Overview",
       "overview_stats": "{{clockedIn}} Clocked In • {{assigned}} Assigned",
       "pantry": "Critical Pantry Alerts",
@@ -274,6 +282,9 @@
     "table_name_placeholder": "e.g. Table 1",
     "table_occupied": "Occupied",
     "tables_title": "Tables",
+    "to_serve_title": "To serve",
+    "all_served_title": "All served!",
+    "all_served_desc": "There are no pending orders to serve at the bar right now.",
     "total": "Total",
     "unpay_unit": "Subtract 1 paid",
     "unserve_unit": "Subtract 1 served"
@@ -327,7 +338,7 @@
     "empty": "No products found.",
     "import_action": "Import selected",
     "import_search_placeholder": "Search templates (categories or products)...",
-    "import_success": "Templates imported successfully! ({{created}} created, {{modified}} modified)",
+    "import_success": "Templates imported successfully!",
     "import_title": "Import Templates",
     "inventory_title": "Active Inventory",
     "no_templates_found": "No templates found.",
@@ -343,6 +354,8 @@
   },
   "roster": {
     "create_shift": {
+      "title": "Create Shift",
+      "date_label": "For date",
       "end_time_label": "End Time",
       "notes_label": "Notes (Optional)",
       "notes_placeholder": "e.g. Cover for evening rush",
@@ -351,6 +364,8 @@
       "start_time_label": "Start Time"
     },
     "daily_assignments": "Daily Assignments",
+    "delete_shift_title": "Delete Shift",
+    "delete_shift_confirm": "Are you sure you want to delete this shift? This action cannot be undone.",
     "exchange_pending": "Pending",
     "exchanges": {
       "offered_by": "Offered by",
@@ -358,13 +373,37 @@
       "period_evening": "Evening Shift",
       "period_morning": "Morning Shift",
       "title": "Pending Exchanges",
-      "your_request": "Your request"
+      "your_request": "Your request",
+      "delete_title": "Delete Exchange",
+      "delete_confirm": "Are you sure you want to delete this exchange offer?",
+      "delete": "Delete"
     },
     "no_shifts": "No shifts selected for this day",
     "offer_exchange": "Offer",
     "title": "Shift Roster",
     "today": "Today",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "views": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "days": {
+      "lun": "Mon",
+      "mar": "Tue",
+      "mie": "Wed",
+      "jue": "Thu",
+      "vie": "Fri",
+      "sab": "Sat",
+      "dom": "Sun"
+    },
+    "replication": {
+      "title": "Quick Planning",
+      "description": "Bulk copy the entire shift layout from the previous week to the current week.",
+      "button": "Replicate Previous Week",
+      "confirm_title": "Replicate Shifts",
+      "confirm_msg": "Are you sure you want to copy all shifts from last week to this week? If shifts already exist, new ones will be added."
+    }
   },
   "templates": {
     "categories": {

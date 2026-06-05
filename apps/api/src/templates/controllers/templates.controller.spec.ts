@@ -1,9 +1,10 @@
-import { asCategoryId } from '@coaster/common';
+import { asCategoryId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, PermissionsGuard, UserRolesGuard } from '../../core';
+import { PermissionsGuard, UserRolesGuard } from '../../core';
+import { FirebaseAuthGuard } from '../../auth';
 import {
   BulkUpsertTemplatesCommand,
   CreateCategoryTemplateCommand,
@@ -55,7 +56,7 @@ describe('TemplatesController', () => {
   });
 
   it('createCategoryTemplate should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'cat-t1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Category 1', description: 'Desc 1' };
     await controller.createCategoryTemplate(dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateCategoryTemplateCommand));
@@ -81,7 +82,7 @@ describe('TemplatesController', () => {
   });
 
   it('createProductTemplate should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ id: 'prod-t1' });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = {
       name: 'Prod 1',
       price: 10,
@@ -106,7 +107,7 @@ describe('TemplatesController', () => {
   });
 
   it('importTemplatesToBar should delegate to the command bus', async () => {
-    commandBus.execute.mockResolvedValue({ success: true, created: 2, modified: 1 });
+    commandBus.execute.mockResolvedValue(undefined);
     const dto = { categoryTemplateIds: ['cat-t1'], productTemplateIds: ['prod-t1'] };
     await controller.importTemplatesToBar('bar-1', dto);
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ImportTemplatesToBarCommand));

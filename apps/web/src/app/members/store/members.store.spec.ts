@@ -2,7 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asBarMemberId, asUserId, BarMember, BarRole } from '@coaster/common';
+import type { BarMember } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MembersStore } from './members.store';
 

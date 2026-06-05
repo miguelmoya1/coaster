@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TemplatesRepository } from '../data-access/templates-repository';
 import { ImportTemplatesToBar } from './import-templates-to-bar';
@@ -8,7 +8,7 @@ describe('ImportTemplatesToBar', () => {
   let service: ImportTemplatesToBar;
 
   const repositoryMock = {
-    importToBar: vi.fn().mockResolvedValue({ success: true, created: 3, modified: 0 }),
+    importToBar: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('ImportTemplatesToBar', () => {
 
     const result = await service.execute(barId, ids);
 
-    expect(result).toEqual({ success: true, created: 3, modified: 0 });
+    expect(result).toBeUndefined();
     expect(repositoryMock.importToBar).toHaveBeenCalledWith(barId, ids);
   });
 });

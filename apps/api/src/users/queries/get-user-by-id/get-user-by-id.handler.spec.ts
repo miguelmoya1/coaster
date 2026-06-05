@@ -1,6 +1,6 @@
-import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asUserId } from '../../../core';
 import { UserRepository } from '../../data-access/user.repository';
 import { GetUserByIdHandler } from './get-user-by-id.handler';
 import { GetUserByIdQuery } from './get-user-by-id.query';
@@ -8,7 +8,7 @@ import { GetUserByIdQuery } from './get-user-by-id.query';
 describe('GetUserByIdHandler', () => {
   let handler: GetUserByIdHandler;
   const repository = {
-    getById: vi.fn(),
+    findById: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,16 +20,16 @@ describe('GetUserByIdHandler', () => {
   });
 
   it('should return null if the user does not exist', async () => {
-    repository.getById.mockResolvedValue(null);
+    repository.findById.mockResolvedValue(null);
 
     const result = await handler.execute(new GetUserByIdQuery(asUserId('no-exist')));
 
-    expect(repository.getById).toHaveBeenCalledWith('no-exist');
+    expect(repository.findById).toHaveBeenCalledWith('no-exist');
     expect(result).toBeNull();
   });
 
   it('should map db user to domain correctly', async () => {
-    repository.getById.mockResolvedValue({
+    repository.findById.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Test',

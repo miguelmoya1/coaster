@@ -3,14 +3,19 @@ import { ConfigModule } from '@nestjs/config';
 import { BarMembersModule } from './bar-members/bar-members.module';
 import { BarsModule } from './bars/bars.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
 import { CoreModule } from './core/core.module';
+import { DbModule } from './db';
+import { EmailModule } from './email/email.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
 import { ShiftsModule } from './shifts/shifts.module';
+import { StatsModule } from './stats/stats.module';
 import { TablesModule } from './tables/tables.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
+import { WebsocketsModule } from './websockets/websockets.module';
 
 @Module({
   imports: [
@@ -18,6 +23,10 @@ import { UserModule } from './users/user.module';
       isGlobal: true,
     }),
     CoreModule,
+    DbModule,
+    EmailModule,
+    WebsocketsModule,
+    AuthModule,
     UserModule,
     BarsModule,
     BarMembersModule,
@@ -28,6 +37,7 @@ import { UserModule } from './users/user.module';
     TemplatesModule,
     TablesModule,
     OrdersModule,
+    StatsModule,
   ],
 })
 export class AppModule {}

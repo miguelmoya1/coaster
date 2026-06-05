@@ -1,4 +1,5 @@
-import { AddOrderItemsDto, asBarId, asOrderId } from '@coaster/common';
+import type { AddOrderItemsDto } from '@coaster/common';
+import { asBarId, asOrderId, asProductId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -32,7 +33,7 @@ describe('AddOrderItemsHandler', () => {
 
   const barId = asBarId('bar-1');
   const orderId = asOrderId('order-1');
-  const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
+  const dto = { items: [{ productId: asProductId('prod-1'), quantity: 1 }] };
 
   it('should throw NotFoundException if order not found', async () => {
     repository.findById.mockResolvedValue(null);
@@ -81,7 +82,7 @@ describe('AddOrderItemsHandler', () => {
 
     const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as AddOrderItemsDto));
 
-    expect(result).toBeDefined();
+    expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
         barId: 'bar-1',

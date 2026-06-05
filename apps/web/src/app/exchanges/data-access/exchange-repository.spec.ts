@@ -1,32 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import {
-    asBarId,
-    asShiftExchangeId,
-    asShiftId,
-    asUserId,
-    CreateShiftExchangeDto,
-    ShiftExchange,
-    ShiftExchangeStatus,
-} from '@coaster/common';
+import type { CreateShiftExchangeDto } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
 import { ExchangeRepository } from './exchange-repository';
 
 describe('ExchangeRepository', () => {
   let service: ExchangeRepository;
   let httpMock: HttpTestingController;
-
-  const mockExchange: ShiftExchange = {
-    createdAt: new Date(),
-    id: asShiftExchangeId('exchange-1'),
-    shiftId: asShiftId('shift-1'),
-    requesterId: asUserId('user-1'),
-    targetId: asUserId('user-2'),
-    status: ShiftExchangeStatus.PENDING,
-    requesterName: 'John',
-    shiftStartTime: '2026-04-17T09:00:00.000Z',
-    shiftEndTime: '2026-04-17T17:00:00.000Z',
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -68,16 +49,10 @@ describe('ExchangeRepository', () => {
 
       const req = httpMock.expectOne(service.routes.request(barId, shiftId));
       expect(req.request.method).toBe('POST');
-      req.flush(mockExchange);
+      req.flush(null);
 
-      await promise;
-    });
-
-    it('should return mapped exchange', async () => {
-      const res = service.request(barId, shiftId, dto);
-      httpMock.expectOne(service.routes.request(barId, shiftId)).flush(mockExchange);
-
-      expect(await res).toEqual(mockExchange);
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 
@@ -90,17 +65,10 @@ describe('ExchangeRepository', () => {
 
       const req = httpMock.expectOne(service.routes.accept(barId, exchangeId));
       expect(req.request.method).toBe('PATCH');
-      req.flush({ ...mockExchange, status: ShiftExchangeStatus.APPROVED });
+      req.flush(null);
 
-      await promise;
-    });
-
-    it('should return mapped exchange', async () => {
-      const approvedExchange = { ...mockExchange, status: ShiftExchangeStatus.APPROVED };
-      const res = service.accept(barId, exchangeId);
-      httpMock.expectOne(service.routes.accept(barId, exchangeId)).flush(approvedExchange);
-
-      expect(await res).toEqual(approvedExchange);
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 });

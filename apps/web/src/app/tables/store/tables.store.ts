@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { BarId, CreateTableDto, TableId, TableStatus, UpdateTableDto } from '@coaster/common';
+import { computed, effect, inject, Service, signal } from '@angular/core';
+import type { BarId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
+import { TableStatus } from '@coaster/core';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { BarTables } from '../services/bar-tables';
@@ -8,9 +9,7 @@ import { CreateTable } from '../services/create-table';
 import { DeleteTable } from '../services/delete-table';
 import { UpdateTable } from '../services/update-table';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class TablesStore {
   readonly #barTables = inject(BarTables);
   readonly #createTable = inject(CreateTable);

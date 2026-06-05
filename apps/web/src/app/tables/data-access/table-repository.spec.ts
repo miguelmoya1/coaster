@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asTableId } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TableRepository } from './table-repository';
 
@@ -50,14 +50,14 @@ describe('TableRepository', () => {
       const promise = service.create(barId, dto);
       const req = httpMock.expectOne(service.routes.create(barId));
       expect(req.request.method).toBe('POST');
-      req.flush({ id: asTableId('table-1') });
+      req.flush(null);
       await promise;
     });
 
-    it('should return table creation id response', async () => {
+    it('should return void', async () => {
       const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush({ id: asTableId('table-1') });
-      expect(await res).toEqual({ id: asTableId('table-1') });
+      httpMock.expectOne(service.routes.create(barId)).flush(null);
+      expect(await res).toBeNull();
     });
   });
 
