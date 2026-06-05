@@ -1,6 +1,6 @@
 import type { Category } from '@coaster/common';
 import { asBarId, asCategoryId } from '../../core';
-import { DbCategory as CategoryDb } from '../../db';;
+import { DbCategory as CategoryDb } from '../../db';
 
 export const CategoriesMapper = {
   toDomain(dbCategory: CategoryDb): Category {

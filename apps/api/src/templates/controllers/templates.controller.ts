@@ -1,10 +1,9 @@
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { BarPermission } from '../../core';
-import { DbRole } from '../../db';;
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { BarPermission, Permissions, PermissionsGuard, UserRoles, UserRolesGuard } from '../../core';
+import { DbRole } from '../../db';
 import {
   BulkCategoryTemplateInput,
   BulkUpsertTemplatesCommand,
@@ -50,7 +49,10 @@ export class TemplatesController {
   @Put('categories/:id')
   @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
-  async updateCategoryTemplate(@Param('id') id: string, @Body() updateCategoryTemplateDto: UpdateCategoryTemplateDto): Promise<void> {
+  async updateCategoryTemplate(
+    @Param('id') id: string,
+    @Body() updateCategoryTemplateDto: UpdateCategoryTemplateDto,
+  ): Promise<void> {
     await this._commandBus.execute<UpdateCategoryTemplateCommand, void>(
       new UpdateCategoryTemplateCommand(id, updateCategoryTemplateDto),
     );
@@ -80,7 +82,10 @@ export class TemplatesController {
   @Put('products/:id')
   @UserRoles(DbRole.ADMIN)
   @UseGuards(UserRolesGuard)
-  async updateProductTemplate(@Param('id') id: string, @Body() updateProductTemplateDto: UpdateProductTemplateDto): Promise<void> {
+  async updateProductTemplate(
+    @Param('id') id: string,
+    @Body() updateProductTemplateDto: UpdateProductTemplateDto,
+  ): Promise<void> {
     await this._commandBus.execute<UpdateProductTemplateCommand, void>(
       new UpdateProductTemplateCommand(id, updateProductTemplateDto),
     );

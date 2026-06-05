@@ -1,8 +1,7 @@
-import { ErrorCodes, ShiftExchangeStatus } from '../../../core';
-import { DbBarRole } from '../../../db';;
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DbService } from '../../../db';;
+import { ErrorCodes, ShiftExchangeStatus } from '../../../core';
+import { DbBarRole, DbService } from '../../../db';
 import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
 import { DeleteExchangeCommand } from './delete-exchange.command';
 

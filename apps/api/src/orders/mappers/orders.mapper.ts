@@ -1,6 +1,15 @@
 import type { Order, OrderItem } from '@coaster/common';
-import { asBarId, asDeliveryStatus, asOrderId, asOrderItemId, asOrderStatus, asPaymentStatus, asProductId, asTableId } from '../../core';
-import { DbOrder as OrderDb, DbOrderItem as OrderItemDb } from '../../db';;
+import {
+  asBarId,
+  asDeliveryStatus,
+  asOrderId,
+  asOrderItemId,
+  asOrderStatus,
+  asPaymentStatus,
+  asProductId,
+  asTableId,
+} from '../../core';
+import { DbOrder as OrderDb, DbOrderItem as OrderItemDb } from '../../db';
 
 type OrderItemWithProduct = OrderItemDb & {
   product: { name: string };

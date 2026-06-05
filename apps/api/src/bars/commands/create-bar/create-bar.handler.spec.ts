@@ -1,7 +1,7 @@
-import { asUserId } from '../../../core';
-import { DbRole } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asUserId } from '../../../core';
+import { DbRole } from '../../../db';
 import { BarRepository } from '../../data-access/bar.repository';
 import { CreateBarCommand } from './create-bar.command';
 import { CreateBarHandler } from './create-bar.handler';

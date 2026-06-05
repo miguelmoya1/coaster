@@ -1,7 +1,7 @@
-import { asBarId, asCategoryId, asProductId } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { DbService } from '../../db';;
+import { asBarId, asCategoryId, asProductId } from '../../core';
+import { DbService } from '../../db';
 import { ProductsRepository } from './products.repository';
 
 describe('ProductsRepository', () => {

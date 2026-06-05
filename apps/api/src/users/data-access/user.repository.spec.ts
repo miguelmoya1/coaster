@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { DbService } from '../../db';;
+import { DbService } from '../../db';
 import { UserRepository } from './user.repository';
 
 describe('UserRepository', () => {

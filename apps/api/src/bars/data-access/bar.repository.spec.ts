@@ -1,7 +1,7 @@
-import { asUserId } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { DbService } from '../../db';;
+import { asUserId } from '../../core';
+import { DbService } from '../../db';
 import { BarRepository } from './bar.repository';
 
 describe('BarRepository', () => {

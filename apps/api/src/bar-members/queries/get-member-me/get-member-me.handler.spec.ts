@@ -1,8 +1,8 @@
-import { asBarId, asBarMemberId, asUserId } from '../../../core';
-import { DbBarRole } from '../../../db';;
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { asBarId, asBarMemberId, asUserId } from '../../../core';
+import { DbBarRole } from '../../../db';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { GetMemberMeHandler } from './get-member-me.handler';
 import { GetMemberMeQuery } from './get-member-me.query';
@@ -66,9 +66,7 @@ describe('GetMemberMeHandler', () => {
 
     mockRepository.getMemberByUserAndBar.mockResolvedValue(null);
 
-    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
   });
 
   it('should throw NotFoundException if member is inactive', async () => {
@@ -85,8 +83,6 @@ describe('GetMemberMeHandler', () => {
 
     mockRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
 
-    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
   });
 });

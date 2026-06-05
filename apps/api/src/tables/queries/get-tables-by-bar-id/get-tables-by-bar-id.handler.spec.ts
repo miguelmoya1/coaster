@@ -1,7 +1,7 @@
-import { asBarId, asTableId } from '../../../core';
-import { DbTableStatus } from '../../../db';;
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asTableId } from '../../../core';
+import { DbTableStatus } from '../../../db';
 import { TablesRepository } from '../../data-access/tables.repository';
 import { GetTablesByBarIdHandler } from './get-tables-by-bar-id.handler';
 import { GetTablesByBarIdQuery } from './get-tables-by-bar-id.query';

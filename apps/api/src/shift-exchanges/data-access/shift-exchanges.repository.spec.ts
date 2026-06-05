@@ -1,7 +1,7 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { DbService } from '../../db';;
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '../../core';
+import { DbService } from '../../db';
 import { ShiftExchangesRepository } from './shift-exchanges.repository';
 
 describe('ShiftExchangesRepository', () => {
