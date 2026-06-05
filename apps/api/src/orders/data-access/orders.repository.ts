@@ -1,6 +1,6 @@
 import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';;
+import { DbService } from '../../db';
 
 @Injectable()
 export class OrdersRepository {
@@ -91,7 +91,7 @@ export class OrdersRepository {
     });
   }
 
-  async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: string | null) {
+  async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: TableId | null) {
     return this._prisma.$transaction(async (tx) => {
       await tx.dbOrderItem.delete({ where: { id: itemId } });
 
@@ -115,7 +115,7 @@ export class OrdersRepository {
     });
   }
 
-  async findOrdersByIds(orderIds: string[]) {
+  async findOrdersByIds(orderIds: OrderId[]) {
     return this._prisma.dbOrder.findMany({
       where: { id: { in: orderIds } },
       include: {

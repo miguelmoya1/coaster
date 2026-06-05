@@ -1,12 +1,12 @@
 import type { BarId, BarRole, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Db, DbService } from '../../db';;
+import { DbBarCreateInput, DbService } from '../../db';
 
 @Injectable()
 export class BarRepository {
   constructor(private readonly _prisma: DbService) {}
 
-  async create(userId: UserId, createBarDto: Db.DbBarCreateInput) {
+  async create(userId: UserId, createBarDto: DbBarCreateInput) {
     return this._prisma.dbBar.create({
       data: {
         ...createBarDto,

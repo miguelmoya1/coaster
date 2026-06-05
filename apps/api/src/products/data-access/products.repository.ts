@@ -1,6 +1,6 @@
 import type { BarId, CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Db, DbService } from '../../db';;
+import { DbProductCreateInput, DbProductUpdateInput, DbService } from '../../db';
 
 @Injectable()
 export class ProductsRepository {
@@ -17,7 +17,7 @@ export class ProductsRepository {
     return category.barId === barId;
   }
 
-  async create(categoryId: CategoryId, createProductDto: Omit<Db.DbProductCreateInput, 'category'>) {
+  async create(categoryId: CategoryId, createProductDto: Omit<DbProductCreateInput, 'category'>) {
     return this._prisma.dbProduct.create({
       data: {
         ...createProductDto,
@@ -27,7 +27,7 @@ export class ProductsRepository {
     });
   }
 
-  async update(productId: ProductId, updateData: Db.DbProductUpdateInput) {
+  async update(productId: ProductId, updateData: DbProductUpdateInput) {
     return this._prisma.dbProduct.update({
       where: { id: productId },
       data: updateData,

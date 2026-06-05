@@ -12,7 +12,6 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
-    "@coaster/common": "*",
     "@ng-icons/core": "^33.2.2",
     "@ng-icons/lucide": "^33.2.2",
     "@ngx-translate/core": "^17.0.0",

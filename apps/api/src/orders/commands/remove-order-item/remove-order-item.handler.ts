@@ -1,9 +1,8 @@
-import type { Order } from '@coaster/common';
-import { asProductId, asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asProductId, asTableId, ErrorCodes } from '../../../core';
 import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../../events';
+import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 
@@ -18,15 +17,19 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
   async execute(command: RemoveOrderItemCommand): Promise<void> {
     this.#logger.debug(`Executing removeOrderItem...`);
+
     const order = await this._ordersRepository.findById(command.orderId);
+
     if (!order || order.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
+
     if (order.status !== 'OPEN') {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
     const item = order.items.find((i) => i.id === command.itemId);
+
     if (!item) {
       throw new NotFoundException(ErrorCodes.ORDER_ITEM_NOT_FOUND);
     }
@@ -37,7 +40,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
       const cancelled = await this._ordersRepository.removeLastItemAndCancel(
         command.orderId,
         command.itemId,
-        order.tableId,
+        asTableId(order.tableId!),
       );
       const mapped = OrdersMapper.toDomain(cancelled);
 

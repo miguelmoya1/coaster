@@ -1,7 +1,7 @@
 import type { BarId, ShiftExchangeId, ShiftId, UserId } from '@coaster/common';
-import { ShiftExchangeStatus } from '../../core';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';;
+import { ShiftExchangeStatus } from '../../core';
+import { DbService } from '../../db';
 
 @Injectable()
 export class ShiftExchangesRepository {
@@ -33,7 +33,7 @@ export class ShiftExchangesRepository {
     });
   }
 
-  async hasPendingExchangeForShift(shiftId: ShiftId): Promise<boolean> {
+  async hasPendingExchangeForShift(shiftId: ShiftId) {
     const count = await this.db.dbShiftExchange.count({
       where: {
         shiftId,

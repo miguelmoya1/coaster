@@ -1,6 +1,6 @@
 import type { BarId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Db, DbService } from '../../db';;
+import { DbService, DbShiftCreateInput } from '../../db';
 
 @Injectable()
 export class ShiftsRepository {
@@ -16,7 +16,7 @@ export class ShiftsRepository {
     return !!member && member.active;
   }
 
-  async create(barId: BarId, userId: UserId, createShiftDto: Omit<Db.DbShiftCreateInput, 'bar' | 'user'>) {
+  async create(barId: BarId, userId: UserId, createShiftDto: Omit<DbShiftCreateInput, 'bar' | 'user'>) {
     return this.db.dbShift.create({
       data: {
         ...createShiftDto,

@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { TemplatesRepository } from '../../data-access/templates.repository';
-import { TemplatesMapper } from '../../mappers/templates.mapper';
 import { CreateCategoryTemplateCommand } from './create-category-template.command';
 
 @CommandHandler(CreateCategoryTemplateCommand)

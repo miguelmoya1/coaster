@@ -1,6 +1,6 @@
 import type { BarId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { Db, DbService } from '../../db';;
+import { DbService, DbTableCreateInput, DbTableUpdateInput } from '../../db';
 
 @Injectable()
 export class TablesRepository {
@@ -19,7 +19,7 @@ export class TablesRepository {
     });
   }
 
-  async create(barId: BarId, data: Omit<Db.DbTableCreateInput, 'bar'>) {
+  async create(barId: BarId, data: Omit<DbTableCreateInput, 'bar'>) {
     return this._prisma.dbTable.create({
       data: {
         ...data,
@@ -28,7 +28,7 @@ export class TablesRepository {
     });
   }
 
-  async update(tableId: TableId, data: Db.DbTableUpdateInput) {
+  async update(tableId: TableId, data: DbTableUpdateInput) {
     return this._prisma.dbTable.update({
       where: { id: tableId },
       data,

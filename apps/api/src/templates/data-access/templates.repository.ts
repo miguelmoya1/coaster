@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';
-import { CreateCategoryTemplateDto } from '../dto/create-category-template.dto';
-import { CreateProductTemplateDto } from '../dto/create-product-template.dto';
-import { UpdateCategoryTemplateDto } from '../dto/update-category-template.dto';
-import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
+import {
+  DbCategoryTemplateUncheckedCreateInput,
+  DbCategoryTemplateUncheckedUpdateInput,
+  DbProductTemplateUncheckedCreateInput,
+  DbProductTemplateUncheckedUpdateInput,
+  DbService,
+} from '../../db';
 
 @Injectable()
 export class TemplatesRepository {
@@ -26,13 +28,13 @@ export class TemplatesRepository {
     });
   }
 
-  async createCategoryTemplate(data: CreateCategoryTemplateDto) {
+  async createCategoryTemplate(data: DbCategoryTemplateUncheckedCreateInput) {
     return this._prisma.dbCategoryTemplate.create({
       data,
     });
   }
 
-  async updateCategoryTemplate(id: string, data: UpdateCategoryTemplateDto) {
+  async updateCategoryTemplate(id: string, data: DbCategoryTemplateUncheckedUpdateInput) {
     return this._prisma.dbCategoryTemplate.update({
       where: { id },
       data,
@@ -62,13 +64,13 @@ export class TemplatesRepository {
     });
   }
 
-  async createProductTemplate(data: CreateProductTemplateDto) {
+  async createProductTemplate(data: DbProductTemplateUncheckedCreateInput) {
     return this._prisma.dbProductTemplate.create({
       data,
     });
   }
 
-  async updateProductTemplate(id: string, data: UpdateProductTemplateDto) {
+  async updateProductTemplate(id: string, data: DbProductTemplateUncheckedUpdateInput) {
     return this._prisma.dbProductTemplate.update({
       where: { id },
       data,
