@@ -36,11 +36,5 @@ export default defineConfig({
       '@coaster/tables': new URL('./src/app/tables/index.ts', import.meta.url).pathname,
       '@coaster/templates': new URL('./src/app/templates/index.ts', import.meta.url).pathname,
       '@coaster/env': new URL('./src/environments/environment.ts', import.meta.url).pathname,
-    },
-    server: {
-      deps: {
-        inline: ['rxfire', '@angular/fire'],
-      },
-    },
   },
 });

@@ -1,8 +1,8 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
+import { initializeApp } from 'firebase/app';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { FIREBASE_AUTH } from './core';
 import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -29,25 +29,25 @@ export const appConfig: ApplicationConfig = {
         prefix: environment.defaultLanguagePath,
       }),
     }),
-    provideFirebaseApp(() =>
-      initializeApp({
-        apiKey: environment.firebase.apiKey,
-        authDomain: environment.firebase.authDomain,
-        projectId: environment.firebase.projectId,
-        storageBucket: environment.firebase.storageBucket,
-        messagingSenderId: environment.firebase.messagingSenderId,
-        appId: environment.firebase.appId,
-      }),
-    ),
-    provideAuth(() => {
-      const auth = getAuth();
+    {
+      provide: FIREBASE_AUTH,
+      useFactory: () => {
+        const app = initializeApp({
+          apiKey: environment.firebase.apiKey,
+          authDomain: environment.firebase.authDomain,
+          projectId: environment.firebase.projectId,
+          storageBucket: environment.firebase.storageBucket,
+          messagingSenderId: environment.firebase.messagingSenderId,
+          appId: environment.firebase.appId,
+        });
+        const auth = getAuth(app);
 
-      if (environment.useEmulators) {
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-      }
+        if (environment.useEmulators) {
+          connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+        }
 
-      return auth;
-    }),
-    provideAnalytics(() => getAnalytics()),
+        return auth;
+      },
+    },
   ],
 };

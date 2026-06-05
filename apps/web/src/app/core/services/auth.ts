@@ -1,13 +1,17 @@
-import { computed, inject, Service } from '@angular/core';
+import { computed, inject, InjectionToken, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import {
-  authState,
   Auth as FirebaseAuth,
   GoogleAuthProvider,
-  idToken,
+  onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   signOut,
-} from '@angular/fire/auth';
+  User,
+} from 'firebase/auth';
+
+export const FIREBASE_AUTH = new InjectionToken<FirebaseAuth>('FIREBASE_AUTH');
 
 export interface UserProfile {
   name: string;
@@ -15,9 +19,42 @@ export interface UserProfile {
   photo: string;
 }
 
+export function authState(auth: FirebaseAuth): Observable<User | null> {
+  return new Observable<User | null>((subscriber) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => subscriber.next(user),
+      (error) => subscriber.error(error)
+    );
+    return unsubscribe;
+  });
+}
+
+export function idToken(auth: FirebaseAuth): Observable<string | null> {
+  return new Observable<string | null>((subscriber) => {
+    const unsubscribe = onIdTokenChanged(
+      auth,
+      async (user) => {
+        if (user) {
+          try {
+            const token = await user.getIdToken();
+            subscriber.next(token);
+          } catch (error) {
+            subscriber.error(error);
+          }
+        } else {
+          subscriber.next(null);
+        }
+      },
+      (error) => subscriber.error(error)
+    );
+    return unsubscribe;
+  });
+}
+
 @Service()
 export class Auth {
-  readonly #auth = inject(FirebaseAuth);
+  readonly #auth = inject(FIREBASE_AUTH);
   readonly #currentUser = toSignal(authState(this.#auth), {
     initialValue: undefined,
     requireSync: false,
@@ -47,9 +84,9 @@ export class Auth {
 
   public async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
-    const credendials = await signInWithPopup(this.#auth, provider);
+    const credentials = await signInWithPopup(this.#auth, provider);
 
-    return credendials.user;
+    return credentials.user;
   }
 
   public async logout() {
