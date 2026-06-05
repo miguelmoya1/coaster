@@ -10,6 +10,8 @@ dist/
 out/
 build/
 .swc/
+*.tsbuildinfo
+**/*.tsbuildinfo
 
 # Firebase emulators and configurations
 .firebase/
