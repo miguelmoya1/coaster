@@ -1,7 +1,10 @@
 # Stage 1: Build stage
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
+
+# Install openssl needed by Prisma CLI/engine
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy root package files
 COPY package.json package-lock.json ./
@@ -26,7 +29,7 @@ RUN npm run build -w packages/common
 RUN npm run build -w apps/api
 
 # Stage 2: Production dependencies stage
-FROM node:22-alpine AS runner-deps
+FROM node:22-slim AS runner-deps
 
 WORKDIR /app
 
@@ -46,14 +49,14 @@ RUN npm ci --omit=dev
 # COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 
 # Stage 3: Runner stage (slim runtime)
-FROM node:22-alpine AS runner
+FROM node:22-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install openssl as it's needed by Prisma Client in alpine environments
-RUN apk add --no-cache openssl
+# Install openssl as it's needed by Prisma Client
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy node_modules from runner-deps (includes both root and package-level production dependencies)
 COPY --from=runner-deps /app/node_modules ./node_modules
