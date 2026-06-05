@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { ProductRepository } from '../data-access/product-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BarProducts {
   readonly #productRepository = inject(ProductRepository);
 

@@ -14,6 +14,7 @@ describe('StatsStore', () => {
   let mockSocket = {
     orderClosed: signal<Order | null>(null),
     orderCancelled: signal<{ id: string } | Order | null>(null),
+    orderDeleted: signal<{ id: string } | null>(null),
   };
 
   const mockStats: BarStats = {
@@ -34,6 +35,7 @@ describe('StatsStore', () => {
     mockSocket = {
       orderClosed: signal<Order | null>(null),
       orderCancelled: signal<{ id: string } | Order | null>(null),
+      orderDeleted: signal<{ id: string } | null>(null),
     };
 
     TestBed.configureTestingModule({

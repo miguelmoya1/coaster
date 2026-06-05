@@ -1,13 +1,11 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { User } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
 import { Auth } from './auth';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CurrentUser {
   readonly #auth = inject(Auth);
   readonly #http = inject(HttpClient);

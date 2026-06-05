@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { format } from 'date-fns';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class DateFormatterService {
 
   public formatTimeRange(startIso: string, endIso: string): string {

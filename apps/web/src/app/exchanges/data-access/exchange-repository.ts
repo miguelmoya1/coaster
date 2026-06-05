@@ -1,12 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import type { BarId, CreateShiftExchangeDto, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { firstValueFrom, map } from 'rxjs';
-import { exchangeMapper } from '../mappers/exchange.mapper';
+import { inject, Service } from '@angular/core';
+import type { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { firstValueFrom } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ExchangeRepository {
   readonly #http = inject(HttpClient);
 
@@ -18,15 +15,11 @@ export class ExchangeRepository {
   };
 
   public async request(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.post<void>(this.routes.request(barId, shiftId), dto)
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.request(barId, shiftId), dto));
   }
 
   public async accept(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {
-    return firstValueFrom(
-      this.#http.patch<void>(this.routes.accept(barId, exchangeId), {})
-    );
+    return firstValueFrom(this.#http.patch<void>(this.routes.accept(barId, exchangeId), {}));
   }
 
   public async delete(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {

@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ManageOrder {
   readonly #orderRepository = inject(OrderRepository);
 

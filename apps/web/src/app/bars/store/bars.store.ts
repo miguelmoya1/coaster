@@ -1,8 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import type { BarId, CreateBarDto, BarPermission } from '@coaster/common';
-import { hasPermission } from '@coaster/core';
-import { handleErrorFormField } from '@coaster/core';
+import { computed, inject, Service, signal } from '@angular/core';
+import type { BarId, BarPermission, CreateBarDto } from '@coaster/common';
+import { handleErrorFormField, hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
 import { CreateBar } from '../services/create-bar';
@@ -10,9 +9,7 @@ import { CurrentBar } from '../services/current-bar';
 import { MyBars } from '../services/my-bars';
 import { MyMember } from '../services/my-member';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BarsStore {
   readonly #createBar = inject(CreateBar);
   readonly #myBars = inject(MyBars);

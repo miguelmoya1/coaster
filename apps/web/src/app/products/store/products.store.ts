@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
@@ -9,9 +9,7 @@ import { DeleteProduct } from '../services/delete-product';
 import { UpdateProduct } from '../services/update-product';
 import { UpdateProductStock } from '../services/update-product-stock';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ProductsStore {
   readonly #barProducts = inject(BarProducts);
   readonly #createProduct = inject(CreateProduct);

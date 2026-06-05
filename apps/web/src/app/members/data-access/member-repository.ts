@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId, BarMember, BarMemberId, DeleteResponse, InviteBarMemberDto } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { deleteResponseMapper } from '../../core/mappers/common.mapper';
 import { memberMapper } from '../mappers/member.mapper';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MemberRepository {
   readonly #http = inject(HttpClient);
 

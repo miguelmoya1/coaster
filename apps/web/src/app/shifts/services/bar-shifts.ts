@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { ShiftRepository } from '../data-access/shift-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BarShifts {
   readonly #shiftRepository = inject(ShiftRepository);
 

@@ -1,12 +1,10 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal, effect } from '@angular/core';
+import { inject, Service, signal, effect } from '@angular/core';
 import type { BarId, BarStats as CommonBarStats } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { BarStats } from '../services/bar-stats';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class StatsStore {
   readonly #barStats = inject(BarStats);
   readonly #socketService = inject(Socket);

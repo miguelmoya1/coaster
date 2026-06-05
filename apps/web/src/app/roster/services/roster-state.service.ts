@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { DateFormatterService } from '@coaster/core';
 import {
   addDays,
@@ -24,7 +24,7 @@ export interface ScrollerDay {
 }
 const TOTAL_DAYS = 15;
 
-@Injectable()
+@Service({ autoProvided: false })
 export class RosterStateService {
   readonly #dateFormatter = inject(DateFormatterService);
 

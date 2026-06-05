@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateShiftDto } from '@coaster/common';
 import { asShiftId } from '@coaster/core';
 import { handleErrorFormField, Socket } from '@coaster/core';
@@ -8,9 +8,7 @@ import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';
 import { DeleteShift } from '../services/delete-shift';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ShiftsStore {
   readonly #barshifts = inject(BarShifts);
   readonly #createShift = inject(CreateShift);

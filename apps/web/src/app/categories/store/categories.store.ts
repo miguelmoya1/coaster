@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
 import { handleErrorFormField, Socket } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
@@ -8,9 +8,7 @@ import { CreateCategory } from '../services/create-category';
 import { DeleteCategory } from '../services/delete-category';
 import { UpdateCategory } from '../services/update-category';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CategoriesStore {
   readonly #categories = inject(BarCategories);
   readonly #createCategory = inject(CreateCategory);

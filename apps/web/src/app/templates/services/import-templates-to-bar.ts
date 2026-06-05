@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { TemplatesRepository } from '../data-access/templates-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ImportTemplatesToBar {
   readonly #repository = inject(TemplatesRepository);
 

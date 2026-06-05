@@ -1,12 +1,10 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Service, OnDestroy, signal } from '@angular/core';
 import type { Category, Order, Product, Shift, Table } from '@coaster/common';
 import { SocketEvents } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class Socket implements OnDestroy {
   #socket: SocketClient | null = null;
   readonly #connected = signal(false);

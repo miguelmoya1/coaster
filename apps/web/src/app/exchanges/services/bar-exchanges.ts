@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BarExchanges {
   readonly #exchangeRepository = inject(ExchangeRepository);
 

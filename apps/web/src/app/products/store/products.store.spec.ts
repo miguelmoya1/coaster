@@ -15,6 +15,7 @@ describe('ProductsStore', () => {
     productCreated: signal<Product | null>(null),
     productStockChanged: signal<Product | null>(null),
     productDeleted: signal<{ id: string } | null>(null),
+    productUpdated: signal<Product | null>(null),
   };
 
   const mockProductsRaw = [
@@ -54,6 +55,7 @@ describe('ProductsStore', () => {
       productCreated: signal<Product | null>(null),
       productStockChanged: signal<Product | null>(null),
       productDeleted: signal<{ id: string } | null>(null),
+      productUpdated: signal<Product | null>(null),
     };
 
     TestBed.configureTestingModule({

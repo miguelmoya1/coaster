@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId, CreateProductDto, DeleteResponse, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
 import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ProductRepository {
   readonly #http = inject(HttpClient);
 

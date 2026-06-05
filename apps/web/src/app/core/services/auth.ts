@@ -1,4 +1,4 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   authState,
@@ -15,9 +15,7 @@ export interface UserProfile {
   photo: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class Auth {
   readonly #auth = inject(FirebaseAuth);
   readonly #currentUser = toSignal(authState(this.#auth), {

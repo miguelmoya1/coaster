@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId, CreateShiftDto, Shift } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { shiftMapper } from '../mappers/shift.mapper';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ShiftRepository {
   readonly #http = inject(HttpClient);
 

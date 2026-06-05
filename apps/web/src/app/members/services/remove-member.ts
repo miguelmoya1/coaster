@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId, BarMemberId } from '@coaster/common';
 import { MemberRepository } from '../data-access/member-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class RemoveMember {
   readonly #memberRepository = inject(MemberRepository);
 

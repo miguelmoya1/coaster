@@ -1,14 +1,12 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { GetCategoryTemplates } from '../services/get-category-templates';
 import { GetProductTemplates } from '../services/get-product-templates';
 import { ImportTemplatesToBar } from '../services/import-templates-to-bar';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class TemplatesStore {
   readonly #getCategoryTemplates = inject(GetCategoryTemplates);
   readonly #getProductTemplates = inject(GetProductTemplates);
@@ -34,4 +32,3 @@ export class TemplatesStore {
     this.#productsResource.reload();
   }
 }
-

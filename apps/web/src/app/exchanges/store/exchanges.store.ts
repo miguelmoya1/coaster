@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import type { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
@@ -8,9 +8,7 @@ import { BarExchanges } from '../services/bar-exchanges';
 import { DeleteExchange } from '../services/delete-exchange';
 import { RequestExchange } from '../services/request-exchange';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ExchangesStore {
   readonly #barExchanges = inject(BarExchanges);
   readonly #acceptExchange = inject(AcceptExchange);

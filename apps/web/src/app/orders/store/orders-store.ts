@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
 import { OrderStatus } from '@coaster/core';
 import { handleErrorFormField, Socket, Toast } from '@coaster/core';
@@ -10,9 +10,7 @@ import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class OrdersStore {
   readonly #barOrders = inject(BarOrders);
   readonly #barOrderHistory = inject(BarOrderHistory);
