@@ -1,8 +1,10 @@
 import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { asBarRole, ErrorCodes, hasPermission } from '../..';
 import { DbService } from '../../../db';
+import { ErrorCodes } from '../../constants';
+import { asBarRole } from '../../utils/brands';
+import { hasPermission } from '../bar-member.security';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 
 interface RequestWithUser {
@@ -27,8 +29,6 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     const barId = request.params.barId;
 
-    // If no permissions are specified and there is no barId parameter,
-    // this route doesn't require bar-specific permission/membership verification.
     if (!requiredPermissions && !barId) {
       return true;
     }
