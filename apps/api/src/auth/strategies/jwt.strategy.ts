@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
 import { ErrorCodes } from '../../core';
-import { DbService } from '../../db';;
+import { DbService } from '../../db';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {

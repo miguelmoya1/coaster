@@ -32,6 +32,9 @@ export const hasPermission = (role: BarRole, permission: BarPermission): boolean
 };
 
 export const getRolePermissions = (role: BarRole): BarPermission[] => {
+  if (role === 'OWNER') {
+    return [...ROLE_PERMISSIONS.STAFF];
+  }
   const permissions = ROLE_PERMISSIONS[role];
   return permissions ? [...permissions] : [];
 };
