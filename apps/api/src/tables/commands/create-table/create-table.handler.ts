@@ -1,4 +1,3 @@
-import type { TableId } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { TablesRepository } from '../../data-access/tables.repository';

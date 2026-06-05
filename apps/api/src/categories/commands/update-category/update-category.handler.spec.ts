@@ -1,19 +1,28 @@
 import { asBarId, asCategoryId } from '../../../core';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoriesRepository } from '../../data-access/categories.repository';
 import { UpdateCategoryCommand } from './update-category.command';
 import { UpdateCategoryHandler } from './update-category.handler';
+import { CategoryUpdatedEvent } from '../../../events';
 
 describe('UpdateCategoryHandler', () => {
   let handler: UpdateCategoryHandler;
   const repository = {
     update: vi.fn(),
   };
+  const eventBus = {
+    publish: vi.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UpdateCategoryHandler, { provide: CategoriesRepository, useValue: repository }],
+      providers: [
+        UpdateCategoryHandler,
+        { provide: CategoriesRepository, useValue: repository },
+        { provide: EventBus, useValue: eventBus },
+      ],
     }).compile();
 
     handler = module.get<UpdateCategoryHandler>(UpdateCategoryHandler);
@@ -34,6 +43,14 @@ describe('UpdateCategoryHandler', () => {
     const result = await handler.execute(new UpdateCategoryCommand(barId, catId, dto));
 
     expect(repository.update).toHaveBeenCalledWith(barId, catId, dto);
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new CategoryUpdatedEvent(barId, {
+        id: catId,
+        barId: barId,
+        name: 'Bebidas',
+        icon: undefined,
+      }),
+    );
     expect(result).toBeUndefined();
   });
 });

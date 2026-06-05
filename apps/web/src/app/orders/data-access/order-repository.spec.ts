@@ -1,33 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
 import { OrderRepository } from './order-repository';
 
 describe('OrderRepository', () => {
   let service: OrderRepository;
   let httpMock: HttpTestingController;
-
-  const mockOrder: Order = {
-    id: asOrderId('order-1'),
-    barId: asBarId('bar-1'),
-    status: OrderStatus.OPEN,
-    totalAmount: 1500,
-    items: [
-      {
-        id: asOrderItemId('item-1'),
-        orderId: asOrderId('order-1'),
-        productId: asProductId('prod-1'),
-        quantity: 2,
-        priceAtPurchase: 500,
-        paymentStatus: PaymentStatus.PENDING,
-        deliveryStatus: DeliveryStatus.PENDING,
-        paidQuantity: 0,
-        servedQuantity: 0,
-      },
-    ],
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({

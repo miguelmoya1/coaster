@@ -1,9 +1,7 @@
-import type { User } from '@coaster/common';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
 import { UserRepository } from '../../data-access/user.repository';
-import { UsersMapper } from '../../mappers/users.mapper';
 import { UpdateUserCommand } from './update-user.command';
 
 @CommandHandler(UpdateUserCommand)

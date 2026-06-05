@@ -1,5 +1,4 @@
 import { asBarId, asUserId } from '../../core';
-import type { Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { ShiftExchange } from '@coaster/common';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/core';
+import { asBarId, asShiftExchangeId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { AcceptExchange } from './accept-exchange';
@@ -8,17 +7,6 @@ import { AcceptExchange } from './accept-exchange';
 describe('AcceptExchange', () => {
   let service: AcceptExchange;
   let exchangeRepoMock: Record<string, Mock>;
-
-  const mockExchange: ShiftExchange = {
-    createdAt: new Date(),
-    id: asShiftExchangeId('exchange-1'),
-    shiftId: asShiftId('shift-1'),
-    requesterId: asUserId('requester-1'),
-    status: ShiftExchangeStatus.APPROVED,
-    requesterName: 'John',
-    shiftStartTime: '2026-04-17T09:00:00.000Z',
-    shiftEndTime: '2026-04-17T17:00:00.000Z',
-  };
 
   beforeEach(() => {
     exchangeRepoMock = {

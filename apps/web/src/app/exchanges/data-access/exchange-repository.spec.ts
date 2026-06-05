@@ -1,25 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { CreateShiftExchangeDto, ShiftExchange } from '@coaster/common';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/core';
+import type { CreateShiftExchangeDto } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
 import { ExchangeRepository } from './exchange-repository';
 
 describe('ExchangeRepository', () => {
   let service: ExchangeRepository;
   let httpMock: HttpTestingController;
-
-  const mockExchange: ShiftExchange = {
-    createdAt: new Date(),
-    id: asShiftExchangeId('exchange-1'),
-    shiftId: asShiftId('shift-1'),
-    requesterId: asUserId('user-1'),
-    targetId: asUserId('user-2'),
-    status: ShiftExchangeStatus.PENDING,
-    requesterName: 'John',
-    shiftStartTime: '2026-04-17T09:00:00.000Z',
-    shiftEndTime: '2026-04-17T17:00:00.000Z',
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({

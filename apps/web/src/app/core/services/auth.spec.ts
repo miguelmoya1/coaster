@@ -75,11 +75,11 @@ vi.mock('@firebase/auth', () => {
 describe('Auth', () => {
   let service: Auth;
 
-  let firebaseAuthMock: any;
+  let firebaseAuthMock: Partial<FirebaseAuth>;
 
   beforeEach(() => {
     firebaseAuthMock = {
-      app: {} as any,
+      app: {} as never,
       onAuthStateChanged: (next: (user: User | null) => void) => {
         next(null);
         return () => {
@@ -96,10 +96,10 @@ describe('Auth', () => {
         };
       },
       signOut: vi.fn(),
-    };
+    } as unknown as FirebaseAuth;
 
     TestBed.configureTestingModule({
-      providers: [{ provide: FIREBASE_AUTH, useValue: firebaseAuthMock }],
+      providers: [{ provide: FIREBASE_AUTH, useValue: firebaseAuthMock as FirebaseAuth }],
     });
     service = TestBed.inject(Auth);
   });

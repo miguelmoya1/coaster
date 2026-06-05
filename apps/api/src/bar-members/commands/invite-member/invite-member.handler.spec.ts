@@ -1,4 +1,3 @@
-import { Role } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -30,14 +29,6 @@ describe('InviteMemberHandler', () => {
 
     handler = module.get<InviteMemberHandler>(InviteMemberHandler);
   });
-
-  const fakeUser = {
-    id: asUserId('admin-id'),
-    name: 'Admin Name',
-    email: 'admin@test.com',
-    active: true,
-    role: 'USER' as Role,
-  };
 
   it('should invite and publish UserInvitedEvent', async () => {
     repository.inviteMember.mockResolvedValue({

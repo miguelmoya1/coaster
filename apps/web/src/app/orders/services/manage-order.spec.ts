@@ -1,7 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
 import { ManageOrder } from './manage-order';
@@ -19,26 +18,6 @@ describe('ManageOrder', () => {
     removeItem: vi.fn(),
     getOrder: vi.fn(),
     create: vi.fn(),
-  };
-
-  const mockOrder: Order = {
-    id: asOrderId('order-1'),
-    barId: asBarId('bar-1'),
-    status: OrderStatus.OPEN,
-    totalAmount: 1000,
-    items: [
-      {
-        id: asOrderItemId('item-1'),
-        orderId: asOrderId('order-1'),
-        productId: asProductId('prod-1'),
-        quantity: 1,
-        priceAtPurchase: 1000,
-        paymentStatus: PaymentStatus.PENDING,
-        deliveryStatus: DeliveryStatus.PENDING,
-        paidQuantity: 0,
-        servedQuantity: 0,
-      },
-    ],
   };
 
   const barId = asBarId('bar-1');

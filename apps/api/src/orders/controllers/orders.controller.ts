@@ -2,7 +2,7 @@ import type { BarId, Order, OrderId, OrderItemId } from '@coaster/common';
 import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { Permissions, PermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateOrderCommand,

@@ -18,11 +18,11 @@ export class BarGateway {
 
   private readonly _logger = new Logger(BarGateway.name);
 
-  handleConnection(client: Socket) {
+  handleConnection(_client: Socket) {
     // this._logger.debug(`Cliente conectado: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(_client: Socket) {
     // this._logger.debug(`Cliente desconectado: ${client.id}`);
   }
 

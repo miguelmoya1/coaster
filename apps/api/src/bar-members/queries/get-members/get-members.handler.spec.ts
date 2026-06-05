@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
+import { asBarId, asBarRole, getRolePermissions } from '../../../core';
 import { DbBarRole } from '../../../db';
 import { BarMembersRepository } from '../../data-access/bar-members.repository';
 import { GetMembersHandler } from './get-members.handler';
@@ -49,7 +49,7 @@ describe('GetMembersHandler', () => {
         barId: 'bar-1',
         active: true,
         role: DbBarRole.OWNER,
-        permissions: [],
+        permissions: getRolePermissions(asBarRole(DbBarRole.OWNER)),
         userName: 'admin',
         userImage: 'http://user-1.jpg',
         userEmail: 'admin@mail.com',

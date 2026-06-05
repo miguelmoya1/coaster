@@ -1,5 +1,5 @@
 import type { Table } from '@coaster/common';
-import { asBarId, asTableId } from '../../../core';
+import { asBarId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

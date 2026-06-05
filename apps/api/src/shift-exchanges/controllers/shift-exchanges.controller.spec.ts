@@ -1,10 +1,8 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '../../core';
-import type { Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { PermissionsGuard } from '../../core';
+import { asBarId, asShiftExchangeId, asShiftId, asUserId, PermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
 import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 import { GetPendingExchangesQuery } from '../queries';

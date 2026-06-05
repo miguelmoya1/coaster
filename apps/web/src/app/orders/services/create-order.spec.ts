@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import { asBarId, asProductId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
 import { CreateOrder } from './create-order';
@@ -8,26 +7,6 @@ import { CreateOrder } from './create-order';
 describe('CreateOrder', () => {
   let service: CreateOrder;
   let orderRepoMock: Record<string, Mock>;
-
-  const mockOrder: Order = {
-    id: asOrderId('order-1'),
-    barId: asBarId('bar-1'),
-    status: OrderStatus.OPEN,
-    totalAmount: 1000,
-    items: [
-      {
-        id: asOrderItemId('item-1'),
-        orderId: asOrderId('order-1'),
-        productId: asProductId('prod-1'),
-        quantity: 1,
-        priceAtPurchase: 1000,
-        paymentStatus: PaymentStatus.PENDING,
-        deliveryStatus: DeliveryStatus.PENDING,
-        paidQuantity: 0,
-        servedQuantity: 0,
-      },
-    ],
-  };
 
   beforeEach(() => {
     orderRepoMock = {

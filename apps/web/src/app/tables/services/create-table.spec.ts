@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { Table } from '@coaster/common';
-import { asBarId, asTableId, TableStatus } from '@coaster/core';
+import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TableRepository } from '../data-access/table-repository';
 import { CreateTable } from './create-table';
@@ -8,13 +7,6 @@ import { CreateTable } from './create-table';
 describe('CreateTable', () => {
   let service: CreateTable;
   let tableRepoMock: Record<string, Mock>;
-
-  const mockTable: Table = {
-    id: asTableId('table-1'),
-    barId: asBarId('bar-1'),
-    name: 'Mesa 1',
-    status: TableStatus.FREE,
-  };
 
   beforeEach(() => {
     tableRepoMock = {

@@ -1,7 +1,6 @@
 import { ErrorCodes } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { commonMapper } from '../../../core/mappers/common.mapper';
 import { TemplatesRepository } from '../../data-access/templates.repository';
 import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
 

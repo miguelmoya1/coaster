@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId, CreateShiftDto, Shift } from '@coaster/common';
-import { firstValueFrom, map } from 'rxjs';
-import { shiftMapper } from '../mappers/shift.mapper';
+import type { BarId, CreateShiftDto } from '@coaster/common';
+import { firstValueFrom } from 'rxjs';
 
 @Service()
 export class ShiftRepository {

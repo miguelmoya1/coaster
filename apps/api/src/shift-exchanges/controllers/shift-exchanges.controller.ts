@@ -5,7 +5,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Permissions, PermissionsGuard } from '../../core';
 import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
-import { ShiftExchangesMapper, ExchangeWithRelations } from '../mappers/shift-exchanges.mapper';
+import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
 import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 

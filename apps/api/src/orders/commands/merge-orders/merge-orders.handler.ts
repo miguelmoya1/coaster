@@ -1,4 +1,3 @@
-import type { Order } from '@coaster/common';
 import { asOrderId, asTableId, ErrorCodes } from '../../../core';
 import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
