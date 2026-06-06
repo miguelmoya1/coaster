@@ -16,7 +16,7 @@ import { TablesStore } from '@coaster/tables';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../../components/loading/loading';
 import { StatusCard } from '../../../../../components/status-card/status-card';
 import { CoasterTitle } from '../../../../../components/typography/typography';
@@ -36,7 +36,7 @@ import { TableCard } from './components/table-card/table-card';
     BottomSheet,
     Fab,
     TranslatePipe,
-    CoasterBtn,
+    MatButton,
     NgIcon,
     PricePipe,
     ConfirmDialogComponent,

@@ -17,14 +17,14 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../../../components/loading/loading';
 import { CoasterTitle } from '../../../../../../components/typography/typography';
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-import-templates',
-  imports: [RouterLink, NgIcon, TranslatePipe, CoasterBtn, CoasterTitle, Loading, PricePipe, LowerCasePipe],
+  imports: [RouterLink, NgIcon, TranslatePipe, MatButton, CoasterTitle, Loading, PricePipe, LowerCasePipe],
   viewProviders: [
     provideIcons({
       lucideChevronLeft,

@@ -4,7 +4,7 @@ import type { Category, CreateProductDto } from '@coaster/common';
 import { asCategoryId } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
 import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
@@ -12,7 +12,7 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
 
 @Component({
   selector: 'coaster-create-product-form',
-  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -49,10 +49,9 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
 
         <div class="flex justify-end mt-4 gap-2">
           <button
-            coaster-btn
-            class="w-full"
+            mat-stroked-button
+            class="h-16 w-full"
             type="button"
-            variant="outline"
             [disabled]="form().disabled() || form().submitting()"
             (click)="handleCancel()"
           >
@@ -60,10 +59,9 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
           </button>
 
           <button
-            coaster-btn
-            class="w-full"
+            mat-flat-button
+            class="h-16 w-full"
             type="submit"
-            variant="primary"
             [disabled]="form().disabled() || form().submitting()"
           >
             {{ 'common.create' | translate }}

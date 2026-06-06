@@ -117,14 +117,13 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
-      <button coaster-btn variant="outline" (click)="clearSelection()" class="h-12! px-4! text-xs!">
+      <button mat-stroked-button (click)="clearSelection()" class="h-12! px-4! text-xs!">
         <ng-icon name="lucideX" size="14" />
         {{ 'common.cancel' | translate }}
       </button>
 
       <button
-        coaster-btn
-        variant="primary"
+        mat-flat-button
         (click)="applySelectedChanges()"
         class="h-12! px-4! text-xs!"
       >

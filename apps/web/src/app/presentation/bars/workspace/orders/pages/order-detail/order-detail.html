@@ -198,14 +198,13 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button coaster-btn variant="outline" (click)="clearSelection()" class="h-12! px-4! text-xs!">
+        <button mat-stroked-button (click)="clearSelection()" class="h-12! px-4! text-xs!">
           <ng-icon name="lucideX" size="14" />
           {{ 'common.cancel' | translate }}
         </button>
 
         <button
-          coaster-btn
-          variant="primary"
+          mat-flat-button
           [disabled]="totalPaidUnitsDiff() === 0 && totalServeUnitsDiff() === 0"
           (click)="handleConfirmChanges()"
           class="h-12! px-4! text-xs!"
@@ -219,26 +218,26 @@
 
   @if (order.status === 'OPEN') {
     <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-2">
-      <button coaster-btn variant="outline" (click)="onAddItems()" class="w-full!">
+      <button mat-stroked-button (click)="onAddItems()" class="h-16 w-full!">
         <ng-icon name="lucidePackagePlus" size="18" />
         {{ 'orders.add_items' | translate }}
       </button>
-      <button coaster-btn (click)="handleOpenCheckout()" class="w-full!">
+      <button mat-flat-button (click)="handleOpenCheckout()" class="h-16 w-full!">
         <ng-icon name="lucideCreditCard" size="18" />
         {{ 'orders.checkout' | translate }}
       </button>
     </div>
 
     <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
-      <button coaster-btn variant="outline" (click)="onMoveTable()" class="w-full!">
+      <button mat-stroked-button (click)="onMoveTable()" class="h-16 w-full!">
         <ng-icon name="lucideArrowRightLeft" size="16" />
         {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
       </button>
-      <button coaster-btn variant="outline" (click)="onMerge()" class="w-full!">
+      <button mat-stroked-button (click)="onMerge()" class="h-16 w-full!">
         <ng-icon name="lucideMerge" size="16" />
         {{ 'orders.merge' | translate }}
       </button>
-      <button coaster-btn variant="outline" class="text-error! w-full!" (click)="handleCancelOrder()">
+      <button mat-stroked-button class="text-error! h-16 w-full!" (click)="handleCancelOrder()">
         <ng-icon name="lucideX" size="16" />
         {{ 'orders.cancel_order' | translate }}
       </button>
@@ -248,7 +247,7 @@
   @if (!isLoadingServices() && !isLoading()) {
     <div class="flex flex-col items-center gap-4 py-12 text-center">
       <span class="text-on-surface-variant text-lg">{{ 'orders.order_not_found' | translate }}</span>
-      <button coaster-btn (click)="goBack()">
+      <button mat-flat-button class="h-16 w-full" (click)="goBack()">
         {{ 'orders.tables_title' | translate }}
       </button>
     </div>

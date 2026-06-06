@@ -86,7 +86,7 @@
         class="w-full rounded-xl bg-surface-container-highest text-on-surface p-4 text-sm border border-outline-variant/30 outline-none focus:border-primary"
         [placeholder]="'orders.table_name_placeholder' | translate"
       />
-      <button coaster-btn [disabled]="isSubmitting()" (click)="submitCreateTable(tableNameInput.value)">
+      <button mat-flat-button class="h-16 w-full" [disabled]="isSubmitting()" (click)="submitCreateTable(tableNameInput.value)">
         {{ 'common.create' | translate }}
       </button>
     </div>

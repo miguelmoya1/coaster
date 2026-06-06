@@ -24,13 +24,13 @@
       </div>
     }
 
-    <button coaster-btn variant="dashed" type="button" (click)="navigateToCreate()" class="mt-2">
+    <button mat-stroked-button type="button" (click)="navigateToCreate()" class="mt-2 h-24 w-full border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5 text-on-surface-variant hover:text-primary font-bold uppercase tracking-widest text-sm">
       <ng-icon name="lucidePlusCircle" class="text-on-surface-variant text-xl hover:text-primary" />
       {{ 'common.create' | translate }}
     </button>
 
     @if (isAdmin()) {
-      <button coaster-btn variant="outline" type="button" (click)="navigateToAdminTemplates()" class="mt-2 border-primary/30 hover:border-primary/60 text-primary">
+      <button mat-stroked-button type="button" (click)="navigateToAdminTemplates()" class="mt-2 h-16 w-full border-primary/30 hover:border-primary/60 text-primary">
         <ng-icon name="lucideSettings" class="text-primary text-xl" />
         {{ 'bars.select.admin_templates' | translate }}
       </button>

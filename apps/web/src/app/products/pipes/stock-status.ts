@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { BadgeVariant } from '../../presentation/components/badge/badge';
 import { StockStatus } from '../models/product.interface';
+
+export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral';
 
 @Pipe({
   name: 'stockStatus',

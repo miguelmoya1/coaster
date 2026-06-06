@@ -2,13 +2,13 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } f
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { CoasterTitle } from '../../../../components/typography/typography';
 import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'coaster-confirm-dialog',
-  imports: [NgIcon, TranslatePipe, DialogComponent, CoasterTitle, CoasterBtn],
+  imports: [NgIcon, TranslatePipe, DialogComponent, CoasterTitle, MatButton],
   providers: [provideIcons({ lucideAlertTriangle })],
   template: `
     <coaster-dialog [isOpen]="isOpen()" (closed)="cancel()">
@@ -40,10 +40,16 @@ import { DialogComponent } from '../dialog/dialog.component';
         <ng-content select="[confirm-dialog-extra]" />
 
         <div class="flex justify-end gap-2 mt-2">
-          <button coaster-btn variant="outline" (click)="cancel()">
+          <button mat-stroked-button class="h-16 w-full" (click)="cancel()">
             {{ cancelLabel() | translate }}
           </button>
-          <button coaster-btn [variant]="isDestructive() ? 'error' : 'primary'" (click)="confirm()">
+          <button
+            mat-flat-button
+            class="h-16 w-full"
+            [class.text-error]="isDestructive()"
+            [class.bg-error-container]="isDestructive()"
+            (click)="confirm()"
+          >
             {{ confirmLabel() | translate }}
           </button>
         </div>

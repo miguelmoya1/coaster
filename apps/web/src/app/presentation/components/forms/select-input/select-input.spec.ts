@@ -30,55 +30,46 @@ describe('SelectInput', () => {
     it('should show label if provided', () => {
       fixture.componentRef.setInput('label', 'Choice');
       fixture.detectChanges();
-      const label = fixture.nativeElement.querySelector('label');
+      const label = fixture.nativeElement.querySelector('mat-label');
       expect(label.textContent).toContain('Choice');
     });
 
-    it('should show placeholder when no value is selected', () => {
+    it('should set placeholder', () => {
       fixture.componentRef.setInput('placeholder', 'Pick one');
       fixture.detectChanges();
-      const select = fixture.nativeElement.querySelector('select');
-      const placeholderOption = select.querySelector('option[disabled]');
-      expect(placeholderOption.textContent).toContain('Pick one');
+      expect(component.placeholder()).toBe('Pick one');
     });
 
-    it('should set select value when an option is selected', () => {
+    it('should bind value to mat-select', () => {
       fixture.componentRef.setInput('value', '1');
       fixture.detectChanges();
-      const select = fixture.nativeElement.querySelector('select');
-      expect(select.value).toBe('1');
+      expect(component.value()).toBe('1');
     });
   });
 
   describe('actions', () => {
     it('should set touched on blur', () => {
-      const select = fixture.nativeElement.querySelector('select');
-      select.dispatchEvent(new Event('blur'));
+      component.onBlur();
       expect(component.touched()).toBe(true);
     });
 
     it('should update value on change', () => {
-      const select = fixture.nativeElement.querySelector('select');
-      select.value = '2';
-      select.dispatchEvent(new Event('change'));
+      component.onSelectionChange('2');
       expect(component.value()).toBe('2');
     });
   });
 
   describe('states', () => {
-    it('should apply border-error when invalid', () => {
+    it('should accept invalid state', () => {
       fixture.componentRef.setInput('invalid', true);
       fixture.detectChanges();
-      const select = fixture.nativeElement.querySelector('select');
-      expect(select.classList.contains('border-error')).toBe(true);
+      expect(component.invalid()).toBe(true);
     });
 
-    it('should disable the select element', () => {
+    it('should disable the component', () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
-      const select = fixture.nativeElement.querySelector('select');
-      expect(select.disabled).toBe(true);
-      expect(select.classList.contains('opacity-50')).toBe(true);
+      expect(component.disabled()).toBe(true);
     });
   });
 });

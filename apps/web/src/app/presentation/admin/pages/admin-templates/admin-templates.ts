@@ -15,7 +15,7 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { CoasterBtn } from '../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { TextareaInput } from '../../../components/forms/textarea-input/textarea-input';
 import { Loading } from '../../../components/loading/loading';
 import { SectionTitle } from '../../../components/section-title/section-title';
@@ -23,7 +23,7 @@ import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, TextareaInput, SectionTitle, CoasterBtn, NgIcon, Loading, TranslatePipe],
+  imports: [FormRoot, FormField, TextareaInput, SectionTitle, MatButton, NgIcon, Loading, TranslatePipe],
   providers: [
     provideIcons({
       lucideArrowLeft,

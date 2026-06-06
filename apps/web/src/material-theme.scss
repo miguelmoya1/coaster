@@ -1,0 +1,30 @@
+@use '@angular/material' as mat;
+@use './theme-colors';
+
+html {
+  // Default color-scheme of the application is dark
+  color-scheme: dark;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
+        theme-type: dark,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+
+  // Generate Angular Material system classes (e.g., mat-bg-surface, mat-text-on-surface)
+  @include mat.system-classes();
+
+  // Configure strong focus indicators for accessibility
+  @include mat.strong-focus-indicators();
+}
+
+body {
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}

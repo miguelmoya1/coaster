@@ -3,7 +3,6 @@ import { StockStatus, StockStatusPipe } from '@coaster/products';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBadge } from '../../../../components/badge/badge';
 import { CoasterTitle } from '../../../../components/typography/typography';
 import { PricePipe } from '../../pipes/price/price';
 
@@ -46,9 +45,8 @@ import { PricePipe } from '../../pipes/price/price';
           }}</span>
         </div>
         <span
-          coaster-badge
-          [variant]="statusLevel() | stockStatus: 'badge-variant'"
-          class="scale-90 sm:scale-100 origin-right"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider scale-90 sm:scale-100 origin-right"
+          [class]="badgeClass()"
         >
           {{ statusLevel() | stockStatus: 'label' | translate }}
         </span>
@@ -81,7 +79,7 @@ import { PricePipe } from '../../pipes/price/price';
     '[attr.aria-disabled]': 'disabled()',
     '[class]': 'hostClasses()',
   },
-  imports: [NgIcon, CoasterBadge, CoasterTitle, PricePipe, StockStatusPipe, TranslatePipe],
+  imports: [NgIcon, CoasterTitle, PricePipe, StockStatusPipe, TranslatePipe],
   viewProviders: [provideIcons({ lucidePackage, lucidePencil, lucideTrash2 })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -103,6 +101,20 @@ export class InventoryItemCard {
       'group flex flex-col sm:flex-row sm:items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer ' +
       this.#stockStatusPipe.transform(this.statusLevel(), 'border'),
   );
+
+  readonly badgeClass = computed(() => {
+    const variant = this.#stockStatusPipe.transform(this.statusLevel(), 'badge-variant');
+    switch (variant) {
+      case 'success':
+        return 'mat-bg-secondary-container mat-text-on-secondary-container';
+      case 'warning':
+        return 'mat-bg-tertiary-container mat-text-on-tertiary-container';
+      case 'error':
+        return 'mat-bg-error-container mat-text-on-error-container';
+      default:
+        return 'mat-bg-surface-container-highest mat-text-on-surface-variant';
+    }
+  });
 
   onEditClick(event: Event) {
     event.stopPropagation();

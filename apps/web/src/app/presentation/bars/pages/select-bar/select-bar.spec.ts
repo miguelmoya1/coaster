@@ -71,7 +71,7 @@ describe('SelectBar', () => {
     });
 
     it('should render create button', () => {
-      const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+      const button = fixture.nativeElement.querySelector('button[mat-stroked-button]');
       expect(button).toBeTruthy();
     });
   });

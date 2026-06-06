@@ -5,14 +5,14 @@ import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChefHat, lucideCoffee, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../../components/loading/loading';
 import { CoasterTitle } from '../../../../../components/typography/typography';
 import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
 
 @Component({
   selector: 'coaster-to-serve',
-  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, OrderTitlePipe, CoasterQtyAdjuster],
+  imports: [Loading, CoasterTitle, MatButton, TranslatePipe, NgIcon, OrderTitlePipe, CoasterQtyAdjuster],
   viewProviders: [
     provideIcons({
       lucideCoffee,

@@ -20,7 +20,7 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../../components/loading/loading';
 import { CoasterTitle } from '../../../../../components/typography/typography';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
@@ -35,7 +35,7 @@ import { PaymentMethodDialog } from '../../components/payment-method-dialog/paym
   imports: [
     Loading,
     CoasterTitle,
-    CoasterBtn,
+    MatButton,
     TranslatePipe,
     NgIcon,
     PricePipe,

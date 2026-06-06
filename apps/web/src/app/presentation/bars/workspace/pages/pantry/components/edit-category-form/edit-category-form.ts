@@ -3,13 +3,13 @@ import { form, FormField, FormRoot, maxLength, minLength, required } from '@angu
 import { CategoriesStore } from '@coaster/categories';
 import type { Category } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-edit-category-form',
-  imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -31,10 +31,9 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
 
         <div class="flex justify-end mt-4 gap-2">
           <button
-            coaster-btn
-            class="w-full"
+            mat-stroked-button
+            class="h-16 w-full"
             type="button"
-            variant="outline"
             [disabled]="form().submitting()"
             (click)="cancelHandler()"
           >
@@ -42,10 +41,9 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
           </button>
 
           <button
-            coaster-btn
-            class="w-full"
+            mat-flat-button
+            class="h-16 w-full"
             type="submit"
-            variant="primary"
             [disabled]="form().invalid() || form().submitting()"
           >
             {{ 'common.update' | translate }}

@@ -14,7 +14,7 @@ import {
   lucideTrash2,
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../../components/loading/loading';
 import { StatusCard } from '../../../../../components/status-card/status-card';
 import { CoasterTitle } from '../../../../../components/typography/typography';
@@ -23,7 +23,7 @@ import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, PricePipe, ConfirmDialogComponent],
+  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, MatButton, PricePipe, ConfirmDialogComponent],
   viewProviders: [
     provideIcons({
       lucideCalendar,

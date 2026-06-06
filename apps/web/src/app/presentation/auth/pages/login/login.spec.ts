@@ -54,7 +54,7 @@ describe('Login', () => {
     });
 
     it('should show login button', () => {
-      const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+      const button = fixture.nativeElement.querySelector('button[mat-flat-button]');
       expect(button).toBeTruthy();
     });
   });

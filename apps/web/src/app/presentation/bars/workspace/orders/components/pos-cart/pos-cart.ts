@@ -4,7 +4,7 @@ import { TableStatus } from '@coaster/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { PricePipe } from '../../../pipes/price/price';
 
 export interface CartItem {
@@ -16,7 +16,7 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [NgIcon, TranslatePipe, CoasterBtn, PricePipe],
+  imports: [NgIcon, TranslatePipe, MatButton, PricePipe],
   viewProviders: [provideIcons({ lucideMinus, lucidePlus, lucideSend, lucideTrash2 })],
   template: `
     <div class="flex flex-col gap-3">
@@ -86,7 +86,7 @@ export interface CartItem {
             <span class="text-xl font-black text-primary">{{ totalCents() | price }}</span>
           </div>
 
-          <button coaster-btn [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
+          <button mat-flat-button class="h-16 w-full" [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
             <ng-icon name="lucideSend" size="18" />
             {{ 'orders.send_order' | translate }}
           </button>

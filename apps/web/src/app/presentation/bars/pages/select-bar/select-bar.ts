@@ -6,14 +6,14 @@ import { CurrentUser } from '@coaster/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlusCircle, lucideSettings } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../components/loading/loading';
 import { SectionTitle } from '../../../components/section-title/section-title';
 import { BarCard } from './components/bar-card/bar-card';
 
 @Component({
   selector: 'coaster-select-bar',
-  imports: [SectionTitle, BarCard, TranslatePipe, CoasterBtn, NgIcon, Loading],
+  imports: [SectionTitle, BarCard, TranslatePipe, MatButton, NgIcon, Loading],
   providers: [provideIcons({ lucidePlusCircle, lucideSettings })],
   templateUrl: './select-bar.html',
   host: {

@@ -1,57 +1,47 @@
 import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlertCircle } from '@ng-icons/lucide';
-import { CoasterLabel } from '../../typography/typography';
-import { FormFieldMessages } from '../form-field-messages/form-field-messages';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-textarea-input',
-  imports: [NgIcon, CoasterLabel, FormFieldMessages],
-  providers: [provideIcons({ lucideAlertCircle })],
+  imports: [MatFormFieldModule, MatInputModule, TranslatePipe],
   template: `
     @if (!hidden()) {
-      <div class="flex flex-col gap-1 w-full">
+      <mat-form-field class="w-full" appearance="outline">
         @if (label()) {
-          <label [for]="id()" coaster-label class="ml-1" [class.text-error]="invalid()">
-            {{ label() }}
-            @if (required()) {
-              <span class="text-error">*</span>
-            }
-          </label>
+          <mat-label>{{ label() }}</mat-label>
         }
 
-        <div class="relative flex">
-          <textarea
-            #textareaEl
-            [id]="id()"
-            [value]="value()"
-            (input)="value.set(textareaEl.value)"
-            (blur)="touched.set(true)"
-            [placeholder]="placeholder()"
-            [disabled]="disabled()"
-            [readonly]="readonly()"
-            [rows]="rows()"
-            [class.border-error]="invalid()"
-            [class.focus:border-error]="invalid()"
-            [class.focus:ring-error]="invalid()"
-            class="w-full bg-surface-container rounded-xl border border-outline px-4 py-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed resize-y"
-            [attr.aria-invalid]="invalid()"
-          ></textarea>
-
-          @if (invalid()) {
-            <ng-icon name="lucideAlertCircle" class="absolute right-4 top-4 text-error text-xl"></ng-icon>
-          }
-        </div>
-
-        <coaster-form-field-messages
-          [invalid]="invalid()"
+        <textarea
+          matInput
+          #textareaEl
+          [id]="id()"
+          [value]="value()"
+          (input)="value.set(textareaEl.value)"
+          (blur)="touched.set(true)"
+          [placeholder]="placeholder()"
           [disabled]="disabled()"
-          [errors]="errors()"
-          [disabledReasons]="disabledReasons()"
-          [hint]="hint()"
-        />
-      </div>
+          [readonly]="readonly()"
+          [rows]="rows()"
+          [attr.aria-invalid]="invalid()"
+        ></textarea>
+
+        @if (invalid() && errors().length > 0) {
+          @for (error of errors(); track error) {
+            <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
+          }
+        }
+
+        @if (disabled() && disabledReasons().length > 0) {
+          @for (reason of disabledReasons(); track reason) {
+            <mat-hint>{{ reason.message | translate: reason }}</mat-hint>
+          }
+        } @else if (hint() && !invalid()) {
+          <mat-hint>{{ hint() }}</mat-hint>
+        }
+      </mat-form-field>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

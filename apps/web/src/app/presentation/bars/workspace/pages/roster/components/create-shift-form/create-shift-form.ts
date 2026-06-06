@@ -6,7 +6,7 @@ import { DateFormatterService } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
@@ -14,7 +14,7 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
 
 @Component({
   selector: 'coaster-create-shift-form',
-  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -58,10 +58,9 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
 
         <div class="flex justify-end mt-4 gap-2">
           <button
-            coaster-btn
-            class="w-full"
+            mat-stroked-button
+            class="h-16 w-full"
             type="button"
-            variant="outline"
             [disabled]="form().disabled() || form().submitting() || disabled()"
             (click)="handleCancel()"
           >
@@ -69,10 +68,9 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
           </button>
 
           <button
-            coaster-btn
-            class="w-full"
+            mat-flat-button
+            class="h-16 w-full"
             type="submit"
-            variant="primary"
             [disabled]="form().invalid() || form().submitting() || form().disabled() || disabled()"
           >
             {{ 'common.create' | translate }}

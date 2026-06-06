@@ -2,30 +2,24 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input, model } fr
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertCircle, lucideMinus, lucidePlus } from '@ng-icons/lucide';
-import { CoasterLabel } from '../../typography/typography';
-import { FormFieldMessages } from '../form-field-messages/form-field-messages';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [NgIcon, CoasterLabel, FormFieldMessages],
+  imports: [NgIcon, MatFormFieldModule, MatInputModule, MatButtonModule, TranslatePipe],
   providers: [provideIcons({ lucideAlertCircle, lucideMinus, lucidePlus })],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
-        @if (label()) {
-          <label [for]="id()" coaster-label class="ml-1" [class.text-error]="invalid()">
-            {{ label() }}
-            @if (required()) {
-              <span class="text-error">*</span>
-            }
-          </label>
-        }
-
         <div class="relative flex items-center gap-2">
           @if (showControls()) {
             <button
               type="button"
-              class="h-14 w-14 flex items-center justify-center bg-surface-container rounded-xl border border-outline text-on-surface active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-bright"
+              mat-stroked-button
+              class="h-14 w-14 min-w-14 p-0! rounded-xl"
               (click)="decrement()"
               [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
             >
@@ -33,18 +27,24 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
             </button>
           }
 
-          <div class="relative flex-1">
+          <mat-form-field class="flex-1" appearance="outline">
+            @if (label()) {
+              <mat-label>{{ label() }}</mat-label>
+            }
+
             @if (icon()) {
               <ng-icon
                 [name]="icon()!"
-                class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl z-10"
+                matPrefix
+                class="mr-2 text-on-surface-variant text-xl"
                 [class.text-error]="invalid()"
               ></ng-icon>
             }
 
             <input
-              [id]="id()"
+              matInput
               type="number"
+              [id]="id()"
               [value]="value()"
               (input)="onInput($event)"
               (blur)="touched.set(true)"
@@ -53,27 +53,37 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
               [readonly]="readonly()"
               [min]="min()"
               [max]="max()"
-              [class.border-error]="invalid()"
-              [class.focus:border-error]="invalid()"
-              [class.focus:ring-error]="invalid()"
-              [class.pl-11]="icon()"
               [class.text-center]="showControls()"
-              class="w-full h-14 bg-surface-container rounded-xl border border-outline px-4 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              [attr.aria-invalid]="invalid()"
             />
 
             @if (invalid() && !showControls()) {
               <ng-icon
                 name="lucideAlertCircle"
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-error text-xl"
+                matSuffix
+                class="text-error text-xl"
               ></ng-icon>
             }
-          </div>
+
+            @if (invalid() && errors().length > 0) {
+              @for (error of errors(); track error) {
+                <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
+              }
+            }
+
+            @if (disabled() && disabledReasons().length > 0) {
+              @for (reason of disabledReasons(); track reason) {
+                <mat-hint>{{ reason.message | translate: reason }}</mat-hint>
+              }
+            } @else if (hint() && !invalid()) {
+              <mat-hint>{{ hint() }}</mat-hint>
+            }
+          </mat-form-field>
 
           @if (showControls()) {
             <button
               type="button"
-              class="h-14 w-14 flex items-center justify-center bg-surface-container rounded-xl border border-outline text-on-surface active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-bright"
+              mat-stroked-button
+              class="h-14 w-14 min-w-14 p-0! rounded-xl"
               (click)="increment()"
               [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
             >
@@ -81,14 +91,6 @@ import { FormFieldMessages } from '../form-field-messages/form-field-messages';
             </button>
           }
         </div>
-
-        <coaster-form-field-messages
-          [invalid]="invalid()"
-          [disabled]="disabled()"
-          [errors]="errors()"
-          [disabledReasons]="disabledReasons()"
-          [hint]="hint()"
-        />
       </div>
     }
   `,

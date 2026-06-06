@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'coaster-exchange-request-card',
-  imports: [NgIcon, TranslatePipe, CoasterBtn],
+  imports: [NgIcon, TranslatePipe, MatButton],
   viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
   template: `
     <div class="flex gap-4">
@@ -33,7 +33,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
       </div>
       @if (!isOwnRequest()) {
         <button
-          coaster-btn
+          mat-flat-button
           [disabled]="disabled()"
           (click)="accepted.emit(); $event.stopPropagation()"
           class="w-auto! h-12! px-6 shrink-0 uppercase tracking-wide text-sm"
@@ -44,8 +44,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
       }
       @if (canDelete()) {
         <button
-          coaster-btn
-          variant="outline"
+          mat-stroked-button
           [disabled]="disabled()"
           (click)="delete.emit(); $event.stopPropagation()"
           class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"

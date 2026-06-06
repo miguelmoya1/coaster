@@ -22,7 +22,7 @@
     <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
   </div>
   @if (canImportTemplates()) {
-    <button class="w-14! h-14! shrink-0" coaster-btn variant="outline" [routerLink]="['import']">
+    <button class="w-14! h-14! shrink-0" mat-stroked-button [routerLink]="['import']">
       <ng-icon name="lucideDownload" class="text-xl" />
     </button>
   }
@@ -37,7 +37,7 @@
     />
   </div>
   @if (canUpdateCategory() && selectedCategoryId() !== 'ALL') {
-    <button class="w-12! h-12!" coaster-btn (click)="onEditCategoryClicked()">
+    <button class="w-12! h-12!" mat-flat-button (click)="onEditCategoryClicked()">
       <ng-icon name="lucidePencil" class="text-xl" />
     </button>
   }

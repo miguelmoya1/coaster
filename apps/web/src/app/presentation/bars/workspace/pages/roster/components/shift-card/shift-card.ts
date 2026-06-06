@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBadge } from '../../../../../../components/badge/badge';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'coaster-shift-card',
-  imports: [CoasterBadge, CoasterBtn, NgIcon, TranslatePipe],
+  imports: [NgIcon, TranslatePipe, MatButton],
   viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
   template: `
     <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0">
@@ -18,7 +17,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
       <span class="text-primary font-black text-2xl tracking-tighter uppercase">{{ timeRange() }}</span>
       <span class="text-white font-bold title-lg">{{ staffName() }}</span>
       <div class="flex items-center gap-2 mt-1">
-        <span coaster-badge variant="neutral">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mat-bg-surface-container-highest mat-text-on-surface-variant">
           {{ roleName() }}
         </span>
       </div>
@@ -26,8 +25,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
 
     @if (isOwn()) {
       <button
-        coaster-btn
-        variant="outline"
+        mat-stroked-button
         class="w-auto! h-12! px-4 shrink-0"
         [disabled]="disabled() || hasPendingExchange() || isPast()"
         (click)="offerExchange.emit(); $event.stopPropagation()"
@@ -43,8 +41,7 @@ import { CoasterBtn } from '../../../../../../components/button/button';
 
     @if (showDelete()) {
       <button
-        coaster-btn
-        variant="outline"
+        mat-stroked-button
         class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
         [disabled]="disabled()"
         (click)="delete.emit(); $event.stopPropagation()"

@@ -1,14 +1,12 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CoasterTitle } from '../typography/typography';
 
 @Component({
   selector: 'coaster-section-title',
-  imports: [CoasterTitle],
   template: `
     @if (isH1()) {
-      <h1 coaster-title [class]="structuralClasses()">{{ heading() }}</h1>
+      <h1 [class]="'font-black text-primary text-3xl tracking-tighter md:text-4xl ' + structuralClasses()">{{ heading() }}</h1>
     } @else {
-      <h2 coaster-title [class]="structuralClasses()">{{ heading() }}</h2>
+      <h2 [class]="'font-black text-on-surface text-2xl tracking-tight md:text-3xl ' + structuralClasses()">{{ heading() }}</h2>
     }
 
     @if (description()) {

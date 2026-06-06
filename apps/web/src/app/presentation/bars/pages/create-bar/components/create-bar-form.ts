@@ -5,12 +5,12 @@ import type { CreateBarDto } from '@coaster/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRight, lucideLoaderCircle, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { TextInput } from '../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-bar-form',
-  imports: [TextInput, CoasterBtn, NgIcon, FormRoot, FormField, TranslatePipe],
+  imports: [TextInput, MatButton, NgIcon, FormRoot, FormField, TranslatePipe],
   providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight, lucideLoaderCircle })],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
@@ -28,15 +28,15 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
       </div>
 
       <div class="grid grid-cols-2 gap-4 mt-4">
-        <button [attr.data-testid]="'cancel-btn'" coaster-btn variant="outline" type="button" (click)="cancel()">
+        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" class="h-16 w-full" (click)="cancel()">
           {{ 'common.cancel' | translate }}
         </button>
 
         <button
           [attr.data-testid]="'submit-btn'"
-          coaster-btn
+          mat-flat-button
           type="submit"
-          variant="primary"
+          class="h-16 w-full"
           [disabled]="barForm().invalid() || barForm().submitting()"
         >
           {{ 'common.create' | translate }}

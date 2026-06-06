@@ -11,12 +11,12 @@ import {
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-detail-sheet',
-  imports: [NgIcon, TranslatePipe, CoasterBtn, PricePipe],
+  imports: [NgIcon, TranslatePipe, MatButton, PricePipe],
   viewProviders: [
     provideIcons({
       lucideCheck,
@@ -92,26 +92,26 @@ import { PricePipe } from '../../../pipes/price/price';
       </div>
 
       <div class="grid grid-cols-2 gap-2 mt-2">
-        <button coaster-btn variant="outline" (click)="addItemsClicked.emit()">
+        <button mat-stroked-button class="h-16 w-full" (click)="addItemsClicked.emit()">
           <ng-icon name="lucidePackagePlus" size="18" />
           {{ 'orders.add_items' | translate }}
         </button>
-        <button coaster-btn (click)="checkoutClicked.emit()">
+        <button mat-flat-button class="h-16 w-full" (click)="checkoutClicked.emit()">
           <ng-icon name="lucideCreditCard" size="18" />
           {{ 'orders.checkout' | translate }}
         </button>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <button coaster-btn variant="outline" (click)="moveTableClicked.emit()">
+        <button mat-stroked-button class="h-16 w-full" (click)="moveTableClicked.emit()">
           <ng-icon name="lucideArrowRightLeft" size="16" />
           {{ 'orders.move' | translate }}
         </button>
-        <button coaster-btn variant="outline" (click)="mergeClicked.emit()">
+        <button mat-stroked-button class="h-16 w-full" (click)="mergeClicked.emit()">
           <ng-icon name="lucideMerge" size="16" />
           {{ 'orders.merge' | translate }}
         </button>
-        <button coaster-btn variant="outline" class="text-error!" (click)="cancelClicked.emit()">
+        <button mat-stroked-button class="h-16 w-full text-error!" (click)="cancelClicked.emit()">
           <ng-icon name="lucideX" size="16" />
           {{ 'orders.cancel_order' | translate }}
         </button>

@@ -17,7 +17,7 @@ import { Product, ProductsStore } from '@coaster/products';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../components/button/button';
+import { MatButton } from '@angular/material/button';
 import { Loading } from '../../../../components/loading/loading';
 import { StatusCard } from '../../../../components/status-card/status-card';
 import { CoasterTitle } from '../../../../components/typography/typography';
@@ -53,7 +53,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     StatusCard,
     CoasterTitle,
     NgIcon,
-    CoasterBtn,
+    MatButton,
     ConfirmDialogComponent,
     PantrySearch,
   ],

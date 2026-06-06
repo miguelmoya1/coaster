@@ -1,4 +1,5 @@
-@import 'tailwindcss';
+@import 'tailwindcss/theme';
+@import 'tailwindcss/utilities';
 
 :root {
   --color-surface-lowest: #000000;
@@ -83,6 +84,7 @@ body {
 html,
 body {
   height: 100%;
+  margin: 0;
 }
 
 @utility pb-safe {
@@ -96,4 +98,3 @@ body {
 @utility pb-workspace {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
-
