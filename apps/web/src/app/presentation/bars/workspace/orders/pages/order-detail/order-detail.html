@@ -253,17 +253,6 @@
   }
 }
 
-<coaster-payment-method-dialog
-  [isOpen]="isCheckoutPaymentModelOpen()"
-  [amount]="displayOrder()?.totalAmount ?? 0"
-  (closed)="handleCheckoutPaymentMethod($event)"
-/>
-
-<coaster-payment-method-dialog
-  [isOpen]="isPartialPaymentModelOpen()"
-  [amount]="selectedTotalAmount()"
-  (closed)="handlePartialPaymentMethod($event)"
-/>
 
 <ng-template #cancelOrderDialog>
   <div class="p-6 flex flex-col gap-4 max-w-md">

@@ -14,7 +14,7 @@ import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
 import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
-import { PaymentMethodDialog } from '../../components/payment-method-dialog/payment-method-dialog';
+import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/payment-method-dialog/payment-method-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -30,7 +30,6 @@ import { PaymentMethodDialog } from '../../components/payment-method-dialog/paym
     MoveTableDialog,
     MergeOrdersDialog,
     CoasterQtyAdjuster,
-    PaymentMethodDialog,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
@@ -51,8 +50,6 @@ class OrderDetail {
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
-  protected readonly isCheckoutPaymentModelOpen = signal(false);
-  protected readonly isPartialPaymentModelOpen = signal(false);
   protected readonly isMoveTableModelOpen = signal(false);
   protected readonly isMergeOrdersModelOpen = signal(false);
 
@@ -214,16 +211,14 @@ class OrderDetail {
 
   protected handleConfirmChanges() {
     if (this.totalPaidUnitsDiff() > 0) {
-      this.isPartialPaymentModelOpen.set(true);
+      this.#openPaymentMethodDialog(this.selectedTotalAmount()).subscribe((method) => {
+        if (method) {
+          this.applySelectedChanges(method);
+        }
+      });
     } else {
       this.applySelectedChanges();
     }
-  }
-
-  protected async handlePartialPaymentMethod(method: PaymentMethod | undefined) {
-    this.isPartialPaymentModelOpen.set(false);
-    if (!method) return;
-    await this.applySelectedChanges(method);
   }
 
   protected async applySelectedChanges(paymentMethod?: PaymentMethod) {
@@ -262,22 +257,28 @@ class OrderDetail {
   }
 
   protected handleOpenCheckout() {
-    this.isCheckoutPaymentModelOpen.set(true);
+    const order = this.currentOrder();
+    if (!order) return;
+
+    this.#openPaymentMethodDialog(order.totalAmount).subscribe(async (method) => {
+      if (!method) return;
+
+      await this.#ordersStore.checkout(this.barId(), order.id, method);
+      this.goBack();
+      this.#tablesStore.reload();
+      this.#ordersStore.reloadHistory();
+    });
   }
 
-  protected async handleCheckoutPaymentMethod(method: PaymentMethod | undefined) {
-    this.isCheckoutPaymentModelOpen.set(false);
-    if (!method) return;
-
-    const order = this.currentOrder();
-    if (!order) {
-      return;
-    }
-
-    await this.#ordersStore.checkout(this.barId(), order.id, method);
-    this.goBack();
-    this.#tablesStore.reload();
-    this.#ordersStore.reloadHistory();
+  #openPaymentMethodDialog(amount: number) {
+    const dialogRef = this.#dialog.open<PaymentMethodDialog, PaymentMethodDialogData, PaymentMethod | undefined>(
+      PaymentMethodDialog,
+      {
+        data: { amount },
+        autoFocus: false,
+      },
+    );
+    return dialogRef.afterClosed();
   }
 
   protected handleCancelOrder() {

@@ -50,18 +50,20 @@
 <div class="grid grid-cols-3 gap-3">
   <!-- Bar order card (special) -->
   <mat-card
-    class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex! flex-col! items-center! min-h-[200px]"
+    class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex! flex-col! items-center! min-h-50"
     (click)="onBarOrder()"
   >
-    <div class="w-full h-[3px] bg-gradient-to-r from-primary to-primary/30"></div>
+    <div class="w-full h-0.75 bg-linear-to-r from-primary to-primary/30"></div>
     <div class="flex flex-col items-center gap-2.5 px-4 pt-5 pb-4 flex-1 justify-center w-full">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border-[1.5px] border-primary/25">
-        <mat-icon class="text-[22px]! w-[22px]! h-[22px]! leading-[22px]! m-0! text-primary">coffee</mat-icon>
+      <div
+        class="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border-[1.5px] border-primary/25"
+      >
+        <mat-icon class="text-[22px]! w-5.5! h-5.5! leading-5.5! m-0! text-primary">coffee</mat-icon>
       </div>
       <span class="text-base font-extrabold text-on-surface leading-tight tracking-tight">
         {{ 'orders.bar_order' | translate }}
       </span>
-      <span class="text-[0.6rem] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-primary/12 text-primary">
+      <span class="text-xxs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-primary/12 text-primary">
         {{ 'orders.no_table' | translate }}
       </span>
       <span class="text-[0.65rem] text-on-surface-variant/50 italic leading-snug text-center max-w-[90%]">
@@ -97,9 +99,9 @@
         class="relative cursor-pointer active:scale-[0.98] transition-all duration-200 p-3.5! pl-5! flex! flex-row! items-center! gap-3 overflow-hidden"
         (click)="onBarOrderClicked(order)"
       >
-        <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-primary to-primary/20 rounded-r"></div>
+        <div class="absolute top-0 left-0 w-0.75 h-full bg-linear-to-b from-primary to-primary/20 rounded-r"></div>
         <div class="w-10 h-10 min-w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-          <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">coffee</mat-icon>
+          <mat-icon class="text-[20px]! w-5! h-5! m-0!">coffee</mat-icon>
         </div>
         <div class="flex-1 flex flex-col gap-0.5 text-left min-w-0">
           <span class="font-bold text-on-surface text-sm">{{ 'orders.bar_order' | translate }}</span>
@@ -127,7 +129,12 @@
         class="w-full rounded-xl bg-surface-container-highest text-on-surface p-4 text-sm border border-outline-variant/30 outline-none focus:border-primary"
         [placeholder]="'orders.table_name_placeholder' | translate"
       />
-      <button mat-flat-button class="w-full" [disabled]="isSubmitting()" (click)="submitCreateTable(tableNameInput.value)">
+      <button
+        mat-flat-button
+        class="w-full"
+        [disabled]="isSubmitting()"
+        (click)="submitCreateTable(tableNameInput.value)"
+      >
         {{ 'common.create' | translate }}
       </button>
     </div>
@@ -154,11 +161,7 @@
       <button mat-stroked-button mat-dialog-close>
         {{ 'common.cancel' | translate }}
       </button>
-      <button
-        mat-flat-button
-        [mat-dialog-close]="true"
-        color="warn"
-      >
+      <button mat-flat-button [mat-dialog-close]="true" color="warn">
         {{ 'common.delete' | translate }}
       </button>
     </div>
