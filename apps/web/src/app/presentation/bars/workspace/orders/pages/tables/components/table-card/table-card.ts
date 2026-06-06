@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
+import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import type { Table } from '@coaster/common';
 import { TableStatusPipe } from '@coaster/tables';
@@ -9,14 +10,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-table-card',
-  imports: [
-    TranslatePipe,
-    PricePipe,
-    TableStatusPipe,
-    MatButtonModule,
-    MatIcon,
-    MatCard,
-  ],
+  imports: [TranslatePipe, PricePipe, TableStatusPipe, MatButtonModule, MatIcon, MatCard, MatChip],
   template: `
     <mat-card
       class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex flex-col items-center min-h-[200px]"
@@ -25,18 +19,17 @@ import { PricePipe } from '../../../../../pipes/price/price';
       <!-- Top accent gradient bar -->
       <div
         class="w-full h-[3px]"
-        [class]="isOccupied() ? 'bg-gradient-to-r from-error to-error/30' : 'bg-gradient-to-r from-success to-success/30'"
+        [class]="
+          isOccupied() ? 'bg-gradient-to-r from-error to-error/30' : 'bg-gradient-to-r from-success to-success/30'
+        "
       ></div>
 
       <!-- Card body -->
       <div class="flex flex-col items-center gap-2.5 px-4 pt-5 pb-4 flex-1 justify-center w-full">
-
         <!-- Icon circle -->
         <div
           class="w-12 h-12 rounded-full flex items-center justify-center border-[1.5px]"
-          [class]="isOccupied()
-            ? 'bg-error/10 border-error/25'
-            : 'bg-success/10 border-success/25'"
+          [class]="isOccupied() ? 'bg-error/10 border-error/25' : 'bg-success/10 border-success/25'"
         >
           <mat-icon
             class="text-[22px]! w-[22px]! h-[22px]! leading-[22px]! m-0!"
@@ -52,14 +45,9 @@ import { PricePipe } from '../../../../../pipes/price/price';
         </span>
 
         <!-- Status pill -->
-        <span
-          class="text-[0.6rem] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full"
-          [class]="isOccupied()
-            ? 'bg-error/12 text-error'
-            : 'bg-success/12 text-success'"
-        >
+        <mat-chip [class]="isOccupied() ? 'error' : 'success'">
           {{ table().status | tableStatus: 'label' | translate }}
-        </span>
+        </mat-chip>
 
         <!-- Price or hint -->
         @if (orderAmount()) {
@@ -76,12 +64,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
       <!-- Delete button -->
       @if (deletable() && !isOccupied()) {
         <div class="w-full border-t border-outline-variant/20 px-2 py-1" (click)="$event.stopPropagation()">
-          <button
-            mat-button
-            color="warn"
-            class="w-full text-xs! font-semibold"
-            (click)="deleteClicked.emit(table())"
-          >
+          <button mat-button color="warn" class="w-full text-xs! font-semibold" (click)="deleteClicked.emit(table())">
             <mat-icon class="text-[14px]! w-[14px]! h-[14px]! m-0! mr-1!">delete_outline</mat-icon>
             {{ 'common.delete' | translate }}
           </button>

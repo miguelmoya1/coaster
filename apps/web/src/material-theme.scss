@@ -28,3 +28,23 @@ body {
   background: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
 }
+
+mat-chip {
+  &.success {
+    @include mat.chips-overrides(
+      (
+        label-text-color: var(--color-success),
+        outline-color: var(--color-success),
+      )
+    );
+  }
+
+  &.error {
+    @include mat.chips-overrides(
+      (
+        label-text-color: var(--color-error),
+        outline-color: var(--color-error),
+      )
+    );
+  }
+}

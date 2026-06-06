@@ -22,6 +22,7 @@ import { TablesStore } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../components/loading/loading';
 
+import { MatChip } from '@angular/material/chips';
 import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
@@ -40,6 +41,7 @@ import { TableCard } from './components/table-card/table-card';
     MatIcon,
     PricePipe,
     MatDialogModule,
+    MatChip,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
