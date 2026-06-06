@@ -14,13 +14,12 @@ import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../components/loading/loading';
-import { StatusCard } from '../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../components/typography/typography';
+import { MatCard, MatCardContent } from '@angular/material/card';
+
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
@@ -29,7 +28,7 @@ import { CreateCategoryForm } from './components/create-category-form/create-cat
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { PantrySearch } from './components/pantry-search/pantry-search';
-import { Tabs } from './components/tabs/tabs';
+import { Tabs } from '../../components/tabs/tabs';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 
@@ -50,14 +49,13 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     UpdateProductForm,
     UpdateStockProductForm,
     EditCategoryForm,
-    StatusCard,
-    CoasterTitle,
-    NgIcon,
+    MatCard,
+    MatCardContent,
+    MatIcon,
     MatButton,
     ConfirmDialogComponent,
     PantrySearch,
   ],
-  viewProviders: [provideIcons({ lucidePencil, lucideSearch, lucideX, lucideDownload })],
   host: {
     class: 'flex flex-col gap-2',
   },

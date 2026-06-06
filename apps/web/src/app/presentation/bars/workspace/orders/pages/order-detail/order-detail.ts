@@ -4,25 +4,11 @@ import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideArrowLeft,
-  lucideArrowRightLeft,
-  lucideBanknote,
-  lucideCheck,
-  lucideCheckSquare,
-  lucideChefHat,
-  lucideCreditCard,
-  lucideMerge,
-  lucidePackagePlus,
-  lucideSquare,
-  lucideTrash2,
-  lucideX,
-} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../components/typography/typography';
+
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
@@ -34,10 +20,10 @@ import { PaymentMethodDialog } from '../../components/payment-method-dialog/paym
   selector: 'coaster-order-detail',
   imports: [
     Loading,
-    CoasterTitle,
     MatButton,
+    MatIconButton,
     TranslatePipe,
-    NgIcon,
+    MatIcon,
     PricePipe,
     OrderTitlePipe,
     ConfirmDialogComponent,
@@ -45,22 +31,6 @@ import { PaymentMethodDialog } from '../../components/payment-method-dialog/paym
     MergeOrdersDialog,
     CoasterQtyAdjuster,
     PaymentMethodDialog,
-  ],
-  viewProviders: [
-    provideIcons({
-      lucideArrowLeft,
-      lucideArrowRightLeft,
-      lucideBanknote,
-      lucideChefHat,
-      lucideCreditCard,
-      lucidePackagePlus,
-      lucideMerge,
-      lucideTrash2,
-      lucideX,
-      lucideSquare,
-      lucideCheckSquare,
-      lucideCheck,
-    }),
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',

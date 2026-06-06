@@ -83,13 +83,13 @@ describe('Pantry', () => {
   describe('rendering', () => {
     it('should render status cards for product counts', () => {
       fixture.detectChanges();
-      const statusCards = fixture.nativeElement.querySelectorAll('coaster-status-card');
+      const statusCards = fixture.nativeElement.querySelectorAll('mat-card');
       expect(statusCards.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should render inventory title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
 

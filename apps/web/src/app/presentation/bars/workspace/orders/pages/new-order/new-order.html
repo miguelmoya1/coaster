@@ -4,12 +4,13 @@
 
 <div class="flex items-center gap-3">
   <button
-    class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
+    mat-icon-button
     (click)="goBack()"
+    class="text-on-surface-variant hover:text-on-surface"
   >
-    <ng-icon name="lucideArrowLeft" size="22" />
+    <mat-icon style="font-size: 22px; width: 22px; height: 22px;">arrow_back</mat-icon>
   </button>
-  <h2 coaster-title class="flex-1!">
+  <h2 class="heading-2 flex-1!">
     {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
   </h2>
 </div>

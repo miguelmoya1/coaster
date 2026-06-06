@@ -1,30 +1,23 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideBanknote, lucideCreditCard, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { DialogComponent } from '../../../components/dialog/dialog.component';
 import { PricePipe } from '../../../pipes/price/price';
 import type { PaymentMethod } from '@coaster/common';
 
 @Component({
   selector: 'coaster-payment-method-dialog',
-  imports: [NgIcon, TranslatePipe, DialogComponent, PricePipe],
-  viewProviders: [
-    provideIcons({
-      lucideBanknote,
-      lucideCreditCard,
-      lucideX,
-    }),
-  ],
+  imports: [MatButtonModule, MatIcon, TranslatePipe, DialogComponent, PricePipe],
   template: `
     <coaster-dialog [isOpen]="isOpen()" (closed)="cancel()">
       <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-md w-[90vw] outline-none flex flex-col gap-6 relative overflow-hidden">
         <!-- Close button in top-right -->
-        <button
-          class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5 active:scale-95 transition-all cursor-pointer"
+        <button mat-icon-button
+          class="absolute top-4 right-4"
           (click)="cancel()"
         >
-          <ng-icon name="lucideX" size="18" />
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">close</mat-icon>
         </button>
 
         <div class="flex flex-col gap-1 text-center mt-2">
@@ -55,7 +48,7 @@ import type { PaymentMethod } from '@coaster/common';
             (click)="selectMethod('CASH')"
           >
             <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0">
-              <ng-icon name="lucideBanknote" size="26" />
+              <mat-icon style="font-size: 26px; width: 26px; height: 26px;">payments</mat-icon>
             </div>
             <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
               {{ 'orders.payment_method_cash' | translate }}
@@ -68,7 +61,7 @@ import type { PaymentMethod } from '@coaster/common';
             (click)="selectMethod('CARD')"
           >
             <div class="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0">
-              <ng-icon name="lucideCreditCard" size="26" />
+              <mat-icon style="font-size: 26px; width: 26px; height: 26px;">credit_card</mat-icon>
             </div>
             <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
               {{ 'orders.payment_method_card' | translate }}

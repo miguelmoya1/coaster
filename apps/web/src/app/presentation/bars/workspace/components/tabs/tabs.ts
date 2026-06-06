@@ -19,11 +19,11 @@ export interface Tab<T> {
           [value]="tab.value"
           [disabled]="disabled()"
           (click)="selectTab(tab.id)"
-          class="px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap transition-all active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
+          class="px-4 py-2 rounded-full font-bold text-sm whitespace-nowrap transition-all active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100"
           [class]="
             selectedTabId() === tab.id
-              ? 'bg-primary text-on-primary-fixed shadow-lg'
-              : 'bg-surface-container-highest text-on-surface-variant hover:text-white'
+              ? 'bg-primary text-on-primary-fixed shadow-md'
+              : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-bright/80'
           "
         >
           {{ tab.label | translate }}

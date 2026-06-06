@@ -4,12 +4,11 @@ import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-category-form',
-  imports: [FormRoot, TextInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -26,7 +25,11 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
         />
 
         @if (form().errors().length > 0) {
-          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+            @for (error of form().errors(); track error) {
+              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+            }
+          </div>
         }
 
         <div class="flex justify-end mt-4 gap-2">

@@ -2,7 +2,7 @@
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-        <ng-icon name="lucideTrendingUp" class="text-primary text-xl" />
+        <mat-icon class="text-primary text-xl">trending_up</mat-icon>
         {{ 'dashboard.sections.financials' | translate }}
       </h2>
     </header>
@@ -54,7 +54,7 @@
           <h3
             class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
           >
-            <ng-icon name="lucideCalendar" class="text-primary text-sm" />
+            <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
             {{ 'dashboard.financials.chart_title' | translate }}
           </h3>
           <span
@@ -159,7 +159,7 @@
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-        <ng-icon name="lucideTrendingUp" class="text-primary text-xl" />
+        <mat-icon class="text-primary text-xl">trending_up</mat-icon>
         {{ 'dashboard.sections.monthly_yearly' | translate }}
       </h2>
     </header>
@@ -221,7 +221,7 @@
             <h3
               class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
             >
-              <ng-icon name="lucideCalendar" class="text-primary text-sm" />
+              <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
               {{ 'dashboard.financials.yearly' | translate }}
             </h3>
             <span class="text-2xl font-black text-on-surface tracking-tight mt-1">
@@ -278,7 +278,7 @@
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
-        <ng-icon name="lucideAlertTriangle" class="text-primary text-xl" />
+        <mat-icon class="text-primary text-xl">warning</mat-icon>
         {{ 'dashboard.sections.pantry' | translate }}
       </h2>
       <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
@@ -303,7 +303,7 @@
           class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
         >
           <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
-          <ng-icon name="lucideChevronRight" class="text-lg" />
+          <mat-icon class="text-lg">chevron_right</mat-icon>
         </a>
       }
     </div>
@@ -312,7 +312,7 @@
   <section class="flex flex-col gap-4">
     <header class="flex justify-between items-end">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-        <ng-icon name="lucideUsers" class="text-on-surface text-xl" />
+        <mat-icon class="text-on-surface text-xl">group</mat-icon>
         {{ 'dashboard.sections.roster' | translate }}
       </h2>
       <a
@@ -320,7 +320,7 @@
         class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
       >
         {{ 'dashboard.sections.roster_full' | translate }}
-        <ng-icon name="lucideArrowRight" />
+        <mat-icon>arrow_forward</mat-icon>
       </a>
     </header>
 
@@ -331,7 +331,7 @@
         <div
           class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 animate-pulse"
         >
-          <ng-icon name="lucideAlertCircle" class="text-2xl" />
+          <mat-icon class="text-2xl">error</mat-icon>
         </div>
         <div class="flex flex-col gap-1">
           <h4 class="text-on-surface font-bold text-sm tracking-tight">

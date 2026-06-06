@@ -4,36 +4,20 @@ import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus, asOrderId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideBanknote,
-  lucideCalendar,
-  lucideChevronLeft,
-  lucideChevronRight,
-  lucideCreditCard,
-  lucideTrash2,
-} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { StatusCard } from '../../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../../components/typography/typography';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, MatButton, PricePipe, ConfirmDialogComponent],
-  viewProviders: [
-    provideIcons({
-      lucideCalendar,
-      lucideChevronLeft,
-      lucideChevronRight,
-      lucideTrash2,
-      lucideBanknote,
-      lucideCreditCard,
-    }),
-  ],
+  imports: [MatCard, MatCardContent, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, ConfirmDialogComponent],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,7 +39,9 @@ class History {
   }
 
   readonly today = new Date().toISOString().split('T')[0];
+  readonly todayDate = new Date();
   protected readonly selectedDate = this.#ordersStore.selectedDate;
+  protected readonly selectedDateAsDate = computed(() => new Date(this.#ordersStore.selectedDate()));
   protected readonly isLoading = this.#ordersStore.history.isLoading;
   protected readonly totalClosed = this.#ordersStore.totalClosed;
   protected readonly totalCancelled = this.#ordersStore.totalCancelled;
@@ -87,6 +73,12 @@ class History {
     const input = event.target as HTMLInputElement;
     if (input.value) {
       this.#ordersStore.setHistoryDate(input.value);
+    }
+  }
+
+  onDatePickerChange(date: Date | null) {
+    if (date) {
+      this.#ordersStore.setHistoryDate(date.toISOString().split('T')[0]);
     }
   }
 

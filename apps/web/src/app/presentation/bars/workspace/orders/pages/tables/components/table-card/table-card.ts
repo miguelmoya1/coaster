@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { Table } from '@coaster/common';
 import { TableStatusPipe } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCircleCheck, lucideTrash2, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-table-card',
-  imports: [NgIcon, TranslatePipe, PricePipe, TableStatusPipe],
-  viewProviders: [provideIcons({ lucideUsers, lucideCircleCheck, lucideTrash2 })],
+  imports: [TranslatePipe, PricePipe, TableStatusPipe, MatButtonModule, MatIcon],
   template: `
     <div class="relative">
       <button
@@ -17,7 +16,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
         [class]="table().status | tableStatus: 'class'"
         (click)="cardClicked.emit(table())"
       >
-        <ng-icon [name]="table().status | tableStatus: 'icon'" class="text-2xl" />
+        <mat-icon class="text-2xl">{{ table().status | tableStatus: 'icon' }}</mat-icon>
         <span class="font-bold text-base leading-tight text-center">{{ table().name }}</span>
         <span class="text-xs font-semibold uppercase tracking-wider">
           {{ table().status | tableStatus: 'label' | translate }}
@@ -28,11 +27,11 @@ import { PricePipe } from '../../../../../pipes/price/price';
       </button>
 
       @if (deletable() && table().status !== 'OCCUPIED') {
-        <button
-          class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-error text-on-error flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+        <button mat-icon-button
+          class="absolute -top-2 -right-2 text-error"
           (click)="$event.stopPropagation(); deleteClicked.emit(table())"
         >
-          <ng-icon name="lucideTrash2" size="14" />
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">delete</mat-icon>
         </button>
       }
     </div>

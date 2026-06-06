@@ -62,7 +62,7 @@ describe('Staff', () => {
   describe('rendering', () => {
     it('should render section title', () => {
       fixture.detectChanges();
-      const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
+      const sectionTitle = fixture.nativeElement.querySelector('.heading-2');
       expect(sectionTitle).toBeTruthy();
     });
   });

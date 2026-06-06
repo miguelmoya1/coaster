@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-shift-card',
-  imports: [NgIcon, TranslatePipe, MatButton],
-  viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
+  imports: [TranslatePipe, MatButton, MatIcon],
   template: `
     <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0">
       <img [src]="staffImage()" alt="Staff Portrait" class="w-full h-full object-cover" />
@@ -30,7 +28,7 @@ import { MatButton } from '@angular/material/button';
         [disabled]="disabled() || hasPendingExchange() || isPast()"
         (click)="offerExchange.emit(); $event.stopPropagation()"
       >
-        <ng-icon name="lucideRepeat2" class="text-base" />
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">cached</mat-icon>
         @if (hasPendingExchange()) {
           {{ 'roster.exchange_pending' | translate }}
         } @else {
@@ -46,7 +44,7 @@ import { MatButton } from '@angular/material/button';
         [disabled]="disabled()"
         (click)="delete.emit(); $event.stopPropagation()"
       >
-        <ng-icon name="lucideTrash2" class="text-lg" />
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
       </button>
     }
   `,

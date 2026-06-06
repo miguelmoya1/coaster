@@ -74,13 +74,13 @@ describe('Tables', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('coaster-status-card');
+      const cards = fixture.nativeElement.querySelectorAll('mat-card');
       expect(cards.length).toBe(3);
     });
 
     it('should render tables title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
   });

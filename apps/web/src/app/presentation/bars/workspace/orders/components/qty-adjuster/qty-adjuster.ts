@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-qty-adjuster',
-  imports: [NgIcon],
-  viewProviders: [provideIcons({ lucideMinus, lucidePlus })],
+  imports: [MatButtonModule, MatIcon],
   host: {
     class:
       'flex items-center gap-1.5 bg-surface-container-highest/60 rounded-xl p-1.5 border border-outline-variant/20 shrink-0',
@@ -15,32 +14,24 @@ import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
     @if (label()) {
       <span class="text-xxs font-bold text-on-surface-variant px-1.5 select-none">{{ label() }}</span>
     }
-    <button
+    <button mat-icon-button
       type="button"
-      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center transition-transform shrink-0"
-      [class.opacity-30]="value() <= min()"
-      [class.cursor-not-allowed]="value() <= min()"
-      [class.cursor-pointer]="value() > min()"
-      [class.active:scale-90]="value() > min()"
+      [disabled]="value() <= min()"
       (click)="decrement($event)"
     >
-      <ng-icon name="lucideMinus" size="10" />
+      <mat-icon style="font-size: 10px; width: 10px; height: 10px;">remove</mat-icon>
     </button>
 
     <span class="text-xs font-semibold text-on-surface min-w-6 text-center select-none">
       {{ valueLabel() }}
     </span>
 
-    <button
+    <button mat-icon-button
       type="button"
-      class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center transition-transform shrink-0"
-      [class.opacity-30]="value() >= max()"
-      [class.cursor-not-allowed]="value() >= max()"
-      [class.cursor-pointer]="value() < max()"
-      [class.active:scale-90]="value() < max()"
+      [disabled]="value() >= max()"
       (click)="increment($event)"
     >
-      <ng-icon name="lucidePlus" size="10" />
+      <mat-icon style="font-size: 10px; width: 10px; height: 10px;">add</mat-icon>
     </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

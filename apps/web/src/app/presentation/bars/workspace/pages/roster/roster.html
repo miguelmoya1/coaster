@@ -9,8 +9,8 @@
 
 <!-- ================= DAY VIEW ================= -->
 @if (viewMode() === 'day') {
-  <h2 coaster-title class="mb-4 flex items-center gap-2 text-on-surface">
-    <ng-icon name="lucideClock" class="text-primary text-xl" />
+  <h2 class="heading-2 mb-4 flex items-center gap-2 text-on-surface">
+    <mat-icon class="text-primary text-xl">schedule</mat-icon>
     {{ 'roster.daily_assignments' | translate }}: {{ displaySelectedDate() }}
   </h2>
 
@@ -68,8 +68,8 @@
 
 <!-- ================= EXCHANGES MARKETPLACE ================= -->
 @if (pendingExchangesList().length) {
-  <h2 coaster-title class="mt-8 mb-4 flex items-center gap-2 text-on-surface">
-    <ng-icon name="lucideRepeat2" class="text-tertiary text-xl" />
+  <h2 class="heading-2 mt-8 mb-4 flex items-center gap-2 text-on-surface">
+    <mat-icon class="text-tertiary text-xl">cached</mat-icon>
     {{ 'roster.exchanges.title' | translate }}
     <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
       {{ pendingExchangesList().length }}

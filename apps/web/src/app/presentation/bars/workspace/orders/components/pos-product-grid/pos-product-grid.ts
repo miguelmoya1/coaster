@@ -1,28 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import type { Category } from '@coaster/common';
 import { Product } from '@coaster/products';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
+import { Tabs } from '../../../components/tabs/tabs';
 
 @Component({
   selector: 'coaster-pos-product-grid',
-  imports: [TranslatePipe, PricePipe, NgIcon],
-  viewProviders: [
-    provideIcons({
-      lucideSearch,
-      lucideX,
-    }),
-  ],
+  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, Tabs],
   template: `
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
       <div class="relative w-full">
-        <ng-icon
-          name="lucideSearch"
+        <mat-icon
           class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg"
-        />
+        >search</mat-icon>
         <input
           type="text"
           [value]="searchQuery()"
@@ -31,42 +25,21 @@ import { PricePipe } from '../../../pipes/price/price';
           class="w-full bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 rounded-xl pl-10 pr-10 py-2.5 text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
         />
         @if (searchQuery()) {
-          <button
+          <button mat-icon-button
             (click)="searchQuery.set('')"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+            class="absolute right-3 top-1/2 -translate-y-1/2"
           >
-            <ng-icon name="lucideX" class="text-lg" />
+            <mat-icon class="text-lg">close</mat-icon>
           </button>
         }
       </div>
 
       <!-- Categories filters -->
-      <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-        <button
-          class="px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all active:scale-95"
-          [class]="
-            !selectedCategory()
-              ? 'bg-primary text-on-primary-fixed shadow-lg'
-              : 'bg-surface-container-highest text-on-surface-variant'
-          "
-          (click)="categorySelected.emit(undefined)"
-        >
-          {{ 'orders.all_categories' | translate }}
-        </button>
-        @for (cat of categories(); track cat.id) {
-          <button
-            class="px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all active:scale-95"
-            [class]="
-              selectedCategory() === cat.id
-                ? 'bg-primary text-on-primary-fixed shadow-lg'
-                : 'bg-surface-container-highest text-on-surface-variant'
-            "
-            (click)="categorySelected.emit(cat.id)"
-          >
-            {{ cat.name | translate }}
-          </button>
-        }
-      </div>
+      <coaster-tabs
+        [tabs]="categoryTabs()"
+        [selectedTabId]="selectedCategory()"
+        (tabSelected)="categorySelected.emit($event)"
+      />
 
       <!-- Products Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -116,6 +89,14 @@ export class PosProductGrid {
   readonly selectedCategory = input<string | undefined>(undefined);
   readonly productClicked = output<Product>();
   readonly categorySelected = output<string | undefined>();
+
+  readonly categoryTabs = computed(() => {
+    const rawCategories = this.categories() ?? [];
+    return [
+      { id: undefined, label: this.#translate.instant('orders.all_categories') },
+      ...rawCategories.map((c) => ({ id: c.id as string | undefined, label: c.name })),
+    ];
+  });
 
   readonly searchQuery = signal<string>('');
   readonly #translate = inject(TranslateService);

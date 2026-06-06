@@ -13,13 +13,12 @@ import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { StatusCard } from '../../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../../components/typography/typography';
+import { MatCard, MatCardContent } from '@angular/material/card';
+
 import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../../components/fab/fab';
@@ -30,18 +29,17 @@ import { TableCard } from './components/table-card/table-card';
   selector: 'coaster-tables',
   imports: [
     TableCard,
-    StatusCard,
+    MatCard,
+    MatCardContent,
     Loading,
-    CoasterTitle,
     BottomSheet,
     Fab,
     TranslatePipe,
     MatButton,
-    NgIcon,
+    MatIcon,
     PricePipe,
     ConfirmDialogComponent,
   ],
-  viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

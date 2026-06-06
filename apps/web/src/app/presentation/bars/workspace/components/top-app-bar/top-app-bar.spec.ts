@@ -42,7 +42,7 @@ describe('TopAppBar', () => {
 
   describe('rendering', () => {
     it('should display the title label', () => {
-      const title = fixture.nativeElement.querySelector('h1[coaster-title]');
+      const title = fixture.nativeElement.querySelector('h1.heading-1');
       expect(title.textContent).toContain('Dashboard');
     });
 

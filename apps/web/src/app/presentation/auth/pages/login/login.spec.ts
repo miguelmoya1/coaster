@@ -39,17 +39,17 @@ describe('Login', () => {
 
   describe('rendering', () => {
     it('should show section title', () => {
-      const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
+      const sectionTitle = fixture.nativeElement.querySelector('.heading-1');
       expect(sectionTitle).toBeTruthy();
     });
 
     it('should show status card', () => {
-      const statusCard = fixture.nativeElement.querySelector('coaster-status-card');
+      const statusCard = fixture.nativeElement.querySelector('mat-card');
       expect(statusCard).toBeTruthy();
     });
 
     it('should show login heading', () => {
-      const heading = fixture.nativeElement.querySelector('h2[coaster-title]');
+      const heading = fixture.nativeElement.querySelector('h2.heading-2');
       expect(heading).toBeTruthy();
     });
 

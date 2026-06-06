@@ -1,21 +1,30 @@
 <div class="flex gap-4 mb-2">
-  <coaster-status-card class="flex-1" status="success">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.free_tables' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ freeCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.free_tables' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ freeCount() ?? 0 }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="error">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.occupied_tables' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ occupiedCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.occupied_tables' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ occupiedCount() ?? 0 }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="primary">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.open_orders' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ totalOpen() }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.open_orders' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ totalOpen() }}</div>
+    </mat-card-content>
+  </mat-card>
 </div>
 
-<h2 coaster-title>{{ 'orders.tables_title' | translate }}</h2>
+<h2 class="heading-2">{{ 'orders.tables_title' | translate }}</h2>
 
 @if (isLoadingTables()) {
   <coaster-loading />
@@ -26,7 +35,7 @@
     class="w-full rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer border-2 min-h-[120px] bg-primary/10 border-primary/40 text-primary"
     (click)="onBarOrder()"
   >
-    <ng-icon name="lucideCoffee" class="text-2xl" />
+    <mat-icon class="text-2xl">coffee</mat-icon>
     <span class="font-bold text-base leading-tight text-center">{{ 'orders.bar_order' | translate }}</span>
     <span class="text-xs font-semibold uppercase tracking-wider">{{ 'orders.no_table' | translate }}</span>
   </button>
@@ -49,7 +58,7 @@
 </div>
 
 @if (barOrdersViewModel().length > 0) {
-  <h2 coaster-title>{{ 'orders.bar_orders' | translate }}</h2>
+  <h2 class="heading-2">{{ 'orders.bar_orders' | translate }}</h2>
 
   <div class="flex flex-col gap-2">
     @for (order of barOrdersViewModel(); track order.id) {
@@ -58,7 +67,7 @@
         (click)="onBarOrderClicked(order)"
       >
         <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-          <ng-icon name="lucideCoffee" size="20" />
+          <mat-icon style="font-size: 20px; width: 20px; height: 20px;">coffee</mat-icon>
         </div>
         <div class="flex-1 flex flex-col gap-0.5 text-left">
           <span class="font-semibold text-on-surface text-sm">{{ 'orders.bar_order' | translate }}</span>

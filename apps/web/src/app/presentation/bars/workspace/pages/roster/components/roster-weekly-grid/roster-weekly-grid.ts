@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCopy, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import type { Shift, BarRole } from '@coaster/common';
 
 export interface WeeklyShiftItem extends Shift {
@@ -24,14 +24,7 @@ export interface WeeklyDayItem {
 
 @Component({
   selector: 'coaster-roster-weekly-grid',
-  imports: [NgIcon, TranslatePipe],
-  viewProviders: [
-    provideIcons({
-      lucideCopy,
-      lucidePlus,
-      lucideTrash2,
-    }),
-  ],
+  imports: [MatIcon, MatButtonModule, TranslatePipe],
   template: `
     <!-- Owner Quick Replicate Action -->
     @if (currentUserRole() === 'OWNER') {
@@ -48,11 +41,12 @@ export interface WeeklyDayItem {
           </p>
         </div>
         <button
+          mat-flat-button
           (click)="replicatePreviousWeek.emit()"
           [disabled]="isSubmitting()"
-          class="flex items-center justify-center gap-2 shrink-0 bg-primary hover:bg-primary/90 text-on-primary-fixed active:scale-95 shadow-md shadow-primary/20 text-xs font-black uppercase tracking-widest py-3.5 px-6 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none self-start md:self-auto"
+          class="shrink-0 uppercase tracking-widest self-start md:self-auto"
         >
-          <ng-icon name="lucideCopy" class="text-sm" />
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">content_copy</mat-icon>
           {{ 'roster.replication.button' | translate }}
         </button>
       </div>
@@ -90,11 +84,11 @@ export interface WeeklyDayItem {
 
             @if (currentUserRole() === 'OWNER') {
               <button
+                mat-icon-button
                 (click)="quickCreate.emit(day.date)"
-                class="h-8 w-8 rounded-xl bg-surface-container hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center text-on-surface-variant cursor-pointer active:scale-95"
                 title="{{ 'common.create' | translate }}"
               >
-                <ng-icon name="lucidePlus" class="text-base" />
+                <mat-icon style="font-size: 16px; width: 16px; height: 16px;">add</mat-icon>
               </button>
             }
           </div>
@@ -131,11 +125,12 @@ export interface WeeklyDayItem {
                 }
                 @if (currentUserRole() === 'OWNER') {
                   <button
+                    mat-icon-button
                     [disabled]="isSubmitting()"
                     (click)="deleteShift.emit(shift)"
-                    class="h-8 w-8 rounded-lg bg-error/5 hover:bg-error/15 text-error flex items-center justify-center cursor-pointer transition-all active:scale-95 border border-error/10 shrink-0"
+                    class="text-error shrink-0"
                   >
-                    <ng-icon name="lucideTrash2" class="text-sm" />
+                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;">delete</mat-icon>
                   </button>
                 }
               </div>

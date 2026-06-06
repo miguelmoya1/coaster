@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck } from '@ng-icons/lucide';
+import { MatIcon } from '@angular/material/icon';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Fab } from './fab';
 
@@ -10,8 +9,7 @@ describe('Fab', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Fab, NgIcon],
-      providers: [provideIcons({ lucideCheck })],
+      imports: [Fab, MatIcon],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Fab);
@@ -32,7 +30,7 @@ describe('Fab', () => {
     });
 
     it('should show default icon', () => {
-      const icon = fixture.nativeElement.querySelector('ng-icon');
+      const icon = fixture.nativeElement.querySelector('mat-icon');
       expect(icon).toBeTruthy();
       // Since it's a dynamic name, we mainly check it exists.
     });
@@ -40,10 +38,10 @@ describe('Fab', () => {
 
   describe('icons', () => {
     it('should allow custom icons', () => {
-      fixture.componentRef.setInput('icon', 'lucideCheck');
+      fixture.componentRef.setInput('icon', 'check');
       fixture.detectChanges();
 
-      const icon = fixture.nativeElement.querySelector('ng-icon');
+      const icon = fixture.nativeElement.querySelector('mat-icon');
       expect(icon).toBeTruthy();
     });
   });

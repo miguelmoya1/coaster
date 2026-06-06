@@ -2,23 +2,15 @@ import { Toolbar } from '@angular/aria/toolbar';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '@coaster/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowRightLeft, lucideGlobe, lucideLogOut, lucideMoreVertical } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
 @Component({
   selector: 'coaster-top-app-bar',
-  imports: [AvatarBadge, RouterLink, NgIcon, TranslatePipe],
+  imports: [AvatarBadge, RouterLink, MatButtonModule, MatIcon, TranslatePipe],
   hostDirectives: [Toolbar],
-  viewProviders: [
-    provideIcons({
-      lucideArrowRightLeft,
-      lucideMoreVertical,
-      lucideLogOut,
-      lucideGlobe,
-    }),
-  ],
   host: {
     class:
       'w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 shadow-elevated shrink-0',
@@ -30,19 +22,18 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
         <coaster-avatar-badge [imageSrc]="image" altText="User profile" class="shrink-0" />
       }
 
-      <h1 coaster-title class="font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
+      <h1 class="heading-1 font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
         {{ label() }}
       </h1>
     </header>
 
     <div class="relative">
-      <button
+      <button mat-icon-button
         (click)="toggleMenu()"
-        class="text-on-surface-variant hover:text-primary transition-all active:scale-95 duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 flex items-center justify-center p-2 rounded-xl hover:bg-surface-container"
         aria-label="Open menu"
         [aria-expanded]="isMenuOpen()"
       >
-        <ng-icon name="lucideMoreVertical" class="text-xl" />
+        <mat-icon>more_vert</mat-icon>
       </button>
 
       @if (isMenuOpen()) {
@@ -63,7 +54,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
             (click)="closeMenu()"
             class="flex items-center gap-3 px-3 py-2 w-full rounded-xl text-sm font-medium text-on-surface hover:bg-surface-container transition-all active:scale-95 text-left cursor-pointer outline-none focus-visible:bg-surface-container"
           >
-            <ng-icon name="lucideArrowRightLeft" class="text-base text-on-surface-variant" />
+            <mat-icon class="text-base text-on-surface-variant">swap_horiz</mat-icon>
             <span>{{ 'common.change_bar' | translate }}</span>
           </a>
 
@@ -74,7 +65,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
             <div
               class="flex items-center gap-2 px-1.5 pb-1 text-xs font-bold tracking-wider text-on-surface-variant/60 uppercase"
             >
-              <ng-icon name="lucideGlobe" class="text-xs" />
+              <mat-icon class="text-xs">public</mat-icon>
               <span>{{ 'common.language' | translate }}</span>
             </div>
 
@@ -83,7 +74,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
                 (click)="setLanguage('es')"
                 [class]="
                   currentLang() === 'es'
-                    ? 'bg-primary text-on-primary shadow-sm'
+                     ? 'bg-primary text-on-primary shadow-sm'
                     : 'hover:bg-surface-container text-on-surface-variant hover:text-on-surface'
                 "
                 class="flex items-center justify-center py-1 rounded-md text-xs font-semibold transition-all active:scale-95 cursor-pointer outline-none"
@@ -111,7 +102,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
             (click)="logout()"
             class="flex items-center gap-3 px-3 py-2 w-full rounded-xl text-sm font-medium text-error hover:bg-error/10 transition-all active:scale-95 text-left cursor-pointer outline-none focus-visible:bg-error/10"
           >
-            <ng-icon name="lucideLogOut" class="text-base" />
+            <mat-icon class="text-base">logout</mat-icon>
             <span>{{ 'common.logout' | translate }}</span>
           </button>
         </div>

@@ -1,8 +1,7 @@
-<coaster-section-title
-  [heading]="'members.staff.title' | translate"
-  [description]="'members.staff.description' | translate: { count: totalMembers() }"
-  class="mb-8"
-/>
+<div class="flex flex-col gap-2 mb-8">
+  <h2 class="heading-2">{{ 'members.staff.title' | translate }}</h2>
+  <p class="text-on-surface-variant text-sm">{{ 'members.staff.description' | translate: { count: totalMembers() } }}</p>
+</div>
 
 @if (membersLoading()) {
   <coaster-loading />

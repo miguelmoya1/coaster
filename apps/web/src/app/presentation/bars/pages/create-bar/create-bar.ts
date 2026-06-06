@@ -1,15 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowRight, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SectionTitle } from '../../../components/section-title/section-title';
 import { CreateBarForm } from './components/create-bar-form';
 
 @Component({
   selector: 'coaster-create-bar',
-  imports: [SectionTitle, TranslatePipe, CreateBarForm],
-  providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight })],
+  imports: [TranslatePipe, CreateBarForm],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
@@ -23,7 +19,7 @@ import { CreateBarForm } from './components/create-bar-form';
         </span>
       </div>
 
-      <coaster-section-title [heading]="'bars.create.title' | translate" isH1 />
+      <h1 class="heading-1 border-b border-outline-variant pb-2">{{ 'bars.create.title' | translate }}</h1>
 
       <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">
         {{ 'bars.create.description' | translate }}

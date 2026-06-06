@@ -1,15 +1,13 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlertTriangle } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { CoasterTitle } from '../../../../components/typography/typography';
+import { MatIcon } from '@angular/material/icon';
+
 import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'coaster-confirm-dialog',
-  imports: [NgIcon, TranslatePipe, DialogComponent, CoasterTitle, MatButton],
-  providers: [provideIcons({ lucideAlertTriangle })],
+  imports: [MatIcon, TranslatePipe, DialogComponent, MatButton],
   template: `
     <coaster-dialog [isOpen]="isOpen()" (closed)="cancel()">
       <div
@@ -18,11 +16,11 @@ import { DialogComponent } from '../dialog/dialog.component';
         <div class="flex items-start gap-3">
           @if (isDestructive()) {
             <div class="bg-error/10 p-2 rounded-full text-error shrink-0 mt-0.5 flex items-center justify-center">
-              <ng-icon name="lucideAlertTriangle" size="20" />
+              <mat-icon>warning</mat-icon>
             </div>
           }
           <div class="flex flex-col gap-1">
-            <h2 coaster-title>
+            <h2 class="heading-2">
               <ng-content select="[confirm-dialog-title]" />
               @if (title()) {
                 {{ title() | translate }}

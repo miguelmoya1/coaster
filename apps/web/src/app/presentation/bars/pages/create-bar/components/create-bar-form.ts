@@ -2,16 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, output, signal } from '@ang
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { BarsStore } from '@coaster/bars';
 import type { CreateBarDto } from '@coaster/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowRight, lucideLoaderCircle, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { TextInput } from '../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-bar-form',
-  imports: [TextInput, MatButton, NgIcon, FormRoot, FormField, TranslatePipe],
-  providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight, lucideLoaderCircle })],
+  imports: [TextInput, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
@@ -27,8 +25,8 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
         />
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mt-4">
-        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" class="h-16 w-full" (click)="cancel()">
+      <div class="flex items-center justify-center gap-4 mt-4">
+        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" class="h-16 px-8 min-w-[140px]" (click)="cancel()">
           {{ 'common.cancel' | translate }}
         </button>
 
@@ -36,15 +34,15 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
           [attr.data-testid]="'submit-btn'"
           mat-flat-button
           type="submit"
-          class="h-16 w-full"
+          class="h-16 px-8 min-w-[140px]"
           [disabled]="barForm().invalid() || barForm().submitting()"
         >
           {{ 'common.create' | translate }}
 
           @if (barForm().submitting()) {
-            <ng-icon name="lucideLoaderCircle" class="text-on-primary-fixed text-xl animate-spin" />
+            <mat-icon class="text-on-primary-fixed text-xl animate-spin">sync</mat-icon>
           } @else {
-            <ng-icon name="lucideArrowRight" class="text-on-primary-fixed text-xl" />
+            <mat-icon class="text-on-primary-fixed text-xl">arrow_forward</mat-icon>
           }
         </button>
       </div>

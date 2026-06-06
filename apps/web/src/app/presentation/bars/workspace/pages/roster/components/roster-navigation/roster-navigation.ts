@@ -1,18 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterTitle } from '../../../../../../components/typography/typography';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+
 
 @Component({
   selector: 'coaster-roster-navigation',
-  imports: [NgIcon, TranslatePipe, CoasterTitle],
-  viewProviders: [
-    provideIcons({
-      lucideChevronLeft,
-      lucideChevronRight,
-    }),
-  ],
+  imports: [MatIcon, MatButtonModule, TranslatePipe],
   template: `
     <!-- Month/Year Category Label at the top -->
     <div class="mb-1 select-none text-center md:text-left">
@@ -26,8 +20,7 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
       <!-- Left Side: Title & Navigation Chevrons -->
       <div class="flex items-center gap-3.5 shrink-0">
         <h1
-          coaster-title
-          class="m-0! leading-none! select-none text-2xl sm:text-3xl font-black text-white uppercase tracking-tight"
+          class="heading-1 m-0! leading-none! select-none text-2xl sm:text-3xl font-black text-white uppercase tracking-tight"
         >
           {{ 'roster.title' | translate }}
         </h1>
@@ -35,11 +28,11 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
         <!-- Date Navigation Controls (Perfectly aligned vertically with Title) -->
         <div class="flex items-center bg-surface-container rounded-xl p-1 border border-outline-variant/15 shrink-0">
           <button
+            mat-icon-button
             (click)="prev.emit()"
-            class="p-2 hover:bg-surface-container-high text-on-surface hover:text-primary rounded-lg transition-all cursor-pointer flex items-center justify-center active:scale-95"
             title="{{ 'common.prev' | translate }}"
           >
-            <ng-icon name="lucideChevronLeft" class="text-lg"></ng-icon>
+            <mat-icon>chevron_left</mat-icon>
           </button>
           <button
             (click)="today.emit()"
@@ -48,11 +41,11 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
             {{ 'roster.today' | translate }}
           </button>
           <button
+            mat-icon-button
             (click)="next.emit()"
-            class="p-2 hover:bg-surface-container-high text-on-surface hover:text-primary rounded-lg transition-all cursor-pointer flex items-center justify-center active:scale-95"
             title="{{ 'common.next' | translate }}"
           >
-            <ng-icon name="lucideChevronRight" class="text-lg"></ng-icon>
+            <mat-icon>chevron_right</mat-icon>
           </button>
         </div>
       </div>

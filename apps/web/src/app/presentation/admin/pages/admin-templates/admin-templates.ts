@@ -4,36 +4,17 @@ import { form, FormField, FormRoot, required, validate } from '@angular/forms/si
 import { Router } from '@angular/router';
 import { Toast } from '@coaster/core';
 import { TemplatesStore } from '@coaster/templates';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideAlertTriangle,
-  lucideArrowLeft,
-  lucideCheck,
-  lucideSettings,
-  lucideSparkles,
-  lucideUpload,
-} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { TextareaInput } from '../../../components/forms/textarea-input/textarea-input';
 import { Loading } from '../../../components/loading/loading';
-import { SectionTitle } from '../../../components/section-title/section-title';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, TextareaInput, SectionTitle, MatButton, NgIcon, Loading, TranslatePipe],
-  providers: [
-    provideIcons({
-      lucideArrowLeft,
-      lucideSettings,
-      lucideUpload,
-      lucideSparkles,
-      lucideCheck,
-      lucideAlertTriangle,
-    }),
-  ],
+  imports: [FormRoot, FormField, TextareaInput, MatButton, MatIcon, Loading, TranslatePipe],
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

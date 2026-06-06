@@ -1,34 +1,43 @@
 <div class="flex gap-4 mb-6">
-  <coaster-status-card class="flex-1" status="primary">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.total' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.total' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="error">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.critical' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.critical' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="warning">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.alerts' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1">
+    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.alerts' | translate }}</div>
+      <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
+    </mat-card-content>
+  </mat-card>
 </div>
 
-<h2 coaster-title class="mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
+<h2 class="heading-2 mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
 
-<div class="flex items-center gap-3 mb-4 w-full">
+<div class="flex items-start gap-3 mb-4 w-full">
   <div class="flex-1 min-w-0">
     <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
   </div>
   @if (canImportTemplates()) {
-    <button class="w-14! h-14! shrink-0" mat-stroked-button [routerLink]="['import']">
-      <ng-icon name="lucideDownload" class="text-xl" />
+    <button class="h-[56px] w-[56px] rounded-xl shrink-0" mat-stroked-button [routerLink]="['import']" aria-label="Importar plantilla">
+      <mat-icon class="text-xl">download</mat-icon>
     </button>
   }
 </div>
 
-<div class="-mx-4 px-4 mb-4 flex items-center gap-4 overflow-hidden">
+<div class="-mx-4 px-4 mb-4 flex items-center gap-2 overflow-hidden">
   <div class="min-w-0 flex-1">
     <coaster-tabs
       [tabs]="tabs()"
@@ -37,8 +46,8 @@
     />
   </div>
   @if (canUpdateCategory() && selectedCategoryId() !== 'ALL') {
-    <button class="w-12! h-12!" mat-flat-button (click)="onEditCategoryClicked()">
-      <ng-icon name="lucidePencil" class="text-xl" />
+    <button class="w-10 h-10 shrink-0" mat-icon-button (click)="onEditCategoryClicked()" aria-label="Editar categoría">
+      <mat-icon>edit</mat-icon>
     </button>
   }
 </div>

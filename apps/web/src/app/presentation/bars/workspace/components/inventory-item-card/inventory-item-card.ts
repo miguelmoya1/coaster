@@ -1,25 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { StockStatus, StockStatusPipe } from '@coaster/products';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePackage, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterTitle } from '../../../../components/typography/typography';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+
 import { PricePipe } from '../../pipes/price/price';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-inventory-item-card',
   template: `
     <div class="flex items-center w-full min-w-0">
       <div
-        class="w-12 h-12 sm:w-14 sm:h-14 bg-surface-container-highest rounded-lg flex items-center justify-center mr-3 sm:mr-4 shrink-0"
+        class="w-12 h-12 sm:w-14 sm:h-14 bg-surface-container/60 border border-outline-variant/10 rounded-xl flex items-center justify-center mr-3.5 shrink-0 transition-transform group-hover:scale-105"
       >
-        <ng-icon [name]="icon()!" [class]="'text-2xl sm:text-3xl ' + (statusLevel() | stockStatus: 'text-color')" />
+        <mat-icon [class]="'text-2xl sm:text-3xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
       </div>
 
       <div class="grow min-w-0 mr-3 sm:mr-4 flex flex-col gap-0.5">
         <h3
-          coaster-title
-          class="line-clamp-2 wrap-break-word text-sm sm:text-base font-bold text-on-surface"
+          class="heading-3 line-clamp-2 wrap-break-word text-sm sm:text-base font-bold text-on-surface"
           [title]="itemName() | translate"
         >
           {{ itemName() | translate }}
@@ -35,17 +34,18 @@ import { PricePipe } from '../../pipes/price/price';
         <div class="flex items-center gap-1.5 sm:gap-2">
           <span
             [class]="
-              'w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ' +
+              'w-2 h-2 rounded-full ' +
               (statusLevel() | stockStatus: 'bg-color') +
               (statusLevel() === 'ALERT' ? ' animate-pulse' : '')
             "
           ></span>
-          <span class="text-xl sm:text-2xl font-black text-on-surface">{{
-            (qty() < 10 && qty() > 0 ? '0' : '') + qty()
-          }}</span>
+          <div class="flex items-baseline gap-0.5">
+            <span class="text-lg sm:text-xl font-black text-on-surface">{{ qty() }}</span>
+            <span class="text-[0.65rem] sm:text-xs font-bold text-on-surface-variant uppercase">ud</span>
+          </div>
         </div>
         <span
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider scale-90 sm:scale-100 origin-right"
+          class="inline-flex items-center px-2 py-0.5 rounded-md text-[0.65rem] sm:text-[0.7rem] font-bold uppercase tracking-wider scale-90 sm:scale-100 origin-right"
           [class]="badgeClass()"
         >
           {{ statusLevel() | stockStatus: 'label' | translate }}
@@ -55,19 +55,21 @@ import { PricePipe } from '../../pipes/price/price';
 
     @if (showEditButton()) {
       <div
-        class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/10 sm:border-t-0 shrink-0"
+        class="flex items-center gap-1 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/20 sm:border-t-0 shrink-0"
       >
-        <button
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:scale-95 duration-100"
+        <button mat-icon-button
           (click)="onEditClick($event)"
+          class="text-on-surface-variant hover:text-primary transition-colors"
+          aria-label="Editar producto"
         >
-          <ng-icon name="lucidePencil" class="text-xl" />
+          <mat-icon class="text-lg">edit</mat-icon>
         </button>
-        <button
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-error/10 hover:bg-error/20 text-error transition-colors cursor-pointer active:scale-95 duration-100"
+        <button mat-icon-button
+          class="text-error/70 hover:text-error transition-colors"
           (click)="onDeleteClick($event)"
+          aria-label="Eliminar producto"
         >
-          <ng-icon name="lucideTrash2" class="text-xl" />
+          <mat-icon class="text-lg">delete</mat-icon>
         </button>
       </div>
     }
@@ -79,8 +81,7 @@ import { PricePipe } from '../../pipes/price/price';
     '[attr.aria-disabled]': 'disabled()',
     '[class]': 'hostClasses()',
   },
-  imports: [NgIcon, CoasterTitle, PricePipe, StockStatusPipe, TranslatePipe],
-  viewProviders: [provideIcons({ lucidePackage, lucidePencil, lucideTrash2 })],
+  imports: [MatButtonModule, MatIcon, PricePipe, StockStatusPipe, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryItemCard {
@@ -89,7 +90,7 @@ export class InventoryItemCard {
   readonly itemName = input.required<string>();
   readonly qty = input.required<number>();
   readonly price = input<number>(0);
-  readonly icon = input('lucidePackage');
+  readonly icon = input('inventory_2');
   readonly statusLevel = input<StockStatus>('GOOD');
   readonly disabled = input(false);
   readonly showEditButton = input(false);
@@ -98,7 +99,7 @@ export class InventoryItemCard {
 
   readonly hostClasses = computed(
     () =>
-      'group flex flex-col sm:flex-row sm:items-center bg-surface-container-high p-4 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer ' +
+      'group flex flex-col sm:flex-row sm:items-center bg-surface-container-high/40 backdrop-blur-md p-4 rounded-2xl border border-outline-variant/20 border-l-4 hover:bg-surface-container-high/80 hover:border-primary/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md ' +
       this.#stockStatusPipe.transform(this.statusLevel(), 'border'),
   );
 

@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMinus, lucidePlus, lucideSend, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
 
 export interface CartItem {
@@ -16,8 +15,7 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [NgIcon, TranslatePipe, MatButton, PricePipe],
-  viewProviders: [provideIcons({ lucideMinus, lucidePlus, lucideSend, lucideTrash2 })],
+  imports: [MatIcon, TranslatePipe, MatButtonModule, PricePipe],
   template: `
     <div class="flex flex-col gap-3">
       <div class="flex justify-between items-center">
@@ -45,22 +43,20 @@ export interface CartItem {
               </div>
 
               <div class="flex items-center gap-1">
-                <button
-                  class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform"
+                <button mat-icon-button
                   (click)="decrementClicked.emit(item.productId)"
                 >
                   @if (item.quantity === 1) {
-                    <ng-icon name="lucideTrash2" size="14" class="text-error" />
+                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;" class="text-error">delete</mat-icon>
                   } @else {
-                    <ng-icon name="lucideMinus" size="14" />
+                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;">remove</mat-icon>
                   }
                 </button>
                 <span class="w-8 text-center font-bold text-sm">{{ item.quantity }}</span>
-                <button
-                  class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center active:scale-90 transition-transform"
+                <button mat-icon-button
                   (click)="incrementClicked.emit(item.productId)"
                 >
-                  <ng-icon name="lucidePlus" size="14" />
+                  <mat-icon style="font-size: 14px; width: 14px; height: 14px;">add</mat-icon>
                 </button>
               </div>
             </div>
@@ -87,7 +83,7 @@ export interface CartItem {
           </div>
 
           <button mat-flat-button class="h-16 w-full" [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
-            <ng-icon name="lucideSend" size="18" />
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">send</mat-icon>
             {{ 'orders.send_order' | translate }}
           </button>
         </div>

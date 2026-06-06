@@ -1,33 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { Order, OrderItemId } from '@coaster/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideArrowRightLeft,
-  lucideCheck,
-  lucideChefHat,
-  lucideCreditCard,
-  lucideMerge,
-  lucidePackagePlus,
-  lucideX,
-} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-detail-sheet',
-  imports: [NgIcon, TranslatePipe, MatButton, PricePipe],
-  viewProviders: [
-    provideIcons({
-      lucideCheck,
-      lucideChefHat,
-      lucideCreditCard,
-      lucidePackagePlus,
-      lucideArrowRightLeft,
-      lucideMerge,
-      lucideX,
-    }),
-  ],
+  imports: [MatIcon, TranslatePipe, MatButtonModule, PricePipe],
   template: `
     <div class="flex flex-col gap-4">
       <div class="flex justify-between items-center">
@@ -69,21 +49,21 @@ import { PricePipe } from '../../../pipes/price/price';
 
             <div class="flex gap-1">
               @if (item.deliveryStatus !== 'SERVED') {
-                <button
-                  class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-transform"
+                <button mat-icon-button
+                  class="text-primary"
                   (click)="deliverItemClicked.emit(item.id)"
                   [title]="'orders.mark_served' | translate"
                 >
-                  <ng-icon name="lucideChefHat" size="18" />
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px;">chef_hat</mat-icon>
                 </button>
               }
               @if (item.paymentStatus !== 'PAID') {
-                <button
-                  class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center active:scale-90 transition-transform"
+                <button mat-icon-button
+                  class="text-secondary"
                   (click)="payItemClicked.emit(item.id)"
                   [title]="'orders.mark_paid' | translate"
                 >
-                  <ng-icon name="lucideCreditCard" size="18" />
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px;">credit_card</mat-icon>
                 </button>
               }
             </div>
@@ -93,26 +73,26 @@ import { PricePipe } from '../../../pipes/price/price';
 
       <div class="grid grid-cols-2 gap-2 mt-2">
         <button mat-stroked-button class="h-16 w-full" (click)="addItemsClicked.emit()">
-          <ng-icon name="lucidePackagePlus" size="18" />
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_box</mat-icon>
           {{ 'orders.add_items' | translate }}
         </button>
         <button mat-flat-button class="h-16 w-full" (click)="checkoutClicked.emit()">
-          <ng-icon name="lucideCreditCard" size="18" />
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">credit_card</mat-icon>
           {{ 'orders.checkout' | translate }}
         </button>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
         <button mat-stroked-button class="h-16 w-full" (click)="moveTableClicked.emit()">
-          <ng-icon name="lucideArrowRightLeft" size="16" />
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">swap_horiz</mat-icon>
           {{ 'orders.move' | translate }}
         </button>
         <button mat-stroked-button class="h-16 w-full" (click)="mergeClicked.emit()">
-          <ng-icon name="lucideMerge" size="16" />
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">merge</mat-icon>
           {{ 'orders.merge' | translate }}
         </button>
         <button mat-stroked-button class="h-16 w-full text-error!" (click)="cancelClicked.emit()">
-          <ng-icon name="lucideX" size="16" />
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
           {{ 'orders.cancel_order' | translate }}
         </button>
       </div>

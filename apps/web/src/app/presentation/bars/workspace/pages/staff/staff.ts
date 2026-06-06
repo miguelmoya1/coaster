@@ -5,7 +5,6 @@ import type { BarId, BarMember } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
-import { SectionTitle } from '../../../../components/section-title/section-title';
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
@@ -23,7 +22,6 @@ type MemberItem = BarMember & {
   imports: [
     Loading,
     StaffMemberCard,
-    SectionTitle,
     BottomSheet,
     Fab,
     InviteMemberForm,

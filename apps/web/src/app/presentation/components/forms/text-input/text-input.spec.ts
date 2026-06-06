@@ -44,9 +44,9 @@ describe('TextInput', () => {
     });
 
     it('should show icon if provided', () => {
-      fixture.componentRef.setInput('icon', 'lucideUser');
+      fixture.componentRef.setInput('icon', 'person');
       fixture.detectChanges();
-      const icon = fixture.nativeElement.querySelector('ng-icon');
+      const icon = fixture.nativeElement.querySelector('mat-icon');
       expect(icon).toBeTruthy();
     });
   });
@@ -86,7 +86,9 @@ describe('TextInput', () => {
       fixture.componentRef.setInput('disabled', false);
       fixture.detectChanges();
 
-      const alertIcon = fixture.nativeElement.querySelector('ng-icon[name="lucideAlertCircle"]');
+      const alertIcon = Array.from(fixture.nativeElement.querySelectorAll('mat-icon')).find(
+        (icon) => (icon as HTMLElement).textContent?.trim() === 'error'
+      );
       expect(alertIcon).toBeTruthy();
     });
   });

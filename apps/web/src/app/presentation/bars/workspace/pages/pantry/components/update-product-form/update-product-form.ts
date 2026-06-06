@@ -5,14 +5,13 @@ import { asCategoryId } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
 import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-edit-product-form',
-  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
@@ -38,7 +37,11 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
         />
 
         @if (form().errors().length > 0) {
-          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+            @for (error of form().errors(); track error) {
+              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+            }
+          </div>
         }
 
         <div class="flex justify-end mt-4 gap-2">

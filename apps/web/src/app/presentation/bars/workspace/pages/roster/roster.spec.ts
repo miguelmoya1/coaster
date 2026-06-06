@@ -85,7 +85,7 @@ describe('Roster', () => {
   describe('rendering', () => {
     it('should render the title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
 
@@ -97,7 +97,7 @@ describe('Roster', () => {
 
     it('should render daily assignments heading', () => {
       fixture.detectChanges();
-      const headings = fixture.nativeElement.querySelectorAll('[coaster-title]');
+      const headings = fixture.nativeElement.querySelectorAll('.heading-2');
       expect(headings.length).toBeGreaterThanOrEqual(1);
     });
   });

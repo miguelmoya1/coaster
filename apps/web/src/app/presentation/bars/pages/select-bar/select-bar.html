@@ -1,10 +1,7 @@
-<coaster-section-title
-  [heading]="'bars.select.title' | translate"
-  [description]="'bars.select.subtitle' | translate"
-  centered
-  isH1
-  class="mb-6"
-/>
+<div class="flex flex-col gap-2 items-center text-center mb-6">
+  <h1 class="heading-1">{{ 'bars.select.title' | translate }}</h1>
+  <p class="text-on-surface-variant text-sm">{{ 'bars.select.subtitle' | translate }}</p>
+</div>
 
 <div class="flex flex-col gap-4">
   @if (bars.isLoading()) {
@@ -25,13 +22,13 @@
     }
 
     <button mat-stroked-button type="button" (click)="navigateToCreate()" class="mt-2 h-24 w-full border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5 text-on-surface-variant hover:text-primary font-bold uppercase tracking-widest text-sm">
-      <ng-icon name="lucidePlusCircle" class="text-on-surface-variant text-xl hover:text-primary" />
+      <mat-icon class="text-on-surface-variant text-xl hover:text-primary">add_circle</mat-icon>
       {{ 'common.create' | translate }}
     </button>
 
     @if (isAdmin()) {
       <button mat-stroked-button type="button" (click)="navigateToAdminTemplates()" class="mt-2 h-16 w-full border-primary/30 hover:border-primary/60 text-primary">
-        <ng-icon name="lucideSettings" class="text-primary text-xl" />
+        <mat-icon class="text-primary text-xl">settings</mat-icon>
         {{ 'bars.select.admin_templates' | translate }}
       </button>
     }

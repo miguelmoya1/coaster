@@ -37,21 +37,16 @@ export type PendingExchangeItem = ShiftExchange & {
   roleName: BarRole;
   isOwnRequest: boolean;
 };
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideClock,
-  lucideRepeat2,
-  lucideTrash2,
-} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../components/typography/typography';
+
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
 import { ShiftCard } from './components/shift-card/shift-card';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-roster',
@@ -59,8 +54,6 @@ import { ShiftCard } from './components/shift-card/shift-card';
     Loading,
     Fab,
     ShiftCard,
-    CoasterTitle,
-    NgIcon,
     TranslatePipe,
     BottomSheet,
     CreateShiftForm,
@@ -70,15 +63,9 @@ import { ShiftCard } from './components/shift-card/shift-card';
     RosterNavigation,
     RosterWeeklyGrid,
     RosterMonthlyGrid,
+    MatIcon,
   ],
   providers: [RosterStateService],
-  viewProviders: [
-    provideIcons({
-      lucideClock,
-      lucideRepeat2,
-      lucideTrash2,
-    }),
-  ],
   host: {
     class: 'flex flex-col gap-2 relative',
   },

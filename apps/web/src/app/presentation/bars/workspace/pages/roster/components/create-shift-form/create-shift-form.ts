@@ -7,14 +7,13 @@ import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
 import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 import { TextareaInput } from '../../../../../../components/forms/textarea-input/textarea-input';
 
 @Component({
   selector: 'coaster-create-shift-form',
-  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, MatButton, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, MatButton, TranslatePipe],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -53,7 +52,11 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
         />
 
         @if (form().errors().length > 0) {
-          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+            @for (error of form().errors(); track error) {
+              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+            }
+          </div>
         }
 
         <div class="flex justify-end mt-4 gap-2">

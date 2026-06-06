@@ -6,18 +6,17 @@ import { asOrderId, asProductId, asTableId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../components/typography/typography';
+
 import { CartItem, PosCart } from '../../components/pos-cart/pos-cart';
 import { PosProductGrid } from '../../components/pos-product-grid/pos-product-grid';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe, NgIcon],
-  viewProviders: [provideIcons({ lucideArrowLeft })],
+  imports: [PosProductGrid, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

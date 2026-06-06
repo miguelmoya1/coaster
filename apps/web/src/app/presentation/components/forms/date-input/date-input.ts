@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'coaster-text-input',
-  imports: [MatFormFieldModule, MatInputModule, TranslatePipe, MatIcon],
+  selector: 'coaster-date-input',
+  imports: [MatFormFieldModule, MatInputModule, MatDatepickerModule, TranslatePipe, MatIcon],
   template: `
     @if (!hidden()) {
       <mat-form-field class="w-full" appearance="outline">
@@ -15,32 +16,27 @@ import { MatIcon } from '@angular/material/icon';
           <mat-label>{{ label() }}</mat-label>
         }
 
-        @if (icon()) {
-          <mat-icon
-            matPrefix
-            class="mr-2 text-on-surface-variant text-xl"
-            [class.text-error]="invalid()"
-            style="font-size: 20px; width: 20px; height: 20px;"
-          >{{ icon() }}</mat-icon>
-        }
-
         <input
           matInput
-          #inputEl
+          [matDatepicker]="picker"
           [id]="id()"
-          [type]="type()"
           [value]="value()"
-          (input)="value.set(inputEl.value)"
+          (dateChange)="onDateChange($event.value)"
           (blur)="touched.set(true)"
           [placeholder]="placeholder()"
           [disabled]="disabled()"
           [readonly]="readonly()"
           [required]="required()"
+          [min]="min()"
+          [max]="max()"
           [attr.aria-invalid]="invalid()"
         />
 
+        <mat-datepicker-toggle matSuffix [for]="picker" />
+        <mat-datepicker #picker />
+
         @if (invalid() && !disabled() && touched()) {
-          <mat-icon matSuffix class="text-error text-xl" style="font-size: 20px; width: 20px; height: 20px;">error</mat-icon>
+          <mat-icon matPrefix class="text-error text-xl" style="font-size: 20px; width: 20px; height: 20px;">error</mat-icon>
         }
 
         @if (invalid() && errors().length > 0) {
@@ -61,15 +57,16 @@ import { MatIcon } from '@angular/material/icon';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TextInput implements FormValueControl<string> {
-  readonly value = model<string>('');
+export class DateInput implements FormValueControl<Date | null> {
+  readonly value = model<Date | null>(null);
   readonly id = input<string>(crypto.randomUUID());
 
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
-  readonly icon = input<string>();
-  readonly type = input<'text' | 'email' | 'password' | 'tel' | 'url' | 'time' | 'datetime-local'>('text');
+
+  readonly min = input<Date>();
+  readonly max = input<Date>();
 
   readonly touched = model<boolean>(false);
 
@@ -80,4 +77,9 @@ export class TextInput implements FormValueControl<string> {
   readonly invalid = input<boolean>(false);
   readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
+
+  onDateChange(date: Date | null) {
+    this.value.set(date);
+    this.touched.set(true);
+  }
 }

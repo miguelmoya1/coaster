@@ -11,7 +11,7 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
       <coaster-text-input
         [formField]="searchForm.query"
         [placeholder]="'pantry.search_placeholder' | translate"
-        icon="lucideSearch"
+        icon="search"
       />
     </form>
   `,

@@ -1,29 +1,33 @@
 <div class="flex items-center justify-between bg-surface-container rounded-2xl p-3 gap-2">
   <button
-    class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-transform text-on-surface-variant hover:text-on-surface cursor-pointer"
+    mat-icon-button
     (click)="prevDay()"
+    class="text-on-surface-variant hover:text-on-surface"
   >
-    <ng-icon name="lucideChevronLeft" size="20" />
+    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">chevron_left</mat-icon>
   </button>
 
   <div class="flex items-center gap-2 flex-1 justify-center">
-    <ng-icon name="lucideCalendar" size="18" class="text-primary" />
+    <mat-icon style="font-size: 18px; width: 18px; height: 18px;" class="text-primary">calendar_today</mat-icon>
     <input
-      type="date"
-      class="bg-transparent text-on-surface font-bold text-center outline-none cursor-pointer"
-      [value]="selectedDate()"
-      [max]="today"
-      (change)="onDateChange($event)"
+      matInput
+      [matDatepicker]="datePicker"
+      class="bg-transparent text-on-surface font-bold text-center outline-none cursor-pointer border-none w-full"
+      [value]="selectedDateAsDate()"
+      [max]="todayDate"
+      (dateChange)="onDatePickerChange($event.value)"
     />
+    <mat-datepicker-toggle [for]="datePicker" class="text-primary" />
+    <mat-datepicker #datePicker />
   </div>
 
   <button
-    class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-    [class]="isToday() ? 'text-outline/30 cursor-not-allowed' : 'text-on-surface-variant hover:text-on-surface'"
+    mat-icon-button
+    [class]="isToday() ? 'text-outline/30' : 'text-on-surface-variant hover:text-on-surface'"
     [disabled]="isToday()"
     (click)="nextDay()"
   >
-    <ng-icon name="lucideChevronRight" size="20" />
+    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">chevron_right</mat-icon>
   </button>
 </div>
 
@@ -37,28 +41,40 @@
 </div>
 
 <div class="grid grid-cols-2 gap-3">
-  <coaster-status-card status="primary">
-    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.revenue' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ totalRevenue() | price }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.revenue' | translate }}</div>
+      <div class="text-2xl font-black text-on-surface">{{ totalRevenue() | price }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card status="success">
-    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.total_orders' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ totalClosed() }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.total_orders' | translate }}</div>
+      <div class="text-2xl font-black text-on-surface">{{ totalClosed() }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card status="error">
-    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.cancelled' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ totalCancelled() }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.cancelled' | translate }}</div>
+      <div class="text-2xl font-black text-on-surface">{{ totalCancelled() }}</div>
+    </mat-card-content>
+  </mat-card>
 
-  <coaster-status-card status="warning">
-    <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.avg_ticket' | translate }}</div>
-    <div class="text-2xl font-black text-on-surface">{{ averageTicket() | price }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+    <mat-card-content class="p-6 flex flex-col justify-between">
+      <div class="text-xs text-on-surface-variant font-medium mb-1">{{ 'history.avg_ticket' | translate }}</div>
+      <div class="text-2xl font-black text-on-surface">{{ averageTicket() | price }}</div>
+    </mat-card-content>
+  </mat-card>
 </div>
 
-<h2 coaster-title>{{ 'history.orders_list' | translate }}</h2>
+<h2 class="heading-2">{{ 'history.orders_list' | translate }}</h2>
 
 @if (isLoading()) {
   <coaster-loading />
@@ -102,13 +118,13 @@
             <div class="flex items-center gap-1.5 text-xxs">
               @if (order.original.amountPaidCash > 0) {
                 <span class="flex items-center gap-0.5 text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">
-                  <ng-icon name="lucideBanknote" size="10" />
+                  <mat-icon style="font-size: 10px; width: 10px; height: 10px;">payments</mat-icon>
                   {{ order.original.amountPaidCash | price }}
                 </span>
               }
               @if (order.original.amountPaidCard > 0) {
                 <span class="flex items-center gap-0.5 text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0">
-                  <ng-icon name="lucideCreditCard" size="10" />
+                  <mat-icon style="font-size: 10px; width: 10px; height: 10px;">credit_card</mat-icon>
                   {{ order.original.amountPaidCard | price }}
                 </span>
               }
@@ -118,10 +134,11 @@
 
         @if (isOwner() && isToday()) {
           <button
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-error active:scale-90 transition-transform hover:bg-error/10 cursor-pointer"
+            mat-icon-button
+            class="text-error"
             (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
           >
-            <ng-icon name="lucideTrash2" size="18" />
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
           </button>
         }
       </div>
@@ -141,6 +158,6 @@
   (confirmed)="handleDeleteOrderConfirmed()"
   isDestructive
 >
-  <ng-container coaster-title>{{ 'history.delete_title' | translate }}</ng-container>
+  <ng-container confirm-dialog-title>{{ 'history.delete_title' | translate }}</ng-container>
   <ng-container>{{ 'history.delete_message' | translate }}</ng-container>
 </coaster-confirm-dialog>

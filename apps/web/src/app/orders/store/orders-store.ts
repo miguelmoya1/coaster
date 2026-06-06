@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { AddOrderItemsDto, BarId, BulkUpdateDto, CheckoutOrderDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId, PaymentMethod } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId, PaymentMethod } from '@coaster/common';
 import { OrderStatus } from '@coaster/core';
 import { handleErrorFormField, Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';

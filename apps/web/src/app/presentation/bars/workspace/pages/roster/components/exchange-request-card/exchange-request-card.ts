@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideRepeat2, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-exchange-request-card',
-  imports: [NgIcon, TranslatePipe, MatButton],
-  viewProviders: [provideIcons({ lucideRepeat2, lucideTrash2 })],
+  imports: [MatIcon, TranslatePipe, MatButton],
   template: `
     <div class="flex gap-4">
       <div
@@ -39,7 +37,7 @@ import { MatButton } from '@angular/material/button';
           class="w-auto! h-12! px-6 shrink-0 uppercase tracking-wide text-sm"
         >
           {{ 'common.accept' | translate }}
-          <ng-icon name="lucideRepeat2" class="text-lg"></ng-icon>
+          <mat-icon class="text-lg">cached</mat-icon>
         </button>
       }
       @if (canDelete()) {
@@ -49,7 +47,7 @@ import { MatButton } from '@angular/material/button';
           (click)="delete.emit(); $event.stopPropagation()"
           class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
         >
-          <ng-icon name="lucideTrash2" class="text-lg"></ng-icon>
+          <mat-icon class="text-lg">delete</mat-icon>
         </button>
       }
     </div>

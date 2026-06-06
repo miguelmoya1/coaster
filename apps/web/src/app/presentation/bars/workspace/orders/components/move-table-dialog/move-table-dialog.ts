@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -6,7 +7,7 @@ import { DialogComponent } from '../../../components/dialog/dialog.component';
 
 @Component({
   selector: 'coaster-move-table-dialog',
-  imports: [TranslatePipe, DialogComponent],
+  imports: [MatButtonModule, TranslatePipe, DialogComponent],
   template: `
     <coaster-dialog [isOpen]="isOpen()" (closed)="close()">
       <div class="bg-surface-container rounded-3xl p-6 shadow-elevated max-w-90 w-[90vw] flex flex-col gap-4">
@@ -25,8 +26,8 @@ import { DialogComponent } from '../../../components/dialog/dialog.component';
           }
         </div>
 
-        <button
-          class="px-5 py-2.5 rounded-full text-sm font-medium text-on-surface-variant hover:bg-surface-bright transition-colors self-end"
+        <button mat-button
+          class="self-end"
           (click)="close()"
         >
           {{ 'common.cancel' | translate }}

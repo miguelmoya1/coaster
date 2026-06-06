@@ -85,7 +85,7 @@ describe('NewOrder', () => {
   describe('rendering', () => {
     it('should render title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
 

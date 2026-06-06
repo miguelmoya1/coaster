@@ -14,7 +14,7 @@ export class TableStatusPipe implements PipeTransform {
           ? 'bg-error/10 border-error/40 text-error'
           : 'bg-secondary/10 border-secondary/40 text-secondary';
       case 'icon':
-        return isOccupied ? 'lucideUsers' : 'lucideCircleCheck';
+        return isOccupied ? 'group' : 'check_circle';
       case 'label':
         return isOccupied ? 'orders.table_occupied' : 'orders.table_free';
       default:

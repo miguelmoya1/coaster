@@ -1,16 +1,14 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlertCircle, lucideMinus, lucidePlus } from '@ng-icons/lucide';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [NgIcon, MatFormFieldModule, MatInputModule, MatButtonModule, TranslatePipe],
-  providers: [provideIcons({ lucideAlertCircle, lucideMinus, lucidePlus })],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, TranslatePipe, MatIcon],
   template: `
     @if (!hidden()) {
       <div class="flex flex-col gap-1 w-full">
@@ -23,7 +21,7 @@ import { TranslatePipe } from '@ngx-translate/core';
               (click)="decrement()"
               [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
             >
-              <ng-icon name="lucideMinus" class="text-xl"></ng-icon>
+              <mat-icon style="font-size: 20px; width: 20px; height: 20px;">remove</mat-icon>
             </button>
           }
 
@@ -33,12 +31,12 @@ import { TranslatePipe } from '@ngx-translate/core';
             }
 
             @if (icon()) {
-              <ng-icon
-                [name]="icon()!"
+              <mat-icon
                 matPrefix
                 class="mr-2 text-on-surface-variant text-xl"
                 [class.text-error]="invalid()"
-              ></ng-icon>
+                style="font-size: 20px; width: 20px; height: 20px;"
+              >{{ icon() }}</mat-icon>
             }
 
             <input
@@ -57,11 +55,11 @@ import { TranslatePipe } from '@ngx-translate/core';
             />
 
             @if (invalid() && !showControls()) {
-              <ng-icon
-                name="lucideAlertCircle"
+              <mat-icon
                 matSuffix
                 class="text-error text-xl"
-              ></ng-icon>
+                style="font-size: 20px; width: 20px; height: 20px;"
+              >error</mat-icon>
             }
 
             @if (invalid() && errors().length > 0) {
@@ -87,7 +85,7 @@ import { TranslatePipe } from '@ngx-translate/core';
               (click)="increment()"
               [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
             >
-              <ng-icon name="lucidePlus" class="text-xl"></ng-icon>
+              <mat-icon style="font-size: 20px; width: 20px; height: 20px;">add</mat-icon>
             </button>
           }
         </div>
