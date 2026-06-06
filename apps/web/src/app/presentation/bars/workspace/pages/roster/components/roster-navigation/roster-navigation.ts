@@ -35,8 +35,8 @@ import { MatIcon } from '@angular/material/icon';
             <mat-icon>chevron_left</mat-icon>
           </button>
           <button
+            mat-button
             (click)="today.emit()"
-            class="px-3 py-1.5 hover:bg-surface-container-high text-xs font-bold text-on-surface-variant hover:text-white rounded-lg transition-all cursor-pointer active:scale-95"
           >
             {{ 'roster.today' | translate }}
           </button>
@@ -54,36 +54,35 @@ import { MatIcon } from '@angular/material/icon';
       <div
         class="flex items-center bg-surface-container rounded-2xl p-1 border border-outline-variant/15 max-w-max self-center md:self-auto"
       >
-        <button
-          (click)="viewChanged.emit('day')"
-          [class.bg-primary]="viewMode() === 'day'"
-          [class.text-on-primary-fixed]="viewMode() === 'day'"
-          [class.font-black]="viewMode() === 'day'"
-          [class.text-on-surface-variant]="viewMode() !== 'day'"
-          class="px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer select-none"
-        >
-          {{ 'roster.views.day' | translate }}
-        </button>
-        <button
-          (click)="viewChanged.emit('week')"
-          [class.bg-primary]="viewMode() === 'week'"
-          [class.text-on-primary-fixed]="viewMode() === 'week'"
-          [class.font-black]="viewMode() === 'week'"
-          [class.text-on-surface-variant]="viewMode() !== 'week'"
-          class="px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer select-none"
-        >
-          {{ 'roster.views.week' | translate }}
-        </button>
-        <button
-          (click)="viewChanged.emit('month')"
-          [class.bg-primary]="viewMode() === 'month'"
-          [class.text-on-primary-fixed]="viewMode() === 'month'"
-          [class.font-black]="viewMode() === 'month'"
-          [class.text-on-surface-variant]="viewMode() !== 'month'"
-          class="px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer select-none"
-        >
-          {{ 'roster.views.month' | translate }}
-        </button>
+        @if (viewMode() === 'day') {
+          <button mat-flat-button (click)="viewChanged.emit('day')">
+            {{ 'roster.views.day' | translate }}
+          </button>
+        } @else {
+          <button mat-button (click)="viewChanged.emit('day')">
+            {{ 'roster.views.day' | translate }}
+          </button>
+        }
+
+        @if (viewMode() === 'week') {
+          <button mat-flat-button (click)="viewChanged.emit('week')">
+            {{ 'roster.views.week' | translate }}
+          </button>
+        } @else {
+          <button mat-button (click)="viewChanged.emit('week')">
+            {{ 'roster.views.week' | translate }}
+          </button>
+        }
+
+        @if (viewMode() === 'month') {
+          <button mat-flat-button (click)="viewChanged.emit('month')">
+            {{ 'roster.views.month' | translate }}
+          </button>
+        } @else {
+          <button mat-button (click)="viewChanged.emit('month')">
+            {{ 'roster.views.month' | translate }}
+          </button>
+        }
       </div>
     </div>
   `,

@@ -24,7 +24,7 @@ import { MatIcon } from '@angular/material/icon';
     @if (isOwn()) {
       <button
         mat-stroked-button
-        class="w-auto! h-12! px-4 shrink-0"
+        class="shrink-0"
         [disabled]="disabled() || hasPendingExchange() || isPast()"
         (click)="offerExchange.emit(); $event.stopPropagation()"
       >
@@ -40,7 +40,8 @@ import { MatIcon } from '@angular/material/icon';
     @if (showDelete()) {
       <button
         mat-stroked-button
-        class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+        color="warn"
+        class="shrink-0"
         [disabled]="disabled()"
         (click)="delete.emit(); $event.stopPropagation()"
       >

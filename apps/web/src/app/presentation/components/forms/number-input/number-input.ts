@@ -17,7 +17,6 @@ import { MatIcon } from '@angular/material/icon';
             <button
               type="button"
               mat-stroked-button
-              class="h-14 w-14 min-w-14 p-0! rounded-xl"
               (click)="decrement()"
               [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
             >
@@ -81,7 +80,6 @@ import { MatIcon } from '@angular/material/icon';
             <button
               type="button"
               mat-stroked-button
-              class="h-14 w-14 min-w-14 p-0! rounded-xl"
               (click)="increment()"
               [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
             >

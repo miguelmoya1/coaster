@@ -5,7 +5,6 @@
     <button
       mat-button
       (click)="goBack()"
-      class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"
     >
       <mat-icon class="text-xl group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
       <span class="font-bold text-sm tracking-wider uppercase">{{ 'admin_templates.back' | translate }}</span>
@@ -57,7 +56,7 @@
         mat-stroked-button
         type="button"
         (click)="loadStandardTemplates()"
-        class="h-16 border-dashed border-2 border-primary/20 hover:border-primary/50 text-primary-container group self-center px-8"
+        class="self-center"
       >
         <mat-icon class="text-lg group-hover:scale-110 transition-transform">auto_awesome</mat-icon>
         {{ 'admin_templates.load_standard' | translate }}
@@ -68,7 +67,6 @@
           mat-flat-button
           type="submit"
           [disabled]="form().disabled() || form().submitting() || form().invalid()"
-          class="relative h-16 px-8"
         >
           @if (form().submitting()) {
             <coaster-loading class="scale-75" />

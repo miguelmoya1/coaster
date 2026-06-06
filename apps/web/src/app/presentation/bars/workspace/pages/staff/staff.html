@@ -55,13 +55,13 @@
     </div>
 
     <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+      <button mat-stroked-button mat-dialog-close>
         {{ 'common.cancel' | translate }}
       </button>
       <button
         mat-flat-button
         [mat-dialog-close]="true"
-        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+        color="warn"
       >
         {{ (memberDeleting()?.isCurrentUser ? 'members.leave' : 'common.delete') | translate }}
       </button>

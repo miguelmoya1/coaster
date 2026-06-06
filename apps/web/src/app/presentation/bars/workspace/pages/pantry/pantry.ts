@@ -20,7 +20,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../components/loading/loading';
-import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatCard, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
@@ -52,7 +52,8 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     UpdateStockProductForm,
     EditCategoryForm,
     MatCard,
-    MatCardContent,
+    MatCardTitle,
+    MatCardSubtitle,
     MatIcon,
     MatButton,
     MatDialogModule,

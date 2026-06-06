@@ -8,7 +8,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatCard, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -17,7 +17,7 @@ import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [MatCard, MatCardContent, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, MatDialogModule],
+  imports: [MatCard, MatCardTitle, MatCardSubtitle, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, MatDialogModule],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -6,10 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatCard } from '@angular/material/card';
 
 @Component({
   selector: 'coaster-pos-product-grid',
-  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, MatChipsModule],
+  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, MatChipsModule, MatCard],
   template: `
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
@@ -46,35 +47,41 @@ import { MatChipsModule } from '@angular/material/chips';
       <!-- Products Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         @for (product of filteredProducts(); track product.id) {
-          <button
-            class="bg-surface-container rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-22.5 active:scale-95 transition-transform active:bg-primary/10 border border-transparent hover:border-primary/30"
+          <mat-card
+            class="relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200 p-0!"
             [class.border-error/30]="product.currentStock <= 0"
-            (click)="productClicked.emit(product)"
+            [class.opacity-60]="product.currentStock <= 0"
           >
-            <span
-              class="font-semibold text-on-surface text-xs text-center leading-tight line-clamp-2 break-words w-full h-8 flex items-center justify-center"
-              [title]="product.name | translate"
+            <button
+              class="w-full h-full flex flex-col items-center justify-center gap-1 border border-transparent p-4 text-center cursor-pointer"
+              [class.border-error/30]="product.currentStock <= 0"
+              (click)="productClicked.emit(product)"
             >
-              {{ product.name | translate }}
-            </span>
-            <div class="flex flex-col items-center gap-1 mt-0.5 w-full">
-              <span class="font-bold text-primary text-xs">{{ product.price | price }}</span>
               <span
-                class="text-[0.65rem] px-1.5 py-0.5 rounded font-bold w-fit text-center"
-                [class]="
-                  product.currentStock > 0
-                    ? 'bg-surface-container-highest text-on-surface-variant'
-                    : 'bg-error/10 text-error'
-                "
+                class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 break-words w-full h-10 flex items-center justify-center"
+                [title]="product.name | translate"
               >
-                {{
-                  product.currentStock > 0
-                    ? ('orders.stock' | translate: { count: product.currentStock })
-                    : ('orders.no_stock' | translate)
-                }}
+                {{ product.name | translate }}
               </span>
-            </div>
-          </button>
+              <div class="flex flex-col items-center gap-1 mt-1 w-full">
+                <span class="font-bold text-primary text-sm">{{ product.price | price }}</span>
+                <span
+                  class="text-[0.6875rem] px-2 py-0.5 rounded-full font-bold w-fit text-center"
+                  [class]="
+                    product.currentStock > 0
+                      ? 'bg-surface-container-highest text-on-surface-variant'
+                      : 'bg-error/15 text-error'
+                  "
+                >
+                  {{
+                    product.currentStock > 0
+                      ? ('orders.stock' | translate: { count: product.currentStock })
+                      : ('orders.no_stock' | translate)
+                  }}
+                </span>
+              </div>
+            </button>
+          </mat-card>
         } @empty {
           <div class="col-span-full text-center text-on-surface-variant py-8">
             {{ 'orders.no_products' | translate }}

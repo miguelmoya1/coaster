@@ -35,7 +35,7 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
         <div class="flex justify-end mt-4 gap-2">
           <button
             mat-stroked-button
-            class="h-16 w-full"
+            class="w-full"
             type="button"
             [disabled]="form().submitting()"
             (click)="cancelHandler()"
@@ -45,7 +45,7 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
 
           <button
             mat-flat-button
-            class="h-16 w-full"
+            class="w-full"
             type="submit"
             [disabled]="form().invalid() || form().submitting()"
           >
@@ -56,7 +56,8 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
         <div class="mt-4 border-t border-outline-variant/20 pt-4">
           <button
             mat-stroked-button
-            class="w-full text-error!"
+            color="warn"
+            class="w-full"
             type="button"
             [disabled]="form().submitting()"
             (click)="deleteHandler()"

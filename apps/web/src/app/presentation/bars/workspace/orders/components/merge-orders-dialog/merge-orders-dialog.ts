@@ -17,7 +17,7 @@ import { PricePipe } from '../../../pipes/price/price';
         <div class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto">
           @for (order of otherOrders(); track order.id) {
             <button
-              class="w-full text-left p-4 rounded-xl bg-surface-container-highest hover:bg-primary/10 transition-colors active:scale-[0.98] flex justify-between items-center"
+              class="w-full flex justify-between items-center"
               (click)="select(order.id)"
             >
               <span class="font-semibold text-on-surface">{{

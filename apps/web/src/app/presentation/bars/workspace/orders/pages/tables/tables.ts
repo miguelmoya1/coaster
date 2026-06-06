@@ -10,17 +10,17 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../../components/fab/fab';
@@ -32,7 +32,6 @@ import { TableCard } from './components/table-card/table-card';
   imports: [
     TableCard,
     MatCard,
-    MatCardContent,
     Loading,
     BottomSheet,
     Fab,

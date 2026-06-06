@@ -31,7 +31,7 @@ import { NumberInput } from '../../../../../../components/forms/number-input/num
           <div class="flex justify-end mt-4 gap-2">
             <button
               mat-stroked-button
-              class="h-16 w-full"
+              class="w-full"
               type="button"
               [disabled]="form().disabled() || form().submitting()"
               (click)="handleCancel()"
@@ -41,7 +41,7 @@ import { NumberInput } from '../../../../../../components/forms/number-input/num
 
             <button
               mat-flat-button
-              class="h-16 w-full"
+              class="w-full"
               type="submit"
               [disabled]="form().disabled() || form().submitting() || form().invalid()"
             >

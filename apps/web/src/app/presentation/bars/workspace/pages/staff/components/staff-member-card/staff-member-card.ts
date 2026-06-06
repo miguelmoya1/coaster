@@ -61,9 +61,10 @@ import { MatIcon } from '@angular/material/icon';
           @if (isCurrentUser()) {
             <button
               mat-stroked-button
+              color="warn"
               [disabled]="disabled() || isOnlyOwner()"
               [title]="isOnlyOwner() ? ('members.leave_tooltip' | translate) : ''"
-              class="text-error! shrink-0"
+              class="shrink-0"
               (click)="onDeleteClick($event)"
             >
               {{ 'members.leave' | translate }}
@@ -71,8 +72,8 @@ import { MatIcon } from '@angular/material/icon';
           } @else {
             <button
               mat-icon-button
+              color="warn"
               [disabled]="disabled()"
-              class="text-error!"
               (click)="onDeleteClick($event)"
             >
               <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>

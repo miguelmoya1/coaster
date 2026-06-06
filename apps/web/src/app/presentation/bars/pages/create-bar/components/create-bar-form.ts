@@ -26,7 +26,7 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
       </div>
 
       <div class="flex items-center justify-center gap-4 mt-4">
-        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" class="h-16 px-8 min-w-[140px]" (click)="cancel()">
+        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" (click)="cancel()">
           {{ 'common.cancel' | translate }}
         </button>
 
@@ -34,7 +34,6 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
           [attr.data-testid]="'submit-btn'"
           mat-flat-button
           type="submit"
-          class="h-16 px-8 min-w-[140px]"
           [disabled]="barForm().invalid() || barForm().submitting()"
         >
           {{ 'common.create' | translate }}

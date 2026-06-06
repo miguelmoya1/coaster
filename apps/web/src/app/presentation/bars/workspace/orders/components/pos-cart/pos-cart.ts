@@ -82,7 +82,7 @@ export interface CartItem {
             <span class="text-xl font-black text-primary">{{ totalCents() | price }}</span>
           </div>
 
-          <button mat-flat-button class="h-16 w-full" [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
+          <button mat-flat-button class="w-full" [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
             <mat-icon style="font-size: 18px; width: 18px; height: 18px;">send</mat-icon>
             {{ 'orders.send_order' | translate }}
           </button>

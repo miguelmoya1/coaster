@@ -290,6 +290,7 @@
     "to_serve_title": "Para servir",
     "all_served_title": "¡Todo servido!",
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
+    "consumption": "Consumo",
     "total": "Total",
     "unpay_unit": "Restar 1 pagado",
     "unserve_unit": "Restar 1 servido"

@@ -2,7 +2,6 @@
   <button
     mat-icon-button
     [routerLink]="['/bars', barId(), 'pantry']"
-    class="text-on-surface"
   >
     <mat-icon class="text-xl">chevron_left</mat-icon>
   </button>
@@ -23,7 +22,7 @@
     <button
       mat-icon-button
       (click)="searchQuery.set('')"
-      class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+      class="absolute right-3 top-1/2 -translate-y-1/2"
     >
       <mat-icon class="text-lg">close</mat-icon>
     </button>
@@ -43,10 +42,10 @@
         }}{{ filteredTemplates().length !== 1 ? 's' : '' }}
       </span>
       <div class="flex gap-2">
-        <button mat-stroked-button class="text-xs! py-1! px-2.5!" (click)="selectAll()">
+        <button mat-stroked-button (click)="selectAll()">
           {{ 'pantry.select_all' | translate }}
         </button>
-        <button mat-stroked-button class="text-xs! py-1! px-2.5!" (click)="deselectAll()">
+        <button mat-stroked-button (click)="deselectAll()">
           {{ 'pantry.deselect_all' | translate }}
         </button>
       </div>
@@ -166,7 +165,7 @@
   <!-- Action Button -->
   <button
     mat-flat-button
-    class="h-16 w-48 font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+    class="w-48"
     [disabled]="selectedCategoriesCount() === 0 || isSubmitting()"
     (click)="importSelected()"
   >

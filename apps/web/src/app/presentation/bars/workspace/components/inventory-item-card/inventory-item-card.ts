@@ -52,13 +52,11 @@ import { TranslatePipe } from '@ngx-translate/core';
           <div class="flex items-center gap-0.5 ml-1">
             <button mat-icon-button
               (click)="onEditClick($event)"
-              class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
               aria-label="Editar producto"
             >
               <mat-icon class="text-lg">edit</mat-icon>
             </button>
             <button mat-icon-button
-              class="w-8 h-8 flex items-center justify-center text-error/70 hover:text-error transition-colors"
               (click)="onDeleteClick($event)"
               aria-label="Eliminar producto"
             >

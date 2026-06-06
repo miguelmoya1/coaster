@@ -47,6 +47,7 @@ import { ExchangeRequestCard } from './components/exchange-request-card/exchange
 import { ShiftCard } from './components/shift-card/shift-card';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'coaster-roster',
@@ -64,6 +65,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
     RosterWeeklyGrid,
     RosterMonthlyGrid,
     MatIcon,
+    MatButton,
   ],
   providers: [RosterStateService],
   host: {

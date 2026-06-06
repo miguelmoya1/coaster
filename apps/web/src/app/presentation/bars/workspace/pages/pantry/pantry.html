@@ -1,33 +1,39 @@
 <div class="flex gap-4 mb-6">
-  <mat-card class="relative overflow-hidden flex-1">
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
     <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-    <mat-card-content class="p-6 flex flex-col justify-between">
-      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.total' | translate }}</div>
-      <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
-    </mat-card-content>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.total' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ totalProductsCount() ?? 0 }}
+    </mat-card-title>
   </mat-card>
 
-  <mat-card class="relative overflow-hidden flex-1">
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
     <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
-    <mat-card-content class="p-6 flex flex-col justify-between">
-      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.critical' | translate }}</div>
-      <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
-    </mat-card-content>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.critical' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ criticalProductsCount() ?? 0 }}
+    </mat-card-title>
   </mat-card>
 
-  <mat-card class="relative overflow-hidden flex-1">
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
     <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
-    <mat-card-content class="p-6 flex flex-col justify-between">
-      <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.alerts' | translate }}</div>
-      <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
-    </mat-card-content>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.alerts' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ alertProductsCount() ?? 0 }}
+    </mat-card-title>
   </mat-card>
 </div>
 
 <div class="flex items-center justify-between gap-4 mb-2">
   <h2 class="heading-2 mb-0">{{ 'pantry.inventory_title' | translate }}</h2>
   @if (canImportTemplates()) {
-    <button mat-flat-button [routerLink]="['import']" class="h-10 px-4 rounded-xl flex items-center gap-2 font-bold text-sm bg-primary text-on-primary shadow-sm hover:shadow transition-shadow">
+    <button mat-flat-button [routerLink]="['import']">
       <mat-icon>download</mat-icon>
       <span>{{ 'pantry.import_title' | translate }}</span>
     </button>
@@ -51,7 +57,7 @@
       >
         <span class="text-sm font-medium">{{ category.label | translate }}</span>
         @if (canUpdateCategory() && category.id !== 'ALL') {
-          <button matChipTrailingIcon (click)="onEditCategoryClicked($event, category.id)" class="w-5 h-5 flex items-center justify-center p-0 min-w-0 hover:bg-black/5 dark:hover:bg-white/10 rounded-full ml-1 shrink-0" aria-label="Editar categoría">
+          <button matChipTrailingIcon (click)="onEditCategoryClicked($event, category.id)" class="flex items-center justify-center ml-1 shrink-0" aria-label="Editar categoría">
             <mat-icon class="text-[14px] w-3.5 h-3.5 flex items-center justify-center">edit</mat-icon>
           </button>
         }
@@ -158,13 +164,13 @@
     </div>
 
     <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+      <button mat-stroked-button mat-dialog-close>
         {{ 'common.cancel' | translate }}
       </button>
       <button
         mat-flat-button
         [mat-dialog-close]="true"
-        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+        color="warn"
       >
         {{ 'common.delete' | translate }}
       </button>
@@ -189,13 +195,13 @@
     </div>
 
     <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+      <button mat-stroked-button mat-dialog-close>
         {{ 'common.cancel' | translate }}
       </button>
       <button
         mat-flat-button
         [mat-dialog-close]="true"
-        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+        color="warn"
       >
         {{ 'common.delete' | translate }}
       </button>

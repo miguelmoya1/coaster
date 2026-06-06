@@ -39,7 +39,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
       @if (isMenuOpen()) {
         <!-- Backdrop to close dropdown on click outside -->
         <button
-          class="fixed inset-0 z-40 w-full h-full bg-transparent cursor-default outline-none"
+          class="fixed inset-0 z-40 w-full h-full"
           (click)="closeMenu()"
           aria-label="Close menu"
         ></button>
@@ -70,28 +70,16 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
             </div>
 
             <div class="grid grid-cols-2 gap-1 bg-surface-container p-1 rounded-lg border border-outline-variant/20">
-              <button
-                (click)="setLanguage('es')"
-                [class]="
-                  currentLang() === 'es'
-                     ? 'bg-primary text-on-primary shadow-sm'
-                    : 'hover:bg-surface-container text-on-surface-variant hover:text-on-surface'
-                "
-                class="flex items-center justify-center py-1 rounded-md text-xs font-semibold transition-all active:scale-95 cursor-pointer outline-none"
-              >
-                ES
-              </button>
-              <button
-                (click)="setLanguage('en')"
-                [class]="
-                  currentLang() === 'en'
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'hover:bg-surface-container text-on-surface-variant hover:text-on-surface'
-                "
-                class="flex items-center justify-center py-1 rounded-md text-xs font-semibold transition-all active:scale-95 cursor-pointer outline-none"
-              >
-                EN
-              </button>
+              @if (currentLang() === 'es') {
+                <button mat-flat-button (click)="setLanguage('es')">ES</button>
+              } @else {
+                <button mat-button (click)="setLanguage('es')">ES</button>
+              }
+              @if (currentLang() === 'en') {
+                <button mat-flat-button (click)="setLanguage('en')">EN</button>
+              } @else {
+                <button mat-button (click)="setLanguage('en')">EN</button>
+              }
             </div>
           </div>
 
@@ -99,8 +87,10 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
           <!-- Cerrar sesión -->
           <button
+            mat-button
+            color="warn"
             (click)="logout()"
-            class="flex items-center gap-3 px-3 py-2 w-full rounded-xl text-sm font-medium text-error hover:bg-error/10 transition-all active:scale-95 text-left cursor-pointer outline-none focus-visible:bg-error/10"
+            class="w-full flex items-center gap-3 text-error"
           >
             <mat-icon class="text-base">logout</mat-icon>
             <span>{{ 'common.logout' | translate }}</span>

@@ -7,13 +7,14 @@ import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatIcon } from '@angular/material/icon';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
 import { Loading } from '../../../../components/loading/loading';
 
 @Component({
   selector: 'coaster-dashboard',
-  imports: [TranslatePipe, MatIcon, RouterLink, InventoryItemCard, PricePipe, Loading],
+  imports: [TranslatePipe, MatIcon, RouterLink, InventoryItemCard, PricePipe, Loading, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle],
   templateUrl: './dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

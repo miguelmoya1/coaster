@@ -50,7 +50,6 @@ import { PricePipe } from '../../../pipes/price/price';
             <div class="flex gap-1">
               @if (item.deliveryStatus !== 'SERVED') {
                 <button mat-icon-button
-                  class="text-primary"
                   (click)="deliverItemClicked.emit(item.id)"
                   [title]="'orders.mark_served' | translate"
                 >
@@ -59,7 +58,6 @@ import { PricePipe } from '../../../pipes/price/price';
               }
               @if (item.paymentStatus !== 'PAID') {
                 <button mat-icon-button
-                  class="text-secondary"
                   (click)="payItemClicked.emit(item.id)"
                   [title]="'orders.mark_paid' | translate"
                 >
@@ -72,26 +70,26 @@ import { PricePipe } from '../../../pipes/price/price';
       </div>
 
       <div class="grid grid-cols-2 gap-2 mt-2">
-        <button mat-stroked-button class="h-16 w-full" (click)="addItemsClicked.emit()">
+        <button mat-stroked-button class="w-full" (click)="addItemsClicked.emit()">
           <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_box</mat-icon>
           {{ 'orders.add_items' | translate }}
         </button>
-        <button mat-flat-button class="h-16 w-full" (click)="checkoutClicked.emit()">
+        <button mat-flat-button class="w-full" (click)="checkoutClicked.emit()">
           <mat-icon style="font-size: 18px; width: 18px; height: 18px;">credit_card</mat-icon>
           {{ 'orders.checkout' | translate }}
         </button>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <button mat-stroked-button class="h-16 w-full" (click)="moveTableClicked.emit()">
+        <button mat-stroked-button class="w-full" (click)="moveTableClicked.emit()">
           <mat-icon style="font-size: 16px; width: 16px; height: 16px;">swap_horiz</mat-icon>
           {{ 'orders.move' | translate }}
         </button>
-        <button mat-stroked-button class="h-16 w-full" (click)="mergeClicked.emit()">
+        <button mat-stroked-button class="w-full" (click)="mergeClicked.emit()">
           <mat-icon style="font-size: 16px; width: 16px; height: 16px;">merge</mat-icon>
           {{ 'orders.merge' | translate }}
         </button>
-        <button mat-stroked-button class="h-16 w-full text-error!" (click)="cancelClicked.emit()">
+        <button mat-stroked-button class="w-full" (click)="cancelClicked.emit()">
           <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
           {{ 'orders.cancel_order' | translate }}
         </button>

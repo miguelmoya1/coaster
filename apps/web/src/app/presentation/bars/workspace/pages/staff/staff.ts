@@ -11,6 +11,7 @@ import { InviteMemberForm } from './components/invite-member-form/invite-member-
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
 
 type MemberItem = BarMember & {
   isCurrentUser: boolean;
@@ -30,6 +31,7 @@ type MemberItem = BarMember & {
     RouterLink,
     MatDialogModule,
     MatIcon,
+    MatButton,
   ],
   host: {
     class: 'flex flex-col gap-2',

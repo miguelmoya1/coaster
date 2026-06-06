@@ -73,7 +73,6 @@
             <!-- Quick Action button -->
             <button
               mat-icon-button
-              class="text-primary"
               (click)="serveSingleItem(order.id, item); $event.stopPropagation()"
               [title]="'orders.mark_served' | translate"
             >
@@ -118,7 +117,7 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
-      <button mat-stroked-button (click)="clearSelection()" class="h-12! px-4! text-xs!">
+      <button mat-stroked-button (click)="clearSelection()">
         <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
         {{ 'common.cancel' | translate }}
       </button>
@@ -126,7 +125,6 @@
       <button
         mat-flat-button
         (click)="applySelectedChanges()"
-        class="h-12! px-4! text-xs!"
       >
         <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>
         {{ 'orders.mark_served' | translate }}

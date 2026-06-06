@@ -231,3 +231,32 @@ button,
 .snackbar-info .mat-mdc-snack-bar-action {
   color: #ffffff !important;
 }
+
+/* ─── Premium Angular Material Card Customizations ─── */
+mat-card {
+  background-color: var(--color-surface-container) !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+mat-card:hover {
+  border-color: rgba(255, 145, 89, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+mat-card-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+mat-card-title {
+  color: var(--color-on-surface) !important;
+}
+
+mat-card-subtitle {
+  color: var(--color-on-surface-variant) !important;
+}
+

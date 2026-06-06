@@ -44,7 +44,7 @@ import type { PaymentMethod } from '@coaster/common';
         <div class="grid grid-cols-2 gap-4">
           <!-- Cash Button -->
           <button
-            class="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 border-emerald-500/10 bg-emerald-500/5 hover:bg-emerald-500/10 active:bg-emerald-500/15 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/30 transition-all duration-300 group cursor-pointer active:scale-95 hover:shadow-lg hover:shadow-emerald-500/5"
+            class="flex flex-col items-center justify-center gap-3 group"
             (click)="selectMethod('CASH')"
           >
             <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0">
@@ -57,7 +57,7 @@ import type { PaymentMethod } from '@coaster/common';
 
           <!-- Card Button -->
           <button
-            class="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 border-indigo-500/10 bg-indigo-500/5 hover:bg-indigo-500/10 active:bg-indigo-500/15 text-indigo-400 hover:text-indigo-300 hover:border-indigo-500/30 transition-all duration-300 group cursor-pointer active:scale-95 hover:shadow-lg hover:shadow-indigo-500/5"
+            class="flex flex-col items-center justify-center gap-3 group"
             (click)="selectMethod('CARD')"
           >
             <div class="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0">

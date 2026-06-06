@@ -34,7 +34,7 @@ import { MatIcon } from '@angular/material/icon';
           mat-flat-button
           [disabled]="disabled()"
           (click)="accepted.emit(); $event.stopPropagation()"
-          class="w-auto! h-12! px-6 shrink-0 uppercase tracking-wide text-sm"
+          class="shrink-0"
         >
           {{ 'common.accept' | translate }}
           <mat-icon class="text-lg">cached</mat-icon>
@@ -43,9 +43,10 @@ import { MatIcon } from '@angular/material/icon';
       @if (canDelete()) {
         <button
           mat-stroked-button
+          color="warn"
           [disabled]="disabled()"
           (click)="delete.emit(); $event.stopPropagation()"
-          class="w-12! h-12! p-0 shrink-0 text-error! hover:bg-error/10! hover:text-error! border-error/20! hover:border-error/40! active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+          class="shrink-0"
         >
           <mat-icon class="text-lg">delete</mat-icon>
         </button>

@@ -15,42 +15,42 @@
 
     @if (stats.hasValue()) {
       <div class="grid grid-cols-3 gap-3">
-        <div
-          class="bg-surface-container-high rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-primary relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        <mat-card
+          class="p-4 flex flex-col gap-1.5 border-t-2! border-primary relative overflow-hidden transition-all hover:-translate-y-0.5"
         >
-          <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
             {{ 'dashboard.financials.today' | translate }}
-          </span>
-          <span class="text-lg font-black text-on-surface tracking-tight">
+          </mat-card-subtitle>
+          <mat-card-title class="text-lg font-black text-on-surface tracking-tight m-0!">
             {{ stats.value().todayRevenue | price }}
-          </span>
-        </div>
+          </mat-card-title>
+        </mat-card>
 
-        <div
-          class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        <mat-card
+          class="p-4 flex flex-col gap-1.5 border-t-2! border-outline-variant relative overflow-hidden transition-all hover:-translate-y-0.5"
         >
-          <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
             {{ 'dashboard.financials.yesterday' | translate }}
-          </span>
-          <span class="text-lg font-black text-on-surface-variant tracking-tight">
+          </mat-card-subtitle>
+          <mat-card-title class="text-lg font-black text-on-surface-variant tracking-tight m-0!">
             {{ stats.value().yesterdayRevenue | price }}
-          </span>
-        </div>
+          </mat-card-title>
+        </mat-card>
 
-        <div
-          class="bg-surface-container rounded-2xl p-4 flex flex-col gap-1.5 shadow-md border-t-2 border-outline-variant transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        <mat-card
+          class="p-4 flex flex-col gap-1.5 border-t-2! border-outline-variant relative overflow-hidden transition-all hover:-translate-y-0.5"
         >
-          <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
             {{ 'dashboard.financials.weekly' | translate }}
-          </span>
-          <span class="text-lg font-black tracking-tight text-primary">
+          </mat-card-subtitle>
+          <mat-card-title class="text-lg font-black tracking-tight text-primary m-0!">
             {{ stats.value().weeklyRevenue | price }}
-          </span>
-        </div>
+          </mat-card-title>
+        </mat-card>
       </div>
 
-      <div class="bg-surface-container rounded-2xl p-5 shadow-md flex flex-col gap-4 border border-outline-variant/30">
-        <div class="flex justify-between items-center">
+      <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30!">
+        <mat-card-header class="flex justify-between items-center p-0">
           <h3
             class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
           >
@@ -62,9 +62,9 @@
           >
             {{ 'history.today' | translate }}
           </span>
-        </div>
+        </mat-card-header>
 
-        <div class="relative w-full h-32.5 flex flex-col justify-end">
+        <mat-card-content class="relative w-full h-32.5 flex flex-col justify-end p-0">
           <svg viewBox="0 0 380 110" class="w-full h-25 overflow-visible" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -151,13 +151,13 @@
               <span class="text-center w-10 uppercase select-none">{{ dr.dayName }}</span>
             }
           </div>
-        </div>
-      </div>
+        </mat-card-content>
+      </mat-card>
     }
   </section>
 
   <section class="flex flex-col gap-4">
-    <header class="flex justify-between items-end">
+    <header class="flex justify-between items-center">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
         <mat-icon class="text-primary text-xl">trending_up</mat-icon>
         {{ 'dashboard.sections.monthly_yearly' | translate }}
@@ -170,53 +170,55 @@
       />
     } @else if (stats.hasValue()) {
       <div class="grid grid-cols-2 gap-3">
-        <div
-          class="bg-surface-container rounded-2xl p-4 flex flex-col gap-2 shadow-md border-l-4 border-primary hover:-translate-y-0.5 hover:shadow-lg transition-all"
+        <mat-card
+          class="p-4 flex flex-col gap-2 border-l-4! border-primary hover:-translate-y-0.5 transition-all duration-200"
         >
-          <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
             {{ 'dashboard.financials.current_month' | translate }} ({{ currentMonthName() }})
-          </span>
-          <span class="text-lg font-black text-on-surface tracking-tight">
+          </mat-card-subtitle>
+          <mat-card-title class="text-lg font-black text-on-surface tracking-tight m-0!">
             {{ stats.value().currentMonthRevenue | price }}
-          </span>
-          @if (stats.value().percentageChange > 0) {
-            <div class="flex items-center gap-1">
-              <span
-                class="text-[10px] font-black flex items-center gap-0.5"
-                [class.text-success]="stats.value().isPositiveChange"
-                [class.text-error]="!stats.value().isPositiveChange"
-              >
-                {{ stats.value().isPositiveChange ? '▲' : '▼' }}
-                {{ stats.value().percentageChange }}%
-              </span>
-              <span class="text-xxs text-on-surface-variant"
-                >vs {{ 'dashboard.financials.previous_month_short' | translate }}</span
-              >
-            </div>
-          } @else {
-            <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.no_change' | translate }}</span>
-          }
-        </div>
+          </mat-card-title>
+          <mat-card-content class="p-0">
+            @if (stats.value().percentageChange > 0) {
+              <div class="flex items-center gap-1">
+                <span
+                  class="text-[10px] font-black flex items-center gap-0.5"
+                  [class.text-success]="stats.value().isPositiveChange"
+                  [class.text-error]="!stats.value().isPositiveChange"
+                >
+                  {{ stats.value().isPositiveChange ? '▲' : '▼' }}
+                  {{ stats.value().percentageChange }}%
+                </span>
+                <span class="text-xxs text-on-surface-variant"
+                  >vs {{ 'dashboard.financials.previous_month_short' | translate }}</span
+                >
+              </div>
+            } @else {
+              <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.no_change' | translate }}</span>
+            }
+          </mat-card-content>
+        </mat-card>
 
-        <div
-          class="bg-surface-container rounded-2xl p-4 flex flex-col gap-2 shadow-md border-l-4 border-outline-variant hover:-translate-y-0.5 hover:shadow-lg transition-all"
+        <mat-card
+          class="p-4 flex flex-col gap-2 border-l-4! border-outline-variant hover:-translate-y-0.5 transition-all duration-200"
         >
-          <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
             {{ 'dashboard.financials.previous_month' | translate }} ({{ previousMonthName() }})
-          </span>
-          <span class="text-lg font-black text-on-surface-variant tracking-tight">
+          </mat-card-subtitle>
+          <mat-card-title class="text-lg font-black text-on-surface-variant tracking-tight m-0!">
             {{ stats.value().previousMonthRevenue | price }}
-          </span>
-          <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.closed_revenue' | translate }}</span>
-        </div>
+          </mat-card-title>
+          <mat-card-content class="p-0 text-xxs text-on-surface-variant">
+            {{ 'dashboard.financials.closed_revenue' | translate }}
+          </mat-card-content>
+        </mat-card>
       </div>
 
-      <div
-        class="bg-surface-container rounded-2xl p-5 shadow-md flex flex-col gap-4 border border-outline-variant/30 relative overflow-hidden"
-      >
+      <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! relative overflow-hidden">
         <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
 
-        <div class="flex justify-between items-center z-10">
+        <mat-card-header class="flex justify-between items-center z-10 p-0">
           <div class="flex flex-col">
             <h3
               class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
@@ -224,18 +226,18 @@
               <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
               {{ 'dashboard.financials.yearly' | translate }}
             </h3>
-            <span class="text-2xl font-black text-on-surface tracking-tight mt-1">
+            <mat-card-title class="text-2xl font-black text-on-surface tracking-tight mt-1 m-0!">
               {{ stats.value().yearlyRevenue | price }}
-            </span>
+            </mat-card-title>
           </div>
           <span
             class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-1 rounded-full uppercase self-start"
           >
             {{ currentYear() }}
           </span>
-        </div>
+        </mat-card-header>
 
-        <div class="flex flex-col gap-2.5 mt-2 z-10">
+        <mat-card-content class="flex flex-col gap-2.5 mt-2 z-10 p-0">
           <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
             {{ 'dashboard.financials.yearly_progress' | translate }}
           </span>
@@ -270,13 +272,13 @@
               </div>
             }
           </div>
-        </div>
-      </div>
+        </mat-card-content>
+      </mat-card>
     }
   </section>
 
   <section class="flex flex-col gap-4">
-    <header class="flex justify-between items-end">
+    <header class="flex justify-between items-center">
       <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
         <mat-icon class="text-primary text-xl">warning</mat-icon>
         {{ 'dashboard.sections.pantry' | translate }}
@@ -310,7 +312,7 @@
   </section>
 
   <section class="flex flex-col gap-4">
-    <header class="flex justify-between items-end">
+    <header class="flex justify-between items-center">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
         <mat-icon class="text-on-surface text-xl">group</mat-icon>
         {{ 'dashboard.sections.roster' | translate }}

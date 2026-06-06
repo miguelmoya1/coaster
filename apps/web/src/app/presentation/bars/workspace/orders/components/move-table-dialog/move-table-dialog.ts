@@ -16,7 +16,7 @@ import { DialogComponent } from '../../../components/dialog/dialog.component';
         <div class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto">
           @for (table of freeTables(); track table.id) {
             <button
-              class="w-full text-left p-4 rounded-xl bg-surface-container-highest hover:bg-secondary/10 transition-colors active:scale-[0.98] font-semibold text-on-surface"
+              class="w-full"
               (click)="select(table.id)"
             >
               {{ table.name }}

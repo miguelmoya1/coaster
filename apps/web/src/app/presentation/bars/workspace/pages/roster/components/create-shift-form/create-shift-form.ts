@@ -62,7 +62,7 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
         <div class="flex justify-end mt-4 gap-2">
           <button
             mat-stroked-button
-            class="h-16 w-full"
+            class="w-full"
             type="button"
             [disabled]="form().disabled() || form().submitting() || disabled()"
             (click)="handleCancel()"
@@ -72,7 +72,7 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
 
           <button
             mat-flat-button
-            class="h-16 w-full"
+            class="w-full"
             type="submit"
             [disabled]="form().invalid() || form().submitting() || form().disabled() || disabled()"
           >
