@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CheckoutOrderDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { orderMapper } from '../mappers/order.mapper';
 
@@ -50,9 +50,9 @@ export class OrderRepository {
     );
   }
 
-  public async checkout(barId: BarId, orderId: OrderId): Promise<void> {
+  public async checkout(barId: BarId, orderId: OrderId, dto: CheckoutOrderDto): Promise<void> {
     return firstValueFrom(
-      this.#http.post<void>(this.routes.checkout(barId, orderId), {})
+      this.#http.post<void>(this.routes.checkout(barId, orderId), dto)
     );
   }
 

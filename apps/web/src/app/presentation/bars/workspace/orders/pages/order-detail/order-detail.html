@@ -24,7 +24,26 @@
           {{ 'history.status_cancelled' | translate }}
         }
       </span>
-      <span class="text-xs text-on-surface-variant"> {{ order.items.length }} {{ 'history.items' | translate }} </span>
+      <div class="flex flex-col gap-0.5">
+        <span class="text-xs text-on-surface-variant"> {{ order.items.length }} {{ 'history.items' | translate }} </span>
+        @if (order.amountPaidCash > 0 || order.amountPaidCard > 0) {
+          <span class="text-xxs text-on-surface-variant/80 flex flex-wrap items-center gap-1.5 mt-0.5">
+            <span>{{ 'orders.paid' | translate }}:</span>
+            @if (order.amountPaidCash > 0) {
+              <span class="flex items-center gap-0.5 text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">
+                <ng-icon name="lucideBanknote" size="12" />
+                {{ order.amountPaidCash | price }}
+              </span>
+            }
+            @if (order.amountPaidCard > 0) {
+              <span class="flex items-center gap-0.5 text-indigo-400 font-semibold bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0">
+                <ng-icon name="lucideCreditCard" size="12" />
+                {{ order.amountPaidCard | price }}
+              </span>
+            }
+          </span>
+        }
+      </div>
     </div>
     <span class="text-2xl font-black" [class.text-primary]="order.status === 'OPEN'">
       {{ order.totalAmount | price }}
@@ -67,14 +86,29 @@
             <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
             <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
           </div>
-          @if (item.quantity > 1) {
+          @if (item.quantity > 1 || item.paidQuantity > 0) {
             <div class="flex flex-col gap-0.5 mt-1">
               <span class="text-xxs text-on-surface-variant font-medium">
                 {{ 'orders.paid_units' | translate: { paid: item.paidQuantity, total: item.quantity } }}
+                @if (item.paidQuantity > 0) {
+                  <span class="opacity-80 font-semibold">
+                    (
+                    @if (item.paidQuantityCash > 0 && item.paidQuantityCard > 0) {
+                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }} • {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
+                    } @else if (item.paidQuantityCash > 0) {
+                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }}
+                    } @else if (item.paidQuantityCard > 0) {
+                      {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
+                    }
+                    )
+                  </span>
+                }
               </span>
-              <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
-              </span>
+              @if (item.quantity > 1) {
+                <span class="text-xxs text-on-surface-variant font-medium">
+                  {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
+                </span>
+              }
             </div>
           }
           <div class="flex gap-1.5 mt-1">
@@ -173,7 +207,7 @@
           coaster-btn
           variant="primary"
           [disabled]="totalPaidUnitsDiff() === 0 && totalServeUnitsDiff() === 0"
-          (click)="applySelectedChanges()"
+          (click)="handleConfirmChanges()"
           class="h-12! px-4! text-xs!"
         >
           <ng-icon name="lucideCheck" size="14" />
@@ -221,20 +255,17 @@
   }
 }
 
-<coaster-confirm-dialog
-  [isOpen]="isCheckoutOrderModelOpen()"
-  (confirmed)="handleCheckoutConfirmed()"
-  (cancelled)="handleCancelCheckout()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.checkout_title' | translate }}
-  </ng-container>
+<coaster-payment-method-dialog
+  [isOpen]="isCheckoutPaymentModelOpen()"
+  [amount]="displayOrder()?.totalAmount ?? 0"
+  (closed)="handleCheckoutPaymentMethod($event)"
+/>
 
-  <ng-container confirm-dialog-message>
-    {{ 'orders.checkout_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
+<coaster-payment-method-dialog
+  [isOpen]="isPartialPaymentModelOpen()"
+  [amount]="selectedTotalAmount()"
+  (closed)="handlePartialPaymentMethod($event)"
+/>
 
 <coaster-confirm-dialog
   [isOpen]="isCancelingOrderModelOpen()"

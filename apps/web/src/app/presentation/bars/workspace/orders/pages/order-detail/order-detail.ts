@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
@@ -8,6 +8,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideArrowRightLeft,
+  lucideBanknote,
   lucideCheck,
   lucideCheckSquare,
   lucideChefHat,
@@ -27,6 +28,7 @@ import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
 import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
+import { PaymentMethodDialog } from '../../components/payment-method-dialog/payment-method-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -42,11 +44,13 @@ import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
     MoveTableDialog,
     MergeOrdersDialog,
     CoasterQtyAdjuster,
+    PaymentMethodDialog,
   ],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
       lucideArrowRightLeft,
+      lucideBanknote,
       lucideChefHat,
       lucideCreditCard,
       lucidePackagePlus,
@@ -72,7 +76,8 @@ class OrderDetail {
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
-  protected readonly isCheckoutOrderModelOpen = signal(false);
+  protected readonly isCheckoutPaymentModelOpen = signal(false);
+  protected readonly isPartialPaymentModelOpen = signal(false);
   protected readonly isMoveTableModelOpen = signal(false);
   protected readonly isMergeOrdersModelOpen = signal(false);
 
@@ -232,7 +237,21 @@ class OrderDetail {
     this.selectedItems.set(new Map());
   }
 
-  protected async applySelectedChanges() {
+  protected handleConfirmChanges() {
+    if (this.totalPaidUnitsDiff() > 0) {
+      this.isPartialPaymentModelOpen.set(true);
+    } else {
+      this.applySelectedChanges();
+    }
+  }
+
+  protected async handlePartialPaymentMethod(method: PaymentMethod | undefined) {
+    this.isPartialPaymentModelOpen.set(false);
+    if (!method) return;
+    await this.applySelectedChanges(method);
+  }
+
+  protected async applySelectedChanges(paymentMethod?: PaymentMethod) {
     const order = this.displayOrder();
     if (!order) return;
 
@@ -242,6 +261,9 @@ class OrderDetail {
         const update: BulkUpdateItemDto = { itemId: asOrderItemId(s.itemId) };
         if (s.paidQty !== 0) {
           update.paidQuantity = s.item!.paidQuantity + s.paidQty;
+          if (s.paidQty > 0 && paymentMethod) {
+            update.paymentMethod = paymentMethod;
+          }
         }
         if (s.serveQty !== 0) {
           update.servedQuantity = s.item!.servedQuantity + s.serveQty;
@@ -265,24 +287,22 @@ class OrderDetail {
   }
 
   protected handleOpenCheckout() {
-    this.isCheckoutOrderModelOpen.set(true);
+    this.isCheckoutPaymentModelOpen.set(true);
   }
 
-  protected handleCancelCheckout() {
-    this.isCheckoutOrderModelOpen.set(false);
-  }
+  protected async handleCheckoutPaymentMethod(method: PaymentMethod | undefined) {
+    this.isCheckoutPaymentModelOpen.set(false);
+    if (!method) return;
 
-  protected async handleCheckoutConfirmed() {
     const order = this.currentOrder();
     if (!order) {
       return;
     }
 
-    await this.#ordersStore.checkout(this.barId(), order.id);
+    await this.#ordersStore.checkout(this.barId(), order.id, method);
     this.goBack();
     this.#tablesStore.reload();
     this.#ordersStore.reloadHistory();
-    this.isCheckoutOrderModelOpen.set(false);
   }
 
   protected handleCancelOrder() {

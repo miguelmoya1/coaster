@@ -5,7 +5,14 @@ import type { BarId, Order } from '@coaster/common';
 import { OrderStatus, asOrderId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } from '@ng-icons/lucide';
+import {
+  lucideBanknote,
+  lucideCalendar,
+  lucideChevronLeft,
+  lucideChevronRight,
+  lucideCreditCard,
+  lucideTrash2,
+} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CoasterBtn } from '../../../../../components/button/button';
 import { Loading } from '../../../../../components/loading/loading';
@@ -17,7 +24,16 @@ import { PricePipe } from '../../../pipes/price/price';
 @Component({
   selector: 'coaster-history',
   imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, PricePipe, ConfirmDialogComponent],
-  viewProviders: [provideIcons({ lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 })],
+  viewProviders: [
+    provideIcons({
+      lucideCalendar,
+      lucideChevronLeft,
+      lucideChevronRight,
+      lucideTrash2,
+      lucideBanknote,
+      lucideCreditCard,
+    }),
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

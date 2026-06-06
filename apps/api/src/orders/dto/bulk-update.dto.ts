@@ -1,7 +1,7 @@
 import type * as Coaster from '@coaster/common';
 import { ErrorCodes } from '../../core';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsUUID, Min, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsUUID, Min, ValidateNested, IsIn } from 'class-validator';
 
 export class BulkUpdateItemDto implements Coaster.BulkUpdateItemDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })
@@ -17,6 +17,10 @@ export class BulkUpdateItemDto implements Coaster.BulkUpdateItemDto {
   @IsInt({ message: ErrorCodes.INVALID_TYPE })
   @Min(0, { message: ErrorCodes.INVALID_TYPE })
   declare servedQuantity?: number;
+
+  @IsOptional()
+  @IsIn(['CASH', 'CARD', 'MIXED', 'NONE'], { message: ErrorCodes.INVALID_TYPE })
+  declare paymentMethod?: Coaster.PaymentMethod;
 }
 
 export class BulkUpdateDto implements Coaster.BulkUpdateDto {

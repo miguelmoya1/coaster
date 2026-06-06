@@ -8,6 +8,7 @@ import type {
   OrderItemId,
   OrderStatus,
   PaymentStatus,
+  PaymentMethod,
   ProductId,
   Role,
   ShiftExchangeId,
@@ -58,6 +59,14 @@ export const asPaymentStatus = (status: string): PaymentStatus => {
   console.warn(`Invalid PaymentStatus mapping: ${status}, defaulting to PENDING`);
   return 'PENDING';
 };
+
+export const asPaymentMethod = (method: string): PaymentMethod => {
+  const methods: PaymentMethod[] = ['CASH', 'CARD', 'MIXED', 'NONE'];
+  if (methods.includes(method as PaymentMethod)) return method as PaymentMethod;
+  console.warn(`Invalid PaymentMethod mapping: ${method}, defaulting to NONE`);
+  return 'NONE';
+};
+
 
 export const asRole = (role: string): Role => {
   const roles: Role[] = ['USER', 'ADMIN'];

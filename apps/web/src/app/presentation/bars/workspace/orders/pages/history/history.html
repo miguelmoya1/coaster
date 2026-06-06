@@ -94,8 +94,27 @@
         }
       </div>
 
-      <div class="flex items-center justify-between">
-        <span class="text-lg font-black text-primary">{{ order.original.totalAmount | price }}</span>
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-black text-primary">{{ order.original.totalAmount | price }}</span>
+
+          @if (order.original.amountPaidCash > 0 || order.original.amountPaidCard > 0) {
+            <div class="flex items-center gap-1.5 text-xxs">
+              @if (order.original.amountPaidCash > 0) {
+                <span class="flex items-center gap-0.5 text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">
+                  <ng-icon name="lucideBanknote" size="10" />
+                  {{ order.original.amountPaidCash | price }}
+                </span>
+              }
+              @if (order.original.amountPaidCard > 0) {
+                <span class="flex items-center gap-0.5 text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0">
+                  <ng-icon name="lucideCreditCard" size="10" />
+                  {{ order.original.amountPaidCard | price }}
+                </span>
+              }
+            </div>
+          }
+        </div>
 
         @if (isOwner() && isToday()) {
           <button

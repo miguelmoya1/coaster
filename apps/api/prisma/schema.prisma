@@ -50,6 +50,15 @@ enum DbPaymentStatus {
   @@map("PaymentStatus")
 }
 
+enum DbPaymentMethod {
+  CASH
+  CARD
+  MIXED
+  NONE
+
+  @@map("PaymentMethod")
+}
+
 enum DbDeliveryStatus {
   PENDING
   PARTIAL
@@ -199,17 +208,20 @@ model DbTable {
 }
 
 model DbOrder {
-  id          String        @id @default(uuid())
-  barId       String
-  bar         DbBar         @relation(fields: [barId], references: [id], onDelete: Cascade)
-  tableId     String?
-  table       DbTable?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
-  tableName   String?
-  status      DbOrderStatus @default(OPEN)
-  totalAmount Int           @default(0)
-  items       DbOrderItem[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String          @id @default(uuid())
+  barId         String
+  bar           DbBar           @relation(fields: [barId], references: [id], onDelete: Cascade)
+  tableId       String?
+  table         DbTable?        @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  tableName     String?
+  status        DbOrderStatus   @default(OPEN)
+  totalAmount   Int             @default(0)
+  amountPaidCash Int            @default(0)
+  amountPaidCard Int            @default(0)
+  items         DbOrderItem[]
+  paymentMethod DbPaymentMethod @default(NONE)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@map("Order")
 }
@@ -223,9 +235,12 @@ model DbOrderItem {
   quantity        Int
   priceAtPurchase Int
   paidQuantity    Int              @default(0)
+  paidQuantityCash Int             @default(0)
+  paidQuantityCard Int             @default(0)
   servedQuantity  Int              @default(0)
   paymentStatus   DbPaymentStatus  @default(PENDING)
   deliveryStatus  DbDeliveryStatus @default(PENDING)
+  paymentMethod   DbPaymentMethod  @default(NONE)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 

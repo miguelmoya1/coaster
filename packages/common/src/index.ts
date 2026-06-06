@@ -4,6 +4,7 @@ export * from './constants/delivery-status.type';
 export * from './constants/error.types';
 export * from './constants/order-status.type';
 export * from './constants/payment-status.type';
+export * from './constants/payment-method.type';
 export * from './constants/role.type';
 export * from './constants/shift-exchange-status.type';
 export * from './constants/socket-events.type';

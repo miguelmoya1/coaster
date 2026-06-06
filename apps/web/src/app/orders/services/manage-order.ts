@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CheckoutOrderDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Service()
@@ -22,8 +22,8 @@ export class ManageOrder {
     await this.#orderRepository.bulkUpdate(barId, orderId, dto);
   }
 
-  public async checkout(barId: BarId, orderId: OrderId): Promise<void> {
-    await this.#orderRepository.checkout(barId, orderId);
+  public async checkout(barId: BarId, orderId: OrderId, dto: CheckoutOrderDto): Promise<void> {
+    await this.#orderRepository.checkout(barId, orderId, dto);
   }
 
   public async cancel(barId: BarId, orderId: OrderId): Promise<void> {

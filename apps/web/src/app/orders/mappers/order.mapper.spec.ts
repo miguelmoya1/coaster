@@ -9,6 +9,9 @@ describe('Order Mapper', () => {
     barId: asBarId('bar-1'),
     status: OrderStatus.OPEN,
     totalAmount: 1500,
+    amountPaidCash: 0,
+    amountPaidCard: 0,
+    paymentMethod: 'NONE',
     items: [
       {
         id: asOrderItemId('item-1'),
@@ -20,7 +23,10 @@ describe('Order Mapper', () => {
         paymentStatus: PaymentStatus.PENDING,
         deliveryStatus: DeliveryStatus.PENDING,
         paidQuantity: 0,
+        paidQuantityCash: 0,
+        paidQuantityCard: 0,
         servedQuantity: 0,
+        paymentMethod: 'NONE',
       },
     ],
   };

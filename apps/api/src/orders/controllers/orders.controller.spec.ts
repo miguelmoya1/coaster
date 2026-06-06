@@ -110,7 +110,7 @@ describe('OrdersController', () => {
   it('checkout should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'));
+    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'), { paymentMethod: 'CARD' });
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CheckoutOrderCommand));
     expect(result).toBeUndefined();

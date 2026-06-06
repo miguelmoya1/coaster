@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { AddOrderItemsDto, BarId, BulkUpdateDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId } from '@coaster/common';
+import type { AddOrderItemsDto, BarId, BulkUpdateDto, CheckoutOrderDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, Order, OrderId, OrderItemId, PaymentMethod } from '@coaster/common';
 import { OrderStatus } from '@coaster/core';
 import { handleErrorFormField, Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
@@ -262,9 +262,9 @@ export class OrdersStore {
     }
   }
 
-  public async checkout(barId: BarId, orderId: OrderId): Promise<void> {
+  public async checkout(barId: BarId, orderId: OrderId, paymentMethod: PaymentMethod): Promise<void> {
     try {
-      await this.#manageOrder.checkout(barId, orderId);
+      await this.#manageOrder.checkout(barId, orderId, { paymentMethod });
     } catch (error) {
       this.#toastService.error('ERR_CHECKOUT');
       throw error;
