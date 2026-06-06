@@ -5,11 +5,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
-import { Tabs } from '../../../components/tabs/tabs';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'coaster-pos-product-grid',
-  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, Tabs],
+  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, MatChipsModule],
   template: `
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
@@ -35,11 +35,13 @@ import { Tabs } from '../../../components/tabs/tabs';
       </div>
 
       <!-- Categories filters -->
-      <coaster-tabs
-        [tabs]="categoryTabs()"
-        [selectedTabId]="selectedCategory()"
-        (tabSelected)="categorySelected.emit($event)"
-      />
+      <mat-chip-listbox [value]="selectedCategory()" (change)="categorySelected.emit($event.value)" class="hide-scrollbar">
+        @for (category of categoryTabs(); track category.id) {
+          <mat-chip-option [value]="category.id" [selectable]="true">
+            {{ category.label | translate }}
+          </mat-chip-option>
+        }
+      </mat-chip-listbox>
 
       <!-- Products Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">

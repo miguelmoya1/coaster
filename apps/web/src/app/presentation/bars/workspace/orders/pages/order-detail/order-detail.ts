@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
@@ -8,8 +8,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
@@ -26,7 +26,7 @@ import { PaymentMethodDialog } from '../../components/payment-method-dialog/paym
     MatIcon,
     PricePipe,
     OrderTitlePipe,
-    ConfirmDialogComponent,
+    MatDialogModule,
     MoveTableDialog,
     MergeOrdersDialog,
     CoasterQtyAdjuster,
@@ -43,6 +43,11 @@ class OrderDetail {
   readonly #ordersStore = inject(OrdersStore);
   readonly #tablesStore = inject(TablesStore);
   readonly #router = inject(Router);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly cancelOrderDialogRef = viewChild.required<TemplateRef<unknown>>('cancelOrderDialog');
+  protected readonly removeItemDialogRef = viewChild.required<TemplateRef<unknown>>('removeItemDialog');
+
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
@@ -277,6 +282,14 @@ class OrderDetail {
 
   protected handleCancelOrder() {
     this.isCancelingOrderModelOpen.set(true);
+    const dialogRef = this.#dialog.open(this.cancelOrderDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleCancelOrderConfirmed();
+      } else {
+        this.handleCancelCancelOrderDialog();
+      }
+    });
   }
 
   protected handleCancelCancelOrderDialog() {
@@ -296,6 +309,14 @@ class OrderDetail {
 
   protected handleRemoveItem(item: OrderItem) {
     this.orderItemDeleting.set(item);
+    const dialogRef = this.#dialog.open(this.removeItemDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleRemoveItemConfirmed();
+      } else {
+        this.handleCancelRemoveItem();
+      }
+    });
   }
 
   protected handleCancelRemoveItem() {

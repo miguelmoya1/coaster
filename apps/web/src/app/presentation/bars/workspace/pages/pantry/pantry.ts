@@ -7,6 +7,8 @@ import {
   input,
   linkedSignal,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -19,16 +21,16 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../components/loading/loading';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
 import { CreateProductForm } from './components/create-product-form/create-product-form';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { PantrySearch } from './components/pantry-search/pantry-search';
-import { Tabs } from '../../components/tabs/tabs';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 
@@ -37,7 +39,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
 @Component({
   selector: 'coaster-pantry',
   imports: [
-    Tabs,
+    MatChipsModule,
     InventoryItemCard,
     CreateCategoryForm,
     CreateProductForm,
@@ -53,7 +55,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     MatCardContent,
     MatIcon,
     MatButton,
-    ConfirmDialogComponent,
+    MatDialogModule,
     PantrySearch,
   ],
   host: {
@@ -84,6 +86,10 @@ export default class Pantry {
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly deleteProductDialogRef = viewChild.required<TemplateRef<unknown>>('deleteProductDialog');
+  protected readonly deleteCategoryDialogRef = viewChild.required<TemplateRef<unknown>>('deleteCategoryDialog');
 
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
@@ -162,10 +168,14 @@ export default class Pantry {
     this.productToEdit.set(product);
   }
 
-  onEditCategoryClicked() {
-    const categoryId = this.selectedCategoryId();
-    if (categoryId === 'ALL') return;
-    const cat = this.categories.value()?.find((c) => c.id === categoryId);
+  onEditCategoryClicked(event?: Event, categoryId?: string) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    const targetId = categoryId || this.selectedCategoryId();
+    if (targetId === 'ALL') return;
+    const cat = this.categories.value()?.find((c) => c.id === targetId);
     if (cat) {
       this.categoryToEdit.set(cat);
     }
@@ -173,6 +183,14 @@ export default class Pantry {
 
   protected handleDeleteProductClicked(product: Product) {
     this.productDeleting.set(product);
+    const dialogRef = this.#dialog.open(this.deleteProductDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteProduct();
+      } else {
+        this.handleCancelDeleteProduct();
+      }
+    });
   }
 
   protected handleCancelDeleteProduct() {
@@ -192,6 +210,14 @@ export default class Pantry {
 
   protected handleDeleteCategoryClicked(category: Category) {
     this.categoryDeleting.set(category);
+    const dialogRef = this.#dialog.open(this.deleteCategoryDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteCategory();
+      } else {
+        this.handleCancelDeleteCategory();
+      }
+    });
   }
 
   protected handleCancelDeleteCategory() {

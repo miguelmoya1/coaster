@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
@@ -6,10 +6,11 @@ import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 
 type MemberItem = BarMember & {
   isCurrentUser: boolean;
@@ -27,7 +28,8 @@ type MemberItem = BarMember & {
     InviteMemberForm,
     TranslatePipe,
     RouterLink,
-    ConfirmDialogComponent,
+    MatDialogModule,
+    MatIcon,
   ],
   host: {
     class: 'flex flex-col gap-2',
@@ -42,6 +44,9 @@ export default class Staff {
   readonly #barsStore = inject(BarsStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly deleteMemberDialogRef = viewChild.required<TemplateRef<unknown>>('deleteMemberDialog');
 
   protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
@@ -90,6 +95,14 @@ export default class Staff {
 
   protected handleClickDeleteMember(member: MemberItem) {
     this.memberDeleting.set(member);
+    const dialogRef = this.#dialog.open(this.deleteMemberDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteMember();
+      } else {
+        this.handleCancelDeleteMember();
+      }
+    });
   }
 
   protected handleCancelDeleteMember() {
@@ -105,3 +118,4 @@ export default class Staff {
     }
   }
 }
+

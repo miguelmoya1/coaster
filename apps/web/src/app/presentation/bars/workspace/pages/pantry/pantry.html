@@ -24,32 +24,40 @@
   </mat-card>
 </div>
 
-<h2 class="heading-2 mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
-
-<div class="flex items-start gap-3 mb-4 w-full">
-  <div class="flex-1 min-w-0">
-    <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
-  </div>
+<div class="flex items-center justify-between gap-4 mb-2">
+  <h2 class="heading-2 mb-0">{{ 'pantry.inventory_title' | translate }}</h2>
   @if (canImportTemplates()) {
-    <button class="h-[56px] w-[56px] rounded-xl shrink-0" mat-stroked-button [routerLink]="['import']" aria-label="Importar plantilla">
-      <mat-icon class="text-xl">download</mat-icon>
+    <button mat-flat-button [routerLink]="['import']" class="h-10 px-4 rounded-xl flex items-center gap-2 font-bold text-sm bg-primary text-on-primary shadow-sm hover:shadow transition-shadow">
+      <mat-icon>download</mat-icon>
+      <span>{{ 'pantry.import_title' | translate }}</span>
     </button>
   }
 </div>
 
-<div class="-mx-4 px-4 mb-4 flex items-center gap-2 overflow-hidden">
-  <div class="min-w-0 flex-1">
-    <coaster-tabs
-      [tabs]="tabs()"
-      [selectedTabId]="selectedCategoryId()"
-      (tabSelected)="selectedCategoryId.set($event)"
-    />
-  </div>
-  @if (canUpdateCategory() && selectedCategoryId() !== 'ALL') {
-    <button class="w-10 h-10 shrink-0" mat-icon-button (click)="onEditCategoryClicked()" aria-label="Editar categoría">
-      <mat-icon>edit</mat-icon>
-    </button>
-  }
+<div class="mb-4 w-full">
+  <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
+</div>
+
+<div class="-mx-4 px-4 mb-4 overflow-hidden">
+  <mat-chip-listbox
+    [value]="selectedCategoryId()"
+    (change)="selectedCategoryId.set($event.value ?? 'ALL')"
+    class="hide-scrollbar"
+  >
+    @for (category of tabs(); track category.id) {
+      <mat-chip-option
+        [value]="category.id"
+        [selectable]="true"
+      >
+        <span class="text-sm font-medium">{{ category.label | translate }}</span>
+        @if (canUpdateCategory() && category.id !== 'ALL') {
+          <button matChipTrailingIcon (click)="onEditCategoryClicked($event, category.id)" class="w-5 h-5 flex items-center justify-center p-0 min-w-0 hover:bg-black/5 dark:hover:bg-white/10 rounded-full ml-1 shrink-0" aria-label="Editar categoría">
+            <mat-icon class="text-[14px] w-3.5 h-3.5 flex items-center justify-center">edit</mat-icon>
+          </button>
+        }
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
 </div>
 
 @if (categories.isLoading() || products.isLoading()) {
@@ -106,7 +114,15 @@
       }
 
       @if (isCreateMode()) {
-        <coaster-tabs [tabs]="availableTabs()" [selectedTabId]="currentTab()" (tabSelected)="currentTab.set($event)" />
+        <div class="mb-4">
+          <mat-chip-listbox [value]="currentTab()" (change)="currentTab.set($event.value ?? 'PRODUCT')">
+            @for (tab of availableTabs(); track tab.id) {
+              <mat-chip-option [value]="tab.id" [selectable]="true">
+                {{ tab.label | translate }}
+              </mat-chip-option>
+            }
+          </mat-chip-listbox>
+        </div>
 
         @switch (currentTab()) {
           @case ('PRODUCT') {
@@ -125,26 +141,65 @@
   </coaster-bottom-sheet>
 }
 
-<coaster-confirm-dialog
-  (confirmed)="handleConfirmDeleteProduct()"
-  (cancelled)="handleCancelDeleteProduct()"
-  [isOpen]="!!productDeleting()"
-  isDestructive
->
-  <ng-container confirm-dialog-title> {{ 'pantry.delete_product.title' | translate }} </ng-container>
-  <ng-container confirm-dialog-message>
-    {{ 'pantry.delete_product.message' | translate: { name: productDeleting()?.name } }}
-  </ng-container>
-</coaster-confirm-dialog>
+<ng-template #deleteProductDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'pantry.delete_product.title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'pantry.delete_product.message' | translate: { name: productDeleting()?.name } }}
+        </p>
+      </div>
+    </div>
 
-<coaster-confirm-dialog
-  (confirmed)="handleConfirmDeleteCategory()"
-  (cancelled)="handleCancelDeleteCategory()"
-  [isOpen]="!!categoryDeleting()"
-  isDestructive
->
-  <ng-container confirm-dialog-title> {{ 'pantry.delete_category.title' | translate }} </ng-container>
-  <ng-container confirm-dialog-message>
-    {{ 'pantry.delete_category.message' | translate: { name: categoryDeleting()?.name } }}
-  </ng-container>
-</coaster-confirm-dialog>
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deleteCategoryDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'pantry.delete_category.title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'pantry.delete_category.message' | translate: { name: categoryDeleting()?.name } }}
+        </p>
+      </div>
+    </div>
+
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+

@@ -121,13 +121,18 @@ describe('PosProductGrid', () => {
       expect(emitSpy).toHaveBeenCalledWith(mockProducts[0]);
     });
 
-    it('should emit categorySelected output when a category button is clicked', () => {
+    it('should emit categorySelected output when a category button is clicked', async () => {
       const emitSpy = vi.spyOn(component.categorySelected, 'emit');
       // The first category button after "All Categories" is at index 1
-      const categoryButtons = fixture.nativeElement.querySelectorAll('.overflow-x-auto button');
+      const categoryButtons = fixture.nativeElement.querySelectorAll('mat-chip-option');
       expect(categoryButtons.length).toBeGreaterThan(1);
 
-      categoryButtons[1].click();
+      const chip = categoryButtons[1];
+      const clickable = chip.querySelector('button') || chip.querySelector('.mdc-evolution-chip__action') || chip;
+      (clickable as HTMLElement).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(emitSpy).toHaveBeenCalledWith('cat-1');
     });
 

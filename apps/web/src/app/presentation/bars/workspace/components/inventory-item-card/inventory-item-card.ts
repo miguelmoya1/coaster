@@ -9,70 +9,65 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'coaster-inventory-item-card',
   template: `
-    <div class="flex items-center w-full min-w-0">
-      <div
-        class="w-12 h-12 sm:w-14 sm:h-14 bg-surface-container/60 border border-outline-variant/10 rounded-xl flex items-center justify-center mr-3.5 shrink-0 transition-transform group-hover:scale-105"
-      >
-        <mat-icon [class]="'text-2xl sm:text-3xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
-      </div>
-
-      <div class="grow min-w-0 mr-3 sm:mr-4 flex flex-col gap-0.5">
-        <h3
-          class="heading-3 line-clamp-2 wrap-break-word text-sm sm:text-base font-bold text-on-surface"
-          [title]="itemName() | translate"
+    <div class="flex items-center justify-between w-full gap-2 min-w-0">
+      <div class="flex items-center min-w-0 flex-1 gap-3">
+        <!-- Icon -->
+        <div
+          class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0"
         >
-          {{ itemName() | translate }}
-        </h3>
-        @if (price() > 0) {
-          <p class="text-on-surface-variant text-[0.75rem] sm:text-[0.8rem] font-medium truncate">
-            {{ price() | price }}
-          </p>
-        }
+          <mat-icon [class]="'text-xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
+        </div>
+
+        <!-- Info -->
+        <div class="grow min-w-0 flex flex-col gap-0.5">
+          <h3
+            class="text-sm font-bold text-on-surface truncate"
+            [title]="itemName() | translate"
+          >
+            {{ itemName() | translate }}
+          </h3>
+          @if (price() > 0) {
+            <span class="text-on-surface-variant text-xs font-medium truncate">
+              {{ price() | price }}
+            </span>
+          }
+        </div>
       </div>
 
-      <div class="flex flex-col items-end gap-1 shrink-0 ml-auto">
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <span
-            [class]="
-              'w-2 h-2 rounded-full ' +
-              (statusLevel() | stockStatus: 'bg-color') +
-              (statusLevel() === 'ALERT' ? ' animate-pulse' : '')
-            "
-          ></span>
-          <div class="flex items-baseline gap-0.5">
-            <span class="text-lg sm:text-xl font-black text-on-surface">{{ qty() }}</span>
-            <span class="text-[0.65rem] sm:text-xs font-bold text-on-surface-variant uppercase">ud</span>
-          </div>
-        </div>
+      <!-- Status & Stock & Actions -->
+      <div class="flex items-center gap-2 shrink-0">
         <span
-          class="inline-flex items-center px-2 py-0.5 rounded-md text-[0.65rem] sm:text-[0.7rem] font-bold uppercase tracking-wider scale-90 sm:scale-100 origin-right"
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
           [class]="badgeClass()"
         >
           {{ statusLevel() | stockStatus: 'label' | translate }}
         </span>
+        
+        <div class="flex items-baseline gap-0.5 bg-surface-container-highest/60 px-2 py-1 rounded-md border border-outline-variant/10">
+          <span class="text-base font-black text-on-surface">{{ qty() }}</span>
+          <span class="text-[9px] font-bold text-on-surface-variant uppercase">ud</span>
+        </div>
+
+        @if (showEditButton()) {
+          <div class="flex items-center gap-0.5 ml-1">
+            <button mat-icon-button
+              (click)="onEditClick($event)"
+              class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
+              aria-label="Editar producto"
+            >
+              <mat-icon class="text-lg">edit</mat-icon>
+            </button>
+            <button mat-icon-button
+              class="w-8 h-8 flex items-center justify-center text-error/70 hover:text-error transition-colors"
+              (click)="onDeleteClick($event)"
+              aria-label="Eliminar producto"
+            >
+              <mat-icon class="text-lg">delete</mat-icon>
+            </button>
+          </div>
+        }
       </div>
     </div>
-
-    @if (showEditButton()) {
-      <div
-        class="flex items-center gap-1 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/20 sm:border-t-0 shrink-0"
-      >
-        <button mat-icon-button
-          (click)="onEditClick($event)"
-          class="text-on-surface-variant hover:text-primary transition-colors"
-          aria-label="Editar producto"
-        >
-          <mat-icon class="text-lg">edit</mat-icon>
-        </button>
-        <button mat-icon-button
-          class="text-error/70 hover:text-error transition-colors"
-          (click)="onDeleteClick($event)"
-          aria-label="Eliminar producto"
-        >
-          <mat-icon class="text-lg">delete</mat-icon>
-        </button>
-      </div>
-    }
   `,
   host: {
     '[class.opacity-50]': 'disabled()',
@@ -99,7 +94,7 @@ export class InventoryItemCard {
 
   readonly hostClasses = computed(
     () =>
-      'group flex flex-col sm:flex-row sm:items-center bg-surface-container-high/40 backdrop-blur-md p-4 rounded-2xl border border-outline-variant/20 border-l-4 hover:bg-surface-container-high/80 hover:border-primary/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md ' +
+      'group flex flex-row items-center bg-surface-container-high p-3 rounded-xl border-l-4 hover:bg-surface-bright transition-colors cursor-pointer ' +
       this.#stockStatusPipe.transform(this.statusLevel(), 'border'),
   );
 

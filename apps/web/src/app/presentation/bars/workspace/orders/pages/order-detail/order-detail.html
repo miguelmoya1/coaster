@@ -268,35 +268,68 @@
   (closed)="handlePartialPaymentMethod($event)"
 />
 
-<coaster-confirm-dialog
-  [isOpen]="isCancelingOrderModelOpen()"
-  (confirmed)="handleCancelOrderConfirmed()"
-  (cancelled)="handleCancelCancelOrderDialog()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.cancel_title' | translate }}
-  </ng-container>
+<ng-template #cancelOrderDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'orders.cancel_title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'orders.cancel_message' | translate }}
+        </p>
+      </div>
+    </div>
 
-  <ng-container confirm-dialog-message>
-    {{ 'orders.cancel_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.confirm' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
 
-<coaster-confirm-dialog
-  [isOpen]="!!orderItemDeleting()"
-  (cancelled)="handleCancelRemoveItem()"
-  (confirmed)="handleRemoveItemConfirmed()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.remove_item_title' | translate }}
-  </ng-container>
+<ng-template #removeItemDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'orders.remove_item_title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'orders.remove_item_message' | translate }}
+        </p>
+      </div>
+    </div>
 
-  <ng-container confirm-dialog-message>
-    {{ 'orders.remove_item_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
 
 <coaster-move-table-dialog
   [isOpen]="isMoveTableModelOpen()"

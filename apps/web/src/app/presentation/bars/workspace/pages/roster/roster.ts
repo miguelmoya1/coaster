@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -41,12 +41,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
 
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
 import { ShiftCard } from './components/shift-card/shift-card';
 import { MatIcon } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'coaster-roster',
@@ -59,7 +59,7 @@ import { MatIcon } from '@angular/material/icon';
     CreateShiftForm,
     ExchangeRequestCard,
     RouterLink,
-    ConfirmDialogComponent,
+    MatDialogModule,
     RosterNavigation,
     RosterWeeklyGrid,
     RosterMonthlyGrid,
@@ -86,6 +86,11 @@ export default class Roster {
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #http = inject(HttpClient);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly deleteShiftDialogRef = viewChild.required<TemplateRef<unknown>>('deleteShiftDialog');
+  protected readonly deleteExchangeDialogRef = viewChild.required<TemplateRef<unknown>>('deleteExchangeDialog');
+  protected readonly replicateWeekDialogRef = viewChild.required<TemplateRef<unknown>>('replicateWeekDialog');
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
@@ -331,6 +336,14 @@ export default class Roster {
 
   protected handleClickDeleteShift(shift: DailyShiftItem) {
     this.shiftDeleting.set(shift);
+    const dialogRef = this.#dialog.open(this.deleteShiftDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteShift();
+      } else {
+        this.handleCancelDeleteShift();
+      }
+    });
   }
 
   protected handleCancelDeleteShift() {
@@ -352,6 +365,14 @@ export default class Roster {
 
   protected handleClickDeleteExchange(exchange: PendingExchangeItem) {
     this.exchangeDeleting.set(exchange);
+    const dialogRef = this.#dialog.open(this.deleteExchangeDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteExchange();
+      } else {
+        this.handleCancelDeleteExchange();
+      }
+    });
   }
 
   protected handleCancelDeleteExchange() {
@@ -400,6 +421,14 @@ export default class Roster {
 
   protected handleOpenReplicateConfirm() {
     this.showReplicateConfirm.set(true);
+    const dialogRef = this.#dialog.open(this.replicateWeekDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmReplicate();
+      } else {
+        this.handleCancelReplicate();
+      }
+    });
   }
 
   protected handleCancelReplicate() {

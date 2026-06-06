@@ -73,11 +73,8 @@ describe('CoasterQtyAdjuster', () => {
     const buttons = fixture.debugElement.queryAll(By.css('button'));
     const decButton = buttons[0].nativeElement as HTMLButtonElement;
 
-    // It should have disabled visual classes
-    expect(decButton.classList.contains('opacity-30')).toBe(true);
-    expect(decButton.classList.contains('cursor-not-allowed')).toBe(true);
-    expect(decButton.classList.contains('cursor-pointer')).toBe(false);
-    expect(decButton.classList.contains('active:scale-90')).toBe(false);
+    // It should be disabled
+    expect(decButton.disabled).toBe(true);
 
     // Trigger click on the disabled-state button
     decButton.click();

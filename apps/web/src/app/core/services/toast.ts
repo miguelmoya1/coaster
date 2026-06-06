@@ -31,7 +31,7 @@ export class Toast {
     this.show(message, 'error', duration);
   }
 
-  public remove(_id: string) {
+  public remove() {
     this.#snackBar.dismiss();
   }
 }

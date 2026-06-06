@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
@@ -11,13 +11,13 @@ import { Loading } from '../../../../../components/loading/loading';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [MatCard, MatCardContent, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, ConfirmDialogComponent],
+  imports: [MatCard, MatCardContent, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, MatDialogModule],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +27,10 @@ class History {
 
   readonly #ordersStore = inject(OrdersStore);
   readonly #barsStore = inject(BarsStore);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly deleteConfirmDialogRef = viewChild.required<TemplateRef<unknown>>('deleteConfirmDialog');
+
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -128,6 +132,14 @@ class History {
 
   protected handleDeleteOrder(order: Order) {
     this.orderToDelete.set(order);
+    const dialogRef = this.#dialog.open(this.deleteConfirmDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleDeleteOrderConfirmed();
+      } else {
+        this.handleCancelDeleteOrder();
+      }
+    });
   }
 
   protected handleCancelDeleteOrder() {

@@ -112,32 +112,99 @@
 }
 
 <!-- Confirm Delete Shift Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="!!shiftDeleting()"
-  title="roster.delete_shift_title"
-  message="roster.delete_shift_confirm"
-  [isDestructive]="true"
-  (confirmed)="handleConfirmDeleteShift()"
-  (cancelled)="handleCancelDeleteShift()"
-/>
+<ng-template #deleteShiftDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'roster.delete_shift_title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'roster.delete_shift_confirm' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
 
 <!-- Confirm Delete Exchange Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="!!exchangeDeleting()"
-  title="roster.exchanges.delete_title"
-  message="roster.exchanges.delete_confirm"
-  [isDestructive]="true"
-  (confirmed)="handleConfirmDeleteExchange()"
-  (cancelled)="handleCancelDeleteExchange()"
-/>
+<ng-template #deleteExchangeDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'roster.exchanges.delete_title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'roster.exchanges.delete_confirm' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-error text-on-error"
+      >
+        {{ 'common.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
 
 <!-- Confirm Replicate Week Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="showReplicateConfirm()"
-  title="roster.replication.confirm_title"
-  message="roster.replication.confirm_msg"
-  [isDestructive]="false"
-  (confirmed)="handleConfirmReplicate()"
-  (cancelled)="handleCancelReplicate()"
-/>
+<ng-template #replicateWeekDialog>
+  <div class="p-6 flex flex-col gap-4 max-w-md">
+    <div class="flex items-start gap-4">
+      <div class="bg-primary/10 p-3 rounded-full text-primary shrink-0 flex items-center justify-center">
+        <mat-icon>info</mat-icon>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
+          {{ 'roster.replication.confirm_title' | translate }}
+        </h2>
+        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
+          {{ 'roster.replication.confirm_msg' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-stroked-button mat-dialog-close class="px-6 py-2 rounded-xl text-sm font-semibold h-12">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="true"
+        class="px-6 py-2 rounded-xl text-sm font-semibold h-12 bg-primary text-on-primary"
+      >
+        {{ 'common.confirm' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
 

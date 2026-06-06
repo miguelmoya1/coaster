@@ -7,6 +7,8 @@ import {
   input,
   linkedSignal,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -18,9 +20,9 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
 import { TableCard } from './components/table-card/table-card';
@@ -38,7 +40,7 @@ import { TableCard } from './components/table-card/table-card';
     MatButton,
     MatIcon,
     PricePipe,
-    ConfirmDialogComponent,
+    MatDialogModule,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
@@ -52,6 +54,9 @@ class Tables {
   readonly #barsStore = inject(BarsStore);
 
   readonly #router = inject(Router);
+  readonly #dialog = inject(MatDialog);
+
+  protected readonly deleteTableDialogRef = viewChild.required<TemplateRef<unknown>>('deleteTableDialog');
 
   constructor() {
     effect(() => {
@@ -124,6 +129,14 @@ class Tables {
 
   protected handleDeleteTable(table: Table) {
     this.tableToDelete.set(table);
+    const dialogRef = this.#dialog.open(this.deleteTableDialogRef());
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleConfirmDeleteTable();
+      } else {
+        this.handleCloseDeleteTableModal();
+      }
+    });
   }
 
   protected handleCloseDeleteTableModal() {

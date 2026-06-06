@@ -95,7 +95,7 @@ describe('Pantry', () => {
 
     it('should render tabs', () => {
       fixture.detectChanges();
-      const tabs = fixture.nativeElement.querySelector('coaster-tabs');
+      const tabs = fixture.nativeElement.querySelector('mat-chip-listbox');
       expect(tabs).toBeTruthy();
     });
   });
