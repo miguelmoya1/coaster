@@ -74,7 +74,7 @@ describe('Tables', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('.flex.gap-4.mb-2 mat-card');
+      const cards = fixture.nativeElement.querySelectorAll('.flex.gap-3 mat-card');
       expect(cards.length).toBe(3);
     });
 

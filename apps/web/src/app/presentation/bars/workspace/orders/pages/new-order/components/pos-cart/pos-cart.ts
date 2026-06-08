@@ -4,7 +4,7 @@ import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { PricePipe } from '../../../pipes/price/price';
+import { PricePipe } from '../../../../../pipes/price/price';
 
 export interface CartItem {
   productId: string;
@@ -90,7 +90,7 @@ export interface CartItem {
       }
     </div>
   `,
-  })
+})
 export class PosCart {
   readonly items = input.required<CartItem[]>();
   readonly tables = input<Table[]>([]);
