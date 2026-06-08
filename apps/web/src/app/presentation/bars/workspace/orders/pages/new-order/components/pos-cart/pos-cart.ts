@@ -1,9 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../../../pipes/price/price';
 
 export interface CartItem {
@@ -15,7 +15,7 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [MatIcon, TranslatePipe, MatButtonModule, PricePipe],
+  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, PricePipe],
   template: `
     <div class="flex flex-col gap-3">
       <div class="flex justify-between items-center">
@@ -43,9 +43,7 @@ export interface CartItem {
               </div>
 
               <div class="flex items-center gap-1">
-                <button mat-icon-button
-                  (click)="decrementClicked.emit(item.productId)"
-                >
+                <button mat-icon-button (click)="decrementClicked.emit(item.productId)">
                   @if (item.quantity === 1) {
                     <mat-icon style="font-size: 14px; width: 14px; height: 14px;" class="text-error">delete</mat-icon>
                   } @else {
@@ -53,9 +51,7 @@ export interface CartItem {
                   }
                 </button>
                 <span class="w-8 text-center font-bold text-sm">{{ item.quantity }}</span>
-                <button mat-icon-button
-                  (click)="incrementClicked.emit(item.productId)"
-                >
+                <button mat-icon-button (click)="incrementClicked.emit(item.productId)">
                   <mat-icon style="font-size: 14px; width: 14px; height: 14px;">add</mat-icon>
                 </button>
               </div>
@@ -82,7 +78,12 @@ export interface CartItem {
             <span class="text-xl font-black text-primary">{{ totalCents() | price }}</span>
           </div>
 
-          <button mat-flat-button class="w-full" [disabled]="items().length === 0 || disabled()" (click)="submitClicked.emit()">
+          <button
+            mat-flat-button
+            class="w-full"
+            [disabled]="items().length === 0 || disabled()"
+            (click)="submitClicked.emit()"
+          >
             <mat-icon style="font-size: 18px; width: 18px; height: 18px;">send</mat-icon>
             {{ 'orders.send_order' | translate }}
           </button>

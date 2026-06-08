@@ -1,5 +1,14 @@
 import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { MatButton } from '@angular/material/button';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
@@ -9,9 +18,6 @@ import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
-import { MatButton } from '@angular/material/button';
 
 type MemberItem = BarMember & {
   isCurrentUser: boolean;
@@ -29,7 +35,10 @@ type MemberItem = BarMember & {
     InviteMemberForm,
     TranslatePipe,
     RouterLink,
-    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
     MatIcon,
     MatButton,
   ],
@@ -37,7 +46,7 @@ type MemberItem = BarMember & {
     class: 'flex flex-col gap-2',
   },
   templateUrl: './staff.html',
-  })
+})
 export default class Staff {
   public readonly barId = input.required<BarId>();
 
@@ -119,4 +128,3 @@ export default class Staff {
     }
   }
 }
-

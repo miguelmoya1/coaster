@@ -1,8 +1,8 @@
 import { Component, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { Shift, BarRole } from '@coaster/common';
+import type { BarRole, Shift } from '@coaster/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ShiftCard } from '../shift-card/shift-card';
 
 export interface WeeklyShiftItem extends Shift {
@@ -25,7 +25,7 @@ export interface WeeklyDayItem {
 
 @Component({
   selector: 'coaster-roster-weekly-grid',
-  imports: [MatIcon, MatButtonModule, TranslatePipe, ShiftCard],
+  imports: [MatIcon, MatButton, MatIconButton, TranslatePipe, ShiftCard],
   template: `
     <!-- Owner Quick Replicate Action -->
     @if (currentUserRole() === 'OWNER') {
@@ -84,11 +84,7 @@ export interface WeeklyDayItem {
             </div>
 
             @if (currentUserRole() === 'OWNER') {
-              <button
-                mat-icon-button
-                (click)="quickCreate.emit(day.date)"
-                title="{{ 'common.create' | translate }}"
-              >
+              <button mat-icon-button (click)="quickCreate.emit(day.date)" title="{{ 'common.create' | translate }}">
                 <mat-icon style="font-size: 16px; width: 16px; height: 16px;">add</mat-icon>
               </button>
             }
@@ -119,7 +115,7 @@ export interface WeeklyDayItem {
       }
     </div>
   `,
-  })
+})
 export class RosterWeeklyGrid {
   readonly weekDays = input.required<WeeklyDayItem[]>();
   readonly currentUserRole = input.required<string | undefined>();

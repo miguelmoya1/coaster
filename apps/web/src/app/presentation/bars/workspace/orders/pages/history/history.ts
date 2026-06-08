@@ -1,26 +1,50 @@
 import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
-import { OrderStatus, asOrderId } from '@coaster/core';
+import { asOrderId, OrderStatus } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { MatCard, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [MatCard, MatCardTitle, MatCardSubtitle, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, MatDialogModule],
+  imports: [
+    MatCard,
+    MatCardTitle,
+    MatCardSubtitle,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatInput,
+    Loading,
+    TranslatePipe,
+    MatIcon,
+    MatButton,
+    MatIconButton,
+    PricePipe,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
-  })
+})
 class History {
   public readonly barId = input.required<BarId>();
 
@@ -29,7 +53,6 @@ class History {
   readonly #dialog = inject(MatDialog);
 
   protected readonly deleteConfirmDialogRef = viewChild.required<TemplateRef<unknown>>('deleteConfirmDialog');
-
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);

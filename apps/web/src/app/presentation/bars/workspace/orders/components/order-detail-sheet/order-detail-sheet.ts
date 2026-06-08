@@ -1,13 +1,13 @@
 import { Component, input, output } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import type { Order, OrderItemId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-detail-sheet',
-  imports: [MatIcon, TranslatePipe, MatButtonModule, PricePipe],
+  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, PricePipe],
   template: `
     <div class="flex flex-col gap-4">
       <div class="flex justify-between items-center">
@@ -49,7 +49,8 @@ import { PricePipe } from '../../../pipes/price/price';
 
             <div class="flex gap-1">
               @if (item.deliveryStatus !== 'SERVED') {
-                <button mat-icon-button
+                <button
+                  mat-icon-button
                   (click)="deliverItemClicked.emit(item.id)"
                   [title]="'orders.mark_served' | translate"
                 >
@@ -57,10 +58,7 @@ import { PricePipe } from '../../../pipes/price/price';
                 </button>
               }
               @if (item.paymentStatus !== 'PAID') {
-                <button mat-icon-button
-                  (click)="payItemClicked.emit(item.id)"
-                  [title]="'orders.mark_paid' | translate"
-                >
+                <button mat-icon-button (click)="payItemClicked.emit(item.id)" [title]="'orders.mark_paid' | translate">
                   <mat-icon style="font-size: 18px; width: 18px; height: 18px;">credit_card</mat-icon>
                 </button>
               }
@@ -96,7 +94,7 @@ import { PricePipe } from '../../../pipes/price/price';
       </div>
     </div>
   `,
-  })
+})
 export class OrderDetailSheet {
   readonly order = input.required<Order>();
   readonly addItemsClicked = output<void>();

@@ -1,9 +1,9 @@
 import { Component, input } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'coaster-loading',
-  imports: [MatProgressSpinnerModule],
+  imports: [MatProgressSpinner],
   template: `
     <div class="flex flex-col items-center justify-center gap-4 w-full h-full p-8" [class]="containerClasses()">
       <mat-spinner diameter="40" />
@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       }
     </div>
   `,
-  })
+})
 export class Loading {
   public readonly text = input<string>();
   public readonly containerClasses = input<string>('min-h-[200px]');

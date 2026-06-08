@@ -7,21 +7,27 @@ import {
   linkedSignal,
   signal,
   TemplateRef,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatChipListbox, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../components/loading/loading';
-import { MatCard, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
@@ -38,7 +44,9 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
 @Component({
   selector: 'coaster-pantry',
   imports: [
-    MatChipsModule,
+    MatChipListbox,
+    MatChipOption,
+    MatChipTrailingIcon,
     InventoryItemCard,
     CreateCategoryForm,
     CreateProductForm,
@@ -55,7 +63,10 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     MatCardSubtitle,
     MatIcon,
     MatButton,
-    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
     PantrySearch,
   ],
   host: {
@@ -68,7 +79,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
       contain-intrinsic-size: 100px;
     }
   `,
-  })
+})
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 

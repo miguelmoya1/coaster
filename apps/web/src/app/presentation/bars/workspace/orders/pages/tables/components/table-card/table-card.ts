@@ -1,5 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
@@ -10,7 +10,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-table-card',
-  imports: [TranslatePipe, PricePipe, TableStatusPipe, MatButtonModule, MatIcon, MatCard, MatChip],
+  imports: [TranslatePipe, PricePipe, TableStatusPipe, MatButton, MatIcon, MatCard, MatChip],
   template: `
     <mat-card
       class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex flex-col items-center min-h-[200px]"
@@ -18,10 +18,8 @@ import { PricePipe } from '../../../../../pipes/price/price';
     >
       <!-- Top accent gradient bar -->
       <div
-        class="w-full h-[3px]"
-        [class]="
-          isOccupied() ? 'bg-gradient-to-r from-error to-error/30' : 'bg-gradient-to-r from-success to-success/30'
-        "
+        class="w-full h-0.75"
+        [class]="isOccupied() ? 'bg-linear-to-r from-error to-error/30' : 'bg-linear-to-r from-success to-success/30'"
       ></div>
 
       <!-- Card body -->
@@ -32,7 +30,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           [class]="isOccupied() ? 'bg-error/10 border-error/25' : 'bg-success/10 border-success/25'"
         >
           <mat-icon
-            class="text-[22px]! w-[22px]! h-[22px]! leading-[22px]! m-0!"
+            class="text-[22px]! w-5.5! h-5.5! leading-5.5! m-0!"
             [class]="isOccupied() ? 'text-error' : 'text-success'"
           >
             {{ table().status | tableStatus: 'icon' }}
@@ -72,7 +70,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
       }
     </mat-card>
   `,
-  })
+})
 export class TableCard {
   readonly table = input.required<Table>();
   readonly orderAmount = input<number | undefined>(undefined);

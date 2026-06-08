@@ -1,12 +1,11 @@
 import { Component, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-roster-navigation',
-  imports: [MatIcon, MatButtonModule, TranslatePipe],
+  imports: [MatIcon, MatButton, MatIconButton, TranslatePipe],
   template: `
     <!-- Month/Year Category Label at the top -->
     <div class="mb-1 select-none text-center md:text-left">
@@ -27,24 +26,13 @@ import { MatIcon } from '@angular/material/icon';
 
         <!-- Date Navigation Controls (Perfectly aligned vertically with Title) -->
         <div class="flex items-center bg-surface-container rounded-xl p-1 border border-outline-variant/15 shrink-0">
-          <button
-            mat-icon-button
-            (click)="prev.emit()"
-            title="{{ 'common.prev' | translate }}"
-          >
+          <button mat-icon-button (click)="prev.emit()" title="{{ 'common.prev' | translate }}">
             <mat-icon>chevron_left</mat-icon>
           </button>
-          <button
-            mat-button
-            (click)="today.emit()"
-          >
+          <button mat-button (click)="today.emit()">
             {{ 'roster.today' | translate }}
           </button>
-          <button
-            mat-icon-button
-            (click)="next.emit()"
-            title="{{ 'common.next' | translate }}"
-          >
+          <button mat-icon-button (click)="next.emit()" title="{{ 'common.next' | translate }}">
             <mat-icon>chevron_right</mat-icon>
           </button>
         </div>
@@ -86,7 +74,7 @@ import { MatIcon } from '@angular/material/icon';
       </div>
     </div>
   `,
-  })
+})
 export class RosterNavigation {
   readonly displayMonthYear = input.required<string>();
   readonly viewMode = input.required<'day' | 'week' | 'month'>();

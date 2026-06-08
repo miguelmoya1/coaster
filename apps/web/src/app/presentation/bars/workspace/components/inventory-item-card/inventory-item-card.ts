@@ -1,10 +1,10 @@
 import { Component, computed, input, output } from '@angular/core';
-import { StockStatus, StockStatusPipe } from '@coaster/products';
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { StockStatus, StockStatusPipe } from '@coaster/products';
 
-import { PricePipe } from '../../pipes/price/price';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../pipes/price/price';
 
 @Component({
   selector: 'coaster-inventory-item-card',
@@ -12,18 +12,13 @@ import { TranslatePipe } from '@ngx-translate/core';
     <div class="flex items-center justify-between w-full gap-2 min-w-0">
       <div class="flex items-center min-w-0 flex-1 gap-3">
         <!-- Icon -->
-        <div
-          class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0"
-        >
+        <div class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0">
           <mat-icon [class]="'text-xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
         </div>
 
         <!-- Info -->
         <div class="grow min-w-0 flex flex-col gap-0.5">
-          <h3
-            class="text-sm font-bold text-on-surface truncate"
-            [title]="itemName() | translate"
-          >
+          <h3 class="text-sm font-bold text-on-surface truncate" [title]="itemName() | translate">
             {{ itemName() | translate }}
           </h3>
           @if (price() > 0) {
@@ -42,24 +37,20 @@ import { TranslatePipe } from '@ngx-translate/core';
         >
           {{ statusLevel() | stockStatus: 'label' | translate }}
         </span>
-        
-        <div class="flex items-baseline gap-0.5 bg-surface-container-highest/60 px-2 py-1 rounded-md border border-outline-variant/10">
+
+        <div
+          class="flex items-baseline gap-0.5 bg-surface-container-highest/60 px-2 py-1 rounded-md border border-outline-variant/10"
+        >
           <span class="text-base font-black text-on-surface">{{ qty() }}</span>
           <span class="text-[9px] font-bold text-on-surface-variant uppercase">ud</span>
         </div>
 
         @if (showEditButton()) {
           <div class="flex items-center gap-0.5 ml-1">
-            <button mat-icon-button
-              (click)="onEditClick($event)"
-              aria-label="Editar producto"
-            >
+            <button mat-icon-button (click)="onEditClick($event)" aria-label="Editar producto">
               <mat-icon class="text-lg">edit</mat-icon>
             </button>
-            <button mat-icon-button
-              (click)="onDeleteClick($event)"
-              aria-label="Eliminar producto"
-            >
+            <button mat-icon-button (click)="onDeleteClick($event)" aria-label="Eliminar producto">
               <mat-icon class="text-lg">delete</mat-icon>
             </button>
           </div>
@@ -74,8 +65,8 @@ import { TranslatePipe } from '@ngx-translate/core';
     '[attr.aria-disabled]': 'disabled()',
     '[class]': 'hostClasses()',
   },
-  imports: [MatButtonModule, MatIcon, PricePipe, StockStatusPipe, TranslatePipe],
-  })
+  imports: [MatIconButton, MatIcon, PricePipe, StockStatusPipe, TranslatePipe],
+})
 export class InventoryItemCard {
   readonly #stockStatusPipe = new StockStatusPipe();
 

@@ -1,10 +1,17 @@
 import { Component, inject } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { PricePipe } from '../../../pipes/price/price';
 import type { PaymentMethod } from '@coaster/common';
+import { TranslatePipe } from '@ngx-translate/core';
+import { PricePipe } from '../../../pipes/price/price';
 
 export interface PaymentMethodDialogData {
   amount: number;
@@ -12,7 +19,16 @@ export interface PaymentMethodDialogData {
 
 @Component({
   selector: 'coaster-payment-method-dialog',
-  imports: [MatButtonModule, MatIcon, TranslatePipe, MatDialogModule, PricePipe],
+  imports: [
+    MatButton,
+    MatIcon,
+    TranslatePipe,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    PricePipe,
+  ],
   template: `
     <h2 mat-dialog-title>{{ 'orders.payment_method_title' | translate }}</h2>
 
@@ -39,7 +55,9 @@ export interface PaymentMethodDialogData {
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
           (click)="selectMethod('CASH')"
         >
-          <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0">
+          <div
+            class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0"
+          >
             <mat-icon style="font-size: 28px; width: 28px; height: 28px;">payments</mat-icon>
           </div>
           <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
@@ -52,7 +70,9 @@ export interface PaymentMethodDialogData {
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
           (click)="selectMethod('CARD')"
         >
-          <div class="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0">
+          <div
+            class="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0"
+          >
             <mat-icon style="font-size: 28px; width: 28px; height: 28px;">credit_card</mat-icon>
           </div>
           <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
@@ -71,7 +91,7 @@ export interface PaymentMethodDialogData {
   host: {
     class: 'block',
   },
-  })
+})
 export class PaymentMethodDialog {
   protected readonly data = inject<PaymentMethodDialogData>(MAT_DIALOG_DATA);
   readonly #dialogRef = inject(MatDialogRef<PaymentMethodDialog, PaymentMethod | undefined>);

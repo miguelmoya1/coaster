@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -52,7 +58,10 @@ export type PendingExchangeItem = ShiftExchange & {
     CreateShiftForm,
     ExchangeRequestCard,
     RouterLink,
-    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
     RosterNavigation,
     RosterWeeklyGrid,
     RosterMonthlyGrid,

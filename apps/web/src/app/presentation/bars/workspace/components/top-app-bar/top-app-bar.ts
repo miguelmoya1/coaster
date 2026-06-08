@@ -1,15 +1,15 @@
 import { Toolbar } from '@angular/aria/toolbar';
 import { Component, inject, input, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
 @Component({
   selector: 'coaster-top-app-bar',
-  imports: [AvatarBadge, RouterLink, MatButtonModule, MatIcon, TranslatePipe],
+  imports: [AvatarBadge, RouterLink, MatButton, MatIconButton, MatIcon, TranslatePipe],
   hostDirectives: [Toolbar],
   host: {
     class:
@@ -27,21 +27,13 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
     </header>
 
     <div class="relative">
-      <button mat-icon-button
-        (click)="toggleMenu()"
-        aria-label="Open menu"
-        [aria-expanded]="isMenuOpen()"
-      >
+      <button mat-icon-button (click)="toggleMenu()" aria-label="Open menu" [aria-expanded]="isMenuOpen()">
         <mat-icon>more_vert</mat-icon>
       </button>
 
       @if (isMenuOpen()) {
         <!-- Backdrop to close dropdown on click outside -->
-        <button
-          class="fixed inset-0 z-40 w-full h-full"
-          (click)="closeMenu()"
-          aria-label="Close menu"
-        ></button>
+        <button class="fixed inset-0 z-40 w-full h-full" (click)="closeMenu()" aria-label="Close menu"></button>
 
         <!-- Dropdown Container -->
         <div
@@ -85,12 +77,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <div class="h-px bg-outline-variant/30 my-1"></div>
 
           <!-- Cerrar sesión -->
-          <button
-            mat-button
-            color="warn"
-            (click)="logout()"
-            class="w-full flex items-center gap-3 text-error"
-          >
+          <button mat-button color="warn" (click)="logout()" class="w-full flex items-center gap-3 text-error">
             <mat-icon class="text-base">logout</mat-icon>
             <span>{{ 'common.logout' | translate }}</span>
           </button>

@@ -7,13 +7,19 @@ import {
   linkedSignal,
   signal,
   TemplateRef,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -41,7 +47,10 @@ import { TableCard } from './components/table-card/table-card';
     MatButton,
     MatIcon,
     PricePipe,
-    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
     MatChip,
     MatFormField,
     MatLabel,
@@ -49,7 +58,7 @@ import { TableCard } from './components/table-card/table-card';
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
-  })
+})
 class Tables {
   public readonly barId = input.required<BarId>();
 

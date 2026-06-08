@@ -1,12 +1,12 @@
 import { Component, computed, input, linkedSignal, output } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
 
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [TranslatePipe, MatButtonModule, MatIcon],
+  imports: [TranslatePipe, MatButton, MatIconButton, MatIcon],
   template: `
     <!-- Main Content Area (Row) -->
     <div class="flex items-center w-full min-w-0">
@@ -70,12 +70,7 @@ import { MatIcon } from '@angular/material/icon';
               {{ 'members.leave' | translate }}
             </button>
           } @else {
-            <button
-              mat-icon-button
-              color="warn"
-              [disabled]="disabled()"
-              (click)="onDeleteClick($event)"
-            >
+            <button mat-icon-button color="warn" [disabled]="disabled()" (click)="onDeleteClick($event)">
               <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
             </button>
           }
@@ -90,7 +85,7 @@ import { MatIcon } from '@angular/material/icon';
     '[class]':
       "'rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center relative overflow-hidden transition-all border border-outline-variant/15 bg-surface-container hover:bg-surface-bright'",
   },
-  })
+})
 export class StaffMemberCard {
   readonly staffName = input.required<string>();
   readonly staffImage = input.required<string>();

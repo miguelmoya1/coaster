@@ -1,6 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -12,7 +19,7 @@ export interface MoveTableDialogData {
 
 @Component({
   selector: 'coaster-move-table-dialog',
-  imports: [MatButtonModule, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [MatButton, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
   template: `
     <div class="p-6 flex flex-col gap-4 max-w-md">
       <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">{{ 'orders.move_table_title' | translate }}</h2>
@@ -43,7 +50,7 @@ export class MoveTableDialog {
   private readonly data = inject<MoveTableDialogData>(MAT_DIALOG_DATA);
 
   protected readonly freeTables = this.data.tables.filter(
-    (t) => t.status === TableStatus.FREE && t.id !== this.data.currentTableId
+    (t) => t.status === TableStatus.FREE && t.id !== this.data.currentTableId,
   );
 
   protected select(tableId: string) {

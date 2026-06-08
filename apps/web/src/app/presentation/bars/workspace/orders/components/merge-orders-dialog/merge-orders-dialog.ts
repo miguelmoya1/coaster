@@ -1,6 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import type { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../pipes/price/price';
@@ -12,7 +19,7 @@ export interface MergeOrdersDialogData {
 
 @Component({
   selector: 'coaster-merge-orders-dialog',
-  imports: [MatButtonModule, TranslatePipe, PricePipe, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [MatButton, TranslatePipe, PricePipe, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
   template: `
     <div class="p-6 flex flex-col gap-4 max-w-md">
       <div class="flex flex-col gap-2">
@@ -26,9 +33,7 @@ export interface MergeOrdersDialogData {
             class="w-full flex justify-between items-center px-4 py-3 hover:bg-surface-container-highest rounded-lg transition-colors border border-outline-variant/50"
             (click)="select(order.id)"
           >
-            <span class="font-semibold text-on-surface">{{
-              order.tableName ?? ('orders.bar_order' | translate)
-            }}</span>
+            <span class="font-semibold text-on-surface">{{ order.tableName ?? ('orders.bar_order' | translate) }}</span>
             <span class="font-bold text-primary text-sm">{{ order.totalAmount | price }}</span>
           </button>
         } @empty {
