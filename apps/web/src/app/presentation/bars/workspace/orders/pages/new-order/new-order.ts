@@ -32,7 +32,7 @@ class NewOrder {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
-  readonly selectedCategory = signal<string | undefined>(undefined);
+  readonly selectedCategory = signal<string>('ALL');
   readonly cart = signal<Map<string, CartItem>>(new Map());
   readonly selectedTableId = signal<string | undefined>(undefined);
   readonly isSubmitting = signal(false);
@@ -65,7 +65,7 @@ class NewOrder {
       };
     });
     const categoryId = this.selectedCategory();
-    const filtered = categoryId
+    const filtered = categoryId && categoryId !== 'ALL'
       ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
       : productsWithOptimisticStock;
     return [...filtered].sort((a, b) => {

@@ -132,7 +132,7 @@ describe('NewOrder', () => {
 
       // Trigger re-evaluation of the computed signal by changing its state
       component.selectedCategory.set('TEMP_VAL');
-      component.selectedCategory.set(undefined);
+      component.selectedCategory.set('ALL');
 
       const filtered = component['filteredProducts']();
       expect(filtered[0].id).toBe('p-2'); // Absolut Vodka

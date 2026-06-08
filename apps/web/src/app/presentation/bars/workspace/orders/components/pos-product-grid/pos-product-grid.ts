@@ -1,12 +1,12 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatChipListbox, MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
+import { MatIcon } from '@angular/material/icon';
 import type { Category } from '@coaster/common';
 import { Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { PricePipe } from '../../../pipes/price/price';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatCard } from '@angular/material/card';
 
 @Component({
   selector: 'coaster-pos-product-grid',
@@ -15,9 +15,7 @@ import { MatCard } from '@angular/material/card';
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
       <div class="relative w-full">
-        <mat-icon
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg"
-        >search</mat-icon>
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">search</mat-icon>
         <input
           type="text"
           [value]="searchQuery()"
@@ -26,17 +24,19 @@ import { MatCard } from '@angular/material/card';
           class="w-full bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 rounded-xl pl-10 pr-10 py-2.5 text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
         />
         @if (searchQuery()) {
-          <button mat-icon-button
-            (click)="searchQuery.set('')"
-            class="absolute right-3 top-1/2 -translate-y-1/2"
-          >
+          <button mat-icon-button (click)="searchQuery.set('')" class="absolute right-3 top-1/2 -translate-y-1/2">
             <mat-icon class="text-lg">close</mat-icon>
           </button>
         }
       </div>
 
       <!-- Categories filters -->
-      <mat-chip-listbox [value]="selectedCategory()" (change)="categorySelected.emit($event.value)" class="hide-scrollbar">
+      <mat-chip-listbox
+        #chipListbox
+        [value]="selectedCategory()"
+        (change)="onCategoryChange($event, chipListbox)"
+        class="hide-scrollbar"
+      >
         @for (category of categoryTabs(); track category.id) {
           <mat-chip-option [value]="category.id" [selectable]="true">
             {{ category.label | translate }}
@@ -66,7 +66,7 @@ import { MatCard } from '@angular/material/card';
               <div class="flex flex-col items-center gap-1 mt-1 w-full">
                 <span class="font-bold text-primary text-sm">{{ product.price | price }}</span>
                 <span
-                  class="text-[0.6875rem] px-2 py-0.5 rounded-full font-bold w-fit text-center"
+                  class="text-xxs-plus px-2 py-0.5 rounded-full font-bold w-fit text-center"
                   [class]="
                     product.currentStock > 0
                       ? 'bg-surface-container-highest text-on-surface-variant'
@@ -90,19 +90,19 @@ import { MatCard } from '@angular/material/card';
       </div>
     </div>
   `,
-  })
+})
 export class PosProductGrid {
   readonly products = input.required<Product[]>();
   readonly categories = input.required<Category[]>();
-  readonly selectedCategory = input<string | undefined>(undefined);
+  readonly selectedCategory = input<string>('ALL');
   readonly productClicked = output<Product>();
-  readonly categorySelected = output<string | undefined>();
+  readonly categorySelected = output<string>();
 
   readonly categoryTabs = computed(() => {
     const rawCategories = this.categories() ?? [];
     return [
-      { id: undefined, label: this.#translate.instant('orders.all_categories') },
-      ...rawCategories.map((c) => ({ id: c.id as string | undefined, label: c.name })),
+      { id: 'ALL', label: this.#translate.instant('orders.all_categories') },
+      ...rawCategories.map((c) => ({ id: c.id as string, label: c.name })),
     ];
   });
 
@@ -122,6 +122,15 @@ export class PosProductGrid {
       return translatedName.toLowerCase().includes(query);
     });
   });
+
+  onCategoryChange(event: MatChipListboxChange, listbox: MatChipListbox) {
+    const value = event.value;
+    if (value === undefined || value === null) {
+      listbox.value = this.selectedCategory();
+    } else {
+      this.categorySelected.emit(value);
+    }
+  }
 
   onSearchInput(event: Event) {
     const input = event.target as HTMLInputElement;

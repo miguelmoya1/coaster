@@ -46,8 +46,9 @@
 
 <div class="-mx-4 px-4 mb-4 overflow-hidden">
   <mat-chip-listbox
+    #chipListbox
     [value]="selectedCategoryId()"
-    (change)="selectedCategoryId.set($event.value ?? 'ALL')"
+    (change)="onCategoryChange($event, chipListbox)"
     class="hide-scrollbar"
   >
     @for (category of tabs(); track category.id) {
@@ -121,9 +122,12 @@
 
       @if (isCreateMode()) {
         <div class="mb-4">
-          <mat-chip-listbox [value]="currentTab()" (change)="currentTab.set($event.value ?? 'PRODUCT')">
+          <mat-chip-listbox #tabListbox [value]="currentTab()" (change)="onTabChange($event, tabListbox)">
             @for (tab of availableTabs(); track tab.id) {
-              <mat-chip-option [value]="tab.id" [selectable]="true">
+              <mat-chip-option
+                [value]="tab.id"
+                [selectable]="true"
+              >
                 {{ tab.label | translate }}
               </mat-chip-option>
             }

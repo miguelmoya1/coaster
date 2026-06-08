@@ -159,6 +159,24 @@ export default class Pantry {
     });
   }
 
+  onCategoryChange(event: any, listbox: any) {
+    const value = event.value;
+    if (value === undefined || value === null) {
+      listbox.value = this.selectedCategoryId();
+    } else {
+      this.selectedCategoryId.set(value);
+    }
+  }
+
+  onTabChange(event: any, listbox: any) {
+    const value = event.value;
+    if (value === undefined || value === null) {
+      listbox.value = this.currentTab();
+    } else {
+      this.currentTab.set(value);
+    }
+  }
+
   onProductClicked(product: Product) {
     this.productSelected.set(product);
   }
