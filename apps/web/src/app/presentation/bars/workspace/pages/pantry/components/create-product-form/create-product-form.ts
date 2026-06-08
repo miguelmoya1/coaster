@@ -6,40 +6,50 @@ import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
-import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'coaster-create-product-form',
-  imports: [FormRoot, TextInput, NumberInput, SelectInput, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormFieldModule, MatInputModule, MatSelectModule, NumberInput, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <coaster-text-input
-          [formField]="form.name"
-          [label]="'pantry.create_product.name_label' | translate"
-          [placeholder]="'pantry.create_product.name_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'pantry.create_product.name_label' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form.name"
+            [placeholder]="'pantry.create_product.name_placeholder' | translate"
+          />
+          @if (form.name().errors().length > 0) {
+            <mat-error>{{ form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-select-input
-          [formField]="form.categoryId"
-          [label]="'pantry.create_product.category_label' | translate"
-          [options]="categoryOptions()"
-          [placeholder]="'pantry.create_product.category_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'pantry.create_product.category_label' | translate }}</mat-label>
+          <mat-select [formField]="form.categoryId" [placeholder]="'pantry.create_product.category_placeholder' | translate">
+            @for (option of categoryOptions(); track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+          @if (form.categoryId().errors().length > 0) {
+            <mat-error>{{ form.categoryId().errors()[0].message || form.categoryId().errors()[0].kind | translate: form.categoryId().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" showControls />
+        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
         <coaster-number-input
           [formField]="form.currentStock"
           [label]="'pantry.create_product.current_stock_label' | translate"
-          showControls
         />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
           [label]="'pantry.create_product.min_stock_label' | translate"
-          showControls
         />
 
         @if (form().errors().length > 0) {

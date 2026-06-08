@@ -1,18 +1,23 @@
 import { Component, effect, model, signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-pantry-search',
-  imports: [FormRoot, FormField, TextInput, TranslatePipe],
+  imports: [FormRoot, MatFormFieldModule, MatInputModule, MatIconModule, FormField, TranslatePipe],
   template: `
     <form [formRoot]="searchForm" class="w-full">
-      <coaster-text-input
-        [formField]="searchForm.query"
-        [placeholder]="'pantry.search_placeholder' | translate"
-        icon="search"
-      />
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          [formField]="searchForm.query"
+          [placeholder]="'pantry.search_placeholder' | translate"
+        />
+      </mat-form-field>
     </form>
   `,
   })

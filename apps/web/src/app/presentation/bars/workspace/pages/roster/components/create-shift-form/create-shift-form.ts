@@ -7,13 +7,13 @@ import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
-import { TextareaInput } from '../../../../../../components/forms/textarea-input/textarea-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'coaster-create-shift-form',
-  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormFieldModule, MatInputModule, MatSelectModule, FormField, MatButton, TranslatePipe],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -26,30 +26,54 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
 
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <coaster-select-input
-          [formField]="form.userId"
-          [label]="'roster.create_shift.staff_label' | translate"
-          [options]="memberOptions()"
-          [placeholder]="'roster.create_shift.staff_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.staff_label' | translate }}</mat-label>
+          <mat-select [formField]="form.userId" [placeholder]="'roster.create_shift.staff_placeholder' | translate">
+            @for (option of memberOptions(); track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+          @if (form.userId().errors().length > 0) {
+            <mat-error>{{ form.userId().errors()[0].message || form.userId().errors()[0].kind | translate: form.userId().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-text-input
-          [formField]="form.startTime"
-          [label]="'roster.create_shift.start_time_label' | translate"
-          type="time"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.start_time_label' | translate }}</mat-label>
+          <input
+            matInput
+            type="time"
+            [formField]="form.startTime"
+          />
+          @if (form.startTime().errors().length > 0) {
+            <mat-error>{{ form.startTime().errors()[0].message || form.startTime().errors()[0].kind | translate: form.startTime().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-text-input
-          [formField]="form.endTime"
-          [label]="'roster.create_shift.end_time_label' | translate"
-          type="time"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.end_time_label' | translate }}</mat-label>
+          <input
+            matInput
+            type="time"
+            [formField]="form.endTime"
+          />
+          @if (form.endTime().errors().length > 0) {
+            <mat-error>{{ form.endTime().errors()[0].message || form.endTime().errors()[0].kind | translate: form.endTime().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-textarea-input
-          [formField]="form.notes"
-          [label]="'roster.create_shift.notes_label' | translate"
-          [placeholder]="'roster.create_shift.notes_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.notes_label' | translate }}</mat-label>
+          <textarea
+            matInput
+            [formField]="form.notes"
+            [placeholder]="'roster.create_shift.notes_placeholder' | translate"
+            rows="3"
+          ></textarea>
+          @if (form.notes().errors().length > 0) {
+            <mat-error>{{ form.notes().errors()[0].message || form.notes().errors()[0].kind | translate: form.notes().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
 
         @if (form().errors().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">

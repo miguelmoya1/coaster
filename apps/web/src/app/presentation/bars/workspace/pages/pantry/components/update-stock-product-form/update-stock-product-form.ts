@@ -17,7 +17,6 @@ import { NumberInput } from '../../../../../../components/forms/number-input/num
           <coaster-number-input
             [formField]="form.currentStock"
             [label]="'pantry.update_product.current_stock_label' | translate"
-            showControls
           />
 
           @if (form().errors().length > 0) {

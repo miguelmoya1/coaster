@@ -13,7 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
-import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
+import { NumberInput } from '../../../../../components/forms/number-input/number-input';
 import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/payment-method-dialog/payment-method-dialog';
 
 @Component({
@@ -29,7 +29,7 @@ import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/p
     MatDialogModule,
     MoveTableDialog,
     MergeOrdersDialog,
-    CoasterQtyAdjuster,
+    NumberInput,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
@@ -57,8 +57,8 @@ class OrderDetail {
   readonly fetchedOrder = signal<Order | null>(null);
   readonly isLoading = signal(false);
 
-  // Local multi-selection state: maps itemId to selected paid and served quantities
-  protected readonly selectedItems = signal<Map<string, { paidQty: number; serveQty: number }>>(new Map());
+  // Local multi-selection state: maps itemId to selected paid quantities
+  protected readonly selectedItems = signal<Map<string, { paidQty: number }>>(new Map());
 
   // Helper computed signals
   protected readonly selectedItemsList = computed(() => {
@@ -86,12 +86,6 @@ class OrderDetail {
   protected readonly totalPaidUnitsDiff = computed(() => {
     return this.selectedItemsList().reduce((sum, s) => {
       return sum + Math.abs(s.paidQty);
-    }, 0);
-  });
-
-  protected readonly totalServeUnitsDiff = computed(() => {
-    return this.selectedItemsList().reduce((sum, s) => {
-      return sum + Math.abs(s.serveQty);
     }, 0);
   });
 
@@ -180,7 +174,6 @@ class OrderDetail {
     } else {
       current.set(item.id, {
         paidQty: 0,
-        serveQty: 0,
       });
     }
     this.selectedItems.set(current);
@@ -191,15 +184,6 @@ class OrderDetail {
     const val = current.get(itemId);
     if (val) {
       current.set(itemId, { ...val, paidQty: qty });
-      this.selectedItems.set(current);
-    }
-  }
-
-  protected updateSelectedServeQty(itemId: string, qty: number) {
-    const current = new Map(this.selectedItems());
-    const val = current.get(itemId);
-    if (val) {
-      current.set(itemId, { ...val, serveQty: qty });
       this.selectedItems.set(current);
     }
   }
@@ -225,7 +209,7 @@ class OrderDetail {
     if (!order) return;
 
     const itemsToUpdate = this.selectedItemsList()
-      .filter((s) => s.paidQty !== 0 || s.serveQty !== 0)
+      .filter((s) => s.paidQty !== 0)
       .map((s) => {
         const update: BulkUpdateItemDto = { itemId: asOrderItemId(s.itemId) };
         if (s.paidQty !== 0) {
@@ -233,9 +217,6 @@ class OrderDetail {
           if (s.paidQty > 0 && paymentMethod) {
             update.paymentMethod = paymentMethod;
           }
-        }
-        if (s.serveQty !== 0) {
-          update.servedQuantity = s.item!.servedQuantity + s.serveQty;
         }
         return update;
       });

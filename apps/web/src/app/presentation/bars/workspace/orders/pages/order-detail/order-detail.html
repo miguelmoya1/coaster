@@ -137,24 +137,15 @@
         @if (order.status === 'OPEN') {
           <div class="flex items-center gap-2 shrink-0">
             @if (isItemSelected(item.id)) {
-              <div class="flex flex-col gap-1.5 justify-end items-end">
+              <div class="flex flex-col gap-1.5 justify-end items-end w-32">
                 <!-- Pay adjustment -->
-                <coaster-qty-adjuster
-                  [value]="getSelectedQuantities(item.id)!.paidQty"
+                <coaster-number-input
+                  [(value)]="getSelectedQuantities(item.id)!.paidQty"
                   (valueChange)="updateSelectedPayQty(item.id, $event)"
                   [min]="-item.paidQuantity"
                   [max]="item.quantity - item.paidQuantity"
                   [label]="'orders.quantity_to_pay' | translate"
-                  [showPlusPrefix]="true"
-                />
-                <!-- Serve adjustment -->
-                <coaster-qty-adjuster
-                  [value]="getSelectedQuantities(item.id)!.serveQty"
-                  (valueChange)="updateSelectedServeQty(item.id, $event)"
-                  [min]="-item.servedQuantity"
-                  [max]="item.quantity - item.servedQuantity"
-                  [label]="'orders.quantity_to_serve' | translate"
-                  [showPlusPrefix]="true"
+                  wrapperClass="w-full"
                 />
               </div>
             }
@@ -205,7 +196,7 @@
 
         <button
           mat-flat-button
-          [disabled]="totalPaidUnitsDiff() === 0 && totalServeUnitsDiff() === 0"
+          [disabled]="totalPaidUnitsDiff() === 0"
           (click)="handleConfirmChanges()"
         >
           <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>

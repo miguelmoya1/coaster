@@ -1,4 +1,4 @@
-import { booleanAttribute, Component, input, model } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,88 +9,71 @@ import { MatIcon } from '@angular/material/icon';
 @Component({
   selector: 'coaster-number-input',
   imports: [MatFormFieldModule, MatInputModule, MatButtonModule, TranslatePipe, MatIcon],
+  host: {
+    '(click)': 'onHostClick($event)'
+  },
   template: `
     @if (!hidden()) {
-      <div class="flex flex-col gap-1 w-full">
-        <div class="relative flex items-center gap-2">
-          @if (showControls()) {
-            <button
-              type="button"
-              mat-stroked-button
-              (click)="decrement()"
-              [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
-            >
-              <mat-icon style="font-size: 20px; width: 20px; height: 20px;">remove</mat-icon>
-            </button>
+      <mat-form-field [class]="wrapperClass()" appearance="outline" subscriptSizing="dynamic">
+        @if (label()) {
+          <mat-label>{{ label() }}</mat-label>
+        }
+
+        <button 
+          mat-icon-button 
+          matPrefix 
+          type="button" 
+          (click)="decrement($event)" 
+          [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+
+        <input
+          matInput
+          type="number"
+          [id]="id()"
+          [value]="value()"
+          (input)="onInput($event)"
+          (blur)="touched.set(true)"
+          [placeholder]="placeholder()"
+          [disabled]="disabled()"
+          [readonly]="readonly()"
+          [min]="min()"
+          [max]="max()"
+          class="text-center font-bold"
+          style="appearance: textfield; -moz-appearance: textfield;"
+        />
+
+        <button 
+          mat-icon-button 
+          matSuffix 
+          type="button" 
+          (click)="increment($event)" 
+          [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+
+        @if (invalid() && errors().length > 0) {
+          @for (error of errors(); track error) {
+            <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
           }
-
-          <mat-form-field class="flex-1" appearance="outline">
-            @if (label()) {
-              <mat-label>{{ label() }}</mat-label>
-            }
-
-            @if (icon()) {
-              <mat-icon
-                matPrefix
-                class="mr-2 text-on-surface-variant text-xl"
-                [class.text-error]="invalid()"
-                style="font-size: 20px; width: 20px; height: 20px;"
-              >{{ icon() }}</mat-icon>
-            }
-
-            <input
-              matInput
-              type="number"
-              [id]="id()"
-              [value]="value()"
-              (input)="onInput($event)"
-              (blur)="touched.set(true)"
-              [placeholder]="placeholder()"
-              [disabled]="disabled()"
-              [readonly]="readonly()"
-              [min]="min()"
-              [max]="max()"
-              [class.text-center]="showControls()"
-            />
-
-            @if (invalid() && !showControls()) {
-              <mat-icon
-                matSuffix
-                class="text-error text-xl"
-                style="font-size: 20px; width: 20px; height: 20px;"
-              >error</mat-icon>
-            }
-
-            @if (invalid() && errors().length > 0) {
-              @for (error of errors(); track error) {
-                <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
-              }
-            }
-
-            @if (disabled() && disabledReasons().length > 0) {
-              @for (reason of disabledReasons(); track reason) {
-                <mat-hint>{{ reason.message | translate: reason }}</mat-hint>
-              }
-            } @else if (hint() && !invalid()) {
-              <mat-hint>{{ hint() }}</mat-hint>
-            }
-          </mat-form-field>
-
-          @if (showControls()) {
-            <button
-              type="button"
-              mat-stroked-button
-              (click)="increment()"
-              [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
-            >
-              <mat-icon style="font-size: 20px; width: 20px; height: 20px;">add</mat-icon>
-            </button>
-          }
-        </div>
-      </div>
+        } @else if (hint() && !invalid()) {
+          <mat-hint>{{ hint() }}</mat-hint>
+        }
+      </mat-form-field>
     }
   `,
-  })
+  styles: [`
+    /* Hide native number input arrows */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+  `]
+})
 export class NumberInput implements FormValueControl<number> {
   readonly value = model<number>(0);
   readonly id = input<string>(crypto.randomUUID());
@@ -98,8 +81,7 @@ export class NumberInput implements FormValueControl<number> {
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');
-  readonly icon = input<string>();
-  readonly showControls = input(false, { transform: booleanAttribute });
+  readonly wrapperClass = input<string>('w-full');
   readonly step = input<number>(1);
 
   readonly min = input<number>();
@@ -115,6 +97,10 @@ export class NumberInput implements FormValueControl<number> {
   readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
+  onHostClick(event: Event) {
+    event.stopPropagation();
+  }
+
   onInput(event: Event) {
     const el = event.target as HTMLInputElement;
     const val = parseFloat(el.value);
@@ -123,7 +109,8 @@ export class NumberInput implements FormValueControl<number> {
     }
   }
 
-  increment() {
+  increment(event?: Event) {
+    event?.stopPropagation();
     if (this.disabled() || this.readonly()) return;
     const current = this.value() || 0;
     const nextItem = current + this.step();
@@ -133,7 +120,8 @@ export class NumberInput implements FormValueControl<number> {
     this.touched.set(true);
   }
 
-  decrement() {
+  decrement(event?: Event) {
+    event?.stopPropagation();
     if (this.disabled() || this.readonly()) return;
     const current = this.value() || 0;
     const nextItem = current - this.step();

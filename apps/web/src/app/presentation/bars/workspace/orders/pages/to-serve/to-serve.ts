@@ -7,11 +7,11 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
 
-import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
+import { NumberInput } from '../../../../../components/forms/number-input/number-input';
 
 @Component({
   selector: 'coaster-to-serve',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, CoasterQtyAdjuster],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, NumberInput],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './to-serve.html',
   })

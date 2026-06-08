@@ -5,23 +5,30 @@ import type { CreateBarDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { TextInput } from '../../../../components/forms/text-input/text-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-create-bar-form',
-  imports: [TextInput, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
+  imports: [MatFormFieldModule, MatInputModule, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   template: `
     <form [formRoot]="barForm" class="mt-2 flex flex-col gap-6">
       <div class="grid grid-cols-1 gap-6">
-        <coaster-text-input
-          data-testid="bar-name-input"
-          [formField]="barForm.name"
-          [label]="'bars.create.fields.name' | translate"
-          [placeholder]="'bars.create.fields.name_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'bars.create.fields.name' | translate }}</mat-label>
+          <input
+            matInput
+            data-testid="bar-name-input"
+            [formField]="barForm.name"
+            [placeholder]="'bars.create.fields.name_placeholder' | translate"
+          />
+          @if (barForm.name().errors().length > 0) {
+            <mat-error>{{ barForm.name().errors()[0].message || barForm.name().errors()[0].kind | translate: barForm.name().errors()[0] }}</mat-error>
+          }
+        </mat-form-field>
       </div>
 
       <div class="flex items-center justify-center gap-4 mt-4">

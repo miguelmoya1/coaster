@@ -62,12 +62,15 @@
 
             <!-- In-row Compact Adjustment Controls -->
             @if (isItemSelected(item.id)) {
-              <coaster-qty-adjuster
-                [value]="selectedItems().get(item.id)!.serveQty"
-                (valueChange)="updateSelectedQty(item.id, $event)"
-                [min]="1"
-                [max]="item.quantity - item.servedQuantity"
-              />
+              <div class="w-32">
+                <coaster-number-input
+                  [(value)]="selectedItems().get(item.id)!.serveQty"
+                  (valueChange)="updateSelectedQty(item.id, $event)"
+                  [min]="1"
+                  [max]="item.quantity - item.servedQuantity"
+                  wrapperClass="w-full"
+                />
+              </div>
             }
 
             <!-- Quick Action button -->

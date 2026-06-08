@@ -4,14 +4,25 @@ import type { InviteBarMemberDto } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, TextInput, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormFieldModule, MatInputModule, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
-      <coaster-text-input [formField]="form.email" label="Email" placeholder="Email" />
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          [formField]="form.email"
+          placeholder="Email"
+        />
+        @if (form.email().errors().length > 0) {
+          <mat-error>{{ form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0] }}</mat-error>
+        }
+      </mat-form-field>
 
       @if (form().errors().length > 0) {
         <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
