@@ -1,41 +1,24 @@
-import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-
 import { NumberInput } from '../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../pipes/price/price';
-import { MergeOrdersDialog, MergeOrdersDialogData } from '../../components/merge-orders-dialog/merge-orders-dialog';
-import { MoveTableDialog, MoveTableDialogData } from '../../components/move-table-dialog/move-table-dialog';
-import {
-  PaymentMethodDialog,
-  PaymentMethodDialogData,
-} from '../../components/payment-method-dialog/payment-method-dialog';
+import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
+import { PaymentMethodDialog } from '../../components/payment-method-dialog/payment-method-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [
-    Loading,
-    MatButton,
-    MatIconButton,
-    TranslatePipe,
-    MatIcon,
-    PricePipe,
-    OrderTitlePipe,
-    NumberInput,
-    Loading,
-    ConfirmDialogComponent,
-  ],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, PricePipe, OrderTitlePipe, NumberInput, Loading],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
 })
@@ -48,8 +31,7 @@ class OrderDetail {
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
 
-  protected readonly cancelOrderDialogRef = viewChild.required<TemplateRef<unknown>>('cancelOrderDialog');
-  protected readonly removeItemDialogRef = viewChild.required<TemplateRef<unknown>>('removeItemDialog');
+  readonly #translate = inject(TranslateService);
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
@@ -253,25 +235,37 @@ class OrderDetail {
   }
 
   #openPaymentMethodDialog(amount: number) {
-    const dialogRef = this.#dialog.open<PaymentMethodDialog, PaymentMethodDialogData, PaymentMethod | undefined>(
-      PaymentMethodDialog,
-      {
-        data: { amount },
-        autoFocus: false,
-      },
-    );
+    const dialogRef = this.#dialog.open(PaymentMethodDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('amount', () => amount),
+        outputBinding('selected', (method) => {
+          dialogRef.close(method);
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
     return dialogRef.afterClosed();
   }
 
   protected handleCancelOrder() {
     this.isCancelingOrderModelOpen.set(true);
-    const dialogRef = this.#dialog.open(this.cancelOrderDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleCancelOrderConfirmed();
-      } else {
-        this.handleCancelCancelOrderDialog();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.cancel_title')),
+        inputBinding('text', () => this.#translate.instant('orders.cancel_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelCancelOrderDialog();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleCancelOrderConfirmed();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -292,13 +286,20 @@ class OrderDetail {
 
   protected handleRemoveItem(item: OrderItem) {
     this.orderItemDeleting.set(item);
-    const dialogRef = this.#dialog.open(this.removeItemDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleRemoveItemConfirmed();
-      } else {
-        this.handleCancelRemoveItem();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.remove_item_title')),
+        inputBinding('text', () => this.#translate.instant('orders.remove_item_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelRemoveItem();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleRemoveItemConfirmed();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -319,15 +320,19 @@ class OrderDetail {
   }
 
   onMoveTable() {
-    const dialogRef = this.#dialog.open<MoveTableDialog, MoveTableDialogData, string | undefined>(MoveTableDialog, {
-      data: {
-        tables: this.availableTables(),
-        currentTableId: this.currentOrder()?.tableId,
-      },
+    const dialogRef = this.#dialog.open(MoveTableDialog, {
       autoFocus: false,
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      this.handleMoveTableResult(result);
+      bindings: [
+        inputBinding('tables', () => this.availableTables()),
+        inputBinding('currentTableId', () => this.currentOrder()?.tableId),
+        outputBinding('selected', (result: string) => {
+          this.handleMoveTableResult(result);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -347,18 +352,19 @@ class OrderDetail {
   }
 
   onMerge() {
-    const dialogRef = this.#dialog.open<MergeOrdersDialog, MergeOrdersDialogData, string | undefined>(
-      MergeOrdersDialog,
-      {
-        data: {
-          orders: this.openOrders(),
-          currentOrderId: this.orderId(),
-        },
-        autoFocus: false,
-      },
-    );
-    dialogRef.afterClosed().subscribe((result) => {
-      this.handleMergeResult(result);
+    const dialogRef = this.#dialog.open(MergeOrdersDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('orders', () => this.openOrders()),
+        inputBinding('currentOrderId', () => this.orderId()),
+        outputBinding('selected', (result: string) => {
+          this.handleMergeResult(result);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
     });
   }
 

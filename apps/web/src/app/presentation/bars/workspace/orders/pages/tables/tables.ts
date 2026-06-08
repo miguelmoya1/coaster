@@ -4,16 +4,15 @@ import {
   effect,
   inject,
   input,
+  inputBinding,
   linkedSignal,
+  outputBinding,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatChip } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -22,12 +21,10 @@ import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Loading } from '../../../../../components/loading/loading';
-
-import { MatChip } from '@angular/material/chips';
-import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { Loading } from '../../../../../components/loading/loading';
+import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
 import { TableCard } from './components/table-card/table-card';
@@ -42,7 +39,6 @@ import { TableCard } from './components/table-card/table-card';
     Fab,
     TranslatePipe,
     MatButton,
-    ConfirmDialogComponent,
     MatIcon,
     PricePipe,
     MatChip,
@@ -63,7 +59,7 @@ class Tables {
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
 
-  protected readonly deleteTableDialogRef = viewChild.required<TemplateRef<unknown>>('deleteTableDialog');
+  readonly #translate = inject(TranslateService);
 
   constructor() {
     effect(() => {
@@ -136,13 +132,20 @@ class Tables {
 
   protected handleDeleteTable(table: Table) {
     this.tableToDelete.set(table);
-    const dialogRef = this.#dialog.open(this.deleteTableDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmDeleteTable();
-      } else {
-        this.handleCloseDeleteTableModal();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.delete_table_title')),
+        inputBinding('text', () => this.#translate.instant('orders.delete_table_message', { name: table.name })),
+        outputBinding('canceled', () => {
+          this.handleCloseDeleteTableModal();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteTable();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 

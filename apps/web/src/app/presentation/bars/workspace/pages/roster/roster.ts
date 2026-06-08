@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
@@ -10,7 +10,7 @@ import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
@@ -50,7 +50,6 @@ export type PendingExchangeItem = ShiftExchange & {
     TranslatePipe,
     BottomSheet,
     CreateShiftForm,
-    ConfirmDialogComponent,
     ExchangeRequestCard,
     RouterLink,
     RosterNavigation,
@@ -80,9 +79,7 @@ export default class Roster {
   readonly #http = inject(HttpClient);
   readonly #dialog = inject(MatDialog);
 
-  protected readonly deleteShiftDialogRef = viewChild.required<TemplateRef<unknown>>('deleteShiftDialog');
-  protected readonly deleteExchangeDialogRef = viewChild.required<TemplateRef<unknown>>('deleteExchangeDialog');
-  protected readonly replicateWeekDialogRef = viewChild.required<TemplateRef<unknown>>('replicateWeekDialog');
+  readonly #translate = inject(TranslateService);
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
@@ -328,13 +325,20 @@ export default class Roster {
 
   protected handleClickDeleteShift(shift: DailyShiftItem) {
     this.shiftDeleting.set(shift);
-    const dialogRef = this.#dialog.open(this.deleteShiftDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmDeleteShift();
-      } else {
-        this.handleCancelDeleteShift();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('roster.delete_shift_title')),
+        inputBinding('text', () => this.#translate.instant('roster.delete_shift_confirm')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteShift();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteShift();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -357,13 +361,20 @@ export default class Roster {
 
   protected handleClickDeleteExchange(exchange: PendingExchangeItem) {
     this.exchangeDeleting.set(exchange);
-    const dialogRef = this.#dialog.open(this.deleteExchangeDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmDeleteExchange();
-      } else {
-        this.handleCancelDeleteExchange();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('roster.exchanges.delete_title')),
+        inputBinding('text', () => this.#translate.instant('roster.exchanges.delete_confirm')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteExchange();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteExchange();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -413,13 +424,20 @@ export default class Roster {
 
   protected handleOpenReplicateConfirm() {
     this.showReplicateConfirm.set(true);
-    const dialogRef = this.#dialog.open(this.replicateWeekDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmReplicate();
-      } else {
-        this.handleCancelReplicate();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => false),
+        inputBinding('title', () => this.#translate.instant('roster.replication.confirm_title')),
+        inputBinding('text', () => this.#translate.instant('roster.replication.confirm_msg')),
+        outputBinding('canceled', () => {
+          this.handleCancelReplicate();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmReplicate();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 

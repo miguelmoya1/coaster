@@ -4,17 +4,15 @@ import {
   effect,
   inject,
   input,
+  inputBinding,
   linkedSignal,
+  outputBinding,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import { MatChipListbox, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -25,8 +23,8 @@ import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
 
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
@@ -50,7 +48,6 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     Loading,
     BottomSheet,
     Fab,
-    ConfirmDialogComponent,
     RouterLink,
     TranslatePipe,
     UpdateProductForm,
@@ -91,9 +88,6 @@ export default class Pantry {
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
-
-  protected readonly deleteProductDialogRef = viewChild.required<TemplateRef<unknown>>('deleteProductDialog');
-  protected readonly deleteCategoryDialogRef = viewChild.required<TemplateRef<unknown>>('deleteCategoryDialog');
 
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
@@ -164,7 +158,7 @@ export default class Pantry {
     });
   }
 
-  onCategoryChange(event: any, listbox: any) {
+  onCategoryChange(event: MatChipListboxChange, listbox: MatChipListbox) {
     const value = event.value;
     if (value === undefined || value === null) {
       listbox.value = this.selectedCategoryId();
@@ -173,7 +167,7 @@ export default class Pantry {
     }
   }
 
-  onTabChange(event: any, listbox: any) {
+  onTabChange(event: MatChipListboxChange, listbox: MatChipListbox) {
     const value = event.value;
     if (value === undefined || value === null) {
       listbox.value = this.currentTab();
@@ -205,13 +199,20 @@ export default class Pantry {
 
   protected handleDeleteProductClicked(product: Product) {
     this.productDeleting.set(product);
-    const dialogRef = this.#dialog.open(this.deleteProductDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmDeleteProduct();
-      } else {
-        this.handleCancelDeleteProduct();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('pantry.delete_product.title')),
+        inputBinding('text', () => this.#translate.instant('pantry.delete_product.message', { name: product.name })),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteProduct();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteProduct();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 
@@ -232,13 +233,20 @@ export default class Pantry {
 
   protected handleDeleteCategoryClicked(category: Category) {
     this.categoryDeleting.set(category);
-    const dialogRef = this.#dialog.open(this.deleteCategoryDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleConfirmDeleteCategory();
-      } else {
-        this.handleCancelDeleteCategory();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('pantry.delete_category.title')),
+        inputBinding('text', () => this.#translate.instant('pantry.delete_category.message', { name: category.name })),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteCategory();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteCategory();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 

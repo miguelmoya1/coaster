@@ -138,12 +138,3 @@
   </coaster-bottom-sheet>
 }
 
-<ng-template #deleteTableDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'orders.delete_table_title' | translate"
-    [text]="'orders.delete_table_message' | translate: { name: tableToDelete()?.name }"
-    (canceled)="handleCloseDeleteTableModal()"
-    (deleted)="handleConfirmDeleteTable()"
-  />
-</ng-template>

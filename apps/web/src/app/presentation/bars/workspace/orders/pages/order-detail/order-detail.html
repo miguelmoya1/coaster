@@ -1,9 +1,6 @@
 <div class="flex items-center gap-3">
-  <button
-    mat-icon-button
-    (click)="goBack()"
-  >
-    <mat-icon style="font-size: 22px; width: 22px; height: 22px;">arrow_back</mat-icon>
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon style="font-size: 22px; width: 22px; height: 22px">arrow_back</mat-icon>
   </button>
   <h2 class="heading-2 flex-1!">{{ displayOrder() | orderTitle }}</h2>
 </div>
@@ -25,19 +22,25 @@
         }
       </span>
       <div class="flex flex-col gap-0.5">
-        <span class="text-xs text-on-surface-variant"> {{ order.items.length }} {{ 'history.items' | translate }} </span>
+        <span class="text-xs text-on-surface-variant">
+          {{ order.items.length }} {{ 'history.items' | translate }}
+        </span>
         @if (order.amountPaidCash > 0 || order.amountPaidCard > 0) {
           <span class="text-xxs text-on-surface-variant/80 flex flex-wrap items-center gap-1.5 mt-0.5">
             <span>{{ 'orders.paid' | translate }}:</span>
             @if (order.amountPaidCash > 0) {
-              <span class="flex items-center gap-0.5 text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">
-                <mat-icon style="font-size: 12px; width: 12px; height: 12px;">payments</mat-icon>
+              <span
+                class="flex items-center gap-0.5 text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0"
+              >
+                <mat-icon style="font-size: 12px; width: 12px; height: 12px">payments</mat-icon>
                 {{ order.amountPaidCash | price }}
               </span>
             }
             @if (order.amountPaidCard > 0) {
-              <span class="flex items-center gap-0.5 text-indigo-400 font-semibold bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0">
-                <mat-icon style="font-size: 12px; width: 12px; height: 12px;">credit_card</mat-icon>
+              <span
+                class="flex items-center gap-0.5 text-indigo-400 font-semibold bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0"
+              >
+                <mat-icon style="font-size: 12px; width: 12px; height: 12px">credit_card</mat-icon>
                 {{ order.amountPaidCard | price }}
               </span>
             }
@@ -75,7 +78,7 @@
             (click)="toggleSelectItem(item); $event.stopPropagation()"
           >
             @if (isItemSelected(item.id)) {
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;" class="stroke-3">check</mat-icon>
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px" class="stroke-3">check</mat-icon>
             }
           </button>
         }
@@ -94,7 +97,8 @@
                   <span class="opacity-80 font-semibold">
                     (
                     @if (item.paidQuantityCash > 0 && item.paidQuantityCard > 0) {
-                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }} • {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
+                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }} •
+                      {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
                     } @else if (item.paidQuantityCash > 0) {
                       {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }}
                     } @else if (item.paidQuantityCard > 0) {
@@ -154,7 +158,7 @@
               (click)="handleRemoveItem(item); $event.stopPropagation()"
               [title]="'orders.remove_item' | translate"
             >
-              <mat-icon style="font-size: 16px; width: 16px; height: 16px;">delete</mat-icon>
+              <mat-icon style="font-size: 16px; width: 16px; height: 16px">delete</mat-icon>
             </button>
           </div>
         }
@@ -189,16 +193,12 @@
 
       <div class="flex flex-wrap items-center gap-2">
         <button mat-stroked-button (click)="clearSelection()">
-          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px">close</mat-icon>
           {{ 'common.cancel' | translate }}
         </button>
 
-        <button
-          mat-flat-button
-          [disabled]="totalPaidUnitsDiff() === 0"
-          (click)="handleConfirmChanges()"
-        >
-          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>
+        <button mat-flat-button [disabled]="totalPaidUnitsDiff() === 0" (click)="handleConfirmChanges()">
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px">check</mat-icon>
           {{ 'orders.mark_paid' | translate }}
         </button>
       </div>
@@ -208,26 +208,26 @@
   @if (order.status === 'OPEN') {
     <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-2">
       <button mat-stroked-button (click)="onAddItems()" class="w-full">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_box</mat-icon>
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px">add_box</mat-icon>
         {{ 'orders.add_items' | translate }}
       </button>
       <button mat-flat-button (click)="handleOpenCheckout()" class="w-full">
-        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">credit_card</mat-icon>
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px">credit_card</mat-icon>
         {{ 'orders.checkout' | translate }}
       </button>
     </div>
 
     <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
       <button mat-stroked-button (click)="onMoveTable()" class="w-full">
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">swap_horiz</mat-icon>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px">swap_horiz</mat-icon>
         {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
       </button>
       <button mat-stroked-button (click)="onMerge()" class="w-full">
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">merge</mat-icon>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px">merge</mat-icon>
         {{ 'orders.merge' | translate }}
       </button>
       <button mat-stroked-button class="w-full" (click)="handleCancelOrder()">
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px">close</mat-icon>
         {{ 'orders.cancel_order' | translate }}
       </button>
     </div>
@@ -242,26 +242,3 @@
     </div>
   }
 }
-
-
-<ng-template #cancelOrderDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'orders.cancel_title' | translate"
-    [text]="'orders.cancel_message' | translate"
-    (canceled)="handleCancelCancelOrderDialog()"
-    (deleted)="handleCancelOrderConfirmed()"
-  />
-</ng-template>
-
-<ng-template #removeItemDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'orders.remove_item_title' | translate"
-    [text]="'orders.remove_item_message' | translate"
-    (canceled)="handleCancelRemoveItem()"
-    (deleted)="handleRemoveItemConfirmed()"
-  />
-</ng-template>
-
-

@@ -16,11 +16,7 @@
     <mat-datepicker #datePicker />
   </div>
 
-  <button
-    mat-icon-button
-    [disabled]="isToday()"
-    (click)="nextDay()"
-  >
+  <button mat-icon-button [disabled]="isToday()" (click)="nextDay()">
     <mat-icon style="font-size: 20px; width: 20px; height: 20px">chevron_right</mat-icon>
   </button>
 </div>
@@ -140,10 +136,7 @@
         </div>
 
         @if (isOwner() && isToday()) {
-          <button
-            mat-icon-button
-            (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
-          >
+          <button mat-icon-button (click)="handleDeleteOrder(order.original); $event.stopPropagation()">
             <mat-icon style="font-size: 18px; width: 18px; height: 18px">delete</mat-icon>
           </button>
         }
@@ -157,13 +150,3 @@
     }
   }
 </div>
-
-<ng-template #deleteConfirmDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'history.delete_title' | translate"
-    [text]="'history.delete_message' | translate"
-    (canceled)="handleCancelDeleteOrder()"
-    (deleted)="handleDeleteOrderConfirmed()"
-  />
-</ng-template>

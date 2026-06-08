@@ -151,23 +151,4 @@
   </coaster-bottom-sheet>
 }
 
-<ng-template #deleteProductDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'pantry.delete_product.title' | translate"
-    [text]="'pantry.delete_product.message' | translate: { name: productDeleting()?.name }"
-    (canceled)="handleCancelDeleteProduct()"
-    (deleted)="handleConfirmDeleteProduct()"
-  />
-</ng-template>
-
-<ng-template #deleteCategoryDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'pantry.delete_category.title' | translate"
-    [text]="'pantry.delete_category.message' | translate: { name: categoryDeleting()?.name }"
-    (canceled)="handleCancelDeleteCategory()"
-    (deleted)="handleConfirmDeleteCategory()"
-  />
-</ng-template>
 

@@ -114,37 +114,4 @@
   </coaster-bottom-sheet>
 }
 
-<!-- Confirm Delete Shift Dialog -->
-<ng-template #deleteShiftDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'roster.delete_shift_title' | translate"
-    [text]="'roster.delete_shift_confirm' | translate"
-    (canceled)="handleCancelDeleteShift()"
-    (deleted)="handleConfirmDeleteShift()"
-  />
-</ng-template>
-
-<!-- Confirm Delete Exchange Dialog -->
-<ng-template #deleteExchangeDialog>
-  <coaster-confirm-dialog
-    [destructive]="true"
-    [title]="'roster.exchanges.delete_title' | translate"
-    [text]="'roster.exchanges.delete_confirm' | translate"
-    (canceled)="handleCancelDeleteExchange()"
-    (deleted)="handleConfirmDeleteExchange()"
-  />
-</ng-template>
-
-<!-- Confirm Replicate Week Dialog -->
-<ng-template #replicateWeekDialog>
-  <coaster-confirm-dialog
-    [destructive]="false"
-    [title]="'roster.replication.confirm_title' | translate"
-    [text]="'roster.replication.confirm_msg' | translate"
-    (canceled)="handleCancelReplicate()"
-    (deleted)="handleConfirmReplicate()"
-  />
-</ng-template>
-
 

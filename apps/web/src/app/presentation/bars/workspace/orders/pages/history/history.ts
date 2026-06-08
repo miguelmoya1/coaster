@@ -1,10 +1,8 @@
-import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
@@ -29,7 +27,6 @@ import { PricePipe } from '../../../pipes/price/price';
     MatDatepickerToggle,
     MatInput,
     Loading,
-    ConfirmDialogComponent,
     TranslatePipe,
     MatIcon,
     MatButton,
@@ -45,8 +42,6 @@ class History {
   readonly #ordersStore = inject(OrdersStore);
   readonly #barsStore = inject(BarsStore);
   readonly #dialog = inject(MatDialog);
-
-  protected readonly deleteConfirmDialogRef = viewChild.required<TemplateRef<unknown>>('deleteConfirmDialog');
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -148,13 +143,20 @@ class History {
 
   protected handleDeleteOrder(order: Order) {
     this.orderToDelete.set(order);
-    const dialogRef = this.#dialog.open(this.deleteConfirmDialogRef());
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleDeleteOrderConfirmed();
-      } else {
-        this.handleCancelDeleteOrder();
-      }
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('history.delete_title')),
+        inputBinding('text', () => this.#translate.instant('history.delete_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteOrder();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleDeleteOrderConfirmed();
+          dialogRef.close();
+        }),
+      ],
     });
   }
 

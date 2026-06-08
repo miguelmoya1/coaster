@@ -48,3 +48,39 @@ mat-chip {
     );
   }
 }
+
+button[mat-icon-button] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button.warn,
+a.warn {
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mat-sys-error),
+      filled-label-text-color: var(--mat-sys-on-error),
+      protected-container-color: var(--mat-sys-error),
+      protected-label-text-color: var(--mat-sys-on-error),
+      tonal-container-color: var(--mat-sys-error-container),
+      tonal-label-text-color: var(--mat-sys-on-error-container),
+      outlined-outline-color: var(--mat-sys-error),
+      outlined-label-text-color: var(--mat-sys-error),
+      text-label-text-color: var(--mat-sys-error),
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--mat-sys-error),
+    )
+  );
+
+  @include mat.fab-overrides(
+    (
+      container-color: var(--mat-sys-error-container),
+      foreground-color: var(--mat-sys-on-error-container),
+    )
+  );
+}

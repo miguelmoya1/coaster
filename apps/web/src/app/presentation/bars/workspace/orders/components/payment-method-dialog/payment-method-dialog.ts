@@ -1,21 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import {
-  MAT_DIALOG_DATA,
   MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
-  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { PaymentMethod } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../pipes/price/price';
-
-export interface PaymentMethodDialogData {
-  amount: number;
-}
 
 @Component({
   selector: 'coaster-payment-method-dialog',
@@ -26,7 +19,6 @@ export interface PaymentMethodDialogData {
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    MatDialogClose,
     PricePipe,
   ],
   template: `
@@ -37,13 +29,13 @@ export interface PaymentMethodDialogData {
         {{ 'orders.payment_method_description' | translate }}
       </p>
 
-      @if (data.amount > 0) {
+      @if (amount() > 0) {
         <div class="bg-surface-bright/50 border border-outline/10 rounded-2xl p-4 text-center mb-4">
           <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
             {{ 'orders.total_to_pay' | translate }}
           </span>
           <div class="text-3xl font-black text-primary mt-1">
-            {{ data.amount | price }}
+            {{ amount() | price }}
           </div>
         </div>
       }
@@ -53,7 +45,7 @@ export interface PaymentMethodDialogData {
         <!-- Cash Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
-          (click)="selectMethod('CASH')"
+          (click)="selected.emit('CASH')"
         >
           <div
             class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0"
@@ -68,7 +60,7 @@ export interface PaymentMethodDialogData {
         <!-- Card Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
-          (click)="selectMethod('CARD')"
+          (click)="selected.emit('CARD')"
         >
           <div
             class="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0"
@@ -82,8 +74,8 @@ export interface PaymentMethodDialogData {
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>
+    <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+      <button mat-button (click)="canceled.emit()">
         {{ 'common.cancel' | translate }}
       </button>
     </mat-dialog-actions>
@@ -93,10 +85,8 @@ export interface PaymentMethodDialogData {
   },
 })
 export class PaymentMethodDialog {
-  protected readonly data = inject<PaymentMethodDialogData>(MAT_DIALOG_DATA);
-  readonly #dialogRef = inject(MatDialogRef<PaymentMethodDialog, PaymentMethod | undefined>);
+  readonly amount = input.required<number>();
 
-  protected selectMethod(method: PaymentMethod) {
-    this.#dialogRef.close(method);
-  }
+  readonly selected = output<PaymentMethod>();
+  readonly canceled = output<void>();
 }

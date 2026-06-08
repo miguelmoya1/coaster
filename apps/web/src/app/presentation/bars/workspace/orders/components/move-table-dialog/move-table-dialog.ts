@@ -1,34 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
-export interface MoveTableDialogData {
-  tables: Table[];
-  currentTableId?: string;
-}
-
 @Component({
   selector: 'coaster-move-table-dialog',
-  imports: [MatButton, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [MatButton, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
   template: `
-    <div class="p-6 flex flex-col gap-4 max-w-md">
-      <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">{{ 'orders.move_table_title' | translate }}</h2>
+    <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">{{ 'orders.move_table_title' | translate }}</h2>
 
-      <mat-dialog-content class="flex flex-col gap-2 max-h-[50vh] m-0 p-0 overflow-y-auto">
-        @for (table of freeTables; track table.id) {
+    <div class="p-6 flex flex-col gap-4 max-w-md">
+      <mat-dialog-content class="flex flex-col gap-2 max-h-[50vh] m-0 p-0 overflow-y-auto mt-2">
+        @for (table of freeTables(); track table.id) {
           <button
             class="w-full text-left px-4 py-3 hover:bg-surface-container-highest rounded-lg transition-colors border border-outline-variant/50"
-            (click)="select(table.id)"
+            (click)="selected.emit(table.id)"
           >
             {{ table.name }}
           </button>
@@ -37,8 +25,8 @@ export interface MoveTableDialogData {
         }
       </mat-dialog-content>
 
-      <mat-dialog-actions class="flex justify-end p-0 border-none mt-2">
-        <button mat-stroked-button mat-dialog-close>
+      <mat-dialog-actions class="flex justify-end gap-3 p-0 border-none mt-2">
+        <button mat-button (click)="canceled.emit()">
           {{ 'common.cancel' | translate }}
         </button>
       </mat-dialog-actions>
@@ -46,14 +34,13 @@ export interface MoveTableDialogData {
   `,
 })
 export class MoveTableDialog {
-  private readonly dialogRef = inject(MatDialogRef<MoveTableDialog>);
-  private readonly data = inject<MoveTableDialogData>(MAT_DIALOG_DATA);
+  readonly tables = input.required<Table[]>();
+  readonly currentTableId = input<string | undefined>();
 
-  protected readonly freeTables = this.data.tables.filter(
-    (t) => t.status === TableStatus.FREE && t.id !== this.data.currentTableId,
-  );
+  readonly selected = output<string>();
+  readonly canceled = output<void>();
 
-  protected select(tableId: string) {
-    this.dialogRef.close(tableId);
-  }
+  protected readonly freeTables = computed(() => {
+    return this.tables().filter((t) => t.status === TableStatus.FREE && t.id !== this.currentTableId());
+  });
 }

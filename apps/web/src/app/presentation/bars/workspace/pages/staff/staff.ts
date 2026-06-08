@@ -104,14 +104,14 @@ export default class Staff {
           dialogRef.close();
         }),
         outputBinding('deleted', () => {
-          this.handleConfirmDeleteMember();
+          this.#handleConfirmDeleteMember();
           dialogRef.close();
         }),
       ],
     });
   }
 
-  protected async handleConfirmDeleteMember() {
+  async #handleConfirmDeleteMember() {
     const member = this.memberDeleting();
 
     if (member) {
