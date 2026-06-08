@@ -14,10 +14,6 @@ import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatChipListbox, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
 import {
   MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
@@ -30,6 +26,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
 
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreateCategoryForm } from './components/create-category-form/create-category-form';
@@ -53,6 +50,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     Loading,
     BottomSheet,
     Fab,
+    ConfirmDialogComponent,
     RouterLink,
     TranslatePipe,
     UpdateProductForm,
@@ -63,10 +61,6 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     MatCardSubtitle,
     MatIcon,
     MatButton,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     PantrySearch,
   ],
   host: {

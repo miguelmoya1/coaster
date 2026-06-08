@@ -13,10 +13,6 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import {
   MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -31,6 +27,7 @@ import { Loading } from '../../../../../components/loading/loading';
 
 import { MatChip } from '@angular/material/chips';
 import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
 import { TableCard } from './components/table-card/table-card';
@@ -45,12 +42,9 @@ import { TableCard } from './components/table-card/table-card';
     Fab,
     TranslatePipe,
     MatButton,
+    ConfirmDialogComponent,
     MatIcon,
     PricePipe,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatChip,
     MatFormField,
     MatLabel,

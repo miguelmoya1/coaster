@@ -159,32 +159,11 @@
 </div>
 
 <ng-template #deleteConfirmDialog>
-  <div class="p-6 flex flex-col gap-4 max-w-md">
-    <div class="flex items-start gap-4">
-      <div class="bg-error/15 p-3 rounded-full text-error shrink-0 flex items-center justify-center">
-        <mat-icon>warning</mat-icon>
-      </div>
-      <div class="flex flex-col gap-2">
-        <h2 mat-dialog-title class="heading-2 m-0 p-0 text-on-surface">
-          {{ 'history.delete_title' | translate }}
-        </h2>
-        <p mat-dialog-content class="text-on-surface-variant m-0 p-0 text-sm leading-relaxed">
-          {{ 'history.delete_message' | translate }}
-        </p>
-      </div>
-    </div>
-
-    <div mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-stroked-button mat-dialog-close>
-        {{ 'common.cancel' | translate }}
-      </button>
-      <button
-        mat-flat-button
-        [mat-dialog-close]="true"
-        color="warn"
-      >
-        {{ 'common.delete' | translate }}
-      </button>
-    </div>
-  </div>
+  <coaster-confirm-dialog
+    [destructive]="true"
+    [title]="'history.delete_title' | translate"
+    [text]="'history.delete_message' | translate"
+    (canceled)="handleCancelDeleteOrder()"
+    (deleted)="handleDeleteOrderConfirmed()"
+  />
 </ng-template>

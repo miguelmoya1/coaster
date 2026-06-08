@@ -1,13 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import {
-  MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -20,6 +13,7 @@ import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../components/loading/loading';
 import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
@@ -56,17 +50,13 @@ export type PendingExchangeItem = ShiftExchange & {
     TranslatePipe,
     BottomSheet,
     CreateShiftForm,
+    ConfirmDialogComponent,
     ExchangeRequestCard,
     RouterLink,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     RosterNavigation,
     RosterWeeklyGrid,
     RosterMonthlyGrid,
     MatIcon,
-    MatButton,
   ],
   providers: [RosterStateService],
   host: {

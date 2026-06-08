@@ -4,10 +4,6 @@ import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import {
   MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -17,6 +13,7 @@ import type { BarId, Order } from '@coaster/common';
 import { asOrderId, OrderStatus } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
 
 import { PricePipe } from '../../../pipes/price/price';
@@ -32,15 +29,12 @@ import { PricePipe } from '../../../pipes/price/price';
     MatDatepickerToggle,
     MatInput,
     Loading,
+    ConfirmDialogComponent,
     TranslatePipe,
     MatIcon,
     MatButton,
     MatIconButton,
     PricePipe,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',

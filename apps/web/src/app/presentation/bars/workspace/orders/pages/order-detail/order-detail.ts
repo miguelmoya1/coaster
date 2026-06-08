@@ -2,10 +2,6 @@ import { Component, computed, effect, inject, input, signal, TemplateRef, viewCh
 import { MatButton, MatIconButton } from '@angular/material/button';
 import {
   MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -14,6 +10,7 @@ import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
 
 import { NumberInput } from '../../../../../components/number-input/number-input';
@@ -35,11 +32,9 @@ import {
     MatIcon,
     PricePipe,
     OrderTitlePipe,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     NumberInput,
+    Loading,
+    ConfirmDialogComponent,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
