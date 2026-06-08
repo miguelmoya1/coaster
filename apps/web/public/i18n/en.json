@@ -374,6 +374,7 @@
     "delete_shift_confirm": "Are you sure you want to delete this shift? This action cannot be undone.",
     "exchange_pending": "Pending",
     "exchanges": {
+      "description": "These exchanges are global proposals published by the team. Any member with the appropriate role can accept them.",
       "offered_by": "Offered by",
       "period_afternoon": "Afternoon Shift",
       "period_evening": "Evening Shift",

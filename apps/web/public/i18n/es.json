@@ -374,6 +374,7 @@
     "delete_shift_confirm": "¿Estás seguro de que quieres eliminar este turno? Esta acción no se puede deshacer.",
     "exchange_pending": "Pendiente",
     "exchanges": {
+      "description": "Estos intercambios son propuestas globales publicadas por el equipo. Cualquier miembro con el rol adecuado puede aceptarlos.",
       "offered_by": "Ofrecido por",
       "period_afternoon": "Turno de Tarde",
       "period_evening": "Turno de Noche",

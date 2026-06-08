@@ -23,7 +23,7 @@
           [timeRange]="shift.timeRange"
           [staffName]="shift.userName || ('roster.unassigned' | translate)"
           [roleName]="shift.roleName"
-          [staffImage]="shift.userImage"
+          [staffImage]="shift.userImage || ''"
           [isOwn]="shift.isOwn"
           [hasPendingExchange]="shift.hasPendingExchange"
           [isPast]="shift.isPast"
@@ -76,12 +76,15 @@
     </span>
   </h2>
 
+  <p class="text-xs text-on-surface-variant leading-relaxed max-w-2xl mb-4">
+    {{ 'roster.exchanges.description' | translate }}
+  </p>
+
   <div class="flex flex-col gap-3">
     @for (exchange of pendingExchangesList(); track exchange.id) {
       <coaster-exchange-request-card
         [month]="exchange.month"
         [day]="exchange.day"
-        [shiftPeriod]="exchange.shiftPeriod"
         [roleName]="exchange.roleName"
         [timeRange]="exchange.timeRange"
         [offeredBy]="exchange.requesterName"

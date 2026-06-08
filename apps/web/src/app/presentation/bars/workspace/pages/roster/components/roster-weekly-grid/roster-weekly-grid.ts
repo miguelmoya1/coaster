@@ -3,6 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { Shift, BarRole } from '@coaster/common';
+import { ShiftCard } from '../shift-card/shift-card';
 
 export interface WeeklyShiftItem extends Shift {
   timeRange: string;
@@ -24,7 +25,7 @@ export interface WeeklyDayItem {
 
 @Component({
   selector: 'coaster-roster-weekly-grid',
-  imports: [MatIcon, MatButtonModule, TranslatePipe],
+  imports: [MatIcon, MatButtonModule, TranslatePipe, ShiftCard],
   template: `
     <!-- Owner Quick Replicate Action -->
     @if (currentUserRole() === 'OWNER') {
@@ -95,46 +96,19 @@ export interface WeeklyDayItem {
 
           <div class="flex flex-col gap-2">
             @for (shift of day.shifts; track shift.id) {
-              <div
-                class="flex items-center gap-3 bg-surface-container/40 p-3 rounded-2xl border border-outline-variant/5"
-              >
-                <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-                  <img [src]="shift.userImage" alt="Staff Portrait" class="w-full h-full object-cover" />
-                </div>
-                <div class="flex flex-col flex-1 min-w-0">
-                  <span class="text-xs font-bold text-primary uppercase tracking-wide leading-none mb-1">
-                    {{ shift.timeRange }}
-                  </span>
-                  <span class="text-sm font-bold text-white truncate">
-                    {{ shift.userName || ('roster.unassigned' | translate) }}
-                  </span>
-                </div>
-                @if (shift.isOwn) {
-                  <span
-                    class="text-xxs font-black text-tertiary bg-tertiary/10 px-2 py-0.5 rounded-full border border-tertiary/10 uppercase"
-                  >
-                    {{ 'roster.exchanges.your_request' | translate }}
-                  </span>
-                }
-                @if (shift.hasPendingExchange) {
-                  <span
-                    class="text-xxs font-black text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/10 uppercase"
-                  >
-                    {{ 'roster.exchange_pending' | translate }}
-                  </span>
-                }
-                @if (currentUserRole() === 'OWNER') {
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    [disabled]="isSubmitting()"
-                    (click)="deleteShift.emit(shift)"
-                    class="shrink-0"
-                  >
-                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;">delete</mat-icon>
-                  </button>
-                }
-              </div>
+              <coaster-shift-card
+                [compact]="true"
+                [timeRange]="shift.timeRange"
+                [staffName]="shift.userName || ('roster.unassigned' | translate)"
+                [roleName]="shift.roleName"
+                [staffImage]="shift.userImage || ''"
+                [isOwn]="shift.isOwn"
+                [hasPendingExchange]="shift.hasPendingExchange"
+                [isPast]="shift.isPast"
+                [showDelete]="currentUserRole() === 'OWNER'"
+                [disabled]="isSubmitting()"
+                (delete)="deleteShift.emit(shift)"
+              />
             } @empty {
               <p class="text-xs text-on-surface-variant/40 italic py-2 text-center">
                 {{ 'roster.no_shifts' | translate }}

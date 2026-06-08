@@ -18,8 +18,7 @@ describe('ExchangeRequestCard', () => {
     // Set required inputs
     fixture.componentRef.setInput('month', 'JAN');
     fixture.componentRef.setInput('day', '15');
-    fixture.componentRef.setInput('shiftPeriod', 'Morning');
-    fixture.componentRef.setInput('roleName', 'Bartender');
+    fixture.componentRef.setInput('roleName', 'OWNER');
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
     fixture.componentRef.setInput('offeredBy', 'John Doe');
     
@@ -39,8 +38,7 @@ describe('ExchangeRequestCard', () => {
 
     it('should display shift details', () => {
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('Morning');
-      expect(element.textContent).toContain('Bartender');
+      expect(element.textContent).toContain('OWNER');
       expect(element.textContent).toContain('08:00 - 16:00');
     });
 

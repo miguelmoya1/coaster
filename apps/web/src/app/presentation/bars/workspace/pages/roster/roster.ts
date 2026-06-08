@@ -1,25 +1,28 @@
-import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import {
-  isSameDay,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  addDays,
-} from 'date-fns';
+import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId, BarRole } from '@coaster/common';
+import type { BarId, BarRole, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
-
+import { TranslatePipe } from '@ngx-translate/core';
+import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
+import { firstValueFrom } from 'rxjs';
+import { Loading } from '../../../../components/loading/loading';
+import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
+import { Fab } from '../../components/fab/fab';
+import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
+import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
+import { RosterMonthlyGrid } from './components/roster-monthly-grid/roster-monthly-grid';
 import { RosterNavigation } from './components/roster-navigation/roster-navigation';
 import { RosterWeeklyGrid } from './components/roster-weekly-grid/roster-weekly-grid';
-import { RosterMonthlyGrid } from './components/roster-monthly-grid/roster-monthly-grid';
+import { ShiftCard } from './components/shift-card/shift-card';
 
 export type DailyShiftItem = Shift & {
   timeRange: string;
@@ -37,17 +40,6 @@ export type PendingExchangeItem = ShiftExchange & {
   roleName: BarRole;
   isOwnRequest: boolean;
 };
-import { TranslatePipe } from '@ngx-translate/core';
-import { Loading } from '../../../../components/loading/loading';
-
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { Fab } from '../../components/fab/fab';
-import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
-import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
-import { ShiftCard } from './components/shift-card/shift-card';
-import { MatIcon } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'coaster-roster',
@@ -72,7 +64,7 @@ import { MatButton } from '@angular/material/button';
     class: 'flex flex-col gap-2 relative',
   },
   templateUrl: './roster.html',
-  })
+})
 export default class Roster {
   public readonly barId = input.required<BarId>();
   public readonly date = input<string>();
@@ -442,7 +434,6 @@ export default class Roster {
 
     try {
       const selected = this.#state.selectedDate();
-      // Calculate previous week's start and end (Monday-Sunday)
       const prevWeekStart = startOfWeek(subWeeks(selected, 1), { weekStartsOn: 1 });
       const prevWeekEnd = endOfWeek(subWeeks(selected, 1), { weekStartsOn: 1 });
 
@@ -481,4 +472,3 @@ export default class Roster {
     }
   }
 }
-
