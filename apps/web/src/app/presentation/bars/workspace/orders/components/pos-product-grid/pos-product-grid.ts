@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
-import { MatChipListbox, MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
+import { MatChipListbox, MatChipListboxChange, MatChipOption } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import type { Category } from '@coaster/common';
 import { Product } from '@coaster/products';
@@ -10,7 +10,7 @@ import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-pos-product-grid',
-  imports: [TranslatePipe, PricePipe, MatButtonModule, MatIcon, MatChipsModule, MatCard],
+  imports: [TranslatePipe, PricePipe, MatIconButton, MatIcon, MatChipListbox, MatChipOption, MatCard],
   template: `
     <div class="flex flex-col gap-4">
       <!-- Search Input -->
@@ -58,7 +58,7 @@ import { PricePipe } from '../../../pipes/price/price';
               (click)="productClicked.emit(product)"
             >
               <span
-                class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 break-words w-full h-10 flex items-center justify-center"
+                class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 wrap-break-word w-full h-10 flex items-center justify-center"
                 [title]="product.name | translate"
               >
                 {{ product.name | translate }}
