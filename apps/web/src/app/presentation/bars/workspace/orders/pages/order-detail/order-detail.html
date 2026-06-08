@@ -307,16 +307,3 @@
 </ng-template>
 
 
-<coaster-move-table-dialog
-  [isOpen]="isMoveTableModelOpen()"
-  [tables]="availableTables()"
-  [currentTableId]="currentOrder()?.tableId"
-  (closed)="handleMoveTableResult($event)"
-/>
-
-<coaster-merge-orders-dialog
-  [isOpen]="isMergeOrdersModelOpen()"
-  [orders]="openOrders()"
-  [currentOrderId]="orderId()"
-  (closed)="handleMergeResult($event)"
-/>

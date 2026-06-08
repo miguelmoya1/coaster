@@ -8,11 +8,11 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 
 import { PricePipe } from '../../../pipes/price/price';
-import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
-import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
+import { MergeOrdersDialog, MergeOrdersDialogData } from '../../components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog, MoveTableDialogData } from '../../components/move-table-dialog/move-table-dialog';
 import { NumberInput } from '../../../../../components/forms/number-input/number-input';
 import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/payment-method-dialog/payment-method-dialog';
 
@@ -26,9 +26,10 @@ import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/p
     MatIcon,
     PricePipe,
     OrderTitlePipe,
-    MatDialogModule,
-    MoveTableDialog,
-    MergeOrdersDialog,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
     NumberInput,
   ],
   host: { class: 'flex flex-col gap-4' },
@@ -49,8 +50,6 @@ class OrderDetail {
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
-  protected readonly isMoveTableModelOpen = signal(false);
-  protected readonly isMergeOrdersModelOpen = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
@@ -317,7 +316,16 @@ class OrderDetail {
   }
 
   onMoveTable() {
-    this.isMoveTableModelOpen.set(true);
+    const dialogRef = this.#dialog.open<MoveTableDialog, MoveTableDialogData, string | undefined>(MoveTableDialog, {
+      data: {
+        tables: this.availableTables(),
+        currentTableId: this.currentOrder()?.tableId,
+      },
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      this.handleMoveTableResult(result);
+    });
   }
 
   protected async handleMoveTableResult(targetTableId: string | undefined) {
@@ -333,11 +341,22 @@ class OrderDetail {
         console.error(e);
       }
     }
-    this.isMoveTableModelOpen.set(false);
   }
 
   onMerge() {
-    this.isMergeOrdersModelOpen.set(true);
+    const dialogRef = this.#dialog.open<MergeOrdersDialog, MergeOrdersDialogData, string | undefined>(
+      MergeOrdersDialog,
+      {
+        data: {
+          orders: this.openOrders(),
+          currentOrderId: this.orderId(),
+        },
+        autoFocus: false,
+      },
+    );
+    dialogRef.afterClosed().subscribe((result) => {
+      this.handleMergeResult(result);
+    });
   }
 
   protected async handleMergeResult(targetOrderId: string | undefined) {
@@ -355,7 +374,6 @@ class OrderDetail {
         console.error(e);
       }
     }
-    this.isMergeOrdersModelOpen.set(false);
   }
 
   protected readonly availableTables = computed(() =>
