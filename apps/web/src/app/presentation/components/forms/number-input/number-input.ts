@@ -1,14 +1,14 @@
 import { Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import { MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, TranslatePipe, MatIcon],
+  imports: [MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix, MatInput, MatIconButton, TranslatePipe, MatIcon],
   host: {
     '(click)': 'onHostClick($event)'
   },

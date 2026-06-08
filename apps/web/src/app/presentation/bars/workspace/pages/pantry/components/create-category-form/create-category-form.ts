@@ -4,12 +4,12 @@ import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-create-category-form',
-  imports: [FormRoot, MatFormFieldModule, MatInputModule, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">

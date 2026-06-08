@@ -62,7 +62,7 @@
 
             <!-- In-row Compact Adjustment Controls -->
             @if (isItemSelected(item.id)) {
-              <div class="w-32">
+              <div class="w-28">
                 <coaster-number-input
                   [(value)]="selectedItems().get(item.id)!.serveQty"
                   (valueChange)="updateSelectedQty(item.id, $event)"

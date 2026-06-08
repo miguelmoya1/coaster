@@ -122,12 +122,10 @@
   <coaster-bottom-sheet (closed)="showCreateTable.set(false)">
     <div class="flex flex-col gap-4 px-2 pb-4">
       <h3 class="text-lg font-bold text-on-surface">{{ 'orders.create_table' | translate }}</h3>
-      <input
-        #tableNameInput
-        type="text"
-        class="w-full rounded-xl bg-surface-container-highest text-on-surface p-4 text-sm border border-outline-variant/30 outline-none focus:border-primary"
-        [placeholder]="'orders.table_name_placeholder' | translate"
-      />
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>{{ 'orders.table_name_placeholder' | translate }}</mat-label>
+        <input matInput #tableNameInput type="text" />
+      </mat-form-field>
       <button
         mat-flat-button
         class="w-full"

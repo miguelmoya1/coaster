@@ -1,19 +1,33 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 import type { BarMember } from '@coaster/common';
-import { asUserId } from '@coaster/core';
-import { DateFormatterService } from '@coaster/core';
+import { DateFormatterService, asUserId } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'coaster-create-shift-form',
-  imports: [FormRoot, MatFormFieldModule, MatInputModule, MatSelectModule, FormField, MatButton, TranslatePipe],
+  imports: [
+    FormRoot,
+    MatFormField,
+    MatLabel,
+    MatError,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatTimepickerModule,
+    MatNativeDateModule,
+    FormField,
+    MatButton,
+    TranslatePipe,
+  ],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -34,31 +48,35 @@ import { MatSelectModule } from '@angular/material/select';
             }
           </mat-select>
           @if (form.userId().errors().length > 0) {
-            <mat-error>{{ form.userId().errors()[0].message || form.userId().errors()[0].kind | translate: form.userId().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.userId().errors()[0].message || form.userId().errors()[0].kind | translate: form.userId().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'roster.create_shift.start_time_label' | translate }}</mat-label>
-          <input
-            matInput
-            type="time"
-            [formField]="form.startTime"
-          />
+          <input matInput [matTimepicker]="startPicker" [formField]="form.startTime" />
+          <mat-timepicker-toggle matIconSuffix [for]="startPicker"></mat-timepicker-toggle>
+          <mat-timepicker #startPicker></mat-timepicker>
           @if (form.startTime().errors().length > 0) {
-            <mat-error>{{ form.startTime().errors()[0].message || form.startTime().errors()[0].kind | translate: form.startTime().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.startTime().errors()[0].message || form.startTime().errors()[0].kind
+                | translate: form.startTime().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'roster.create_shift.end_time_label' | translate }}</mat-label>
-          <input
-            matInput
-            type="time"
-            [formField]="form.endTime"
-          />
+          <input matInput [matTimepicker]="endPicker" [formField]="form.endTime" />
+          <mat-timepicker-toggle matIconSuffix [for]="endPicker"></mat-timepicker-toggle>
+          <mat-timepicker #endPicker></mat-timepicker>
           @if (form.endTime().errors().length > 0) {
-            <mat-error>{{ form.endTime().errors()[0].message || form.endTime().errors()[0].kind | translate: form.endTime().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.endTime().errors()[0].message || form.endTime().errors()[0].kind
+                | translate: form.endTime().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -71,7 +89,9 @@ import { MatSelectModule } from '@angular/material/select';
             rows="3"
           ></textarea>
           @if (form.notes().errors().length > 0) {
-            <mat-error>{{ form.notes().errors()[0].message || form.notes().errors()[0].kind | translate: form.notes().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.notes().errors()[0].message || form.notes().errors()[0].kind | translate: form.notes().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -131,8 +151,8 @@ export class CreateShiftForm {
 
   readonly #formBase = signal({
     userId: '',
-    startTime: '',
-    endTime: '',
+    startTime: null as Date | null,
+    endTime: null as Date | null,
     notes: '',
   });
 
@@ -147,15 +167,13 @@ export class CreateShiftForm {
       submission: {
         action: async (form) => {
           const raw = form().value();
-          const selectedDate = this.#rosterState.selectedDate();
+          const selectedDate = new Date(this.#rosterState.selectedDate());
 
-          const [startHours, startMinutes] = raw.startTime.split(':').map(Number);
           const startTimeDate = new Date(selectedDate);
-          startTimeDate.setHours(startHours, startMinutes, 0, 0);
+          startTimeDate.setHours(raw.startTime!.getHours(), raw.startTime!.getMinutes(), 0, 0);
 
-          const [endHours, endMinutes] = raw.endTime.split(':').map(Number);
           const endTimeDate = new Date(selectedDate);
-          endTimeDate.setHours(endHours, endMinutes, 0, 0);
+          endTimeDate.setHours(raw.endTime!.getHours(), raw.endTime!.getMinutes(), 0, 0);
 
           if (endTimeDate < startTimeDate) {
             endTimeDate.setDate(endTimeDate.getDate() + 1);

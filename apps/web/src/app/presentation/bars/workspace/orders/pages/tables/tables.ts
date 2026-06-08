@@ -13,6 +13,8 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
@@ -41,6 +43,9 @@ import { TableCard } from './components/table-card/table-card';
     PricePipe,
     MatDialogModule,
     MatChip,
+    MatFormField,
+    MatLabel,
+    MatInput,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',

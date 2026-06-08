@@ -6,13 +6,13 @@ import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatSelect, MatOption } from '@angular/material/select';
 
 @Component({
   selector: 'coaster-create-product-form',
-  imports: [FormRoot, MatFormFieldModule, MatInputModule, MatSelectModule, NumberInput, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, MatSelect, MatOption, NumberInput, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">

@@ -5,12 +5,12 @@ import type { CreateBarDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-create-bar-form',
-  imports: [MatFormFieldModule, MatInputModule, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
+  imports: [MatFormField, MatLabel, MatInput, MatError, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },

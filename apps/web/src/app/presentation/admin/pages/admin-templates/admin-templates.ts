@@ -8,14 +8,14 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 import { Loading } from '../../../components/loading/loading';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, MatFormFieldModule, MatInputModule, MatButton, MatIcon, Loading, TranslatePipe],
+  imports: [FormRoot, FormField, MatFormField, MatInput, MatButton, MatIcon, Loading, TranslatePipe],
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
   })
