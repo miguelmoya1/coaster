@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { StockStatus, StockStatusPipe } from '@coaster/products';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -75,8 +75,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     '[class]': 'hostClasses()',
   },
   imports: [MatButtonModule, MatIcon, PricePipe, StockStatusPipe, TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class InventoryItemCard {
   readonly #stockStatusPipe = new StockStatusPipe();
 

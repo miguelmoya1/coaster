@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { Toast } from '@coaster/core';
@@ -17,8 +17,7 @@ import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
   imports: [FormRoot, FormField, TextareaInput, MatButton, MatIcon, Loading, TranslatePipe],
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class AdminTemplates {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);

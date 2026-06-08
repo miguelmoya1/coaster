@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { Role } from '@coaster/core';
@@ -16,8 +16,7 @@ import { BarCard } from './components/bar-card/bar-card';
   host: {
     class: 'flex flex-col gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export default class SelectBar {
   readonly #router = inject(Router);
   readonly #barsStore = inject(BarsStore);

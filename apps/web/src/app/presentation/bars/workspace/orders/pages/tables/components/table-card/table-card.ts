@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
@@ -72,8 +72,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
       }
     </mat-card>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class TableCard {
   readonly table = input.required<Table>();
   readonly orderAmount = input<number | undefined>(undefined);

@@ -1,5 +1,5 @@
 import { SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import type { ShiftId } from '@coaster/common';
 
@@ -114,8 +114,7 @@ export interface MonthlyDayItem {
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class RosterMonthlyGrid {
   readonly calendarDays = input.required<MonthlyDayItem[]>();
   readonly daySelected = output<string>();

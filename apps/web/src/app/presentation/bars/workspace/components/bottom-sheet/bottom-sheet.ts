@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
 import { isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, output, PLATFORM_ID, signal } from '@angular/core';
+import { Component, inject, output, PLATFORM_ID, signal } from '@angular/core';
 
 @Component({
   selector: 'coaster-bottom-sheet',
@@ -55,8 +55,7 @@ import { ChangeDetectionStrategy, Component, inject, output, PLATFORM_ID, signal
   host: {
     class: 'block',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class BottomSheet {
   public readonly closed = output<void>();
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -90,8 +90,7 @@ import { MatIcon } from '@angular/material/icon';
     '[class]':
       "'rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center relative overflow-hidden transition-all border border-outline-variant/15 bg-surface-container hover:bg-surface-bright'",
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class StaffMemberCard {
   readonly staffName = input.required<string>();
   readonly staffImage = input.required<string>();

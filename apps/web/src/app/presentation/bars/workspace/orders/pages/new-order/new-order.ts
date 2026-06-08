@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
@@ -19,8 +19,7 @@ import { PosProductGrid } from '../../components/pos-product-grid/pos-product-gr
   imports: [PosProductGrid, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 class NewOrder {
   public readonly barId = input.required<BarId>();
   public readonly tableId = input<TableId>();

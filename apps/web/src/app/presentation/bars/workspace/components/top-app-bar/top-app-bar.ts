@@ -1,5 +1,5 @@
 import { Toolbar } from '@angular/aria/toolbar';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
     class:
       'w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 shadow-elevated shrink-0',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="flex items-center gap-2 sm:gap-6 min-w-0 flex-1 mr-4">
       @if (image(); as image) {

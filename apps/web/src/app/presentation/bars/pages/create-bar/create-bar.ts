@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CreateBarForm } from './components/create-bar-form';
@@ -9,7 +9,6 @@ import { CreateBarForm } from './components/create-bar-form';
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-4 mb-2">

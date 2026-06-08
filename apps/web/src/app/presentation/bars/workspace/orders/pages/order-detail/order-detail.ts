@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
@@ -33,8 +33,7 @@ import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/p
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 class OrderDetail {
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import type { Category } from '@coaster/common';
 import { Product } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -90,8 +90,7 @@ import { MatCard } from '@angular/material/card';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class PosProductGrid {
   readonly products = input.required<Product[]>();
   readonly categories = input.required<Category[]>();

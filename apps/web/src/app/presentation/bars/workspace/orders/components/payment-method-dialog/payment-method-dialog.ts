@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -71,8 +71,7 @@ export interface PaymentMethodDialogData {
   host: {
     class: 'block',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class PaymentMethodDialog {
   protected readonly data = inject<PaymentMethodDialogData>(MAT_DIALOG_DATA);
   readonly #dialogRef = inject(MatDialogRef<PaymentMethodDialog, PaymentMethod | undefined>);

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
@@ -35,8 +35,7 @@ import { DialogComponent } from '../../../components/dialog/dialog.component';
       </div>
     </coaster-dialog>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class MoveTableDialog {
   public readonly tables = input.required<Table[]>();
   public readonly currentTableId = input<string>();

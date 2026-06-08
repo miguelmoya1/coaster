@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -8,7 +7,7 @@ import {
   linkedSignal,
   signal,
   TemplateRef,
-  viewChild,
+  viewChild
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -69,8 +68,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
       contain-intrinsic-size: 100px;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 

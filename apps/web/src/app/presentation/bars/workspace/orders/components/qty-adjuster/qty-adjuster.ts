@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, model } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 
@@ -34,8 +34,7 @@ import { MatIcon } from '@angular/material/icon';
       <mat-icon style="font-size: 10px; width: 10px; height: 10px;">add</mat-icon>
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class CoasterQtyAdjuster {
   readonly value = model.required<number>();
   readonly min = input<number>(0);

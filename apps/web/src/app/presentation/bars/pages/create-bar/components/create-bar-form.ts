@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { BarsStore } from '@coaster/bars';
 import type { CreateBarDto } from '@coaster/common';
@@ -13,7 +13,6 @@ import { TextInput } from '../../../../components/forms/text-input/text-input';
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form [formRoot]="barForm" class="mt-2 flex flex-col gap-6">
       <div class="grid grid-cols-1 gap-6">

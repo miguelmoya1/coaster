@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, model, signal, untracked } from '@angular/core';
+import { Component, effect, model, signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TextInput } from '../../../../../../components/forms/text-input/text-input';
@@ -15,8 +15,7 @@ import { TextInput } from '../../../../../../components/forms/text-input/text-in
       />
     </form>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class PantrySearch {
   readonly query = model<string>('');
 

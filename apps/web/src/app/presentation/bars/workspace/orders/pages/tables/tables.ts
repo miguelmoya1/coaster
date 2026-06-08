@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -8,7 +7,7 @@ import {
   linkedSignal,
   signal,
   TemplateRef,
-  viewChild,
+  viewChild
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
@@ -45,8 +44,7 @@ import { TableCard } from './components/table-card/table-card';
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 class Tables {
   public readonly barId = input.required<BarId>();
 

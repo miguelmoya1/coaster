@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -56,8 +56,7 @@ import { MatIcon } from '@angular/material/icon';
     '[attr.aria-disabled]': 'disabled()',
     class: 'relative overflow-hidden bg-surface-container-high rounded-2xl p-5 flex items-center gap-4 block',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class ShiftCard {
   readonly staffName = input.required<string>();
   readonly staffImage = input.required<string>();

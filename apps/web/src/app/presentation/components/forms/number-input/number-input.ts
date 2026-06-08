@@ -1,4 +1,4 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { booleanAttribute, Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -90,8 +90,7 @@ import { MatIcon } from '@angular/material/icon';
       </div>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class NumberInput implements FormValueControl<number> {
   readonly value = model<number>(0);
   readonly id = input<string>(crypto.randomUUID());

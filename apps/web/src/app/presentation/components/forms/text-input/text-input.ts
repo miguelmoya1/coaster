@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -59,8 +59,7 @@ import { MatIcon } from '@angular/material/icon';
       </mat-form-field>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class TextInput implements FormValueControl<string> {
   readonly value = model<string>('');
   readonly id = input<string>(crypto.randomUUID());

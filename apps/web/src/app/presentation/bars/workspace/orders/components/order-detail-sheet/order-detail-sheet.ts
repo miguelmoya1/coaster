@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import type { Order, OrderItemId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -96,8 +96,7 @@ import { PricePipe } from '../../../pipes/price/price';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class OrderDetailSheet {
   readonly order = input.required<Order>();
   readonly addItemsClicked = output<void>();

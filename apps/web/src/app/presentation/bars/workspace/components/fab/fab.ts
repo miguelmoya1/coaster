@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -10,8 +10,7 @@ import { MatIcon } from '@angular/material/icon';
     role: 'button',
   },
   template: `<mat-icon class="text-3xl font-bold">{{ icon() }}</mat-icon>`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class Fab {
   readonly icon = input('add');
   readonly disabled = input(false);

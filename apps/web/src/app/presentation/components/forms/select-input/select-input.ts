@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -51,8 +51,7 @@ export interface SelectOption {
       </mat-form-field>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class SelectInput implements FormValueControl<string | number | null> {
   readonly value = model<string | number | null>(null);
   readonly id = input<string>(crypto.randomUUID());

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
@@ -37,8 +37,7 @@ type MemberItem = BarMember & {
     class: 'flex flex-col gap-2',
   },
   templateUrl: './staff.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export default class Staff {
   public readonly barId = input.required<BarId>();
 

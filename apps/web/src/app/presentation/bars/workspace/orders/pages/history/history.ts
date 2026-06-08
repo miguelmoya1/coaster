@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
@@ -20,8 +20,7 @@ import { PricePipe } from '../../../pipes/price/price';
   imports: [MatCard, MatCardTitle, MatCardSubtitle, MatDatepickerModule, MatInputModule, Loading, TranslatePipe, MatIcon, MatButton, MatIconButton, PricePipe, MatDialogModule],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 class History {
   public readonly barId = input.required<BarId>();
 

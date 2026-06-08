@@ -1,5 +1,5 @@
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId } from '@coaster/common';
@@ -20,8 +20,7 @@ import { PricePipe } from '../../../../pipes/price/price';
     class: 'flex flex-col gap-2',
   },
   templateUrl: './import-templates.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export default class ImportTemplates {
   public readonly barId = input.required<BarId>();
 

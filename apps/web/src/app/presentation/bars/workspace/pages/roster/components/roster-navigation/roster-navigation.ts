@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -86,8 +86,7 @@ import { MatIcon } from '@angular/material/icon';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class RosterNavigation {
   readonly displayMonthYear = input.required<string>();
   readonly viewMode = input.required<'day' | 'week' | 'month'>();

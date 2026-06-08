@@ -1,12 +1,11 @@
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   effect,
   ElementRef,
   input,
   output,
-  viewChild,
+  viewChild
 } from '@angular/core';
 
 @Component({
@@ -72,8 +71,7 @@ import {
   host: {
     class: 'block',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class DialogComponent {
   public readonly allowBackdropClick = input(false, { transform: booleanAttribute });
   public readonly isOpen = input.required<boolean>();

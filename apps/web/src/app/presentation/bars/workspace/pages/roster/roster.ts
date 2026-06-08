@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -72,8 +72,7 @@ import { MatButton } from '@angular/material/button';
     class: 'flex flex-col gap-2 relative',
   },
   templateUrl: './roster.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export default class Roster {
   public readonly barId = input.required<BarId>();
   public readonly date = input<string>();

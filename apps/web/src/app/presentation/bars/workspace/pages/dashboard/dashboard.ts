@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
@@ -16,8 +16,7 @@ import { Loading } from '../../../../components/loading/loading';
   selector: 'coaster-dashboard',
   imports: [TranslatePipe, MatIcon, RouterLink, InventoryItemCard, PricePipe, Loading, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle],
   templateUrl: './dashboard.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class Dashboard {
   public readonly barId = input.required<BarId>();
 

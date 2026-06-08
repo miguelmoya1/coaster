@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
 import { asOrderId, asOrderItemId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
@@ -14,8 +14,7 @@ import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
   imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, CoasterQtyAdjuster],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './to-serve.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 class ToServe {
   public readonly barId = input.required<BarId>();
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import type { Bar } from '@coaster/common';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardAvatar } from '@angular/material/card';
 
@@ -28,8 +28,7 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
       </mat-card-header>
     </mat-card>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class BarCard {
   public readonly bar = input.required<Bar>();
 }

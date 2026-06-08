@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import type { Order } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -39,8 +39,7 @@ import { PricePipe } from '../../../pipes/price/price';
       </div>
     </coaster-dialog>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class MergeOrdersDialog {
   public readonly orders = input.required<Order[]>();
   public readonly currentOrderId = input.required<string>();

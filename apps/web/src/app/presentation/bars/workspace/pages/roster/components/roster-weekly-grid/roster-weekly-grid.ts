@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -145,8 +145,7 @@ export interface WeeklyDayItem {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class RosterWeeklyGrid {
   readonly weekDays = input.required<WeeklyDayItem[]>();
   readonly currentUserRole = input.required<string | undefined>();

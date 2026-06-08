@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -57,8 +57,7 @@ import { MatIcon } from '@angular/material/icon';
     class:
       'bg-surface-container-low border border-outline-variant/10 rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 block',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class ExchangeRequestCard {
   readonly month = input.required<string>();
   readonly day = input.required<string>();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
@@ -14,8 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class Loading {
   public readonly text = input<string>();
   public readonly containerClasses = input<string>('min-h-[200px]');

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -90,8 +90,7 @@ export interface CartItem {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
+  })
 export class PosCart {
   readonly items = input.required<CartItem[]>();
   readonly tables = input<Table[]>([]);
