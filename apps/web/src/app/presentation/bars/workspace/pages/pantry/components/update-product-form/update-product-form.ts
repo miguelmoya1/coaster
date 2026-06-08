@@ -1,42 +1,58 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, UpdateProductDto } from '@coaster/common';
 import { asCategoryId } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
-import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatSelect, MatOption } from '@angular/material/select';
+import { NumberInput } from '../../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-edit-product-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, MatSelect, MatOption, NumberInput, FormField, MatButton, TranslatePipe],
+  imports: [
+    FormRoot,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatError,
+    MatSelect,
+    MatOption,
+    NumberInput,
+    FormField,
+    MatButton,
+    TranslatePipe,
+  ],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'pantry.edit_product.name_label' | translate }}</mat-label>
-          <input
-            matInput
-            [formField]="form.name"
-            [placeholder]="'pantry.edit_product.name_placeholder' | translate"
-          />
+          <input matInput [formField]="form.name" [placeholder]="'pantry.edit_product.name_placeholder' | translate" />
           @if (form.name().errors().length > 0) {
-            <mat-error>{{ form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'pantry.edit_product.category_label' | translate }}</mat-label>
-          <mat-select [formField]="form.categoryId" [placeholder]="'pantry.edit_product.category_placeholder' | translate">
+          <mat-select
+            [formField]="form.categoryId"
+            [placeholder]="'pantry.edit_product.category_placeholder' | translate"
+          >
             @for (option of categoryOptions(); track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
             }
           </mat-select>
           @if (form.categoryId().errors().length > 0) {
-            <mat-error>{{ form.categoryId().errors()[0].message || form.categoryId().errors()[0].kind | translate: form.categoryId().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.categoryId().errors()[0].message || form.categoryId().errors()[0].kind
+                | translate: form.categoryId().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -66,12 +82,7 @@ import { MatSelect, MatOption } from '@angular/material/select';
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button
-            mat-flat-button
-            class="w-full"
-            type="submit"
-            [disabled]="form().disabled() || form().submitting()"
-          >
+          <button mat-flat-button class="w-full" type="submit" [disabled]="form().disabled() || form().submitting()">
             {{ 'common.update' | translate }}
           </button>
         </div>

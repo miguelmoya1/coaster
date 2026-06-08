@@ -3,34 +3,34 @@
   <p class="text-on-surface-variant text-sm">{{ 'bars.select.subtitle' | translate }}</p>
 </div>
 
-<div class="flex flex-col gap-4">
-  @if (bars.isLoading()) {
-    <coaster-loading />
-  }
+@if (bars.isLoading()) {
+  <coaster-loading />
+}
 
-  @if (bars.hasValue()) {
-    @for (bar of bars.value(); track bar.id) {
-      <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
-    } @empty {
-      <div
-        class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
-      >
-        <span class="text-on-surface-variant font-medium">
-          {{ 'bars.select.empty' | translate }}
-        </span>
-      </div>
-    }
-
-    <button mat-stroked-button type="button" (click)="navigateToCreate()" class="mt-2 w-full">
-      <mat-icon class="text-on-surface-variant text-xl hover:text-primary">add_circle</mat-icon>
-      {{ 'common.create' | translate }}
+<div class="flex justify-evenly gap-6 mb-4">
+  @if (isAdmin()) {
+    <button mat-stroked-button class="w-full" (click)="navigateToAdminTemplates()">
+      <mat-icon>settings</mat-icon>
+      {{ 'bars.select.admin_templates' | translate }}
     </button>
-
-    @if (isAdmin()) {
-      <button mat-stroked-button type="button" (click)="navigateToAdminTemplates()" class="mt-2 w-full">
-        <mat-icon class="text-primary text-xl">settings</mat-icon>
-        {{ 'bars.select.admin_templates' | translate }}
-      </button>
-    }
   }
+
+  <button mat-stroked-button class="w-full" (click)="navigateToCreate()">
+    <mat-icon>add_circle</mat-icon>
+    {{ 'common.create' | translate }}
+  </button>
 </div>
+
+@if (bars.hasValue()) {
+  @for (bar of bars.value(); track bar.id) {
+    <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
+  } @empty {
+    <div
+      class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
+    >
+      <span class="text-on-surface-variant font-medium">
+        {{ 'bars.select.empty' | translate }}
+      </span>
+    </div>
+  }
+}

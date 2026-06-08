@@ -1,10 +1,9 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
-
+import { NumberInput } from '../../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-update-product-form',

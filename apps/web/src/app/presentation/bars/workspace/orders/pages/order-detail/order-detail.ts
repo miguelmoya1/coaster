@@ -1,20 +1,29 @@
 import { Component, computed, effect, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
-import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
+import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { MatDialog, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 
+import { NumberInput } from '../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../pipes/price/price';
 import { MergeOrdersDialog, MergeOrdersDialogData } from '../../components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog, MoveTableDialogData } from '../../components/move-table-dialog/move-table-dialog';
-import { NumberInput } from '../../../../../components/forms/number-input/number-input';
-import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/payment-method-dialog/payment-method-dialog';
+import {
+  PaymentMethodDialog,
+  PaymentMethodDialogData,
+} from '../../components/payment-method-dialog/payment-method-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -34,7 +43,7 @@ import { PaymentMethodDialog, PaymentMethodDialogData } from '../../components/p
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
-  })
+})
 class OrderDetail {
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
@@ -46,7 +55,6 @@ class OrderDetail {
 
   protected readonly cancelOrderDialogRef = viewChild.required<TemplateRef<unknown>>('cancelOrderDialog');
   protected readonly removeItemDialogRef = viewChild.required<TemplateRef<unknown>>('removeItemDialog');
-
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);

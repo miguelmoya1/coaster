@@ -1,20 +1,20 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
 import { asOrderId, asOrderItemId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
 
-import { NumberInput } from '../../../../../components/forms/number-input/number-input';
+import { NumberInput } from '../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-to-serve',
   imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, NumberInput],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './to-serve.html',
-  })
+})
 class ToServe {
   public readonly barId = input.required<BarId>();
 
