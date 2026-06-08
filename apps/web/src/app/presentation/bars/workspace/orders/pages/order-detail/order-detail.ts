@@ -16,9 +16,11 @@ import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-or
 import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
 import { PaymentMethodDialog } from '../../components/payment-method-dialog/payment-method-dialog';
 
+import { OrderActions } from '../../components/order-actions/order-actions';
+
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, PricePipe, OrderTitlePipe, NumberInput, Loading],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, PricePipe, OrderTitlePipe, NumberInput, Loading, OrderActions],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
 })

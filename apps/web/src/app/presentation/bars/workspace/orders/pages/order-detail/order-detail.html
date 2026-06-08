@@ -206,31 +206,14 @@
   }
 
   @if (order.status === 'OPEN') {
-    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-2">
-      <button mat-stroked-button (click)="onAddItems()" class="w-full">
-        <mat-icon>add_box</mat-icon>
-        {{ 'orders.add_items' | translate }}
-      </button>
-      <button mat-flat-button (click)="handleOpenCheckout()" class="w-full">
-        <mat-icon>credit_card</mat-icon>
-        {{ 'orders.checkout' | translate }}
-      </button>
-    </div>
-
-    <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
-      <button mat-stroked-button (click)="onMoveTable()" class="w-full">
-        <mat-icon>swap_horiz</mat-icon>
-        {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
-      </button>
-      <button mat-stroked-button (click)="onMerge()" class="w-full">
-        <mat-icon>merge</mat-icon>
-        {{ 'orders.merge' | translate }}
-      </button>
-      <button mat-stroked-button class="w-full" (click)="handleCancelOrder()">
-        <mat-icon>close</mat-icon>
-        {{ 'orders.cancel_order' | translate }}
-      </button>
-    </div>
+    <coaster-order-actions
+      [hasTable]="!!order.tableId"
+      (addItems)="onAddItems()"
+      (checkout)="handleOpenCheckout()"
+      (moveTable)="onMoveTable()"
+      (merge)="onMerge()"
+      (cancelOrder)="handleCancelOrder()"
+    />
   }
 } @else {
   @if (!isLoadingServices() && !isLoading()) {
