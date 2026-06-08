@@ -1,5 +1,5 @@
-import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -10,10 +10,7 @@ describe('OrdersStore', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideTranslateService(),
-      ],
+      providers: [provideHttpClient(), provideTranslateService()],
     });
     service = TestBed.inject(OrdersStore);
   });

@@ -1,5 +1,15 @@
 import { inject, Service } from '@angular/core';
-import type { AddOrderItemsDto, BarId, BulkUpdateDto, CheckoutOrderDto, CreateOrderDto, MergeOrdersDto, MoveTableDto, OrderId, OrderItemId } from '@coaster/common';
+import type {
+  AddOrderItemsDto,
+  BarId,
+  BulkUpdateDto,
+  CheckoutOrderDto,
+  CreateOrderDto,
+  MergeOrdersDto,
+  MoveTableDto,
+  OrderId,
+  OrderItemId,
+} from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
 @Service()

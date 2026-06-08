@@ -47,7 +47,7 @@ export interface WeeklyDayItem {
           [disabled]="isSubmitting()"
           class="shrink-0 self-start md:self-auto"
         >
-          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">content_copy</mat-icon>
+          <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">content_copy</mat-icon>
           {{ 'roster.replication.button' | translate }}
         </button>
       </div>
@@ -85,7 +85,7 @@ export interface WeeklyDayItem {
 
             @if (currentUserRole() === 'OWNER') {
               <button mat-icon-button (click)="quickCreate.emit(day.date)" title="{{ 'common.create' | translate }}">
-                <mat-icon style="font-size: 16px; width: 16px; height: 16px;">add</mat-icon>
+                <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">add</mat-icon>
               </button>
             }
           </div>

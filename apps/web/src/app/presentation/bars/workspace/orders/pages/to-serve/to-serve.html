@@ -7,12 +7,11 @@
 <div class="flex flex-col gap-4 pb-workspace">
   @for (order of ordersToServe(); track order.id) {
     <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3 shadow-md border border-outline-variant/10">
-      
       <!-- Order Header -->
       <div class="flex justify-between items-center pb-2 border-b border-outline-variant/20">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">coffee</mat-icon>
+            <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">coffee</mat-icon>
           </div>
           <span class="font-bold text-on-surface text-base">{{ order | orderTitle }}</span>
         </div>
@@ -45,7 +44,7 @@
               (click)="toggleSelectItem(order.id, item); $event.stopPropagation()"
             >
               @if (isItemSelected(item.id)) {
-                <mat-icon style="font-size: 14px; width: 14px; height: 14px;" class="stroke-3">check</mat-icon>
+                <mat-icon class="stroke-3 text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
               }
             </button>
 
@@ -79,19 +78,17 @@
               (click)="serveSingleItem(order.id, item); $event.stopPropagation()"
               [title]="'orders.mark_served' | translate"
             >
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">chef_hat</mat-icon>
+              <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">chef_hat</mat-icon>
             </button>
-
           </div>
         }
       </div>
-
     </div>
   } @empty {
     @if (!isLoading()) {
       <div class="flex flex-col items-center gap-4 py-16 text-center">
         <div class="w-16 h-16 rounded-full bg-success/15 text-success flex items-center justify-center mb-2">
-          <mat-icon style="font-size: 32px; width: 32px; height: 32px;" class="stroke-3">check</mat-icon>
+          <mat-icon class="stroke-3 text-[32px]! w-[32px]! h-[32px]! leading-[32px]! m-0!">check</mat-icon>
         </div>
         <span class="text-on-surface font-bold text-lg">{{ 'orders.all_served_title' | translate }}</span>
         <span class="text-on-surface-variant text-sm max-w-xs">
@@ -121,15 +118,12 @@
 
     <div class="flex flex-wrap items-center gap-2">
       <button mat-stroked-button (click)="clearSelection()">
-        <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+        <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">close</mat-icon>
         {{ 'common.cancel' | translate }}
       </button>
 
-      <button
-        mat-flat-button
-        (click)="applySelectedChanges()"
-      >
-        <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>
+      <button mat-flat-button (click)="applySelectedChanges()">
+        <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
         {{ 'orders.mark_served' | translate }}
       </button>
     </div>

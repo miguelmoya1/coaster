@@ -7,7 +7,7 @@ import { Component, input } from '@angular/core';
     '[class]':
       "'rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden block ' + sizeClass()",
   },
-  })
+})
 export class AvatarBadge {
   readonly imageSrc = input.required<string>();
   readonly altText = input('Avatar');

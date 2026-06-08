@@ -38,7 +38,8 @@ describe('PosCategorySelector', () => {
   it('should change selectedCategory model on chip click', async () => {
     const chips = fixture.nativeElement.querySelectorAll('mat-chip-option');
     const firstCatChip = chips[1];
-    const clickable = firstCatChip.querySelector('button') || firstCatChip.querySelector('.mdc-evolution-chip__action') || firstCatChip;
+    const clickable =
+      firstCatChip.querySelector('button') || firstCatChip.querySelector('.mdc-evolution-chip__action') || firstCatChip;
 
     clickable.click();
     fixture.detectChanges();
@@ -55,7 +56,8 @@ describe('PosCategorySelector', () => {
     // Click it again to deselect
     const chips = fixture.nativeElement.querySelectorAll('mat-chip-option');
     const firstCatChip = chips[1];
-    const clickable = firstCatChip.querySelector('button') || firstCatChip.querySelector('.mdc-evolution-chip__action') || firstCatChip;
+    const clickable =
+      firstCatChip.querySelector('button') || firstCatChip.querySelector('.mdc-evolution-chip__action') || firstCatChip;
 
     clickable.click();
     fixture.detectChanges();

@@ -13,9 +13,7 @@ describe('CreateProductForm', () => {
     create: ReturnType<typeof vi.fn>;
   };
 
-  const mockCategories: Category[] = [
-    { id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') },
-  ];
+  const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
 
   beforeEach(async () => {
     productsStoreMock = {
@@ -24,9 +22,7 @@ describe('CreateProductForm', () => {
 
     await TestBed.configureTestingModule({
       imports: [CreateProductForm, TranslateModule.forRoot()],
-      providers: [
-        { provide: ProductsStore, useValue: productsStoreMock }
-      ]
+      providers: [{ provide: ProductsStore, useValue: productsStoreMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateProductForm);

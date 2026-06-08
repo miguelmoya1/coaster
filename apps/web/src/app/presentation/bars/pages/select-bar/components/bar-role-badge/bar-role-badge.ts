@@ -20,7 +20,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       </span>
     </div>
   `,
-  })
+})
 export class BarRoleBadge {
   public readonly role = input<BarRole | undefined>(undefined);
 

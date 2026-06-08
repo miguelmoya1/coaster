@@ -86,14 +86,14 @@ export interface MonthlyDayItem {
                       [class.bg-tertiary]="shift.isOwn"
                     ></span>
                     {{
-                      shift.userName
-                        ? (shift.userName.split(' ')[0] | slice: 0 : 6)
-                        : ('roster.unassigned' | translate)
+                      shift.userName ? (shift.userName.split(' ')[0] | slice: 0 : 6) : ('roster.unassigned' | translate)
                     }}
                   </div>
                 }
                 @if (day.shifts.length > 3) {
-                  <span class="text-[8px] font-black text-on-surface-variant/60 pl-1"> +{{ day.shifts.length - 3 }} </span>
+                  <span class="text-[8px] font-black text-on-surface-variant/60 pl-1">
+                    +{{ day.shifts.length - 3 }}
+                  </span>
                 }
               </div>
 
@@ -114,7 +114,7 @@ export interface MonthlyDayItem {
       </div>
     </div>
   `,
-  })
+})
 export class RosterMonthlyGrid {
   readonly calendarDays = input.required<MonthlyDayItem[]>();
   readonly daySelected = output<string>();

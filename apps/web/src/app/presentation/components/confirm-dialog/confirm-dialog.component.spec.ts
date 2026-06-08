@@ -12,16 +12,16 @@ describe('ConfirmDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ConfirmDialogComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations()]
+      providers: [provideNoopAnimations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmDialogComponent);
     component = fixture.componentInstance;
-    
+
     // Set required inputs using ComponentRef.setInput()
     fixture.componentRef.setInput('title', 'Test Title');
     fixture.componentRef.setInput('text', 'Test Text');
-    
+
     fixture.detectChanges();
   });
 
@@ -40,7 +40,7 @@ describe('ConfirmDialogComponent', () => {
   it('should display subtitle if provided', () => {
     fixture.componentRef.setInput('subtitle', 'Test Subtitle');
     fixture.detectChanges();
-    
+
     const textEls = fixture.debugElement.queryAll(By.css('p'));
     // First paragraph should now be the subtitle
     expect(textEls[0].nativeElement.textContent.trim()).toBe('Test Subtitle');
@@ -59,7 +59,7 @@ describe('ConfirmDialogComponent', () => {
     const iconEl = fixture.debugElement.query(By.css('mat-icon'));
     expect(iconEl).toBeTruthy();
 
-    const confirmButton = fixture.debugElement.query(By.css('button[color="warn"]'));
+    const confirmButton = fixture.debugElement.query(By.css('button.warn'));
     expect(confirmButton).toBeTruthy();
   });
 

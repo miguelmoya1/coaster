@@ -10,7 +10,7 @@ import { MatIcon } from '@angular/material/icon';
     role: 'button',
   },
   template: `<mat-icon class="text-3xl font-bold">{{ icon() }}</mat-icon>`,
-  })
+})
 export class Fab {
   readonly icon = input('add');
   readonly disabled = input(false);

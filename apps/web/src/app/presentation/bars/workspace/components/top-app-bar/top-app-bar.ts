@@ -77,7 +77,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <div class="h-px bg-outline-variant/30 my-1"></div>
 
           <!-- Cerrar sesión -->
-          <button mat-button color="warn" (click)="logout()" class="w-full flex items-center gap-3 text-error">
+          <button mat-button (click)="logout()" class="warn w-full flex items-center gap-3 text-error">
             <mat-icon class="text-base">logout</mat-icon>
             <span>{{ 'common.logout' | translate }}</span>
           </button>

@@ -55,7 +55,7 @@ import { Component, inject, output, PLATFORM_ID, signal } from '@angular/core';
   host: {
     class: 'block',
   },
-  })
+})
 export class BottomSheet {
   public readonly closed = output<void>();
 

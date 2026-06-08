@@ -20,7 +20,7 @@ import { PricePipe } from '../../../../pipes/price/price';
     class: 'flex flex-col gap-2',
   },
   templateUrl: './import-templates.html',
-  })
+})
 export default class ImportTemplates {
   public readonly barId = input.required<BarId>();
 

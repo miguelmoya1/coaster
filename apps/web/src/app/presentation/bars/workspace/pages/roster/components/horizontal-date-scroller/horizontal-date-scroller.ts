@@ -45,7 +45,7 @@ import { ScrollerDay } from '@coaster/roster';
       }
     </div>
   `,
-  })
+})
 export class HorizontalDateScroller {
   readonly days = input<ScrollerDay[]>([]);
   readonly selectedDay = input<string>();

@@ -32,7 +32,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       <button mat-button (click)="canceled.emit()">
         {{ cancelLabel() | translate }}
       </button>
-      <button mat-flat-button (click)="deleted.emit()" [class]="destructive() ? 'warn' : ''">
+      <button mat-flat-button (click)="deleted.emit()" [class.warn]="destructive()">
         {{ (destructive() ? 'common.delete' : confirmLabel()) | translate }}
       </button>
     </mat-dialog-actions>

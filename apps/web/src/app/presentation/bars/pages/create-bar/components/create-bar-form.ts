@@ -1,12 +1,12 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { BarsStore } from '@coaster/bars';
 import type { CreateBarDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-create-bar-form',
@@ -26,7 +26,10 @@ import { MatInput } from '@angular/material/input';
             [placeholder]="'bars.create.fields.name_placeholder' | translate"
           />
           @if (barForm.name().errors().length > 0) {
-            <mat-error>{{ barForm.name().errors()[0].message || barForm.name().errors()[0].kind | translate: barForm.name().errors()[0] }}</mat-error>
+            <mat-error>{{
+              barForm.name().errors()[0].message || barForm.name().errors()[0].kind
+                | translate: barForm.name().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
       </div>

@@ -16,15 +16,11 @@ export class TableRepository {
   };
 
   public async create(barId: BarId, dto: CreateTableDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.post<void>(this.routes.create(barId), dto)
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.create(barId), dto));
   }
 
   public async update(barId: BarId, tableId: TableId, dto: UpdateTableDto): Promise<DeleteResponse> {
-    return firstValueFrom(
-      this.#http.patch<DeleteResponse>(this.routes.update(barId, tableId), dto)
-    );
+    return firstValueFrom(this.#http.patch<DeleteResponse>(this.routes.update(barId, tableId), dto));
   }
 
   public async delete(barId: BarId, tableId: TableId) {
@@ -35,4 +31,3 @@ export class TableRepository {
     );
   }
 }
-

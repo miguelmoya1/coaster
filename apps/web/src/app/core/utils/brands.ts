@@ -1,22 +1,22 @@
 import type {
   BarId,
   BarMemberId,
+  BarRole,
   CategoryId,
+  DeliveryStatus,
   OrderId,
   OrderItemId,
-  ProductId,
-  ShiftId,
-  ShiftExchangeId,
-  TableId,
-  UserId,
-  BarRole,
-  DeliveryStatus,
   OrderStatus,
-  PaymentStatus,
   PaymentMethod,
+  PaymentStatus,
+  ProductId,
   Role,
+  ShiftExchangeId,
   ShiftExchangeStatus,
-  TableStatus
+  ShiftId,
+  TableId,
+  TableStatus,
+  UserId,
 } from '@coaster/common';
 
 // Casting functions

@@ -52,13 +52,15 @@
     class="hide-scrollbar"
   >
     @for (category of tabs(); track category.id) {
-      <mat-chip-option
-        [value]="category.id"
-        [selectable]="true"
-      >
+      <mat-chip-option [value]="category.id" [selectable]="true">
         <span class="text-sm font-medium">{{ category.label | translate }}</span>
         @if (canUpdateCategory() && category.id !== 'ALL') {
-          <button matChipTrailingIcon (click)="onEditCategoryClicked($event, category.id)" class="flex items-center justify-center ml-1 shrink-0" aria-label="Editar categoría">
+          <button
+            matChipTrailingIcon
+            (click)="onEditCategoryClicked($event, category.id)"
+            class="flex items-center justify-center ml-1 shrink-0"
+            aria-label="Editar categoría"
+          >
             <mat-icon class="text-[14px] w-3.5 h-3.5 flex items-center justify-center">edit</mat-icon>
           </button>
         }
@@ -124,10 +126,7 @@
         <div class="mb-4">
           <mat-chip-listbox #tabListbox [value]="currentTab()" (change)="onTabChange($event, tabListbox)">
             @for (tab of availableTabs(); track tab.id) {
-              <mat-chip-option
-                [value]="tab.id"
-                [selectable]="true"
-              >
+              <mat-chip-option [value]="tab.id" [selectable]="true">
                 {{ tab.label | translate }}
               </mat-chip-option>
             }
@@ -150,5 +149,3 @@
     </div>
   </coaster-bottom-sheet>
 }
-
-

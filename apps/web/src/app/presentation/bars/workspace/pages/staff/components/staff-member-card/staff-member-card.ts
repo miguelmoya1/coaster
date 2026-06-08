@@ -53,7 +53,7 @@ import { MatIcon } from '@angular/material/icon';
                 : 'bg-surface-bright text-primary hover:bg-surface-container-highest')
             "
           >
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">mail</mat-icon>
+            <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">mail</mat-icon>
           </a>
         }
 
@@ -71,7 +71,7 @@ import { MatIcon } from '@angular/material/icon';
             </button>
           } @else {
             <button mat-icon-button class="warn" [disabled]="disabled()" (click)="onDeleteClick($event)">
-              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
+              <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>
             </button>
           }
         }

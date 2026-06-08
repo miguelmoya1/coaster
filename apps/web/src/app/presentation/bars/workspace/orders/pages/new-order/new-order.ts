@@ -69,9 +69,10 @@ class NewOrder {
     });
 
     const categoryId = this.selectedCategory();
-    let filtered = categoryId && categoryId !== 'ALL'
-      ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
-      : productsWithOptimisticStock;
+    let filtered =
+      categoryId && categoryId !== 'ALL'
+        ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
+        : productsWithOptimisticStock;
 
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {

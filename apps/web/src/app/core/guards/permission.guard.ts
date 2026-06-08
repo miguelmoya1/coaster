@@ -39,7 +39,7 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
           return true;
         }
         return router.createUrlTree(['/bars', cleanBarId, 'dashboard']);
-      })
+      }),
     );
   };
 };

@@ -12,15 +12,11 @@ import { MatIcon } from '@angular/material/icon';
     <form [formRoot]="searchForm" class="w-full">
       <mat-form-field appearance="outline" class="w-full">
         <mat-icon matPrefix>search</mat-icon>
-        <input
-          matInput
-          [formField]="searchForm.query"
-          [placeholder]="'pantry.search_placeholder' | translate"
-        />
+        <input matInput [formField]="searchForm.query" [placeholder]="'pantry.search_placeholder' | translate" />
       </mat-form-field>
     </form>
   `,
-  })
+})
 export class PantrySearch {
   readonly query = model<string>('');
 

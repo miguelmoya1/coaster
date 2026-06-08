@@ -44,9 +44,7 @@ describe('ImportTemplates', () => {
       imports: [ImportTemplates],
       providers: [
         provideTranslateService(),
-        provideRouter([
-          { path: 'bars/:barId/pantry', component: class {} }
-        ]),
+        provideRouter([{ path: 'bars/:barId/pantry', component: class {} }]),
         { provide: TemplatesStore, useValue: templatesStoreMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
@@ -117,4 +115,3 @@ describe('ImportTemplates', () => {
     expect(toastMock.success).toHaveBeenCalled();
   });
 });
-

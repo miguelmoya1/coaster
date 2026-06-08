@@ -15,14 +15,10 @@ export class ShiftRepository {
   };
 
   public async create(barId: BarId, createShiftDto: CreateShiftDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.post<void>(this.routes.create(barId), createShiftDto)
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.create(barId), createShiftDto));
   }
 
   public async delete(barId: BarId, shiftId: string): Promise<void> {
-    return firstValueFrom(
-      this.#http.delete<void>(this.routes.delete(barId, shiftId))
-    );
+    return firstValueFrom(this.#http.delete<void>(this.routes.delete(barId, shiftId)));
   }
 }

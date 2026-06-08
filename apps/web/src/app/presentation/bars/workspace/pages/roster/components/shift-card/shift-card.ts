@@ -8,26 +8,37 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [TranslatePipe, MatButton, MatIcon, MatIconButton],
   template: `
     <div
-      [class]="compact() ? 'w-10 h-10 rounded-lg overflow-hidden shrink-0' : 'w-14 h-14 rounded-xl overflow-hidden shrink-0'"
+      [class]="
+        compact() ? 'w-10 h-10 rounded-lg overflow-hidden shrink-0' : 'w-14 h-14 rounded-xl overflow-hidden shrink-0'
+      "
     >
       @if (staffImage()) {
         <img [src]="staffImage()" alt="Staff Portrait" class="w-full h-full object-cover" />
       } @else {
-        <div class="w-full h-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
-          <mat-icon [style.font-size]="compact() ? '18px' : '22px'" [style.width]="compact() ? '18px' : '22px'" [style.height]="compact() ? '18px' : '22px'">person</mat-icon>
+        <div
+          class="w-full h-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant"
+        >
+          <mat-icon
+            [style.font-size]="compact() ? '18px' : '22px'"
+            [style.width]="compact() ? '18px' : '22px'"
+            [style.height]="compact() ? '18px' : '22px'"
+            >person</mat-icon
+          >
         </div>
       }
     </div>
 
     <div class="flex flex-col flex-1 min-w-0">
       <span
-        [class]="compact() ? 'text-xs font-bold text-primary uppercase tracking-wide leading-none mb-1' : 'text-primary font-black text-2xl tracking-tighter uppercase'"
+        [class]="
+          compact()
+            ? 'text-xs font-bold text-primary uppercase tracking-wide leading-none mb-1'
+            : 'text-primary font-black text-2xl tracking-tighter uppercase'
+        "
       >
         {{ timeRange() }}
       </span>
-      <span
-        [class]="compact() ? 'text-sm font-bold text-white truncate' : 'text-white font-bold title-lg'"
-      >
+      <span [class]="compact() ? 'text-sm font-bold text-white truncate' : 'text-white font-bold title-lg'">
         {{ staffName() }}
       </span>
       @if (!compact() && roleName() === 'OWNER') {
@@ -64,7 +75,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           [disabled]="disabled() || hasPendingExchange() || isPast()"
           (click)="offerExchange.emit(); $event.stopPropagation()"
         >
-          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">cached</mat-icon>
+          <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">cached</mat-icon>
           @if (hasPendingExchange()) {
             {{ 'roster.exchange_pending' | translate }}
           } @else {
@@ -75,8 +86,13 @@ import { TranslatePipe } from '@ngx-translate/core';
     }
 
     @if (showDelete()) {
-      <button mat-icon-button [disabled]="disabled()" (click)="delete.emit(); $event.stopPropagation()" class="shrink-0">
-        <mat-icon class="mat-text-error" style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
+      <button
+        mat-icon-button
+        [disabled]="disabled()"
+        (click)="delete.emit(); $event.stopPropagation()"
+        class="shrink-0"
+      >
+        <mat-icon class="mat-text-error text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>
       </button>
     }
   `,
@@ -93,7 +109,8 @@ import { TranslatePipe } from '@ngx-translate/core';
     '[class.gap-3]': 'compact()',
     '[class.border]': 'compact()',
     '[class.border-outline-variant/5]': 'compact()',
-    class: 'relative overflow-hidden rounded-2xl flex items-center block transition-all duration-200 hover:brightness-[1.03]',
+    class:
+      'relative overflow-hidden rounded-2xl flex items-center block transition-all duration-200 hover:brightness-[1.03]',
   },
 })
 export class ShiftCard {

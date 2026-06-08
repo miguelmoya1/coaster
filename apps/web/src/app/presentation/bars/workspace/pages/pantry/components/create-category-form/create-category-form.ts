@@ -21,7 +21,9 @@ import { MatInput } from '@angular/material/input';
             [placeholder]="'pantry.create_category.name_placeholder' | translate"
           />
           @if (form.name().errors().length > 0) {
-            <mat-error>{{ form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -33,7 +35,9 @@ import { MatInput } from '@angular/material/input';
             [placeholder]="'pantry.create_category.icon_placeholder' | translate"
           />
           @if (form.icon().errors().length > 0) {
-            <mat-error>{{ form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -56,12 +60,7 @@ import { MatInput } from '@angular/material/input';
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button
-            mat-flat-button
-            class="w-full"
-            type="submit"
-            [disabled]="form().submitting() || form().invalid()"
-          >
+          <button mat-flat-button class="w-full" type="submit" [disabled]="form().submitting() || form().invalid()">
             {{ 'common.create' | translate }}
           </button>
         </div>

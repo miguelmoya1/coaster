@@ -1,6 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId, CreateProductDto, DeleteResponse, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import type {
+  BarId,
+  CreateProductDto,
+  DeleteResponse,
+  ProductId,
+  UpdateProductDto,
+  UpdateProductStockDto,
+} from '@coaster/common';
 import { deleteResponseMapper } from '@coaster/core';
 import { firstValueFrom, map } from 'rxjs';
 
@@ -17,20 +24,20 @@ export class ProductRepository {
   };
 
   public async create(barId: BarId, createProductDto: CreateProductDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.post<void>(this.routes.create(barId), createProductDto)
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.create(barId), createProductDto));
   }
 
   public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto): Promise<DeleteResponse> {
-    return firstValueFrom(
-      this.#http.patch<DeleteResponse>(this.routes.update(barId, productId), updateProductDto)
-    );
+    return firstValueFrom(this.#http.patch<DeleteResponse>(this.routes.update(barId, productId), updateProductDto));
   }
 
-  public async updateStock(barId: BarId, productId: ProductId, updateProductStockDto: UpdateProductStockDto): Promise<DeleteResponse> {
+  public async updateStock(
+    barId: BarId,
+    productId: ProductId,
+    updateProductStockDto: UpdateProductStockDto,
+  ): Promise<DeleteResponse> {
     return firstValueFrom(
-      this.#http.patch<DeleteResponse>(this.routes.updateStock(barId, productId), updateProductStockDto)
+      this.#http.patch<DeleteResponse>(this.routes.updateStock(barId, productId), updateProductStockDto),
     );
   }
 

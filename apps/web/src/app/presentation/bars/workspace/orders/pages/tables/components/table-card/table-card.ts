@@ -62,7 +62,11 @@ import { PricePipe } from '../../../../../pipes/price/price';
       <!-- Delete button -->
       @if (deletable() && !isOccupied()) {
         <div class="w-full border-t border-outline-variant/20 px-2 py-1">
-          <button mat-button color="warn" class="w-full text-xs! font-semibold" (click)="deleteClicked.emit(table()); $event.stopPropagation()">
+          <button
+            mat-button
+            class="warn w-full text-xs! font-semibold"
+            (click)="deleteClicked.emit(table()); $event.stopPropagation()"
+          >
             <mat-icon class="text-[14px]! w-[14px]! h-[14px]! m-0! mr-1!">delete_outline</mat-icon>
             {{ 'common.delete' | translate }}
           </button>

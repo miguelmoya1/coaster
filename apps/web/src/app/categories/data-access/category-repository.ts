@@ -15,15 +15,11 @@ export class CategoryRepository {
   };
 
   public async create(barId: BarId, createCategoryDto: CreateCategoryDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.post<void>(this.routes.create(barId), createCategoryDto),
-    );
+    return firstValueFrom(this.#http.post<void>(this.routes.create(barId), createCategoryDto));
   }
 
   public async update(barId: BarId, categoryId: string, updateCategoryDto: UpdateCategoryDto): Promise<void> {
-    return firstValueFrom(
-      this.#http.patch<void>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto),
-    );
+    return firstValueFrom(this.#http.patch<void>(`${this.routes.create(barId)}/${categoryId}`, updateCategoryDto));
   }
 
   public async delete(barId: BarId, categoryId: CategoryId) {

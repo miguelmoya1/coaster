@@ -1,8 +1,5 @@
 <div class="flex items-center gap-3 mb-6">
-  <button
-    mat-icon-button
-    [routerLink]="['/bars', barId(), 'pantry']"
-  >
+  <button mat-icon-button [routerLink]="['/bars', barId(), 'pantry']">
     <mat-icon class="text-xl">chevron_left</mat-icon>
   </button>
   <h2 class="heading-2 text-2xl font-bold">{{ 'pantry.import_title' | translate }}</h2>
@@ -19,11 +16,7 @@
     class="w-full bg-surface-container text-on-surface placeholder:text-on-surface-variant/60 rounded-xl pl-10 pr-10 py-2.5 text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
   />
   @if (searchQuery()) {
-    <button
-      mat-icon-button
-      (click)="searchQuery.set('')"
-      class="absolute right-3 top-1/2 -translate-y-1/2"
-    >
+    <button mat-icon-button (click)="searchQuery.set('')" class="absolute right-3 top-1/2 -translate-y-1/2">
       <mat-icon class="text-lg">close</mat-icon>
     </button>
   }
@@ -73,7 +66,9 @@
               [class.bg-primary]="selectedCategoryIds().has(cat.id)"
             >
               @if (selectedCategoryIds().has(cat.id)) {
-                <mat-icon class="text-white text-xs font-bold" style="font-size: 12px; width: 12px; height: 12px;">check</mat-icon>
+                <mat-icon class="text-white text-xs font-bold text-[12px]! w-[12px]! h-[12px]! leading-[12px]! m-0!"
+                  >check</mat-icon
+                >
               }
             </div>
 
@@ -99,7 +94,10 @@
                   class="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-surface-container-highest/40 hover:bg-surface-container-highest/80 transition-colors"
                 >
                   <div class="flex items-center gap-2 min-w-0">
-                    <mat-icon class="text-on-surface-variant text-sm shrink-0" style="font-size: 14px; width: 14px; height: 14px;">inventory_2</mat-icon>
+                    <mat-icon
+                      class="text-on-surface-variant text-sm shrink-0 text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!"
+                      >inventory_2</mat-icon
+                    >
                     <span class="font-semibold text-on-surface truncate">{{ prod.name | translate }}</span>
                   </div>
                   @if (prod.price > 0) {

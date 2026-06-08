@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
+import { MatCard, MatCardAvatar, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import type { Bar } from '@coaster/common';
-import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardAvatar } from '@angular/material/card';
 
 import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
 
@@ -8,7 +8,9 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
   selector: 'coaster-bar-card',
   imports: [MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardAvatar, BarRoleBadge],
   template: `
-    <mat-card class="relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200 p-6">
+    <mat-card
+      class="relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200 p-6"
+    >
       <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
       <mat-card-header class="flex items-center gap-5 p-0">
         <div
@@ -28,7 +30,7 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
       </mat-card-header>
     </mat-card>
   `,
-  })
+})
 export class BarCard {
   public readonly bar = input.required<Bar>();
 }

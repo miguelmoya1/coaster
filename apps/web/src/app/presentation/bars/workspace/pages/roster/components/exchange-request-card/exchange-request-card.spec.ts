@@ -14,14 +14,14 @@ describe('ExchangeRequestCard', () => {
 
     fixture = TestBed.createComponent(ExchangeRequestCard);
     component = fixture.componentInstance;
-    
+
     // Set required inputs
     fixture.componentRef.setInput('month', 'JAN');
     fixture.componentRef.setInput('day', '15');
     fixture.componentRef.setInput('roleName', 'OWNER');
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
     fixture.componentRef.setInput('offeredBy', 'John Doe');
-    
+
     fixture.detectChanges();
   });
 
@@ -52,16 +52,16 @@ describe('ExchangeRequestCard', () => {
     it('should emit accepted when button is clicked', () => {
       const spy = vi.spyOn(component.accepted, 'emit');
       const button = fixture.nativeElement.querySelector('button');
-      
+
       button.click();
-      
+
       expect(spy).toHaveBeenCalled();
     });
 
     it('should hide accept button if isOwnRequest is true', () => {
       fixture.componentRef.setInput('isOwnRequest', true);
       fixture.detectChanges();
-      
+
       const button = fixture.nativeElement.querySelector('button');
       expect(button).toBeNull();
     });
@@ -69,7 +69,7 @@ describe('ExchangeRequestCard', () => {
     it('should disable button if disabled input is true', () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
-      
+
       const button = fixture.nativeElement.querySelector('button');
       expect(button.disabled).toBe(true);
     });

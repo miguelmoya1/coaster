@@ -10,9 +10,7 @@ describe('RosterNavigation', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RosterNavigation],
-      providers: [
-        provideTranslateService(),
-      ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RosterNavigation);
@@ -45,9 +43,15 @@ describe('RosterNavigation', () => {
     let nextEmitted = false;
     let todayEmitted = false;
 
-    component.prev.subscribe(() => { prevEmitted = true; });
-    component.next.subscribe(() => { nextEmitted = true; });
-    component.today.subscribe(() => { todayEmitted = true; });
+    component.prev.subscribe(() => {
+      prevEmitted = true;
+    });
+    component.next.subscribe(() => {
+      nextEmitted = true;
+    });
+    component.today.subscribe(() => {
+      todayEmitted = true;
+    });
 
     const buttons = fixture.nativeElement.querySelectorAll('button');
     expect(buttons.length).toBeGreaterThanOrEqual(3);
@@ -72,11 +76,13 @@ describe('RosterNavigation', () => {
     fixture.detectChanges();
 
     let selectedView: 'day' | 'week' | 'month' | null = null;
-    component.viewChanged.subscribe((v: 'day' | 'week' | 'month') => { selectedView = v; });
+    component.viewChanged.subscribe((v: 'day' | 'week' | 'month') => {
+      selectedView = v;
+    });
 
     const allButtons = fixture.nativeElement.querySelectorAll('button');
-    const weekButton = Array.from(allButtons).find((btn) => 
-      (btn as HTMLButtonElement).textContent?.includes('roster.views.week')
+    const weekButton = Array.from(allButtons).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes('roster.views.week'),
     ) as HTMLButtonElement;
 
     expect(weekButton).toBeTruthy();

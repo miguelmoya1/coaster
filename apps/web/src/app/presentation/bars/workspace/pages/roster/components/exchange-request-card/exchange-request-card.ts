@@ -42,7 +42,7 @@ import { MatIcon } from '@angular/material/icon';
           (click)="accepted.emit(); $event.stopPropagation()"
           class="shrink-0"
         >
-          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">cached</mat-icon>
+          <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">cached</mat-icon>
           {{ 'common.accept' | translate }}
         </button>
       } @else {
@@ -59,7 +59,7 @@ import { MatIcon } from '@angular/material/icon';
           (click)="delete.emit(); $event.stopPropagation()"
           class="shrink-0"
         >
-          <mat-icon class="mat-text-error" style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
+          <mat-icon class="mat-text-error text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>
         </button>
       }
     </div>

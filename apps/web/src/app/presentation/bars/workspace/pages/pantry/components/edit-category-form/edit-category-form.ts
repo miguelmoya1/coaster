@@ -15,25 +15,21 @@ import { MatInput } from '@angular/material/input';
       <div class="flex flex-col gap-4">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'pantry.edit_category.name_label' | translate }}</mat-label>
-          <input
-            matInput
-            [formField]="form.name"
-            [placeholder]="'pantry.edit_category.name_placeholder' | translate"
-          />
+          <input matInput [formField]="form.name" [placeholder]="'pantry.edit_category.name_placeholder' | translate" />
           @if (form.name().errors().length > 0) {
-            <mat-error>{{ form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>{{ 'pantry.edit_category.icon_label' | translate }}</mat-label>
-          <input
-            matInput
-            [formField]="form.icon"
-            [placeholder]="'pantry.edit_category.icon_placeholder' | translate"
-          />
+          <input matInput [formField]="form.icon" [placeholder]="'pantry.edit_category.icon_placeholder' | translate" />
           @if (form.icon().errors().length > 0) {
-            <mat-error>{{ form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0] }}</mat-error>
+            <mat-error>{{
+              form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0]
+            }}</mat-error>
           }
         </mat-form-field>
 
@@ -56,12 +52,7 @@ import { MatInput } from '@angular/material/input';
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button
-            mat-flat-button
-            class="w-full"
-            type="submit"
-            [disabled]="form().invalid() || form().submitting()"
-          >
+          <button mat-flat-button class="w-full" type="submit" [disabled]="form().invalid() || form().submitting()">
             {{ 'common.update' | translate }}
           </button>
         </div>
@@ -69,8 +60,7 @@ import { MatInput } from '@angular/material/input';
         <div class="mt-4 border-t border-outline-variant/20 pt-4">
           <button
             mat-stroked-button
-            color="warn"
-            class="w-full"
+            class="warn w-full"
             type="button"
             [disabled]="form().submitting()"
             (click)="deleteHandler()"

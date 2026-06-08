@@ -8,9 +8,20 @@ import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix, MatInput, MatIconButton, TranslatePipe, MatIcon],
+  imports: [
+    MatFormField,
+    MatLabel,
+    MatHint,
+    MatError,
+    MatPrefix,
+    MatSuffix,
+    MatInput,
+    MatIconButton,
+    TranslatePipe,
+    MatIcon,
+  ],
   host: {
-    '(click)': 'onHostClick($event)'
+    '(click)': 'onHostClick($event)',
   },
   template: `
     @if (!hidden()) {
@@ -19,11 +30,11 @@ import { MatIcon } from '@angular/material/icon';
           <mat-label>{{ label() }}</mat-label>
         }
 
-        <button 
-          mat-icon-button 
-          matPrefix 
-          type="button" 
-          (click)="decrement($event)" 
+        <button
+          mat-icon-button
+          matPrefix
+          type="button"
+          (click)="decrement($event)"
           [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
         >
           <mat-icon>remove</mat-icon>
@@ -45,11 +56,11 @@ import { MatIcon } from '@angular/material/icon';
           style="appearance: textfield; -moz-appearance: textfield;"
         />
 
-        <button 
-          mat-icon-button 
-          matSuffix 
-          type="button" 
-          (click)="increment($event)" 
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="increment($event)"
           [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
         >
           <mat-icon>add</mat-icon>
@@ -65,14 +76,16 @@ import { MatIcon } from '@angular/material/icon';
       </mat-form-field>
     }
   `,
-  styles: [`
-    /* Hide native number input arrows */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
-    }
-  `]
+  styles: [
+    `
+      /* Hide native number input arrows */
+      input[type='number']::-webkit-inner-spin-button,
+      input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class NumberInput implements FormValueControl<number> {
   readonly value = model<number>(0);

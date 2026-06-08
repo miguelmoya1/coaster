@@ -1,15 +1,15 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatFormField } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { Toast } from '@coaster/core';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { MatButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatFormField } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { Loading } from '../../../components/loading/loading';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
@@ -18,7 +18,7 @@ import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
   imports: [FormRoot, FormField, MatFormField, MatInput, MatButton, MatIcon, Loading, TranslatePipe],
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
-  })
+})
 export class AdminTemplates {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);

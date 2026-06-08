@@ -27,10 +27,7 @@ describe('ManageOrder', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        { provide: OrderRepository, useValue: orderRepoMock },
-      ],
+      providers: [provideZonelessChangeDetection(), { provide: OrderRepository, useValue: orderRepoMock }],
     });
 
     service = TestBed.inject(ManageOrder);

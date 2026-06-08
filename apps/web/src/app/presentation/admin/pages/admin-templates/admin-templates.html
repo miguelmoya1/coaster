@@ -2,10 +2,7 @@
   class="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
 >
   <div class="flex items-center justify-between border-b border-outline-variant pb-4">
-    <button
-      mat-button
-      (click)="goBack()"
-    >
+    <button mat-button (click)="goBack()">
       <mat-icon class="text-xl group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
       <span class="font-bold text-sm tracking-wider uppercase">{{ 'admin_templates.back' | translate }}</span>
     </button>
@@ -52,25 +49,19 @@
           ></textarea>
         </mat-form-field>
 
-        <p class="text-xs text-on-surface-variant leading-relaxed ml-1" [innerHTML]="'admin_templates.hint' | translate"></p>
+        <p
+          class="text-xs text-on-surface-variant leading-relaxed ml-1"
+          [innerHTML]="'admin_templates.hint' | translate"
+        ></p>
       </div>
 
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="loadStandardTemplates()"
-        class="self-center"
-      >
+      <button mat-stroked-button type="button" (click)="loadStandardTemplates()" class="self-center">
         <mat-icon class="text-lg group-hover:scale-110 transition-transform">auto_awesome</mat-icon>
         {{ 'admin_templates.load_standard' | translate }}
       </button>
 
       <div class="flex flex-col gap-3 mt-2 items-center">
-        <button
-          mat-flat-button
-          type="submit"
-          [disabled]="form().disabled() || form().submitting() || form().invalid()"
-        >
+        <button mat-flat-button type="submit" [disabled]="form().disabled() || form().submitting() || form().invalid()">
           @if (form().submitting()) {
             <coaster-loading class="scale-75" />
           } @else {

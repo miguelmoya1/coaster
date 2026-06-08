@@ -14,18 +14,18 @@ import { MatInput } from '@angular/material/input';
     <form [formRoot]="form">
       <div class="flex flex-col gap-2 mb-6">
         <h2 class="heading-2 m-0 p-0">{{ 'members.invite.title' | translate }}</h2>
-        <p class="text-on-surface-variant text-sm m-0 p-0 leading-relaxed">{{ 'members.invite.description' | translate }}</p>
+        <p class="text-on-surface-variant text-sm m-0 p-0 leading-relaxed">
+          {{ 'members.invite.description' | translate }}
+        </p>
       </div>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Email</mat-label>
-        <input
-          matInput
-          [formField]="form.email"
-          placeholder="Email"
-        />
+        <input matInput [formField]="form.email" placeholder="Email" />
         @if (form.email().errors().length > 0) {
-          <mat-error>{{ form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0] }}</mat-error>
+          <mat-error>{{
+            form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0]
+          }}</mat-error>
         }
       </mat-form-field>
 
@@ -48,12 +48,7 @@ import { MatInput } from '@angular/material/input';
           {{ 'common.cancel' | translate }}
         </button>
 
-        <button
-          mat-flat-button
-          class="w-full"
-          type="submit"
-          [disabled]="form().disabled() || form().submitting()"
-        >
+        <button mat-flat-button class="w-full" type="submit" [disabled]="form().disabled() || form().submitting()">
           {{ 'common.invite' | translate }}
         </button>
       </div>

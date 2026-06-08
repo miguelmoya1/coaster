@@ -2,7 +2,15 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { Order, OrderItem } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import {
+  asBarId,
+  asOrderId,
+  asOrderItemId,
+  asProductId,
+  DeliveryStatus,
+  OrderStatus,
+  PaymentStatus,
+} from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

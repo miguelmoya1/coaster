@@ -12,5 +12,5 @@ import { RouterOutlet } from '@angular/router';
   host: {
     class: 'min-h-screen flex flex-col items-center',
   },
-  })
+})
 export default class BarsLayout {}

@@ -1,10 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import {
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogTitle,
-} from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { PaymentMethod } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -12,15 +8,7 @@ import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-payment-method-dialog',
-  imports: [
-    MatButton,
-    MatIcon,
-    TranslatePipe,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    PricePipe,
-  ],
+  imports: [MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions, PricePipe],
   template: `
     <h2 mat-dialog-title>{{ 'orders.payment_method_title' | translate }}</h2>
 
@@ -50,7 +38,7 @@ import { PricePipe } from '../../../pipes/price/price';
           <div
             class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0"
           >
-            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">payments</mat-icon>
+            <mat-icon>payments</mat-icon>
           </div>
           <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
             {{ 'orders.payment_method_cash' | translate }}
@@ -65,7 +53,7 @@ import { PricePipe } from '../../../pipes/price/price';
           <div
             class="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0"
           >
-            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">credit_card</mat-icon>
+            <mat-icon>credit_card</mat-icon>
           </div>
           <span class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
             {{ 'orders.payment_method_card' | translate }}

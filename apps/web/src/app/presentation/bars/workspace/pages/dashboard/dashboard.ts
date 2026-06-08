@@ -14,9 +14,21 @@ import { Loading } from '../../../../components/loading/loading';
 
 @Component({
   selector: 'coaster-dashboard',
-  imports: [TranslatePipe, MatIcon, RouterLink, InventoryItemCard, PricePipe, Loading, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle],
+  imports: [
+    TranslatePipe,
+    MatIcon,
+    RouterLink,
+    InventoryItemCard,
+    PricePipe,
+    Loading,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardSubtitle,
+  ],
   templateUrl: './dashboard.html',
-  })
+})
 export class Dashboard {
   public readonly barId = input.required<BarId>();
 

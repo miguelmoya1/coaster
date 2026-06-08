@@ -1,7 +1,7 @@
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { Component, computed, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface NavItem {
@@ -37,7 +37,7 @@ interface NavItem {
       }
     </nav>
   `,
-  })
+})
 export class BottomNav {
   public readonly barId = input.required<string>();
   public readonly isOwner = input(false);

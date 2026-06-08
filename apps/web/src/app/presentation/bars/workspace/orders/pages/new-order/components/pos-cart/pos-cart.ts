@@ -45,14 +45,14 @@ export interface CartItem {
               <div class="flex items-center gap-1">
                 <button mat-icon-button (click)="decrementClicked.emit(item.productId)">
                   @if (item.quantity === 1) {
-                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;" class="text-error">delete</mat-icon>
+                    <mat-icon class="text-error text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">delete</mat-icon>
                   } @else {
-                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;">remove</mat-icon>
+                    <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">remove</mat-icon>
                   }
                 </button>
                 <span class="w-8 text-center font-bold text-sm">{{ item.quantity }}</span>
                 <button mat-icon-button (click)="incrementClicked.emit(item.productId)">
-                  <mat-icon style="font-size: 14px; width: 14px; height: 14px;">add</mat-icon>
+                  <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">add</mat-icon>
                 </button>
               </div>
             </div>
@@ -84,7 +84,7 @@ export interface CartItem {
             [disabled]="items().length === 0 || disabled()"
             (click)="submitClicked.emit()"
           >
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">send</mat-icon>
+            <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">send</mat-icon>
             {{ 'orders.send_order' | translate }}
           </button>
         </div>
