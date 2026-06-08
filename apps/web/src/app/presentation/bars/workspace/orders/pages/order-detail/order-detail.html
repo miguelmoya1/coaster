@@ -137,14 +137,13 @@
         @if (order.status === 'OPEN') {
           <div class="flex items-center gap-2 shrink-0">
             @if (isItemSelected(item.id)) {
-              <div class="flex flex-col gap-1.5 justify-end items-end w-28">
+              <div class="w-28">
                 <!-- Pay adjustment -->
                 <coaster-number-input
                   [(value)]="getSelectedQuantities(item.id)!.paidQty"
                   (valueChange)="updateSelectedPayQty(item.id, $event)"
                   [min]="-item.paidQuantity"
                   [max]="item.quantity - item.paidQuantity"
-                  [label]="'orders.quantity_to_pay' | translate"
                   wrapperClass="w-full"
                 />
               </div>
@@ -200,7 +199,7 @@
           (click)="handleConfirmChanges()"
         >
           <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>
-          {{ 'orders.confirm_changes' | translate }}
+          {{ 'orders.mark_paid' | translate }}
         </button>
       </div>
     </div>

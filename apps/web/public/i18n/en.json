@@ -203,6 +203,10 @@
       "title": "Leave Bar"
     },
     "leave_tooltip": "You are the only owner. To leave the bar, add another owner first.",
+    "invite": {
+      "title": "Invite to team",
+      "description": "Add a new member to the team using their email address."
+    },
     "staff": {
       "description": "{{count}} team members",
       "no_members": "No members in the team",

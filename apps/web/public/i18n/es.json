@@ -203,6 +203,10 @@
       "title": "Abandonar Bar"
     },
     "leave_tooltip": "Eres el único propietario. Para abandonar el bar, añade otro propietario primero.",
+    "invite": {
+      "title": "Invitar al equipo",
+      "description": "Añade un nuevo miembro a la plantilla mediante su correo electrónico."
+    },
     "staff": {
       "description": "{{count}} miembros del equipo",
       "no_members": "No hay miembros en el equipo",
