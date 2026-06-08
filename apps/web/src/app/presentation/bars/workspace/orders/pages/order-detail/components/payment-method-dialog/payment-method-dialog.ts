@@ -4,7 +4,7 @@ import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/mat
 import { MatIcon } from '@angular/material/icon';
 import type { PaymentMethod } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../pipes/price/price';
+import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-payment-method-dialog',

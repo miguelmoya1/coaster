@@ -10,199 +10,31 @@
 }
 
 @if (displayOrderViewModel(); as order) {
-  <div class="flex justify-between items-center bg-surface-container rounded-2xl p-4">
-    <div class="flex flex-col gap-1">
-      <span class="text-sm text-on-surface-variant font-medium">
-        @if (order.status === 'OPEN') {
-          {{ 'orders.open_orders' | translate }}
-        } @else if (order.status === 'CLOSED') {
-          {{ 'history.status_closed' | translate }}
-        } @else {
-          {{ 'history.status_cancelled' | translate }}
-        }
-      </span>
-      <div class="flex flex-col gap-0.5">
-        <span class="text-xs text-on-surface-variant">
-          {{ order.items.length }} {{ 'history.items' | translate }}
-        </span>
-        @if (order.amountPaidCash > 0 || order.amountPaidCard > 0) {
-          <span class="text-xxs text-on-surface-variant/80 flex flex-wrap items-center gap-1.5 mt-0.5">
-            <span>{{ 'orders.paid' | translate }}:</span>
-            @if (order.amountPaidCash > 0) {
-              <span
-                class="flex items-center gap-0.5 text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0"
-              >
-                <mat-icon>payments</mat-icon>
-                {{ order.amountPaidCash | price }}
-              </span>
-            }
-            @if (order.amountPaidCard > 0) {
-              <span
-                class="flex items-center gap-0.5 text-indigo-400 font-semibold bg-indigo-500/10 px-1.5 py-0.5 rounded-full shrink-0"
-              >
-                <mat-icon>credit_card</mat-icon>
-                {{ order.amountPaidCard | price }}
-              </span>
-            }
-          </span>
-        }
-      </div>
-    </div>
-    <span class="text-2xl font-black" [class.text-primary]="order.status === 'OPEN'">
-      {{ order.totalAmount | price }}
-    </span>
-  </div>
+  <coaster-order-summary-card [order]="order" />
 
   <div class="flex flex-col gap-2">
     @for (item of order.items; track item.id) {
-      <div
-        class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
-        [class.opacity-50]="item.paymentStatus === 'PAID' && item.deliveryStatus === 'SERVED'"
-        [class.border-primary/20]="isItemSelected(item.id)"
-        [class.bg-primary/5]="isItemSelected(item.id)"
-        [class.cursor-pointer]="order.status === 'OPEN'"
-        [attr.role]="order.status === 'OPEN' ? 'button' : null"
-        [attr.tabindex]="order.status === 'OPEN' ? 0 : null"
-        (click)="order.status === 'OPEN' && toggleSelectItem(item)"
-        (keydown.enter)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
-        (keydown.space)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
-      >
-        <!-- Selection Checkbox -->
-        @if (order.status === 'OPEN') {
-          <button
-            class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
-            [class.border-primary]="isItemSelected(item.id)"
-            [class.bg-primary]="isItemSelected(item.id)"
-            [class.text-on-primary]="isItemSelected(item.id)"
-            [class.border-on-surface-variant]="!isItemSelected(item.id)"
-            (click)="toggleSelectItem(item); $event.stopPropagation()"
-          >
-            @if (isItemSelected(item.id)) {
-              <mat-icon class="stroke-3 text-xs w-3 h-3 leading-3">check</mat-icon>
-            }
-          </button>
-        }
-
-        <div class="flex-1 flex flex-col gap-1 min-w-0">
-          <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName | translate }}</span>
-          <div class="flex gap-2 items-center">
-            <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
-            <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
-          </div>
-          @if (item.quantity > 1 || item.paidQuantity > 0) {
-            <div class="flex flex-col gap-0.5 mt-1">
-              <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.paid_units' | translate: { paid: item.paidQuantity, total: item.quantity } }}
-                @if (item.paidQuantity > 0) {
-                  <span class="opacity-80 font-semibold">
-                    (
-                    @if (item.paidQuantityCash > 0 && item.paidQuantityCard > 0) {
-                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }} •
-                      {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
-                    } @else if (item.paidQuantityCash > 0) {
-                      {{ item.paidQuantityCash }} {{ 'orders.payment_method_cash' | translate }}
-                    } @else if (item.paidQuantityCard > 0) {
-                      {{ item.paidQuantityCard }} {{ 'orders.payment_method_card' | translate }}
-                    }
-                    )
-                  </span>
-                }
-              </span>
-              @if (item.quantity > 1) {
-                <span class="text-xxs text-on-surface-variant font-medium">
-                  {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
-                </span>
-              }
-            </div>
-          }
-          <div class="flex gap-1.5 mt-1">
-            @if (item.paymentStatus === 'PAID') {
-              <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.paid' | translate }}
-              </span>
-            } @else if (item.paymentStatus === 'PARTIAL') {
-              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial_payment' | translate }}
-              </span>
-            }
-            @if (item.deliveryStatus === 'SERVED') {
-              <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.served' | translate }}
-              </span>
-            } @else if (item.deliveryStatus === 'PARTIAL') {
-              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial_delivery' | translate }}
-              </span>
-            }
-          </div>
-        </div>
-
-        <!-- In-row Compact Adjustment Controls -->
-        @if (order.status === 'OPEN') {
-          <div class="flex items-center gap-2 shrink-0">
-            @if (isItemSelected(item.id)) {
-              <div class="w-28">
-                <!-- Pay adjustment -->
-                <coaster-number-input
-                  [(value)]="getSelectedQuantities(item.id)!.paidQty"
-                  (valueChange)="updateSelectedPayQty(item.id, $event)"
-                  [min]="-item.paidQuantity"
-                  [max]="item.quantity - item.paidQuantity"
-                  wrapperClass="w-full"
-                />
-              </div>
-            }
-
-            <button
-              mat-icon-button
-              (click)="handleRemoveItem(item); $event.stopPropagation()"
-              [title]="'orders.remove_item' | translate"
-            >
-              <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">delete</mat-icon>
-            </button>
-          </div>
-        }
-      </div>
+      <coaster-order-item-card
+        [item]="item"
+        [isOpen]="order.status === 'OPEN'"
+        [isSelected]="isItemSelected(item.id)"
+        [selectedQty]="getSelectedQuantities(item.id)"
+        (toggleSelect)="toggleSelectItem(item)"
+        (updatePayQty)="updateSelectedPayQty(item.id, $event)"
+        (removeItem)="handleRemoveItem(item)"
+      />
     }
   </div>
 
   <!-- Gorgeous Glassmorphic Floating Group Action Bar -->
   @if (totalSelectedItemsCount() > 0) {
-    <div
-      class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
-    >
-      <div class="flex items-center gap-4">
-        <div class="flex flex-col gap-0.5">
-          <span class="text-xs font-bold text-primary tracking-wide uppercase">
-            {{ 'orders.bulk_actions_title' | translate }}
-          </span>
-          <span class="text-sm font-semibold text-on-surface">
-            {{ 'orders.selected_items_count' | translate: { count: totalSelectedItemsCount() } }}
-          </span>
-        </div>
-        <div class="h-8 w-px bg-outline/25 hidden md:block"></div>
-        <div class="flex flex-col gap-0.5">
-          <span class="text-xxs text-on-surface-variant font-medium">
-            {{ 'orders.selected_total_amount' | translate }}
-          </span>
-          <span class="text-lg font-black text-secondary">
-            {{ selectedTotalAmount() | price }}
-          </span>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <button mat-stroked-button (click)="clearSelection()">
-          <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">close</mat-icon>
-          {{ 'common.cancel' | translate }}
-        </button>
-
-        <button mat-flat-button [disabled]="totalPaidUnitsDiff() === 0" (click)="handleConfirmChanges()">
-          <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
-          {{ 'orders.mark_paid' | translate }}
-        </button>
-      </div>
-    </div>
+    <coaster-order-bulk-actions
+      [selectedCount]="totalSelectedItemsCount()"
+      [selectedAmount]="selectedTotalAmount()"
+      [canConfirm]="totalPaidUnitsDiff() > 0"
+      (clearSelection)="clearSelection()"
+      (confirmChanges)="handleConfirmChanges()"
+    />
   }
 
   @if (order.status === 'OPEN') {

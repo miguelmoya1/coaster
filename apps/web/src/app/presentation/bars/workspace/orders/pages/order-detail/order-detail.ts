@@ -10,17 +10,17 @@ import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-import { NumberInput } from '../../../../../components/number-input/number-input';
-import { PricePipe } from '../../../pipes/price/price';
-import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
-import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
-import { PaymentMethodDialog } from '../../components/payment-method-dialog/payment-method-dialog';
-
-import { OrderActions } from '../../components/order-actions/order-actions';
+import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
+import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
+import { OrderActions } from './components/order-actions/order-actions';
+import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
+import { OrderItemCard } from './components/order-item-card/order-item-card';
+import { OrderBulkActions } from './components/order-bulk-actions/order-bulk-actions';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, PricePipe, OrderTitlePipe, NumberInput, Loading, OrderActions],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, OrderActions, OrderSummaryCard, OrderItemCard, OrderBulkActions],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
 })
