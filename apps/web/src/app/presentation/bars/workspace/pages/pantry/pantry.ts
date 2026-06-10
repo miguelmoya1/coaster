@@ -1,14 +1,5 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  inputBinding,
-  linkedSignal,
-  outputBinding,
-  signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
@@ -21,20 +12,15 @@ import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Loading } from '../../../../components/loading/loading';
-
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
+import { Loading } from '../../../../components/loading/loading';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
-import { CreateCategoryForm } from './components/create-category-form/create-category-form';
-import { CreateProductForm } from './components/create-product-form/create-product-form';
+import { CreatePantrySheet } from './components/create-pantry-sheet/create-pantry-sheet';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { PantrySearch } from './components/pantry-search/pantry-search';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
-
-type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
 @Component({
   selector: 'coaster-pantry',
@@ -43,22 +29,16 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     MatChipOption,
     MatChipTrailingIcon,
     InventoryItemCard,
-    CreateCategoryForm,
-    CreateProductForm,
     Loading,
-    BottomSheet,
-    Fab,
     RouterLink,
     TranslatePipe,
-    UpdateProductForm,
-    UpdateStockProductForm,
-    EditCategoryForm,
     MatCard,
     MatCardTitle,
     MatCardSubtitle,
     MatIcon,
     MatButton,
     PantrySearch,
+    Fab,
   ],
   host: {
     class: 'flex flex-col gap-2',
@@ -88,23 +68,16 @@ export default class Pantry {
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
     this.#router,
   );
 
-  readonly currentTab = signal<PantryTabs>('PRODUCT');
-  readonly availableTabs = signal<{ id: PantryTabs; label: string }[]>([
-    { id: 'PRODUCT', label: this.#translate.instant('pantry.product') },
-    { id: 'CATEGORY', label: this.#translate.instant('pantry.category') },
-  ]);
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
-  readonly productSelected = signal<Product | null>(null);
-  readonly productToEdit = signal<Product | null>(null);
-  readonly categoryToEdit = signal<Category | null>(null);
   readonly productDeleting = signal<Product | null>(null);
   readonly categoryDeleting = signal<Category | null>(null);
 
@@ -113,10 +86,6 @@ export default class Pantry {
   readonly totalProductsCount = this.#productsStore.total;
   readonly criticalProductsCount = this.#productsStore.criticalStock;
   readonly alertProductsCount = this.#productsStore.lowStock;
-
-  readonly isModalOpen = linkedSignal(() => {
-    return this.productSelected() || this.productToEdit() || this.categoryToEdit() || this.isCreateMode();
-  });
 
   readonly tabs = computed(() => {
     const rawCategories = this.categories.value() ?? [];
@@ -156,6 +125,25 @@ export default class Pantry {
       this.#categoriesStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
     });
+
+    effect(() => {
+      if (this.isCreateMode()) {
+        const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
+          disableClose: true,
+          bindings: [
+            inputBinding('categories', () => this.categories.value() ?? []),
+            outputBinding('canceled', () => {
+              bottomSheetRef.dismiss();
+              this.#router.navigate(['/bars', this.barId(), 'pantry']);
+            }),
+            outputBinding('created', () => {
+              bottomSheetRef.dismiss();
+              this.#router.navigate(['/bars', this.barId(), 'pantry']);
+            }),
+          ],
+        });
+      }
+    });
   }
 
   onCategoryChange(event: MatChipListboxChange, listbox: MatChipListbox) {
@@ -167,21 +155,25 @@ export default class Pantry {
     }
   }
 
-  onTabChange(event: MatChipListboxChange, listbox: MatChipListbox) {
-    const value = event.value;
-    if (value === undefined || value === null) {
-      listbox.value = this.currentTab();
-    } else {
-      this.currentTab.set(value);
-    }
-  }
-
   onProductClicked(product: Product) {
-    this.productSelected.set(product);
+    const bottomSheetRef = this.#bottomSheet.open(UpdateStockProductForm, {
+      bindings: [
+        inputBinding('product', () => product),
+        outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+      ],
+    });
   }
 
   onEditProductClicked(product: Product) {
-    this.productToEdit.set(product);
+    const bottomSheetRef = this.#bottomSheet.open(UpdateProductForm, {
+      bindings: [
+        inputBinding('product', () => product),
+        inputBinding('categories', () => this.categories.value() ?? []),
+        outputBinding('edited', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+      ],
+    });
   }
 
   onEditCategoryClicked(event?: Event, categoryId?: string) {
@@ -193,7 +185,17 @@ export default class Pantry {
     if (targetId === 'ALL') return;
     const cat = this.categories.value()?.find((c) => c.id === targetId);
     if (cat) {
-      this.categoryToEdit.set(cat);
+      const bottomSheetRef = this.#bottomSheet.open(EditCategoryForm, {
+        bindings: [
+          inputBinding('category', () => cat),
+          outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
+          outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+          outputBinding('deleted', () => {
+            bottomSheetRef.dismiss();
+            this.handleDeleteCategoryClicked(cat);
+          }),
+        ],
+      });
     }
   }
 
@@ -263,19 +265,5 @@ export default class Pantry {
     this.categoryDeleting.set(null);
     this.selectedCategoryId.set('ALL');
     await this.#categoriesStore.delete(categoryToDelete.id);
-  }
-
-  closeModal() {
-    this.productSelected.set(null);
-    this.productToEdit.set(null);
-    this.categoryToEdit.set(null);
-    this.isSubmitting.set(false);
-    this.isModalOpen.set(false);
-
-    this.currentTab.set('PRODUCT');
-
-    if (this.isCreateMode()) {
-      this.#router.navigate(['/bars', this.barId(), 'pantry']);
-    }
   }
 }

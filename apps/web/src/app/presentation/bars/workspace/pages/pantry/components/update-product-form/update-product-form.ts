@@ -25,6 +25,9 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
     MatButton,
     TranslatePipe,
   ],
+  host: {
+    class: 'block px-6 pb-6 pt-2',
+  },
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">

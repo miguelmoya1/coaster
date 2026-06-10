@@ -8,8 +8,11 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
 @Component({
   selector: 'coaster-update-product-form',
   imports: [FormRoot, NumberInput, FormField, MatButton, TranslatePipe],
+  host: {
+    class: 'block px-6 pb-6 pt-2',
+  },
   template: `
-    <div class="px-6 pb-6 pt-6">
+    <div>
       <h2 class="heading-2 mb-6">{{ product().name | translate }}</h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">

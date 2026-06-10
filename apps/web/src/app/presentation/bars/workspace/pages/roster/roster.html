@@ -102,14 +102,3 @@
 @if (currentUserRole() === 'OWNER') {
   <coaster-fab routerLink="new" queryParamsHandling="preserve" />
 }
-
-<!-- Create Shift Dialog Sheet -->
-@if (isCreateMode()) {
-  <coaster-bottom-sheet (closed)="handleCloseModal()">
-    <coaster-create-shift-form
-      [members]="membersList()"
-      (canceled)="handleCloseModal()"
-      (created)="handleCreateShift()"
-    />
-  </coaster-bottom-sheet>
-}

@@ -10,6 +10,9 @@ import { MatInput } from '@angular/material/input';
 @Component({
   selector: 'coaster-edit-category-form',
   imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
+  host: {
+    class: 'block px-6 pb-6 pt-2',
+  },
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">

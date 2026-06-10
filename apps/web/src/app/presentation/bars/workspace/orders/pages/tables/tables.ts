@@ -9,13 +9,11 @@ import {
   outputBinding,
   signal,
 } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
@@ -24,28 +22,14 @@ import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
+import { CreateTableForm } from './components/create-table-form/create-table-form';
 import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [
-    TableCard,
-    MatCard,
-    Loading,
-    BottomSheet,
-    Fab,
-    TranslatePipe,
-    MatButton,
-    MatIcon,
-    PricePipe,
-    MatChip,
-    MatFormField,
-    MatLabel,
-    MatInput,
-  ],
+  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
 })
@@ -58,6 +42,7 @@ class Tables {
 
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly #translate = inject(TranslateService);
 
@@ -69,7 +54,6 @@ class Tables {
     });
   }
 
-  readonly showCreateTable = signal(false);
   readonly isSubmitting = signal(false);
   readonly tableToDelete = signal<Table | null>(null);
   readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
@@ -115,19 +99,21 @@ class Tables {
   }
 
   onCreateTable() {
-    this.showCreateTable.set(true);
-  }
-
-  async submitCreateTable(name: string) {
-    if (!name.trim()) return;
-    this.isSubmitting.set(true);
-    try {
-      await this.#tablesStore.create({ name: name.trim() });
-      this.showCreateTable.set(false);
-    } catch (e) {
-      console.error(e);
-    }
-    this.isSubmitting.set(false);
+    const bottomSheetRef = this.#bottomSheet.open(CreateTableForm, {
+      bindings: [
+        inputBinding('isSubmitting', () => this.isSubmitting()),
+        outputBinding('created', async (name: string) => {
+          this.isSubmitting.set(true);
+          try {
+            await this.#tablesStore.create({ name });
+            bottomSheetRef.dismiss();
+          } catch (e) {
+            console.error(e);
+          }
+          this.isSubmitting.set(false);
+        }),
+      ],
+    });
   }
 
   protected handleDeleteTable(table: Table) {

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
@@ -15,7 +16,6 @@ import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../components/loading/loading';
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
@@ -48,8 +48,6 @@ export type PendingExchangeItem = ShiftExchange & {
     Fab,
     ShiftCard,
     TranslatePipe,
-    BottomSheet,
-    CreateShiftForm,
     ExchangeRequestCard,
     RouterLink,
     RosterNavigation,
@@ -78,6 +76,7 @@ export default class Roster {
   readonly #route = inject(ActivatedRoute);
   readonly #http = inject(HttpClient);
   readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly #translate = inject(TranslateService);
 
@@ -260,6 +259,27 @@ export default class Roster {
       this.#exchangesStore.setBarId(barId);
       this.#shiftsStore.setBarId(barId);
       this.#membersStore.setBarId(barId);
+    });
+
+    effect(() => {
+      const isCreateMode = this.isCreateMode();
+
+      if (isCreateMode) {
+        const bottomSheetRef = this.#bottomSheet.open(CreateShiftForm, {
+          disableClose: true,
+          bindings: [
+            inputBinding('members', () => this.membersList()),
+            outputBinding('canceled', () => {
+              bottomSheetRef.dismiss();
+              this.handleCloseModal();
+            }),
+            outputBinding('created', () => {
+              bottomSheetRef.dismiss();
+              this.handleCreateShift();
+            }),
+          ],
+        });
+      }
     });
   }
 
