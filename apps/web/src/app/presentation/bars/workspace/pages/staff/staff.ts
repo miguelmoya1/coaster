@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
@@ -7,7 +8,6 @@ import { MembersStore } from '@coaster/members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../components/loading/loading';
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
@@ -20,7 +20,7 @@ type MemberItem = BarMember & {
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, BottomSheet, Fab, InviteMemberForm, TranslatePipe, RouterLink],
+  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink],
   host: {
     class: 'flex flex-col gap-2',
   },
@@ -35,6 +35,7 @@ export default class Staff {
   readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
   readonly #translate = inject(TranslateService);
+  readonly #bottomSheet = inject(MatBottomSheet);
 
   protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
@@ -75,10 +76,26 @@ export default class Staff {
 
       this.#membersStore.setBarId(barId);
     });
-  }
 
-  protected closeModal() {
-    this.#router.navigate(['/bars', this.barId(), 'staff']);
+    effect(() => {
+      const isInviteMode = this.isInviteMode();
+
+      if (isInviteMode) {
+        const bottomSheetRef = this.#bottomSheet.open(InviteMemberForm, {
+          disableClose: true,
+          bindings: [
+            outputBinding('canceled', () => {
+              bottomSheetRef.dismiss();
+              this.#closeModal();
+            }),
+            outputBinding('invited', () => {
+              bottomSheetRef.dismiss();
+              this.#closeModal();
+            }),
+          ],
+        });
+      }
+    });
   }
 
   protected handleClickDeleteMember(member: MemberItem) {
@@ -109,6 +126,10 @@ export default class Staff {
         }),
       ],
     });
+  }
+
+  #closeModal() {
+    this.#router.navigate(['/bars', this.barId(), 'staff']);
   }
 
   async #handleConfirmDeleteMember() {

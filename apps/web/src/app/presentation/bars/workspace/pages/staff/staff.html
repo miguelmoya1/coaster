@@ -27,9 +27,3 @@
 @if (isOwner()) {
   <coaster-fab routerLink="invite" />
 }
-
-@if (isInviteMode()) {
-  <coaster-bottom-sheet (closed)="closeModal()">
-    <coaster-invite-member-form (canceled)="closeModal()" (invited)="closeModal()" />
-  </coaster-bottom-sheet>
-}
