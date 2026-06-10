@@ -1,11 +1,11 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-create-category-form',
@@ -54,7 +54,7 @@ import { MatInput } from '@angular/material/input';
             mat-stroked-button
             class="w-full"
             type="button"
-            [disabled]="form().submitting() || form().invalid()"
+            [disabled]="form().submitting()"
             (click)="cancelHandler()"
           >
             {{ 'common.cancel' | translate }}

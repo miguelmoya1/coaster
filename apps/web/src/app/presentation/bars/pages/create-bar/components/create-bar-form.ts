@@ -43,7 +43,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           [attr.data-testid]="'submit-btn'"
           mat-flat-button
           type="submit"
-          [disabled]="barForm().invalid() || barForm().submitting()"
+          [disabled]="barForm().disabled() || barForm().submitting() || barForm().invalid()"
         >
           {{ 'common.create' | translate }}
 

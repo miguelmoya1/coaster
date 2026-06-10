@@ -85,13 +85,18 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
             mat-stroked-button
             class="w-full"
             type="button"
-            [disabled]="form().disabled() || form().submitting()"
+            [disabled]="form().submitting()"
             (click)="handleCancel()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button mat-flat-button class="w-full" type="submit" [disabled]="form().disabled() || form().submitting()">
+          <button
+            mat-flat-button
+            class="w-full"
+            type="submit"
+            [disabled]="form().disabled() || form().submitting() || form().invalid()"
+          >
             {{ 'common.create' | translate }}
           </button>
         </div>
