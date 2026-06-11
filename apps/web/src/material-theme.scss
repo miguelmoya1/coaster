@@ -1,0 +1,90 @@
+@use '@angular/material' as mat;
+@use './theme-colors';
+
+html {
+  // Default color-scheme of the application is dark
+  color-scheme: dark;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
+        theme-type: dark,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+
+  // Generate Angular Material system classes (e.g., mat-bg-surface, mat-text-on-surface)
+  @include mat.system-classes();
+
+  // Configure strong focus indicators for accessibility
+  @include mat.strong-focus-indicators();
+}
+
+body {
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}
+
+mat-chip {
+  &.success {
+    @include mat.chips-overrides(
+      (
+        label-text-color: var(--color-success),
+        outline-color: var(--color-success),
+      )
+    );
+  }
+
+  &.error {
+    @include mat.chips-overrides(
+      (
+        label-text-color: var(--color-error),
+        outline-color: var(--color-error),
+      )
+    );
+  }
+}
+
+button[mat-icon-button] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button.warn,
+a.warn {
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mat-sys-error),
+      filled-label-text-color: var(--mat-sys-on-error),
+      protected-container-color: var(--mat-sys-error),
+      protected-label-text-color: var(--mat-sys-on-error),
+      tonal-container-color: var(--mat-sys-error-container),
+      tonal-label-text-color: var(--mat-sys-on-error-container),
+      outlined-outline-color: var(--mat-sys-error),
+      outlined-label-text-color: var(--mat-sys-error),
+      text-label-text-color: var(--mat-sys-error),
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--mat-sys-error),
+    )
+  );
+
+  @include mat.fab-overrides(
+    (
+      container-color: var(--mat-sys-error-container),
+      foreground-color: var(--mat-sys-on-error-container),
+    )
+  );
+}
+
+mat-bottom-sheet-container {
+  padding: 2rem !important;
+}

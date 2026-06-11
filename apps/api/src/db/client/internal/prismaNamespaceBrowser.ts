@@ -211,6 +211,9 @@ export const DbOrderScalarFieldEnum = {
   tableName: 'tableName',
   status: 'status',
   totalAmount: 'totalAmount',
+  amountPaidCash: 'amountPaidCash',
+  amountPaidCard: 'amountPaidCard',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -225,9 +228,12 @@ export const DbOrderItemScalarFieldEnum = {
   quantity: 'quantity',
   priceAtPurchase: 'priceAtPurchase',
   paidQuantity: 'paidQuantity',
+  paidQuantityCash: 'paidQuantityCash',
+  paidQuantityCard: 'paidQuantityCard',
   servedQuantity: 'servedQuantity',
   paymentStatus: 'paymentStatus',
   deliveryStatus: 'deliveryStatus',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

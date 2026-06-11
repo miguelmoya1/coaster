@@ -1,66 +1,28 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
-import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
+import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideArrowLeft,
-  lucideArrowRightLeft,
-  lucideCheck,
-  lucideCheckSquare,
-  lucideChefHat,
-  lucideCreditCard,
-  lucideMerge,
-  lucidePackagePlus,
-  lucideSquare,
-  lucideTrash2,
-  lucideX,
-} from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../components/typography/typography';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
-import { PricePipe } from '../../../pipes/price/price';
-import { MergeOrdersDialog } from '../../components/merge-orders-dialog/merge-orders-dialog';
-import { MoveTableDialog } from '../../components/move-table-dialog/move-table-dialog';
-import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
+import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
+import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
+import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
+import { OrderActions } from './components/order-actions/order-actions';
+import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
+import { OrderItemCard } from './components/order-item-card/order-item-card';
+import { OrderBulkActions } from './components/order-bulk-actions/order-bulk-actions';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [
-    Loading,
-    CoasterTitle,
-    CoasterBtn,
-    TranslatePipe,
-    NgIcon,
-    PricePipe,
-    OrderTitlePipe,
-    ConfirmDialogComponent,
-    MoveTableDialog,
-    MergeOrdersDialog,
-    CoasterQtyAdjuster,
-  ],
-  viewProviders: [
-    provideIcons({
-      lucideArrowLeft,
-      lucideArrowRightLeft,
-      lucideChefHat,
-      lucideCreditCard,
-      lucidePackagePlus,
-      lucideMerge,
-      lucideTrash2,
-      lucideX,
-      lucideSquare,
-      lucideCheckSquare,
-      lucideCheck,
-    }),
-  ],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, OrderActions, OrderSummaryCard, OrderItemCard, OrderBulkActions],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class OrderDetail {
   public readonly barId = input.required<BarId>();
@@ -69,20 +31,20 @@ class OrderDetail {
   readonly #ordersStore = inject(OrdersStore);
   readonly #tablesStore = inject(TablesStore);
   readonly #router = inject(Router);
+  readonly #dialog = inject(MatDialog);
+
+  readonly #translate = inject(TranslateService);
 
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
-  protected readonly isCheckoutOrderModelOpen = signal(false);
-  protected readonly isMoveTableModelOpen = signal(false);
-  protected readonly isMergeOrdersModelOpen = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
   readonly fetchedOrder = signal<Order | null>(null);
   readonly isLoading = signal(false);
 
-  // Local multi-selection state: maps itemId to selected paid and served quantities
-  protected readonly selectedItems = signal<Map<string, { paidQty: number; serveQty: number }>>(new Map());
+  // Local multi-selection state: maps itemId to selected paid quantities
+  protected readonly selectedItems = signal<Map<string, { paidQty: number }>>(new Map());
 
   // Helper computed signals
   protected readonly selectedItemsList = computed(() => {
@@ -110,12 +72,6 @@ class OrderDetail {
   protected readonly totalPaidUnitsDiff = computed(() => {
     return this.selectedItemsList().reduce((sum, s) => {
       return sum + Math.abs(s.paidQty);
-    }, 0);
-  });
-
-  protected readonly totalServeUnitsDiff = computed(() => {
-    return this.selectedItemsList().reduce((sum, s) => {
-      return sum + Math.abs(s.serveQty);
     }, 0);
   });
 
@@ -204,7 +160,6 @@ class OrderDetail {
     } else {
       current.set(item.id, {
         paidQty: 0,
-        serveQty: 0,
       });
     }
     this.selectedItems.set(current);
@@ -219,32 +174,35 @@ class OrderDetail {
     }
   }
 
-  protected updateSelectedServeQty(itemId: string, qty: number) {
-    const current = new Map(this.selectedItems());
-    const val = current.get(itemId);
-    if (val) {
-      current.set(itemId, { ...val, serveQty: qty });
-      this.selectedItems.set(current);
-    }
-  }
-
   protected clearSelection() {
     this.selectedItems.set(new Map());
   }
 
-  protected async applySelectedChanges() {
+  protected handleConfirmChanges() {
+    if (this.totalPaidUnitsDiff() > 0) {
+      this.#openPaymentMethodDialog(this.selectedTotalAmount()).subscribe((method) => {
+        if (method) {
+          this.applySelectedChanges(method);
+        }
+      });
+    } else {
+      this.applySelectedChanges();
+    }
+  }
+
+  protected async applySelectedChanges(paymentMethod?: PaymentMethod) {
     const order = this.displayOrder();
     if (!order) return;
 
     const itemsToUpdate = this.selectedItemsList()
-      .filter((s) => s.paidQty !== 0 || s.serveQty !== 0)
+      .filter((s) => s.paidQty !== 0)
       .map((s) => {
         const update: BulkUpdateItemDto = { itemId: asOrderItemId(s.itemId) };
         if (s.paidQty !== 0) {
           update.paidQuantity = s.item!.paidQuantity + s.paidQty;
-        }
-        if (s.serveQty !== 0) {
-          update.servedQuantity = s.item!.servedQuantity + s.serveQty;
+          if (s.paidQty > 0 && paymentMethod) {
+            update.paymentMethod = paymentMethod;
+          }
         }
         return update;
       });
@@ -265,28 +223,52 @@ class OrderDetail {
   }
 
   protected handleOpenCheckout() {
-    this.isCheckoutOrderModelOpen.set(true);
-  }
-
-  protected handleCancelCheckout() {
-    this.isCheckoutOrderModelOpen.set(false);
-  }
-
-  protected async handleCheckoutConfirmed() {
     const order = this.currentOrder();
-    if (!order) {
-      return;
-    }
+    if (!order) return;
 
-    await this.#ordersStore.checkout(this.barId(), order.id);
-    this.goBack();
-    this.#tablesStore.reload();
-    this.#ordersStore.reloadHistory();
-    this.isCheckoutOrderModelOpen.set(false);
+    this.#openPaymentMethodDialog(order.totalAmount).subscribe(async (method) => {
+      if (!method) return;
+
+      await this.#ordersStore.checkout(this.barId(), order.id, method);
+      this.goBack();
+      this.#tablesStore.reload();
+      this.#ordersStore.reloadHistory();
+    });
+  }
+
+  #openPaymentMethodDialog(amount: number) {
+    const dialogRef = this.#dialog.open(PaymentMethodDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('amount', () => amount),
+        outputBinding('selected', (method) => {
+          dialogRef.close(method);
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+    return dialogRef.afterClosed();
   }
 
   protected handleCancelOrder() {
     this.isCancelingOrderModelOpen.set(true);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.cancel_title')),
+        inputBinding('text', () => this.#translate.instant('orders.cancel_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelCancelOrderDialog();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleCancelOrderConfirmed();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelCancelOrderDialog() {
@@ -306,6 +288,21 @@ class OrderDetail {
 
   protected handleRemoveItem(item: OrderItem) {
     this.orderItemDeleting.set(item);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.remove_item_title')),
+        inputBinding('text', () => this.#translate.instant('orders.remove_item_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelRemoveItem();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleRemoveItemConfirmed();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelRemoveItem() {
@@ -325,7 +322,20 @@ class OrderDetail {
   }
 
   onMoveTable() {
-    this.isMoveTableModelOpen.set(true);
+    const dialogRef = this.#dialog.open(MoveTableDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('tables', () => this.availableTables()),
+        inputBinding('currentTableId', () => this.currentOrder()?.tableId),
+        outputBinding('selected', (result: string) => {
+          this.handleMoveTableResult(result);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected async handleMoveTableResult(targetTableId: string | undefined) {
@@ -341,11 +351,23 @@ class OrderDetail {
         console.error(e);
       }
     }
-    this.isMoveTableModelOpen.set(false);
   }
 
   onMerge() {
-    this.isMergeOrdersModelOpen.set(true);
+    const dialogRef = this.#dialog.open(MergeOrdersDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('orders', () => this.openOrders()),
+        inputBinding('currentOrderId', () => this.orderId()),
+        outputBinding('selected', (result: string) => {
+          this.handleMergeResult(result);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected async handleMergeResult(targetOrderId: string | undefined) {
@@ -363,7 +385,6 @@ class OrderDetail {
         console.error(e);
       }
     }
-    this.isMergeOrdersModelOpen.set(false);
   }
 
   protected readonly availableTables = computed(() =>

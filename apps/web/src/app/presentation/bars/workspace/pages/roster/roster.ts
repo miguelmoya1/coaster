@@ -1,25 +1,28 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import {
-  isSameDay,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  addDays,
-} from 'date-fns';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId, BarRole } from '@coaster/common';
+import type { BarId, BarRole, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
-
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
+import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { Loading } from '../../../../components/loading/loading';
+import { Fab } from '../../components/fab/fab';
+import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
+import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
+import { RosterMonthlyGrid } from './components/roster-monthly-grid/roster-monthly-grid';
 import { RosterNavigation } from './components/roster-navigation/roster-navigation';
 import { RosterWeeklyGrid } from './components/roster-weekly-grid/roster-weekly-grid';
-import { RosterMonthlyGrid } from './components/roster-monthly-grid/roster-monthly-grid';
+import { ShiftCard } from './components/shift-card/shift-card';
 
 export type DailyShiftItem = Shift & {
   timeRange: string;
@@ -37,21 +40,6 @@ export type PendingExchangeItem = ShiftExchange & {
   roleName: BarRole;
   isOwnRequest: boolean;
 };
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideClock,
-  lucideRepeat2,
-  lucideTrash2,
-} from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Loading } from '../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../components/typography/typography';
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { Fab } from '../../components/fab/fab';
-import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
-import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
-import { ShiftCard } from './components/shift-card/shift-card';
 
 @Component({
   selector: 'coaster-roster',
@@ -59,31 +47,19 @@ import { ShiftCard } from './components/shift-card/shift-card';
     Loading,
     Fab,
     ShiftCard,
-    CoasterTitle,
-    NgIcon,
     TranslatePipe,
-    BottomSheet,
-    CreateShiftForm,
     ExchangeRequestCard,
     RouterLink,
-    ConfirmDialogComponent,
     RosterNavigation,
     RosterWeeklyGrid,
     RosterMonthlyGrid,
+    MatIcon,
   ],
   providers: [RosterStateService],
-  viewProviders: [
-    provideIcons({
-      lucideClock,
-      lucideRepeat2,
-      lucideTrash2,
-    }),
-  ],
   host: {
     class: 'flex flex-col gap-2 relative',
   },
   templateUrl: './roster.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Roster {
   public readonly barId = input.required<BarId>();
@@ -99,6 +75,10 @@ export default class Roster {
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #http = inject(HttpClient);
+  readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
+
+  readonly #translate = inject(TranslateService);
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
@@ -280,6 +260,27 @@ export default class Roster {
       this.#shiftsStore.setBarId(barId);
       this.#membersStore.setBarId(barId);
     });
+
+    effect(() => {
+      const isCreateMode = this.isCreateMode();
+
+      if (isCreateMode) {
+        const bottomSheetRef = this.#bottomSheet.open(CreateShiftForm, {
+          disableClose: true,
+          bindings: [
+            inputBinding('members', () => this.membersList()),
+            outputBinding('canceled', () => {
+              bottomSheetRef.dismiss();
+              this.handleCloseModal();
+            }),
+            outputBinding('created', () => {
+              bottomSheetRef.dismiss();
+              this.handleCreateShift();
+            }),
+          ],
+        });
+      }
+    });
   }
 
   #updateQueryParams(date: Date, view: 'day' | 'week' | 'month') {
@@ -344,6 +345,21 @@ export default class Roster {
 
   protected handleClickDeleteShift(shift: DailyShiftItem) {
     this.shiftDeleting.set(shift);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('roster.delete_shift_title')),
+        inputBinding('text', () => this.#translate.instant('roster.delete_shift_confirm')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteShift();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteShift();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelDeleteShift() {
@@ -365,6 +381,21 @@ export default class Roster {
 
   protected handleClickDeleteExchange(exchange: PendingExchangeItem) {
     this.exchangeDeleting.set(exchange);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('roster.exchanges.delete_title')),
+        inputBinding('text', () => this.#translate.instant('roster.exchanges.delete_confirm')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteExchange();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteExchange();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelDeleteExchange() {
@@ -413,6 +444,21 @@ export default class Roster {
 
   protected handleOpenReplicateConfirm() {
     this.showReplicateConfirm.set(true);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => false),
+        inputBinding('title', () => this.#translate.instant('roster.replication.confirm_title')),
+        inputBinding('text', () => this.#translate.instant('roster.replication.confirm_msg')),
+        outputBinding('canceled', () => {
+          this.handleCancelReplicate();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmReplicate();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelReplicate() {
@@ -425,7 +471,6 @@ export default class Roster {
 
     try {
       const selected = this.#state.selectedDate();
-      // Calculate previous week's start and end (Monday-Sunday)
       const prevWeekStart = startOfWeek(subWeeks(selected, 1), { weekStartsOn: 1 });
       const prevWeekEnd = endOfWeek(subWeeks(selected, 1), { weekStartsOn: 1 });
 
@@ -464,4 +509,3 @@ export default class Roster {
     }
   }
 }
-

@@ -1,29 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
 import { asOrderId, asOrderItemId } from '@coaster/core';
 import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideChefHat, lucideCoffee, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
 import { Loading } from '../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../components/typography/typography';
-import { CoasterQtyAdjuster } from '../../components/qty-adjuster/qty-adjuster';
+
+import { NumberInput } from '../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-to-serve',
-  imports: [Loading, CoasterTitle, CoasterBtn, TranslatePipe, NgIcon, OrderTitlePipe, CoasterQtyAdjuster],
-  viewProviders: [
-    provideIcons({
-      lucideCoffee,
-      lucideCheck,
-      lucideChefHat,
-      lucideX,
-    }),
-  ],
+  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, NumberInput],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './to-serve.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ToServe {
   public readonly barId = input.required<BarId>();

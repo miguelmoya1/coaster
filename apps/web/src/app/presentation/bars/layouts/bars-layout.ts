@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -12,6 +12,5 @@ import { RouterOutlet } from '@angular/router';
   host: {
     class: 'min-h-screen flex flex-col items-center',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class BarsLayout {}

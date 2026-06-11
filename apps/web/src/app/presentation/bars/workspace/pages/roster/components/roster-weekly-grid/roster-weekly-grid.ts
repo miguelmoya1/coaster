@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCopy, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
+import { Component, input, output } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import type { BarRole, Shift } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import type { Shift, BarRole } from '@coaster/common';
+import { ShiftCard } from '../shift-card/shift-card';
 
 export interface WeeklyShiftItem extends Shift {
   timeRange: string;
@@ -24,14 +25,7 @@ export interface WeeklyDayItem {
 
 @Component({
   selector: 'coaster-roster-weekly-grid',
-  imports: [NgIcon, TranslatePipe],
-  viewProviders: [
-    provideIcons({
-      lucideCopy,
-      lucidePlus,
-      lucideTrash2,
-    }),
-  ],
+  imports: [MatIcon, MatButton, MatIconButton, TranslatePipe, ShiftCard],
   template: `
     <!-- Owner Quick Replicate Action -->
     @if (currentUserRole() === 'OWNER') {
@@ -48,11 +42,12 @@ export interface WeeklyDayItem {
           </p>
         </div>
         <button
+          mat-flat-button
           (click)="replicatePreviousWeek.emit()"
           [disabled]="isSubmitting()"
-          class="flex items-center justify-center gap-2 shrink-0 bg-primary hover:bg-primary/90 text-on-primary-fixed active:scale-95 shadow-md shadow-primary/20 text-xs font-black uppercase tracking-widest py-3.5 px-6 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none self-start md:self-auto"
+          class="shrink-0 self-start md:self-auto"
         >
-          <ng-icon name="lucideCopy" class="text-sm" />
+          <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">content_copy</mat-icon>
           {{ 'roster.replication.button' | translate }}
         </button>
       </div>
@@ -89,56 +84,27 @@ export interface WeeklyDayItem {
             </div>
 
             @if (currentUserRole() === 'OWNER') {
-              <button
-                (click)="quickCreate.emit(day.date)"
-                class="h-8 w-8 rounded-xl bg-surface-container hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center text-on-surface-variant cursor-pointer active:scale-95"
-                title="{{ 'common.create' | translate }}"
-              >
-                <ng-icon name="lucidePlus" class="text-base" />
+              <button mat-icon-button (click)="quickCreate.emit(day.date)" title="{{ 'common.create' | translate }}">
+                <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">add</mat-icon>
               </button>
             }
           </div>
 
           <div class="flex flex-col gap-2">
             @for (shift of day.shifts; track shift.id) {
-              <div
-                class="flex items-center gap-3 bg-surface-container/40 p-3 rounded-2xl border border-outline-variant/5"
-              >
-                <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-                  <img [src]="shift.userImage" alt="Staff Portrait" class="w-full h-full object-cover" />
-                </div>
-                <div class="flex flex-col flex-1 min-w-0">
-                  <span class="text-xs font-bold text-primary uppercase tracking-wide leading-none mb-1">
-                    {{ shift.timeRange }}
-                  </span>
-                  <span class="text-sm font-bold text-white truncate">
-                    {{ shift.userName || ('roster.unassigned' | translate) }}
-                  </span>
-                </div>
-                @if (shift.isOwn) {
-                  <span
-                    class="text-xxs font-black text-tertiary bg-tertiary/10 px-2 py-0.5 rounded-full border border-tertiary/10 uppercase"
-                  >
-                    {{ 'roster.exchanges.your_request' | translate }}
-                  </span>
-                }
-                @if (shift.hasPendingExchange) {
-                  <span
-                    class="text-xxs font-black text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/10 uppercase"
-                  >
-                    {{ 'roster.exchange_pending' | translate }}
-                  </span>
-                }
-                @if (currentUserRole() === 'OWNER') {
-                  <button
-                    [disabled]="isSubmitting()"
-                    (click)="deleteShift.emit(shift)"
-                    class="h-8 w-8 rounded-lg bg-error/5 hover:bg-error/15 text-error flex items-center justify-center cursor-pointer transition-all active:scale-95 border border-error/10 shrink-0"
-                  >
-                    <ng-icon name="lucideTrash2" class="text-sm" />
-                  </button>
-                }
-              </div>
+              <coaster-shift-card
+                [compact]="true"
+                [timeRange]="shift.timeRange"
+                [staffName]="shift.userName || ('roster.unassigned' | translate)"
+                [roleName]="shift.roleName"
+                [staffImage]="shift.userImage || ''"
+                [isOwn]="shift.isOwn"
+                [hasPendingExchange]="shift.hasPendingExchange"
+                [isPast]="shift.isPast"
+                [showDelete]="currentUserRole() === 'OWNER'"
+                [disabled]="isSubmitting()"
+                (delete)="deleteShift.emit(shift)"
+              />
             } @empty {
               <p class="text-xs text-on-surface-variant/40 italic py-2 text-center">
                 {{ 'roster.no_shifts' | translate }}
@@ -149,7 +115,6 @@ export interface WeeklyDayItem {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RosterWeeklyGrid {
   readonly weekDays = input.required<WeeklyDayItem[]>();

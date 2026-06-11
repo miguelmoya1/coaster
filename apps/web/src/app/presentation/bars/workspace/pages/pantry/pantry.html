@@ -1,46 +1,72 @@
 <div class="flex gap-4 mb-6">
-  <coaster-status-card class="flex-1" status="primary">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.total' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ totalProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
+    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.total' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ totalProductsCount() ?? 0 }}
+    </mat-card-title>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="error">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.critical' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ criticalProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
+    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.critical' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ criticalProductsCount() ?? 0 }}
+    </mat-card-title>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="warning">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'pantry.alerts' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ alertProductsCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
+    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
+      {{ 'pantry.alerts' | translate }}
+    </mat-card-subtitle>
+    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
+      {{ alertProductsCount() ?? 0 }}
+    </mat-card-title>
+  </mat-card>
 </div>
 
-<h2 coaster-title class="mb-2">{{ 'pantry.inventory_title' | translate }}</h2>
-
-<div class="flex items-center gap-3 mb-4 w-full">
-  <div class="flex-1 min-w-0">
-    <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
-  </div>
+<div class="flex items-center justify-between gap-4 mb-2">
+  <h2 class="heading-2 mb-0">{{ 'pantry.inventory_title' | translate }}</h2>
   @if (canImportTemplates()) {
-    <button class="w-14! h-14! shrink-0" coaster-btn variant="outline" [routerLink]="['import']">
-      <ng-icon name="lucideDownload" class="text-xl" />
+    <button mat-flat-button [routerLink]="['import']">
+      <mat-icon>download</mat-icon>
+      <span>{{ 'pantry.import_title' | translate }}</span>
     </button>
   }
 </div>
 
-<div class="-mx-4 px-4 mb-4 flex items-center gap-4 overflow-hidden">
-  <div class="min-w-0 flex-1">
-    <coaster-tabs
-      [tabs]="tabs()"
-      [selectedTabId]="selectedCategoryId()"
-      (tabSelected)="selectedCategoryId.set($event)"
-    />
-  </div>
-  @if (canUpdateCategory() && selectedCategoryId() !== 'ALL') {
-    <button class="w-12! h-12!" coaster-btn (click)="onEditCategoryClicked()">
-      <ng-icon name="lucidePencil" class="text-xl" />
-    </button>
-  }
+<div class="mb-4 w-full">
+  <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
+</div>
+
+<div class="-mx-4 px-4 mb-4 overflow-hidden">
+  <mat-chip-listbox
+    #chipListbox
+    [value]="selectedCategoryId()"
+    (change)="onCategoryChange($event, chipListbox)"
+    class="hide-scrollbar"
+  >
+    @for (category of tabs(); track category.id) {
+      <mat-chip-option [value]="category.id" [selectable]="true">
+        <span class="text-sm font-medium">{{ category.label | translate }}</span>
+        @if (canUpdateCategory() && category.id !== 'ALL') {
+          <button
+            matChipTrailingIcon
+            (click)="onEditCategoryClicked($event, category.id)"
+            class="flex items-center justify-center ml-1 shrink-0"
+            aria-label="Editar categoría"
+          >
+            <mat-icon class="text-[14px] w-3.5 h-3.5 flex items-center justify-center">edit</mat-icon>
+          </button>
+        }
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
 </div>
 
 @if (categories.isLoading() || products.isLoading()) {
@@ -70,72 +96,3 @@
 @if (canCreateProduct()) {
   <coaster-fab routerLink="new" />
 }
-
-@if (isModalOpen()) {
-  <coaster-bottom-sheet (closed)="closeModal()">
-    <div class="flex flex-col px-6 pb-6 pt-2">
-      @if (productSelected(); as product) {
-        <coaster-update-product-form [product]="product" (updated)="closeModal()" (canceled)="closeModal()" />
-      }
-
-      @if (productToEdit(); as product) {
-        <coaster-edit-product-form
-          [product]="product"
-          [categories]="categories.value() ?? []"
-          (edited)="closeModal()"
-          (canceled)="closeModal()"
-        />
-      }
-
-      @if (categoryToEdit(); as category) {
-        <coaster-edit-category-form
-          [category]="category"
-          (canceled)="closeModal()"
-          (deleted)="handleDeleteCategoryClicked(category)"
-          (updated)="closeModal()"
-        />
-      }
-
-      @if (isCreateMode()) {
-        <coaster-tabs [tabs]="availableTabs()" [selectedTabId]="currentTab()" (tabSelected)="currentTab.set($event)" />
-
-        @switch (currentTab()) {
-          @case ('PRODUCT') {
-            <coaster-create-product-form
-              [categories]="categories.value() ?? []"
-              (created)="closeModal()"
-              (canceled)="closeModal()"
-            />
-          }
-          @case ('CATEGORY') {
-            <coaster-create-category-form (canceled)="closeModal()" (created)="closeModal()" />
-          }
-        }
-      }
-    </div>
-  </coaster-bottom-sheet>
-}
-
-<coaster-confirm-dialog
-  (confirmed)="handleConfirmDeleteProduct()"
-  (cancelled)="handleCancelDeleteProduct()"
-  [isOpen]="!!productDeleting()"
-  isDestructive
->
-  <ng-container confirm-dialog-title> {{ 'pantry.delete_product.title' | translate }} </ng-container>
-  <ng-container confirm-dialog-message>
-    {{ 'pantry.delete_product.message' | translate: { name: productDeleting()?.name } }}
-  </ng-container>
-</coaster-confirm-dialog>
-
-<coaster-confirm-dialog
-  (confirmed)="handleConfirmDeleteCategory()"
-  (cancelled)="handleCancelDeleteCategory()"
-  [isOpen]="!!categoryDeleting()"
-  isDestructive
->
-  <ng-container confirm-dialog-title> {{ 'pantry.delete_category.title' | translate }} </ng-container>
-  <ng-container confirm-dialog-message>
-    {{ 'pantry.delete_category.message' | translate: { name: categoryDeleting()?.name } }}
-  </ng-container>
-</coaster-confirm-dialog>

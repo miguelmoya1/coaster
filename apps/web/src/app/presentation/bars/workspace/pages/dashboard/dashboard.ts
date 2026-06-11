@@ -1,45 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideAlertCircle,
-  lucideAlertTriangle,
-  lucideArrowRight,
-  lucideCalendar,
-  lucideCheckCircle2,
-  lucideChevronRight,
-  lucidePlus,
-  lucideTrendingUp,
-  lucideUsers,
-} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { MatIcon } from '@angular/material/icon';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
 import { Loading } from '../../../../components/loading/loading';
 
 @Component({
   selector: 'coaster-dashboard',
-  imports: [TranslatePipe, NgIcon, RouterLink, InventoryItemCard, PricePipe, Loading],
-  templateUrl: './dashboard.html',
-  viewProviders: [
-    provideIcons({
-      lucideAlertCircle,
-      lucideAlertTriangle,
-      lucideCheckCircle2,
-      lucideChevronRight,
-      lucideUsers,
-      lucidePlus,
-      lucideArrowRight,
-      lucideTrendingUp,
-      lucideCalendar,
-    }),
+  imports: [
+    TranslatePipe,
+    MatIcon,
+    RouterLink,
+    InventoryItemCard,
+    PricePipe,
+    Loading,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardSubtitle,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './dashboard.html',
 })
 export class Dashboard {
   public readonly barId = input.required<BarId>();

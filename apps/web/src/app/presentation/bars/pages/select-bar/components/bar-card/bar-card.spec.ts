@@ -69,7 +69,7 @@ describe('BarCard', () => {
 
   describe('status card', () => {
     it('should be wrapped in a status card with primary status', () => {
-      const statusCard = fixture.nativeElement.querySelector('coaster-status-card');
+      const statusCard = fixture.nativeElement.querySelector('mat-card');
 
       expect(statusCard).toBeTruthy();
     });

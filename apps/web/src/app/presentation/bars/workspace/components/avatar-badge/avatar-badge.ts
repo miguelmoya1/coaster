@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'coaster-avatar-badge',
@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     '[class]':
       "'rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden block ' + sizeClass()",
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AvatarBadge {
   readonly imageSrc = input.required<string>();

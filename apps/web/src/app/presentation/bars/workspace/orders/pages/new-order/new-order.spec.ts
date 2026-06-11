@@ -85,7 +85,7 @@ describe('NewOrder', () => {
   describe('rendering', () => {
     it('should render title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
 
@@ -95,10 +95,22 @@ describe('NewOrder', () => {
       expect(btn).toBeTruthy();
     });
 
-    it('should render product grid', () => {
+    it('should render search component', () => {
       fixture.detectChanges();
-      const grid = fixture.nativeElement.querySelector('coaster-pos-product-grid');
-      expect(grid).toBeTruthy();
+      const search = fixture.nativeElement.querySelector('coaster-pos-search');
+      expect(search).toBeTruthy();
+    });
+
+    it('should render category selector', () => {
+      fixture.detectChanges();
+      const selector = fixture.nativeElement.querySelector('coaster-pos-category-selector');
+      expect(selector).toBeTruthy();
+    });
+
+    it('should render products list', () => {
+      fixture.detectChanges();
+      const list = fixture.nativeElement.querySelector('coaster-pos-products-list');
+      expect(list).toBeTruthy();
     });
 
     it('should render cart', () => {
@@ -132,7 +144,7 @@ describe('NewOrder', () => {
 
       // Trigger re-evaluation of the computed signal by changing its state
       component.selectedCategory.set('TEMP_VAL');
-      component.selectedCategory.set(undefined);
+      component.selectedCategory.set('ALL');
 
       const filtered = component['filteredProducts']();
       expect(filtered[0].id).toBe('p-2'); // Absolut Vodka

@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import * as admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
 import { ErrorCodes } from '../../core';
 import { DbService } from '../../db';
@@ -15,27 +15,25 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
 
   public async validate(token: string) {
     try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
+      const decodedToken = await getAuth().verifyIdToken(token);
 
-      const payload = decodedToken;
-
-      if (!payload || !payload.sub || !payload.email) {
+      if (!decodedToken || !decodedToken.sub || !decodedToken.email) {
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 
       // TODO: Replace for 2 queries and 1 command;
       const user = await this._prisma.dbUser.upsert({
-        where: { email: payload.email },
+        where: { email: decodedToken.email },
         update: {
-          googleId: payload.sub,
-          name: payload.name || undefined,
-          photoUrl: payload.picture || undefined,
+          googleId: decodedToken.sub,
+          name: decodedToken.name || undefined,
+          photoUrl: decodedToken.picture || undefined,
         },
         create: {
-          email: payload.email,
-          googleId: payload.sub,
-          name: payload.name || payload.email.split('@')[0],
-          photoUrl: payload.picture || undefined,
+          email: decodedToken.email,
+          googleId: decodedToken.sub,
+          name: decodedToken.name || decodedToken.email.split('@')[0],
+          photoUrl: decodedToken.picture || undefined,
         },
       });
 

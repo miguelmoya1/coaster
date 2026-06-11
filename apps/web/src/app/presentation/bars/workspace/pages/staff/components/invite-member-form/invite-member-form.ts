@@ -3,40 +3,52 @@ import { email, form, FormField, FormRoot, maxLength, minLength, required } from
 import type { InviteBarMemberDto } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { MatButton } from '@angular/material/button';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
-      <coaster-text-input [formField]="form.email" label="Email" placeholder="Email" />
+      <div class="flex flex-col gap-2 mb-6">
+        <h2 class="heading-2 m-0 p-0">{{ 'members.invite.title' | translate }}</h2>
+        <p class="text-on-surface-variant text-sm m-0 p-0 leading-relaxed">
+          {{ 'members.invite.description' | translate }}
+        </p>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Email</mat-label>
+        <input matInput [formField]="form.email" placeholder="Email" />
+        @if (form.email().errors().length > 0) {
+          <mat-error>{{
+            form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0]
+          }}</mat-error>
+        }
+      </mat-form-field>
 
       @if (form().errors().length > 0) {
-        <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+        <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+          @for (error of form().errors(); track error) {
+            <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+          }
+        </div>
       }
 
       <div class="flex justify-end mt-4 gap-2">
         <button
-          coaster-btn
+          mat-stroked-button
           class="w-full"
           type="button"
-          variant="outline"
           [disabled]="form().disabled() || form().submitting()"
           (click)="canceled.emit()"
         >
           {{ 'common.cancel' | translate }}
         </button>
 
-        <button
-          coaster-btn
-          class="w-full"
-          type="submit"
-          variant="primary"
-          [disabled]="form().disabled() || form().submitting()"
-        >
+        <button mat-flat-button class="w-full" type="submit" [disabled]="form().disabled() || form().submitting()">
           {{ 'common.invite' | translate }}
         </button>
       </div>

@@ -61,7 +61,7 @@ describe('SelectBar', () => {
 
   describe('rendering', () => {
     it('should show section title', () => {
-      const sectionTitle = fixture.nativeElement.querySelector('coaster-section-title');
+      const sectionTitle = fixture.nativeElement.querySelector('.heading-1');
       expect(sectionTitle).toBeTruthy();
     });
 
@@ -71,7 +71,7 @@ describe('SelectBar', () => {
     });
 
     it('should render create button', () => {
-      const button = fixture.nativeElement.querySelector('button[coaster-btn]');
+      const button = fixture.nativeElement.querySelector('button[mat-stroked-button]');
       expect(button).toBeTruthy();
     });
   });

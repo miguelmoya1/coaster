@@ -27,10 +27,7 @@ describe('ManageOrder', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        { provide: OrderRepository, useValue: orderRepoMock },
-      ],
+      providers: [provideZonelessChangeDetection(), { provide: OrderRepository, useValue: orderRepoMock }],
     });
 
     service = TestBed.inject(ManageOrder);
@@ -68,9 +65,9 @@ describe('ManageOrder', () => {
     it('should delegate to repository', async () => {
       orderRepoMock.checkout.mockResolvedValue(undefined);
 
-      const result = await service.checkout(barId, orderId);
+      const result = await service.checkout(barId, orderId, { paymentMethod: 'CASH' });
 
-      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId);
+      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId, { paymentMethod: 'CASH' });
       expect(result).toBeUndefined();
     });
   });

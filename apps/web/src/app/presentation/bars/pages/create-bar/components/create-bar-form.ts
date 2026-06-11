@@ -1,50 +1,56 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { BarsStore } from '@coaster/bars';
 import type { CreateBarDto } from '@coaster/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowRight, lucideLoaderCircle, lucideMapPin, lucideUsers } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../components/button/button';
-import { TextInput } from '../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-bar-form',
-  imports: [TextInput, CoasterBtn, NgIcon, FormRoot, FormField, TranslatePipe],
-  providers: [provideIcons({ lucideUsers, lucideMapPin, lucideArrowRight, lucideLoaderCircle })],
+  imports: [MatFormField, MatLabel, MatInput, MatError, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form [formRoot]="barForm" class="mt-2 flex flex-col gap-6">
       <div class="grid grid-cols-1 gap-6">
-        <coaster-text-input
-          data-testid="bar-name-input"
-          [formField]="barForm.name"
-          [label]="'bars.create.fields.name' | translate"
-          [placeholder]="'bars.create.fields.name_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'bars.create.fields.name' | translate }}</mat-label>
+          <input
+            matInput
+            data-testid="bar-name-input"
+            [formField]="barForm.name"
+            [placeholder]="'bars.create.fields.name_placeholder' | translate"
+          />
+          @if (barForm.name().errors().length > 0) {
+            <mat-error>{{
+              barForm.name().errors()[0].message || barForm.name().errors()[0].kind
+                | translate: barForm.name().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mt-4">
-        <button [attr.data-testid]="'cancel-btn'" coaster-btn variant="outline" type="button" (click)="cancel()">
+      <div class="flex items-center justify-center gap-4 mt-4">
+        <button [attr.data-testid]="'cancel-btn'" mat-stroked-button type="button" (click)="cancel()">
           {{ 'common.cancel' | translate }}
         </button>
 
         <button
           [attr.data-testid]="'submit-btn'"
-          coaster-btn
+          mat-flat-button
           type="submit"
-          variant="primary"
-          [disabled]="barForm().invalid() || barForm().submitting()"
+          [disabled]="barForm().disabled() || barForm().submitting() || barForm().invalid()"
         >
           {{ 'common.create' | translate }}
 
           @if (barForm().submitting()) {
-            <ng-icon name="lucideLoaderCircle" class="text-on-primary-fixed text-xl animate-spin" />
+            <mat-icon class="text-on-primary-fixed text-xl animate-spin">sync</mat-icon>
           } @else {
-            <ng-icon name="lucideArrowRight" class="text-on-primary-fixed text-xl" />
+            <mat-icon class="text-on-primary-fixed text-xl">arrow_forward</mat-icon>
           }
         </button>
       </div>

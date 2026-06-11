@@ -1,6 +1,7 @@
 import { DeliveryStatus } from '../constants/delivery-status.type';
 import { OrderStatus } from '../constants/order-status.type';
 import { PaymentStatus } from '../constants/payment-status.type';
+import { PaymentMethod } from '../constants/payment-method.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ProductId } from './product.interface';
@@ -17,9 +18,12 @@ export interface OrderItem {
   quantity: number;
   priceAtPurchase: number;
   paidQuantity: number;
+  paidQuantityCash: number;
+  paidQuantityCard: number;
   servedQuantity: number;
   paymentStatus: PaymentStatus;
   deliveryStatus: DeliveryStatus;
+  paymentMethod: PaymentMethod;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,7 +35,10 @@ export interface Order {
   tableName?: string;
   status: OrderStatus;
   totalAmount: number;
+  amountPaidCash: number;
+  amountPaidCard: number;
   items: OrderItem[];
+  paymentMethod: PaymentMethod;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -63,8 +70,14 @@ export interface BulkUpdateItemDto {
   itemId: OrderItemId;
   paidQuantity?: number;
   servedQuantity?: number;
+  paymentMethod?: PaymentMethod;
 }
 
 export interface BulkUpdateDto {
   items: BulkUpdateItemDto[];
 }
+
+export interface CheckoutOrderDto {
+  paymentMethod: PaymentMethod;
+}
+

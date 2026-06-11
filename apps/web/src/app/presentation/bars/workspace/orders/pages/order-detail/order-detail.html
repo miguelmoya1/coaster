@@ -1,11 +1,8 @@
 <div class="flex items-center gap-3">
-  <button
-    class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
-    (click)="goBack()"
-  >
-    <ng-icon name="lucideArrowLeft" size="22" />
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
   </button>
-  <h2 coaster-title class="flex-1!">{{ displayOrder() | orderTitle }}</h2>
+  <h2 class="heading-2 flex-1!">{{ displayOrder() | orderTitle }}</h2>
 </div>
 
 @if (isLoadingServices() || isLoading()) {
@@ -13,269 +10,50 @@
 }
 
 @if (displayOrderViewModel(); as order) {
-  <div class="flex justify-between items-center bg-surface-container rounded-2xl p-4">
-    <div class="flex flex-col gap-1">
-      <span class="text-sm text-on-surface-variant font-medium">
-        @if (order.status === 'OPEN') {
-          {{ 'orders.open_orders' | translate }}
-        } @else if (order.status === 'CLOSED') {
-          {{ 'history.status_closed' | translate }}
-        } @else {
-          {{ 'history.status_cancelled' | translate }}
-        }
-      </span>
-      <span class="text-xs text-on-surface-variant"> {{ order.items.length }} {{ 'history.items' | translate }} </span>
-    </div>
-    <span class="text-2xl font-black" [class.text-primary]="order.status === 'OPEN'">
-      {{ order.totalAmount | price }}
-    </span>
-  </div>
+  <coaster-order-summary-card [order]="order" />
 
   <div class="flex flex-col gap-2">
     @for (item of order.items; track item.id) {
-      <div
-        class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
-        [class.opacity-50]="item.paymentStatus === 'PAID' && item.deliveryStatus === 'SERVED'"
-        [class.border-primary/20]="isItemSelected(item.id)"
-        [class.bg-primary/5]="isItemSelected(item.id)"
-        [class.cursor-pointer]="order.status === 'OPEN'"
-        [attr.role]="order.status === 'OPEN' ? 'button' : null"
-        [attr.tabindex]="order.status === 'OPEN' ? 0 : null"
-        (click)="order.status === 'OPEN' && toggleSelectItem(item)"
-        (keydown.enter)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
-        (keydown.space)="order.status === 'OPEN' && toggleSelectItem(item); $event.preventDefault()"
-      >
-        <!-- Selection Checkbox -->
-        @if (order.status === 'OPEN') {
-          <button
-            class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
-            [class.border-primary]="isItemSelected(item.id)"
-            [class.bg-primary]="isItemSelected(item.id)"
-            [class.text-on-primary]="isItemSelected(item.id)"
-            [class.border-on-surface-variant]="!isItemSelected(item.id)"
-            (click)="toggleSelectItem(item); $event.stopPropagation()"
-          >
-            @if (isItemSelected(item.id)) {
-              <ng-icon name="lucideCheck" size="14" class="stroke-3" />
-            }
-          </button>
-        }
-
-        <div class="flex-1 flex flex-col gap-1 min-w-0">
-          <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName | translate }}</span>
-          <div class="flex gap-2 items-center">
-            <span class="text-xs text-on-surface-variant">x{{ item.quantity }}</span>
-            <span class="text-xs font-bold text-on-surface">{{ item.priceAtPurchase * item.quantity | price }}</span>
-          </div>
-          @if (item.quantity > 1) {
-            <div class="flex flex-col gap-0.5 mt-1">
-              <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.paid_units' | translate: { paid: item.paidQuantity, total: item.quantity } }}
-              </span>
-              <span class="text-xxs text-on-surface-variant font-medium">
-                {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
-              </span>
-            </div>
-          }
-          <div class="flex gap-1.5 mt-1">
-            @if (item.paymentStatus === 'PAID') {
-              <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.paid' | translate }}
-              </span>
-            } @else if (item.paymentStatus === 'PARTIAL') {
-              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial_payment' | translate }}
-              </span>
-            }
-            @if (item.deliveryStatus === 'SERVED') {
-              <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.served' | translate }}
-              </span>
-            } @else if (item.deliveryStatus === 'PARTIAL') {
-              <span class="text-xxs font-bold text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full">
-                {{ 'orders.partial_delivery' | translate }}
-              </span>
-            }
-          </div>
-        </div>
-
-        <!-- In-row Compact Adjustment Controls -->
-        @if (order.status === 'OPEN') {
-          <div class="flex items-center gap-2 shrink-0">
-            @if (isItemSelected(item.id)) {
-              <div class="flex flex-col gap-1.5 justify-end items-end">
-                <!-- Pay adjustment -->
-                <coaster-qty-adjuster
-                  [value]="getSelectedQuantities(item.id)!.paidQty"
-                  (valueChange)="updateSelectedPayQty(item.id, $event)"
-                  [min]="-item.paidQuantity"
-                  [max]="item.quantity - item.paidQuantity"
-                  [label]="'orders.quantity_to_pay' | translate"
-                  [showPlusPrefix]="true"
-                />
-                <!-- Serve adjustment -->
-                <coaster-qty-adjuster
-                  [value]="getSelectedQuantities(item.id)!.serveQty"
-                  (valueChange)="updateSelectedServeQty(item.id, $event)"
-                  [min]="-item.servedQuantity"
-                  [max]="item.quantity - item.servedQuantity"
-                  [label]="'orders.quantity_to_serve' | translate"
-                  [showPlusPrefix]="true"
-                />
-              </div>
-            }
-
-            <button
-              class="w-8 h-8 rounded-lg bg-error/10 text-error flex items-center justify-center active:scale-90 transition-transform cursor-pointer hover:bg-error/20"
-              (click)="handleRemoveItem(item); $event.stopPropagation()"
-              [title]="'orders.remove_item' | translate"
-            >
-              <ng-icon name="lucideTrash2" size="16" />
-            </button>
-          </div>
-        }
-      </div>
+      <coaster-order-item-card
+        [item]="item"
+        [isOpen]="order.status === 'OPEN'"
+        [isSelected]="isItemSelected(item.id)"
+        [selectedQty]="getSelectedQuantities(item.id)"
+        (toggleSelect)="toggleSelectItem(item)"
+        (updatePayQty)="updateSelectedPayQty(item.id, $event)"
+        (removeItem)="handleRemoveItem(item)"
+      />
     }
   </div>
 
   <!-- Gorgeous Glassmorphic Floating Group Action Bar -->
   @if (totalSelectedItemsCount() > 0) {
-    <div
-      class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
-    >
-      <div class="flex items-center gap-4">
-        <div class="flex flex-col gap-0.5">
-          <span class="text-xs font-bold text-primary tracking-wide uppercase">
-            {{ 'orders.bulk_actions_title' | translate }}
-          </span>
-          <span class="text-sm font-semibold text-on-surface">
-            {{ 'orders.selected_items_count' | translate: { count: totalSelectedItemsCount() } }}
-          </span>
-        </div>
-        <div class="h-8 w-px bg-outline/25 hidden md:block"></div>
-        <div class="flex flex-col gap-0.5">
-          <span class="text-xxs text-on-surface-variant font-medium">
-            {{ 'orders.selected_total_amount' | translate }}
-          </span>
-          <span class="text-lg font-black text-secondary">
-            {{ selectedTotalAmount() | price }}
-          </span>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <button coaster-btn variant="outline" (click)="clearSelection()" class="h-12! px-4! text-xs!">
-          <ng-icon name="lucideX" size="14" />
-          {{ 'common.cancel' | translate }}
-        </button>
-
-        <button
-          coaster-btn
-          variant="primary"
-          [disabled]="totalPaidUnitsDiff() === 0 && totalServeUnitsDiff() === 0"
-          (click)="applySelectedChanges()"
-          class="h-12! px-4! text-xs!"
-        >
-          <ng-icon name="lucideCheck" size="14" />
-          {{ 'orders.confirm_changes' | translate }}
-        </button>
-      </div>
-    </div>
+    <coaster-order-bulk-actions
+      [selectedCount]="totalSelectedItemsCount()"
+      [selectedAmount]="selectedTotalAmount()"
+      [canConfirm]="totalPaidUnitsDiff() > 0"
+      (clearSelection)="clearSelection()"
+      (confirmChanges)="handleConfirmChanges()"
+    />
   }
 
   @if (order.status === 'OPEN') {
-    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-2">
-      <button coaster-btn variant="outline" (click)="onAddItems()" class="w-full!">
-        <ng-icon name="lucidePackagePlus" size="18" />
-        {{ 'orders.add_items' | translate }}
-      </button>
-      <button coaster-btn (click)="handleOpenCheckout()" class="w-full!">
-        <ng-icon name="lucideCreditCard" size="18" />
-        {{ 'orders.checkout' | translate }}
-      </button>
-    </div>
-
-    <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
-      <button coaster-btn variant="outline" (click)="onMoveTable()" class="w-full!">
-        <ng-icon name="lucideArrowRightLeft" size="16" />
-        {{ (order.tableId ? 'orders.move' : 'orders.assign_table') | translate }}
-      </button>
-      <button coaster-btn variant="outline" (click)="onMerge()" class="w-full!">
-        <ng-icon name="lucideMerge" size="16" />
-        {{ 'orders.merge' | translate }}
-      </button>
-      <button coaster-btn variant="outline" class="text-error! w-full!" (click)="handleCancelOrder()">
-        <ng-icon name="lucideX" size="16" />
-        {{ 'orders.cancel_order' | translate }}
-      </button>
-    </div>
+    <coaster-order-actions
+      [hasTable]="!!order.tableId"
+      (addItems)="onAddItems()"
+      (checkout)="handleOpenCheckout()"
+      (moveTable)="onMoveTable()"
+      (merge)="onMerge()"
+      (cancelOrder)="handleCancelOrder()"
+    />
   }
 } @else {
   @if (!isLoadingServices() && !isLoading()) {
     <div class="flex flex-col items-center gap-4 py-12 text-center">
       <span class="text-on-surface-variant text-lg">{{ 'orders.order_not_found' | translate }}</span>
-      <button coaster-btn (click)="goBack()">
+      <button mat-flat-button class="w-full" (click)="goBack()">
         {{ 'orders.tables_title' | translate }}
       </button>
     </div>
   }
 }
-
-<coaster-confirm-dialog
-  [isOpen]="isCheckoutOrderModelOpen()"
-  (confirmed)="handleCheckoutConfirmed()"
-  (cancelled)="handleCancelCheckout()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.checkout_title' | translate }}
-  </ng-container>
-
-  <ng-container confirm-dialog-message>
-    {{ 'orders.checkout_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
-
-<coaster-confirm-dialog
-  [isOpen]="isCancelingOrderModelOpen()"
-  (confirmed)="handleCancelOrderConfirmed()"
-  (cancelled)="handleCancelCancelOrderDialog()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.cancel_title' | translate }}
-  </ng-container>
-
-  <ng-container confirm-dialog-message>
-    {{ 'orders.cancel_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
-
-<coaster-confirm-dialog
-  [isOpen]="!!orderItemDeleting()"
-  (cancelled)="handleCancelRemoveItem()"
-  (confirmed)="handleRemoveItemConfirmed()"
-  isDestructive
->
-  <ng-container confirm-dialog-title>
-    {{ 'orders.remove_item_title' | translate }}
-  </ng-container>
-
-  <ng-container confirm-dialog-message>
-    {{ 'orders.remove_item_message' | translate }}
-  </ng-container>
-</coaster-confirm-dialog>
-
-<coaster-move-table-dialog
-  [isOpen]="isMoveTableModelOpen()"
-  [tables]="availableTables()"
-  [currentTableId]="currentOrder()?.tableId"
-  (closed)="handleMoveTableResult($event)"
-/>
-
-<coaster-merge-orders-dialog
-  [isOpen]="isMergeOrdersModelOpen()"
-  [orders]="openOrders()"
-  [currentOrderId]="orderId()"
-  (closed)="handleMergeResult($event)"
-/>

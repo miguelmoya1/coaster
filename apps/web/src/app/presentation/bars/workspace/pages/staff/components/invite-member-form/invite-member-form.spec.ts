@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InviteMemberForm } from './invite-member-form';
 
@@ -9,7 +9,8 @@ describe('InviteMemberForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InviteMemberForm, TranslateModule.forRoot()],
+      imports: [InviteMemberForm],
+      providers: [provideTranslateService()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberForm);

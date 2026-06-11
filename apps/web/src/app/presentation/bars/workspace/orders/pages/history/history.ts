@@ -1,32 +1,47 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
-import { OrderStatus, asOrderId } from '@coaster/core';
+import { asOrderId, OrderStatus } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-import { StatusCard } from '../../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../../components/typography/typography';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
-  imports: [StatusCard, Loading, CoasterTitle, TranslatePipe, NgIcon, CoasterBtn, PricePipe, ConfirmDialogComponent],
-  viewProviders: [provideIcons({ lucideCalendar, lucideChevronLeft, lucideChevronRight, lucideTrash2 })],
+  imports: [
+    MatCard,
+    MatCardTitle,
+    MatCardSubtitle,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatInput,
+    Loading,
+    TranslatePipe,
+    MatIcon,
+    MatButton,
+    MatIconButton,
+    PricePipe,
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class History {
   public readonly barId = input.required<BarId>();
 
   readonly #ordersStore = inject(OrdersStore);
   readonly #barsStore = inject(BarsStore);
+  readonly #dialog = inject(MatDialog);
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
@@ -39,7 +54,9 @@ class History {
   }
 
   readonly today = new Date().toISOString().split('T')[0];
+  readonly todayDate = new Date();
   protected readonly selectedDate = this.#ordersStore.selectedDate;
+  protected readonly selectedDateAsDate = computed(() => new Date(this.#ordersStore.selectedDate()));
   protected readonly isLoading = this.#ordersStore.history.isLoading;
   protected readonly totalClosed = this.#ordersStore.totalClosed;
   protected readonly totalCancelled = this.#ordersStore.totalCancelled;
@@ -71,6 +88,12 @@ class History {
     const input = event.target as HTMLInputElement;
     if (input.value) {
       this.#ordersStore.setHistoryDate(input.value);
+    }
+  }
+
+  onDatePickerChange(date: Date | null) {
+    if (date) {
+      this.#ordersStore.setHistoryDate(date.toISOString().split('T')[0]);
     }
   }
 
@@ -120,6 +143,21 @@ class History {
 
   protected handleDeleteOrder(order: Order) {
     this.orderToDelete.set(order);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('history.delete_title')),
+        inputBinding('text', () => this.#translate.instant('history.delete_message')),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteOrder();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleDeleteOrderConfirmed();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelDeleteOrder() {

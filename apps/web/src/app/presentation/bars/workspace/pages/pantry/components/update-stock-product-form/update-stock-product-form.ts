@@ -1,36 +1,39 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
-import { NumberInput } from '../../../../../../components/forms/number-input/number-input';
-import { CoasterTitle } from '../../../../../../components/typography/typography';
+import { NumberInput } from '../../../../../../components/number-input/number-input';
 
 @Component({
   selector: 'coaster-update-product-form',
-  imports: [FormRoot, NumberInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages, CoasterTitle],
+  imports: [FormRoot, NumberInput, FormField, MatButton, TranslatePipe],
+  host: {
+    class: 'block px-6 pb-6 pt-2',
+  },
   template: `
-    <div class="px-6 pb-6 pt-6">
-      <h2 coaster-title class="mb-6">{{ product().name | translate }}</h2>
+    <div>
+      <h2 class="heading-2 mb-6">{{ product().name | translate }}</h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">
           <coaster-number-input
             [formField]="form.currentStock"
             [label]="'pantry.update_product.current_stock_label' | translate"
-            showControls
           />
 
           @if (form().errors().length > 0) {
-            <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+            <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+              @for (error of form().errors(); track error) {
+                <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+              }
+            </div>
           }
 
           <div class="flex justify-end mt-4 gap-2">
             <button
-              coaster-btn
+              mat-stroked-button
               class="w-full"
               type="button"
-              variant="outline"
               [disabled]="form().disabled() || form().submitting()"
               (click)="handleCancel()"
             >
@@ -38,10 +41,9 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
             </button>
 
             <button
-              coaster-btn
+              mat-flat-button
               class="w-full"
               type="submit"
-              variant="primary"
               [disabled]="form().disabled() || form().submitting() || form().invalid()"
             >
               {{ 'common.update' | translate }}

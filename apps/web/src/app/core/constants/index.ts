@@ -25,6 +25,13 @@ export const PaymentStatus = {
   PAID: 'PAID',
 } as const;
 
+export const PaymentMethod = {
+  CASH: 'CASH',
+  CARD: 'CARD',
+  MIXED: 'MIXED',
+  NONE: 'NONE',
+} as const;
+
 export const DeliveryStatus = {
   PENDING: 'PENDING',
   PARTIAL: 'PARTIAL',

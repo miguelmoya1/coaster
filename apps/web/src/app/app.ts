@@ -1,22 +1,22 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { RouterOutlet } from '@angular/router';
 import { environment } from '@coaster/env';
 import { inject as injectAnalytics } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
-import { ToastContainer } from './presentation/components/toast/toast-container';
 
 @Component({
   selector: 'coaster-root',
-  imports: [RouterModule, ToastContainer],
-  template: `
-    <router-outlet />
-    <coaster-toast-container />
-  `,
+  imports: [RouterOutlet],
+  template: ` <router-outlet /> `,
 })
 export class App {
   protected title = 'coaster';
+  readonly #iconRegistry = inject(MatIconRegistry);
 
   constructor() {
+    this.#iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+
     if (environment.production) {
       injectAnalytics();
       injectSpeedInsights();

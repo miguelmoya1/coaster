@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMail, lucideTrash2 } from '@ng-icons/lucide';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterTitle } from '../../../../../../components/typography/typography';
+
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-staff-member-card',
-  imports: [NgIcon, TranslatePipe, CoasterTitle],
-  viewProviders: [provideIcons({ lucideMail, lucideTrash2 })],
+  imports: [TranslatePipe, MatButton, MatIconButton, MatIcon],
   template: `
     <!-- Main Content Area (Row) -->
     <div class="flex items-center w-full min-w-0">
@@ -28,7 +27,7 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
 
       <!-- Info Column -->
       <div class="grow min-w-0 ml-3 sm:ml-4 flex flex-col gap-0.5">
-        <h3 coaster-title class="truncate text-base font-bold text-on-surface">
+        <h3 class="heading-3 truncate text-base font-bold text-on-surface">
           {{ staffName() }}
         </h3>
         <p class="text-on-surface-variant text-[0.8rem] font-medium truncate">
@@ -54,27 +53,25 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
                 : 'bg-surface-bright text-primary hover:bg-surface-container-highest')
             "
           >
-            <ng-icon name="lucideMail" class="text-lg" />
+            <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">mail</mat-icon>
           </a>
         }
 
         @if (showDeleteButton()) {
           @if (isCurrentUser()) {
             <button
+              mat-stroked-button
+              class="warn"
               [disabled]="disabled() || isOnlyOwner()"
               [title]="isOnlyOwner() ? ('members.leave_tooltip' | translate) : ''"
-              class="h-10 px-4 rounded-xl flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20 font-semibold text-sm shrink-0"
+              class="shrink-0"
               (click)="onDeleteClick($event)"
             >
               {{ 'members.leave' | translate }}
             </button>
           } @else {
-            <button
-              [disabled]="disabled()"
-              class="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100 bg-error/10 text-error hover:bg-error/20 shrink-0"
-              (click)="onDeleteClick($event)"
-            >
-              <ng-icon name="lucideTrash2" class="text-lg" />
+            <button mat-icon-button class="warn" [disabled]="disabled()" (click)="onDeleteClick($event)">
+              <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>
             </button>
           }
         }
@@ -88,7 +85,6 @@ import { CoasterTitle } from '../../../../../../components/typography/typography
     '[class]':
       "'rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center relative overflow-hidden transition-all border border-outline-variant/15 bg-surface-container hover:bg-surface-bright'",
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StaffMemberCard {
   readonly staffName = input.required<string>();

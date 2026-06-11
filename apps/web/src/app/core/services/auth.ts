@@ -1,6 +1,5 @@
 import { computed, inject, InjectionToken, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
 import {
   Auth as FirebaseAuth,
   GoogleAuthProvider,
@@ -10,6 +9,7 @@ import {
   signOut,
   User,
 } from 'firebase/auth';
+import { Observable } from 'rxjs';
 
 export const FIREBASE_AUTH = new InjectionToken<FirebaseAuth>('FIREBASE_AUTH');
 
@@ -24,7 +24,7 @@ export function authState(auth: FirebaseAuth): Observable<User | null> {
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => subscriber.next(user),
-      (error) => subscriber.error(error)
+      (error) => subscriber.error(error),
     );
     return unsubscribe;
   });
@@ -46,7 +46,7 @@ export function idToken(auth: FirebaseAuth): Observable<string | null> {
           subscriber.next(null);
         }
       },
-      (error) => subscriber.error(error)
+      (error) => subscriber.error(error),
     );
     return unsubscribe;
   });

@@ -6,6 +6,7 @@ import {
   asOrderItemId,
   asOrderStatus,
   asPaymentStatus,
+  asPaymentMethod,
   asProductId,
   asTableId,
 } from '../../core';
@@ -29,7 +30,10 @@ export const OrdersMapper = {
       tableName: dbOrder.tableName ?? dbOrder.table?.name,
       status: asOrderStatus(dbOrder.status),
       totalAmount: dbOrder.totalAmount,
+      amountPaidCash: dbOrder.amountPaidCash,
+      amountPaidCard: dbOrder.amountPaidCard,
       items: dbOrder.items.map((item) => OrdersMapper.itemToDomain(item)),
+      paymentMethod: asPaymentMethod(dbOrder.paymentMethod),
       createdAt: dbOrder.createdAt.toISOString(),
       updatedAt: dbOrder.updatedAt.toISOString(),
     };
@@ -44,9 +48,12 @@ export const OrdersMapper = {
       quantity: dbItem.quantity,
       priceAtPurchase: dbItem.priceAtPurchase,
       paidQuantity: dbItem.paidQuantity,
+      paidQuantityCash: dbItem.paidQuantityCash,
+      paidQuantityCard: dbItem.paidQuantityCard,
       servedQuantity: dbItem.servedQuantity,
       paymentStatus: asPaymentStatus(dbItem.paymentStatus),
       deliveryStatus: asDeliveryStatus(dbItem.deliveryStatus),
+      paymentMethod: asPaymentMethod(dbItem.paymentMethod),
       createdAt: dbItem.createdAt.toISOString(),
       updatedAt: dbItem.updatedAt.toISOString(),
     };

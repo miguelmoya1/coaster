@@ -11,10 +11,7 @@ describe('PantrySearch', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PantrySearch],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideTranslateService(),
-      ],
+      providers: [provideZonelessChangeDetection(), provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PantrySearch);

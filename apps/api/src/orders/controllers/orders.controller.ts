@@ -20,6 +20,7 @@ import { BulkUpdateDto } from '../dto/bulk-update.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
+import { CheckoutOrderDto } from '../dto/checkout-order.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
@@ -79,8 +80,14 @@ export class OrdersController {
 
   @Post(':orderId/checkout')
   @Permissions(BarPermission.CHECKOUT_ORDER)
-  async checkout(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
-    await this._commandBus.execute<CheckoutOrderCommand, void>(new CheckoutOrderCommand(barId, orderId));
+  async checkout(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: CheckoutOrderDto,
+  ): Promise<void> {
+    await this._commandBus.execute<CheckoutOrderCommand, void>(
+      new CheckoutOrderCommand(barId, orderId, dto.paymentMethod),
+    );
   }
 
   @Post(':orderId/cancel')

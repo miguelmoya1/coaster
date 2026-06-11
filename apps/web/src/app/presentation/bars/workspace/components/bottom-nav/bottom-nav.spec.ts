@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BottomNav } from './bottom-nav';
 
@@ -11,8 +11,8 @@ describe('BottomNav', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BottomNav, TranslateModule.forRoot()],
-      providers: [provideRouter([])],
+      imports: [BottomNav],
+      providers: [provideRouter([]), provideChildTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BottomNav);

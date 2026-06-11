@@ -17,9 +17,7 @@ describe('BarExchanges', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ExchangeRepository, useValue: repositoryMock },
-      ],
+      providers: [{ provide: ExchangeRepository, useValue: repositoryMock }],
     });
 
     service = TestBed.inject(BarExchanges);
@@ -37,7 +35,7 @@ describe('BarExchanges', () => {
     it('should return the route path if barId is provided', () => {
       const barId = asBarId('bar-1');
       const result = service.execute(barId);
-      
+
       expect(result).toBe('/bars/bar-1/exchanges');
       expect(repositoryMock.routes.listPending).toHaveBeenCalledWith(barId);
     });

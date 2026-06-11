@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
@@ -6,21 +6,21 @@ import { asOrderId, asProductId, asTableId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../components/typography/typography';
-import { CartItem, PosCart } from '../../components/pos-cart/pos-cart';
-import { PosProductGrid } from '../../components/pos-product-grid/pos-product-grid';
+
+import { CartItem, PosCart } from './components/pos-cart/pos-cart';
+import { PosSearch } from './components/pos-search/pos-search';
+import { PosCategorySelector } from './components/pos-category-selector/pos-category-selector';
+import { PosProductsList } from './components/pos-products-list/pos-products-list';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [PosProductGrid, PosCart, CoasterTitle, Loading, TranslatePipe, NgIcon],
-  viewProviders: [provideIcons({ lucideArrowLeft })],
+  imports: [PosSearch, PosCategorySelector, PosProductsList, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class NewOrder {
   public readonly barId = input.required<BarId>();
@@ -34,7 +34,8 @@ class NewOrder {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
-  readonly selectedCategory = signal<string | undefined>(undefined);
+  readonly selectedCategory = signal<string>('ALL');
+  readonly searchQuery = signal<string>('');
   readonly cart = signal<Map<string, CartItem>>(new Map());
   readonly selectedTableId = signal<string | undefined>(undefined);
   readonly isSubmitting = signal(false);
@@ -66,10 +67,24 @@ class NewOrder {
         currentStock: Math.max(0, p.currentStock - quantityInCart),
       };
     });
+
     const categoryId = this.selectedCategory();
-    const filtered = categoryId
-      ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
-      : productsWithOptimisticStock;
+    let filtered =
+      categoryId && categoryId !== 'ALL'
+        ? productsWithOptimisticStock.filter((p) => p.categoryId === categoryId)
+        : productsWithOptimisticStock;
+
+    const query = this.searchQuery().toLowerCase().trim();
+    if (query) {
+      filtered = filtered.filter((p) => {
+        const rawNameMatches = p.name.toLowerCase().includes(query);
+        if (rawNameMatches) return true;
+
+        const translatedName = this.#translate.instant(p.name);
+        return translatedName.toLowerCase().includes(query);
+      });
+    }
+
     return [...filtered].sort((a, b) => {
       const nameA = this.#translate.instant(a.name) || a.name;
       const nameB = this.#translate.instant(b.name) || b.name;

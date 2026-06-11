@@ -15,10 +15,7 @@ describe('ImportTemplatesToBar', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        ImportTemplatesToBar,
-        { provide: TemplatesRepository, useValue: repositoryMock },
-      ],
+      providers: [ImportTemplatesToBar, { provide: TemplatesRepository, useValue: repositoryMock }],
     });
 
     service = TestBed.inject(ImportTemplatesToBar);

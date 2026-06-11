@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
 import { asBarId, asCategoryId } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateProductForm } from './create-product-form';
 
@@ -13,9 +13,7 @@ describe('CreateProductForm', () => {
     create: ReturnType<typeof vi.fn>;
   };
 
-  const mockCategories: Category[] = [
-    { id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') },
-  ];
+  const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
 
   beforeEach(async () => {
     productsStoreMock = {
@@ -23,10 +21,8 @@ describe('CreateProductForm', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CreateProductForm, TranslateModule.forRoot()],
-      providers: [
-        { provide: ProductsStore, useValue: productsStoreMock }
-      ]
+      imports: [CreateProductForm],
+      providers: [{ provide: ProductsStore, useValue: productsStoreMock }, provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateProductForm);

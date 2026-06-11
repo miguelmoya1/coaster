@@ -8,10 +8,7 @@ describe('RosterStateService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        DateFormatterService,
-        RosterStateService,
-      ],
+      providers: [DateFormatterService, RosterStateService],
     });
     service = TestBed.inject(RosterStateService);
   });
@@ -101,7 +98,7 @@ describe('RosterStateService', () => {
     const monthDays = service.calendarMonthDays();
     expect(monthDays.length).toBeGreaterThanOrEqual(28);
     // May 15 should be active
-    const activeDay = monthDays.find(d => d.isActive);
+    const activeDay = monthDays.find((d) => d.isActive);
     expect(activeDay).toBeDefined();
     expect(activeDay?.dayNumber).toBe(15);
   });

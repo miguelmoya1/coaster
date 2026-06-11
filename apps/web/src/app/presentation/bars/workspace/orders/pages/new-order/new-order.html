@@ -3,25 +3,20 @@
 }
 
 <div class="flex items-center gap-3">
-  <button
-    class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-90 transition-all cursor-pointer"
-    (click)="goBack()"
-  >
-    <ng-icon name="lucideArrowLeft" size="22" />
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon class="text-[22px]! w-[22px]! h-[22px]! leading-[22px]! m-0!">arrow_back</mat-icon>
   </button>
-  <h2 coaster-title class="flex-1!">
+  <h2 class="heading-2 flex-1!">
     {{ isAddItemsMode() ? ('orders.add_items_title' | translate) : ('orders.pos_title' | translate) }}
   </h2>
 </div>
 
 <div class="flex flex-col gap-6">
-  <coaster-pos-product-grid
-    [products]="filteredProducts()"
-    [categories]="categories()"
-    [selectedCategory]="selectedCategory()"
-    (productClicked)="addToCart($event)"
-    (categorySelected)="selectedCategory.set($event)"
-  />
+  <div class="flex flex-col gap-4">
+    <coaster-pos-search [(query)]="searchQuery" />
+    <coaster-pos-category-selector [categories]="categories()" [(selectedCategory)]="selectedCategory" />
+    <coaster-pos-products-list [products]="filteredProducts()" (productClicked)="addToCart($event)" />
+  </div>
 
   <coaster-pos-cart
     [items]="cartItems()"

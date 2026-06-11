@@ -1,63 +1,45 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  signal,
-} from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, createUrlTreeFromSnapshot, isActive } from '@angular/router';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideDownload, lucidePencil, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../components/button/button';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../components/loading/loading';
-import { StatusCard } from '../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../components/typography/typography';
-import { BottomSheet } from '../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
-import { CreateCategoryForm } from './components/create-category-form/create-category-form';
-import { CreateProductForm } from './components/create-product-form/create-product-form';
+import { CreatePantrySheet } from './components/create-pantry-sheet/create-pantry-sheet';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
 import { PantrySearch } from './components/pantry-search/pantry-search';
-import { Tabs } from './components/tabs/tabs';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
-
-type PantryTabs = 'PRODUCT' | 'CATEGORY';
 
 @Component({
   selector: 'coaster-pantry',
   imports: [
-    Tabs,
+    MatChipListbox,
+    MatChipOption,
+    MatChipTrailingIcon,
     InventoryItemCard,
-    CreateCategoryForm,
-    CreateProductForm,
     Loading,
-    BottomSheet,
-    Fab,
     RouterLink,
     TranslatePipe,
-    UpdateProductForm,
-    UpdateStockProductForm,
-    EditCategoryForm,
-    StatusCard,
-    CoasterTitle,
-    NgIcon,
-    CoasterBtn,
-    ConfirmDialogComponent,
+    MatCard,
+    MatCardTitle,
+    MatCardSubtitle,
+    MatIcon,
+    MatButton,
     PantrySearch,
+    Fab,
   ],
-  viewProviders: [provideIcons({ lucidePencil, lucideSearch, lucideX, lucideDownload })],
   host: {
     class: 'flex flex-col gap-2',
   },
@@ -68,7 +50,6 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
       contain-intrinsic-size: 100px;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Pantry {
   public readonly barId = input.required<BarId>();
@@ -86,23 +67,17 @@ export default class Pantry {
 
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
+  readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
     this.#router,
   );
 
-  readonly currentTab = signal<PantryTabs>('PRODUCT');
-  readonly availableTabs = signal<{ id: PantryTabs; label: string }[]>([
-    { id: 'PRODUCT', label: this.#translate.instant('pantry.product') },
-    { id: 'CATEGORY', label: this.#translate.instant('pantry.category') },
-  ]);
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
-  readonly productSelected = signal<Product | null>(null);
-  readonly productToEdit = signal<Product | null>(null);
-  readonly categoryToEdit = signal<Category | null>(null);
   readonly productDeleting = signal<Product | null>(null);
   readonly categoryDeleting = signal<Category | null>(null);
 
@@ -111,10 +86,6 @@ export default class Pantry {
   readonly totalProductsCount = this.#productsStore.total;
   readonly criticalProductsCount = this.#productsStore.criticalStock;
   readonly alertProductsCount = this.#productsStore.lowStock;
-
-  readonly isModalOpen = linkedSignal(() => {
-    return this.productSelected() || this.productToEdit() || this.categoryToEdit() || this.isCreateMode();
-  });
 
   readonly tabs = computed(() => {
     const rawCategories = this.categories.value() ?? [];
@@ -154,27 +125,97 @@ export default class Pantry {
       this.#categoriesStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
     });
+
+    effect(() => {
+      if (this.isCreateMode()) {
+        const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
+          disableClose: true,
+          bindings: [
+            inputBinding('categories', () => this.categories.value() ?? []),
+            outputBinding('canceled', () => {
+              bottomSheetRef.dismiss();
+              this.#router.navigate(['/bars', this.barId(), 'pantry']);
+            }),
+            outputBinding('created', () => {
+              bottomSheetRef.dismiss();
+              this.#router.navigate(['/bars', this.barId(), 'pantry']);
+            }),
+          ],
+        });
+      }
+    });
+  }
+
+  onCategoryChange(event: MatChipListboxChange, listbox: MatChipListbox) {
+    const value = event.value;
+    if (value === undefined || value === null) {
+      listbox.value = this.selectedCategoryId();
+    } else {
+      this.selectedCategoryId.set(value);
+    }
   }
 
   onProductClicked(product: Product) {
-    this.productSelected.set(product);
+    const bottomSheetRef = this.#bottomSheet.open(UpdateStockProductForm, {
+      bindings: [
+        inputBinding('product', () => product),
+        outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+      ],
+    });
   }
 
   onEditProductClicked(product: Product) {
-    this.productToEdit.set(product);
+    const bottomSheetRef = this.#bottomSheet.open(UpdateProductForm, {
+      bindings: [
+        inputBinding('product', () => product),
+        inputBinding('categories', () => this.categories.value() ?? []),
+        outputBinding('edited', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+      ],
+    });
   }
 
-  onEditCategoryClicked() {
-    const categoryId = this.selectedCategoryId();
-    if (categoryId === 'ALL') return;
-    const cat = this.categories.value()?.find((c) => c.id === categoryId);
+  onEditCategoryClicked(event?: Event, categoryId?: string) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    const targetId = categoryId || this.selectedCategoryId();
+    if (targetId === 'ALL') return;
+    const cat = this.categories.value()?.find((c) => c.id === targetId);
     if (cat) {
-      this.categoryToEdit.set(cat);
+      const bottomSheetRef = this.#bottomSheet.open(EditCategoryForm, {
+        bindings: [
+          inputBinding('category', () => cat),
+          outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
+          outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+          outputBinding('deleted', () => {
+            bottomSheetRef.dismiss();
+            this.handleDeleteCategoryClicked(cat);
+          }),
+        ],
+      });
     }
   }
 
   protected handleDeleteProductClicked(product: Product) {
     this.productDeleting.set(product);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('pantry.delete_product.title')),
+        inputBinding('text', () => this.#translate.instant('pantry.delete_product.message', { name: product.name })),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteProduct();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteProduct();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelDeleteProduct() {
@@ -194,6 +235,21 @@ export default class Pantry {
 
   protected handleDeleteCategoryClicked(category: Category) {
     this.categoryDeleting.set(category);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('pantry.delete_category.title')),
+        inputBinding('text', () => this.#translate.instant('pantry.delete_category.message', { name: category.name })),
+        outputBinding('canceled', () => {
+          this.handleCancelDeleteCategory();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteCategory();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCancelDeleteCategory() {
@@ -209,19 +265,5 @@ export default class Pantry {
     this.categoryDeleting.set(null);
     this.selectedCategoryId.set('ALL');
     await this.#categoriesStore.delete(categoryToDelete.id);
-  }
-
-  closeModal() {
-    this.productSelected.set(null);
-    this.productToEdit.set(null);
-    this.categoryToEdit.set(null);
-    this.isSubmitting.set(false);
-    this.isModalOpen.set(false);
-
-    this.currentTab.set('PRODUCT');
-
-    if (this.isCreateMode()) {
-      this.#router.navigate(['/bars', this.barId(), 'pantry']);
-    }
   }
 }

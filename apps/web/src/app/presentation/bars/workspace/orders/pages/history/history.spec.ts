@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { OrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import History from './history';
 
@@ -39,6 +40,7 @@ describe('History', () => {
       imports: [History],
       providers: [
         provideTranslateService(),
+        provideNativeDateAdapter(),
         provideRouter([]),
         { provide: OrdersStore, useValue: ordersStoreMock },
         { provide: BarsStore, useValue: barsStoreMock },
@@ -65,7 +67,7 @@ describe('History', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('coaster-status-card');
+      const cards = fixture.nativeElement.querySelectorAll('mat-card');
       expect(cards.length).toBeGreaterThanOrEqual(1);
     });
   });

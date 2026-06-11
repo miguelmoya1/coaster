@@ -5,21 +5,19 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as admin from 'firebase-admin';
+import { getApps, initializeApp } from 'firebase-admin/app';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
+  if (getApps().length === 0) {
+    initializeApp({
       projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2',
     });
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-    logger: isProduction
-      ? ['error', 'warn']
-      : ['log', 'error', 'warn', 'debug', 'verbose'],
+    logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
   app.useWebSocketAdapter(new IoAdapter(app));

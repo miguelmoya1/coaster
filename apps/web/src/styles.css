@@ -1,4 +1,5 @@
-@import 'tailwindcss';
+@import 'tailwindcss/theme';
+@import 'tailwindcss/utilities';
 
 :root {
   --color-surface-lowest: #000000;
@@ -61,6 +62,11 @@
   --text-xxs-plus: 0.6875rem;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 body {
   background-color: var(--color-surface-base);
   color: var(--color-text-main);
@@ -83,6 +89,7 @@ body {
 html,
 body {
   height: 100%;
+  margin: 0;
 }
 
 @utility pb-safe {
@@ -96,4 +103,161 @@ body {
 @utility pb-workspace {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
+
+/* Material Symbols Outlined Customizations */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.mat-icon.material-symbols-outlined {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+/* Button styling resets to fix default browser bevel borders and background issues */
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  border: 0 solid transparent;
+  background-color: transparent;
+  background-image: none;
+  text-transform: none;
+  -webkit-appearance: button;
+}
+
+/* Fix Tailwind CSS v4 preflight border conflicts with Angular Material buttons */
+.mat-mdc-button:not(.mat-mdc-outlined-button),
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-flat-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  border-style: none !important;
+}
+
+/* Ensure outlined button border matches theme colors and has proper style */
+.mat-mdc-outlined-button {
+  border-style: solid !important;
+  border-color: var(--mat-sys-outline, var(--color-border-strong, #767575)) !important;
+}
+
+/* ─── Centralized heading classes (replaces CoasterTitle directive) ─── */
+.heading-1 {
+  font-weight: 900;
+  color: var(--color-primary);
+  font-size: 1.875rem;
+  letter-spacing: -0.05em;
+}
+@media (min-width: 768px) {
+  .heading-1 { font-size: 2.25rem; }
+}
+
+.heading-2 {
+  font-weight: 900;
+  color: var(--color-on-surface);
+  font-size: 1.5rem;
+  letter-spacing: -0.025em;
+}
+@media (min-width: 768px) {
+  .heading-2 { font-size: 1.875rem; }
+}
+
+.heading-3 {
+  font-weight: 700;
+  color: var(--color-on-surface);
+  font-size: 1.25rem;
+}
+@media (min-width: 768px) {
+  .heading-3 { font-size: 1.5rem; }
+}
+
+.heading-4 {
+  font-weight: 700;
+  color: var(--color-on-surface);
+  font-size: 1.125rem;
+  line-height: 1.375;
+}
+
+.heading-5 {
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  font-size: 1rem;
+}
+
+.heading-6 {
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.heading-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-variant);
+}
+
+/* ─── MatSnackBar panel classes (replaces custom ToastContainer) ─── */
+.snackbar-success .mdc-snackbar__surface {
+  background-color: rgba(16, 185, 129, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+.snackbar-success .mdc-snackbar__label,
+.snackbar-success .mat-mdc-snack-bar-action {
+  color: #ffffff !important;
+}
+
+.snackbar-error .mdc-snackbar__surface {
+  background-color: rgba(255, 115, 81, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+.snackbar-error .mdc-snackbar__label,
+.snackbar-error .mat-mdc-snack-bar-action {
+  color: #ffffff !important;
+}
+
+.snackbar-info .mdc-snackbar__surface {
+  background-color: rgba(30, 30, 30, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+.snackbar-info .mdc-snackbar__label,
+.snackbar-info .mat-mdc-snack-bar-action {
+  color: #ffffff !important;
+}
+
+/* ─── Premium Angular Material Card Customizations ─── */
+mat-card {
+  background-color: var(--color-surface-container) !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+mat-card:hover {
+  border-color: rgba(255, 145, 89, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+mat-card-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+mat-card-title {
+  color: var(--color-on-surface) !important;
+}
+
+mat-card-subtitle {
+  color: var(--color-on-surface-variant) !important;
+}
+
 

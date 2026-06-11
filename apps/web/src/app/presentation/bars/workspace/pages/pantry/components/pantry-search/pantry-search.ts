@@ -1,21 +1,21 @@
-import { ChangeDetectionStrategy, Component, effect, model, signal, untracked } from '@angular/core';
+import { Component, effect, model, signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'coaster-pantry-search',
-  imports: [FormRoot, FormField, TextInput, TranslatePipe],
+  imports: [FormRoot, MatFormField, MatInput, MatIcon, FormField, TranslatePipe],
   template: `
     <form [formRoot]="searchForm" class="w-full">
-      <coaster-text-input
-        [formField]="searchForm.query"
-        [placeholder]="'pantry.search_placeholder' | translate"
-        icon="lucideSearch"
-      />
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formField]="searchForm.query" [placeholder]="'pantry.search_placeholder' | translate" />
+      </mat-form-field>
     </form>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PantrySearch {
   readonly query = model<string>('');

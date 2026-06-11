@@ -2,7 +2,15 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { Order, OrderItem } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import {
+  asBarId,
+  asOrderId,
+  asOrderItemId,
+  asProductId,
+  DeliveryStatus,
+  OrderStatus,
+  PaymentStatus,
+} from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -52,9 +60,12 @@ describe('ToServe', () => {
       quantity: qty,
       servedQuantity: served,
       paidQuantity: 0,
+      paidQuantityCash: 0,
+      paidQuantityCard: 0,
       priceAtPurchase: 100,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
+      paymentMethod: 'NONE',
       createdAt: timeStr,
       updatedAt: timeStr,
     });
@@ -64,6 +75,9 @@ describe('ToServe', () => {
       barId: asBarId('bar-1'),
       status: OrderStatus.OPEN,
       totalAmount: 1000,
+      amountPaidCash: 0,
+      amountPaidCard: 0,
+      paymentMethod: 'NONE',
       items,
       createdAt: timeStr,
       updatedAt: timeStr,
@@ -114,9 +128,12 @@ describe('ToServe', () => {
       quantity: 3,
       servedQuantity: 0,
       paidQuantity: 0,
+      paidQuantityCash: 0,
+      paidQuantityCard: 0,
       priceAtPurchase: 100,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
+      paymentMethod: 'NONE',
       createdAt: '2026-05-31T10:00:00Z',
       updatedAt: '2026-05-31T10:00:00Z',
     };
@@ -129,9 +146,12 @@ describe('ToServe', () => {
       quantity: 2,
       servedQuantity: 1,
       paidQuantity: 0,
+      paidQuantityCash: 0,
+      paidQuantityCard: 0,
       priceAtPurchase: 200,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
+      paymentMethod: 'NONE',
       createdAt: '2026-05-31T10:01:00Z',
       updatedAt: '2026-05-31T10:01:00Z',
     };

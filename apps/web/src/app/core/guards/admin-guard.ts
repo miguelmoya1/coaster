@@ -1,10 +1,10 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
+import { Role } from '@coaster/core';
 import { filter, map, switchMap, take } from 'rxjs';
 import { Auth } from '../services/auth';
 import { CurrentUser } from '../services/current-user';
-import { Role } from '@coaster/core';
 
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(Auth);
@@ -30,8 +30,8 @@ export const adminGuard: CanActivateFn = () => {
             return true;
           }
           return router.createUrlTree(['/']);
-        })
+        }),
       );
-    })
+    }),
   );
 };

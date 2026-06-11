@@ -51,6 +51,16 @@ export const DbPaymentStatus = {
 export type DbPaymentStatus = (typeof DbPaymentStatus)[keyof typeof DbPaymentStatus]
 
 
+export const DbPaymentMethod = {
+  CASH: 'CASH',
+  CARD: 'CARD',
+  MIXED: 'MIXED',
+  NONE: 'NONE'
+} as const
+
+export type DbPaymentMethod = (typeof DbPaymentMethod)[keyof typeof DbPaymentMethod]
+
+
 export const DbDeliveryStatus = {
   PENDING: 'PENDING',
   PARTIAL: 'PARTIAL',

@@ -2,17 +2,17 @@ import { Service, computed, inject, signal } from '@angular/core';
 import { DateFormatterService } from '@coaster/core';
 import {
   addDays,
-  subDays,
-  addWeeks,
-  subWeeks,
   addMonths,
-  subMonths,
-  isSameDay,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
+  addWeeks,
   eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  isSameDay,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subMonths,
+  subWeeks,
 } from 'date-fns';
 
 export interface ScrollerDay {
@@ -24,7 +24,7 @@ export interface ScrollerDay {
 }
 const TOTAL_DAYS = 15;
 
-@Service({ autoProvided: false })
+@Service()
 export class RosterStateService {
   readonly #dateFormatter = inject(DateFormatterService);
 
@@ -156,4 +156,3 @@ export class RosterStateService {
     }
   }
 }
-

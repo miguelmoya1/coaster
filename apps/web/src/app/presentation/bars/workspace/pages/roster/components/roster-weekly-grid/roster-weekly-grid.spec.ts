@@ -38,9 +38,7 @@ describe('RosterWeeklyGrid', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RosterWeeklyGrid],
-      providers: [
-        provideTranslateService(),
-      ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RosterWeeklyGrid);
@@ -77,13 +75,14 @@ describe('RosterWeeklyGrid', () => {
     fixture.detectChanges();
 
     const allButtons = fixture.nativeElement.querySelectorAll('button');
-    const deleteBtn = Array.from(allButtons).find((btn) => 
-      (btn as HTMLButtonElement).querySelector('ng-icon[name="lucideTrash2"]')
-    );
+    const deleteBtn = Array.from(allButtons).find((btn) => {
+      const icon = (btn as HTMLButtonElement).querySelector('mat-icon');
+      return icon && icon.textContent?.trim() === 'delete';
+    });
     expect(deleteBtn).toBeUndefined();
 
-    const replicateBtn = Array.from(allButtons).find((btn) => 
-      (btn as HTMLButtonElement).textContent?.includes('roster.replication.button')
+    const replicateBtn = Array.from(allButtons).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes('roster.replication.button'),
     );
     expect(replicateBtn).toBeUndefined();
   });
@@ -108,23 +107,35 @@ describe('RosterWeeklyGrid', () => {
     let createEmitted: Date | null = null;
     let replicateEmitted = false;
 
-    component.deleteShift.subscribe((s: WeeklyShiftItem) => { deleteEmitted = s; });
-    component.quickCreate.subscribe((d: Date) => { createEmitted = d; });
-    component.replicatePreviousWeek.subscribe(() => { replicateEmitted = true; });
+    component.deleteShift.subscribe((s: WeeklyShiftItem) => {
+      deleteEmitted = s;
+    });
+    component.quickCreate.subscribe((d: Date) => {
+      createEmitted = d;
+    });
+    component.replicatePreviousWeek.subscribe(() => {
+      replicateEmitted = true;
+    });
 
     const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
 
-    const deleteBtn = buttons.find(b => b.querySelector('ng-icon[name="lucideTrash2"]')) as HTMLButtonElement;
+    const deleteBtn = buttons.find(
+      (b) => b.querySelector('mat-icon')?.textContent?.trim() === 'delete',
+    ) as HTMLButtonElement;
     expect(deleteBtn).toBeTruthy();
     deleteBtn.click();
     expect(deleteEmitted).toEqual(mockShift);
 
-    const quickCreateBtn = buttons.find(b => b.querySelector('ng-icon[name="lucidePlus"]')) as HTMLButtonElement;
+    const quickCreateBtn = buttons.find(
+      (b) => b.querySelector('mat-icon')?.textContent?.trim() === 'add',
+    ) as HTMLButtonElement;
     expect(quickCreateBtn).toBeTruthy();
     quickCreateBtn.click();
     expect(createEmitted).toBeInstanceOf(Date);
 
-    const replicateBtn = buttons.find(b => b.querySelector('ng-icon[name="lucideCopy"]')) as HTMLButtonElement;
+    const replicateBtn = buttons.find(
+      (b) => b.querySelector('mat-icon')?.textContent?.trim() === 'content_copy',
+    ) as HTMLButtonElement;
     expect(replicateBtn).toBeTruthy();
     replicateBtn.click();
     expect(replicateEmitted).toBe(true);

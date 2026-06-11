@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import type { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -20,7 +20,6 @@ import { TranslatePipe } from '@ngx-translate/core';
       </span>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BarRoleBadge {
   public readonly role = input<BarRole | undefined>(undefined);

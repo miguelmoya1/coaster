@@ -74,13 +74,13 @@ describe('Tables', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('coaster-status-card');
+      const cards = fixture.nativeElement.querySelectorAll('.flex.gap-3 mat-card');
       expect(cards.length).toBe(3);
     });
 
     it('should render tables title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('[coaster-title]');
+      const title = fixture.nativeElement.querySelector('.heading-2');
       expect(title).toBeTruthy();
     });
   });
@@ -99,11 +99,5 @@ describe('Tables', () => {
     });
   });
 
-  describe('actions', () => {
-    it('should toggle showCreateTable signal', () => {
-      expect(component.showCreateTable()).toBe(false);
-      component.onCreateTable();
-      expect(component.showCreateTable()).toBe(true);
-    });
-  });
+
 });

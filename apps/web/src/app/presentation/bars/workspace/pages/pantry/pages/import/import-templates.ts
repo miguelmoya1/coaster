@@ -1,46 +1,25 @@
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId } from '@coaster/common';
 import { Toast } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideCheck,
-  lucideChevronLeft,
-  lucideDownload,
-  lucideFolder,
-  lucidePackage,
-  lucideSearch,
-  lucideX,
-} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../../components/loading/loading';
-import { CoasterTitle } from '../../../../../../components/typography/typography';
+
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-import-templates',
-  imports: [RouterLink, NgIcon, TranslatePipe, CoasterBtn, CoasterTitle, Loading, PricePipe, LowerCasePipe],
-  viewProviders: [
-    provideIcons({
-      lucideChevronLeft,
-      lucideSearch,
-      lucideX,
-      lucideFolder,
-      lucidePackage,
-      lucideCheck,
-      lucideDownload,
-    }),
-  ],
+  imports: [RouterLink, MatIcon, TranslatePipe, MatButton, MatIconButton, Loading, PricePipe, LowerCasePipe],
   host: {
     class: 'flex flex-col gap-2',
   },
   templateUrl: './import-templates.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ImportTemplates {
   public readonly barId = input.required<BarId>();

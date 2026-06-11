@@ -70,7 +70,7 @@ describe('OrderRepository', () => {
     const orderId = asOrderId('order-1');
 
     it('should call checkout endpoint', async () => {
-      const promise = service.checkout(barId, orderId);
+      const promise = service.checkout(barId, orderId, { paymentMethod: 'CASH' });
       const req = httpMock.expectOne(service.routes.checkout(barId, orderId));
       expect(req.request.method).toBe('POST');
       req.flush(null);

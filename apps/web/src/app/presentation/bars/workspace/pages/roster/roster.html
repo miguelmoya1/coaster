@@ -9,8 +9,8 @@
 
 <!-- ================= DAY VIEW ================= -->
 @if (viewMode() === 'day') {
-  <h2 coaster-title class="mb-4 flex items-center gap-2 text-on-surface">
-    <ng-icon name="lucideClock" class="text-primary text-xl" />
+  <h2 class="heading-2 mb-4 flex items-center gap-2 text-on-surface">
+    <mat-icon class="text-primary text-xl">schedule</mat-icon>
     {{ 'roster.daily_assignments' | translate }}: {{ displaySelectedDate() }}
   </h2>
 
@@ -23,7 +23,7 @@
           [timeRange]="shift.timeRange"
           [staffName]="shift.userName || ('roster.unassigned' | translate)"
           [roleName]="shift.roleName"
-          [staffImage]="shift.userImage"
+          [staffImage]="shift.userImage || ''"
           [isOwn]="shift.isOwn"
           [hasPendingExchange]="shift.hasPendingExchange"
           [isPast]="shift.isPast"
@@ -68,20 +68,23 @@
 
 <!-- ================= EXCHANGES MARKETPLACE ================= -->
 @if (pendingExchangesList().length) {
-  <h2 coaster-title class="mt-8 mb-4 flex items-center gap-2 text-on-surface">
-    <ng-icon name="lucideRepeat2" class="text-tertiary text-xl" />
+  <h2 class="heading-2 mt-8 mb-4 flex items-center gap-2 text-on-surface">
+    <mat-icon class="text-tertiary text-xl">cached</mat-icon>
     {{ 'roster.exchanges.title' | translate }}
     <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
       {{ pendingExchangesList().length }}
     </span>
   </h2>
 
+  <p class="text-xs text-on-surface-variant leading-relaxed max-w-2xl mb-4">
+    {{ 'roster.exchanges.description' | translate }}
+  </p>
+
   <div class="flex flex-col gap-3">
     @for (exchange of pendingExchangesList(); track exchange.id) {
       <coaster-exchange-request-card
         [month]="exchange.month"
         [day]="exchange.day"
-        [shiftPeriod]="exchange.shiftPeriod"
         [roleName]="exchange.roleName"
         [timeRange]="exchange.timeRange"
         [offeredBy]="exchange.requesterName"
@@ -99,45 +102,3 @@
 @if (currentUserRole() === 'OWNER') {
   <coaster-fab routerLink="new" queryParamsHandling="preserve" />
 }
-
-<!-- Create Shift Dialog Sheet -->
-@if (isCreateMode()) {
-  <coaster-bottom-sheet (closed)="handleCloseModal()">
-    <coaster-create-shift-form
-      [members]="membersList()"
-      (canceled)="handleCloseModal()"
-      (created)="handleCreateShift()"
-    />
-  </coaster-bottom-sheet>
-}
-
-<!-- Confirm Delete Shift Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="!!shiftDeleting()"
-  title="roster.delete_shift_title"
-  message="roster.delete_shift_confirm"
-  [isDestructive]="true"
-  (confirmed)="handleConfirmDeleteShift()"
-  (cancelled)="handleCancelDeleteShift()"
-/>
-
-<!-- Confirm Delete Exchange Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="!!exchangeDeleting()"
-  title="roster.exchanges.delete_title"
-  message="roster.exchanges.delete_confirm"
-  [isDestructive]="true"
-  (confirmed)="handleConfirmDeleteExchange()"
-  (cancelled)="handleCancelDeleteExchange()"
-/>
-
-<!-- Confirm Replicate Week Dialog -->
-<coaster-confirm-dialog
-  [isOpen]="showReplicateConfirm()"
-  title="roster.replication.confirm_title"
-  message="roster.replication.confirm_msg"
-  [isDestructive]="false"
-  (confirmed)="handleConfirmReplicate()"
-  (cancelled)="handleCancelReplicate()"
-/>
-

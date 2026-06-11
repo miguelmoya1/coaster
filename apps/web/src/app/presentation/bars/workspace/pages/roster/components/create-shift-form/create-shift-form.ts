@@ -1,20 +1,33 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { BarMember } from '@coaster/common';
-import { asUserId } from '@coaster/core';
-import { DateFormatterService } from '@coaster/core';
+import { DateFormatterService, asUserId } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
-import { SelectInput } from '../../../../../../components/forms/select-input/select-input';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
-import { TextareaInput } from '../../../../../../components/forms/textarea-input/textarea-input';
 
 @Component({
   selector: 'coaster-create-shift-form',
-  imports: [FormRoot, TextInput, TextareaInput, SelectInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [
+    FormRoot,
+    MatFormField,
+    MatLabel,
+    MatError,
+    MatInput,
+    MatSelect,
+    MatOption,
+    MatTimepicker,
+    MatTimepickerInput,
+    MatTimepickerToggle,
+    FormField,
+    MatButton,
+    TranslatePipe,
+  ],
   template: `
     <div class="mb-4 pb-4 border-b border-outline-variant/15 select-none">
       <h3 class="text-white text-lg font-black uppercase tracking-tight">
@@ -27,41 +40,74 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
 
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <coaster-select-input
-          [formField]="form.userId"
-          [label]="'roster.create_shift.staff_label' | translate"
-          [options]="memberOptions()"
-          [placeholder]="'roster.create_shift.staff_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.staff_label' | translate }}</mat-label>
+          <mat-select [formField]="form.userId" [placeholder]="'roster.create_shift.staff_placeholder' | translate">
+            @for (option of memberOptions(); track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+          @if (form.userId().errors().length > 0) {
+            <mat-error>{{
+              form.userId().errors()[0].message || form.userId().errors()[0].kind | translate: form.userId().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-text-input
-          [formField]="form.startTime"
-          [label]="'roster.create_shift.start_time_label' | translate"
-          type="time"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.start_time_label' | translate }}</mat-label>
+          <input matInput [matTimepicker]="startPicker" [formField]="form.startTime" />
+          <mat-timepicker-toggle matIconSuffix [for]="startPicker"></mat-timepicker-toggle>
+          <mat-timepicker #startPicker></mat-timepicker>
+          @if (form.startTime().errors().length > 0) {
+            <mat-error>{{
+              form.startTime().errors()[0].message || form.startTime().errors()[0].kind
+                | translate: form.startTime().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-text-input
-          [formField]="form.endTime"
-          [label]="'roster.create_shift.end_time_label' | translate"
-          type="time"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.end_time_label' | translate }}</mat-label>
+          <input matInput [matTimepicker]="endPicker" [formField]="form.endTime" />
+          <mat-timepicker-toggle matIconSuffix [for]="endPicker"></mat-timepicker-toggle>
+          <mat-timepicker #endPicker></mat-timepicker>
+          @if (form.endTime().errors().length > 0) {
+            <mat-error>{{
+              form.endTime().errors()[0].message || form.endTime().errors()[0].kind
+                | translate: form.endTime().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-textarea-input
-          [formField]="form.notes"
-          [label]="'roster.create_shift.notes_label' | translate"
-          [placeholder]="'roster.create_shift.notes_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'roster.create_shift.notes_label' | translate }}</mat-label>
+          <textarea
+            matInput
+            [formField]="form.notes"
+            [placeholder]="'roster.create_shift.notes_placeholder' | translate"
+            rows="3"
+          ></textarea>
+          @if (form.notes().errors().length > 0) {
+            <mat-error>{{
+              form.notes().errors()[0].message || form.notes().errors()[0].kind | translate: form.notes().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
         @if (form().errors().length > 0) {
-          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+            @for (error of form().errors(); track error) {
+              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+            }
+          </div>
         }
 
         <div class="flex justify-end mt-4 gap-2">
           <button
-            coaster-btn
+            mat-stroked-button
             class="w-full"
             type="button"
-            variant="outline"
             [disabled]="form().disabled() || form().submitting() || disabled()"
             (click)="handleCancel()"
           >
@@ -69,10 +115,9 @@ import { TextareaInput } from '../../../../../../components/forms/textarea-input
           </button>
 
           <button
-            coaster-btn
+            mat-flat-button
             class="w-full"
             type="submit"
-            variant="primary"
             [disabled]="form().invalid() || form().submitting() || form().disabled() || disabled()"
           >
             {{ 'common.create' | translate }}
@@ -106,8 +151,8 @@ export class CreateShiftForm {
 
   readonly #formBase = signal({
     userId: '',
-    startTime: '',
-    endTime: '',
+    startTime: null as Date | null,
+    endTime: null as Date | null,
     notes: '',
   });
 
@@ -122,15 +167,13 @@ export class CreateShiftForm {
       submission: {
         action: async (form) => {
           const raw = form().value();
-          const selectedDate = this.#rosterState.selectedDate();
+          const selectedDate = new Date(this.#rosterState.selectedDate());
 
-          const [startHours, startMinutes] = raw.startTime.split(':').map(Number);
           const startTimeDate = new Date(selectedDate);
-          startTimeDate.setHours(startHours, startMinutes, 0, 0);
+          startTimeDate.setHours(raw.startTime!.getHours(), raw.startTime!.getMinutes(), 0, 0);
 
-          const [endHours, endMinutes] = raw.endTime.split(':').map(Number);
           const endTimeDate = new Date(selectedDate);
-          endTimeDate.setHours(endHours, endMinutes, 0, 0);
+          endTimeDate.setHours(raw.endTime!.getHours(), raw.endTime!.getMinutes(), 0, 0);
 
           if (endTimeDate < startTimeDate) {
             endTimeDate.setDate(endTimeDate.getDate() + 1);

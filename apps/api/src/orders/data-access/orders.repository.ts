@@ -208,7 +208,7 @@ export class OrdersRepository {
     });
   }
 
-  async bulkUpdate(orderId: OrderId, updates: { itemId: string; paidQuantity?: number; servedQuantity?: number }[]) {
+  async bulkUpdate(orderId: OrderId, updates: { itemId: string; paidQuantity?: number; servedQuantity?: number; paymentMethod?: 'CASH' | 'CARD' | 'MIXED' | 'NONE' }[]) {
     return this._prisma.$transaction(async (tx) => {
       for (const update of updates) {
         const item = await tx.dbOrderItem.findUnique({ where: { id: update.itemId } });
@@ -223,6 +223,45 @@ export class OrdersRepository {
           dataToUpdate.paidQuantity = newPaidQuantity;
           dataToUpdate.paymentStatus =
             newPaidQuantity === item.quantity ? 'PAID' : newPaidQuantity === 0 ? 'PENDING' : 'PARTIAL';
+
+          const diff = newPaidQuantity - item.paidQuantity;
+          let newCard = item.paidQuantityCard;
+          let newCash = item.paidQuantityCash;
+
+          if (diff > 0) {
+            if (update.paymentMethod === 'CARD') {
+              newCard = item.paidQuantityCard + diff;
+            } else if (update.paymentMethod === 'CASH') {
+              newCash = item.paidQuantityCash + diff;
+            } else {
+              newCash = item.paidQuantityCash + diff;
+            }
+          } else if (diff < 0) {
+            let toReduce = Math.abs(diff);
+            if (newCard >= toReduce) {
+              newCard -= toReduce;
+              toReduce = 0;
+            } else {
+              toReduce -= newCard;
+              newCard = 0;
+            }
+            if (toReduce > 0) {
+              newCash = Math.max(0, newCash - toReduce);
+            }
+          }
+
+          dataToUpdate.paidQuantityCard = newCard;
+          dataToUpdate.paidQuantityCash = newCash;
+
+          if (newCard > 0 && newCash > 0) {
+            dataToUpdate.paymentMethod = 'MIXED';
+          } else if (newCard > 0) {
+            dataToUpdate.paymentMethod = 'CARD';
+          } else if (newCash > 0) {
+            dataToUpdate.paymentMethod = 'CASH';
+          } else {
+            dataToUpdate.paymentMethod = 'NONE';
+          }
         }
 
         if (update.servedQuantity !== undefined) {
@@ -240,8 +279,30 @@ export class OrdersRepository {
         }
       }
 
-      return tx.dbOrder.findUnique({
+      const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
+      let amountPaidCash = 0;
+      let amountPaidCard = 0;
+      for (const item of allItems) {
+        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
+        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
+      }
+
+      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+      if (amountPaidCash > 0 && amountPaidCard > 0) {
+        orderPaymentMethod = 'MIXED';
+      } else if (amountPaidCard > 0) {
+        orderPaymentMethod = 'CARD';
+      } else if (amountPaidCash > 0) {
+        orderPaymentMethod = 'CASH';
+      }
+
+      return tx.dbOrder.update({
         where: { id: orderId },
+        data: { 
+          paymentMethod: orderPaymentMethod,
+          amountPaidCash,
+          amountPaidCard,
+        },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
@@ -250,7 +311,7 @@ export class OrdersRepository {
     });
   }
 
-  async checkoutOrder(orderId: OrderId, tableId: string | null) {
+  async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: 'CASH' | 'CARD') {
     return this._prisma.$transaction(async (tx) => {
       const unpaidItems = await tx.dbOrderItem.findMany({
         where: {
@@ -260,11 +321,32 @@ export class OrdersRepository {
       });
 
       for (const item of unpaidItems) {
+        const unpaid = item.quantity - item.paidQuantity;
+        let newCard = item.paidQuantityCard;
+        let newCash = item.paidQuantityCash;
+        if (paymentMethod === 'CARD') {
+          newCard += unpaid;
+        } else {
+          newCash += unpaid;
+        }
+
+        let newItemPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+        if (newCard > 0 && newCash > 0) {
+          newItemPaymentMethod = 'MIXED';
+        } else if (newCard > 0) {
+          newItemPaymentMethod = 'CARD';
+        } else if (newCash > 0) {
+          newItemPaymentMethod = 'CASH';
+        }
+
         await tx.dbOrderItem.update({
           where: { id: item.id },
           data: {
             paymentStatus: 'PAID',
             paidQuantity: item.quantity,
+            paidQuantityCard: newCard,
+            paidQuantityCash: newCash,
+            paymentMethod: newItemPaymentMethod,
           },
         });
       }
@@ -272,9 +354,31 @@ export class OrdersRepository {
       const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
       const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
 
+      let amountPaidCash = 0;
+      let amountPaidCard = 0;
+      for (const item of allItems) {
+        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
+        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
+      }
+
+      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+      if (amountPaidCash > 0 && amountPaidCard > 0) {
+        orderPaymentMethod = 'MIXED';
+      } else if (amountPaidCard > 0) {
+        orderPaymentMethod = 'CARD';
+      } else if (amountPaidCash > 0) {
+        orderPaymentMethod = 'CASH';
+      }
+
       const closed = await tx.dbOrder.update({
         where: { id: orderId },
-        data: { status: 'CLOSED', totalAmount },
+        data: { 
+          status: 'CLOSED', 
+          totalAmount, 
+          paymentMethod: orderPaymentMethod,
+          amountPaidCash,
+          amountPaidCard,
+        },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,

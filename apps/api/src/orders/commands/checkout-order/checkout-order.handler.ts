@@ -25,7 +25,7 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const order = await this._ordersRepository.checkoutOrder(command.orderId, existingOrder.tableId);
+    const order = await this._ordersRepository.checkoutOrder(command.orderId, existingOrder.tableId, command.paymentMethod as any);
     const mapped = OrdersMapper.toDomain(order);
     this.#logger.debug(`Publishing OrderClosedEvent...`);
     this._eventBus.publish(

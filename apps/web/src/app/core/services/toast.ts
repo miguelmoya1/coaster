@@ -1,26 +1,26 @@
-import { Service, signal } from '@angular/core';
+import { inject, Injector, Service } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
-export interface ToastMessage {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-  duration?: number;
-}
+export type ToastType = 'success' | 'error' | 'info';
 
 @Service()
 export class Toast {
-  readonly #toasts = signal<ToastMessage[]>([]);
-  readonly toasts = this.#toasts.asReadonly();
+  readonly #snackBar = inject(MatSnackBar);
+  readonly #injector = inject(Injector);
 
-  public show(message: string, type: 'success' | 'error' | 'info' = 'info', duration = 3000) {
-    const id = Math.random().toString(36).substring(2, 9);
-    const toast: ToastMessage = { id, message, type, duration };
-    
-    this.#toasts.update((toasts) => [...toasts, toast]);
+  public show(message: string, type: ToastType = 'info', duration = 3000) {
+    // Lazy inject to avoid circular dependency:
+    // TranslateHttpLoader → HttpClient → errorInterceptor → Toast → TranslateService
+    const translate = this.#injector.get(TranslateService);
+    const translatedMessage = translate.instant(message);
 
-    if (duration > 0) {
-      setTimeout(() => this.remove(id), duration);
-    }
+    this.#snackBar.open(translatedMessage, '✕', {
+      duration,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: [`snackbar-${type}`],
+    });
   }
 
   public success(message: string, duration = 3000) {
@@ -31,7 +31,7 @@ export class Toast {
     this.show(message, 'error', duration);
   }
 
-  public remove(id: string) {
-    this.#toasts.update((toasts) => toasts.filter((t) => t.id !== id));
+  public remove() {
+    this.#snackBar.dismiss();
   }
 }

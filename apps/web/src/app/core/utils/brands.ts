@@ -1,21 +1,22 @@
 import type {
   BarId,
   BarMemberId,
+  BarRole,
   CategoryId,
+  DeliveryStatus,
   OrderId,
   OrderItemId,
-  ProductId,
-  ShiftId,
-  ShiftExchangeId,
-  TableId,
-  UserId,
-  BarRole,
-  DeliveryStatus,
   OrderStatus,
+  PaymentMethod,
   PaymentStatus,
+  ProductId,
   Role,
+  ShiftExchangeId,
   ShiftExchangeStatus,
-  TableStatus
+  ShiftId,
+  TableId,
+  TableStatus,
+  UserId,
 } from '@coaster/common';
 
 // Casting functions
@@ -53,6 +54,12 @@ export const asPaymentStatus = (status: string): PaymentStatus => {
   const statuses: PaymentStatus[] = ['PENDING', 'PARTIAL', 'PAID'];
   if (statuses.includes(status as PaymentStatus)) return status as PaymentStatus;
   return 'PENDING';
+};
+
+export const asPaymentMethod = (method: string): PaymentMethod => {
+  const methods: PaymentMethod[] = ['CASH', 'CARD', 'MIXED', 'NONE'];
+  if (methods.includes(method as PaymentMethod)) return method as PaymentMethod;
+  return 'NONE';
 };
 
 export const asRole = (role: string): Role => {

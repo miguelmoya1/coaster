@@ -1,35 +1,75 @@
-<div class="flex gap-4 mb-2">
-  <coaster-status-card class="flex-1" status="success">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.free_tables' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ freeCount() ?? 0 }}</div>
-  </coaster-status-card>
+<div class="flex gap-3">
+  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+    <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-success to-success/20 rounded-r"></div>
+    <div class="w-9 h-9 min-w-9 rounded-[10px] bg-success/12 text-success flex items-center justify-center">
+      <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">check_circle</mat-icon>
+    </div>
+    <div class="flex flex-col gap-px">
+      <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ freeCount() ?? 0 }}</span>
+      <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
+        {{ 'orders.free_tables' | translate }}
+      </span>
+    </div>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="error">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.occupied_tables' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ occupiedCount() ?? 0 }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+    <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-error to-error/20 rounded-r"></div>
+    <div class="w-9 h-9 min-w-9 rounded-[10px] bg-error/12 text-error flex items-center justify-center">
+      <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">group</mat-icon>
+    </div>
+    <div class="flex flex-col gap-px">
+      <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ occupiedCount() ?? 0 }}</span>
+      <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
+        {{ 'orders.occupied_tables' | translate }}
+      </span>
+    </div>
+  </mat-card>
 
-  <coaster-status-card class="flex-1" status="primary">
-    <div class="text-sm text-on-surface-variant font-medium mb-1">{{ 'orders.open_orders' | translate }}</div>
-    <div class="text-3xl font-bold text-on-surface">{{ totalOpen() }}</div>
-  </coaster-status-card>
+  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+    <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-primary to-primary/20 rounded-r"></div>
+    <div class="w-9 h-9 min-w-9 rounded-[10px] bg-primary/12 text-primary flex items-center justify-center">
+      <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">receipt_long</mat-icon>
+    </div>
+    <div class="flex flex-col gap-px">
+      <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ totalOpen() }}</span>
+      <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
+        {{ 'orders.open_orders' | translate }}
+      </span>
+    </div>
+  </mat-card>
 </div>
 
-<h2 coaster-title>{{ 'orders.tables_title' | translate }}</h2>
+<h2 class="heading-2">{{ 'orders.tables_title' | translate }}</h2>
 
 @if (isLoadingTables()) {
   <coaster-loading />
 }
 
+<!-- ─── Tables grid ─── -->
 <div class="grid grid-cols-3 gap-3">
-  <button
-    class="w-full rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer border-2 min-h-[120px] bg-primary/10 border-primary/40 text-primary"
+  <!-- Bar order card (special) -->
+  <mat-card
+    class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex! flex-col! items-center! min-h-50"
     (click)="onBarOrder()"
   >
-    <ng-icon name="lucideCoffee" class="text-2xl" />
-    <span class="font-bold text-base leading-tight text-center">{{ 'orders.bar_order' | translate }}</span>
-    <span class="text-xs font-semibold uppercase tracking-wider">{{ 'orders.no_table' | translate }}</span>
-  </button>
+    <div class="w-full h-0.75 bg-linear-to-r from-primary to-primary/30"></div>
+    <div class="flex flex-col items-center gap-2.5 px-4 pt-5 pb-4 flex-1 justify-center w-full">
+      <div
+        class="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border-[1.5px] border-primary/25"
+      >
+        <mat-icon class="text-[22px]! w-5.5! h-5.5! leading-5.5! m-0! text-primary">coffee</mat-icon>
+      </div>
+      <span class="text-base font-extrabold text-on-surface leading-tight tracking-tight">
+        {{ 'orders.bar_order' | translate }}
+      </span>
+      <mat-chip class="font-bold bg-primary/12 text-primary">
+        {{ 'orders.no_table' | translate }}
+      </mat-chip>
+      <span class="text-[0.65rem] text-on-surface-variant/50 italic leading-snug text-center max-w-[90%]">
+        {{ 'orders.bar_order_title' | translate }}
+      </span>
+    </div>
+  </mat-card>
 
   @for (table of tablesViewModel(); track table.original.id) {
     <coaster-table-card
@@ -41,33 +81,35 @@
     />
   } @empty {
     @if (!isLoadingTables()) {
-      <div class="col-span-2 text-center text-on-surface-variant py-8">
+      <div class="col-span-3 text-center text-on-surface-variant py-8">
         {{ 'orders.no_tables' | translate }}
       </div>
     }
   }
 </div>
 
+<!-- ─── Bar orders list ─── -->
 @if (barOrdersViewModel().length > 0) {
-  <h2 coaster-title>{{ 'orders.bar_orders' | translate }}</h2>
+  <h2 class="heading-2">{{ 'orders.bar_orders' | translate }}</h2>
 
   <div class="flex flex-col gap-2">
     @for (order of barOrdersViewModel(); track order.id) {
-      <button
-        class="w-full bg-surface-container rounded-2xl p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer hover:bg-surface-container-high"
+      <mat-card
+        class="relative cursor-pointer active:scale-[0.98] transition-all duration-200 p-3.5! pl-5! flex! flex-row! items-center! gap-3 overflow-hidden"
         (click)="onBarOrderClicked(order)"
       >
-        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-          <ng-icon name="lucideCoffee" size="20" />
+        <div class="absolute top-0 left-0 w-0.75 h-full bg-linear-to-b from-primary to-primary/20 rounded-r"></div>
+        <div class="w-10 h-10 min-w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <mat-icon class="text-[20px]! w-5! h-5! m-0!">coffee</mat-icon>
         </div>
-        <div class="flex-1 flex flex-col gap-0.5 text-left">
-          <span class="font-semibold text-on-surface text-sm">{{ 'orders.bar_order' | translate }}</span>
+        <div class="flex-1 flex flex-col gap-0.5 text-left min-w-0">
+          <span class="font-bold text-on-surface text-sm">{{ 'orders.bar_order' | translate }}</span>
           <span class="text-xs text-on-surface-variant">
             {{ order.items.length }} {{ 'history.items' | translate }}
           </span>
         </div>
-        <span class="text-lg font-black text-primary">{{ order.totalAmount | price }}</span>
-      </button>
+        <span class="text-lg font-black text-primary tracking-tight">{{ order.totalAmount | price }}</span>
+      </mat-card>
     }
   </div>
 }
@@ -75,32 +117,3 @@
 @if (isOwner()) {
   <coaster-fab (click)="onCreateTable()" />
 }
-
-@if (showCreateTable()) {
-  <coaster-bottom-sheet (closed)="showCreateTable.set(false)">
-    <div class="flex flex-col gap-4 px-2 pb-4">
-      <h3 class="text-lg font-bold text-on-surface">{{ 'orders.create_table' | translate }}</h3>
-      <input
-        #tableNameInput
-        type="text"
-        class="w-full rounded-xl bg-surface-container-highest text-on-surface p-4 text-sm border border-outline-variant/30 outline-none focus:border-primary"
-        [placeholder]="'orders.table_name_placeholder' | translate"
-      />
-      <button coaster-btn [disabled]="isSubmitting()" (click)="submitCreateTable(tableNameInput.value)">
-        {{ 'common.create' | translate }}
-      </button>
-    </div>
-  </coaster-bottom-sheet>
-}
-
-<coaster-confirm-dialog
-  [isOpen]="isDeletingTableModalOpen()"
-  (confirmed)="handleConfirmDeleteTable()"
-  (cancelled)="handleCloseDeleteTableModal()"
-  isDestructive
->
-  <ng-container confirm-dialog-title> {{ 'orders.delete_table_title' | translate }} </ng-container>
-  <ng-container confirm-dialog-message>
-    {{ 'orders.delete_table_message' | translate: { name: tableToDelete()?.name } }}
-  </ng-container>
-</coaster-confirm-dialog>

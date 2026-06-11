@@ -1,16 +1,13 @@
 <div class="flex items-center gap-3 mb-6">
-  <button
-    [routerLink]="['/bars', barId(), 'pantry']"
-    class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container hover:bg-surface-bright text-on-surface transition-colors cursor-pointer"
-  >
-    <ng-icon name="lucideChevronLeft" class="text-xl" />
+  <button mat-icon-button [routerLink]="['/bars', barId(), 'pantry']">
+    <mat-icon class="text-xl">chevron_left</mat-icon>
   </button>
-  <h2 coaster-title class="text-2xl font-bold">{{ 'pantry.import_title' | translate }}</h2>
+  <h2 class="heading-2 text-2xl font-bold">{{ 'pantry.import_title' | translate }}</h2>
 </div>
 
 <!-- Search Input -->
 <div class="relative mb-4">
-  <ng-icon name="lucideSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" />
+  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</mat-icon>
   <input
     type="text"
     [value]="searchQuery()"
@@ -19,11 +16,8 @@
     class="w-full bg-surface-container text-on-surface placeholder:text-on-surface-variant/60 rounded-xl pl-10 pr-10 py-2.5 text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
   />
   @if (searchQuery()) {
-    <button
-      (click)="searchQuery.set('')"
-      class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
-    >
-      <ng-icon name="lucideX" class="text-lg" />
+    <button mat-icon-button (click)="searchQuery.set('')" class="absolute right-3 top-1/2 -translate-y-1/2">
+      <mat-icon class="text-lg">close</mat-icon>
     </button>
   }
 </div>
@@ -41,10 +35,10 @@
         }}{{ filteredTemplates().length !== 1 ? 's' : '' }}
       </span>
       <div class="flex gap-2">
-        <button coaster-btn variant="outline" class="text-xs! py-1! px-2.5!" (click)="selectAll()">
+        <button mat-stroked-button (click)="selectAll()">
           {{ 'pantry.select_all' | translate }}
         </button>
-        <button coaster-btn variant="outline" class="text-xs! py-1! px-2.5!" (click)="deselectAll()">
+        <button mat-stroked-button (click)="deselectAll()">
           {{ 'pantry.deselect_all' | translate }}
         </button>
       </div>
@@ -72,17 +66,19 @@
               [class.bg-primary]="selectedCategoryIds().has(cat.id)"
             >
               @if (selectedCategoryIds().has(cat.id)) {
-                <ng-icon name="lucideCheck" class="text-white text-xs font-bold" />
+                <mat-icon class="text-white text-xs font-bold text-[12px]! w-[12px]! h-[12px]! leading-[12px]! m-0!"
+                  >check</mat-icon
+                >
               }
             </div>
 
             <!-- Category Icon -->
             <div class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0">
-              <ng-icon name="lucideFolder" class="text-xl text-primary" />
+              <mat-icon class="text-xl text-primary">folder</mat-icon>
             </div>
 
             <div class="flex-1 min-w-0">
-              <h3 coaster-title class="truncate text-base font-bold">{{ cat.name | translate }}</h3>
+              <h3 class="heading-3 truncate text-base font-bold">{{ cat.name | translate }}</h3>
               <p class="text-on-surface-variant text-xs font-medium">
                 {{ cat.products.length }} {{ 'pantry.product' | translate | lowercase
                 }}{{ cat.products.length !== 1 ? 's' : '' }}
@@ -98,7 +94,10 @@
                   class="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-surface-container-highest/40 hover:bg-surface-container-highest/80 transition-colors"
                 >
                   <div class="flex items-center gap-2 min-w-0">
-                    <ng-icon name="lucidePackage" class="text-on-surface-variant text-sm shrink-0" />
+                    <mat-icon
+                      class="text-on-surface-variant text-sm shrink-0 text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!"
+                      >inventory_2</mat-icon
+                    >
                     <span class="font-semibold text-on-surface truncate">{{ prod.name | translate }}</span>
                   </div>
                   @if (prod.price > 0) {
@@ -131,7 +130,7 @@
       class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-surface-container-highest/40 border border-outline/5"
     >
       <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-        <ng-icon name="lucideFolder" class="text-lg" />
+        <mat-icon class="text-lg">folder</mat-icon>
       </div>
       <div class="flex flex-col">
         <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider leading-none">
@@ -148,7 +147,7 @@
       class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-surface-container-highest/40 border border-outline/5"
     >
       <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-        <ng-icon name="lucidePackage" class="text-lg" />
+        <mat-icon class="text-lg">inventory_2</mat-icon>
       </div>
       <div class="flex flex-col">
         <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider leading-none">
@@ -163,8 +162,8 @@
 
   <!-- Action Button -->
   <button
-    coaster-btn
-    class="w-48 font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+    mat-flat-button
+    class="w-48"
     [disabled]="selectedCategoriesCount() === 0 || isSubmitting()"
     (click)="importSelected()"
   >
@@ -175,7 +174,7 @@
       </div>
     } @else {
       <div class="flex items-center gap-2 justify-center">
-        <ng-icon name="lucideDownload" class="text-base" />
+        <mat-icon class="text-base">download</mat-icon>
         <span>{{ 'pantry.import_action' | translate }}</span>
       </div>
     }

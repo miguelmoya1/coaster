@@ -1,5 +1,5 @@
 import { Listbox, Option } from '@angular/aria/listbox';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ScrollerDay } from '@coaster/roster';
 
 @Component({
@@ -45,7 +45,6 @@ import { ScrollerDay } from '@coaster/roster';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HorizontalDateScroller {
   readonly days = input<ScrollerDay[]>([]);

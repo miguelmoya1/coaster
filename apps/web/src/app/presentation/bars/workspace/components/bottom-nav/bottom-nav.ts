@@ -1,14 +1,7 @@
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideCalendar,
-  lucideClipboardList,
-  lucideLayoutDashboard,
-  lucidePackage,
-  lucideUsers,
-} from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface NavItem {
@@ -21,16 +14,7 @@ interface NavItem {
 
 @Component({
   selector: 'coaster-bottom-nav',
-  imports: [NgIcon, Toolbar, ToolbarWidget, RouterLink, RouterLinkActive, TranslatePipe],
-  viewProviders: [
-    provideIcons({
-      lucideLayoutDashboard,
-      lucidePackage,
-      lucideCalendar,
-      lucideUsers,
-      lucideClipboardList,
-    }),
-  ],
+  imports: [MatIcon, Toolbar, ToolbarWidget, RouterLink, RouterLinkActive, TranslatePipe],
   template: `
     <nav
       ngToolbar
@@ -45,7 +29,7 @@ interface NavItem {
           routerLinkActive="bg-surface-bright text-primary rounded-2xl scale-105 sm:scale-110"
           class="flex flex-col items-center justify-center text-on-surface-variant px-3 sm:px-5 py-1.5 sm:py-2 hover:text-white transition-all active:scale-95 duration-150 gap-0 sm:gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
         >
-          <ng-icon [name]="item.icon" class="text-xl sm:text-2xl" />
+          <mat-icon class="text-xl sm:text-2xl">{{ item.icon }}</mat-icon>
           <span class="font-bold text-xxs sm:text-xxs-plus uppercase tracking-wider hidden sm:block">
             {{ item.labelKey | translate }}
           </span>
@@ -53,7 +37,6 @@ interface NavItem {
       }
     </nav>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BottomNav {
   public readonly barId = input.required<string>();
@@ -63,31 +46,31 @@ export class BottomNav {
     {
       value: 'dashboard',
       link: `/bars/${this.barId()}/dashboard`,
-      icon: 'lucideLayoutDashboard',
+      icon: 'dashboard',
       labelKey: 'nav.dashboard',
     },
     {
       value: 'orders',
       link: `/bars/${this.barId()}/orders`,
-      icon: 'lucideClipboardList',
+      icon: 'assignment',
       labelKey: 'nav.orders',
     },
     {
       value: 'roster',
       link: `/bars/${this.barId()}/roster`,
-      icon: 'lucideCalendar',
+      icon: 'calendar_today',
       labelKey: 'nav.roster',
     },
     {
       value: 'pantry',
       link: `/bars/${this.barId()}/pantry`,
-      icon: 'lucidePackage',
+      icon: 'inventory_2',
       labelKey: 'nav.pantry',
     },
     {
       value: 'staff',
       link: `/bars/${this.barId()}/staff`,
-      icon: 'lucideUsers',
+      icon: 'group',
       labelKey: 'nav.staff',
       ownerOnly: true,
     },

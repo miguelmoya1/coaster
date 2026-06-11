@@ -1,53 +1,66 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../../components/button/button';
-import { FormFieldMessages } from '../../../../../../components/forms/form-field-messages/form-field-messages';
-import { TextInput } from '../../../../../../components/forms/text-input/text-input';
 
 @Component({
   selector: 'coaster-create-category-form',
-  imports: [FormRoot, TextInput, FormField, CoasterBtn, TranslatePipe, FormFieldMessages],
+  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <coaster-text-input
-          [formField]="form.name"
-          [label]="'pantry.create_category.name_label' | translate"
-          [placeholder]="'pantry.create_category.name_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'pantry.create_category.name_label' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form.name"
+            [placeholder]="'pantry.create_category.name_placeholder' | translate"
+          />
+          @if (form.name().errors().length > 0) {
+            <mat-error>{{
+              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
-        <coaster-text-input
-          [formField]="form.icon"
-          [label]="'pantry.create_category.icon_label' | translate"
-          [placeholder]="'pantry.create_category.icon_placeholder' | translate"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'pantry.create_category.icon_label' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form.icon"
+            [placeholder]="'pantry.create_category.icon_placeholder' | translate"
+          />
+          @if (form.icon().errors().length > 0) {
+            <mat-error>{{
+              form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0]
+            }}</mat-error>
+          }
+        </mat-form-field>
 
         @if (form().errors().length > 0) {
-          <coaster-form-field-messages [invalid]="true" [errors]="form().errors()" />
+          <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
+            @for (error of form().errors(); track error) {
+              <span class="text-error text-xs font-medium">{{ error.message || error.kind | translate: error }}</span>
+            }
+          </div>
         }
 
         <div class="flex justify-end mt-4 gap-2">
           <button
-            coaster-btn
+            mat-stroked-button
             class="w-full"
             type="button"
-            variant="outline"
-            [disabled]="form().submitting() || form().invalid()"
+            [disabled]="form().submitting()"
             (click)="cancelHandler()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button
-            coaster-btn
-            class="w-full"
-            type="submit"
-            variant="primary"
-            [disabled]="form().submitting() || form().invalid()"
-          >
+          <button mat-flat-button class="w-full" type="submit" [disabled]="form().submitting() || form().invalid()">
             {{ 'common.create' | translate }}
           </button>
         </div>

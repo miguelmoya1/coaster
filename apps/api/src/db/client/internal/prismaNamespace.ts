@@ -1472,6 +1472,9 @@ export const DbOrderScalarFieldEnum = {
   tableName: 'tableName',
   status: 'status',
   totalAmount: 'totalAmount',
+  amountPaidCash: 'amountPaidCash',
+  amountPaidCard: 'amountPaidCard',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1486,9 +1489,12 @@ export const DbOrderItemScalarFieldEnum = {
   quantity: 'quantity',
   priceAtPurchase: 'priceAtPurchase',
   paidQuantity: 'paidQuantity',
+  paidQuantityCash: 'paidQuantityCash',
+  paidQuantityCard: 'paidQuantityCard',
   servedQuantity: 'servedQuantity',
   paymentStatus: 'paymentStatus',
   deliveryStatus: 'deliveryStatus',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1628,6 +1634,20 @@ export type EnumDbOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'DbOrderStatus[]'
  */
 export type ListEnumDbOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbOrderStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbPaymentMethod'
+ */
+export type EnumDbPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbPaymentMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'DbPaymentMethod[]'
+ */
+export type ListEnumDbPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbPaymentMethod[]'>
     
 
 

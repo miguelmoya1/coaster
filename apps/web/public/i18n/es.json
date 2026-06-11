@@ -203,6 +203,10 @@
       "title": "Abandonar Bar"
     },
     "leave_tooltip": "Eres el único propietario. Para abandonar el bar, añade otro propietario primero.",
+    "invite": {
+      "title": "Invitar al equipo",
+      "description": "Añade un nuevo miembro a la plantilla mediante su correo electrónico."
+    },
     "staff": {
       "description": "{{count}} miembros del equipo",
       "no_members": "No hay miembros en el equipo",
@@ -263,6 +267,11 @@
     "partial_payment": "Pago parcial",
     "pay_selected": "Pagar Seleccionados ({{amount}})",
     "pos_title": "Pedido Rápido",
+    "payment_method_title": "Método de Pago",
+    "payment_method_description": "Selecciona el método con el que se va a cobrar este importe.",
+    "payment_method_cash": "Efectivo",
+    "payment_method_card": "Tarjeta",
+    "total_to_pay": "Total a pagar",
     "quantity_to_pay": "Pagar",
     "quantity_to_serve": "Servir",
     "remove_item": "Eliminar artículo",
@@ -285,6 +294,7 @@
     "to_serve_title": "Para servir",
     "all_served_title": "¡Todo servido!",
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
+    "consumption": "Consumo",
     "total": "Total",
     "unpay_unit": "Restar 1 pagado",
     "unserve_unit": "Restar 1 servido"
@@ -368,6 +378,7 @@
     "delete_shift_confirm": "¿Estás seguro de que quieres eliminar este turno? Esta acción no se puede deshacer.",
     "exchange_pending": "Pendiente",
     "exchanges": {
+      "description": "Estos intercambios son propuestas globales publicadas por el equipo. Cualquier miembro con el rol adecuado puede aceptarlos.",
       "offered_by": "Ofrecido por",
       "period_afternoon": "Turno de Tarde",
       "period_evening": "Turno de Noche",

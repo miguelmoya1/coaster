@@ -1,50 +1,37 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
   input,
+  inputBinding,
   linkedSignal,
+  outputBinding,
   signal,
 } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatCard } from '@angular/material/card';
+import { MatChip } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
 import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCoffee, lucidePlus } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CoasterBtn } from '../../../../../components/button/button';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-import { StatusCard } from '../../../../../components/status-card/status-card';
-import { CoasterTitle } from '../../../../../components/typography/typography';
-import { BottomSheet } from '../../../components/bottom-sheet/bottom-sheet';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
+import { CreateTableForm } from './components/create-table-form/create-table-form';
 import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [
-    TableCard,
-    StatusCard,
-    Loading,
-    CoasterTitle,
-    BottomSheet,
-    Fab,
-    TranslatePipe,
-    CoasterBtn,
-    NgIcon,
-    PricePipe,
-    ConfirmDialogComponent,
-  ],
-  viewProviders: [provideIcons({ lucidePlus, lucideCoffee })],
+  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class Tables {
   public readonly barId = input.required<BarId>();
@@ -54,6 +41,10 @@ class Tables {
   readonly #barsStore = inject(BarsStore);
 
   readonly #router = inject(Router);
+  readonly #dialog = inject(MatDialog);
+  readonly #bottomSheet = inject(MatBottomSheet);
+
+  readonly #translate = inject(TranslateService);
 
   constructor() {
     effect(() => {
@@ -63,7 +54,6 @@ class Tables {
     });
   }
 
-  readonly showCreateTable = signal(false);
   readonly isSubmitting = signal(false);
   readonly tableToDelete = signal<Table | null>(null);
   readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
@@ -109,23 +99,40 @@ class Tables {
   }
 
   onCreateTable() {
-    this.showCreateTable.set(true);
-  }
-
-  async submitCreateTable(name: string) {
-    if (!name.trim()) return;
-    this.isSubmitting.set(true);
-    try {
-      await this.#tablesStore.create({ name: name.trim() });
-      this.showCreateTable.set(false);
-    } catch (e) {
-      console.error(e);
-    }
-    this.isSubmitting.set(false);
+    const bottomSheetRef = this.#bottomSheet.open(CreateTableForm, {
+      bindings: [
+        inputBinding('isSubmitting', () => this.isSubmitting()),
+        outputBinding('created', async (name: string) => {
+          this.isSubmitting.set(true);
+          try {
+            await this.#tablesStore.create({ name });
+            bottomSheetRef.dismiss();
+          } catch (e) {
+            console.error(e);
+          }
+          this.isSubmitting.set(false);
+        }),
+      ],
+    });
   }
 
   protected handleDeleteTable(table: Table) {
     this.tableToDelete.set(table);
+    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
+      bindings: [
+        inputBinding('destructive', () => true),
+        inputBinding('title', () => this.#translate.instant('orders.delete_table_title')),
+        inputBinding('text', () => this.#translate.instant('orders.delete_table_message', { name: table.name })),
+        outputBinding('canceled', () => {
+          this.handleCloseDeleteTableModal();
+          dialogRef.close();
+        }),
+        outputBinding('deleted', () => {
+          this.handleConfirmDeleteTable();
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 
   protected handleCloseDeleteTableModal() {

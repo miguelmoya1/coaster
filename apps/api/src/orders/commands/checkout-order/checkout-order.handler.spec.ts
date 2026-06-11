@@ -50,7 +50,7 @@ describe('CheckoutOrderHandler', () => {
       updatedAt: new Date(),
     });
 
-    await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
+    await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1'), 'CARD'));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       new OrderClosedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),

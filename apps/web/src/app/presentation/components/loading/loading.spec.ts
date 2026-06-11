@@ -21,10 +21,9 @@ describe('Loading', () => {
   });
 
   describe('rendering', () => {
-    it('should show the loading icon', () => {
-      const icon = fixture.nativeElement.querySelector('ng-icon');
-      expect(icon).toBeTruthy();
-      expect(icon.classList.contains('animate-spin')).toBe(true);
+    it('should show the loading spinner', () => {
+      const spinner = fixture.nativeElement.querySelector('mat-spinner');
+      expect(spinner).toBeTruthy();
     });
 
     it('should not show text if not provided', () => {
@@ -49,14 +48,6 @@ describe('Loading', () => {
 
       const container = fixture.nativeElement.querySelector('div');
       expect(container.classList.contains('custom-container')).toBe(true);
-    });
-
-    it('should apply custom icon classes', () => {
-      fixture.componentRef.setInput('iconClasses', 'custom-icon');
-      fixture.detectChanges();
-
-      const icon = fixture.nativeElement.querySelector('ng-icon');
-      expect(icon.classList.contains('custom-icon')).toBe(true);
     });
 
     it('should apply custom text classes', () => {

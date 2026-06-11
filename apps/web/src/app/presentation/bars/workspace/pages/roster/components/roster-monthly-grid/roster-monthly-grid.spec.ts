@@ -37,9 +37,7 @@ describe('RosterMonthlyGrid', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RosterMonthlyGrid],
-      providers: [
-        provideTranslateService(),
-      ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RosterMonthlyGrid);
@@ -81,7 +79,9 @@ describe('RosterMonthlyGrid', () => {
     fixture.detectChanges();
 
     let emittedId: string | null = null;
-    component.daySelected.subscribe((id: string) => { emittedId = id; });
+    component.daySelected.subscribe((id: string) => {
+      emittedId = id;
+    });
 
     const dayCells = fixture.nativeElement.querySelectorAll('div[role="button"]');
     const cell1 = dayCells[0] as HTMLDivElement;

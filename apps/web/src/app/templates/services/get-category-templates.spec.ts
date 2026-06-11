@@ -16,10 +16,7 @@ describe('GetCategoryTemplates', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        GetCategoryTemplates,
-        { provide: TemplatesRepository, useValue: repositoryMock },
-      ],
+      providers: [GetCategoryTemplates, { provide: TemplatesRepository, useValue: repositoryMock }],
     });
 
     service = TestBed.inject(GetCategoryTemplates);

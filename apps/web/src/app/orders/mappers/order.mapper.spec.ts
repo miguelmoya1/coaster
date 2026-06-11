@@ -1,6 +1,14 @@
-import { describe, expect, it } from 'vitest';
 import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, DeliveryStatus, OrderStatus, PaymentStatus } from '@coaster/core';
+import {
+  asBarId,
+  asOrderId,
+  asOrderItemId,
+  asProductId,
+  DeliveryStatus,
+  OrderStatus,
+  PaymentStatus,
+} from '@coaster/core';
+import { describe, expect, it } from 'vitest';
 import { checkIsOrder, orderArrayMapper, orderMapper } from './order.mapper';
 
 describe('Order Mapper', () => {
@@ -9,6 +17,9 @@ describe('Order Mapper', () => {
     barId: asBarId('bar-1'),
     status: OrderStatus.OPEN,
     totalAmount: 1500,
+    amountPaidCash: 0,
+    amountPaidCard: 0,
+    paymentMethod: 'NONE',
     items: [
       {
         id: asOrderItemId('item-1'),
@@ -20,7 +31,10 @@ describe('Order Mapper', () => {
         paymentStatus: PaymentStatus.PENDING,
         deliveryStatus: DeliveryStatus.PENDING,
         paidQuantity: 0,
+        paidQuantityCash: 0,
+        paidQuantityCard: 0,
         servedQuantity: 0,
+        paymentMethod: 'NONE',
       },
     ],
   };

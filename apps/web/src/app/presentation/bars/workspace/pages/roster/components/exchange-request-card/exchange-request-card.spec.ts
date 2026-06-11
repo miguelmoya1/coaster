@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { ExchangeRequestCard } from './exchange-request-card';
 
 describe('ExchangeRequestCard', () => {
@@ -9,20 +9,20 @@ describe('ExchangeRequestCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExchangeRequestCard, TranslateModule.forRoot()],
+      imports: [ExchangeRequestCard],
+      providers: [provideTranslateService()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ExchangeRequestCard);
     component = fixture.componentInstance;
-    
+
     // Set required inputs
     fixture.componentRef.setInput('month', 'JAN');
     fixture.componentRef.setInput('day', '15');
-    fixture.componentRef.setInput('shiftPeriod', 'Morning');
-    fixture.componentRef.setInput('roleName', 'Bartender');
+    fixture.componentRef.setInput('roleName', 'OWNER');
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
     fixture.componentRef.setInput('offeredBy', 'John Doe');
-    
+
     fixture.detectChanges();
   });
 
@@ -39,8 +39,7 @@ describe('ExchangeRequestCard', () => {
 
     it('should display shift details', () => {
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('Morning');
-      expect(element.textContent).toContain('Bartender');
+      expect(element.textContent).toContain('OWNER');
       expect(element.textContent).toContain('08:00 - 16:00');
     });
 
@@ -54,16 +53,16 @@ describe('ExchangeRequestCard', () => {
     it('should emit accepted when button is clicked', () => {
       const spy = vi.spyOn(component.accepted, 'emit');
       const button = fixture.nativeElement.querySelector('button');
-      
+
       button.click();
-      
+
       expect(spy).toHaveBeenCalled();
     });
 
     it('should hide accept button if isOwnRequest is true', () => {
       fixture.componentRef.setInput('isOwnRequest', true);
       fixture.detectChanges();
-      
+
       const button = fixture.nativeElement.querySelector('button');
       expect(button).toBeNull();
     });
@@ -71,7 +70,7 @@ describe('ExchangeRequestCard', () => {
     it('should disable button if disabled input is true', () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
-      
+
       const button = fixture.nativeElement.querySelector('button');
       expect(button.disabled).toBe(true);
     });

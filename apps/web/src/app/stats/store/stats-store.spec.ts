@@ -97,6 +97,9 @@ describe('StatsStore', () => {
         barId: asBarId('bar-1'),
         status: OrderStatus.CLOSED,
         totalAmount: 100,
+        amountPaidCash: 0,
+        amountPaidCard: 0,
+        paymentMethod: 'NONE',
         items: [],
       });
       TestBed.tick();
@@ -131,6 +134,9 @@ describe('StatsStore', () => {
         barId: asBarId('bar-2'),
         status: OrderStatus.CLOSED,
         totalAmount: 100,
+        amountPaidCash: 0,
+        amountPaidCard: 0,
+        paymentMethod: 'NONE',
         items: [],
       });
       TestBed.tick();
@@ -158,6 +164,9 @@ describe('StatsStore', () => {
         barId: asBarId('bar-1'),
         status: OrderStatus.CANCELLED,
         totalAmount: 100,
+        amountPaidCash: 0,
+        amountPaidCard: 0,
+        paymentMethod: 'NONE',
         items: [],
       });
       TestBed.tick();

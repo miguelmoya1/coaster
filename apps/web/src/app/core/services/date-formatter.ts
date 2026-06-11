@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 
 @Service()
 export class DateFormatterService {
-
   public formatTimeRange(startIso: string, endIso: string): string {
     try {
       const start = new Date(startIso);

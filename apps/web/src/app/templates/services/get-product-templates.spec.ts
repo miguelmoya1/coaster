@@ -16,10 +16,7 @@ describe('GetProductTemplates', () => {
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
-      providers: [
-        GetProductTemplates,
-        { provide: TemplatesRepository, useValue: repositoryMock },
-      ],
+      providers: [GetProductTemplates, { provide: TemplatesRepository, useValue: repositoryMock }],
     });
 
     service = TestBed.inject(GetProductTemplates);
