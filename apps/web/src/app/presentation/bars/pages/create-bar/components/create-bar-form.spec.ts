@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
