@@ -87,7 +87,7 @@ jobs:
           gcloud run jobs update ${{ env.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION }} \
-            --command "npx,prisma,migrate,deploy"
+            --command "npx,prisma,migrate,deploy,--schema=apps/api/prisma/schema.prisma"
             
           gcloud run jobs execute ${{ env.GCP_JOB_NAME }} --region ${{ env.GCP_REGION }} --wait
 
