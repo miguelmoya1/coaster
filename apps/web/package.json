@@ -48,7 +48,7 @@
     "vitest": "^4.1.8"
   },
   "scripts": {
-    "prebuild": "node set-env.ts",
+    "prebuild": "npm run build -w @coaster/common && node set-env.ts",
     "build": "ng build",
     "prestart": "node set-env.ts",
     "start": "ng serve",
