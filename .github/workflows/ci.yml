@@ -87,6 +87,7 @@ jobs:
           gcloud run jobs update ${{ env.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION }} \
+            --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --command "npx,prisma,migrate,deploy,--schema=apps/api/prisma/schema.prisma"
             
           gcloud run jobs execute ${{ env.GCP_JOB_NAME }} --region ${{ env.GCP_REGION }} --wait
@@ -129,9 +130,9 @@ jobs:
         run: |
           # 1. Bajamos la configuración de Vercel del proyecto
           npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          
+
           # 2. Construimos el proyecto para producción en Vercel
           npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-          
+
           # 3. Desplegamos los artefactos construidos
           npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
