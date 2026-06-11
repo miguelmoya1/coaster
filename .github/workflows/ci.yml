@@ -8,10 +8,9 @@ on:
 
 permissions:
   contents: 'read'
-  id-token: 'write' # Necesario para Google Cloud Workload Identity
+  id-token: 'write'
 
 env:
-  # Variables para Google Cloud (Backend)
   GCP_PROJECT_ID: 'coaster-437f2'
   GCP_REGION: 'europe-southwest1'
   GCP_SERVICE_NAME: 'api'
@@ -19,9 +18,6 @@ env:
   GCP_IMAGE_NAME: 'europe-southwest1-docker.pkg.dev/coaster-437f2/coaster-repo/api'
 
 jobs:
-  # ==========================================
-  # 1. TEST Y BUILD (Se ejecuta siempre)
-  # ==========================================
   build-and-test:
     name: 🧪 Tests & Quality Checks
     runs-on: ubuntu-latest
@@ -32,7 +28,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # Igualado a la versión de tu Dockerfile
+          node-version: 22
           cache: 'npm'
 
       - name: 📦 Install Dependencies
@@ -53,9 +49,6 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
-  # ==========================================
-  # 2. DESPLIEGUE DEL BACKEND (Solo en Main)
-  # ==========================================
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
     needs: build-and-test
@@ -88,7 +81,7 @@ jobs:
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION }} \
             --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-            --command "npx,prisma,migrate,deploy,--schema=apps/api/prisma/schema.prisma"
+            --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
             
           gcloud run jobs execute ${{ env.GCP_JOB_NAME }} --region ${{ env.GCP_REGION }} --wait
 
@@ -99,12 +92,9 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated
 
-  # ==========================================
-  # 3. DESPLIEGUE DEL FRONTEND (Solo en Main, tras el Backend)
-  # ==========================================
   deploy-frontend:
     name: 🎨 Deploy Frontend (Angular)
-    needs: deploy-backend # Se asegura de que la API nueva esté desplegada antes de actualizar la web
+    needs: deploy-backend
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -128,11 +118,8 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          # 1. Bajamos la configuración de Vercel del proyecto
           npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-          # 2. Construimos el proyecto para producción en Vercel
           npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-          # 3. Desplegamos los artefactos construidos
           npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
