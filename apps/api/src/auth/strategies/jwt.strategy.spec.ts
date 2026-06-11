@@ -1,12 +1,12 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { DbService } from '../../db';
 import { JwtStrategy } from './jwt.strategy';
 
-vi.mock('firebase-admin', () => ({
-  auth: vi.fn().mockReturnValue({
+vi.mock('firebase-admin/auth', () => ({
+  getAuth: vi.fn().mockReturnValue({
     verifyIdToken: vi.fn(),
   }),
 }));
@@ -39,7 +39,7 @@ describe('JwtStrategy', () => {
       name: 'Test User',
       picture: 'http://photo.url',
     };
-    (admin.auth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
+    (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
     db.dbUser.upsert.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
@@ -49,7 +49,7 @@ describe('JwtStrategy', () => {
 
     const result = await strategy.validate('fake-token');
 
-    expect(admin.auth().verifyIdToken).toHaveBeenCalledWith('fake-token');
+    expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
     expect(db.dbUser.upsert).toHaveBeenCalledWith({
       where: { email: 'test@mail.com' },
       update: { googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
@@ -64,13 +64,13 @@ describe('JwtStrategy', () => {
   });
 
   it('should throw UnauthorizedException if the payload has no sub', async () => {
-    (admin.auth().verifyIdToken as Mock).mockResolvedValue({ email: 'test@mail.com' });
+    (getAuth().verifyIdToken as Mock).mockResolvedValue({ email: 'test@mail.com' });
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 
   it('should throw UnauthorizedException if verifyIdToken fails', async () => {
-    (admin.auth().verifyIdToken as Mock).mockRejectedValue(new Error('bad'));
+    (getAuth().verifyIdToken as Mock).mockRejectedValue(new Error('bad'));
 
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
