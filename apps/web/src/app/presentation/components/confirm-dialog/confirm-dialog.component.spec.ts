@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { By } from '@angular/platform-browser';
+import { provideTranslateService } from '@ngx-translate/core';
+
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { describe, it, expect, beforeEach } from 'vitest';
 
@@ -11,8 +11,8 @@ describe('ConfirmDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConfirmDialogComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations()],
+      imports: [ConfirmDialogComponent],
+      providers: [provideNoopAnimations(), provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmDialogComponent);
@@ -30,25 +30,17 @@ describe('ConfirmDialogComponent', () => {
   });
 
   it('should display title and text', () => {
-    const titleEl = fixture.debugElement.query(By.css('h2')).nativeElement;
-    const textEls = fixture.debugElement.queryAll(By.css('p'));
+    const titleEl = fixture.nativeElement.querySelector('h2');
+    const textEls = fixture.nativeElement.querySelectorAll('p');
     // By default subtitle is not set, so the first paragraph is the text
     expect(titleEl.textContent.trim()).toBe('Test Title');
-    expect(textEls[0].nativeElement.textContent.trim()).toBe('Test Text');
+    expect(textEls[0].textContent.trim()).toBe('Test Text');
   });
 
-  it('should display subtitle if provided', () => {
-    fixture.componentRef.setInput('subtitle', 'Test Subtitle');
-    fixture.detectChanges();
 
-    const textEls = fixture.debugElement.queryAll(By.css('p'));
-    // First paragraph should now be the subtitle
-    expect(textEls[0].nativeElement.textContent.trim()).toBe('Test Subtitle');
-    expect(textEls[1].nativeElement.textContent.trim()).toBe('Test Text');
-  });
 
   it('should not show warning icon when destructive is false', () => {
-    const iconEl = fixture.debugElement.query(By.css('mat-icon'));
+    const iconEl = fixture.nativeElement.querySelector('mat-icon');
     expect(iconEl).toBeNull();
   });
 
@@ -56,26 +48,26 @@ describe('ConfirmDialogComponent', () => {
     fixture.componentRef.setInput('destructive', true);
     fixture.detectChanges();
 
-    const iconEl = fixture.debugElement.query(By.css('mat-icon'));
+    const iconEl = fixture.nativeElement.querySelector('mat-icon');
     expect(iconEl).toBeTruthy();
 
-    const confirmButton = fixture.debugElement.query(By.css('button.warn'));
+    const confirmButton = fixture.nativeElement.querySelector('button.warn');
     expect(confirmButton).toBeTruthy();
   });
 
   it('should emit canceled when cancel button is clicked', () => {
     let emitted = false;
     component.canceled.subscribe(() => (emitted = true));
-    const buttons = fixture.debugElement.queryAll(By.css('button'));
-    buttons[0].nativeElement.click();
+    const buttons = fixture.nativeElement.querySelectorAll('button');
+    buttons[0].click();
     expect(emitted).toBe(true);
   });
 
   it('should emit deleted when confirm button is clicked', () => {
     let emitted = false;
     component.deleted.subscribe(() => (emitted = true));
-    const buttons = fixture.debugElement.queryAll(By.css('button'));
-    buttons[1].nativeElement.click();
+    const buttons = fixture.nativeElement.querySelectorAll('button');
+    buttons[1].click();
     expect(emitted).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
@@ -89,11 +89,10 @@ export class TopAppBar {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
-  readonly currentLang = signal(this.#translate.currentLang || 'es');
+  readonly currentLang = this.#translate.currentLang;
 
   setLanguage(lang: string): void {
     this.#translate.use(lang);
-    this.currentLang.set(lang);
   }
 
   async logout(): Promise<void> {

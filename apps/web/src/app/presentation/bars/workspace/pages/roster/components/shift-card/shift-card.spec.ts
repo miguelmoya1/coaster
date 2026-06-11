@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftCard } from './shift-card';
 
@@ -9,7 +9,8 @@ describe('ShiftCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShiftCard, TranslateModule.forRoot()],
+      imports: [ShiftCard],
+      providers: [provideTranslateService()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShiftCard);

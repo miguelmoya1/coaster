@@ -25,7 +25,10 @@ export class CreateTableForm {
   public readonly created = output<string>();
 
   submit(name: string) {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      return;
+    }
+
     this.created.emit(name.trim());
   }
 }

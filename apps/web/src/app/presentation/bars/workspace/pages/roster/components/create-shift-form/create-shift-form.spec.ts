@@ -3,7 +3,8 @@ import type { BarMember } from '@coaster/common';
 import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/core';
 import { ShiftsStore } from '@coaster/shifts';
 import { signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
 import { RosterStateService } from '@coaster/roster';
@@ -38,9 +39,11 @@ describe('CreateShiftForm', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CreateShiftForm, TranslateModule.forRoot()],
+      imports: [CreateShiftForm],
       providers: [
+        provideTranslateService(),
         DateFormatterService,
+        provideNativeDateAdapter(),
         { provide: ShiftsStore, useValue: mockShiftsStore },
         { provide: RosterStateService, useValue: mockRosterState },
       ],
@@ -87,8 +90,12 @@ describe('CreateShiftForm', () => {
     it('should call submitAction when form is valid and submitted', async () => {
       const f = component.form;
       f.userId().value.set('user-1');
-      f.startTime().value.set('08:00');
-      f.endTime().value.set('16:00');
+      const startDate = new Date();
+      startDate.setHours(8, 0, 0, 0);
+      f.startTime().value.set(startDate);
+      const endDate = new Date();
+      endDate.setHours(16, 0, 0, 0);
+      f.endTime().value.set(endDate);
       f.notes().value.set('Lunch break at 12:00');
 
       fixture.detectChanges();

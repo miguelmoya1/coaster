@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { ExchangeRequestCard } from './exchange-request-card';
 
 describe('ExchangeRequestCard', () => {
@@ -9,7 +9,8 @@ describe('ExchangeRequestCard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExchangeRequestCard, TranslateModule.forRoot()],
+      imports: [ExchangeRequestCard],
+      providers: [provideTranslateService()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ExchangeRequestCard);

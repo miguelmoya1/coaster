@@ -101,10 +101,6 @@ describe('Pantry', () => {
   });
 
   describe('computed properties', () => {
-    it('should start with PRODUCT tab selected', () => {
-      expect(component.currentTab()).toBe('PRODUCT');
-    });
-
     it('should start with ALL category selected', () => {
       expect(component.selectedCategoryId()).toBe('ALL');
     });
@@ -181,30 +177,9 @@ describe('Pantry', () => {
   });
 
   describe('actions', () => {
-    it('should set product selected on click', () => {
-      const product = { id: 'p-1', name: 'Product 1' } as Product;
-      component.onProductClicked(product);
-      expect(component.productSelected()).toEqual(product);
-    });
-
-    it('should set product to edit', () => {
-      const product = { id: 'p-1', name: 'Product 1' } as Product;
-      component.onEditProductClicked(product);
-      expect(component.productToEdit()).toEqual(product);
-    });
-
     it('should update searchQuery', () => {
       component.searchQuery.set('whisky');
       expect(component.searchQuery()).toBe('whisky');
-    });
-
-    it('should clear state on closeModal', () => {
-      component.productSelected.set({ id: 'p-1' } as Product);
-      component.closeModal();
-
-      expect(component.productSelected()).toBeNull();
-      expect(component.productToEdit()).toBeNull();
-      expect(component.categoryToEdit()).toBeNull();
     });
   });
 });

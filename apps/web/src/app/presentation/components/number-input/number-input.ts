@@ -1,5 +1,5 @@
 import { Component, input, model } from '@angular/core';
-import { DisabledReason, FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
+import { DisabledReason, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatIconButton } from '@angular/material/button';
@@ -87,7 +87,7 @@ import { MatIcon } from '@angular/material/icon';
     `,
   ],
 })
-export class NumberInput implements FormValueControl<number> {
+export class NumberInput {
   readonly value = model<number>(0);
   readonly id = input<string>(crypto.randomUUID());
 

@@ -16,8 +16,5 @@
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspaces --if-present",
     "test:cov": "npm run test:cov --workspaces --if-present"
-  },
-  "devDependencies": {
-    "typescript": "~6.0.3"
   }
 }

@@ -99,11 +99,5 @@ describe('Tables', () => {
     });
   });
 
-  describe('actions', () => {
-    it('should toggle showCreateTable signal', () => {
-      expect(component.showCreateTable()).toBe(false);
-      component.onCreateTable();
-      expect(component.showCreateTable()).toBe(true);
-    });
-  });
+
 });

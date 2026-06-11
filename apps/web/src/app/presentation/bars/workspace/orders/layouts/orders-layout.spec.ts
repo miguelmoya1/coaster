@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { asBarId } from '@coaster/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { describe, beforeEach, it, expect } from 'vitest';
 
 import OrdersLayout from './orders-layout';
@@ -12,8 +12,8 @@ describe('OrdersLayout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OrdersLayout, TranslateModule.forRoot()],
-      providers: [provideRouter([])],
+      imports: [OrdersLayout],
+      providers: [provideRouter([]), provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrdersLayout);
