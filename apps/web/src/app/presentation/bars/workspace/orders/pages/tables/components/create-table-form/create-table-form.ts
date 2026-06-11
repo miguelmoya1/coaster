@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -14,16 +14,11 @@ import { TranslatePipe } from '@ngx-translate/core';
         <mat-label>{{ 'orders.table_name_placeholder' | translate }}</mat-label>
         <input matInput #tableNameInput type="text" />
       </mat-form-field>
-      <button
-        mat-flat-button
-        class="w-full"
-        [disabled]="isSubmitting()"
-        (click)="submit(tableNameInput.value)"
-      >
+      <button mat-flat-button class="w-full" [disabled]="isSubmitting()" (click)="submit(tableNameInput.value)">
         {{ 'common.create' | translate }}
       </button>
     </div>
-  `
+  `,
 })
 export class CreateTableForm {
   public readonly isSubmitting = input<boolean>(false);
