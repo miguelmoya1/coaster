@@ -60,3 +60,5 @@ firebase-debug.log
 
 # TypeScript build cache
 *.tsbuildinfo
+.vercel
+.env*

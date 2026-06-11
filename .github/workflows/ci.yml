@@ -1,4 +1,4 @@
-name: CI (Continuous Integration)
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,12 +7,23 @@ on:
   pull_request:
 
 permissions:
-  actions: read
-  contents: read
+  contents: 'read'
+  id-token: 'write' # Necesario para Google Cloud Workload Identity
+
+env:
+  # Variables para Google Cloud (Backend)
+  GCP_PROJECT_ID: 'coaster-437f2'
+  GCP_REGION: 'europe-southwest1'
+  GCP_SERVICE_NAME: 'api'
+  GCP_JOB_NAME: 'api-migrate'
+  GCP_IMAGE_NAME: 'europe-southwest1-docker.pkg.dev/coaster-437f2/coaster-repo/api'
 
 jobs:
+  # ==========================================
+  # 1. TEST Y BUILD (Se ejecuta siempre)
+  # ==========================================
   build-and-test:
-    name: Check Quality
+    name: 🧪 Tests & Quality Checks
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -21,29 +32,106 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22 # Igualado a la versión de tu Dockerfile
           cache: 'npm'
 
       - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 🏗️ Build Common Library
-        run: npm run build -w @coaster/common
-
       - name: 🗄️ Generate Prisma Client
         run: npm run db:gen -w apps/api
 
-      - name: 🚀 Build
-        run: npm run build
+      - name: 🏗️ Build All (Common, API, Web)
+        run: |
+          npm run build -w @coaster/common
+          npm run build -w @coaster/api
+          npm run build -w @coaster/web
 
       - name: 🧹 Lint
         run: npm run lint
 
-      - name: 🧪 Test Unitarios
+      - name: 🧪 Unit Tests
         run: npm run test
 
-      # - name: 🎭 Install Browsers (Playwright E2E)
-      #   run: npx playwright install --with-deps
+  # ==========================================
+  # 2. DESPLIEGUE DEL BACKEND (Solo en Main)
+  # ==========================================
+  deploy-backend:
+    name: 🚀 Deploy Backend & Migrate DB
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-      # - name: 🕵️ Test E2E
-      #   run: npm run test:e2e
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/774617138158/locations/global/workloadIdentityPools/github/providers/my-repo'
+          service_account: 'github-actions@coaster-437f2.iam.gserviceaccount.com'
+
+      - name: 🐳 Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: 🔑 Configure Docker
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+
+      - name: 🏗️ Build & Push Docker Image
+        run: |
+          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
+
+      - name: 🗄️ Run Prisma Migrations (Cloud Run Job)
+        run: |
+          gcloud run jobs update ${{ env.GCP_JOB_NAME }} \
+            --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
+            --region ${{ env.GCP_REGION }} \
+            --command "npx,prisma,migrate,deploy"
+            
+          gcloud run jobs execute ${{ env.GCP_JOB_NAME }} --region ${{ env.GCP_REGION }} --wait
+
+      - name: 🌐 Deploy API to Cloud Run Service
+        run: |
+          gcloud run deploy ${{ env.GCP_SERVICE_NAME }} \
+            --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
+            --region ${{ env.GCP_REGION }} \
+            --allow-unauthenticated
+
+  # ==========================================
+  # 3. DESPLIEGUE DEL FRONTEND (Solo en Main, tras el Backend)
+  # ==========================================
+  deploy-frontend:
+    name: 🎨 Deploy Frontend (Angular)
+    needs: deploy-backend # Se asegura de que la API nueva esté desplegada antes de actualizar la web
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Web
+        run: npm run build -w @coaster/web
+
+      - name: 🚀 Deploy to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          # 1. Bajamos la configuración de Vercel del proyecto
+          npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          
+          # 2. Construimos el proyecto para producción en Vercel
+          npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          
+          # 3. Desplegamos los artefactos construidos
+          npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
