@@ -1,4 +1,12 @@
-import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
+import type {
+  AddOrderItemsDto,
+  BarId,
+  CreateOrderDto,
+  OrderId,
+  OrderItemId,
+  PaymentMethod,
+  TableId,
+} from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '../../db';
 
@@ -360,7 +368,7 @@ export class OrdersWriteRepository {
     });
   }
 
-  async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: 'CASH' | 'CARD') {
+  async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: PaymentMethod) {
     return this._prisma.$transaction(async (tx) => {
       const unpaidItems = await tx.dbOrderItem.findMany({
         where: {
@@ -379,7 +387,7 @@ export class OrdersWriteRepository {
           newCash += unpaid;
         }
 
-        let newItemPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+        let newItemPaymentMethod: PaymentMethod = 'NONE';
         if (newCard > 0 && newCash > 0) {
           newItemPaymentMethod = 'MIXED';
         } else if (newCard > 0) {
@@ -410,7 +418,7 @@ export class OrdersWriteRepository {
         amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
       }
 
-      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+      let orderPaymentMethod: PaymentMethod = 'NONE';
       if (amountPaidCash > 0 && amountPaidCard > 0) {
         orderPaymentMethod = 'MIXED';
       } else if (amountPaidCard > 0) {

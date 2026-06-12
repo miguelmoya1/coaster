@@ -1,11 +1,11 @@
-import { ErrorCodes, asTableId } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { ErrorCodes, asTableId } from '../../../core';
 import { OrderClosedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CheckoutOrderCommand } from './checkout-order.command';
-import { OrdersReadRepository } from "../../data-access/orders.read.repository";
 
 @CommandHandler(CheckoutOrderCommand)
 export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderCommand, void> {
@@ -13,9 +13,9 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
 
   constructor(
     private readonly writeRepo: OrdersWriteRepository,
-    
+
     private readonly readRepo: OrdersReadRepository,
-    
+
     private readonly _ordersRepository: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
@@ -30,7 +30,7 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const order = await this.writeRepo.checkoutOrder(command.orderId, existingOrder.tableId, command.paymentMethod as any);
+    const order = await this.writeRepo.checkoutOrder(command.orderId, existingOrder.tableId, command.paymentMethod);
     const mapped = OrdersMapper.toDomain(order);
     this.#logger.debug(`Publishing OrderClosedEvent...`);
     this._eventBus.publish(

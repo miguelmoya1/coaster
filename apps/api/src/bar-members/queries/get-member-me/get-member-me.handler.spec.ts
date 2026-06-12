@@ -1,12 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asBarMemberId, asUserId } from '../../../core';
 import { DbBarRole } from '../../../db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { GetMemberMeHandler } from './get-member-me.handler';
 import { GetMemberMeQuery } from './get-member-me.query';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('GetMemberMeHandler', () => {
   let handler: GetMemberMeHandler;

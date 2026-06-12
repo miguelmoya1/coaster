@@ -1,8 +1,10 @@
-import { ErrorCodes, SocketEvents } from '../core/constants';
+import { BarId } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ErrorCodes, SocketEvents } from '../core/constants';
 import { BarGateway } from './bar.gateway';
 
 describe('BarGateway', () => {
@@ -21,11 +23,12 @@ describe('BarGateway', () => {
     });
   });
 
-  const createSocketMock = () => ({
-    id: 'mock-socket-id',
-    join: vi.fn(),
-    leave: vi.fn(),
-  }) as any;
+  const createSocketMock = () =>
+    ({
+      id: 'mock-socket-id',
+      join: vi.fn(),
+      leave: vi.fn(),
+    }) as unknown as Socket;
 
   describe('handleConnection / handleDisconnect', () => {
     it('should not fail on connect', () => {
@@ -50,8 +53,8 @@ describe('BarGateway', () => {
     it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(WsException);
-      expect(() => gateway.handleJoinBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleJoinBar(socket, null as unknown as BarId)).toThrow(WsException);
+      expect(() => gateway.handleJoinBar(socket, null as unknown as BarId)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.join).not.toHaveBeenCalled();
     });
 
@@ -76,8 +79,8 @@ describe('BarGateway', () => {
     it('should throw WsException if barId is invalid (null)', () => {
       const socket = createSocketMock();
 
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(WsException);
-      expect(() => gateway.handleLeaveBar(socket, null as any)).toThrow(ErrorCodes.INVALID_BAR_ID);
+      expect(() => gateway.handleLeaveBar(socket, null as unknown as BarId)).toThrow(WsException);
+      expect(() => gateway.handleLeaveBar(socket, null as unknown as BarId)).toThrow(ErrorCodes.INVALID_BAR_ID);
       expect(socket.leave).not.toHaveBeenCalled();
     });
   });

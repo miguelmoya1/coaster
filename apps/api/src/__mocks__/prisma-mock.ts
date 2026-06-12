@@ -115,10 +115,11 @@ export class PrismaClient {
   };
   orderItem = this.dbOrderItem;
 
-  $transaction = vi.fn((arg) => {
+  $transaction = vi.fn((arg: unknown) => {
     if (typeof arg === 'function') {
-      return arg(this);
+      return (arg as (client: PrismaClient) => unknown)(this);
     }
-    return Promise.all(arg);
+
+    return Promise.all(arg as unknown[]);
   });
 }
