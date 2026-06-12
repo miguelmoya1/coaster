@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { commonMapper } from '../../../core/mappers/common.mapper';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { DeleteProductTemplateCommand } from './delete-product-template.command';
 
 @CommandHandler(DeleteProductTemplateCommand)
 export class DeleteProductTemplateHandler implements ICommandHandler<DeleteProductTemplateCommand, any> {
-  constructor(private readonly _templatesRepository: TemplatesRepository) {}
+  constructor(private readonly writeRepo: TemplatesWriteRepository) {}
 
   async execute(command: DeleteProductTemplateCommand): Promise<any> {
-    await this._templatesRepository.deleteProductTemplate(command.id);
+    await this.writeRepo.deleteProductTemplate(command.id);
     return commonMapper.getSuccessResponse();
   }
 }

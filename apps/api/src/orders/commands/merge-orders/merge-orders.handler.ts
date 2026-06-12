@@ -1,8 +1,9 @@
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asOrderId, asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrdersMergedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MergeOrdersCommand } from './merge-orders.command';
 
@@ -11,13 +12,14 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
   readonly #logger = new Logger(MergeOrdersHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly writeRepo: OrdersWriteRepository,
+    private readonly readRepo: OrdersReadRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: MergeOrdersCommand): Promise<void> {
     this.#logger.debug(`Executing mergeOrders...`);
-    const orders = await this._ordersRepository.findOrdersByIds(command.dto.orderIds);
+    const orders = await this.readRepo.findOrdersByIds(command.dto.orderIds);
     if (orders.length !== command.dto.orderIds.length) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
@@ -33,7 +35,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
     }
 
     if (command.dto.targetTableId) {
-      const targetTable = await this._ordersRepository.findTableById(asTableId(command.dto.targetTableId));
+      const targetTable = await this.readRepo.findTableById(asTableId(command.dto.targetTableId));
       if (!targetTable || targetTable.barId !== command.barId) {
         throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
       }
@@ -42,7 +44,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
     const [primaryOrder, ...sourceOrders] = orders;
     const sourceOrdersData = sourceOrders.map((o) => ({ id: asOrderId(o.id), tableId: o.tableId }));
 
-    const result = await this._ordersRepository.mergeOrders(
+    const result = await this.writeRepo.mergeOrders(
       asOrderId(primaryOrder.id),
       sourceOrdersData,
       command.dto.targetTableId ?? null,

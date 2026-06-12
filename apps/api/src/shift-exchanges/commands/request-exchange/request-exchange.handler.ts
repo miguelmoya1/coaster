@@ -1,15 +1,19 @@
-import { ErrorCodes } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { ErrorCodes } from '../../../core';
+import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
+import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { RequestExchangeCommand } from './request-exchange.command';
 
 @CommandHandler(RequestExchangeCommand)
 export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCommand, void> {
-  constructor(private readonly _shiftExchangesRepository: ShiftExchangesRepository) {}
+  constructor(
+    private readonly readRepo: ShiftExchangesReadRepository,
+    private readonly writeRepo: ShiftExchangesWriteRepository,
+  ) {}
 
   async execute(command: RequestExchangeCommand): Promise<void> {
-    const shift = await this._shiftExchangesRepository.getShiftById(command.shiftId);
+    const shift = await this.readRepo.getShiftById(command.shiftId);
 
     if (!shift) {
       throw new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND);
@@ -23,11 +27,11 @@ export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCo
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_SHIFT);
     }
 
-    const hasPending = await this._shiftExchangesRepository.hasPendingExchangeForShift(command.shiftId);
+    const hasPending = await this.readRepo.hasPendingExchangeForShift(command.shiftId);
     if (hasPending) {
       throw new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_PENDING);
     }
 
-    await this._shiftExchangesRepository.createExchange(command.shiftId, command.requesterId, command.dto.targetId);
+    await this.writeRepo.createExchange(command.shiftId, command.requesterId, command.dto.targetId);
   }
 }

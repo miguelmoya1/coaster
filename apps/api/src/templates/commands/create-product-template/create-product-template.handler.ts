@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { CreateProductTemplateCommand } from './create-product-template.command';
 
 @CommandHandler(CreateProductTemplateCommand)
 export class CreateProductTemplateHandler implements ICommandHandler<CreateProductTemplateCommand, void> {
-  constructor(private readonly _templatesRepository: TemplatesRepository) {}
+  constructor(private readonly writeRepo: TemplatesWriteRepository) {}
 
   async execute(command: CreateProductTemplateCommand): Promise<void> {
-    await this._templatesRepository.createProductTemplate(command.dto);
+    await this.writeRepo.createProductTemplate(command.dto);
   }
 }

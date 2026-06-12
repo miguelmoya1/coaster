@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DbCategoryCreateInput, DbCategoryUpdateInput, DbService } from '../../db';
 
 @Injectable()
-export class CategoriesRepository {
+export class CategoriesWriteRepository {
   constructor(private readonly _prisma: DbService) {}
 
   async create(barId: BarId, createCategoryDto: Omit<DbCategoryCreateInput, 'bar'>) {
@@ -12,13 +12,6 @@ export class CategoriesRepository {
         bar: { connect: { id: barId } },
         ...createCategoryDto,
       },
-    });
-  }
-
-  async findByBarId(barId: BarId) {
-    return this._prisma.dbCategory.findMany({
-      where: { barId },
-      orderBy: { name: 'asc' },
     });
   }
 

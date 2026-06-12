@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { CategoriesRepository } from '../../data-access/categories.repository';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CategoryDeletedEvent } from '../../../events';
+import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { DeleteCategoryCommand } from './delete-category.command';
 
 @CommandHandler(DeleteCategoryCommand)
@@ -9,7 +9,7 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
   readonly #logger = new Logger(DeleteCategoryHandler.name);
 
   constructor(
-    private readonly repository: CategoriesRepository,
+    private readonly repository: CategoriesWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 

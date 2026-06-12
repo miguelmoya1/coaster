@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
 import { TemplatesController } from './controllers/templates.controller';
-import { TemplatesRepository } from './data-access/templates.repository';
+import { TemplatesReadRepository } from './data-access/templates.read.repository';
+import { TemplatesWriteRepository } from './data-access/templates.write.repository';
 import { QueryHandlers } from './queries';
 
 @Module({
   imports: [CqrsModule],
   controllers: [TemplatesController],
-  providers: [TemplatesRepository, ...CommandHandlers, ...QueryHandlers],
+  providers: [TemplatesReadRepository, TemplatesWriteRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class TemplatesModule {}

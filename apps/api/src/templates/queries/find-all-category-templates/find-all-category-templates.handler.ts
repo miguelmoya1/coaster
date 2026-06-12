@@ -1,15 +1,14 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
 import { TemplatesMapper } from '../../mappers/templates.mapper';
 import { FindAllCategoryTemplatesQuery } from './find-all-category-templates.query';
 
 @QueryHandler(FindAllCategoryTemplatesQuery)
 export class FindAllCategoryTemplatesHandler implements IQueryHandler<FindAllCategoryTemplatesQuery, any[]> {
-  constructor(private readonly _templatesRepository: TemplatesRepository) {}
+  constructor(private readonly readRepo: TemplatesReadRepository) {}
 
-   
   async execute(_query: FindAllCategoryTemplatesQuery): Promise<any[]> {
-    const templates = await this._templatesRepository.findAllCategoryTemplates();
+    const templates = await this.readRepo.findAllCategoryTemplates();
     return templates.map((template) => TemplatesMapper.toCategoryTemplate(template));
   }
 }

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { DeleteCategoryTemplateCommand } from './delete-category-template.command';
 import { DeleteCategoryTemplateHandler } from './delete-category-template.handler';
 
@@ -12,7 +12,7 @@ describe('DeleteCategoryTemplateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeleteCategoryTemplateHandler, { provide: TemplatesRepository, useValue: repository }],
+      providers: [DeleteCategoryTemplateHandler, { provide: TemplatesWriteRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<DeleteCategoryTemplateHandler>(DeleteCategoryTemplateHandler);

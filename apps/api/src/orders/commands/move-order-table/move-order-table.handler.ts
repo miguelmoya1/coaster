@@ -1,8 +1,9 @@
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderTableMovedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MoveOrderTableCommand } from './move-order-table.command';
 
@@ -11,13 +12,14 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
   readonly #logger = new Logger(MoveOrderTableHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly readRepo: OrdersReadRepository,
+    private readonly writeRepo: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: MoveOrderTableCommand): Promise<void> {
     this.#logger.debug(`Executing moveOrderTable...`);
-    const existingOrder = await this._ordersRepository.findById(command.orderId);
+    const existingOrder = await this.readRepo.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
@@ -25,7 +27,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const newTable = await this._ordersRepository.findTableById(asTableId(command.dto.tableId));
+    const newTable = await this.readRepo.findTableById(asTableId(command.dto.tableId));
     if (!newTable || newTable.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
@@ -33,7 +35,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
       throw new BadRequestException(ErrorCodes.TABLE_ALREADY_OCCUPIED);
     }
 
-    const order = await this._ordersRepository.moveTable(
+    const order = await this.writeRepo.moveTable(
       command.orderId,
       existingOrder.tableId,
       command.dto.tableId,

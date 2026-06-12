@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asUserId, ErrorCodes } from '../../../core';
-import { UserRepository } from '../../data-access/user.repository';
+import { UserReadRepository } from '../../data-access/user.read.repository';
+import { UserWriteRepository } from '../../data-access/user.write.repository';
 import { UpdateUserCommand } from './update-user.command';
 import { UpdateUserHandler } from './update-user.handler';
 
@@ -14,7 +15,11 @@ describe('UpdateUserHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UpdateUserHandler, { provide: UserRepository, useValue: repository }],
+      providers: [
+        UpdateUserHandler,
+        { provide: UserWriteRepository, useValue: repository },
+        { provide: UserReadRepository, useValue: repository },
+      ],
     }).compile();
 
     handler = module.get<UpdateUserHandler>(UpdateUserHandler);

@@ -1,8 +1,9 @@
+import { Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { NotFoundException, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { TablesRepository } from '../../data-access/tables.repository';
 import { TableUpdatedEvent } from '../../../events';
+import { TablesReadRepository } from '../../data-access/tables.read.repository';
+import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { TablesMapper } from '../../mappers/tables.mapper';
 import { UpdateTableCommand } from './update-table.command';
 
@@ -11,18 +12,19 @@ export class UpdateTableHandler implements ICommandHandler<UpdateTableCommand, v
   readonly #logger = new Logger(UpdateTableHandler.name);
 
   constructor(
-    private readonly _tablesRepository: TablesRepository,
+    private readonly readRepo: TablesReadRepository,
+    private readonly writeRepo: TablesWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateTableCommand): Promise<void> {
     this.#logger.debug(`Executing updateTable...`);
-    const existing = await this._tablesRepository.findById(command.tableId);
+    const existing = await this.readRepo.findById(command.tableId);
     if (!existing || existing.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
 
-    const table = await this._tablesRepository.update(command.tableId, command.dto);
+    const table = await this.writeRepo.update(command.tableId, command.dto);
     const mapped = TablesMapper.toDomain(table);
     this.#logger.debug(`Publishing TableUpdatedEvent...`);
     this._eventBus.publish(new TableUpdatedEvent(command.barId, mapped));

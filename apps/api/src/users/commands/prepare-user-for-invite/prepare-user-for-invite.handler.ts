@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserPreparedForInviteEvent } from '../../../events';
-import { UserRepository } from '../../data-access/user.repository';
+import { UserWriteRepository } from '../../data-access/user.write.repository';
 import { UsersMapper } from '../../mappers/users.mapper';
 import { PrepareUserForInviteCommand } from './prepare-user-for-invite.command';
 
@@ -10,7 +10,7 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
   readonly #logger = new Logger(PrepareUserForInviteHandler.name);
 
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly writeRepo: UserWriteRepository,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -23,7 +23,7 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
 
     const name = email.split('@').at(0) ?? 'User';
 
-    const user = await this.userRepository.upsert(email, { name, email });
+    const user = await this.writeRepo.upsert(email, { name, email });
 
     const userDomain = UsersMapper.toDomain(user);
 

@@ -1,9 +1,9 @@
-import { asBarId, asCategoryId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoriesRepository } from '../../data-access/categories.repository';
+import { asBarId, asCategoryId } from '../../../core';
 import { CategoryDeletedEvent } from '../../../events';
+import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { DeleteCategoryCommand } from './delete-category.command';
 import { DeleteCategoryHandler } from './delete-category.handler';
 
@@ -20,7 +20,7 @@ describe('DeleteCategoryHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeleteCategoryHandler,
-        { provide: CategoriesRepository, useValue: repository },
+        { provide: CategoriesWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();

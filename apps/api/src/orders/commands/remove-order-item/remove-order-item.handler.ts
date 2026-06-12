@@ -2,7 +2,8 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asProductId, asTableId, ErrorCodes } from '../../../core';
 import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../../events';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 
@@ -11,14 +12,15 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
   readonly #logger = new Logger(RemoveOrderItemHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly readRepo: OrdersReadRepository,
+    private readonly writeRepo: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: RemoveOrderItemCommand): Promise<void> {
     this.#logger.debug(`Executing removeOrderItem...`);
 
-    const order = await this._ordersRepository.findById(command.orderId);
+    const order = await this.readRepo.findById(command.orderId);
 
     if (!order || order.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
@@ -37,7 +39,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
     const remainingItems = order.items.filter((i) => i.id !== command.itemId);
 
     if (remainingItems.length === 0) {
-      const cancelled = await this._ordersRepository.removeLastItemAndCancel(
+      const cancelled = await this.writeRepo.removeLastItemAndCancel(
         command.orderId,
         command.itemId,
         asTableId(order.tableId!),
@@ -59,7 +61,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
       return;
     }
 
-    const result = await this._ordersRepository.removeItemAndRecalculate(command.orderId, command.itemId);
+    const result = await this.writeRepo.removeItemAndRecalculate(command.orderId, command.itemId);
     const mapped = OrdersMapper.toDomain(result);
 
     this.#logger.debug(`Publishing OrderItemRemovedEvent...`);

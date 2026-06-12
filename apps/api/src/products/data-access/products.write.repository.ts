@@ -1,21 +1,10 @@
-import type { BarId, CategoryId, ProductId } from '@coaster/common';
+import type { CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { DbProductCreateInput, DbProductUpdateInput, DbService } from '../../db';
 
 @Injectable()
-export class ProductsRepository {
+export class ProductsWriteRepository {
   constructor(private readonly _prisma: DbService) {}
-
-  async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
-    const category = await this._prisma.dbCategory.findUnique({
-      where: { id: categoryId },
-    });
-
-    if (!category) {
-      return false;
-    }
-    return category.barId === barId;
-  }
 
   async create(categoryId: CategoryId, createProductDto: Omit<DbProductCreateInput, 'category'>) {
     return this._prisma.dbProduct.create({
@@ -31,13 +20,6 @@ export class ProductsRepository {
     return this._prisma.dbProduct.update({
       where: { id: productId },
       data: updateData,
-    });
-  }
-
-  async findByBarId(barId: BarId) {
-    return this._prisma.dbProduct.findMany({
-      where: { category: { barId } },
-      orderBy: { name: 'asc' },
     });
   }
 

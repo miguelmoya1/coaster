@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asUserId } from '../../../core';
 import { UserInvitedEvent } from '../../../events';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';
 
@@ -22,7 +22,7 @@ describe('InviteMemberHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InviteMemberHandler,
-        { provide: BarMembersRepository, useValue: repository },
+        { provide: BarMembersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();

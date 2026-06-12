@@ -1,9 +1,9 @@
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EventBus } from '@nestjs/cqrs';
 import { asBarId, asUserId } from '../../../core';
 import { UserPreparedForInviteEvent } from '../../../events';
-import { UserRepository } from '../../data-access/user.repository';
+import { UserWriteRepository } from '../../data-access/user.write.repository';
 import { PrepareUserForInviteCommand } from './prepare-user-for-invite.command';
 import { PrepareUserForInviteHandler } from './prepare-user-for-invite.handler';
 
@@ -21,7 +21,7 @@ describe('PrepareUserForInviteHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PrepareUserForInviteHandler,
-        { provide: UserRepository, useValue: repository },
+        { provide: UserWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();

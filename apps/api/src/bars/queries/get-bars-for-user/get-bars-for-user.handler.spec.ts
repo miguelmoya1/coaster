@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asUserId } from '../../../core';
 import { DbRole } from '../../../db';
-import { BarRepository } from '../../data-access/bar.repository';
+import { BarReadRepository } from '../../data-access/bar.read.repository';
 import { GetBarsForUserHandler } from './get-bars-for-user.handler';
 import { GetBarsForUserQuery } from './get-bars-for-user.query';
 
@@ -14,7 +14,7 @@ describe('GetBarsForUserHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetBarsForUserHandler, { provide: BarRepository, useValue: repository }],
+      providers: [GetBarsForUserHandler, { provide: BarReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetBarsForUserHandler>(GetBarsForUserHandler);

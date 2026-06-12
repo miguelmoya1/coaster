@@ -1,8 +1,8 @@
-import { asBarId } from '../../../core';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShiftsRepository } from '../../data-access/shifts.repository';
+import { asBarId } from '../../../core';
+import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { GetShiftsHandler } from './get-shifts.handler';
 import { GetShiftsQuery } from './get-shifts.query';
 
@@ -14,7 +14,7 @@ describe('GetShiftsHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetShiftsHandler, { provide: ShiftsRepository, useValue: repository }],
+      providers: [GetShiftsHandler, { provide: ShiftsReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetShiftsHandler>(GetShiftsHandler);

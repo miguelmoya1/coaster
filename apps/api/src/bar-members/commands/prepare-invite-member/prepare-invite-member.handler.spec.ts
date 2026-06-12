@@ -4,9 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventBus } from '@nestjs/cqrs';
 import { asBarId } from '../../../core';
 import { PrepareUserForInviteEvent } from '../../../events';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+
 import { PrepareInviteMemberCommand } from './prepare-invite-member.command';
 import { PrepareInviteMemberHandler } from './prepare-invite-member.handler';
+import { BarMembersReadRepository } from "../../data-access/bar-members.read.repository";
 
 describe('PrepareInviteMemberHandler', () => {
   let handler: PrepareInviteMemberHandler;
@@ -22,7 +23,7 @@ describe('PrepareInviteMemberHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PrepareInviteMemberHandler,
-        { provide: BarMembersRepository, useValue: repository },
+        { provide: BarMembersReadRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();

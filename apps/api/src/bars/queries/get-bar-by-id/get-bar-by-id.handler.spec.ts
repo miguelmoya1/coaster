@@ -1,7 +1,7 @@
-import { asBarId } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarRepository } from '../../data-access/bar.repository';
+import { asBarId } from '../../../core';
+import { BarReadRepository } from '../../data-access/bar.read.repository';
 import { GetBarByIdHandler } from './get-bar-by-id.handler';
 import { GetBarByIdQuery } from './get-bar-by-id.query';
 
@@ -13,7 +13,7 @@ describe('GetBarByIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetBarByIdHandler, { provide: BarRepository, useValue: repository }],
+      providers: [GetBarByIdHandler, { provide: BarReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetBarByIdHandler>(GetBarByIdHandler);

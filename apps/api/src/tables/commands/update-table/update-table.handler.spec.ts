@@ -1,11 +1,12 @@
 import type { Table } from '@coaster/common';
-import { asBarId, asTableId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TablesRepository } from '../../data-access/tables.repository';
+import { asBarId, asTableId } from '../../../core';
 import { TableUpdatedEvent } from '../../../events';
+import { TablesReadRepository } from '../../data-access/tables.read.repository';
+import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { UpdateTableCommand } from './update-table.command';
 import { UpdateTableHandler } from './update-table.handler';
 
@@ -23,8 +24,9 @@ describe('UpdateTableHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateTableHandler,
-        { provide: TablesRepository, useValue: repository },
+        { provide: TablesWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: TablesReadRepository, useValue: repository },
       ],
     }).compile();
 

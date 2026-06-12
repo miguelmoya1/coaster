@@ -1,12 +1,16 @@
-import { ErrorCodes } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { ErrorCodes } from '../../../core';
+import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
 
 @CommandHandler(ImportTemplatesToBarCommand)
 export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTemplatesToBarCommand, void> {
-  constructor(private readonly _templatesRepository: TemplatesRepository) {}
+  constructor(
+    private readonly readRepo: TemplatesReadRepository,
+    private readonly writeRepo: TemplatesWriteRepository,
+  ) {}
 
   async execute(command: ImportTemplatesToBarCommand): Promise<void> {
     const { categoryTemplateIds } = command.dto;
@@ -15,17 +19,14 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
       throw new BadRequestException(ErrorCodes.REQUIRED);
     }
 
-    const categoryTemplates = await this._templatesRepository.findCategoryTemplatesByIds(categoryTemplateIds);
+    const categoryTemplates = await this.readRepo.findCategoryTemplatesByIds(categoryTemplateIds);
 
     if (categoryTemplates.length === 0) {
       throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
     }
 
     const categoryNames = categoryTemplates.map((ct) => ct.name);
-    const existingCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(
-      command.barId,
-      categoryNames,
-    );
+    const existingCategories = await this.readRepo.findCategoriesByBarIdAndNames(command.barId, categoryNames);
     const existingCategoryNames = new Set(existingCategories.map((c) => c.name));
 
     const categoryDataToInsert = categoryTemplates
@@ -37,13 +38,10 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
       }));
 
     if (categoryDataToInsert.length > 0) {
-      await this._templatesRepository.createManyCategories(categoryDataToInsert, true);
+      await this.writeRepo.createManyCategories(categoryDataToInsert, true);
     }
 
-    const createdCategories = await this._templatesRepository.findCategoriesByBarIdAndNames(
-      command.barId,
-      categoryNames,
-    );
+    const createdCategories = await this.readRepo.findCategoriesByBarIdAndNames(command.barId, categoryNames);
 
     const categoryMap = new Map<string, string>();
     for (const cat of createdCategories) {
@@ -51,7 +49,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
     }
 
     const categoryIds = createdCategories.map((cat) => cat.id);
-    const existingProducts = await this._templatesRepository.findProductsByCategoryIds(categoryIds);
+    const existingProducts = await this.readRepo.findProductsByCategoryIds(categoryIds);
     const existingProductKeys = new Set(existingProducts.map((p) => `${p.categoryId}_${p.name}`));
 
     const productsDataToInsert: {
@@ -82,7 +80,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
     }
 
     if (productsDataToInsert.length > 0) {
-      await this._templatesRepository.createManyProducts(productsDataToInsert, true);
+      await this.writeRepo.createManyProducts(productsDataToInsert, true);
     }
   }
 }

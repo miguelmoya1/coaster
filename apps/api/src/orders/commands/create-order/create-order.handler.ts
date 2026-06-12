@@ -1,8 +1,9 @@
-import { asTableId, ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asTableId, ErrorCodes } from '../../../core';
 import { OrderCreatedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CreateOrderCommand } from './create-order.command';
 
@@ -11,20 +12,23 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
   readonly #logger = new Logger(CreateOrderHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly writeRepo: OrdersWriteRepository,
+
+    private readonly readRepo: OrdersReadRepository,
+
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: CreateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this._ordersRepository.findProductsByIds(productIds);
+    const products = await this.readRepo.findProductsByIds(productIds);
     if (products.length !== productIds.length) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
     if (command.dto.tableId) {
-      const table = await this._ordersRepository.findTableById(asTableId(command.dto.tableId));
+      const table = await this.readRepo.findTableById(asTableId(command.dto.tableId));
       if (!table || table.barId !== command.barId) {
         throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
       }
@@ -33,7 +37,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       }
     }
 
-    const priceMap = new Map(products.map((p) => [p.id, p.price]));
+    const priceMap = new Map<string, number>(products.map((p) => [p.id, p.price]));
     const totalAmount = command.dto.items.reduce(
       (sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity,
       0,
@@ -41,14 +45,14 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
 
     let resolvedTableName: string | null = null;
     if (command.dto.tableId) {
-      const table = await this._ordersRepository.findTableById(asTableId(command.dto.tableId));
+      const table = await this.readRepo.findTableById(asTableId(command.dto.tableId));
       resolvedTableName = table?.name ?? null;
     }
 
-    const order = await this._ordersRepository.createOrder(
+    const order = await this.writeRepo.createOrder(
       command.barId,
       command.dto,
-      priceMap,
+      priceMap as Map<string, number>,
       totalAmount,
       resolvedTableName,
     );

@@ -8,25 +8,8 @@ import {
 } from '../../db';
 
 @Injectable()
-export class TemplatesRepository {
+export class TemplatesWriteRepository {
   constructor(private readonly _prisma: DbService) {}
-
-  async findAllCategoryTemplates() {
-    return this._prisma.dbCategoryTemplate.findMany({
-      include: {
-        products: true,
-      },
-    });
-  }
-
-  async findCategoryTemplateById(id: string) {
-    return this._prisma.dbCategoryTemplate.findUnique({
-      where: { id },
-      include: {
-        products: true,
-      },
-    });
-  }
 
   async createCategoryTemplate(data: DbCategoryTemplateUncheckedCreateInput) {
     return this._prisma.dbCategoryTemplate.create({
@@ -44,23 +27,6 @@ export class TemplatesRepository {
   async deleteCategoryTemplate(id: string) {
     return this._prisma.dbCategoryTemplate.delete({
       where: { id },
-    });
-  }
-
-  async findAllProductTemplates() {
-    return this._prisma.dbProductTemplate.findMany({
-      include: {
-        category: true,
-      },
-    });
-  }
-
-  async findProductTemplateById(id: string) {
-    return this._prisma.dbProductTemplate.findUnique({
-      where: { id },
-      include: {
-        category: true,
-      },
     });
   }
 
@@ -83,14 +49,8 @@ export class TemplatesRepository {
     });
   }
 
-  async findCategoryTemplateByName(name: string) {
-    return this._prisma.dbCategoryTemplate.findFirst({
-      where: { name },
-    });
-  }
-
   async upsertCategoryTemplate(name: string, icon?: string | null) {
-    const existing = await this.findCategoryTemplateByName(name);
+    const existing = await this._prisma.dbCategoryTemplate.findFirst({ where: { name } });
     if (existing) {
       if (existing.icon !== icon) {
         return this._prisma.dbCategoryTemplate.update({
@@ -105,14 +65,8 @@ export class TemplatesRepository {
     });
   }
 
-  async findProductTemplateByNameAndCategoryId(name: string, categoryId: string) {
-    return this._prisma.dbProductTemplate.findFirst({
-      where: { name, categoryId },
-    });
-  }
-
   async upsertProductTemplate(name: string, price: number, categoryId: string) {
-    const existing = await this.findProductTemplateByNameAndCategoryId(name, categoryId);
+    const existing = await this._prisma.dbProductTemplate.findFirst({ where: { name, categoryId } });
     if (existing) {
       if (existing.price !== price) {
         return this._prisma.dbProductTemplate.update({
@@ -127,44 +81,10 @@ export class TemplatesRepository {
     });
   }
 
-  async findCategoryTemplatesByIds(ids: string[]) {
-    return this._prisma.dbCategoryTemplate.findMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
-      include: {
-        products: true,
-      },
-    });
-  }
-
   async createManyCategories(data: { barId: string; name: string; icon: string | null }[], skipDuplicates = true) {
     return this._prisma.dbCategory.createMany({
       data,
       skipDuplicates,
-    });
-  }
-
-  async findCategoriesByBarIdAndNames(barId: string, names: string[]) {
-    return this._prisma.dbCategory.findMany({
-      where: {
-        barId,
-        name: {
-          in: names,
-        },
-      },
-    });
-  }
-
-  async findProductsByCategoryIds(categoryIds: string[]) {
-    return this._prisma.dbProduct.findMany({
-      where: {
-        categoryId: {
-          in: categoryIds,
-        },
-      },
     });
   }
 

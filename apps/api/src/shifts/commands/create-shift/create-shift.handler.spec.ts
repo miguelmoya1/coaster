@@ -1,12 +1,13 @@
-import { asBarId, asUserId, asShiftId } from '../../../core';
 import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShiftsRepository } from '../../data-access/shifts.repository';
+import { asBarId, asShiftId, asUserId } from '../../../core';
+import { ShiftCreatedEvent } from '../../../events';
+import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
+import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
 import { CreateShiftCommand } from './create-shift.command';
 import { CreateShiftHandler } from './create-shift.handler';
-import { ShiftCreatedEvent } from '../../../events';
 
 describe('CreateShiftHandler', () => {
   let handler: CreateShiftHandler;
@@ -22,8 +23,9 @@ describe('CreateShiftHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateShiftHandler,
-        { provide: ShiftsRepository, useValue: repository },
+        { provide: ShiftsWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: ShiftsReadRepository, useValue: repository },
       ],
     }).compile();
 

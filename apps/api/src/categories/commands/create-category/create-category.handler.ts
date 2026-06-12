@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CategoryCreatedEvent } from '../../../events';
-import { CategoriesRepository } from '../../data-access/categories.repository';
+import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { CategoriesMapper } from '../../mappers/categories.mapper';
 import { CreateCategoryCommand } from './create-category.command';
 
@@ -10,7 +10,7 @@ export class CreateCategoryHandler implements ICommandHandler<CreateCategoryComm
   readonly #logger = new Logger(CreateCategoryHandler.name);
 
   constructor(
-    private readonly repository: CategoriesRepository,
+    private readonly repository: CategoriesWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 

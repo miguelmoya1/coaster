@@ -1,8 +1,9 @@
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
 import { OrderUpdatedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 
@@ -11,13 +12,14 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
   readonly #logger = new Logger(BulkUpdateOrderHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly readRepo: OrdersReadRepository,
+    private readonly writeRepo: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: BulkUpdateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing bulkUpdateOrder...`);
-    const order = await this._ordersRepository.findById(command.orderId);
+    const order = await this.readRepo.findById(command.orderId);
     if (!order || order.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
@@ -52,7 +54,7 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
       }
     }
 
-    const updated = await this._ordersRepository.bulkUpdate(command.orderId, command.dto.items);
+    const updated = await this.writeRepo.bulkUpdate(command.orderId, command.dto.items);
     if (!updated) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }

@@ -1,11 +1,12 @@
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asTableId, asProductId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asProductId, asTableId } from '../../../core';
 import { OrderCreatedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { CreateOrderCommand } from './create-order.command';
 import { CreateOrderHandler } from './create-order.handler';
 
@@ -24,8 +25,9 @@ describe('CreateOrderHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 
@@ -66,6 +68,8 @@ describe('CreateOrderHandler', () => {
     const result = await handler.execute(new CreateOrderCommand(barId, dto));
 
     expect(result).toBeUndefined();
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),
+    );
   });
 });

@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asBarMemberId } from '../../../core';
 import { MemberInvitedEvent, UserInvitedEvent } from '../../../events';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { InviteMemberCommand } from './invite-member.command';
 
 @CommandHandler(InviteMemberCommand)
@@ -10,7 +10,7 @@ export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand,
   readonly #logger = new Logger(InviteMemberHandler.name);
 
   constructor(
-    private readonly repository: BarMembersRepository,
+    private readonly repository: BarMembersWriteRepository,
     private readonly eventBus: EventBus,
   ) {}
 

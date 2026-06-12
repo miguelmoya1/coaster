@@ -1,10 +1,11 @@
 import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { OrderUpdatedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 import { RemoveOrderItemHandler } from './remove-order-item.handler';
 
@@ -22,8 +23,9 @@ describe('RemoveOrderItemHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RemoveOrderItemHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 
@@ -79,6 +81,8 @@ describe('RemoveOrderItemHandler', () => {
         removedItem: { productId: 'p1', quantity: 1 },
       }),
     );
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order),
+    );
   });
 });

@@ -1,14 +1,14 @@
 import type { Shift } from '@coaster/common';
-import { ErrorCodes } from '../../../core';
 import { BadRequestException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { ShiftsRepository } from '../../data-access/shifts.repository';
+import { ErrorCodes } from '../../../core';
+import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { GetShiftsQuery } from './get-shifts.query';
 
 @QueryHandler(GetShiftsQuery)
 export class GetShiftsHandler implements IQueryHandler<GetShiftsQuery, Shift[]> {
-  constructor(private readonly _shiftsRepository: ShiftsRepository) {}
+  constructor(private readonly readRepo: ShiftsReadRepository) {}
 
   async execute(query: GetShiftsQuery): Promise<Shift[]> {
     const start = query.startDateIso ? new Date(query.startDateIso) : undefined;
@@ -22,7 +22,7 @@ export class GetShiftsHandler implements IQueryHandler<GetShiftsQuery, Shift[]> 
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const shifts = await this._shiftsRepository.findByBarId(query.barId, start, end);
+    const shifts = await this.readRepo.findByBarId(query.barId, start, end);
     return shifts.map((shift) => ShiftsMapper.toDomain(shift));
   }
 }

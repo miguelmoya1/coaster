@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { commonMapper } from '../../../core/mappers/common.mapper';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
 
 @CommandHandler(BulkUpsertTemplatesCommand)
 export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTemplatesCommand, any> {
-  constructor(private readonly _templatesRepository: TemplatesRepository) {}
+  constructor(private readonly writeRepo: TemplatesWriteRepository) {}
 
   async execute(command: BulkUpsertTemplatesCommand): Promise<any> {
     for (const categoryJson of command.categoriesJson) {
@@ -13,7 +13,7 @@ export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTem
       const categoryNameKey = `templates.categories.${categorySlug}`;
       const categoryIcon = categoryJson.icon ?? null;
 
-      const categoryTemplate = await this._templatesRepository.upsertCategoryTemplate(categoryNameKey, categoryIcon);
+      const categoryTemplate = await this.writeRepo.upsertCategoryTemplate(categoryNameKey, categoryIcon);
 
       if (categoryJson.products && Array.isArray(categoryJson.products)) {
         for (const productJson of categoryJson.products) {
@@ -21,7 +21,7 @@ export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTem
           const productNameKey = `templates.products.${productSlug}`;
           const productPrice = productJson.price ?? 0;
 
-          await this._templatesRepository.upsertProductTemplate(productNameKey, productPrice, categoryTemplate.id);
+          await this.writeRepo.upsertProductTemplate(productNameKey, productPrice, categoryTemplate.id);
         }
       }
     }

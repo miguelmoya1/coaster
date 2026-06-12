@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { BulkUpsertTemplatesCommand } from './bulk-upsert-templates.command';
 import { BulkUpsertTemplatesHandler } from './bulk-upsert-templates.handler';
 
@@ -13,7 +13,7 @@ describe('BulkUpsertTemplatesHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BulkUpsertTemplatesHandler, { provide: TemplatesRepository, useValue: repository }],
+      providers: [BulkUpsertTemplatesHandler, { provide: TemplatesWriteRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<BulkUpsertTemplatesHandler>(BulkUpsertTemplatesHandler);

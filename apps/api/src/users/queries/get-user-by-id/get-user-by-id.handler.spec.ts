@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asUserId } from '../../../core';
-import { UserRepository } from '../../data-access/user.repository';
+import { UserReadRepository } from '../../data-access/user.read.repository';
 import { GetUserByIdHandler } from './get-user-by-id.handler';
 import { GetUserByIdQuery } from './get-user-by-id.query';
 
@@ -13,7 +13,7 @@ describe('GetUserByIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetUserByIdHandler, { provide: UserRepository, useValue: repository }],
+      providers: [GetUserByIdHandler, { provide: UserReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetUserByIdHandler>(GetUserByIdHandler);

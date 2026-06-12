@@ -1,11 +1,12 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asProductId, asCategoryId } from '../../../core';
 import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProductsRepository } from '../../data-access/products.repository';
+import { asBarId, asCategoryId, asProductId } from '../../../core';
 import { ProductStockChangedEvent } from '../../../events';
+import { ProductsReadRepository } from '../../data-access/products.read.repository';
+import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { UpdateProductCommand } from './update-product.command';
 import { UpdateProductHandler } from './update-product.handler';
 
@@ -23,8 +24,9 @@ describe('UpdateProductHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateProductHandler,
-        { provide: ProductsRepository, useValue: repository },
+        { provide: ProductsWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: ProductsReadRepository, useValue: repository },
       ],
     }).compile();
 
@@ -59,6 +61,8 @@ describe('UpdateProductHandler', () => {
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, dto);
-    expect(eventBus.publish).toHaveBeenCalledWith(new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product),
+    );
   });
 });

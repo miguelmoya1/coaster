@@ -1,9 +1,10 @@
-import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId, asOrderItemId } from '../../../core';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { BulkUpdateOrderCommand } from './bulk-update-order.command';
 import { BulkUpdateOrderHandler } from './bulk-update-order.handler';
 
@@ -21,8 +22,9 @@ describe('BulkUpdateOrderHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BulkUpdateOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 

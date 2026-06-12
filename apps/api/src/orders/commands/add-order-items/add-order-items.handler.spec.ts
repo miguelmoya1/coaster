@@ -1,10 +1,11 @@
 import type { AddOrderItemsDto } from '@coaster/common';
-import { asBarId, asOrderId, asProductId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId, asProductId } from '../../../core';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { AddOrderItemsCommand } from './add-order-items.command';
 import { AddOrderItemsHandler } from './add-order-items.handler';
 
@@ -23,8 +24,9 @@ describe('AddOrderItemsHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AddOrderItemsHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 

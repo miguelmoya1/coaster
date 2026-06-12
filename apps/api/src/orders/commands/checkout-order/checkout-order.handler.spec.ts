@@ -1,9 +1,10 @@
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import type { Order, TableId } from '@coaster/common';
 import { asBarId, asOrderId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderClosedEvent } from '../../../events';
 import { CheckoutOrderCommand } from './checkout-order.command';
 import { CheckoutOrderHandler } from './checkout-order.handler';
@@ -22,9 +23,10 @@ describe('CheckoutOrderHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CheckoutOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
-      ],
+            { provide: OrdersReadRepository, useValue: repository }
+        ],
     }).compile();
 
     handler = module.get<CheckoutOrderHandler>(CheckoutOrderHandler);

@@ -1,7 +1,7 @@
-import { asBarId } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoriesRepository } from '../../data-access/categories.repository';
+import { asBarId } from '../../../core';
+import { CategoriesReadRepository } from '../../data-access/categories.read.repository';
 import { GetCategoriesHandler } from './get-categories.handler';
 import { GetCategoriesQuery } from './get-categories.query';
 
@@ -13,7 +13,7 @@ describe('GetCategoriesHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetCategoriesHandler, { provide: CategoriesRepository, useValue: repository }],
+      providers: [GetCategoriesHandler, { provide: CategoriesReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetCategoriesHandler>(GetCategoriesHandler);

@@ -1,8 +1,9 @@
-import { ErrorCodes } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { ErrorCodes } from '../../../core';
 import { OrderItemsAddedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { AddOrderItemsCommand } from './add-order-items.command';
 
@@ -11,13 +12,14 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
   readonly #logger = new Logger(AddOrderItemsHandler.name);
 
   constructor(
-    private readonly _ordersRepository: OrdersRepository,
+    private readonly readRepo: OrdersReadRepository,
+    private readonly writeRepo: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: AddOrderItemsCommand): Promise<void> {
     this.#logger.debug(`Executing addOrderItems...`);
-    const existingOrder = await this._ordersRepository.findById(command.orderId);
+    const existingOrder = await this.readRepo.findById(command.orderId);
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
@@ -26,7 +28,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     }
 
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this._ordersRepository.findProductsByIds(productIds);
+    const products = await this.readRepo.findProductsByIds(productIds);
     if (products.length !== productIds.length) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
@@ -37,7 +39,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
       0,
     );
 
-    const order = await this._ordersRepository.addItemsToOrder(
+    const order = await this.writeRepo.addItemsToOrder(
       command.orderId,
       additionalAmount,
       command.dto,

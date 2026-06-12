@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { DeleteProductTemplateCommand } from './delete-product-template.command';
 import { DeleteProductTemplateHandler } from './delete-product-template.handler';
 
@@ -12,7 +12,7 @@ describe('DeleteProductTemplateHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeleteProductTemplateHandler, { provide: TemplatesRepository, useValue: repository }],
+      providers: [DeleteProductTemplateHandler, { provide: TemplatesWriteRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<DeleteProductTemplateHandler>(DeleteProductTemplateHandler);

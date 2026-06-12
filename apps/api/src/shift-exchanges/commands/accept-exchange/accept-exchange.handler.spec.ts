@@ -1,8 +1,9 @@
-import { asBarId, asShiftExchangeId, asUserId, ShiftExchangeStatus } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { asBarId, asShiftExchangeId, asUserId, ShiftExchangeStatus } from '../../../core';
+import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
+import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { AcceptExchangeCommand } from './accept-exchange.command';
 import { AcceptExchangeHandler } from './accept-exchange.handler';
 
@@ -15,7 +16,11 @@ describe('AcceptExchangeHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AcceptExchangeHandler, { provide: ShiftExchangesRepository, useValue: repository }],
+      providers: [
+        AcceptExchangeHandler,
+        { provide: ShiftExchangesWriteRepository, useValue: repository },
+        { provide: ShiftExchangesReadRepository, useValue: repository },
+      ],
     }).compile();
 
     handler = module.get<AcceptExchangeHandler>(AcceptExchangeHandler);

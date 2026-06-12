@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { TablesRepository } from '../../data-access/tables.repository';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { TableCreatedEvent } from '../../../events';
+import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { TablesMapper } from '../../mappers/tables.mapper';
 import { CreateTableCommand } from './create-table.command';
 
@@ -10,19 +10,18 @@ export class CreateTableHandler implements ICommandHandler<CreateTableCommand, v
   readonly #logger = new Logger(CreateTableHandler.name);
 
   constructor(
-    private readonly _tablesRepository: TablesRepository,
+    private readonly writeRepo: TablesWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: CreateTableCommand): Promise<void> {
     this.#logger.debug(`Executing createTable...`);
-    const table = await this._tablesRepository.create(command.barId, {
+    const table = await this.writeRepo.create(command.barId, {
       name: command.dto.name,
     });
 
     const mapped = TablesMapper.toDomain(table);
     this.#logger.debug(`Publishing TableCreatedEvent...`);
     this._eventBus.publish(new TableCreatedEvent(command.barId, mapped));
-    
   }
 }

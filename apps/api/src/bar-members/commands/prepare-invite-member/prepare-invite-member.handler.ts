@@ -2,7 +2,7 @@ import { ConflictException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
 import { PrepareUserForInviteEvent } from '../../../events';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { PrepareInviteMemberCommand } from './prepare-invite-member.command';
 
 @CommandHandler(PrepareInviteMemberCommand)
@@ -10,7 +10,7 @@ export class PrepareInviteMemberHandler implements ICommandHandler<PrepareInvite
   readonly #logger = new Logger(PrepareInviteMemberHandler.name);
 
   constructor(
-    private readonly repository: BarMembersRepository,
+    private readonly repository: BarMembersReadRepository,
     private readonly eventBus: EventBus,
   ) {}
 

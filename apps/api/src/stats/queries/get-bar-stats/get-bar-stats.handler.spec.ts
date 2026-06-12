@@ -1,8 +1,8 @@
-import { asBarId } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import 'reflect-metadata';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { StatsRepository } from '../../data-access/stats.repository';
+import { asBarId } from '../../../core';
+import { StatsReadRepository } from '../../data-access/stats.read.repository';
 import { GetBarStatsHandler } from './get-bar-stats.handler';
 import { GetBarStatsQuery } from './get-bar-stats.query';
 
@@ -18,7 +18,7 @@ describe('GetBarStatsHandler', () => {
     vi.setSystemTime(new Date('2026-06-17T12:00:00Z'));
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetBarStatsHandler, { provide: StatsRepository, useValue: repository }],
+      providers: [GetBarStatsHandler, { provide: StatsReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetBarStatsHandler>(GetBarStatsHandler);

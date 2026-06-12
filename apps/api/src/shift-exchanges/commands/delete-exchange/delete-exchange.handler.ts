@@ -2,18 +2,20 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes, ShiftExchangeStatus } from '../../../core';
 import { DbBarRole, DbService } from '../../../db';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
+import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { DeleteExchangeCommand } from './delete-exchange.command';
 
 @CommandHandler(DeleteExchangeCommand)
 export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeCommand, void> {
   constructor(
-    private readonly _repository: ShiftExchangesRepository,
+    private readonly readRepo: ShiftExchangesReadRepository,
+    private readonly writeRepo: ShiftExchangesWriteRepository,
     private readonly _prisma: DbService,
   ) {}
 
   async execute(command: DeleteExchangeCommand): Promise<void> {
-    const exchange = await this._repository.getExchangeById(command.exchangeId);
+    const exchange = await this.readRepo.getExchangeById(command.exchangeId);
 
     if (!exchange || exchange.shift.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
@@ -44,6 +46,6 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
       }
     }
 
-    await this._repository.deleteExchange(command.exchangeId);
+    await this.writeRepo.deleteExchange(command.exchangeId);
   }
 }

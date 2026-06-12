@@ -1,19 +1,10 @@
-import type { BarId, BarRole, UserId } from '@coaster/common';
+import type { BarId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbBarCreateInput, DbService } from '../../db';
+import { DbService } from '../../db';
 
 @Injectable()
-export class BarRepository {
+export class BarReadRepository {
   constructor(private readonly _prisma: DbService) {}
-
-  async create(userId: UserId, createBarDto: DbBarCreateInput) {
-    return this._prisma.dbBar.create({
-      data: {
-        ...createBarDto,
-        members: { create: { userId, role: 'OWNER' as BarRole } },
-      },
-    });
-  }
 
   async findByUserId(userId: UserId) {
     const barMembers = await this._prisma.dbBarMember.findMany({

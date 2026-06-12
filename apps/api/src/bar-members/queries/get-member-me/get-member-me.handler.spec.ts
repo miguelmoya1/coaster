@@ -3,15 +3,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 import { asBarId, asBarMemberId, asUserId } from '../../../core';
 import { DbBarRole } from '../../../db';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { GetMemberMeHandler } from './get-member-me.handler';
 import { GetMemberMeQuery } from './get-member-me.query';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('GetMemberMeHandler', () => {
   let handler: GetMemberMeHandler;
-  let repository: BarMembersRepository;
+  let repository: BarMembersReadRepository;
 
-  const mockRepository = {
+  const mockReadRepository = {
     getMemberByUserAndBar: vi.fn(),
   };
 
@@ -20,14 +21,14 @@ describe('GetMemberMeHandler', () => {
       providers: [
         GetMemberMeHandler,
         {
-          provide: BarMembersRepository,
-          useValue: mockRepository,
+          provide: BarMembersReadRepository,
+          useValue: mockReadRepository,
         },
       ],
     }).compile();
 
     handler = module.get<GetMemberMeHandler>(GetMemberMeHandler);
-    repository = module.get<BarMembersRepository>(BarMembersRepository);
+    repository = module.get<BarMembersReadRepository>(BarMembersReadRepository);
   });
 
   it('should return mapped member if found and active', async () => {
@@ -42,7 +43,7 @@ describe('GetMemberMeHandler', () => {
       user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
     };
 
-    mockRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
+    mockReadRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
 
     const result = await handler.execute(new GetMemberMeQuery(barId, userId));
 
@@ -64,7 +65,7 @@ describe('GetMemberMeHandler', () => {
     const barId = asBarId('bar-1');
     const userId = asUserId('user-1');
 
-    mockRepository.getMemberByUserAndBar.mockResolvedValue(null);
+    mockReadRepository.getMemberByUserAndBar.mockResolvedValue(null);
 
     await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
   });
@@ -81,7 +82,7 @@ describe('GetMemberMeHandler', () => {
       user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
     };
 
-    mockRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
+    mockReadRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
 
     await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
   });

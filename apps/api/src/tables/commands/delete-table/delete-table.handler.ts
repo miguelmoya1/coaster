@@ -1,8 +1,9 @@
+import { Logger, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { NotFoundException, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { TablesRepository } from '../../data-access/tables.repository';
 import { TableDeletedEvent } from '../../../events';
+import { TablesReadRepository } from '../../data-access/tables.read.repository';
+import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { DeleteTableCommand } from './delete-table.command';
 
 @CommandHandler(DeleteTableCommand)
@@ -10,18 +11,19 @@ export class DeleteTableHandler implements ICommandHandler<DeleteTableCommand, v
   readonly #logger = new Logger(DeleteTableHandler.name);
 
   constructor(
-    private readonly _tablesRepository: TablesRepository,
+    private readonly readRepo: TablesReadRepository,
+    private readonly writeRepo: TablesWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: DeleteTableCommand): Promise<void> {
     this.#logger.debug(`Executing deleteTable...`);
-    const existing = await this._tablesRepository.findById(command.tableId);
+    const existing = await this.readRepo.findById(command.tableId);
     if (!existing || existing.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
 
-    await this._tablesRepository.delete(command.tableId);
+    await this.writeRepo.delete(command.tableId);
     this.#logger.debug(`Publishing TableDeletedEvent...`);
     this._eventBus.publish(new TableDeletedEvent(command.barId, command.tableId));
   }

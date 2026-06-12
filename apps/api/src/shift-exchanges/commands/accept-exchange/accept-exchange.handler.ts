@@ -1,15 +1,19 @@
-import { ErrorCodes, ShiftExchangeStatus, asShiftId } from '../../../core';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { ErrorCodes, ShiftExchangeStatus, asShiftId } from '../../../core';
+import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
+import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { AcceptExchangeCommand } from './accept-exchange.command';
 
 @CommandHandler(AcceptExchangeCommand)
 export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeCommand, void> {
-  constructor(private readonly _shiftExchangesRepository: ShiftExchangesRepository) {}
+  constructor(
+    private readonly readRepo: ShiftExchangesReadRepository,
+    private readonly writeRepo: ShiftExchangesWriteRepository,
+  ) {}
 
   async execute(command: AcceptExchangeCommand): Promise<void> {
-    const exchange = await this._shiftExchangesRepository.getExchangeById(command.exchangeId);
+    const exchange = await this.readRepo.getExchangeById(command.exchangeId);
 
     if (!exchange) {
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
@@ -31,7 +35,7 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
-    await this._shiftExchangesRepository.acceptExchangeAndSwapShift(
+    await this.writeRepo.acceptExchangeAndSwapShift(
       command.exchangeId,
       asShiftId(exchange.shiftId),
       command.acceptingUserId,

@@ -1,7 +1,7 @@
-import { asBarId, ShiftExchangeStatus } from '../../../core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShiftExchangesRepository } from '../../data-access/shift-exchanges.repository';
+import { asBarId, ShiftExchangeStatus } from '../../../core';
+import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { GetPendingExchangesHandler } from './get-pending-exchanges.handler';
 import { GetPendingExchangesQuery } from './get-pending-exchanges.query';
 
@@ -13,7 +13,7 @@ describe('GetPendingExchangesHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetPendingExchangesHandler, { provide: ShiftExchangesRepository, useValue: repository }],
+      providers: [GetPendingExchangesHandler, { provide: ShiftExchangesReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetPendingExchangesHandler>(GetPendingExchangesHandler);

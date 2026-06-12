@@ -1,11 +1,11 @@
-import { asBarId, asCategoryId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoriesRepository } from '../../data-access/categories.repository';
+import { asBarId, asCategoryId } from '../../../core';
+import { CategoryUpdatedEvent } from '../../../events';
+import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { UpdateCategoryCommand } from './update-category.command';
 import { UpdateCategoryHandler } from './update-category.handler';
-import { CategoryUpdatedEvent } from '../../../events';
 
 describe('UpdateCategoryHandler', () => {
   let handler: UpdateCategoryHandler;
@@ -20,7 +20,7 @@ describe('UpdateCategoryHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateCategoryHandler,
-        { provide: CategoriesRepository, useValue: repository },
+        { provide: CategoriesWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();

@@ -1,8 +1,8 @@
-import { asBarId, asOrderId } from '../../../core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId } from '../../../core';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { GetOrderByIdHandler } from './get-order-by-id.handler';
 import { GetOrderByIdQuery } from './get-order-by-id.query';
 
@@ -14,7 +14,7 @@ describe('GetOrderByIdHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetOrderByIdHandler, { provide: OrdersRepository, useValue: repository }],
+      providers: [GetOrderByIdHandler, { provide: OrdersReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetOrderByIdHandler>(GetOrderByIdHandler);

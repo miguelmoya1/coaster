@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asUserId } from '../../../core';
 import { DbRole } from '../../../db';
-import { UserRepository } from '../../data-access/user.repository';
+import { UserReadRepository } from '../../data-access/user.read.repository';
 import { GetUserByEmailHandler } from './get-user-by-email.handler';
 import { GetUserByEmailQuery } from './get-user-by-email.query';
 
@@ -14,7 +14,7 @@ describe('GetUserByEmailHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetUserByEmailHandler, { provide: UserRepository, useValue: repository }],
+      providers: [GetUserByEmailHandler, { provide: UserReadRepository, useValue: repository }],
     }).compile();
 
     handler = module.get<GetUserByEmailHandler>(GetUserByEmailHandler);

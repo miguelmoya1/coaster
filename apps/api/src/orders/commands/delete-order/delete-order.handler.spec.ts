@@ -1,12 +1,13 @@
-import { asBarId, asOrderId } from '../../../core';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId } from '../../../core';
+import { OrderDeletedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { DeleteOrderCommand } from './delete-order.command';
 import { DeleteOrderHandler } from './delete-order.handler';
-import { OrderDeletedEvent } from '../../../events';
 
 describe('DeleteOrderHandler', () => {
   let handler: DeleteOrderHandler;
@@ -22,8 +23,9 @@ describe('DeleteOrderHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeleteOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 

@@ -3,73 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { DbService } from '../../db';
 
 @Injectable()
-export class OrdersRepository {
+export class OrdersWriteRepository {
   constructor(private readonly _prisma: DbService) {}
-
-  async findByBarId(barId: BarId, status?: string) {
-    return this._prisma.dbOrder.findMany({
-      where: {
-        barId,
-        ...(status ? { status: status as any } : {}),
-      },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        table: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findByBarIdAndDate(barId: BarId, date: string) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
-
-    return this._prisma.dbOrder.findMany({
-      where: {
-        barId,
-        createdAt: { gte: start, lte: end },
-      },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        table: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
 
   async deleteOrder(orderId: OrderId) {
     return this._prisma.dbOrder.delete({
       where: { id: orderId },
-    });
-  }
-
-  async findById(orderId: OrderId) {
-    return this._prisma.dbOrder.findUnique({
-      where: { id: orderId },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        table: true,
-      },
-    });
-  }
-
-  async findItemById(itemId: OrderItemId) {
-    return this._prisma.dbOrderItem.findUnique({
-      where: { id: itemId },
-    });
-  }
-
-  async findTableById(tableId: TableId) {
-    return this._prisma.dbTable.findUnique({
-      where: { id: tableId },
-    });
-  }
-
-  async findProductsByIds(productIds: string[]) {
-    return this._prisma.dbProduct.findMany({
-      where: { id: { in: productIds } },
     });
   }
 
@@ -112,16 +51,6 @@ export class OrdersRepository {
       }
 
       return updated;
-    });
-  }
-
-  async findOrdersByIds(orderIds: OrderId[]) {
-    return this._prisma.dbOrder.findMany({
-      where: { id: { in: orderIds } },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        table: true,
-      },
     });
   }
 
@@ -208,7 +137,15 @@ export class OrdersRepository {
     });
   }
 
-  async bulkUpdate(orderId: OrderId, updates: { itemId: string; paidQuantity?: number; servedQuantity?: number; paymentMethod?: 'CASH' | 'CARD' | 'MIXED' | 'NONE' }[]) {
+  async bulkUpdate(
+    orderId: OrderId,
+    updates: {
+      itemId: string;
+      paidQuantity?: number;
+      servedQuantity?: number;
+      paymentMethod?: 'CASH' | 'CARD' | 'MIXED' | 'NONE';
+    }[],
+  ) {
     return this._prisma.$transaction(async (tx) => {
       for (const update of updates) {
         const item = await tx.dbOrderItem.findUnique({ where: { id: update.itemId } });
@@ -298,7 +235,7 @@ export class OrdersRepository {
 
       return tx.dbOrder.update({
         where: { id: orderId },
-        data: { 
+        data: {
           paymentMethod: orderPaymentMethod,
           amountPaidCash,
           amountPaidCard,
@@ -308,91 +245,6 @@ export class OrdersRepository {
           table: true,
         },
       });
-    });
-  }
-
-  async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: 'CASH' | 'CARD') {
-    return this._prisma.$transaction(async (tx) => {
-      const unpaidItems = await tx.dbOrderItem.findMany({
-        where: {
-          orderId,
-          NOT: { paymentStatus: 'PAID' },
-        },
-      });
-
-      for (const item of unpaidItems) {
-        const unpaid = item.quantity - item.paidQuantity;
-        let newCard = item.paidQuantityCard;
-        let newCash = item.paidQuantityCash;
-        if (paymentMethod === 'CARD') {
-          newCard += unpaid;
-        } else {
-          newCash += unpaid;
-        }
-
-        let newItemPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
-        if (newCard > 0 && newCash > 0) {
-          newItemPaymentMethod = 'MIXED';
-        } else if (newCard > 0) {
-          newItemPaymentMethod = 'CARD';
-        } else if (newCash > 0) {
-          newItemPaymentMethod = 'CASH';
-        }
-
-        await tx.dbOrderItem.update({
-          where: { id: item.id },
-          data: {
-            paymentStatus: 'PAID',
-            paidQuantity: item.quantity,
-            paidQuantityCard: newCard,
-            paidQuantityCash: newCash,
-            paymentMethod: newItemPaymentMethod,
-          },
-        });
-      }
-
-      const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
-      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
-
-      let amountPaidCash = 0;
-      let amountPaidCard = 0;
-      for (const item of allItems) {
-        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
-        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
-      }
-
-      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
-      if (amountPaidCash > 0 && amountPaidCard > 0) {
-        orderPaymentMethod = 'MIXED';
-      } else if (amountPaidCard > 0) {
-        orderPaymentMethod = 'CARD';
-      } else if (amountPaidCash > 0) {
-        orderPaymentMethod = 'CASH';
-      }
-
-      const closed = await tx.dbOrder.update({
-        where: { id: orderId },
-        data: { 
-          status: 'CLOSED', 
-          totalAmount, 
-          paymentMethod: orderPaymentMethod,
-          amountPaidCash,
-          amountPaidCard,
-        },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          table: true,
-        },
-      });
-
-      if (tableId) {
-        await tx.dbTable.update({
-          where: { id: tableId },
-          data: { status: 'FREE' },
-        });
-      }
-
-      return closed;
     });
   }
 
@@ -505,6 +357,91 @@ export class OrdersRepository {
           table: true,
         },
       });
+    });
+  }
+
+  async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: 'CASH' | 'CARD') {
+    return this._prisma.$transaction(async (tx) => {
+      const unpaidItems = await tx.dbOrderItem.findMany({
+        where: {
+          orderId,
+          NOT: { paymentStatus: 'PAID' },
+        },
+      });
+
+      for (const item of unpaidItems) {
+        const unpaid = item.quantity - item.paidQuantity;
+        let newCard = item.paidQuantityCard;
+        let newCash = item.paidQuantityCash;
+        if (paymentMethod === 'CARD') {
+          newCard += unpaid;
+        } else {
+          newCash += unpaid;
+        }
+
+        let newItemPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+        if (newCard > 0 && newCash > 0) {
+          newItemPaymentMethod = 'MIXED';
+        } else if (newCard > 0) {
+          newItemPaymentMethod = 'CARD';
+        } else if (newCash > 0) {
+          newItemPaymentMethod = 'CASH';
+        }
+
+        await tx.dbOrderItem.update({
+          where: { id: item.id },
+          data: {
+            paymentStatus: 'PAID',
+            paidQuantity: item.quantity,
+            paidQuantityCard: newCard,
+            paidQuantityCash: newCash,
+            paymentMethod: newItemPaymentMethod,
+          },
+        });
+      }
+
+      const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
+      const totalAmount = allItems.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+      let amountPaidCash = 0;
+      let amountPaidCard = 0;
+      for (const item of allItems) {
+        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
+        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
+      }
+
+      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+      if (amountPaidCash > 0 && amountPaidCard > 0) {
+        orderPaymentMethod = 'MIXED';
+      } else if (amountPaidCard > 0) {
+        orderPaymentMethod = 'CARD';
+      } else if (amountPaidCash > 0) {
+        orderPaymentMethod = 'CASH';
+      }
+
+      const closed = await tx.dbOrder.update({
+        where: { id: orderId },
+        data: {
+          status: 'CLOSED',
+          totalAmount,
+          paymentMethod: orderPaymentMethod,
+          amountPaidCash,
+          amountPaidCard,
+        },
+        include: {
+          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          table: true,
+        },
+      });
+
+      if (tableId) {
+        await tx.dbTable.update({
+          where: { id: tableId },
+          data: { status: 'FREE' },
+        });
+      }
+
+      return closed;
     });
   }
 }

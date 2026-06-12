@@ -3,21 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { DbService, DbTableCreateInput, DbTableUpdateInput } from '../../db';
 
 @Injectable()
-export class TablesRepository {
+export class TablesWriteRepository {
   constructor(private readonly _prisma: DbService) {}
-
-  async findByBarId(barId: BarId) {
-    return this._prisma.dbTable.findMany({
-      where: { barId },
-      orderBy: { name: 'asc' },
-    });
-  }
-
-  async findById(tableId: TableId) {
-    return this._prisma.dbTable.findUnique({
-      where: { id: tableId },
-    });
-  }
 
   async create(barId: BarId, data: Omit<DbTableCreateInput, 'bar'>) {
     return this._prisma.dbTable.create({

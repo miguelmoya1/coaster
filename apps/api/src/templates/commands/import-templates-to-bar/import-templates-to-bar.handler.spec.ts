@@ -1,8 +1,9 @@
-import { asBarId } from '../../../core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TemplatesRepository } from '../../data-access/templates.repository';
+import { asBarId } from '../../../core';
+import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
+import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { ImportTemplatesToBarCommand } from './import-templates-to-bar.command';
 import { ImportTemplatesToBarHandler } from './import-templates-to-bar.handler';
 
@@ -18,7 +19,11 @@ describe('ImportTemplatesToBarHandler', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ImportTemplatesToBarHandler, { provide: TemplatesRepository, useValue: repository }],
+      providers: [
+        ImportTemplatesToBarHandler,
+        { provide: TemplatesWriteRepository, useValue: repository },
+        { provide: TemplatesReadRepository, useValue: repository },
+      ],
     }).compile();
 
     handler = module.get<ImportTemplatesToBarHandler>(ImportTemplatesToBarHandler);
@@ -62,9 +67,7 @@ describe('ImportTemplatesToBarHandler', () => {
     repository.findProductsByCategoryIds.mockResolvedValue([]);
     repository.createManyProducts.mockResolvedValue({ count: 2 });
 
-    await handler.execute(
-      new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['temp-cat-1'] }),
-    );
+    await handler.execute(new ImportTemplatesToBarCommand(barId, { categoryTemplateIds: ['temp-cat-1'] }));
 
     expect(repository.findCategoryTemplatesByIds).toHaveBeenCalledWith(['temp-cat-1']);
     expect(repository.createManyCategories).toHaveBeenCalledWith([{ barId, name: 'Bebidas', icon: 'cup' }], true);

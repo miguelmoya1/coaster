@@ -2,7 +2,8 @@ import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
 import { MemberRemovedEvent } from '../../../events';
-import { BarMembersRepository } from '../../data-access/bar-members.repository';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
+import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { RemoveMemberCommand } from './remove-member.command';
 
 @CommandHandler(RemoveMemberCommand)
@@ -10,7 +11,8 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
   readonly #logger = new Logger(RemoveMemberHandler.name);
 
   constructor(
-    private readonly repository: BarMembersRepository,
+    private readonly readRepo: BarMembersReadRepository,
+    private readonly writeRepo: BarMembersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -18,7 +20,7 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
     this.#logger.debug(`Executing removeMember...`);
     const { barId, memberId } = command;
 
-    const members = await this.repository.getMembersByBar(barId);
+    const members = await this.readRepo.getMembersByBar(barId);
     const memberToRemove = members.find((m) => m.id === memberId);
 
     if (memberToRemove?.role === 'OWNER') {
@@ -28,7 +30,7 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
       }
     }
 
-    await this.repository.removeMember(memberId);
+    await this.writeRepo.removeMember(memberId);
     this.#logger.debug(`Publishing MemberRemovedEvent...`);
     this._eventBus.publish(new MemberRemovedEvent(barId, memberId));
   }

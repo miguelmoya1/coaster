@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DbService } from '../../db';
 
 @Injectable()
-export class StatsRepository {
+export class StatsReadRepository {
   constructor(private readonly _prisma: DbService) {}
 
   async findClosedOrdersForStats(barId: BarId, startOfPrevYear: Date) {

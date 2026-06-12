@@ -1,10 +1,11 @@
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asOrderId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asOrderId } from '../../../core';
 import { OrderCancelledEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { CancelOrderCommand } from './cancel-order.command';
 import { CancelOrderHandler } from './cancel-order.handler';
 
@@ -22,8 +23,9 @@ describe('CancelOrderHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CancelOrderHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 
@@ -53,7 +55,11 @@ describe('CancelOrderHandler', () => {
     await handler.execute(new CancelOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrderCancelledEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),
+      new OrderCancelledEvent(
+        asBarId('bar-1'),
+        expect.any(Object) as unknown as Order,
+        expect.any(String) as unknown as TableId,
+      ),
     );
   });
 });

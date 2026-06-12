@@ -1,10 +1,11 @@
 import type { Order, OrderId, TableId } from '@coaster/common';
-import { asBarId, asTableId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersRepository } from '../../data-access/orders.repository';
+import { asBarId, asTableId } from '../../../core';
 import { OrdersMergedEvent } from '../../../events';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
+import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { MergeOrdersCommand } from './merge-orders.command';
 import { MergeOrdersHandler } from './merge-orders.handler';
 
@@ -23,8 +24,9 @@ describe('MergeOrdersHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MergeOrdersHandler,
-        { provide: OrdersRepository, useValue: repository },
+        { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
+        { provide: OrdersReadRepository, useValue: repository },
       ],
     }).compile();
 
@@ -71,7 +73,11 @@ describe('MergeOrdersHandler', () => {
     );
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrdersMergedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(Array) as unknown as { id: OrderId; tableId: TableId | null }[]),
+      new OrdersMergedEvent(
+        asBarId('bar-1'),
+        expect.any(Object) as unknown as Order,
+        expect.any(Array) as unknown as { id: OrderId; tableId: TableId | null }[],
+      ),
     );
   });
 });
