@@ -10,6 +10,7 @@
   "ERR_MERGE_TABLES": "Error de red al juntar mesas.",
   "ERR_MOVE_TABLE": "Error de red al mover de mesa.",
   "ERR_PAYMENT": "Error de red al cobrar, la acción se ha revertido.",
+  "ERR_PRINT_ORDER": "Error de conexión con la impresora local (localhost:8080).",
   "ERR_REMOVE_ITEM": "Error de red al eliminar producto, la acción se ha revertido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",
@@ -117,6 +118,7 @@
     "confirm": "Confirmar",
     "create": "Crear",
     "delete": "Eliminar",
+    "download_printer": "Descargar Impresora",
     "duty": {
       "off": "Fuera de Servicio",
       "on": "En Turno"
@@ -266,6 +268,7 @@
     "partial_delivery": "Servido parcial",
     "partial_payment": "Pago parcial",
     "pay_selected": "Pagar Seleccionados ({{amount}})",
+    "print_ticket": "Imprimir Ticket",
     "pos_title": "Pedido Rápido",
     "payment_method_title": "Método de Pago",
     "payment_method_description": "Selecciona el método con el que se va a cobrar este importe.",

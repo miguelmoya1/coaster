@@ -384,35 +384,5 @@
     }
   </section>
 
-  <section class="flex flex-col gap-4">
-    <header class="flex justify-between items-center">
-      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-        <mat-icon class="text-on-surface text-xl">print</mat-icon>
-        Ajustes de Impresión
-      </h2>
-    </header>
-    <div class="bg-surface-container rounded-2xl p-5 flex flex-col gap-4 border border-outline-variant/10 shadow-md">
-      <p class="text-sm text-on-surface-variant">Para que este bar pueda imprimir tickets automáticamente, necesitas tener el servicio de impresión arrancado en el ordenador que tiene la impresora conectada por USB o red.</p>
-      
-      <div class="flex gap-4">
-        <a href="http://localhost:3000/public/downloads/printer-service-windows.exe" target="_blank" class="flex-1 flex flex-col items-center gap-2 bg-surface hover:bg-surface-container-high transition-colors p-4 rounded-xl border border-outline-variant/50">
-          <mat-icon class="text-3xl text-primary">desktop_windows</mat-icon>
-          <span class="text-xs font-bold uppercase tracking-wider">Descargar Windows (.exe)</span>
-        </a>
-        <a href="http://localhost:3000/public/downloads/printer-service-linux" target="_blank" class="flex-1 flex flex-col items-center gap-2 bg-surface hover:bg-surface-container-high transition-colors p-4 rounded-xl border border-outline-variant/50">
-          <mat-icon class="text-3xl text-primary">terminal</mat-icon>
-          <span class="text-xs font-bold uppercase tracking-wider">Descargar Linux (bin)</span>
-        </a>
-      </div>
 
-      <div class="border-t border-outline-variant/30 mt-2 pt-4 flex flex-col gap-3">
-        <h3 class="text-sm font-bold text-on-surface">Prueba de Conexión Local</h3>
-        <p class="text-xs text-on-surface-variant">Pulsa este botón para enviar un ticket de prueba al servicio que debe estar corriendo en localhost:8080.</p>
-        <button (click)="testPrint()" [disabled]="isPrinting" class="bg-primary hover:bg-primary/90 text-on-primary font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50">
-          <mat-icon>receipt_long</mat-icon>
-          {{ isPrinting ? 'Enviando...' : 'Imprimir Ticket de Prueba' }}
-        </button>
-      </div>
-    </div>
-  </section>
 </div>

@@ -35,6 +35,7 @@ class OrderDetail {
 
   readonly #translate = inject(TranslateService);
 
+  protected readonly isPrinting = signal(false);
   protected readonly orderItemDeleting = signal<OrderItem | null>(null);
   protected readonly isCancelingOrderModelOpen = signal(false);
 
@@ -392,6 +393,21 @@ class OrderDetail {
   );
 
   protected readonly openOrders = this.#ordersStore.openOrders;
+
+  async printOrder() {
+    const order = this.displayOrderViewModel();
+    if (!order) return;
+
+    this.isPrinting.set(true);
+
+    try {
+      await this.#ordersStore.printOrder(order);
+    } catch (e) {
+      // Toast handled in the store
+    } finally {
+      this.isPrinting.set(false);
+    }
+  }
 }
 
 export default OrderDetail;

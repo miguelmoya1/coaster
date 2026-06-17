@@ -10,6 +10,7 @@
   "ERR_MERGE_TABLES": "Network error merging tables.",
   "ERR_MOVE_TABLE": "Network error moving table.",
   "ERR_PAYMENT": "Network error processing payment, action reverted.",
+  "ERR_PRINT_ORDER": "Connection error with local printer (localhost:8080).",
   "ERR_REMOVE_ITEM": "Network error removing item, action reverted.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "EXCHANGE_NOT_FOUND": "The specified exchange request does not exist.",
@@ -117,6 +118,7 @@
     "confirm": "Confirm",
     "create": "Create",
     "delete": "Delete",
+    "download_printer": "Download Printer",
     "duty": {
       "off": "Off Duty",
       "on": "On Duty"
@@ -266,6 +268,7 @@
     "partial_delivery": "Partially served",
     "partial_payment": "Partial payment",
     "pay_selected": "Pay Selected ({{amount}})",
+    "print_ticket": "Print Receipt",
     "pos_title": "Quick Order",
     "payment_method_title": "Payment Method",
     "payment_method_description": "Select the payment method to settle this amount.",

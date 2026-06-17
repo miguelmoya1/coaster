@@ -40,8 +40,6 @@ export class Dashboard {
   readonly #http = inject(HttpClient);
 
   public readonly stats = this.#statsStore.stats;
-  public isPrinting = false;
-
   constructor() {
     effect(() => {
       const now = new Date();
@@ -218,20 +216,6 @@ export class Dashboard {
 
   readonly currentYear = computed(() => new Date().getFullYear());
   readonly currentMonthIndex = computed(() => new Date().getMonth());
-
-  testPrint() {
-    this.isPrinting = true;
-    this.#http.post('http://localhost:8080/print', { message: 'Prueba de impresión directa desde la Web' }).subscribe({
-      next: () => {
-        this.isPrinting = false;
-        alert('✅ Ticket enviado a la impresora local (http://localhost:8080)');
-      },
-      error: (err) => {
-        this.isPrinting = false;
-        alert('❌ Error de conexión. ¿Está el Printer Service arrancado localmente?\n' + err.message);
-      }
-    });
-  }
 }
 
 export default Dashboard;

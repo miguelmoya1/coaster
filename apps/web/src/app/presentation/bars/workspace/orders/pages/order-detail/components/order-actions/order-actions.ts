@@ -19,7 +19,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       </button>
     </div>
 
-    <div class="flex flex-col sm:grid sm:grid-cols-3 gap-2">
+    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2">
       <button mat-stroked-button (click)="moveTable.emit()" class="w-full">
         <mat-icon>swap_horiz</mat-icon>
         {{ (hasTable() ? 'orders.move' : 'orders.assign_table') | translate }}
@@ -32,6 +32,10 @@ import { TranslatePipe } from '@ngx-translate/core';
         <mat-icon>close</mat-icon>
         {{ 'orders.cancel_order' | translate }}
       </button>
+      <button mat-stroked-button class="w-full" (click)="printOrder.emit()">
+        <mat-icon>receipt_long</mat-icon>
+        {{ 'orders.print_ticket' | translate }}
+      </button>
     </div>
   `,
 })
@@ -43,4 +47,5 @@ export class OrderActions {
   readonly moveTable = output<void>();
   readonly merge = output<void>();
   readonly cancelOrder = output<void>();
+  readonly printOrder = output<void>();
 }
