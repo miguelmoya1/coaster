@@ -1,16 +1,21 @@
-import type { BarRole, UserId } from '@coaster/common';
+import type { UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbBarCreateInput, DbService } from '../../db';
+import { DbBarRole, DbBarUncheckedCreateInput, DbService } from '../../db';
+
+type CreateBarDto = Omit<
+  DbBarUncheckedCreateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'members' | 'shifts' | 'categories' | 'tables' | 'orders'
+>;
 
 @Injectable()
 export class BarWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async create(userId: UserId, createBarDto: DbBarCreateInput) {
-    return this._prisma.dbBar.create({
+  public async create(userId: UserId, createBarDto: CreateBarDto) {
+    return this._db.dbBar.create({
       data: {
         ...createBarDto,
-        members: { create: { userId, role: 'OWNER' as BarRole } },
+        members: { create: { userId, role: DbBarRole.OWNER } },
       },
     });
   }

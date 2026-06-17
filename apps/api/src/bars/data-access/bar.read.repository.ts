@@ -4,18 +4,19 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class BarReadRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async findByUserId(userId: UserId) {
-    const barMembers = await this._prisma.dbBarMember.findMany({
-      where: { userId },
-      include: { bar: true },
+  public async findByUserId(userId: UserId) {
+    return await this._db.dbBar.findMany({
+      where: {
+        members: {
+          some: { userId },
+        },
+      },
     });
-
-    return barMembers.map((barMember) => barMember.bar);
   }
 
-  async findById(barId: BarId) {
-    return this._prisma.dbBar.findUnique({ where: { id: barId } });
+  public async findById(barId: BarId) {
+    return this._db.dbBar.findUnique({ where: { id: barId } });
   }
 }

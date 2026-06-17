@@ -1,17 +1,19 @@
 import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbBarMemberCreateInput, DbService } from '../../db';
+import { DbBarMemberUncheckedCreateInput, DbService } from '../../db';
+
+type CreateBarMemberDto = Omit<DbBarMemberUncheckedCreateInput, 'id' | 'barId' | 'userId' | 'createdAt' | 'updatedAt'>;
 
 @Injectable()
 export class BarMembersWriteRepository {
-  constructor(private readonly db: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async inviteMember(barId: BarId, userId: UserId, createBarMemberDto: Omit<DbBarMemberCreateInput, 'bar' | 'user'>) {
-    return this.db.dbBarMember.create({
+  public async invite(barId: BarId, userId: UserId, createBarMemberDto: CreateBarMemberDto) {
+    return this._db.dbBarMember.create({
       data: {
         ...createBarMemberDto,
-        bar: { connect: { id: barId } },
-        user: { connect: { id: userId } },
+        barId,
+        userId,
       },
       include: {
         user: { select: { email: true, name: true } },
@@ -20,9 +22,14 @@ export class BarMembersWriteRepository {
     });
   }
 
-  async removeMember(memberId: BarMemberId) {
-    return this.db.dbBarMember.delete({
-      where: { id: memberId },
+  public async delete(barId: BarId, barMemberId: BarMemberId) {
+    const deleted = await this._db.dbBarMember.deleteMany({
+      where: {
+        id: barMemberId,
+        barId,
+      },
     });
+
+    return deleted.count > 0;
   }
 }

@@ -7,92 +7,106 @@ import {
   DbService,
 } from '../../db';
 
+type CreateCategoryTemplateDto = Omit<
+  DbCategoryTemplateUncheckedCreateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'products'
+>;
+type UpdateCategoryTemplateDto = Omit<
+  DbCategoryTemplateUncheckedUpdateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'products'
+>;
+type CreateProductTemplateDto = Omit<DbProductTemplateUncheckedCreateInput, 'id' | 'createdAt' | 'updatedAt'>;
+type UpdateProductTemplateDto = Omit<DbProductTemplateUncheckedUpdateInput, 'id' | 'createdAt' | 'updatedAt'>;
+
 @Injectable()
 export class TemplatesWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async createCategoryTemplate(data: DbCategoryTemplateUncheckedCreateInput) {
-    return this._prisma.dbCategoryTemplate.create({
+  public async createCategoryTemplate(data: CreateCategoryTemplateDto) {
+    return this._db.dbCategoryTemplate.create({
       data,
     });
   }
 
-  async updateCategoryTemplate(id: string, data: DbCategoryTemplateUncheckedUpdateInput) {
-    return this._prisma.dbCategoryTemplate.update({
+  public async updateCategoryTemplate(id: string, data: UpdateCategoryTemplateDto) {
+    return this._db.dbCategoryTemplate.update({
       where: { id },
       data,
     });
   }
 
-  async deleteCategoryTemplate(id: string) {
-    return this._prisma.dbCategoryTemplate.delete({
+  public async deleteCategoryTemplate(id: string) {
+    return this._db.dbCategoryTemplate.delete({
       where: { id },
     });
   }
 
-  async createProductTemplate(data: DbProductTemplateUncheckedCreateInput) {
-    return this._prisma.dbProductTemplate.create({
+  public async createProductTemplate(data: CreateProductTemplateDto) {
+    return this._db.dbProductTemplate.create({
       data,
     });
   }
 
-  async updateProductTemplate(id: string, data: DbProductTemplateUncheckedUpdateInput) {
-    return this._prisma.dbProductTemplate.update({
+  public async updateProductTemplate(id: string, data: UpdateProductTemplateDto) {
+    return this._db.dbProductTemplate.update({
       where: { id },
       data,
     });
   }
 
-  async deleteProductTemplate(id: string) {
-    return this._prisma.dbProductTemplate.delete({
+  public async deleteProductTemplate(id: string) {
+    return this._db.dbProductTemplate.delete({
       where: { id },
     });
   }
 
-  async upsertCategoryTemplate(name: string, icon?: string | null) {
-    const existing = await this._prisma.dbCategoryTemplate.findFirst({ where: { name } });
+  public async upsertCategoryTemplate(name: string, icon?: string | null) {
+    const existing = await this._db.dbCategoryTemplate.findFirst({ where: { name } });
     if (existing) {
       if (existing.icon !== icon) {
-        return this._prisma.dbCategoryTemplate.update({
+        return this._db.dbCategoryTemplate.update({
           where: { id: existing.id },
           data: { icon },
         });
       }
       return existing;
     }
-    return this._prisma.dbCategoryTemplate.create({
+    return this._db.dbCategoryTemplate.create({
       data: { name, icon },
     });
   }
 
-  async upsertProductTemplate(name: string, price: number, categoryId: string) {
-    const existing = await this._prisma.dbProductTemplate.findFirst({ where: { name, categoryId } });
+  public async upsertProductTemplate(name: string, price: number, categoryId: string) {
+    const existing = await this._db.dbProductTemplate.findFirst({ where: { name, categoryId } });
     if (existing) {
       if (existing.price !== price) {
-        return this._prisma.dbProductTemplate.update({
+        return this._db.dbProductTemplate.update({
           where: { id: existing.id },
           data: { price },
         });
       }
       return existing;
     }
-    return this._prisma.dbProductTemplate.create({
+    return this._db.dbProductTemplate.create({
       data: { name, price, categoryId },
     });
   }
 
-  async createManyCategories(data: { barId: string; name: string; icon: string | null }[], skipDuplicates = true) {
-    return this._prisma.dbCategory.createMany({
+  public async createManyCategories(
+    data: { barId: string; name: string; icon: string | null }[],
+    skipDuplicates = true,
+  ) {
+    return this._db.dbCategory.createMany({
       data,
       skipDuplicates,
     });
   }
 
-  async createManyProducts(
+  public async createManyProducts(
     data: { categoryId: string; name: string; price: number; currentStock: number; minStockAlert: number }[],
     skipDuplicates = true,
   ) {
-    return this._prisma.dbProduct.createMany({
+    return this._db.dbProduct.createMany({
       data,
       skipDuplicates,
     });

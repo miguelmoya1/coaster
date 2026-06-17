@@ -3,7 +3,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
-
+    "lib": ["ESNext", "ESNext.Temporal"],
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,

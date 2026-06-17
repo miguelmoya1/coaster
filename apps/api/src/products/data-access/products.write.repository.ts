@@ -1,30 +1,39 @@
 import type { CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbProductCreateInput, DbProductUpdateInput, DbService } from '../../db';
+import { DbProductUncheckedCreateInput, DbProductUncheckedUpdateInput, DbService } from '../../db';
+
+type CreateProductInput = Omit<
+  DbProductUncheckedCreateInput,
+  'id' | 'categoryId' | 'createdAt' | 'updatedAt' | 'orderItems'
+>;
+type UpdateProductInput = Omit<
+  DbProductUncheckedUpdateInput,
+  'id' | 'categoryId' | 'createdAt' | 'updatedAt' | 'orderItems'
+>;
 
 @Injectable()
 export class ProductsWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async create(categoryId: CategoryId, createProductDto: Omit<DbProductCreateInput, 'category'>) {
-    return this._prisma.dbProduct.create({
+  public async create(categoryId: CategoryId, createProductDto: CreateProductInput) {
+    return this._db.dbProduct.create({
       data: {
         ...createProductDto,
         price: createProductDto.price ?? 0,
-        category: { connect: { id: categoryId } },
+        categoryId,
       },
     });
   }
 
-  async update(productId: ProductId, updateData: DbProductUpdateInput) {
-    return this._prisma.dbProduct.update({
+  public async update(productId: ProductId, updateData: UpdateProductInput) {
+    return this._db.dbProduct.update({
       where: { id: productId },
       data: updateData,
     });
   }
 
-  async delete(productId: ProductId) {
-    return this._prisma.dbProduct.delete({
+  public async delete(productId: ProductId) {
+    return this._db.dbProduct.delete({
       where: { id: productId },
     });
   }

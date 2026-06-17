@@ -4,10 +4,10 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class ProductsReadRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
-    const category = await this._prisma.dbCategory.findUnique({
+  public async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
+    const category = await this._db.dbCategory.findUnique({
       where: { id: categoryId },
     });
 
@@ -17,8 +17,8 @@ export class ProductsReadRepository {
     return category.barId === barId;
   }
 
-  async findByBarId(barId: BarId) {
-    return this._prisma.dbProduct.findMany({
+  public async findByBarId(barId: BarId) {
+    return this._db.dbProduct.findMany({
       where: { category: { barId } },
       orderBy: { name: 'asc' },
     });

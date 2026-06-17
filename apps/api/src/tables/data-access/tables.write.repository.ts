@@ -1,29 +1,29 @@
 import type { BarId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService, DbTableCreateInput, DbTableUpdateInput } from '../../db';
+import { DbService, DbTableUncheckedCreateInput, DbTableUncheckedUpdateInput } from '../../db';
+
+type CreateTableDto = Omit<DbTableUncheckedCreateInput, 'id' | 'createdAt' | 'updatedAt' | 'barId' | 'orders'>;
+type UpdateTableDto = Omit<DbTableUncheckedUpdateInput, 'id' | 'createdAt' | 'updatedAt' | 'barId' | 'orders'>;
 
 @Injectable()
 export class TablesWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async create(barId: BarId, data: Omit<DbTableCreateInput, 'bar'>) {
-    return this._prisma.dbTable.create({
-      data: {
-        ...data,
-        bar: { connect: { id: barId } },
-      },
+  public async create(barId: BarId, data: CreateTableDto) {
+    return this._db.dbTable.create({
+      data: { ...data, barId },
     });
   }
 
-  async update(tableId: TableId, data: DbTableUpdateInput) {
-    return this._prisma.dbTable.update({
+  public async update(tableId: TableId, data: UpdateTableDto) {
+    return this._db.dbTable.update({
       where: { id: tableId },
       data,
     });
   }
 
-  async delete(tableId: TableId) {
-    return this._prisma.dbTable.delete({
+  public async delete(tableId: TableId) {
+    return this._db.dbTable.delete({
       where: { id: tableId },
     });
   }

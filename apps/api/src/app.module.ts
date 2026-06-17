@@ -16,6 +16,7 @@ import { TablesModule } from './tables/tables.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
 import { WebsocketsModule } from './websockets/websockets.module';
+import { PrinterModule } from './printer/printer.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WebsocketsModule } from './websockets/websockets.module';
     TablesModule,
     OrdersModule,
     StatsModule,
+    PrinterModule,
   ],
 })
 export class AppModule {}

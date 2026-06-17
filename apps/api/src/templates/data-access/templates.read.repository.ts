@@ -3,18 +3,18 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class TemplatesReadRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async findAllCategoryTemplates() {
-    return this._prisma.dbCategoryTemplate.findMany({
+  public async findAllCategoryTemplates() {
+    return this._db.dbCategoryTemplate.findMany({
       include: {
         products: true,
       },
     });
   }
 
-  async findCategoryTemplateById(id: string) {
-    return this._prisma.dbCategoryTemplate.findUnique({
+  public async findCategoryTemplateById(id: string) {
+    return this._db.dbCategoryTemplate.findUnique({
       where: { id },
       include: {
         products: true,
@@ -22,16 +22,16 @@ export class TemplatesReadRepository {
     });
   }
 
-  async findAllProductTemplates() {
-    return this._prisma.dbProductTemplate.findMany({
+  public async findAllProductTemplates() {
+    return this._db.dbProductTemplate.findMany({
       include: {
         category: true,
       },
     });
   }
 
-  async findProductTemplateById(id: string) {
-    return this._prisma.dbProductTemplate.findUnique({
+  public async findProductTemplateById(id: string) {
+    return this._db.dbProductTemplate.findUnique({
       where: { id },
       include: {
         category: true,
@@ -39,20 +39,20 @@ export class TemplatesReadRepository {
     });
   }
 
-  async findCategoryTemplateByName(name: string) {
-    return this._prisma.dbCategoryTemplate.findFirst({
+  public async findCategoryTemplateByName(name: string) {
+    return this._db.dbCategoryTemplate.findFirst({
       where: { name },
     });
   }
 
-  async findProductTemplateByNameAndCategoryId(name: string, categoryId: string) {
-    return this._prisma.dbProductTemplate.findFirst({
+  public async findProductTemplateByNameAndCategoryId(name: string, categoryId: string) {
+    return this._db.dbProductTemplate.findFirst({
       where: { name, categoryId },
     });
   }
 
-  async findCategoryTemplatesByIds(ids: string[]) {
-    return this._prisma.dbCategoryTemplate.findMany({
+  public async findCategoryTemplatesByIds(ids: string[]) {
+    return this._db.dbCategoryTemplate.findMany({
       where: {
         id: {
           in: ids,
@@ -64,8 +64,8 @@ export class TemplatesReadRepository {
     });
   }
 
-  async findCategoriesByBarIdAndNames(barId: string, names: string[]) {
-    return this._prisma.dbCategory.findMany({
+  public async findCategoriesByBarIdAndNames(barId: string, names: string[]) {
+    return this._db.dbCategory.findMany({
       where: {
         barId,
         name: {
@@ -75,8 +75,8 @@ export class TemplatesReadRepository {
     });
   }
 
-  async findProductsByCategoryIds(categoryIds: string[]) {
-    return this._prisma.dbProduct.findMany({
+  public async findProductsByCategoryIds(categoryIds: string[]) {
+    return this._db.dbProduct.findMany({
       where: {
         categoryId: {
           in: categoryIds,

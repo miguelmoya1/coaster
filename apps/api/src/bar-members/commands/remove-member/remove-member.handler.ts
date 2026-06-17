@@ -30,7 +30,13 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
       }
     }
 
-    await this.writeRepo.removeMember(memberId);
+    const removed = await this.writeRepo.delete(barId, memberId);
+
+    if (!removed) {
+      this.#logger.warn(`Member not found or not belonging to bar`, { barId, memberId });
+      throw new BadRequestException(ErrorCodes.MEMBER_NOT_FOUND);
+    }
+
     this.#logger.debug(`Publishing MemberRemovedEvent...`);
     this._eventBus.publish(new MemberRemovedEvent(barId, memberId));
   }

@@ -2,18 +2,27 @@ import { UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { DbService, DbUserUncheckedCreateInput, DbUserUncheckedUpdateInput } from '../../db';
 
+type CreateUserDto = Omit<
+  DbUserUncheckedCreateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'memberships' | 'shifts' | 'shiftRequests' | 'shiftApprovals'
+>;
+type UpdateUserDto = Omit<
+  DbUserUncheckedUpdateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'memberships' | 'shifts' | 'shiftRequests' | 'shiftApprovals'
+>;
+
 @Injectable()
 export class UserWriteRepository {
   constructor(private readonly db: DbService) {}
 
-  public async update(id: UserId, updateUserDto: DbUserUncheckedUpdateInput) {
+  public async update(id: UserId, updateUserDto: UpdateUserDto) {
     return this.db.dbUser.update({
       where: { id },
       data: { ...updateUserDto },
     });
   }
 
-  public async upsert(email: string, data: DbUserUncheckedCreateInput) {
+  public async upsert(email: string, data: CreateUserDto) {
     return this.db.dbUser.upsert({
       where: { email },
       update: {

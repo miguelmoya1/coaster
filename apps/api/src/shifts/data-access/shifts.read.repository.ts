@@ -1,4 +1,4 @@
-import type { BarId, UserId } from '@coaster/common';
+import type { BarId, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { DbService } from '../../db';
 
@@ -6,7 +6,7 @@ import { DbService } from '../../db';
 export class ShiftsReadRepository {
   constructor(private readonly db: DbService) {}
 
-  async isUserMemberOfBar(userId: UserId, barId: BarId) {
+  public async isUserMemberOfBar(userId: UserId, barId: BarId) {
     const member = await this.db.dbBarMember.findUnique({
       where: {
         userId_barId: { userId, barId },
@@ -16,7 +16,7 @@ export class ShiftsReadRepository {
     return !!member && member.active;
   }
 
-  async findByBarId(barId: BarId, startDate?: Date, endDate?: Date) {
+  public async findByBarId(barId: BarId, startDate?: Date, endDate?: Date) {
     return this.db.dbShift.findMany({
       where: {
         barId,
@@ -29,7 +29,7 @@ export class ShiftsReadRepository {
     });
   }
 
-  async findById(shiftId: string) {
+  public async findById(shiftId: ShiftId) {
     return this.db.dbShift.findUnique({
       where: { id: shiftId },
     });

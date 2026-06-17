@@ -1,16 +1,16 @@
 import type { BarId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';
+import { DbOrderStatus, DbService } from '../../db';
 
 @Injectable()
 export class StatsReadRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async findClosedOrdersForStats(barId: BarId, startOfPrevYear: Date) {
-    return this._prisma.dbOrder.findMany({
+  public async findClosedOrdersForStats(barId: BarId, startOfPrevYear: Date) {
+    return this._db.dbOrder.findMany({
       where: {
         barId,
-        status: 'CLOSED',
+        status: DbOrderStatus.CLOSED,
         createdAt: { gte: startOfPrevYear },
       },
       select: {

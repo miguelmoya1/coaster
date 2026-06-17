@@ -4,17 +4,17 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class TablesReadRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async findByBarId(barId: BarId) {
-    return this._prisma.dbTable.findMany({
+  public async findByBarId(barId: BarId) {
+    return this._db.dbTable.findMany({
       where: { barId },
       orderBy: { name: 'asc' },
     });
   }
 
-  async findById(tableId: TableId) {
-    return this._prisma.dbTable.findUnique({
+  public async findById(tableId: TableId) {
+    return this._db.dbTable.findUnique({
       where: { id: tableId },
     });
   }

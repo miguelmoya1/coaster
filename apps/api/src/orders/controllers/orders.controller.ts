@@ -1,26 +1,25 @@
-import type { BarId, Order, OrderId, OrderItemId } from '@coaster/common';
-import { BarPermission } from '../../core';
+import type { BarId, Order, OrderId, OrderItemId, OrderStatus } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Permissions, PermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { BarPermission, Permissions, PermissionsGuard } from '../../core';
 import {
-  CreateOrderCommand,
   AddOrderItemsCommand,
   BulkUpdateOrderCommand,
-  CheckoutOrderCommand,
   CancelOrderCommand,
-  MoveOrderTableCommand,
-  MergeOrdersCommand,
-  RemoveOrderItemCommand,
+  CheckoutOrderCommand,
+  CreateOrderCommand,
   DeleteOrderCommand,
+  MergeOrdersCommand,
+  MoveOrderTableCommand,
+  RemoveOrderItemCommand,
 } from '../commands';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
 import { BulkUpdateDto } from '../dto/bulk-update.dto';
+import { CheckoutOrderDto } from '../dto/checkout-order.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
-import { CheckoutOrderDto } from '../dto/checkout-order.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
@@ -34,7 +33,7 @@ export class OrdersController {
 
   @Get()
   @Permissions(BarPermission.VIEW_ORDERS)
-  async getOrders(@Param('barId') barId: BarId, @Query('status') status?: string, @Query('date') date?: string) {
+  async getOrders(@Param('barId') barId: BarId, @Query('status') status?: OrderStatus, @Query('date') date?: string) {
     if (date) {
       const orders = await this._queryBus.execute<GetOrdersByDateQuery, Order[]>(new GetOrdersByDateQuery(barId, date));
       return orders.map((o) => OrdersMapper.toDto(o));

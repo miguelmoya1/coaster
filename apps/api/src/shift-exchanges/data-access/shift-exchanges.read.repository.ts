@@ -5,21 +5,21 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class ShiftExchangesReadRepository {
-  constructor(private readonly db: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async getShiftById(shiftId: ShiftId) {
-    return this.db.dbShift.findUnique({ where: { id: shiftId } });
+  public async getShiftById(shiftId: ShiftId) {
+    return this._db.dbShift.findUnique({ where: { id: shiftId } });
   }
 
-  async getExchangeById(exchangeId: ShiftExchangeId) {
-    return this.db.dbShiftExchange.findUnique({
+  public async getExchangeById(exchangeId: ShiftExchangeId) {
+    return this._db.dbShiftExchange.findUnique({
       where: { id: exchangeId },
       include: { shift: true },
     });
   }
 
-  async hasPendingExchangeForShift(shiftId: ShiftId) {
-    const count = await this.db.dbShiftExchange.count({
+  public async hasPendingExchangeForShift(shiftId: ShiftId) {
+    const count = await this._db.dbShiftExchange.count({
       where: {
         shiftId,
         status: ShiftExchangeStatus.PENDING,
@@ -28,11 +28,11 @@ export class ShiftExchangesReadRepository {
     return count > 0;
   }
 
-  async findPendingByBarId(barId: BarId) {
+  public async findPendingByBarId(barId: BarId) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.db.dbShiftExchange.findMany({
+    return this._db.dbShiftExchange.findMany({
       where: {
         status: ShiftExchangeStatus.PENDING,
         shift: {

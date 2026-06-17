@@ -1,13 +1,18 @@
-import type { BarId, UserId } from '@coaster/common';
+import type { BarId, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService, DbShiftCreateInput } from '../../db';
+import { DbService, DbShiftUncheckedCreateInput } from '../../db';
+
+type CreateShiftDto = Omit<
+  DbShiftUncheckedCreateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'barId' | 'userId' | 'exchange'
+>;
 
 @Injectable()
 export class ShiftsWriteRepository {
-  constructor(private readonly db: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async create(barId: BarId, userId: UserId, createShiftDto: Omit<DbShiftCreateInput, 'bar' | 'user'>) {
-    return this.db.dbShift.create({
+  public async create(barId: BarId, userId: UserId, createShiftDto: CreateShiftDto) {
+    return this._db.dbShift.create({
       data: {
         ...createShiftDto,
         bar: { connect: { id: barId } },
@@ -19,8 +24,8 @@ export class ShiftsWriteRepository {
     });
   }
 
-  async delete(shiftId: string) {
-    return this.db.dbShift.delete({
+  public async delete(shiftId: ShiftId) {
+    return this._db.dbShift.delete({
       where: { id: shiftId },
     });
   }

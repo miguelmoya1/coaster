@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import type { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
@@ -36,8 +37,10 @@ export class Dashboard {
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #statsStore = inject(StatsStore);
+  readonly #http = inject(HttpClient);
 
   public readonly stats = this.#statsStore.stats;
+  public isPrinting = false;
 
   constructor() {
     effect(() => {
@@ -215,6 +218,20 @@ export class Dashboard {
 
   readonly currentYear = computed(() => new Date().getFullYear());
   readonly currentMonthIndex = computed(() => new Date().getMonth());
+
+  testPrint() {
+    this.isPrinting = true;
+    this.#http.post('http://localhost:8080/print', { message: 'Prueba de impresión directa desde la Web' }).subscribe({
+      next: () => {
+        this.isPrinting = false;
+        alert('✅ Ticket enviado a la impresora local (http://localhost:8080)');
+      },
+      error: (err) => {
+        this.isPrinting = false;
+        alert('❌ Error de conexión. ¿Está el Printer Service arrancado localmente?\n' + err.message);
+      }
+    });
+  }
 }
 
 export default Dashboard;

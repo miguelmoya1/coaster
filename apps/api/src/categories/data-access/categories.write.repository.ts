@@ -1,29 +1,32 @@
 import type { BarId, CategoryId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbCategoryCreateInput, DbCategoryUpdateInput, DbService } from '../../db';
+import { DbCategoryUncheckedCreateInput, DbCategoryUncheckedUpdateInput, DbService } from '../../db';
+
+type CreateCategoryDto = Omit<DbCategoryUncheckedCreateInput, 'id' | 'barId' | 'products'>;
+type UpdateCategoryDto = Omit<DbCategoryUncheckedUpdateInput, 'id' | 'barId' | 'products'>;
 
 @Injectable()
 export class CategoriesWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async create(barId: BarId, createCategoryDto: Omit<DbCategoryCreateInput, 'bar'>) {
-    return this._prisma.dbCategory.create({
+  public async create(barId: BarId, createCategoryDto: CreateCategoryDto) {
+    return this._db.dbCategory.create({
       data: {
-        bar: { connect: { id: barId } },
+        barId,
         ...createCategoryDto,
       },
     });
   }
 
-  async update(barId: BarId, categoryId: CategoryId, dtos: DbCategoryUpdateInput) {
-    return this._prisma.dbCategory.update({
+  public async update(barId: BarId, categoryId: CategoryId, dtos: UpdateCategoryDto) {
+    return this._db.dbCategory.update({
       where: { id: categoryId, barId },
       data: dtos,
     });
   }
 
-  async delete(categoryId: string) {
-    return this._prisma.dbCategory.delete({
+  public async delete(categoryId: CategoryId) {
+    return this._db.dbCategory.delete({
       where: { id: categoryId },
     });
   }

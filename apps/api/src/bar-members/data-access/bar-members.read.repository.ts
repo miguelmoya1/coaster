@@ -6,7 +6,7 @@ import { DbService } from '../../db';
 export class BarMembersReadRepository {
   constructor(private readonly db: DbService) {}
 
-  async isMember(barId: BarId, email: string) {
+  public async isMember(barId: BarId, email: string) {
     return this.db.dbBarMember.findFirst({
       where: {
         barId,
@@ -15,11 +15,11 @@ export class BarMembersReadRepository {
     });
   }
 
-  async findBarById(barId: BarId) {
+  public async findBarById(barId: BarId) {
     return this.db.dbBar.findUnique({ where: { id: barId } });
   }
 
-  async getMembersByBar(barId: BarId) {
+  public async getMembersByBar(barId: BarId) {
     return this.db.dbBarMember.findMany({
       where: { barId, active: true },
       include: {
@@ -30,7 +30,7 @@ export class BarMembersReadRepository {
     });
   }
 
-  async getMemberByUserAndBar(userId: UserId, barId: BarId) {
+  public async getMemberByUserAndBar(userId: UserId, barId: BarId) {
     return this.db.dbBarMember.findUnique({
       where: {
         userId_barId: {

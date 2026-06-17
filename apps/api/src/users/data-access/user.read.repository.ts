@@ -4,13 +4,13 @@ import { DbService } from '../../db';
 
 @Injectable()
 export class UserReadRepository {
-  constructor(private readonly db: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
   public async findById(id: UserId) {
-    return this.db.dbUser.findUnique({ where: { id } });
+    return this._db.dbUser.findUnique({ where: { id } });
   }
 
   public async findByEmail(email: string) {
-    return this.db.dbUser.findUnique({ where: { email } });
+    return this._db.dbUser.findUnique({ where: { email } });
   }
 }

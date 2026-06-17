@@ -8,20 +8,20 @@ import type {
   TableId,
 } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';
+import { DbDeliveryStatus, DbOrderStatus, DbPaymentMethod, DbPaymentStatus, DbService, DbTableStatus } from '../../db';
 
 @Injectable()
 export class OrdersWriteRepository {
-  constructor(private readonly _prisma: DbService) {}
+  constructor(private readonly _db: DbService) {}
 
-  async deleteOrder(orderId: OrderId) {
-    return this._prisma.dbOrder.delete({
+  public async deleteOrder(orderId: OrderId) {
+    return this._db.dbOrder.delete({
       where: { id: orderId },
     });
   }
 
-  async removeItemAndRecalculate(orderId: OrderId, itemId: OrderItemId) {
-    return this._prisma.$transaction(async (tx) => {
+  public async removeItemAndRecalculate(orderId: OrderId, itemId: OrderItemId) {
+    return this._db.$transaction(async (tx) => {
       await tx.dbOrderItem.delete({ where: { id: itemId } });
 
       const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
@@ -38,13 +38,13 @@ export class OrdersWriteRepository {
     });
   }
 
-  async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: TableId | null) {
-    return this._prisma.$transaction(async (tx) => {
+  public async removeLastItemAndCancel(orderId: OrderId, itemId: OrderItemId, tableId: TableId | null) {
+    return this._db.$transaction(async (tx) => {
       await tx.dbOrderItem.delete({ where: { id: itemId } });
 
       const updated = await tx.dbOrder.update({
         where: { id: orderId },
-        data: { status: 'CANCELLED', totalAmount: 0 },
+        data: { status: DbOrderStatus.CANCELLED, totalAmount: 0 },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
@@ -54,7 +54,7 @@ export class OrdersWriteRepository {
       if (tableId) {
         await tx.dbTable.update({
           where: { id: tableId },
-          data: { status: 'FREE' },
+          data: { status: DbTableStatus.FREE },
         });
       }
 
@@ -62,20 +62,20 @@ export class OrdersWriteRepository {
     });
   }
 
-  async createOrder(
+  public async createOrder(
     barId: BarId,
     dto: CreateOrderDto,
     priceMap: Map<string, number>,
     totalAmount: number,
     resolvedTableName: string | null,
   ) {
-    return this._prisma.$transaction(async (tx) => {
+    return this._db.$transaction(async (tx) => {
       const created = await tx.dbOrder.create({
         data: {
           barId,
           tableId: dto.tableId ?? null,
           tableName: resolvedTableName,
-          status: 'OPEN',
+          status: DbOrderStatus.OPEN,
           totalAmount,
           items: {
             create: dto.items.map((item) => ({
@@ -94,7 +94,7 @@ export class OrdersWriteRepository {
       if (dto.tableId) {
         await tx.dbTable.update({
           where: { id: dto.tableId },
-          data: { status: 'OCCUPIED' },
+          data: { status: DbTableStatus.OCCUPIED },
         });
       }
 
@@ -102,14 +102,14 @@ export class OrdersWriteRepository {
     });
   }
 
-  async addItemsToOrder(
+  public async addItemsToOrder(
     orderId: OrderId,
     additionalAmount: number,
     dto: AddOrderItemsDto,
     priceMap: Map<string, number>,
     currentTotalAmount: number,
   ) {
-    return this._prisma.$transaction(async (tx) => {
+    return this._db.$transaction(async (tx) => {
       await tx.dbOrderItem.createMany({
         data: dto.items.map((item) => ({
           orderId,
@@ -130,31 +130,31 @@ export class OrdersWriteRepository {
     });
   }
 
-  async updateOrderItem(
+  public async updateOrderItem(
     itemId: OrderItemId,
     data: {
-      paymentStatus?: 'PENDING' | 'PARTIAL' | 'PAID';
-      deliveryStatus?: 'PENDING' | 'PARTIAL' | 'SERVED';
+      paymentStatus?: DbPaymentStatus;
+      deliveryStatus?: DbDeliveryStatus;
       paidQuantity?: number;
       servedQuantity?: number;
     },
   ) {
-    return this._prisma.dbOrderItem.update({
+    return this._db.dbOrderItem.update({
       where: { id: itemId },
       data,
     });
   }
 
-  async bulkUpdate(
+  public async bulkUpdate(
     orderId: OrderId,
     updates: {
       itemId: string;
       paidQuantity?: number;
       servedQuantity?: number;
-      paymentMethod?: 'CASH' | 'CARD' | 'MIXED' | 'NONE';
+      paymentMethod?: DbPaymentMethod;
     }[],
   ) {
-    return this._prisma.$transaction(async (tx) => {
+    return this._db.$transaction(async (tx) => {
       for (const update of updates) {
         const item = await tx.dbOrderItem.findUnique({ where: { id: update.itemId } });
         if (!item || item.orderId !== orderId) {
@@ -167,7 +167,11 @@ export class OrdersWriteRepository {
           const newPaidQuantity = update.paidQuantity;
           dataToUpdate.paidQuantity = newPaidQuantity;
           dataToUpdate.paymentStatus =
-            newPaidQuantity === item.quantity ? 'PAID' : newPaidQuantity === 0 ? 'PENDING' : 'PARTIAL';
+            newPaidQuantity === item.quantity
+              ? DbPaymentStatus.PAID
+              : newPaidQuantity === 0
+                ? DbPaymentStatus.PENDING
+                : DbPaymentStatus.PARTIAL;
 
           const diff = newPaidQuantity - item.paidQuantity;
           let newCard = item.paidQuantityCard;
@@ -199,13 +203,13 @@ export class OrdersWriteRepository {
           dataToUpdate.paidQuantityCash = newCash;
 
           if (newCard > 0 && newCash > 0) {
-            dataToUpdate.paymentMethod = 'MIXED';
+            dataToUpdate.paymentMethod = DbPaymentMethod.MIXED;
           } else if (newCard > 0) {
-            dataToUpdate.paymentMethod = 'CARD';
+            dataToUpdate.paymentMethod = DbPaymentMethod.CARD;
           } else if (newCash > 0) {
-            dataToUpdate.paymentMethod = 'CASH';
+            dataToUpdate.paymentMethod = DbPaymentMethod.CASH;
           } else {
-            dataToUpdate.paymentMethod = 'NONE';
+            dataToUpdate.paymentMethod = DbPaymentMethod.NONE;
           }
         }
 
@@ -213,7 +217,11 @@ export class OrdersWriteRepository {
           const newServedQuantity = update.servedQuantity;
           dataToUpdate.servedQuantity = newServedQuantity;
           dataToUpdate.deliveryStatus =
-            newServedQuantity === item.quantity ? 'SERVED' : newServedQuantity === 0 ? 'PENDING' : 'PARTIAL';
+            newServedQuantity === item.quantity
+              ? DbDeliveryStatus.SERVED
+              : newServedQuantity === 0
+                ? DbDeliveryStatus.PENDING
+                : DbDeliveryStatus.PARTIAL;
         }
 
         if (Object.keys(dataToUpdate).length > 0) {
@@ -232,13 +240,13 @@ export class OrdersWriteRepository {
         amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
       }
 
-      let orderPaymentMethod: 'CASH' | 'CARD' | 'MIXED' | 'NONE' = 'NONE';
+      let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
       if (amountPaidCash > 0 && amountPaidCard > 0) {
-        orderPaymentMethod = 'MIXED';
+        orderPaymentMethod = DbPaymentMethod.MIXED;
       } else if (amountPaidCard > 0) {
-        orderPaymentMethod = 'CARD';
+        orderPaymentMethod = DbPaymentMethod.CARD;
       } else if (amountPaidCash > 0) {
-        orderPaymentMethod = 'CASH';
+        orderPaymentMethod = DbPaymentMethod.CASH;
       }
 
       return tx.dbOrder.update({
@@ -256,11 +264,11 @@ export class OrdersWriteRepository {
     });
   }
 
-  async cancelOrder(orderId: OrderId, tableId: string | null) {
-    return this._prisma.$transaction(async (tx) => {
+  public async cancelOrder(orderId: OrderId, tableId: string | null) {
+    return this._db.$transaction(async (tx) => {
       const cancelled = await tx.dbOrder.update({
         where: { id: orderId },
-        data: { status: 'CANCELLED' },
+        data: { status: DbOrderStatus.CANCELLED },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,
@@ -270,7 +278,7 @@ export class OrdersWriteRepository {
       if (tableId) {
         await tx.dbTable.update({
           where: { id: tableId },
-          data: { status: 'FREE' },
+          data: { status: DbTableStatus.FREE },
         });
       }
 
@@ -278,18 +286,18 @@ export class OrdersWriteRepository {
     });
   }
 
-  async moveTable(orderId: OrderId, oldTableId: string | null, newTableId: string, newTableName: string) {
-    return this._prisma.$transaction(async (tx) => {
+  public async moveTable(orderId: OrderId, oldTableId: string | null, newTableId: string, newTableName: string) {
+    return this._db.$transaction(async (tx) => {
       if (oldTableId) {
         await tx.dbTable.update({
           where: { id: oldTableId },
-          data: { status: 'FREE' },
+          data: { status: DbTableStatus.FREE },
         });
       }
 
       await tx.dbTable.update({
         where: { id: newTableId },
-        data: { status: 'OCCUPIED' },
+        data: { status: DbTableStatus.OCCUPIED },
       });
 
       return tx.dbOrder.update({
@@ -310,7 +318,7 @@ export class OrdersWriteRepository {
     primaryOrderTableId: string | null,
     primaryOrderTableName: string | null,
   ) {
-    return this._prisma.$transaction(async (tx) => {
+    return this._db.$transaction(async (tx) => {
       for (const source of sourceOrdersData) {
         await tx.dbOrderItem.updateMany({
           where: { orderId: source.id },
@@ -319,13 +327,13 @@ export class OrdersWriteRepository {
 
         await tx.dbOrder.update({
           where: { id: source.id },
-          data: { status: 'CANCELLED' },
+          data: { status: DbOrderStatus.CANCELLED },
         });
 
         if (source.tableId) {
           await tx.dbTable.update({
             where: { id: source.tableId },
-            data: { status: 'FREE' },
+            data: { status: DbTableStatus.FREE },
           });
         }
       }
@@ -334,13 +342,13 @@ export class OrdersWriteRepository {
         if (primaryOrderTableId && primaryOrderTableId !== targetTableId) {
           await tx.dbTable.update({
             where: { id: primaryOrderTableId },
-            data: { status: 'FREE' },
+            data: { status: DbTableStatus.FREE },
           });
         }
 
         await tx.dbTable.update({
           where: { id: targetTableId },
-          data: { status: 'OCCUPIED' },
+          data: { status: DbTableStatus.OCCUPIED },
         });
       }
 
@@ -369,11 +377,11 @@ export class OrdersWriteRepository {
   }
 
   async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: PaymentMethod) {
-    return this._prisma.$transaction(async (tx) => {
+    return this._db.$transaction(async (tx) => {
       const unpaidItems = await tx.dbOrderItem.findMany({
         where: {
           orderId,
-          NOT: { paymentStatus: 'PAID' },
+          NOT: { paymentStatus: DbPaymentStatus.PAID },
         },
       });
 
@@ -381,25 +389,25 @@ export class OrdersWriteRepository {
         const unpaid = item.quantity - item.paidQuantity;
         let newCard = item.paidQuantityCard;
         let newCash = item.paidQuantityCash;
-        if (paymentMethod === 'CARD') {
+        if (paymentMethod === DbPaymentMethod.CARD) {
           newCard += unpaid;
         } else {
           newCash += unpaid;
         }
 
-        let newItemPaymentMethod: PaymentMethod = 'NONE';
+        let newItemPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
         if (newCard > 0 && newCash > 0) {
-          newItemPaymentMethod = 'MIXED';
+          newItemPaymentMethod = DbPaymentMethod.MIXED;
         } else if (newCard > 0) {
-          newItemPaymentMethod = 'CARD';
+          newItemPaymentMethod = DbPaymentMethod.CARD;
         } else if (newCash > 0) {
-          newItemPaymentMethod = 'CASH';
+          newItemPaymentMethod = DbPaymentMethod.CASH;
         }
 
         await tx.dbOrderItem.update({
           where: { id: item.id },
           data: {
-            paymentStatus: 'PAID',
+            paymentStatus: DbPaymentStatus.PAID,
             paidQuantity: item.quantity,
             paidQuantityCard: newCard,
             paidQuantityCash: newCash,
@@ -418,19 +426,19 @@ export class OrdersWriteRepository {
         amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
       }
 
-      let orderPaymentMethod: PaymentMethod = 'NONE';
+      let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
       if (amountPaidCash > 0 && amountPaidCard > 0) {
-        orderPaymentMethod = 'MIXED';
+        orderPaymentMethod = DbPaymentMethod.MIXED;
       } else if (amountPaidCard > 0) {
-        orderPaymentMethod = 'CARD';
+        orderPaymentMethod = DbPaymentMethod.CARD;
       } else if (amountPaidCash > 0) {
-        orderPaymentMethod = 'CASH';
+        orderPaymentMethod = DbPaymentMethod.CASH;
       }
 
       const closed = await tx.dbOrder.update({
         where: { id: orderId },
         data: {
-          status: 'CLOSED',
+          status: DbOrderStatus.CLOSED,
           totalAmount,
           paymentMethod: orderPaymentMethod,
           amountPaidCash,
@@ -445,7 +453,7 @@ export class OrdersWriteRepository {
       if (tableId) {
         await tx.dbTable.update({
           where: { id: tableId },
-          data: { status: 'FREE' },
+          data: { status: DbTableStatus.FREE },
         });
       }
 
