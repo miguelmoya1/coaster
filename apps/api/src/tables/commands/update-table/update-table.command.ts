@@ -1,4 +1,5 @@
-import type { BarId, TableId, UpdateTableDto } from '@coaster/common';
+import type { BarId, TableId } from '@coaster/common';
+import { UpdateTableDto } from '../../dto/update-table.dto';
 
 export class UpdateTableCommand {
   constructor(

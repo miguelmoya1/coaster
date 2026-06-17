@@ -1,4 +1,5 @@
-import type { BarId, CategoryId, UpdateCategoryDto } from '@coaster/common';
+import type { BarId, CategoryId } from '@coaster/common';
+import { UpdateCategoryDto } from '../../dto/update-category.dto';
 
 export class UpdateCategoryCommand {
   constructor(

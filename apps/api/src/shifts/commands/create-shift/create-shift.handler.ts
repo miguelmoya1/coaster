@@ -26,16 +26,13 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
 
     const { startTime, endTime, userId, ...rest } = command.dto;
 
-    const shiftStartTime = new Date(startTime);
-    const shiftEndTime = new Date(endTime);
-
-    if (isNaN(shiftStartTime.getTime()) || isNaN(shiftEndTime.getTime())) {
+    if (!(startTime instanceof Temporal.Instant) || !(endTime instanceof Temporal.Instant)) {
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
     const created = await this.writeRepo.create(command.barId, userId, {
-      startTime: shiftStartTime,
-      endTime: shiftEndTime,
+      startTime: new Date(startTime.epochMilliseconds),
+      endTime: new Date(endTime.epochMilliseconds),
       ...rest,
     });
     const mapped = ShiftsMapper.toDomain(created);

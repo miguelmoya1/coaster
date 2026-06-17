@@ -1,4 +1,5 @@
-import type { CreateBarDto, User } from '@coaster/common';
+import type { User } from '@coaster/common';
+import { CreateBarDto } from '../../dto/create-bar.dto';
 
 export class CreateBarCommand {
   constructor(

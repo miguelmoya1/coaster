@@ -1,4 +1,5 @@
-import type { BarId, CreateProductDto } from '@coaster/common';
+import type { BarId } from '@coaster/common';
+import { CreateProductDto } from '../../dto/create-product.dto';
 
 export class CreateProductCommand {
   constructor(

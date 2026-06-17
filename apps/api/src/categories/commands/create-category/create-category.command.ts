@@ -1,4 +1,5 @@
-import type { BarId, CreateCategoryDto } from '@coaster/common';
+import type { BarId } from '@coaster/common';
+import { CreateCategoryDto } from '../../dto/create-category.dto';
 
 export class CreateCategoryCommand {
   constructor(

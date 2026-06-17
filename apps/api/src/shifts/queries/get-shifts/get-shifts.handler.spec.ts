@@ -42,8 +42,8 @@ describe('GetShiftsHandler', () => {
     expect(result).toEqual([
       {
         id: 'shift-1',
-        startTime: '2026-03-20T10:00:00.000Z',
-        endTime: '2026-03-20T10:00:00.000Z',
+        startTime: '2026-03-20T10:00:00Z',
+        endTime: '2026-03-20T10:00:00Z',
         userId: 'user-id',
         userName: '',
         userImage: undefined,

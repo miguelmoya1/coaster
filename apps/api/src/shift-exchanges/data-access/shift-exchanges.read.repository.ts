@@ -29,8 +29,8 @@ export class ShiftExchangesReadRepository {
   }
 
   public async findPendingByBarId(barId: BarId) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const startInstant = Temporal.Now.zonedDateTimeISO('UTC').startOfDay().toInstant();
+    const today = new Date(startInstant.epochMilliseconds);
 
     return this._db.dbShiftExchange.findMany({
       where: {

@@ -21,10 +21,17 @@ export class OrdersReadRepository {
   }
 
   public async findByBarIdAndDate(barId: BarId, date: string) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+    const plainDate = Temporal.PlainDate.from(date);
+    const startInstant = plainDate.toZonedDateTime({ timeZone: 'UTC' }).startOfDay().toInstant();
+    const endInstant = plainDate
+      .add({ days: 1 })
+      .toZonedDateTime({ timeZone: 'UTC' })
+      .startOfDay()
+      .toInstant()
+      .subtract({ nanoseconds: 1 });
+
+    const start = new Date(startInstant.epochMilliseconds);
+    const end = new Date(endInstant.epochMilliseconds);
 
     return this._db.dbOrder.findMany({
       where: {

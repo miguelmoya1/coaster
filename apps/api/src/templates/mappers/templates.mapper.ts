@@ -7,8 +7,8 @@ export class TemplatesMapper {
       id: categoryTemplate.id,
       name: categoryTemplate.name,
       icon: categoryTemplate.icon || undefined,
-      createdAt: categoryTemplate.createdAt,
-      updatedAt: categoryTemplate.updatedAt,
+      createdAt: Temporal.Instant.fromEpochMilliseconds(categoryTemplate.createdAt.getTime()).toString(),
+      updatedAt: Temporal.Instant.fromEpochMilliseconds(categoryTemplate.updatedAt.getTime()).toString(),
     };
   }
 
@@ -18,8 +18,8 @@ export class TemplatesMapper {
       name: productTemplate.name,
       price: productTemplate.price,
       categoryId: productTemplate.categoryId,
-      createdAt: productTemplate.createdAt,
-      updatedAt: productTemplate.updatedAt,
+      createdAt: Temporal.Instant.fromEpochMilliseconds(productTemplate.createdAt.getTime()).toString(),
+      updatedAt: Temporal.Instant.fromEpochMilliseconds(productTemplate.updatedAt.getTime()).toString(),
     };
   }
 }

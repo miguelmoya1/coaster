@@ -33,8 +33,8 @@ describe('CreateShiftHandler', () => {
   });
 
   const createDto = {
-    startTime: '2026-03-20T10:00:00.000Z',
-    endTime: '2026-03-20T10:00:00.000Z',
+    startTime: Temporal.Instant.from('2026-03-20T10:00:00.000Z'),
+    endTime: Temporal.Instant.from('2026-03-20T10:00:00.000Z'),
     userId: asUserId('user-id'),
     notes: 'Test notes',
   };
@@ -66,8 +66,8 @@ describe('CreateShiftHandler', () => {
     expect(eventBus.publish).toHaveBeenCalledWith(
       new ShiftCreatedEvent(asBarId('bar-1'), {
         id: asShiftId('shift-1'),
-        startTime: '2026-03-20T10:00:00.000Z',
-        endTime: '2026-03-20T10:00:00.000Z',
+        startTime: '2026-03-20T10:00:00Z',
+        endTime: '2026-03-20T10:00:00Z',
         userId: asUserId('user-id'),
         userName: 'User Name',
         userImage: 'https://photo.url/user.jpg',

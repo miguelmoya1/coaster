@@ -1,4 +1,5 @@
-import type { BarId, ProductId, UpdateProductDto } from '@coaster/common';
+import type { BarId, ProductId } from '@coaster/common';
+import { UpdateProductDto } from '../../dto/update-product.dto';
 
 export class UpdateProductCommand {
   constructor(

@@ -8,8 +8,8 @@ export const ShiftsMapper = {
   toDomain(dbShift: ShiftWithUser): IShift {
     return {
       id: asShiftId(dbShift.id),
-      startTime: dbShift.startTime.toISOString(),
-      endTime: dbShift.endTime.toISOString(),
+      startTime: Temporal.Instant.fromEpochMilliseconds(dbShift.startTime.getTime()).toString(),
+      endTime: Temporal.Instant.fromEpochMilliseconds(dbShift.endTime.getTime()).toString(),
       userId: asUserId(dbShift.userId),
       userName: dbShift.user?.name ?? '',
       userImage: dbShift.user?.photoUrl ?? undefined,

@@ -1,4 +1,5 @@
-import type { BarId, MergeOrdersDto } from '@coaster/common';
+import type { BarId } from '@coaster/common';
+import { MergeOrdersDto } from '../../dto/merge-orders.dto';
 
 export class MergeOrdersCommand {
   constructor(

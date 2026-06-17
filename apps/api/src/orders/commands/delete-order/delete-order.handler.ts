@@ -26,10 +26,12 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const orderDate = new Date(order.createdAt);
-    if (orderDate < today) {
+    const today = Temporal.Now.plainDateISO();
+    const orderDate = Temporal.Instant.fromEpochMilliseconds(order.createdAt.getTime())
+      .toZonedDateTimeISO('UTC')
+      .toPlainDate();
+
+    if (Temporal.PlainDate.compare(orderDate, today) < 0) {
       throw new BadRequestException('CANNOT_DELETE_PAST_ORDER');
     }
 

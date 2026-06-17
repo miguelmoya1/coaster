@@ -28,8 +28,8 @@ describe('GetPendingExchangesHandler', () => {
         targetId: null,
         status: ShiftExchangeStatus.PENDING,
         shift: {
-          startTime: new Date('2026-04-17T09:00:00.000Z'),
-          endTime: new Date('2026-04-17T17:00:00.000Z'),
+          startTime: new Date('2026-04-17T09:00:00Z'),
+          endTime: new Date('2026-04-17T17:00:00Z'),
           createdAt: new Date(),
           updatedAt: new Date(),
           notes: '',
@@ -52,8 +52,8 @@ describe('GetPendingExchangesHandler', () => {
         targetId: undefined,
         status: ShiftExchangeStatus.PENDING,
         requesterName: 'John',
-        shiftStartTime: '2026-04-17T09:00:00.000Z',
-        shiftEndTime: '2026-04-17T17:00:00.000Z',
+        shiftStartTime: '2026-04-17T09:00:00Z',
+        shiftEndTime: '2026-04-17T17:00:00Z',
       },
     ]);
   });

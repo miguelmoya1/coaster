@@ -12,7 +12,7 @@ describe('RemoveMemberHandler', () => {
   let handler: RemoveMemberHandler;
   const repository = {
     getMembersByBar: vi.fn(),
-    removeMember: vi.fn(),
+    delete: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -35,11 +35,11 @@ describe('RemoveMemberHandler', () => {
     const barId = asBarId('bar-1');
     const memberId = asBarMemberId('mem-1');
     repository.getMembersByBar.mockResolvedValue([{ id: 'mem-1', role: 'EMPLOYEE' }]);
-    repository.removeMember.mockResolvedValue(undefined);
+    repository.delete.mockResolvedValue(true);
 
     await handler.execute(new RemoveMemberCommand(barId, memberId));
 
-    expect(repository.removeMember).toHaveBeenCalledWith(memberId);
+    expect(repository.delete).toHaveBeenCalledWith(barId, memberId);
     expect(eventBus.publish).toHaveBeenCalledWith(new MemberRemovedEvent(barId, memberId));
   });
 });

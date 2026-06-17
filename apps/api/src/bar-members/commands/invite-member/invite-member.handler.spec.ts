@@ -11,7 +11,7 @@ import { InviteMemberHandler } from './invite-member.handler';
 describe('InviteMemberHandler', () => {
   let handler: InviteMemberHandler;
   const repository = {
-    inviteMember: vi.fn(),
+    invite: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -31,7 +31,7 @@ describe('InviteMemberHandler', () => {
   });
 
   it('should invite and publish UserInvitedEvent', async () => {
-    repository.inviteMember.mockResolvedValue({
+    repository.invite.mockResolvedValue({
       id: 'new-member',
       user: {
         name: 'User',
@@ -44,12 +44,12 @@ describe('InviteMemberHandler', () => {
 
     await handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF'));
 
-    expect(repository.inviteMember).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
+    expect(repository.invite).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
     expect(eventBus.publish).toHaveBeenCalledWith(new UserInvitedEvent('User', 'new@test.com', 'Test Bar'));
   });
 
   it('should fail if the repository fails', async () => {
-    repository.inviteMember.mockRejectedValue(new NotFoundException());
+    repository.invite.mockRejectedValue(new NotFoundException());
 
     await expect(
       handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF')),
