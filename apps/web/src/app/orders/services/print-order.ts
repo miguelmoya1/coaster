@@ -9,10 +9,10 @@ export class PrintOrder {
   public async execute(order: Order): Promise<void> {
     const date = new Date().toLocaleString();
     let text = `--------------------------------\n`;
-    text += `         TICKET DE MESA         \n`;
+    text += `          TABLE TICKET          \n`;
     text += `--------------------------------\n`;
-    text += `Mesa: ${order.tableId ? order.tableId : 'Barra'}\n`;
-    text += `Fecha: ${date}\n`;
+    text += `Table: ${order.tableId ? order.tableId : 'Bar'}\n`;
+    text += `Date: ${date}\n`;
     text += `--------------------------------\n`;
     
     order.items.forEach((item: any) => {

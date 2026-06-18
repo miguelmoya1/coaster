@@ -331,8 +331,12 @@ export class OrdersStore {
   public async printOrder(order: Order): Promise<void> {
     try {
       await this.#printOrder.execute(order);
-    } catch (error) {
-      this.#toastService.error('ERR_PRINT_ORDER');
+    } catch (error: any) {
+      if (error?.error?.message) {
+        this.#toastService.error(error.error.message);
+      } else {
+        this.#toastService.error('ERR_PRINT_ORDER');
+      }
       throw error;
     }
   }

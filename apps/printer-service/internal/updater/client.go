@@ -12,7 +12,7 @@ import (
 	"github.com/minio/selfupdate"
 )
 
-const CurrentVersion = "1.0.0"
+const CurrentVersion = "1.0.3"
 
 type VersionResponse struct {
 	Version string `json:"version"`
@@ -36,9 +36,13 @@ func (u *Updater) AutoUpdate() error {
 	// 1. Consultar al backend si hay nueva versión
 	resp, err := client.Get(checkURL)
 	if err != nil {
-		return fmt.Errorf("error al consultar actualización: %w", err)
+		return fmt.Errorf("failed to check for updates: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to check for updates: status code %d", resp.StatusCode)
+	}
 
 	var target VersionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&target); err != nil {
@@ -53,27 +57,34 @@ func (u *Updater) AutoUpdate() error {
 	// 2. Descargar el nuevo binario (el backend debe proveer el .exe o binario correcto según el OS)
 	binaryResp, err := client.Get(target.URL)
 	if err != nil {
-		return fmt.Errorf("error al descargar nuevo binario: %w", err)
+		return fmt.Errorf("failed to download new binary: %w", err)
 	}
 	defer binaryResp.Body.Close()
+
+	execPath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("could not get executable path: %w", err)
+	}
 
 	// 3. Aplicar la actualización de forma segura (intercambio de archivos en caliente)
 	err = selfupdate.Apply(binaryResp.Body, selfupdate.Options{})
 	if err != nil {
-		return fmt.Errorf("error al aplicar parche de actualización: %w", err)
+		return fmt.Errorf("failed to apply update patch: %w", err)
 	}
 
 	// 4. Reiniciar el proceso para ejecutar la nueva versión
-	go u.restartApplication()
+	if err := u.restartApplication(execPath); err != nil {
+		return fmt.Errorf("failed to restart application: %w", err)
+	}
 
 	os.Exit(0)
 	return nil
 }
 
-func (u *Updater) restartApplication() {
-	self, _ := os.Executable()
-	cmd := exec.Command(self, os.Args[1:]...)
+func (u *Updater) restartApplication(execPath string) error {
+	cmd := exec.Command(execPath, os.Args[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Start()
+	cmd.Stdin = os.Stdin
+	return cmd.Start()
 }

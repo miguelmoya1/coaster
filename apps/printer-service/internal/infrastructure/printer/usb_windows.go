@@ -5,13 +5,15 @@ package printer
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
 
 type USBPrinter struct {
-	PrinterName string // El nombre de la impresora en Windows, ej: "Seypos G80"
+	PrinterName string
 	handle      windows.Handle
 }
 
@@ -20,7 +22,6 @@ func NewUSBPrinter(identifier string) *USBPrinter {
 }
 
 func (u *USBPrinter) Connect(ctx context.Context) error {
-	// Cargamos la DLL del spooler de Windows de forma nativa
 	modwinspool := windows.NewLazyDLL("winspool.drv")
 	procOpenPrinter := modwinspool.NewProc("OpenPrinterW")
 
@@ -29,14 +30,13 @@ func (u *USBPrinter) Connect(ctx context.Context) error {
 		return err
 	}
 
-	// Abrimos la conexión con la impresora de Windows
 	r1, _, err := procOpenPrinter.Call(
 		uintptr(unsafe.Pointer(namePtr)),
 		uintptr(unsafe.Pointer(&u.handle)),
 		0,
 	)
 	if r1 == 0 {
-		return fmt.Errorf("no se pudo abrir la impresora en Windows: %w", err)
+		return fmt.Errorf("could not open printer in Windows: %w", err)
 	}
 	return nil
 }
@@ -49,7 +49,6 @@ func (u *USBPrinter) Write(b []byte) (int, error) {
 	procEndPagePrinter := modwinspool.NewProc("EndPagePrinter")
 	procEndDocPrinter := modwinspool.NewProc("EndDocPrinter")
 
-	// Estructura necesaria para Windows Spooler (DOC_INFO_1)
 	type DOC_INFO_1 struct {
 		DocName    *uint16
 		OutputFile *uint16
@@ -57,7 +56,7 @@ func (u *USBPrinter) Write(b []byte) (int, error) {
 	}
 
 	docName, _ := windows.UTF16PtrFromString("RAW_TICKET")
-	dataType, _ := windows.UTF16PtrFromString("RAW") // Modo RAW envía los bytes ESC/POS directos
+	dataType, _ := windows.UTF16PtrFromString("RAW")
 	di := DOC_INFO_1{DocName: docName, OutputFile: nil, Datatype: dataType}
 
 	procStartDocPrinter.Call(uintptr(u.handle), 1, uintptr(unsafe.Pointer(&di)))
@@ -84,4 +83,33 @@ func (u *USBPrinter) Close() error {
 		procClosePrinter.Call(uintptr(u.handle))
 	}
 	return nil
+}
+
+func AutoDetectOS() (*USBPrinter, error) {
+	for i := range 10 {
+		comPort := fmt.Sprintf("COM%d", i)
+		p := NewUSBPrinter(comPort)
+		if err := p.Connect(context.Background()); err == nil {
+			p.Close()
+			return p, nil
+		}
+	}
+
+	cmd := exec.Command("powershell", "-Command", "Get-WmiObject -Class Win32_Printer | Select-Object -ExpandProperty Name")
+	out, err := cmd.Output()
+	if err == nil {
+		for line := range strings.SplitSeq(string(out), "\n") {
+			name := strings.TrimSpace(line)
+			if name == "" {
+				continue
+			}
+			p := NewUSBPrinter(name)
+			if err := p.Connect(context.Background()); err == nil {
+				p.Close()
+				return p, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("no Windows printer or active COM port found")
 }

@@ -27,17 +27,15 @@ func main() {
 		*apiURL = "http://localhost:3000/api/v1"
 	}
 
-	log.Printf("Iniciando Servicio de Impresión v%s en %s/%s\n", updater.CurrentVersion, runtime.GOOS, runtime.GOARCH)
+	log.Printf("Starting Print Service v%s on %s/%s\n", updater.CurrentVersion, runtime.GOOS, runtime.GOARCH)
 
-	// 1. Ejecutar el módulo de auto-actualización
 	checkURL := *apiURL + "/printer/check-version"
 	up := updater.NewUpdater(checkURL)
-	log.Printf("Buscando actualizaciones en %s...\n", checkURL)
+	log.Printf("Checking for updates at %s...\n", checkURL)
 	if err := up.AutoUpdate(); err != nil {
-		log.Printf("No se pudo actualizar (ejecutando versión actual): %v\n", err)
+		log.Printf("Could not update (running current version): %v\n", err)
 	}
 
-	// 2. Inicializar la impresora según la configuración
 	var printerDevice domain.Printer
 
 	if *printerType == "network" {
@@ -47,26 +45,26 @@ func main() {
 		}
 		printerDevice = printer.NewNetworkPrinter(path)
 	} else {
-		path := *printerPath
-		if path == "" {
-			if runtime.GOOS == "windows" {
-				path = "Seypos G80"
+		if *printerPath != "" {
+			printerDevice = printer.NewUSBPrinter(*printerPath)
+		} else {
+			printerDevice = printer.NewAutoPrinter()
+			
+			log.Println("Searching for available printers (USB/Bluetooth/Serial)...")
+			if _, err := printer.AutoDetect(); err != nil {
+				log.Printf("Warning: %v. (Will search again upon printing)\n", err)
 			} else {
-				path = "/dev/usb/lp0"
+				log.Println("Printer successfully detected and ready to use!")
 			}
 		}
-		printerDevice = printer.NewUSBPrinter(path)
 	}
 
-	// 3. Lanzar casos de uso
 	printUC := usecase.NewPrintTicketUseCase(printerDevice)
 
-	// 4. Servidor HTTP local
 	http.HandleFunc("/print", func(w http.ResponseWriter, r *http.Request) {
-		// Habilitar CORS
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
@@ -84,16 +82,20 @@ func main() {
 			return
 		}
 
-		// Asumimos que el ticket viene en crudo o JSON. Lo metemos en el dominio.
-		// Si es JSON, podríamos hacer Unmarshal. Por simplicidad, tomamos el body entero.
 		ticket := domain.Ticket{
 			ID:      "manual-print",
 			Content: body,
 		}
 
 		if err := printUC.Execute(context.Background(), ticket); err != nil {
-			log.Printf("Error al imprimir: %v\n", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Print error: %v\n", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			json.NewEncoder(w).Encode(map[string]string{
+				"status":  "error",
+				"message": "Could not connect to printer",
+				"details": err.Error(),
+			})
 			return
 		}
 
@@ -101,8 +103,8 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
 
-	log.Printf("Servicio listo y escuchando peticiones en http://localhost:%s\n", *port)
+	log.Printf("Service ready and listening on http://localhost:%s\n", *port)
 	if err := http.ListenAndServe(":"+*port, nil); err != nil {
-		log.Fatalf("Error en el servidor HTTP: %v", err)
+		log.Fatalf("HTTP server error: %v", err)
 	}
 }
