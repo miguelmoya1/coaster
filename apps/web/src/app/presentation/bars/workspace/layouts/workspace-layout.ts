@@ -19,7 +19,7 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
       <router-outlet />
     </main>
 
-    <coaster-bottom-nav [barId]="barId()" [isOwner]="isOwner()" />
+    <coaster-bottom-nav [barId]="barId()" />
   `,
   host: {
     class: 'h-svh w-full flex flex-col items-center overflow-hidden relative',

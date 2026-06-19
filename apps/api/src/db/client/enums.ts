@@ -11,6 +11,7 @@
 
 export const DbBarRole = {
   OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
   STAFF: 'STAFF'
 } as const
 

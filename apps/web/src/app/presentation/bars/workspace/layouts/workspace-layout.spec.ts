@@ -26,6 +26,7 @@ describe('WorkspaceLayout', () => {
     },
     isOwner: signal(false),
     setBarId: vi.fn(),
+    hasPermission: vi.fn().mockReturnValue(true),
   };
 
   const membersStoreMock = {

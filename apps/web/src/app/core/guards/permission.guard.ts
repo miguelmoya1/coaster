@@ -38,7 +38,7 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
         if (barsStore.hasPermission(permission)) {
           return true;
         }
-        return router.createUrlTree(['/bars', cleanBarId, 'dashboard']);
+        return router.createUrlTree(['/bars', cleanBarId, 'orders']);
       }),
     );
   };
