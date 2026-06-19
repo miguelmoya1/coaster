@@ -50,6 +50,19 @@
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
+  "admin_dashboard": {
+    "title": "Panel de Administrador",
+    "subtitle": "Zona de administración super controlada.",
+    "templates_title": "Editor de Plantillas",
+    "templates_desc": "Gestiona plantillas de bares estándar usadas durante la creación de un bar.",
+    "templates_btn": "Ir a Plantillas",
+    "search_title": "Buscar un Bar",
+    "search_desc": "Busca un bar específico por su ID o Nombre. Podrás entrar al bar con privilegios de dueño totales.",
+    "search_placeholder": "ID o Nombre del Bar...",
+    "search_btn": "Buscar",
+    "results": "Resultados ({{ count }})",
+    "no_results": "No se encontraron bares que coincidan con la búsqueda."
+  },
   "admin_templates": {
     "back": "Volver",
     "control_panel": "Panel de Control Admin",
@@ -131,7 +144,8 @@
       "staff": "Staff"
     },
     "save": "Guardar",
-    "update": "Actualizar"
+    "update": "Actualizar",
+    "loading": "Cargando..."
   },
   "dashboard": {
     "overview": {

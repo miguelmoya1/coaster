@@ -11,9 +11,22 @@ export class GetMemberMeHandler implements IQueryHandler<GetMemberMeQuery, BarMe
   constructor(private readonly repository: BarMembersReadRepository) {}
 
   async execute(query: GetMemberMeQuery): Promise<BarMember> {
-    const member = await this.repository.getMemberByUserAndBar(query.userId, query.barId);
+    const member = await this.repository.getMemberByUserAndBar(query.user.id, query.barId);
 
     if (!member || !member.active) {
+      if (query.user.role === 'ADMIN') {
+        return {
+          id: 'mock-admin-member' as any,
+          userId: query.user.id,
+          barId: query.barId,
+          role: 'OWNER',
+          active: true,
+          permissions: [],
+          userName: query.user.name,
+          userEmail: query.user.email,
+          userImage: query.user.photoUrl || '',
+        };
+      }
       throw new NotFoundException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 

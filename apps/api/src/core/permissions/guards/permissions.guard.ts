@@ -8,7 +8,7 @@ import { hasPermission } from '../bar-member.security';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 
 interface RequestWithUser {
-  user: { id: string };
+  user: { id: string; role: string };
   params: { barId: string };
 }
 
@@ -35,6 +35,10 @@ export class PermissionsGuard implements CanActivate {
 
     if (!user) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
+    }
+
+    if (user.role === 'ADMIN') {
+      return true;
     }
 
     if (!barId) {

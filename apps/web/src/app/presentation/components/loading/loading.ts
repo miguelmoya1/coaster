@@ -1,12 +1,17 @@
 import { Component, input } from '@angular/core';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'coaster-loading',
-  imports: [MatProgressSpinner],
   template: `
-    <div class="flex flex-col items-center justify-center gap-4 w-full h-full p-8" [class]="containerClasses()">
-      <mat-spinner diameter="40" />
+    <div class="flex flex-col items-center justify-center gap-5 w-full h-full p-8" [class]="containerClasses()">
+      <div class="relative w-12 h-12 flex items-center justify-center">
+        <!-- Fondo suave -->
+        <div class="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+        <!-- Borde giratorio principal -->
+        <div class="absolute inset-0 rounded-full border-4 border-primary border-r-transparent border-t-transparent animate-spin"></div>
+        <!-- Resplandor pulsante en el centro -->
+        <div class="w-4 h-4 rounded-full bg-primary/40 animate-pulse"></div>
+      </div>
       @if (text()) {
         <p [class]="textClasses()">
           {{ text() }}

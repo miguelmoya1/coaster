@@ -18,6 +18,11 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./presentation/bars/bars.routes'),
   },
   {
+    path: 'admin/dashboard',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./presentation/admin/pages/admin-dashboard/admin-dashboard'),
+  },
+  {
     path: 'admin/templates',
     canActivate: [adminGuard],
     loadComponent: () => import('./presentation/admin/pages/admin-templates/admin-templates'),

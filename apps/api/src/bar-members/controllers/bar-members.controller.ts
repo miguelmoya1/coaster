@@ -18,7 +18,7 @@ export class BarMembersController {
 
   @Get('me')
   async getMyMember(@Param('barId') barId: BarId, @CurrentUser() user: User) {
-    const member = await this._queryBus.execute<GetMemberMeQuery, BarMember>(new GetMemberMeQuery(barId, user.id));
+    const member = await this._queryBus.execute<GetMemberMeQuery, BarMember>(new GetMemberMeQuery(barId, user));
     return BarMembersMapper.toDto(member);
   }
 

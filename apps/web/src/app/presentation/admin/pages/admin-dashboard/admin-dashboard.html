@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-2 mb-6">
+  <button mat-icon-button routerLink="/" class="self-start mb-2">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <h1 class="heading-1">{{ 'admin_dashboard.title' | translate }}</h1>
+</div>
+
+<div class="flex flex-col gap-8">
+  <!-- Templates Link -->
+  <section class="bg-surface-container rounded-2xl p-6 border border-outline-variant flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <mat-icon class="text-primary">settings</mat-icon>
+      <h2 class="heading-3">{{ 'admin_dashboard.templates_title' | translate }}</h2>
+    </div>
+    <p class="text-on-surface-variant text-sm">
+      {{ 'admin_dashboard.templates_desc' | translate }}
+    </p>
+    <button mat-stroked-button routerLink="/admin/templates" class="self-start">
+      {{ 'admin_dashboard.templates_btn' | translate }}
+    </button>
+  </section>
+
+  <!-- Bar Search -->
+  <section class="bg-surface-container rounded-2xl p-6 border border-outline-variant flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <mat-icon class="text-primary">search</mat-icon>
+      <h2 class="heading-3">{{ 'admin_dashboard.search_title' | translate }}</h2>
+    </div>
+    <p class="text-on-surface-variant text-sm">
+      {{ 'admin_dashboard.search_desc' | translate }}
+    </p>
+    
+    <div class="flex items-center gap-2">
+      <mat-form-field appearance="outline" class="flex-grow w-full">
+        <mat-label>{{ 'admin_dashboard.search_placeholder' | translate }}</mat-label>
+        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="'admin_dashboard.search_placeholder' | translate" />
+      </mat-form-field>
+      
+      <button mat-flat-button [disabled]="isSearching() || !searchQuery().trim()" class="mb-[22px]">
+        @if (isSearching()) {
+          <mat-icon>hourglass_empty</mat-icon>
+        } @else {
+          <mat-icon>search</mat-icon>
+        }
+        {{ 'admin_dashboard.search_btn' | translate }}
+      </button>
+    </div>
+
+    <!-- Results -->
+    @if (isSearching()) {
+      <div class="mt-4 border border-outline-variant rounded-2xl overflow-hidden">
+        <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[150px] bg-surface" />
+      </div>
+    } @else if (searchResults() !== null) {
+      <div class="flex flex-col gap-3 mt-2">
+        <h3 class="font-medium text-sm text-on-surface-variant mb-1">{{ 'admin_dashboard.results' | translate: { count: searchResults()!.length } }}</h3>
+        
+        @for (bar of searchResults()!; track bar.id) {
+          <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
+        } @empty {
+          <div class="p-6 bg-surface rounded-xl text-center border border-dashed border-outline-variant text-on-surface-variant text-sm">
+            {{ 'admin_dashboard.no_results' | translate }}
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

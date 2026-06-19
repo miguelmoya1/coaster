@@ -50,6 +50,19 @@
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_CREATION_FAILED": "An error occurred and the user could not be registered.",
   "USER_NOT_FOUND": "No user registered with that email address.",
+  "admin_dashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "Super controlled admin zone.",
+    "templates_title": "Templates Editor",
+    "templates_desc": "Manage standard bar templates used during bar creation.",
+    "templates_btn": "Go to Templates",
+    "search_title": "Find a Bar",
+    "search_desc": "Search for a specific bar by its ID or Name. You can enter the bar with full owner privileges.",
+    "search_placeholder": "Bar ID or Name...",
+    "search_btn": "Search",
+    "results": "Results ({{ count }})",
+    "no_results": "No bars found matching your search."
+  },
   "admin_templates": {
     "back": "Back",
     "control_panel": "Admin Control Panel",
@@ -131,7 +144,8 @@
       "staff": "Staff"
     },
     "save": "Save",
-    "update": "Update"
+    "update": "Update",
+    "loading": "Loading..."
   },
   "dashboard": {
     "overview": {
