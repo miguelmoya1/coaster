@@ -110,6 +110,7 @@ model DbBarMember {
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@unique([userId, barId])
   @@map("BarMember")
@@ -147,12 +148,13 @@ model DbShiftExchange {
 }
 
 model DbCategory {
-  id       String      @id @default(uuid())
-  barId    String
-  bar      DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
-  name     String
-  icon     String?
-  products DbProduct[]
+  id        String      @id @default(uuid())
+  barId     String
+  bar       DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  name      String
+  icon      String?
+  products  DbProduct[]
+  deletedAt DateTime?
 
   @@map("Category")
 }
@@ -167,6 +169,7 @@ model DbProduct {
   minStockAlert Int           @default(0)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
   orderItems    DbOrderItem[]
 
   @@map("Product")

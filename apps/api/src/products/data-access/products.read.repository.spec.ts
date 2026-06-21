@@ -76,7 +76,7 @@ describe('ProductsReadRepository', () => {
       const result = await repository.findByBarId(barId);
 
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
-        where: { category: { barId } },
+        where: { category: { barId, deletedAt: null }, deletedAt: null },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual(expectedResult);

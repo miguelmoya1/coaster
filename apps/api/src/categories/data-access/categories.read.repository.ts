@@ -8,7 +8,7 @@ export class CategoriesReadRepository {
 
   public async findByBarId(barId: BarId) {
     return this._db.dbCategory.findMany({
-      where: { barId },
+      where: { barId, deletedAt: null },
       orderBy: { name: 'asc' },
     });
   }

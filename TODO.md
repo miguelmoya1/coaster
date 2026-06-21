@@ -15,9 +15,9 @@
 
 ## 🗑️ Eliminación Lógica (Soft Deletes)
 
-- [ ] **Esquema BD:** Añadir campo `isArchived` (Boolean) o `deletedAt` (DateTime) a `DbProduct`, `DbCategory`, y `DbBarMember`.
-- [ ] **Backend:** Modificar los endpoints para excluir registros archivados por defecto y permitir recuperarlos.
-- [ ] **Frontend:** Ocultar elementos archivados del TPV y listados principales, pero conservarlos para estadísticas e historial.
+- [x] **Esquema BD:** Añadir campo `isArchived` (Boolean) o `deletedAt` (DateTime) a `DbProduct`, `DbCategory`, y `DbBarMember`.
+- [x] **Backend:** Modificar los endpoints para excluir registros archivados por defecto y permitir recuperarlos.
+- [x] **Frontend:** Ocultar elementos archivados del TPV y listados principales, pero conservarlos para estadísticas e historial.
 
 ## 👥 Roles y Permisos Granulares
 

@@ -47,6 +47,7 @@ export type DbProductMinAggregateOutputType = {
   minStockAlert: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type DbProductMaxAggregateOutputType = {
@@ -58,6 +59,7 @@ export type DbProductMaxAggregateOutputType = {
   minStockAlert: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type DbProductCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type DbProductCountAggregateOutputType = {
   minStockAlert: number
   createdAt: number
   updatedAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -94,6 +97,7 @@ export type DbProductMinAggregateInputType = {
   minStockAlert?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type DbProductMaxAggregateInputType = {
@@ -105,6 +109,7 @@ export type DbProductMaxAggregateInputType = {
   minStockAlert?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type DbProductCountAggregateInputType = {
@@ -116,6 +121,7 @@ export type DbProductCountAggregateInputType = {
   minStockAlert?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -214,6 +220,7 @@ export type DbProductGroupByOutputType = {
   minStockAlert: number
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
   _count: DbProductCountAggregateOutputType | null
   _avg: DbProductAvgAggregateOutputType | null
   _sum: DbProductSumAggregateOutputType | null
@@ -248,6 +255,7 @@ export type DbProductWhereInput = {
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbProduct"> | Date | string | null
   category?: Prisma.XOR<Prisma.DbCategoryScalarRelationFilter, Prisma.DbCategoryWhereInput>
   orderItems?: Prisma.DbOrderItemListRelationFilter
 }
@@ -261,6 +269,7 @@ export type DbProductOrderByWithRelationInput = {
   minStockAlert?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.DbCategoryOrderByWithRelationInput
   orderItems?: Prisma.DbOrderItemOrderByRelationAggregateInput
 }
@@ -277,6 +286,7 @@ export type DbProductWhereUniqueInput = Prisma.AtLeast<{
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbProduct"> | Date | string | null
   category?: Prisma.XOR<Prisma.DbCategoryScalarRelationFilter, Prisma.DbCategoryWhereInput>
   orderItems?: Prisma.DbOrderItemListRelationFilter
 }, "id">
@@ -290,6 +300,7 @@ export type DbProductOrderByWithAggregationInput = {
   minStockAlert?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DbProductCountOrderByAggregateInput
   _avg?: Prisma.DbProductAvgOrderByAggregateInput
   _max?: Prisma.DbProductMaxOrderByAggregateInput
@@ -309,6 +320,7 @@ export type DbProductScalarWhereWithAggregatesInput = {
   minStockAlert?: Prisma.IntWithAggregatesFilter<"DbProduct"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbProduct"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbProduct"> | Date | string | null
 }
 
 export type DbProductCreateInput = {
@@ -319,6 +331,7 @@ export type DbProductCreateInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   category: Prisma.DbCategoryCreateNestedOneWithoutProductsInput
   orderItems?: Prisma.DbOrderItemCreateNestedManyWithoutProductInput
 }
@@ -332,6 +345,7 @@ export type DbProductUncheckedCreateInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   orderItems?: Prisma.DbOrderItemUncheckedCreateNestedManyWithoutProductInput
 }
 
@@ -343,6 +357,7 @@ export type DbProductUpdateInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.DbCategoryUpdateOneRequiredWithoutProductsNestedInput
   orderItems?: Prisma.DbOrderItemUpdateManyWithoutProductNestedInput
 }
@@ -356,6 +371,7 @@ export type DbProductUncheckedUpdateInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   orderItems?: Prisma.DbOrderItemUncheckedUpdateManyWithoutProductNestedInput
 }
 
@@ -368,6 +384,7 @@ export type DbProductCreateManyInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbProductUpdateManyMutationInput = {
@@ -378,6 +395,7 @@ export type DbProductUpdateManyMutationInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbProductUncheckedUpdateManyInput = {
@@ -389,6 +407,7 @@ export type DbProductUncheckedUpdateManyInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbProductListRelationFilter = {
@@ -410,6 +429,7 @@ export type DbProductCountOrderByAggregateInput = {
   minStockAlert?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbProductAvgOrderByAggregateInput = {
@@ -427,6 +447,7 @@ export type DbProductMaxOrderByAggregateInput = {
   minStockAlert?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbProductMinOrderByAggregateInput = {
@@ -438,6 +459,7 @@ export type DbProductMinOrderByAggregateInput = {
   minStockAlert?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbProductSumOrderByAggregateInput = {
@@ -523,6 +545,7 @@ export type DbProductCreateWithoutCategoryInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   orderItems?: Prisma.DbOrderItemCreateNestedManyWithoutProductInput
 }
 
@@ -534,6 +557,7 @@ export type DbProductUncheckedCreateWithoutCategoryInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   orderItems?: Prisma.DbOrderItemUncheckedCreateNestedManyWithoutProductInput
 }
 
@@ -575,6 +599,7 @@ export type DbProductScalarWhereInput = {
   minStockAlert?: Prisma.IntFilter<"DbProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProduct"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbProduct"> | Date | string | null
 }
 
 export type DbProductCreateWithoutOrderItemsInput = {
@@ -585,6 +610,7 @@ export type DbProductCreateWithoutOrderItemsInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   category: Prisma.DbCategoryCreateNestedOneWithoutProductsInput
 }
 
@@ -597,6 +623,7 @@ export type DbProductUncheckedCreateWithoutOrderItemsInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbProductCreateOrConnectWithoutOrderItemsInput = {
@@ -623,6 +650,7 @@ export type DbProductUpdateWithoutOrderItemsInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   category?: Prisma.DbCategoryUpdateOneRequiredWithoutProductsNestedInput
 }
 
@@ -635,6 +663,7 @@ export type DbProductUncheckedUpdateWithoutOrderItemsInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbProductCreateManyCategoryInput = {
@@ -645,6 +674,7 @@ export type DbProductCreateManyCategoryInput = {
   minStockAlert?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbProductUpdateWithoutCategoryInput = {
@@ -655,6 +685,7 @@ export type DbProductUpdateWithoutCategoryInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   orderItems?: Prisma.DbOrderItemUpdateManyWithoutProductNestedInput
 }
 
@@ -666,6 +697,7 @@ export type DbProductUncheckedUpdateWithoutCategoryInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   orderItems?: Prisma.DbOrderItemUncheckedUpdateManyWithoutProductNestedInput
 }
 
@@ -677,6 +709,7 @@ export type DbProductUncheckedUpdateManyWithoutCategoryInput = {
   minStockAlert?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -719,6 +752,7 @@ export type DbProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   minStockAlert?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   category?: boolean | Prisma.DbCategoryDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.DbProduct$orderItemsArgs<ExtArgs>
   _count?: boolean | Prisma.DbProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -733,6 +767,7 @@ export type DbProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   minStockAlert?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   category?: boolean | Prisma.DbCategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbProduct"]>
 
@@ -745,6 +780,7 @@ export type DbProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   minStockAlert?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   category?: boolean | Prisma.DbCategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbProduct"]>
 
@@ -757,9 +793,10 @@ export type DbProductSelectScalar = {
   minStockAlert?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }
 
-export type DbProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "currentStock" | "minStockAlert" | "createdAt" | "updatedAt", ExtArgs["result"]["dbProduct"]>
+export type DbProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "currentStock" | "minStockAlert" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbProduct"]>
 export type DbProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.DbCategoryDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.DbProduct$orderItemsArgs<ExtArgs>
@@ -787,6 +824,7 @@ export type $DbProductPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     minStockAlert: number
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["dbProduct"]>
   composites: {}
 }
@@ -1220,6 +1258,7 @@ export interface DbProductFieldRefs {
   readonly minStockAlert: Prisma.FieldRef<"DbProduct", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DbProduct", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbProduct", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"DbProduct", 'DateTime'>
 }
     
 

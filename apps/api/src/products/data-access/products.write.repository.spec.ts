@@ -89,15 +89,16 @@ describe('ProductsWriteRepository', () => {
   });
 
   describe('delete', () => {
-    it('should call dbProduct.delete with correct parameters', async () => {
+    it('should call dbProduct.update with correct parameters', async () => {
       const productId = asProductId('prod-1');
       const expectedResult = { id: 'prod-1' };
-      vi.mocked(dbService.dbProduct.delete).mockResolvedValue(expectedResult as any);
+      vi.mocked(dbService.dbProduct.update).mockResolvedValue(expectedResult as any);
 
       const result = await repository.delete(productId);
 
-      expect(dbService.dbProduct.delete).toHaveBeenCalledWith({
+      expect(dbService.dbProduct.update).toHaveBeenCalledWith({
         where: { id: productId },
+        data: { deletedAt: expect.any(Date) },
       });
       expect(result).toEqual(expectedResult);
     });

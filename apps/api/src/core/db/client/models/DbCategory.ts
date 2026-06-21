@@ -29,6 +29,7 @@ export type DbCategoryMinAggregateOutputType = {
   barId: string | null
   name: string | null
   icon: string | null
+  deletedAt: Date | null
 }
 
 export type DbCategoryMaxAggregateOutputType = {
@@ -36,6 +37,7 @@ export type DbCategoryMaxAggregateOutputType = {
   barId: string | null
   name: string | null
   icon: string | null
+  deletedAt: Date | null
 }
 
 export type DbCategoryCountAggregateOutputType = {
@@ -43,6 +45,7 @@ export type DbCategoryCountAggregateOutputType = {
   barId: number
   name: number
   icon: number
+  deletedAt: number
   _all: number
 }
 
@@ -52,6 +55,7 @@ export type DbCategoryMinAggregateInputType = {
   barId?: true
   name?: true
   icon?: true
+  deletedAt?: true
 }
 
 export type DbCategoryMaxAggregateInputType = {
@@ -59,6 +63,7 @@ export type DbCategoryMaxAggregateInputType = {
   barId?: true
   name?: true
   icon?: true
+  deletedAt?: true
 }
 
 export type DbCategoryCountAggregateInputType = {
@@ -66,6 +71,7 @@ export type DbCategoryCountAggregateInputType = {
   barId?: true
   name?: true
   icon?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -146,6 +152,7 @@ export type DbCategoryGroupByOutputType = {
   barId: string
   name: string
   icon: string | null
+  deletedAt: Date | null
   _count: DbCategoryCountAggregateOutputType | null
   _min: DbCategoryMinAggregateOutputType | null
   _max: DbCategoryMaxAggregateOutputType | null
@@ -174,6 +181,7 @@ export type DbCategoryWhereInput = {
   barId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
   products?: Prisma.DbProductListRelationFilter
 }
@@ -183,6 +191,7 @@ export type DbCategoryOrderByWithRelationInput = {
   barId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   bar?: Prisma.DbBarOrderByWithRelationInput
   products?: Prisma.DbProductOrderByRelationAggregateInput
 }
@@ -195,6 +204,7 @@ export type DbCategoryWhereUniqueInput = Prisma.AtLeast<{
   barId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
   products?: Prisma.DbProductListRelationFilter
 }, "id">
@@ -204,6 +214,7 @@ export type DbCategoryOrderByWithAggregationInput = {
   barId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DbCategoryCountOrderByAggregateInput
   _max?: Prisma.DbCategoryMaxOrderByAggregateInput
   _min?: Prisma.DbCategoryMinOrderByAggregateInput
@@ -217,12 +228,14 @@ export type DbCategoryScalarWhereWithAggregatesInput = {
   barId?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableWithAggregatesFilter<"DbCategory"> | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbCategory"> | Date | string | null
 }
 
 export type DbCategoryCreateInput = {
   id?: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
   bar: Prisma.DbBarCreateNestedOneWithoutCategoriesInput
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
 }
@@ -232,6 +245,7 @@ export type DbCategoryUncheckedCreateInput = {
   barId: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
   products?: Prisma.DbProductUncheckedCreateNestedManyWithoutCategoryInput
 }
 
@@ -239,6 +253,7 @@ export type DbCategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bar?: Prisma.DbBarUpdateOneRequiredWithoutCategoriesNestedInput
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
 }
@@ -248,6 +263,7 @@ export type DbCategoryUncheckedUpdateInput = {
   barId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -256,12 +272,14 @@ export type DbCategoryCreateManyInput = {
   barId: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
 }
 
 export type DbCategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbCategoryUncheckedUpdateManyInput = {
@@ -269,6 +287,7 @@ export type DbCategoryUncheckedUpdateManyInput = {
   barId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbCategoryListRelationFilter = {
@@ -286,6 +305,7 @@ export type DbCategoryCountOrderByAggregateInput = {
   barId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbCategoryMaxOrderByAggregateInput = {
@@ -293,6 +313,7 @@ export type DbCategoryMaxOrderByAggregateInput = {
   barId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbCategoryMinOrderByAggregateInput = {
@@ -300,6 +321,7 @@ export type DbCategoryMinOrderByAggregateInput = {
   barId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbCategoryScalarRelationFilter = {
@@ -367,6 +389,7 @@ export type DbCategoryCreateWithoutBarInput = {
   id?: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
 }
 
@@ -374,6 +397,7 @@ export type DbCategoryUncheckedCreateWithoutBarInput = {
   id?: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
   products?: Prisma.DbProductUncheckedCreateNestedManyWithoutCategoryInput
 }
 
@@ -411,12 +435,14 @@ export type DbCategoryScalarWhereInput = {
   barId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
 }
 
 export type DbCategoryCreateWithoutProductsInput = {
   id?: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
   bar: Prisma.DbBarCreateNestedOneWithoutCategoriesInput
 }
 
@@ -425,6 +451,7 @@ export type DbCategoryUncheckedCreateWithoutProductsInput = {
   barId: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
 }
 
 export type DbCategoryCreateOrConnectWithoutProductsInput = {
@@ -447,6 +474,7 @@ export type DbCategoryUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bar?: Prisma.DbBarUpdateOneRequiredWithoutCategoriesNestedInput
 }
 
@@ -455,18 +483,21 @@ export type DbCategoryUncheckedUpdateWithoutProductsInput = {
   barId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbCategoryCreateManyBarInput = {
   id?: string
   name: string
   icon?: string | null
+  deletedAt?: Date | string | null
 }
 
 export type DbCategoryUpdateWithoutBarInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
 }
 
@@ -474,6 +505,7 @@ export type DbCategoryUncheckedUpdateWithoutBarInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -481,6 +513,7 @@ export type DbCategoryUncheckedUpdateManyWithoutBarInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -519,6 +552,7 @@ export type DbCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   barId?: boolean
   name?: boolean
   icon?: boolean
+  deletedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
   _count?: boolean | Prisma.DbCategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -529,6 +563,7 @@ export type DbCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   barId?: boolean
   name?: boolean
   icon?: boolean
+  deletedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
 
@@ -537,6 +572,7 @@ export type DbCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   barId?: boolean
   name?: boolean
   icon?: boolean
+  deletedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
 
@@ -545,9 +581,10 @@ export type DbCategorySelectScalar = {
   barId?: boolean
   name?: boolean
   icon?: boolean
+  deletedAt?: boolean
 }
 
-export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "name" | "icon", ExtArgs["result"]["dbCategory"]>
+export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "name" | "icon" | "deletedAt", ExtArgs["result"]["dbCategory"]>
 export type DbCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
@@ -571,6 +608,7 @@ export type $DbCategoryPayload<ExtArgs extends runtime.Types.Extensions.Internal
     barId: string
     name: string
     icon: string | null
+    deletedAt: Date | null
   }, ExtArgs["result"]["dbCategory"]>
   composites: {}
 }
@@ -1000,6 +1038,7 @@ export interface DbCategoryFieldRefs {
   readonly barId: Prisma.FieldRef<"DbCategory", 'String'>
   readonly name: Prisma.FieldRef<"DbCategory", 'String'>
   readonly icon: Prisma.FieldRef<"DbCategory", 'String'>
+  readonly deletedAt: Prisma.FieldRef<"DbCategory", 'DateTime'>
 }
     
 

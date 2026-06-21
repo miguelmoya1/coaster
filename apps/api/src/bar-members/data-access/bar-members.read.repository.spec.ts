@@ -46,7 +46,7 @@ describe('BarMembersReadRepository', () => {
       const result = await repository.isMember(barId, email);
 
       expect(dbService.dbBarMember.findFirst).toHaveBeenCalledWith({
-        where: { barId, user: { email } },
+        where: { barId, user: { email }, deletedAt: null },
       });
       expect(result).toEqual(expectedResult);
     });
@@ -76,7 +76,7 @@ describe('BarMembersReadRepository', () => {
       const result = await repository.getMembersByBar(barId);
 
       expect(dbService.dbBarMember.findMany).toHaveBeenCalledWith({
-        where: { barId, active: true },
+        where: { barId, active: true, deletedAt: null },
         include: {
           user: { select: { id: true, name: true, email: true, photoUrl: true } },
         },
@@ -86,16 +86,16 @@ describe('BarMembersReadRepository', () => {
   });
 
   describe('getMemberByUserAndBar', () => {
-    it('should call dbBarMember.findUnique with correct parameters', async () => {
+    it('should call dbBarMember.findFirst with correct parameters', async () => {
       const userId = asUserId('user-1');
       const barId = asBarId('bar-1');
       const expectedResult = { id: 'member-1' };
-      vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue(expectedResult as any);
+      vi.mocked(dbService.dbBarMember.findFirst).mockResolvedValue(expectedResult as any);
 
       const result = await repository.getMemberByUserAndBar(userId, barId);
 
-      expect(dbService.dbBarMember.findUnique).toHaveBeenCalledWith({
-        where: { userId_barId: { userId, barId } },
+      expect(dbService.dbBarMember.findFirst).toHaveBeenCalledWith({
+        where: { userId, barId, deletedAt: null },
         include: {
           user: { select: { id: true, name: true, email: true, photoUrl: true } },
         },

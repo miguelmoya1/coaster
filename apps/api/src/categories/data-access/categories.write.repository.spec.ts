@@ -71,15 +71,16 @@ describe('CategoriesWriteRepository', () => {
   });
 
   describe('delete', () => {
-    it('should call dbCategory.delete with correct parameters', async () => {
+    it('should call dbCategory.update with correct parameters', async () => {
       const categoryId = asCategoryId('cat-1');
       const expectedResult = { id: 'cat-1' };
-      vi.mocked(dbService.dbCategory.delete).mockResolvedValue(expectedResult as any);
+      vi.mocked(dbService.dbCategory.update).mockResolvedValue(expectedResult as any);
 
       const result = await repository.delete(categoryId);
 
-      expect(dbService.dbCategory.delete).toHaveBeenCalledWith({
+      expect(dbService.dbCategory.update).toHaveBeenCalledWith({
         where: { id: categoryId },
+        data: { deletedAt: expect.any(Date) },
       });
       expect(result).toEqual(expectedResult);
     });

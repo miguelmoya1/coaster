@@ -26,8 +26,9 @@ export class CategoriesWriteRepository {
   }
 
   public async delete(categoryId: CategoryId) {
-    return this._db.dbCategory.delete({
+    return this._db.dbCategory.update({
       where: { id: categoryId },
+      data: { deletedAt: new Date() },
     });
   }
 }

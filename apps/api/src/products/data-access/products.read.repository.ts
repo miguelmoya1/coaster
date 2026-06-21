@@ -19,7 +19,7 @@ export class ProductsReadRepository {
 
   public async findByBarId(barId: BarId) {
     return this._db.dbProduct.findMany({
-      where: { category: { barId } },
+      where: { category: { barId, deletedAt: null }, deletedAt: null },
       orderBy: { name: 'asc' },
     });
   }

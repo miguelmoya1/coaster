@@ -33,8 +33,9 @@ export class ProductsWriteRepository {
   }
 
   public async delete(productId: ProductId) {
-    return this._db.dbProduct.delete({
+    return this._db.dbProduct.update({
       where: { id: productId },
+      data: { deletedAt: new Date() },
     });
   }
 }

@@ -113,7 +113,8 @@ export const DbBarMemberScalarFieldEnum = {
   role: 'role',
   active: 'active',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 } as const
 
 export type DbBarMemberScalarFieldEnum = (typeof DbBarMemberScalarFieldEnum)[keyof typeof DbBarMemberScalarFieldEnum]
@@ -149,7 +150,8 @@ export const DbCategoryScalarFieldEnum = {
   id: 'id',
   barId: 'barId',
   name: 'name',
-  icon: 'icon'
+  icon: 'icon',
+  deletedAt: 'deletedAt'
 } as const
 
 export type DbCategoryScalarFieldEnum = (typeof DbCategoryScalarFieldEnum)[keyof typeof DbCategoryScalarFieldEnum]
@@ -163,7 +165,8 @@ export const DbProductScalarFieldEnum = {
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 } as const
 
 export type DbProductScalarFieldEnum = (typeof DbProductScalarFieldEnum)[keyof typeof DbProductScalarFieldEnum]

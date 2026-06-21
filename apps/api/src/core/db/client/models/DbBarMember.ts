@@ -32,6 +32,7 @@ export type DbBarMemberMinAggregateOutputType = {
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type DbBarMemberMaxAggregateOutputType = {
@@ -42,6 +43,7 @@ export type DbBarMemberMaxAggregateOutputType = {
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  deletedAt: Date | null
 }
 
 export type DbBarMemberCountAggregateOutputType = {
@@ -52,6 +54,7 @@ export type DbBarMemberCountAggregateOutputType = {
   active: number
   createdAt: number
   updatedAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -64,6 +67,7 @@ export type DbBarMemberMinAggregateInputType = {
   active?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type DbBarMemberMaxAggregateInputType = {
@@ -74,6 +78,7 @@ export type DbBarMemberMaxAggregateInputType = {
   active?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
 }
 
 export type DbBarMemberCountAggregateInputType = {
@@ -84,6 +89,7 @@ export type DbBarMemberCountAggregateInputType = {
   active?: true
   createdAt?: true
   updatedAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -167,6 +173,7 @@ export type DbBarMemberGroupByOutputType = {
   active: boolean
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
   _count: DbBarMemberCountAggregateOutputType | null
   _min: DbBarMemberMinAggregateOutputType | null
   _max: DbBarMemberMaxAggregateOutputType | null
@@ -198,6 +205,7 @@ export type DbBarMemberWhereInput = {
   active?: Prisma.BoolFilter<"DbBarMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbBarMember"> | Date | string | null
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
 }
@@ -210,6 +218,7 @@ export type DbBarMemberOrderByWithRelationInput = {
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.DbUserOrderByWithRelationInput
   bar?: Prisma.DbBarOrderByWithRelationInput
 }
@@ -226,6 +235,7 @@ export type DbBarMemberWhereUniqueInput = Prisma.AtLeast<{
   active?: Prisma.BoolFilter<"DbBarMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbBarMember"> | Date | string | null
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
 }, "id" | "userId_barId">
@@ -238,6 +248,7 @@ export type DbBarMemberOrderByWithAggregationInput = {
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DbBarMemberCountOrderByAggregateInput
   _max?: Prisma.DbBarMemberMaxOrderByAggregateInput
   _min?: Prisma.DbBarMemberMinOrderByAggregateInput
@@ -254,6 +265,7 @@ export type DbBarMemberScalarWhereWithAggregatesInput = {
   active?: Prisma.BoolWithAggregatesFilter<"DbBarMember"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbBarMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbBarMember"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarMember"> | Date | string | null
 }
 
 export type DbBarMemberCreateInput = {
@@ -262,6 +274,7 @@ export type DbBarMemberCreateInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   user: Prisma.DbUserCreateNestedOneWithoutMembershipsInput
   bar: Prisma.DbBarCreateNestedOneWithoutMembersInput
 }
@@ -274,6 +287,7 @@ export type DbBarMemberUncheckedCreateInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberUpdateInput = {
@@ -282,6 +296,7 @@ export type DbBarMemberUpdateInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.DbUserUpdateOneRequiredWithoutMembershipsNestedInput
   bar?: Prisma.DbBarUpdateOneRequiredWithoutMembersNestedInput
 }
@@ -294,6 +309,7 @@ export type DbBarMemberUncheckedUpdateInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberCreateManyInput = {
@@ -304,6 +320,7 @@ export type DbBarMemberCreateManyInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberUpdateManyMutationInput = {
@@ -312,6 +329,7 @@ export type DbBarMemberUpdateManyMutationInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberUncheckedUpdateManyInput = {
@@ -322,6 +340,7 @@ export type DbBarMemberUncheckedUpdateManyInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberListRelationFilter = {
@@ -347,6 +366,7 @@ export type DbBarMemberCountOrderByAggregateInput = {
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbBarMemberMaxOrderByAggregateInput = {
@@ -357,6 +377,7 @@ export type DbBarMemberMaxOrderByAggregateInput = {
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbBarMemberMinOrderByAggregateInput = {
@@ -367,6 +388,7 @@ export type DbBarMemberMinOrderByAggregateInput = {
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type DbBarMemberCreateNestedManyWithoutUserInput = {
@@ -457,12 +479,17 @@ export type EnumDbBarRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbBarRole
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type DbBarMemberCreateWithoutUserInput = {
   id?: string
   role?: $Enums.DbBarRole
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   bar: Prisma.DbBarCreateNestedOneWithoutMembersInput
 }
 
@@ -473,6 +500,7 @@ export type DbBarMemberUncheckedCreateWithoutUserInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberCreateOrConnectWithoutUserInput = {
@@ -512,6 +540,7 @@ export type DbBarMemberScalarWhereInput = {
   active?: Prisma.BoolFilter<"DbBarMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbBarMember"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"DbBarMember"> | Date | string | null
 }
 
 export type DbBarMemberCreateWithoutBarInput = {
@@ -520,6 +549,7 @@ export type DbBarMemberCreateWithoutBarInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
   user: Prisma.DbUserCreateNestedOneWithoutMembershipsInput
 }
 
@@ -530,6 +560,7 @@ export type DbBarMemberUncheckedCreateWithoutBarInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberCreateOrConnectWithoutBarInput = {
@@ -565,6 +596,7 @@ export type DbBarMemberCreateManyUserInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberUpdateWithoutUserInput = {
@@ -573,6 +605,7 @@ export type DbBarMemberUpdateWithoutUserInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bar?: Prisma.DbBarUpdateOneRequiredWithoutMembersNestedInput
 }
 
@@ -583,6 +616,7 @@ export type DbBarMemberUncheckedUpdateWithoutUserInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberUncheckedUpdateManyWithoutUserInput = {
@@ -592,6 +626,7 @@ export type DbBarMemberUncheckedUpdateManyWithoutUserInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberCreateManyBarInput = {
@@ -601,6 +636,7 @@ export type DbBarMemberCreateManyBarInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type DbBarMemberUpdateWithoutBarInput = {
@@ -609,6 +645,7 @@ export type DbBarMemberUpdateWithoutBarInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.DbUserUpdateOneRequiredWithoutMembershipsNestedInput
 }
 
@@ -619,6 +656,7 @@ export type DbBarMemberUncheckedUpdateWithoutBarInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DbBarMemberUncheckedUpdateManyWithoutBarInput = {
@@ -628,6 +666,7 @@ export type DbBarMemberUncheckedUpdateManyWithoutBarInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -640,6 +679,7 @@ export type DbBarMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbBarMember"]>
@@ -652,6 +692,7 @@ export type DbBarMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbBarMember"]>
@@ -664,6 +705,7 @@ export type DbBarMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbBarMember"]>
@@ -676,9 +718,10 @@ export type DbBarMemberSelectScalar = {
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  deletedAt?: boolean
 }
 
-export type DbBarMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "barId" | "role" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["dbBarMember"]>
+export type DbBarMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "barId" | "role" | "active" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbBarMember"]>
 export type DbBarMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
@@ -706,6 +749,7 @@ export type $DbBarMemberPayload<ExtArgs extends runtime.Types.Extensions.Interna
     active: boolean
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["dbBarMember"]>
   composites: {}
 }
@@ -1138,6 +1182,7 @@ export interface DbBarMemberFieldRefs {
   readonly active: Prisma.FieldRef<"DbBarMember", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"DbBarMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbBarMember", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"DbBarMember", 'DateTime'>
 }
     
 

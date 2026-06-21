@@ -11,6 +11,7 @@ export class BarMembersReadRepository {
       where: {
         barId,
         user: { email },
+        deletedAt: null,
       },
     });
   }
@@ -21,7 +22,7 @@ export class BarMembersReadRepository {
 
   public async getMembersByBar(barId: BarId) {
     return this.db.dbBarMember.findMany({
-      where: { barId, active: true },
+      where: { barId, active: true, deletedAt: null },
       include: {
         user: {
           select: { id: true, name: true, email: true, photoUrl: true },
@@ -31,12 +32,11 @@ export class BarMembersReadRepository {
   }
 
   public async getMemberByUserAndBar(userId: UserId, barId: BarId) {
-    return this.db.dbBarMember.findUnique({
+    return this.db.dbBarMember.findFirst({
       where: {
-        userId_barId: {
-          userId,
-          barId,
-        },
+        userId,
+        barId,
+        deletedAt: null,
       },
       include: {
         user: {

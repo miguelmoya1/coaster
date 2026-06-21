@@ -40,7 +40,7 @@ describe('CategoriesReadRepository', () => {
       const result = await repository.findByBarId(barId);
 
       expect(dbService.dbCategory.findMany).toHaveBeenCalledWith({
-        where: { barId },
+        where: { barId, deletedAt: null },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual(expectedResult);
