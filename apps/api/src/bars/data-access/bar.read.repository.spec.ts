@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asUserId } from '../../core';
+import { DbService } from '../../core/db';
 import { BarReadRepository } from './bar.read.repository';
-import { DbService } from '../../db';
-import { asUserId, asBarId } from '../../core';
 
 describe('BarReadRepository', () => {
   let repository: BarReadRepository;

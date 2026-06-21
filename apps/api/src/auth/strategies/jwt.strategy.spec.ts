@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getAuth } from 'firebase-admin/auth';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { DbService } from '../../db';
+import { DbService } from '../../core/db';
 import { JwtStrategy } from './jwt.strategy';
 
 vi.mock('firebase-admin/auth', () => ({

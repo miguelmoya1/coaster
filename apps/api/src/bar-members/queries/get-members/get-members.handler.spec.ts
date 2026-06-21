@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asBarRole, getRolePermissions } from '../../../core';
-import { DbBarRole } from '../../../db';
+import { DbBarRole } from '../../../core/db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { GetMembersHandler } from './get-members.handler';
 import { GetMembersQuery } from './get-members.query';

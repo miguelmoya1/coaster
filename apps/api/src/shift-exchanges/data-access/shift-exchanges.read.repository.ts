@@ -1,7 +1,7 @@
 import type { BarId, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { ShiftExchangeStatus } from '../../core';
-import { DbService } from '../../db';
+import { DbService } from '../../core/db';
 
 @Injectable()
 export class ShiftExchangesReadRepository {
@@ -45,6 +45,18 @@ export class ShiftExchangesReadRepository {
         requester: { select: { id: true, name: true } },
       },
       orderBy: { shift: { startTime: 'asc' } },
+    });
+  }
+
+  public async getBarMember(userId: string, barId: string) {
+    return this._db.dbBarMember.findUnique({
+      where: {
+        userId_barId: {
+          userId,
+          barId,
+        },
+      },
+      select: { role: true, active: true },
     });
   }
 }

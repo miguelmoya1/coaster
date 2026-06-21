@@ -1,6 +1,6 @@
 import type { BarId, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbOrderStatus, DbService } from '../../db';
+import { DbOrderStatus, DbService } from '../../core/db';
 
 @Injectable()
 export class OrdersReadRepository {

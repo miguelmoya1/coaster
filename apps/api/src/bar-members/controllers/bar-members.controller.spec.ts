@@ -2,7 +2,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { asBarId, asBarMemberId, asUserId, PermissionsGuard } from '../../core';
+import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
 import { PrepareInviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
@@ -28,7 +28,7 @@ describe('BarMembersController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
+      .overrideGuard(BarPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -71,7 +71,7 @@ describe('BarMembersController', () => {
     expect(queryBus.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         barId: asBarId('bar-1'),
-        userId: asUserId('user-1'),
+        user: expect.objectContaining({ id: 'user-1' }),
       }),
     );
   });

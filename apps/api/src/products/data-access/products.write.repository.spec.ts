@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProductsWriteRepository } from './products.write.repository';
-import { DbService } from '../../db';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asCategoryId, asProductId } from '../../core';
+import { DbService } from '../../core/db';
+import { ProductsWriteRepository } from './products.write.repository';
 
 describe('ProductsWriteRepository', () => {
   let repository: ProductsWriteRepository;

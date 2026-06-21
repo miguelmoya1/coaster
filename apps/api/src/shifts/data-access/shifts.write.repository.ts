@@ -1,6 +1,6 @@
 import type { BarId, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService, DbShiftUncheckedCreateInput } from '../../db';
+import { DbService, DbShiftUncheckedCreateInput } from '../../core/db';
 
 type CreateShiftDto = Omit<
   DbShiftUncheckedCreateInput,

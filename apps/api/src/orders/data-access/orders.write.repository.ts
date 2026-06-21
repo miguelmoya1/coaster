@@ -8,7 +8,14 @@ import type {
   TableId,
 } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbDeliveryStatus, DbOrderStatus, DbPaymentMethod, DbPaymentStatus, DbService, DbTableStatus } from '../../db';
+import {
+  DbDeliveryStatus,
+  DbOrderStatus,
+  DbPaymentMethod,
+  DbPaymentStatus,
+  DbService,
+  DbTableStatus,
+} from '../../core/db';
 
 @Injectable()
 export class OrdersWriteRepository {

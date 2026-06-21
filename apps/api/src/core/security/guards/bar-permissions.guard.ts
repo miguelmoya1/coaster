@@ -1,33 +1,34 @@
 import type { BarPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { DbService } from '../../../db';
 import { ErrorCodes } from '../../constants';
+import { DbRole } from '../../db';
+import { hasPermission } from '../../permissions/bar-member.security';
 import { asBarRole } from '../../utils/brands';
-import { hasPermission } from '../bar-member.security';
-import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
+import { SecurityRepository } from '../data-access/security.repository';
+import { BAR_PERMISSIONS_KEY } from '../decorators/bar-permissions.decorator';
 
 interface RequestWithUser {
-  user: { id: string; role: string };
+  user: { id: string };
   params: { barId: string };
 }
 
 @Injectable()
-export class PermissionsGuard implements CanActivate {
+export class BarPermissionsGuard implements CanActivate {
   constructor(
     private _reflector: Reflector,
-    private _prisma: DbService,
+    private _securityRepository: SecurityRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermissions = this._reflector.getAllAndOverride<BarPermission[]>(PERMISSIONS_KEY, [
+    const requiredPermissions = this._reflector.getAllAndOverride<BarPermission[]>(BAR_PERMISSIONS_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
-    const barId = request.params.barId;
+    const barId = request.params?.barId;
 
     if (!requiredPermissions && !barId) {
       return true;
@@ -37,7 +38,9 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
     }
 
-    if (user.role === 'ADMIN') {
+    const userRole = await this._securityRepository.getUserRole(user.id);
+
+    if (userRole === DbRole.ADMIN) {
       return true;
     }
 
@@ -45,14 +48,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.MISSING_BAR_ID);
     }
 
-    const membership = await this._prisma.dbBarMember.findUnique({
-      where: {
-        userId_barId: {
-          userId: user.id,
-          barId: barId,
-        },
-      },
-    });
+    const membership = await this._securityRepository.getBarMemberRole(user.id, barId);
 
     if (!membership || !membership.active) {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
@@ -63,7 +59,7 @@ export class PermissionsGuard implements CanActivate {
       const hasAllPermissions = requiredPermissions.every((permission) => hasPermission(role, permission));
 
       if (!hasAllPermissions) {
-        throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
+        throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
       }
     }
 

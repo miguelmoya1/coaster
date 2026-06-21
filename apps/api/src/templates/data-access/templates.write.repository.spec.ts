@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DbService } from '../../core/db';
 import { TemplatesWriteRepository } from './templates.write.repository';
-import { DbService } from '../../db';
 
 describe('TemplatesWriteRepository', () => {
   let repository: TemplatesWriteRepository;
@@ -95,7 +95,11 @@ describe('TemplatesWriteRepository', () => {
 
   describe('upsertCategoryTemplate', () => {
     it('should update existing if icon changed', async () => {
-      vi.mocked(dbService.dbCategoryTemplate.findFirst).mockResolvedValue({ id: '1', name: 'Test', icon: 'old' } as any);
+      vi.mocked(dbService.dbCategoryTemplate.findFirst).mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        icon: 'old',
+      } as any);
       vi.mocked(dbService.dbCategoryTemplate.update).mockResolvedValue({ id: '1', name: 'Test', icon: 'new' } as any);
 
       await repository.upsertCategoryTemplate('Test', 'new');
@@ -103,8 +107,12 @@ describe('TemplatesWriteRepository', () => {
     });
 
     it('should return existing if icon unchanged', async () => {
-      vi.mocked(dbService.dbCategoryTemplate.findFirst).mockResolvedValue({ id: '1', name: 'Test', icon: 'old' } as any);
-      
+      vi.mocked(dbService.dbCategoryTemplate.findFirst).mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        icon: 'old',
+      } as any);
+
       const res = await repository.upsertCategoryTemplate('Test', 'old');
       expect(dbService.dbCategoryTemplate.update).not.toHaveBeenCalled();
       expect(res).toEqual({ id: '1', name: 'Test', icon: 'old' });
@@ -119,13 +127,23 @@ describe('TemplatesWriteRepository', () => {
 
   describe('upsertProductTemplate', () => {
     it('should update existing if price changed', async () => {
-      vi.mocked(dbService.dbProductTemplate.findFirst).mockResolvedValue({ id: '1', name: 'Test', categoryId: 'c1', price: 10 } as any);
+      vi.mocked(dbService.dbProductTemplate.findFirst).mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        categoryId: 'c1',
+        price: 10,
+      } as any);
       await repository.upsertProductTemplate('Test', 20, 'c1');
       expect(dbService.dbProductTemplate.update).toHaveBeenCalledWith({ where: { id: '1' }, data: { price: 20 } });
     });
 
     it('should return existing if price unchanged', async () => {
-      vi.mocked(dbService.dbProductTemplate.findFirst).mockResolvedValue({ id: '1', name: 'Test', categoryId: 'c1', price: 10 } as any);
+      vi.mocked(dbService.dbProductTemplate.findFirst).mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        categoryId: 'c1',
+        price: 10,
+      } as any);
       await repository.upsertProductTemplate('Test', 10, 'c1');
       expect(dbService.dbProductTemplate.update).not.toHaveBeenCalled();
     });
@@ -133,7 +151,9 @@ describe('TemplatesWriteRepository', () => {
     it('should create if not exists', async () => {
       vi.mocked(dbService.dbProductTemplate.findFirst).mockResolvedValue(null);
       await repository.upsertProductTemplate('Test', 10, 'c1');
-      expect(dbService.dbProductTemplate.create).toHaveBeenCalledWith({ data: { name: 'Test', price: 10, categoryId: 'c1' } });
+      expect(dbService.dbProductTemplate.create).toHaveBeenCalledWith({
+        data: { name: 'Test', price: 10, categoryId: 'c1' },
+      });
     });
   });
 

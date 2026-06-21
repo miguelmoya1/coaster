@@ -1,6 +1,6 @@
 import type { BarId, BarMemberId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbBarMemberUncheckedCreateInput, DbService } from '../../db';
+import { DbBarMemberUncheckedCreateInput, DbService } from '../../core/db';
 
 type CreateBarMemberDto = Omit<DbBarMemberUncheckedCreateInput, 'id' | 'barId' | 'userId' | 'createdAt' | 'updatedAt'>;
 

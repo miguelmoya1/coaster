@@ -1,5 +1,5 @@
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { DbCategoryTemplate, DbProductTemplate } from '../../db';
+import { DbCategoryTemplate, DbProductTemplate } from '../../core/db';
 
 export class TemplatesMapper {
   static toCategoryTemplate(categoryTemplate: DbCategoryTemplate): ICategoryTemplate {

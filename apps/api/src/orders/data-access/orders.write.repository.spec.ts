@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OrdersWriteRepository } from './orders.write.repository';
-import { DbService, DbOrderStatus, DbTableStatus } from '../../db';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asOrderId } from '../../core';
+import { DbService } from '../../core/db';
+import { OrdersWriteRepository } from './orders.write.repository';
 
 describe('OrdersWriteRepository', () => {
   let repository: OrdersWriteRepository;
@@ -60,7 +60,7 @@ describe('OrdersWriteRepository', () => {
       const dto = { tableId: 'table-1', items: [] };
       const priceMap = new Map();
       const totalAmount = 0;
-      
+
       await repository.createOrder(barId, dto as any, priceMap, totalAmount, 'Table 1');
       expect(dbService.$transaction).toHaveBeenCalled();
     });

@@ -1,18 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { DeleteExchangeHandler } from './delete-exchange.handler';
-import { DeleteExchangeCommand } from './delete-exchange.command';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ErrorCodes, ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '../../../core';
+import { DbBarRole } from '../../../core/db';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
-import { DbBarRole, DbService } from '../../../db';
-import { ErrorCodes, ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '../../../core';
+import { DeleteExchangeCommand } from './delete-exchange.command';
+import { DeleteExchangeHandler } from './delete-exchange.handler';
 
 describe('DeleteExchangeHandler', () => {
   let handler: DeleteExchangeHandler;
   let readRepo: ShiftExchangesReadRepository;
   let writeRepo: ShiftExchangesWriteRepository;
-  let dbService: DbService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,6 +21,7 @@ describe('DeleteExchangeHandler', () => {
           provide: ShiftExchangesReadRepository,
           useValue: {
             getExchangeById: vi.fn(),
+            getBarMember: vi.fn(),
           },
         },
         {
@@ -30,21 +30,12 @@ describe('DeleteExchangeHandler', () => {
             deleteExchange: vi.fn(),
           },
         },
-        {
-          provide: DbService,
-          useValue: {
-            dbBarMember: {
-              findUnique: vi.fn(),
-            },
-          },
-        },
       ],
     }).compile();
 
     handler = module.get<DeleteExchangeHandler>(DeleteExchangeHandler);
     readRepo = module.get<ShiftExchangesReadRepository>(ShiftExchangesReadRepository);
     writeRepo = module.get<ShiftExchangesWriteRepository>(ShiftExchangesWriteRepository);
-    dbService = module.get<DbService>(DbService);
   });
 
   const exchangeId = asShiftExchangeId('exc-1');
@@ -68,7 +59,7 @@ describe('DeleteExchangeHandler', () => {
   it('should throw ForbiddenException if member does not exist or is inactive', async () => {
     const command = new DeleteExchangeCommand(barId, exchangeId, userId);
     vi.mocked(readRepo.getExchangeById).mockResolvedValue({ shift: { barId: 'bar-1' } } as any);
-    vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue(null as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue(null as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND));
   });
@@ -80,7 +71,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: 'other-user',
       status: ShiftExchangeStatus.APPROVED,
     } as any);
-    vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: true, role: DbBarRole.OWNER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.OWNER } as any);
 
     await handler.execute(command);
 
@@ -94,7 +85,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: 'other-user',
       status: ShiftExchangeStatus.PENDING,
     } as any);
-    vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new ForbiddenException(ErrorCodes.UNAUTHORIZED));
   });
@@ -106,7 +97,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: userId,
       status: ShiftExchangeStatus.APPROVED,
     } as any);
-    vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_EXCHANGE));
   });
@@ -118,7 +109,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: userId,
       status: ShiftExchangeStatus.PENDING,
     } as any);
-    vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
 
     await handler.execute(command);
 

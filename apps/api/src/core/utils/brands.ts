@@ -33,7 +33,7 @@ export const asUserId = (id: string): UserId => id as UserId;
 
 // Mapper validators
 export const asBarRole = (role: string): BarRole => {
-  const roles: BarRole[] = ['OWNER', 'STAFF'];
+  const roles: BarRole[] = ['OWNER', 'MANAGER', 'STAFF'];
   if (roles.includes(role as BarRole)) return role as BarRole;
   console.warn(`Invalid BarRole mapping: ${role}, defaulting to STAFF`);
   return 'STAFF';

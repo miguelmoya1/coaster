@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asBarMemberId, asUserId } from '../../../core';
-import { DbBarRole } from '../../../db';
+import { DbBarRole } from '../../../core/db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { GetMemberMeHandler } from './get-member-me.handler';
 import { GetMemberMeQuery } from './get-member-me.query';
@@ -44,7 +44,8 @@ describe('GetMemberMeHandler', () => {
 
     mockReadRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
 
-    const result = await handler.execute(new GetMemberMeQuery(barId, userId));
+    const user = { id: userId, name: 'John Doe', email: 'john@test.com', active: true, role: 'USER' as const };
+    const result = await handler.execute(new GetMemberMeQuery(barId, user as any));
 
     expect(result).toEqual({
       id: asBarMemberId('member-1'),
@@ -66,7 +67,8 @@ describe('GetMemberMeHandler', () => {
 
     mockReadRepository.getMemberByUserAndBar.mockResolvedValue(null);
 
-    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
+    const user = { id: userId, name: 'John Doe', email: 'john@test.com', active: true, role: 'USER' as const };
+    await expect(handler.execute(new GetMemberMeQuery(barId, user as any))).rejects.toThrow(NotFoundException);
   });
 
   it('should throw NotFoundException if member is inactive', async () => {
@@ -83,6 +85,7 @@ describe('GetMemberMeHandler', () => {
 
     mockReadRepository.getMemberByUserAndBar.mockResolvedValue(mockDbMember);
 
-    await expect(handler.execute(new GetMemberMeQuery(barId, userId))).rejects.toThrow(NotFoundException);
+    const user = { id: userId, name: 'John Doe', email: 'john@test.com', active: true, role: 'USER' as const };
+    await expect(handler.execute(new GetMemberMeQuery(barId, user as any))).rejects.toThrow(NotFoundException);
   });
 });

@@ -1,6 +1,6 @@
 import type { BarId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';
+import { DbService } from '../../core/db';
 
 @Injectable()
 export class BarReadRepository {
@@ -23,10 +23,7 @@ export class BarReadRepository {
   public async searchBarsAsAdmin(query: string) {
     return this._db.dbBar.findMany({
       where: {
-        OR: [
-          { id: { equals: query } },
-          { name: { contains: query, mode: 'insensitive' } },
-        ],
+        OR: [{ id: { equals: query } }, { name: { contains: query, mode: 'insensitive' } }],
       },
       take: 20,
     });

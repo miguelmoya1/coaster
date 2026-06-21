@@ -2,7 +2,7 @@ import type { BarId, Order, OrderId, OrderItemId, OrderStatus } from '@coaster/c
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
-import { BarPermission, Permissions, PermissionsGuard } from '../../core';
+import { BarPermission, BarPermissions, BarPermissionsGuard } from '../../core';
 import {
   AddOrderItemsCommand,
   BulkUpdateOrderCommand,
@@ -24,7 +24,7 @@ import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
 @Controller('bars/:barId/orders')
-@UseGuards(FirebaseAuthGuard, PermissionsGuard)
+@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
 export class OrdersController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -32,7 +32,7 @@ export class OrdersController {
   ) {}
 
   @Get()
-  @Permissions(BarPermission.VIEW_ORDERS)
+  @BarPermissions(BarPermission.VIEW_ORDERS)
   async getOrders(@Param('barId') barId: BarId, @Query('status') status?: OrderStatus, @Query('date') date?: string) {
     if (date) {
       const orders = await this._queryBus.execute<GetOrdersByDateQuery, Order[]>(new GetOrdersByDateQuery(barId, date));
@@ -45,20 +45,20 @@ export class OrdersController {
   }
 
   @Get(':orderId')
-  @Permissions(BarPermission.VIEW_ORDERS)
+  @BarPermissions(BarPermission.VIEW_ORDERS)
   async getOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId) {
     const order = await this._queryBus.execute<GetOrderByIdQuery, Order>(new GetOrderByIdQuery(barId, orderId));
     return OrdersMapper.toDto(order);
   }
 
   @Post()
-  @Permissions(BarPermission.CREATE_ORDER)
+  @BarPermissions(BarPermission.CREATE_ORDER)
   async createOrder(@Param('barId') barId: BarId, @Body() dto: CreateOrderDto): Promise<void> {
     await this._commandBus.execute<CreateOrderCommand, void>(new CreateOrderCommand(barId, dto));
   }
 
   @Post(':orderId/items')
-  @Permissions(BarPermission.UPDATE_ORDER)
+  @BarPermissions(BarPermission.UPDATE_ORDER)
   async addItems(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -68,7 +68,7 @@ export class OrdersController {
   }
 
   @Patch(':orderId/items/bulk')
-  @Permissions(BarPermission.UPDATE_ORDER)
+  @BarPermissions(BarPermission.UPDATE_ORDER)
   async bulkUpdate(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -78,7 +78,7 @@ export class OrdersController {
   }
 
   @Post(':orderId/checkout')
-  @Permissions(BarPermission.CHECKOUT_ORDER)
+  @BarPermissions(BarPermission.CHECKOUT_ORDER)
   async checkout(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -90,13 +90,13 @@ export class OrdersController {
   }
 
   @Post(':orderId/cancel')
-  @Permissions(BarPermission.CANCEL_ORDER)
+  @BarPermissions(BarPermission.CANCEL_ORDER)
   async cancelOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
     await this._commandBus.execute<CancelOrderCommand, void>(new CancelOrderCommand(barId, orderId));
   }
 
   @Patch(':orderId/move-table')
-  @Permissions(BarPermission.MOVE_ORDER_TABLE)
+  @BarPermissions(BarPermission.MOVE_ORDER_TABLE)
   async moveTable(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -106,13 +106,13 @@ export class OrdersController {
   }
 
   @Post('merge')
-  @Permissions(BarPermission.MERGE_ORDERS)
+  @BarPermissions(BarPermission.MERGE_ORDERS)
   async mergeOrders(@Param('barId') barId: BarId, @Body() dto: MergeOrdersDto): Promise<void> {
     await this._commandBus.execute<MergeOrdersCommand, void>(new MergeOrdersCommand(barId, dto));
   }
 
   @Delete(':orderId/items/:itemId')
-  @Permissions(BarPermission.DELETE_ORDER_ITEM)
+  @BarPermissions(BarPermission.DELETE_ORDER_ITEM)
   async removeItem(
     @Param('barId') barId: BarId,
     @Param('orderId') orderId: OrderId,
@@ -122,7 +122,7 @@ export class OrdersController {
   }
 
   @Delete(':orderId')
-  @Permissions(BarPermission.DELETE_ORDER)
+  @BarPermissions(BarPermission.DELETE_ORDER)
   async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
     await this._commandBus.execute<DeleteOrderCommand, void>(new DeleteOrderCommand(barId, orderId));
   }

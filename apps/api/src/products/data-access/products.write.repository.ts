@@ -1,6 +1,6 @@
 import type { CategoryId, ProductId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbProductUncheckedCreateInput, DbProductUncheckedUpdateInput, DbService } from '../../db';
+import { DbProductUncheckedCreateInput, DbProductUncheckedUpdateInput, DbService } from '../../core/db';
 
 type CreateProductInput = Omit<
   DbProductUncheckedCreateInput,

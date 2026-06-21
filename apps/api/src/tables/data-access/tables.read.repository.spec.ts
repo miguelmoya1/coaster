@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TablesReadRepository } from './tables.read.repository';
-import { DbService } from '../../db';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asTableId } from '../../core';
+import { DbService } from '../../core/db';
+import { TablesReadRepository } from './tables.read.repository';
 
 describe('TablesReadRepository', () => {
   let repository: TablesReadRepository;

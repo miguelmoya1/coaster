@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes, ShiftExchangeStatus } from '../../../core';
-import { DbBarRole, DbService } from '../../../db';
+import { DbBarRole } from '../../../core/db';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { DeleteExchangeCommand } from './delete-exchange.command';
@@ -11,7 +11,6 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
   constructor(
     private readonly readRepo: ShiftExchangesReadRepository,
     private readonly writeRepo: ShiftExchangesWriteRepository,
-    private readonly _prisma: DbService,
   ) {}
 
   async execute(command: DeleteExchangeCommand): Promise<void> {
@@ -21,15 +20,7 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
     }
 
-    const member = await this._prisma.dbBarMember.findUnique({
-      where: {
-        userId_barId: {
-          userId: command.userId,
-          barId: command.barId,
-        },
-      },
-      select: { role: true, active: true },
-    });
+    const member = await this.readRepo.getBarMember(command.userId, command.barId);
 
     if (!member || !member.active) {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);

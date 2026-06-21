@@ -1,6 +1,6 @@
 import { UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService, DbUserUncheckedCreateInput, DbUserUncheckedUpdateInput } from '../../db';
+import { DbService, DbUserUncheckedCreateInput, DbUserUncheckedUpdateInput } from '../../core/db';
 
 type CreateUserDto = Omit<
   DbUserUncheckedCreateInput,

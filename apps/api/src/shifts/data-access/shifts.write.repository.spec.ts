@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asShiftId, asUserId } from '../../core';
+import { DbService } from '../../core/db';
 import { ShiftsWriteRepository } from './shifts.write.repository';
-import { DbService } from '../../db';
-import { asBarId, asUserId, asShiftId } from '../../core';
 
 describe('ShiftsWriteRepository', () => {
   let repository: ShiftsWriteRepository;

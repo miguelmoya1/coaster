@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DbService } from '../../core/db';
 import { TemplatesReadRepository } from './templates.read.repository';
-import { DbService } from '../../db';
 
 describe('TemplatesReadRepository', () => {
   let repository: TemplatesReadRepository;

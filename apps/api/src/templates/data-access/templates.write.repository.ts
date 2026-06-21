@@ -5,7 +5,7 @@ import {
   DbProductTemplateUncheckedCreateInput,
   DbProductTemplateUncheckedUpdateInput,
   DbService,
-} from '../../db';
+} from '../../core/db';
 
 type CreateCategoryTemplateDto = Omit<
   DbCategoryTemplateUncheckedCreateInput,

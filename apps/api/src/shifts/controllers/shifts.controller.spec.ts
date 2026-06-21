@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { FirebaseAuthGuard } from '../../auth';
-import { asBarId, asShiftId, asUserId, PermissionsGuard } from '../../core';
+import { asBarId, asShiftId, asUserId, BarPermissionsGuard } from '../../core';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
 import { ShiftsController } from './shifts.controller';
@@ -28,7 +28,7 @@ describe('ShiftsController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
+      .overrideGuard(BarPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 

@@ -1,6 +1,6 @@
 import type { BarId, ShiftId, UserId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../db';
+import { DbService } from '../../core/db';
 
 @Injectable()
 export class ShiftsReadRepository {

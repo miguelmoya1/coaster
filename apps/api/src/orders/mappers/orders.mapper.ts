@@ -10,7 +10,7 @@ import {
   asProductId,
   asTableId,
 } from '../../core';
-import { DbOrder as OrderDb, DbOrderItem as OrderItemDb } from '../../db';
+import { DbOrder as OrderDb, DbOrderItem as OrderItemDb } from '../../core/db';
 
 type OrderItemWithProduct = OrderItemDb & {
   product: { name: string };
