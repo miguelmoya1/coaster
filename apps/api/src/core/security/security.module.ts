@@ -6,5 +6,6 @@ import { BarPermissionsGuard } from './guards/bar-permissions.guard';
 @Global()
 @Module({
   providers: [SecurityRepository, AdminGuard, BarPermissionsGuard],
+  exports: [AdminGuard, BarPermissionsGuard, SecurityRepository],
 })
 export class SecurityModule {}

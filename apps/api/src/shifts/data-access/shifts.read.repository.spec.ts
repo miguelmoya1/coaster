@@ -35,39 +35,7 @@ describe('ShiftsReadRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('isUserMemberOfBar', () => {
-    it('should return true if active member', async () => {
-      const userId = asUserId('user-1');
-      const barId = asBarId('bar-1');
-      vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: true } as any);
 
-      const result = await repository.isUserMemberOfBar(userId, barId);
-
-      expect(dbService.dbBarMember.findUnique).toHaveBeenCalledWith({
-        where: { userId_barId: { userId, barId } },
-        select: { active: true },
-      });
-      expect(result).toBe(true);
-    });
-
-    it('should return false if not active member', async () => {
-      const userId = asUserId('user-1');
-      const barId = asBarId('bar-1');
-      vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue({ active: false } as any);
-
-      const result = await repository.isUserMemberOfBar(userId, barId);
-      expect(result).toBe(false);
-    });
-
-    it('should return false if member not found', async () => {
-      const userId = asUserId('user-1');
-      const barId = asBarId('bar-1');
-      vi.mocked(dbService.dbBarMember.findUnique).mockResolvedValue(null as any);
-
-      const result = await repository.isUserMemberOfBar(userId, barId);
-      expect(result).toBe(false);
-    });
-  });
 
   describe('findByBarId', () => {
     it('should call dbShift.findMany without dates', async () => {

@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
 import { ShiftCreatedEvent } from '../../../events';
@@ -18,11 +18,6 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
   ) {}
 
   async execute(command: CreateShiftCommand): Promise<void> {
-    const isMember = await this.readRepo.isUserMemberOfBar(command.dto.userId, command.barId);
-
-    if (!isMember) {
-      throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
-    }
 
     const { startTime, endTime, userId, ...rest } = command.dto;
 

@@ -3,7 +3,6 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, FirebaseAuthGuard } from '../../auth';
 import { Admin, AdminGuard, BarPermissionsGuard } from '../../core';
-import { DbRole } from '../../core/db';
 import { CreateBarCommand } from '../commands';
 import { CreateBarDto } from '../dto/create-bar.dto';
 import { BarsMapper } from '../mappers/bars.mapper';

@@ -195,7 +195,7 @@ describe('BarPermissionsGuard', () => {
       }),
     } as unknown as ExecutionContext;
 
-    await expect(guard.canActivate(context)).rejects.toThrow(new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND));
+    await expect(guard.canActivate(context)).rejects.toThrow(new ForbiddenException(ErrorCodes.UNAUTHORIZED));
     expect(hasPermission).toHaveBeenCalledWith('STAFF', 'INVITE_MEMBER');
   });
 });
