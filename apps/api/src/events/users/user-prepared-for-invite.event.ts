@@ -4,6 +4,7 @@ export class UserPreparedForInviteEvent {
   constructor(
     public readonly userId: UserId,
     public readonly barId: BarId,
-    public readonly role?: BarRole,
+    public readonly role: BarRole | undefined,
+    public readonly inviterLanguage: string,
   ) {}
 }

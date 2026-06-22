@@ -89,6 +89,7 @@ export const DbUserScalarFieldEnum = {
   photoUrl: 'photoUrl',
   active: 'active',
   role: 'role',
+  language: 'language',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -24,6 +24,6 @@ export class PrepareInviteMemberHandler implements ICommandHandler<PrepareInvite
     }
 
     this.#logger.debug(`Publishing PrepareUserForInviteEvent...`);
-    await this.eventBus.publish(new PrepareUserForInviteEvent(barId, email, role));
+    await this.eventBus.publish(new PrepareUserForInviteEvent(barId, email, role, command.user.language));
   }
 }

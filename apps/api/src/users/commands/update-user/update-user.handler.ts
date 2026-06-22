@@ -28,6 +28,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, voi
     await this.writeRepo.update(id, {
       name: updateUserDto.name,
       photoUrl: updateUserDto.photoUrl,
+      language: updateUserDto.language,
     });
   }
 }

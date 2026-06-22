@@ -14,7 +14,11 @@ export class UserSagas {
       ofType(PrepareUserForInviteEvent),
       map((event) => {
         this.#logger.debug(`Catching PrepareUserForInviteEvent...`);
-        return new PrepareUserForInviteCommand(event.email, { barId: event.barId, role: event.role });
+        return new PrepareUserForInviteCommand(event.email, {
+          barId: event.barId,
+          role: event.role,
+          inviterLanguage: event.inviterLanguage,
+        });
       }),
     );
   };

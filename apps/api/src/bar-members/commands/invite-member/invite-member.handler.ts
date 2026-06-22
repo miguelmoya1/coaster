@@ -22,7 +22,7 @@ export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand,
     const response = await this.repository.invite(barId, userId, { role });
 
     this.#logger.debug(`Publishing UserInvitedEvent...`);
-    this.eventBus.publish(new UserInvitedEvent(response.user.name, response.user.email, response.bar.name));
+    this.eventBus.publish(new UserInvitedEvent(response.user.name, response.user.email, response.bar.name, command.inviterLanguage));
     this.#logger.debug(`Publishing MemberInvitedEvent...`);
     this.eventBus.publish(new MemberInvitedEvent(barId, asBarMemberId(response.id)));
   }

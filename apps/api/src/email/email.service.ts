@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 
+import * as Handlebars from 'handlebars';
+import { InviteEmailTemplate, InviteEmailTranslations } from './templates/invite-email.template';
+
 @Injectable()
 export class EmailService {
   #resend: Resend;
@@ -11,25 +14,23 @@ export class EmailService {
     this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY'));
   }
 
-  async sendInviteEmail(to: string, barName: string, inviterName: string) {
+  async sendInviteEmail(to: string, barName: string, inviterName: string, lang = 'es') {
     try {
-      const template = await this.#resend.templates.get('invite-email');
+      const template = Handlebars.compile(InviteEmailTemplate);
+      const translations = InviteEmailTranslations[lang] || InviteEmailTranslations['es'];
 
-      const templateId = template.data?.id;
-
-      if (!templateId) {
-        throw new Error('Template not found');
-      }
+      const html = template({
+        ...translations,
+        lang,
+        barName,
+        inviterName,
+      });
 
       await this.#resend.emails.send({
+        from: 'Coaster <hello@coaster.business>', // Or from ConfigService
         to,
-        template: {
-          id: templateId,
-          variables: {
-            barName,
-            inviterName,
-          },
-        },
+        subject: translations.subject,
+        html,
       });
       this.#logger.debug('Invite email sent successfully');
     } catch (error) {

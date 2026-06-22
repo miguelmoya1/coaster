@@ -14,7 +14,7 @@ export class BarMembersSagas {
       ofType(UserPreparedForInviteEvent),
       map((event) => {
         this.#logger.debug(`Catching UserPreparedForInviteEvent...`);
-        return new InviteMemberCommand(event.userId, event.barId, event.role);
+        return new InviteMemberCommand(event.userId, event.barId, event.role, event.inviterLanguage);
       }),
     );
   };

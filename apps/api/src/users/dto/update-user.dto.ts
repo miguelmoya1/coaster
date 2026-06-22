@@ -10,4 +10,8 @@ export class UpdateUserDto implements IUpdateUserDto {
   @IsString({ message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   photoUrl?: string;
+
+  @IsString({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  language?: string;
 }

@@ -11,6 +11,7 @@ export interface User {
   active: boolean;
   photoUrl?: string;
   role: Role;
+  language: string;
 }
 
 export interface CreateUserDto {
@@ -23,4 +24,5 @@ export interface CreateUserDto {
 export interface UpdateUserDto {
   name?: string;
   photoUrl?: string;
+  language?: string;
 }

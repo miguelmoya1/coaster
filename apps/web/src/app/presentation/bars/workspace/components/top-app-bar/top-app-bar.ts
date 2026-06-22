@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { Auth } from '@coaster/core';
+import { Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
@@ -81,11 +81,21 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           </div>
 
           <div class="flex flex-col gap-1">
-            <a mat-menu-item [href]="apiUrl + '/public/downloads/printer-service-windows.exe'" target="_blank" class="flex items-center gap-2">
+            <a
+              mat-menu-item
+              [href]="apiUrl + '/public/downloads/printer-service-windows.exe'"
+              target="_blank"
+              class="flex items-center gap-2"
+            >
               <mat-icon>desktop_windows</mat-icon>
               <span>Windows (.exe)</span>
             </a>
-            <a mat-menu-item [href]="apiUrl + '/public/downloads/printer-service-linux'" target="_blank" class="flex items-center gap-2">
+            <a
+              mat-menu-item
+              [href]="apiUrl + '/public/downloads/printer-service-linux'"
+              target="_blank"
+              class="flex items-center gap-2"
+            >
               <mat-icon>terminal</mat-icon>
               <span>Linux (bin)</span>
             </a>
@@ -107,6 +117,7 @@ export class TopAppBar {
   readonly image = input.required<string>();
 
   readonly #auth = inject(Auth);
+  readonly #currentUser = inject(CurrentUser);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
@@ -114,7 +125,9 @@ export class TopAppBar {
   readonly apiUrl = environment.apiUrl;
 
   setLanguage(lang: string): void {
-    this.#translate.use(lang);
+    if (this.#auth.isAuthenticated()) {
+      this.#currentUser.updateLanguage(lang);
+    }
   }
 
   async logout(): Promise<void> {

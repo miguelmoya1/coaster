@@ -11,8 +11,8 @@ export class UserInvitedHandler implements IEventHandler<UserInvitedEvent> {
 
   async handle(event: UserInvitedEvent) {
     this.#logger.debug(`Catching UserInvitedEvent...`);
-    const { email, barName, inviterName } = event;
+    const { email, barName, inviterName, inviterLanguage } = event;
 
-    await this._emailService.sendInviteEmail(email, barName, inviterName);
+    await this._emailService.sendInviteEmail(email, barName, inviterName, inviterLanguage);
   }
 }

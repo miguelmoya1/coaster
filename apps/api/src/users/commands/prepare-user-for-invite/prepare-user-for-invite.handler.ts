@@ -28,6 +28,8 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
     const userDomain = UsersMapper.toDomain(user);
 
     this.#logger.debug(`Publishing UserPreparedForInviteEvent...`);
-    this.eventBus.publish(new UserPreparedForInviteEvent(userDomain.id, barId, role));
+    this.eventBus.publish(
+      new UserPreparedForInviteEvent(userDomain.id, barId, role, command.extraData.inviterLanguage),
+    );
   }
 }

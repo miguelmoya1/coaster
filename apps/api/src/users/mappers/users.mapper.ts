@@ -12,6 +12,7 @@ export const UsersMapper = {
       photoUrl: dbUser.photoUrl ?? undefined,
       active: dbUser.active,
       role: dbUser.role,
+      language: dbUser.language,
     };
   },
 
