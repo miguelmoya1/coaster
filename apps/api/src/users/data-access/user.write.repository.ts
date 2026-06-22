@@ -30,6 +30,7 @@ export class UserWriteRepository {
         name: data.name,
         photoUrl: data.photoUrl,
         active: data.active,
+        language: data.language,
       },
       create: data,
     });

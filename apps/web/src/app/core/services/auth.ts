@@ -1,5 +1,6 @@
 import { computed, inject, InjectionToken, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Language } from '@ngx-translate/core';
 import {
   Auth as FirebaseAuth,
   GoogleAuthProvider,
@@ -17,6 +18,7 @@ export interface UserProfile {
   name: string;
   email: string;
   photo: string;
+  language: string;
 }
 
 export function authState(auth: FirebaseAuth): Observable<User | null> {
@@ -73,10 +75,15 @@ export class Auth {
       return null;
     }
 
+    const navLang = navigator.language.split('-')[0] as Language;
+
+    const language = navLang === 'en' ? 'es' : navLang;
+
     const userReturn: UserProfile = {
       name: user.displayName ?? '',
       email: user.email ?? '',
       photo: user.photoURL ?? '',
+      language,
     };
 
     return userReturn;
