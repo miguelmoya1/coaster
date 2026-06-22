@@ -33,8 +33,8 @@
 
 ## 🌍 Internacionalización (i18n)
 
-- [ ] **Frontend:** Configurar `@ngx-translate/core` o el i18n nativo de Angular.
-- [ ] **Frontend:** Traducir textos estáticos de la aplicación.
-- [ ] **Esquema BD:** Pensar estrategia para las traducciones dinámicas (ej: nombres en `DbProductTemplate`).
+- [x] **Frontend:** Configurar `@ngx-translate/core` o el i18n nativo de Angular.
+- [x] **Frontend:** Traducir textos estáticos de la aplicación.
+- [x] **Esquema BD:** Pensar estrategia para las traducciones dinámicas (ej: nombres en `DbProductTemplate`).
 
 ## Landing Page
