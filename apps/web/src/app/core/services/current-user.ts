@@ -41,14 +41,8 @@ export class CurrentUser {
   }
 
   public async updateLanguage(language: string) {
-    console.log({ language });
-    try {
-      await firstValueFrom(this.#http.patch<void>(this.#routes.me, { language }));
-    } catch (error) {
-      console.error({ error });
-    }
+    await firstValueFrom(this.#http.patch<void>(this.#routes.me, { language }));
 
-    console.log('Language updated');
     this.#translate.use(language);
     this.#current.reload();
   }
