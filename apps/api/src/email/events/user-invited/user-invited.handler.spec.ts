@@ -23,7 +23,7 @@ describe('UserInvitedHandler', () => {
   });
 
   it('should send invite email when user is invited', async () => {
-    const event = new UserInvitedEvent('John Doe', 'john@example.com', 'My Bar');
+    const event = new UserInvitedEvent('John Doe', 'john@example.com', 'My Bar', 'es');
 
     await handler.handle(event);
 
@@ -31,6 +31,7 @@ describe('UserInvitedHandler', () => {
       'john@example.com',
       'My Bar',
       'John Doe',
+      'es',
     );
   });
 });

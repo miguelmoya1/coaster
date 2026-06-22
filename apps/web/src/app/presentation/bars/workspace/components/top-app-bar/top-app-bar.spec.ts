@@ -1,6 +1,7 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Auth } from '@coaster/core';
+import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TopAppBar } from './top-app-bar';
@@ -11,14 +12,28 @@ describe('TopAppBar', () => {
   let translateService: TranslateService;
   let router: Router;
 
+  const isAuthenticated = signal(true);
   const authMock = {
+    isAuthenticated: isAuthenticated.asReadonly(),
     logout: vi.fn().mockResolvedValue(undefined),
+  };
+
+  const currentUserMock = {
+    updateLanguage: vi.fn().mockImplementation((lang: string) => {
+      translateService.use(lang);
+      return Promise.resolve();
+    }),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopAppBar],
-      providers: [provideTranslateService(), provideRouter([]), { provide: Auth, useValue: authMock }],
+      providers: [
+        provideTranslateService(),
+        provideRouter([]),
+        { provide: Auth, useValue: authMock },
+        { provide: CurrentUser, useValue: currentUserMock },
+      ],
     }).compileComponents();
 
     vi.clearAllMocks();

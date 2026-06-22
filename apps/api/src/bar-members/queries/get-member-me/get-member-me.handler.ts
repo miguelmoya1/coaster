@@ -1,7 +1,7 @@
 import type { BarMember } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
+import { asBarMemberId, ErrorCodes } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { GetMemberMeQuery } from './get-member-me.query';
@@ -16,7 +16,7 @@ export class GetMemberMeHandler implements IQueryHandler<GetMemberMeQuery, BarMe
     if (!member || !member.active) {
       if (query.user.role === 'ADMIN') {
         return {
-          id: 'mock-admin-member' as any,
+          id: asBarMemberId('mock-admin-member'),
           userId: query.user.id,
           barId: query.barId,
           role: 'OWNER',

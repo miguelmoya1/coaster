@@ -2,6 +2,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { User } from '@coaster/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import { asUserId, Role } from '@coaster/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth, UserProfile } from './auth';
@@ -27,7 +28,11 @@ describe('CurrentUser', () => {
     userProfile.set(null);
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClientTesting(), { provide: Auth, useValue: authMock }],
+      providers: [
+        provideHttpClientTesting(),
+        provideTranslateService(),
+        { provide: Auth, useValue: authMock },
+      ],
     });
 
     service = TestBed.inject(CurrentUser);
@@ -70,6 +75,7 @@ describe('CurrentUser', () => {
         name: 'Test user',
         active: true,
         role: Role.USER,
+        language: 'es',
       };
 
       httpMock.expectOne('/users/me').flush(mockUser);
@@ -95,6 +101,7 @@ describe('CurrentUser', () => {
       active: true,
       role: Role.USER,
       photoUrl: 'http://photo.com/1',
+      language: 'es',
     };
 
     it('should not update if user matches profile', async () => {
@@ -102,6 +109,7 @@ describe('CurrentUser', () => {
         name: 'Test user',
         email: 'test@example.com',
         photo: 'http://photo.com/1',
+        language: 'es',
       });
 
       const result = await service.syncUser(mockUser);
@@ -115,6 +123,7 @@ describe('CurrentUser', () => {
         name: 'Old Name',
         email: 'test@example.com',
         photo: 'http://photo.com/1',
+        language: 'es',
       });
 
       const promise = service.syncUser(mockUser);
@@ -132,6 +141,7 @@ describe('CurrentUser', () => {
         name: 'Test user',
         email: 'test@example.com',
         photo: 'http://old.photo/1',
+        language: 'es',
       });
 
       const promise = service.syncUser(mockUser);
