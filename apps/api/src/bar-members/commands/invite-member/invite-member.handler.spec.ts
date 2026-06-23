@@ -1,17 +1,17 @@
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserInvitedEvent } from '@users/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asUserId } from '../../../core';
-import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
+import { asBarId, asRole, asUserId } from '../../../core';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
+import { InviteMemberRequestedEvent } from '../../events';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';
 
 describe('InviteMemberHandler', () => {
   let handler: InviteMemberHandler;
   const repository = {
-    invite: vi.fn(),
+    isMember: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -22,7 +22,7 @@ describe('InviteMemberHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InviteMemberHandler,
-        { provide: BarMembersWriteRepository, useValue: repository },
+        { provide: BarMembersReadRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
@@ -30,30 +30,33 @@ describe('InviteMemberHandler', () => {
     handler = module.get<InviteMemberHandler>(InviteMemberHandler);
   });
 
-  it('should invite and publish UserInvitedEvent', async () => {
-    repository.invite.mockResolvedValue({
-      id: 'new-member',
-      user: {
-        name: 'User',
-        email: 'new@test.com',
-      },
-      bar: {
-        name: 'Test Bar',
-      },
-    });
+  const fakeUser = {
+    id: asUserId('admin-id'),
+    name: 'Admin Name',
+    email: 'admin@test.com',
+    active: true,
+    role: asRole('USER'),
+    language: 'en',
+  };
 
-    await handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF'));
+  it('should publish InviteMemberRequestedEvent when member is not registered', async () => {
+    repository.isMember.mockResolvedValue(false);
 
-    expect(repository.invite).toHaveBeenCalledWith('bar-1', 'new@test.com', { role: 'STAFF' });
-    expect(eventBus.publish).toHaveBeenCalledWith(new UserInvitedEvent('User', 'new@test.com', 'Test Bar'));
+    await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF'));
+
+    expect(repository.isMember).toHaveBeenCalledWith(asBarId('bar-1'), 'new@test.com');
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new InviteMemberRequestedEvent(asBarId('bar-1'), 'new@test.com', 'STAFF', 'en'),
+    );
   });
 
-  it('should fail if the repository fails', async () => {
-    repository.invite.mockRejectedValue(new NotFoundException());
+  it('should throw ConflictException if the user is already a member', async () => {
+    repository.isMember.mockResolvedValue(true);
 
     await expect(
-      handler.execute(new InviteMemberCommand(asUserId('new@test.com'), asBarId('bar-1'), 'STAFF')),
-    ).rejects.toThrow(NotFoundException);
+      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF')),
+    ).rejects.toThrow(ConflictException);
+
     expect(eventBus.publish).not.toHaveBeenCalled();
   });
 });

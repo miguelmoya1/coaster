@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
-import { PrepareInviteMemberCommand, RemoveMemberCommand } from '../commands';
+import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
 import { BarMembersController } from './bar-members.controller';
 
@@ -83,7 +83,7 @@ describe('BarMembersController', () => {
 
     await controller.inviteMember(asBarId('bar-1'), dto, user);
 
-    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(PrepareInviteMemberCommand));
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(InviteMemberCommand));
   });
 
   it('removeMember should delegate to command bus', async () => {

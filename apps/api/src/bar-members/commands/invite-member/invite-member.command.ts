@@ -1,10 +1,10 @@
-import type { BarId, BarRole, UserId } from '@coaster/common';
+import type { BarId, BarRole, User } from '@coaster/common';
 
 export class InviteMemberCommand {
   constructor(
-    public readonly userId: UserId,
     public readonly barId: BarId,
-    public readonly role: BarRole | undefined,
-    public readonly inviterLanguage: string,
+    public readonly email: string,
+    public readonly user: User,
+    public readonly role?: BarRole,
   ) {}
 }

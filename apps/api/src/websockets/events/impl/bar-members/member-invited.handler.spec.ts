@@ -1,7 +1,7 @@
 import { MemberInvitedEvent } from '@bar-members/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asUserId, SocketEvents } from '../../../../core';
+import { asBarId, asBarMemberId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { MemberInvitedHandler } from './member-invited.handler';
 
@@ -31,10 +31,17 @@ describe('MemberInvitedHandler', () => {
   });
 
   it('should emit MEMBER_INVITED event to the correct bar room', () => {
-    const event = new MemberInvitedEvent(asBarId('bar-1'), asUserId('user-1'));
+    const event = new MemberInvitedEvent(
+      asBarId('bar-1'),
+      asBarMemberId('mem-1'),
+      'new@test.com',
+      'Test Bar',
+      'User',
+      'en',
+    );
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.MEMBER_INVITED, { id: 'user-1' });
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.MEMBER_INVITED, { id: 'mem-1' });
   });
 });

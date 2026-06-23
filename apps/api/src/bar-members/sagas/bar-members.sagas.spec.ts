@@ -4,7 +4,7 @@ import { UserPreparedForInviteEvent } from '@users/events';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { asBarId, asUserId } from '../../core';
-import { InviteMemberCommand } from '../commands';
+import { CompleteInviteMemberCommand } from '../commands';
 import { BarMembersSagas } from './bar-members.sagas';
 
 describe('BarMembersSagas', () => {
@@ -22,8 +22,8 @@ describe('BarMembersSagas', () => {
     expect(sagas).toBeDefined();
   });
 
-  describe('inviteMember', () => {
-    it('should map UserPreparedForInviteEvent to InviteMemberCommand', () => {
+  describe('userPreparedForInvite', () => {
+    it('should map UserPreparedForInviteEvent to CompleteInviteMemberCommand', () => {
       const userId = asUserId('user-1');
       const barId = asBarId('bar-1');
       const role: BarRole = 'STAFF';
@@ -31,14 +31,14 @@ describe('BarMembersSagas', () => {
       const event = new UserPreparedForInviteEvent(userId, barId, role, 'es');
       const events$ = of(event);
 
-      const sagaObservable = sagas.inviteMember(events$);
+      const sagaObservable = sagas.userPreparedForInvite(events$);
 
       sagaObservable.subscribe((command) => {
-        expect(command).toBeInstanceOf(InviteMemberCommand);
-        expect((command as InviteMemberCommand).userId).toBe(userId);
-        expect((command as InviteMemberCommand).barId).toBe(barId);
-        expect((command as InviteMemberCommand).role).toBe(role);
-        expect((command as InviteMemberCommand).inviterLanguage).toBe('es');
+        expect(command).toBeInstanceOf(CompleteInviteMemberCommand);
+        expect((command as CompleteInviteMemberCommand).userId).toBe(userId);
+        expect((command as CompleteInviteMemberCommand).barId).toBe(barId);
+        expect((command as CompleteInviteMemberCommand).role).toBe(role);
+        expect((command as CompleteInviteMemberCommand).inviterLanguage).toBe('es');
       });
     });
   });

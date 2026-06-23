@@ -1,9 +1,8 @@
-import { Logger } from '@nestjs/common';
+import { ConflictException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { UserInvitedEvent } from '@users/events';
-import { asBarMemberId } from '../../../core';
-import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
-import { MemberInvitedEvent } from '../../events';
+import { ErrorCodes } from '../../../core';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
+import { InviteMemberRequestedEvent } from '../../events';
 import { InviteMemberCommand } from './invite-member.command';
 
 @CommandHandler(InviteMemberCommand)
@@ -11,22 +10,20 @@ export class InviteMemberHandler implements ICommandHandler<InviteMemberCommand,
   readonly #logger = new Logger(InviteMemberHandler.name);
 
   constructor(
-    private readonly repository: BarMembersWriteRepository,
+    private readonly repository: BarMembersReadRepository,
     private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: InviteMemberCommand) {
     this.#logger.debug(`Executing inviteMember...`);
+    const { barId, email, role } = command;
+    const existingMember = await this.repository.isMember(barId, email);
 
-    const { barId, userId, role } = command;
+    if (existingMember) {
+      throw new ConflictException(ErrorCodes.USER_ALREADY_MEMBER);
+    }
 
-    const response = await this.repository.invite(barId, userId, { role });
-
-    this.#logger.debug(`Publishing UserInvitedEvent...`);
-    this.eventBus.publish(
-      new UserInvitedEvent(response.user.name, response.user.email, response.bar.name, command.inviterLanguage),
-    );
-    this.#logger.debug(`Publishing MemberInvitedEvent...`);
-    this.eventBus.publish(new MemberInvitedEvent(barId, asBarMemberId(response.id)));
+    this.#logger.debug(`Publishing InviteMemberRequestedEvent...`);
+    await this.eventBus.publish(new InviteMemberRequestedEvent(barId, email, role, command.user.language));
   }
 }
