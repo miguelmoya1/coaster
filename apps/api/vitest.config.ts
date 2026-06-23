@@ -1,6 +1,19 @@
+import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
+
+const srcDirs = readdirSync(resolve(__dirname, './src'), { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory() && dirent.name !== '__mocks__')
+  .map((dirent) => dirent.name);
+
+const aliases = srcDirs.reduce(
+  (acc, dir) => {
+    acc[`@${dir}`] = resolve(__dirname, `./src/${dir}`);
+    return acc;
+  },
+  { src: resolve(__dirname, './src') } as Record<string, string>,
+);
 
 export default defineConfig({
   test: {
@@ -27,8 +40,6 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      src: resolve(__dirname, './src'),
-    },
+    alias: aliases,
   },
 });

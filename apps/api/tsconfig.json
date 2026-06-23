@@ -21,6 +21,27 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@auth/*": ["./src/auth/*"],
+      "@bar-members/*": ["./src/bar-members/*"],
+      "@bars/*": ["./src/bars/*"],
+      "@categories/*": ["./src/categories/*"],
+      "@core/*": ["./src/core/*"],
+      "@email/*": ["./src/email/*"],
+      "@events/*": ["./src/events/*"],
+      "@orders/*": ["./src/orders/*"],
+      "@printer/*": ["./src/printer/*"],
+      "@products/*": ["./src/products/*"],
+      "@shift-exchanges/*": ["./src/shift-exchanges/*"],
+      "@shifts/*": ["./src/shifts/*"],
+      "@stats/*": ["./src/stats/*"],
+      "@tables/*": ["./src/tables/*"],
+      "@templates/*": ["./src/templates/*"],
+      "@time-logs/*": ["./src/time-logs/*"],
+      "@time-off/*": ["./src/time-off/*"],
+      "@users/*": ["./src/users/*"],
+      "@websockets/*": ["./src/websockets/*"]
+    }
   }
 }
