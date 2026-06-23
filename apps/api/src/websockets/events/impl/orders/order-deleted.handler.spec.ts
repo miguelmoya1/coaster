@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OrderDeletedHandler } from './order-deleted.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { OrderDeletedEvent } from '../../../../events';
+import { OrderDeletedEvent } from '@orders/events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asOrderId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { OrderDeletedHandler } from './order-deleted.handler';
 
 describe('OrderDeletedHandler', () => {
   let handler: OrderDeletedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('OrderDeletedHandler', () => {
     }).compile();
 
     handler = module.get<OrderDeletedHandler>(OrderDeletedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

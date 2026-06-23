@@ -1,7 +1,7 @@
 import type { Table } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { TableCreatedEvent } from '@tables/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TableCreatedEvent } from '../../../../events';
 import { asBarId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { TableCreatedHandler } from './table-created.handler';

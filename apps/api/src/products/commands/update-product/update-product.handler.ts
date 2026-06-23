@@ -1,9 +1,9 @@
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asCategoryId, ErrorCodes } from '../../../core';
-import { ProductUpdatedEvent } from '../../../events';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
+import { ProductUpdatedEvent } from '../../events';
 import { ProductsMapper } from '../../mappers/products.mapper';
 import { UpdateProductCommand } from './update-product.command';
 

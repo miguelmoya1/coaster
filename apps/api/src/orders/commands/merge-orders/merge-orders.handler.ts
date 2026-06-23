@@ -1,9 +1,9 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asOrderId, asTableId, ErrorCodes } from '../../../core';
-import { OrdersMergedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrdersMergedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MergeOrdersCommand } from './merge-orders.command';
 

@@ -1,7 +1,7 @@
 import type { Order } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { OrderUpdatedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrderUpdatedEvent } from '../../../../events';
 import { asBarId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { OrderUpdatedHandler } from './order-updated.handler';

@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ShiftCreatedHandler } from './shift-created.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { ShiftCreatedEvent } from '../../../../events';
+import { ShiftCreatedEvent } from '@shifts/events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { ShiftCreatedHandler } from './shift-created.handler';
 
 describe('ShiftCreatedHandler', () => {
   let handler: ShiftCreatedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('ShiftCreatedHandler', () => {
     }).compile();
 
     handler = module.get<ShiftCreatedHandler>(ShiftCreatedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

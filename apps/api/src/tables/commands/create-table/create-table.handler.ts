@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { TableCreatedEvent } from '../../../events';
 import { TablesWriteRepository } from '../../data-access/tables.write.repository';
+import { TableCreatedEvent } from '../../events';
 import { TablesMapper } from '../../mappers/tables.mapper';
 import { CreateTableCommand } from './create-table.command';
 

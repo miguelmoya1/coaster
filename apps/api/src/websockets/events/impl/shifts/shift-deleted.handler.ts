@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ShiftDeletedEvent } from '../../../../events';
+import { ShiftDeletedEvent } from '@shifts/events';
 import { SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 

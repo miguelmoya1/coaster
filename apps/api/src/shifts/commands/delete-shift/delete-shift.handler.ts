@@ -1,9 +1,9 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asBarId, asShiftId, ErrorCodes } from '../../../core';
-import { ShiftDeletedEvent } from '../../../events';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
+import { ShiftDeletedEvent } from '../../events';
 import { DeleteShiftCommand } from './delete-shift.command';
 
 @CommandHandler(DeleteShiftCommand)

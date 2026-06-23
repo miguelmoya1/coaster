@@ -1,6 +1,6 @@
+import { CategoryDeletedEvent } from '@categories/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CategoryDeletedEvent } from '../../../../events';
 import { asBarId, asCategoryId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { CategoryDeletedHandler } from './category-deleted.handler';

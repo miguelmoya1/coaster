@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { TableUpdatedEvent } from '../../../../events';
+import { TableUpdatedEvent } from '@tables/events';
 import { SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 

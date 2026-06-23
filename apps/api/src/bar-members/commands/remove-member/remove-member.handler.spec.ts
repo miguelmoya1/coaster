@@ -1,12 +1,12 @@
-import { asBarId, asBarMemberId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asBarMemberId } from '../../../core';
+import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
-import { MemberRemovedEvent } from '../../../events';
+import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';
 import { RemoveMemberHandler } from './remove-member.handler';
-import { BarMembersReadRepository } from "../../data-access/bar-members.read.repository";
 
 describe('RemoveMemberHandler', () => {
   let handler: RemoveMemberHandler;
@@ -24,8 +24,8 @@ describe('RemoveMemberHandler', () => {
         RemoveMemberHandler,
         { provide: BarMembersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
-            { provide: BarMembersReadRepository, useValue: repository }
-        ],
+        { provide: BarMembersReadRepository, useValue: repository },
+      ],
     }).compile();
 
     handler = module.get<RemoveMemberHandler>(RemoveMemberHandler);

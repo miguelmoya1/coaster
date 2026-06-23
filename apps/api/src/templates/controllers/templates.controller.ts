@@ -3,7 +3,6 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nes
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
 import { Admin, AdminGuard, BarPermission, BarPermissions, BarPermissionsGuard } from '../../core';
-import { DbRole } from '../../core/db';
 import {
   BulkCategoryTemplateInput,
   BulkUpsertTemplatesCommand,

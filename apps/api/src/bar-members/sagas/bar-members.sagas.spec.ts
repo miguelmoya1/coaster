@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach } from 'vitest';
-import { of } from 'rxjs';
-import { BarMembersSagas } from './bar-members.sagas';
-import { UserPreparedForInviteEvent } from '../../events';
-import { InviteMemberCommand } from '../commands';
-import { asBarId, asUserId } from '../../core';
 import { BarRole } from '@coaster/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserPreparedForInviteEvent } from '@users/events';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { asBarId, asUserId } from '../../core';
+import { InviteMemberCommand } from '../commands';
+import { BarMembersSagas } from './bar-members.sagas';
 
 describe('BarMembersSagas', () => {
   let sagas: BarMembersSagas;
@@ -28,7 +28,7 @@ describe('BarMembersSagas', () => {
       const barId = asBarId('bar-1');
       const role: BarRole = 'STAFF';
 
-      const event = new UserPreparedForInviteEvent(userId, barId, role);
+      const event = new UserPreparedForInviteEvent(userId, barId, role, 'es');
       const events$ = of(event);
 
       const sagaObservable = sagas.inviteMember(events$);
@@ -38,6 +38,7 @@ describe('BarMembersSagas', () => {
         expect((command as InviteMemberCommand).userId).toBe(userId);
         expect((command as InviteMemberCommand).barId).toBe(barId);
         expect((command as InviteMemberCommand).role).toBe(role);
+        expect((command as InviteMemberCommand).inviterLanguage).toBe('es');
       });
     });
   });

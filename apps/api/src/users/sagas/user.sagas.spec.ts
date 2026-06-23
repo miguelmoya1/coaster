@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach } from 'vitest';
-import { of } from 'rxjs';
-import { UserSagas } from './user.sagas';
-import { PrepareUserForInviteEvent } from '../../events';
-import { PrepareUserForInviteCommand } from '../commands';
-import { asBarId } from '../../core';
 import { BarRole } from '@coaster/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { asBarId } from '../../core';
+import { PrepareUserForInviteCommand } from '../commands';
+import { PrepareUserForInviteEvent } from '../events';
+import { UserSagas } from './user.sagas';
 
 describe('UserSagas', () => {
   let sagas: UserSagas;

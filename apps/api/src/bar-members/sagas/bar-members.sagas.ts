@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ofType, Saga } from '@nestjs/cqrs';
+import { UserPreparedForInviteEvent } from '@users/events';
 import { map, Observable } from 'rxjs';
-import { UserPreparedForInviteEvent } from '../../events';
 import { InviteMemberCommand } from '../commands';
 
 @Injectable()

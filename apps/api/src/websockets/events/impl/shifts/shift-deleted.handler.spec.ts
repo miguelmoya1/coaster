@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ShiftDeletedHandler } from './shift-deleted.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { ShiftDeletedEvent } from '../../../../events';
+import { ShiftDeletedEvent } from '@shifts/events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asShiftId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { ShiftDeletedHandler } from './shift-deleted.handler';
 
 describe('ShiftDeletedHandler', () => {
   let handler: ShiftDeletedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('ShiftDeletedHandler', () => {
     }).compile();
 
     handler = module.get<ShiftDeletedHandler>(ShiftDeletedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

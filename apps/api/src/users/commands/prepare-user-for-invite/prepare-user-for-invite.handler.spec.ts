@@ -2,8 +2,8 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asUserId } from '../../../core';
-import { UserPreparedForInviteEvent } from '../../../events';
 import { UserWriteRepository } from '../../data-access/user.write.repository';
+import { UserPreparedForInviteEvent } from '../../events';
 import { PrepareUserForInviteCommand } from './prepare-user-for-invite.command';
 import { PrepareUserForInviteHandler } from './prepare-user-for-invite.handler';
 

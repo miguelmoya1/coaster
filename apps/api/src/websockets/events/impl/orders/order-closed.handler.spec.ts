@@ -1,7 +1,7 @@
 import type { Order } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { OrderClosedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrderClosedEvent } from '../../../../events';
 import { asBarId, asTableId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { OrderClosedHandler } from './order-closed.handler';

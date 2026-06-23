@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TableDeletedEvent } from '@tables/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TableDeletedEvent } from '../../../../events';
 import { asBarId, asTableId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { TableDeletedHandler } from './table-deleted.handler';

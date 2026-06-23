@@ -1,9 +1,9 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asProductId, asTableId, ErrorCodes } from '../../../core';
-import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { RemoveOrderItemCommand } from './remove-order-item.command';
 

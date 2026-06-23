@@ -1,9 +1,9 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { OrderDeletedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrderDeletedEvent } from '../../events';
 import { DeleteOrderCommand } from './delete-order.command';
 
 @CommandHandler(DeleteOrderCommand)

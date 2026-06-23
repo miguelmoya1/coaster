@@ -1,6 +1,6 @@
+import { CategoryDeletedEvent } from '@categories/events';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { CategoryDeletedEvent } from '../../../../events';
 import { SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 

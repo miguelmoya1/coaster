@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { UserInvitedEvent } from '../../../events';
+import { UserInvitedEvent } from '@users/events';
 import { EmailService } from '../../email.service';
 
 @EventsHandler(UserInvitedEvent)

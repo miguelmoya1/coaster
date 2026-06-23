@@ -4,9 +4,9 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asCategoryId, asProductId } from '../../../core';
-import { ProductStockChangedEvent } from '../../../events';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
+import { ProductStockChangedEvent } from '../../events';
 import { UpdateProductCommand } from './update-product.command';
 import { UpdateProductHandler } from './update-product.handler';
 

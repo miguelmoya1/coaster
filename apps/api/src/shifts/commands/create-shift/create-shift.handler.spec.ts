@@ -1,11 +1,10 @@
-import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asShiftId, asUserId } from '../../../core';
-import { ShiftCreatedEvent } from '../../../events';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
+import { ShiftCreatedEvent } from '../../events';
 import { CreateShiftCommand } from './create-shift.command';
 import { CreateShiftHandler } from './create-shift.handler';
 
@@ -72,6 +71,4 @@ describe('CreateShiftHandler', () => {
       }),
     );
   });
-
-
 });

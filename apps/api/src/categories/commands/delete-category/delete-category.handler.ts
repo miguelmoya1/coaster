@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { CategoryDeletedEvent } from '../../../events';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
+import { CategoryDeletedEvent } from '../../events';
 import { DeleteCategoryCommand } from './delete-category.command';
 
 @CommandHandler(DeleteCategoryCommand)

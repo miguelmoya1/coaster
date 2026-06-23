@@ -1,11 +1,11 @@
-import { ErrorCodes, asTableId } from '../../../core';
-import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { ErrorCodes, asTableId } from '../../../core';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
-import { OrderCancelledEvent } from '../../../events';
+import { OrderCancelledEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CancelOrderCommand } from './cancel-order.command';
-import { OrdersReadRepository } from "../../data-access/orders.read.repository";
 
 @CommandHandler(CancelOrderCommand)
 export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, void> {
@@ -13,9 +13,9 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, v
 
   constructor(
     private readonly writeRepo: OrdersWriteRepository,
-    
+
     private readonly readRepo: OrdersReadRepository,
-    
+
     private readonly _ordersRepository: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}

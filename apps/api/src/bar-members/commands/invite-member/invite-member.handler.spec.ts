@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserInvitedEvent } from '@users/events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asUserId } from '../../../core';
-import { UserInvitedEvent } from '../../../events';
 import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { InviteMemberCommand } from './invite-member.command';
 import { InviteMemberHandler } from './invite-member.handler';

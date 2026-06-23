@@ -1,7 +1,7 @@
 import type { Order } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { OrderTableMovedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrderTableMovedEvent } from '../../../../events';
 import { asBarId, asTableId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { OrderTableMovedHandler } from './order-table-moved.handler';

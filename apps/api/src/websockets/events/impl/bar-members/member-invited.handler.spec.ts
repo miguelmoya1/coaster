@@ -1,13 +1,12 @@
+import { MemberInvitedEvent } from '@bar-members/events';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MemberInvitedHandler } from './member-invited.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { MemberInvitedEvent } from '../../../../events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asUserId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { MemberInvitedHandler } from './member-invited.handler';
 
 describe('MemberInvitedHandler', () => {
   let handler: MemberInvitedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('MemberInvitedHandler', () => {
     }).compile();
 
     handler = module.get<MemberInvitedHandler>(MemberInvitedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

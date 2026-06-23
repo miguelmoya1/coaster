@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ProductDeletedEvent } from '@products/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProductDeletedEvent } from '../../../../events';
 import { asBarId, asProductId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { ProductDeletedHandler } from './product-deleted.handler';

@@ -1,6 +1,6 @@
+import { MemberRemovedEvent } from '@bar-members/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemberRemovedEvent } from '../../../../events';
 import { asBarId, asBarMemberId, SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 import { MemberRemovedHandler } from './member-removed.handler';

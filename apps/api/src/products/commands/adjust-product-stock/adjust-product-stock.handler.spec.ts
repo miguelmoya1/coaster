@@ -3,8 +3,8 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asProductId } from '../../../core';
-import { ProductStockChangedEvent } from '../../../events';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
+import { ProductStockChangedEvent } from '../../events';
 import { AdjustProductStockCommand } from './adjust-product-stock.command';
 import { AdjustProductStockHandler } from './adjust-product-stock.handler';
 

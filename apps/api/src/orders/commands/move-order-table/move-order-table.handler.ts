@@ -1,9 +1,9 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asTableId, ErrorCodes } from '../../../core';
-import { OrderTableMovedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrderTableMovedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { MoveOrderTableCommand } from './move-order-table.command';
 

@@ -29,7 +29,6 @@
       "@categories/*": ["./src/categories/*"],
       "@core/*": ["./src/core/*"],
       "@email/*": ["./src/email/*"],
-      "@events/*": ["./src/events/*"],
       "@orders/*": ["./src/orders/*"],
       "@printer/*": ["./src/printer/*"],
       "@products/*": ["./src/products/*"],

@@ -1,6 +1,6 @@
+import { MemberRemovedEvent } from '@bar-members/events';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { MemberRemovedEvent } from '../../../../events';
 import { SocketEvents } from '../../../../core';
 import { BarGateway } from '../../../bar.gateway';
 

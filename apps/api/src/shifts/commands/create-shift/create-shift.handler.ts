@@ -1,9 +1,9 @@
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { ShiftCreatedEvent } from '../../../events';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
+import { ShiftCreatedEvent } from '../../events';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { CreateShiftCommand } from './create-shift.command';
 
@@ -18,7 +18,6 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
   ) {}
 
   async execute(command: CreateShiftCommand): Promise<void> {
-
     const { startTime, endTime, userId, ...rest } = command.dto;
 
     if (!(startTime instanceof Temporal.Instant) || !(endTime instanceof Temporal.Instant)) {

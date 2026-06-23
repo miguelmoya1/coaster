@@ -1,13 +1,12 @@
+import { CategoryUpdatedEvent } from '@categories/events';
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CategoryUpdatedHandler } from './category-updated.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { CategoryUpdatedEvent } from '../../../../events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { CategoryUpdatedHandler } from './category-updated.handler';
 
 describe('CategoryUpdatedHandler', () => {
   let handler: CategoryUpdatedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('CategoryUpdatedHandler', () => {
     }).compile();
 
     handler = module.get<CategoryUpdatedHandler>(CategoryUpdatedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

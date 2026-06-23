@@ -1,11 +1,11 @@
-import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asOrderId } from '../../../core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asOrderId } from '../../../core';
+import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
-import { OrderClosedEvent } from '../../../events';
+import { OrderClosedEvent } from '../../events';
 import { CheckoutOrderCommand } from './checkout-order.command';
 import { CheckoutOrderHandler } from './checkout-order.handler';
 
@@ -25,8 +25,8 @@ describe('CheckoutOrderHandler', () => {
         CheckoutOrderHandler,
         { provide: OrdersWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
-            { provide: OrdersReadRepository, useValue: repository }
-        ],
+        { provide: OrdersReadRepository, useValue: repository },
+      ],
     }).compile();
 
     handler = module.get<CheckoutOrderHandler>(CheckoutOrderHandler);
@@ -55,7 +55,11 @@ describe('CheckoutOrderHandler', () => {
     await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1'), 'CARD'));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrderClosedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),
+      new OrderClosedEvent(
+        asBarId('bar-1'),
+        expect.any(Object) as unknown as Order,
+        expect.any(String) as unknown as TableId,
+      ),
     );
   });
 });

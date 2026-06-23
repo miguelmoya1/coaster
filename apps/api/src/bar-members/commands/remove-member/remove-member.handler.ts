@@ -1,9 +1,9 @@
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { MemberRemovedEvent } from '../../../events';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
+import { MemberRemovedEvent } from '../../events';
 import { RemoveMemberCommand } from './remove-member.command';
 
 @CommandHandler(RemoveMemberCommand)

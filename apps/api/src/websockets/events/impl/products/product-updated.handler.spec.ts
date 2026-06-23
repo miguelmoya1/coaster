@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProductUpdatedHandler } from './product-updated.handler';
-import { BarGateway } from '../../../bar.gateway';
-import { ProductUpdatedEvent } from '../../../../events';
+import { ProductUpdatedEvent } from '@products/events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, SocketEvents } from '../../../../core';
+import { BarGateway } from '../../../bar.gateway';
+import { ProductUpdatedHandler } from './product-updated.handler';
 
 describe('ProductUpdatedHandler', () => {
   let handler: ProductUpdatedHandler;
-  let barGateway: BarGateway;
 
   const mockEmit = vi.fn();
   const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
@@ -28,7 +27,6 @@ describe('ProductUpdatedHandler', () => {
     }).compile();
 
     handler = module.get<ProductUpdatedHandler>(ProductUpdatedHandler);
-    barGateway = module.get<BarGateway>(BarGateway);
     vi.clearAllMocks();
   });
 

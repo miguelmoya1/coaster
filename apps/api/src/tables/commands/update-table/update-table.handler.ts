@@ -1,9 +1,9 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
-import { TableUpdatedEvent } from '../../../events';
 import { TablesReadRepository } from '../../data-access/tables.read.repository';
 import { TablesWriteRepository } from '../../data-access/tables.write.repository';
+import { TableUpdatedEvent } from '../../events';
 import { TablesMapper } from '../../mappers/tables.mapper';
 import { UpdateTableCommand } from './update-table.command';
 

@@ -1,13 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EventBus } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { DeleteShiftHandler } from './delete-shift.handler';
-import { DeleteShiftCommand } from './delete-shift.command';
+import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { asBarId, asShiftId, ErrorCodes } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
-import { asBarId, asShiftId, ErrorCodes } from '../../../core';
-import { ShiftDeletedEvent } from '../../../events';
+import { ShiftDeletedEvent } from '../../events';
+import { DeleteShiftCommand } from './delete-shift.command';
+import { DeleteShiftHandler } from './delete-shift.handler';
 
 describe('DeleteShiftHandler', () => {
   let handler: DeleteShiftHandler;

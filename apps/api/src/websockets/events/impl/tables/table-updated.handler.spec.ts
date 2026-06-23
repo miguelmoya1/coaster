@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TableUpdatedEvent } from '@tables/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asTableId, SocketEvents } from '../../../../core';
 import { DbTableStatus } from '../../../../core/db';
-import { TableUpdatedEvent } from '../../../../events';
 import { BarGateway } from '../../../bar.gateway';
 import { TableUpdatedHandler } from './table-updated.handler';
 

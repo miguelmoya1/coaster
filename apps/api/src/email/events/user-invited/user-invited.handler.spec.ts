@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserInvitedEvent } from '@users/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EmailService } from '../../email.service';
-import { UserInvitedEvent } from '../../../events';
 import { UserInvitedHandler } from './user-invited.handler';
 
 describe('UserInvitedHandler', () => {
@@ -13,10 +13,7 @@ describe('UserInvitedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserInvitedHandler,
-        { provide: EmailService, useValue: emailService },
-      ],
+      providers: [UserInvitedHandler, { provide: EmailService, useValue: emailService }],
     }).compile();
 
     handler = module.get<UserInvitedHandler>(UserInvitedHandler);
@@ -27,11 +24,6 @@ describe('UserInvitedHandler', () => {
 
     await handler.handle(event);
 
-    expect(emailService.sendInviteEmail).toHaveBeenCalledWith(
-      'john@example.com',
-      'My Bar',
-      'John Doe',
-      'es',
-    );
+    expect(emailService.sendInviteEmail).toHaveBeenCalledWith('john@example.com', 'My Bar', 'John Doe', 'es');
   });
 });

@@ -3,9 +3,9 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asOrderId } from '../../../core';
-import { OrderDeletedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrderDeletedEvent } from '../../events';
 import { DeleteOrderCommand } from './delete-order.command';
 import { DeleteOrderHandler } from './delete-order.handler';
 

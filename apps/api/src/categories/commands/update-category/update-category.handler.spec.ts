@@ -2,8 +2,8 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asCategoryId } from '../../../core';
-import { CategoryUpdatedEvent } from '../../../events';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
+import { CategoryUpdatedEvent } from '../../events';
 import { UpdateCategoryCommand } from './update-category.command';
 import { UpdateCategoryHandler } from './update-category.handler';
 

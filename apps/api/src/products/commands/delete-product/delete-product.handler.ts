@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ProductDeletedEvent } from '../../../events';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
+import { ProductDeletedEvent } from '../../events';
 import { DeleteProductCommand } from './delete-product.command';
 
 @CommandHandler(DeleteProductCommand)

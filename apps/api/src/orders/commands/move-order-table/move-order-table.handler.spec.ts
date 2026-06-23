@@ -3,9 +3,9 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asOrderId, asTableId } from '../../../core';
-import { OrderTableMovedEvent } from '../../../events';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
+import { OrderTableMovedEvent } from '../../events';
 import { MoveOrderTableCommand } from './move-order-table.command';
 import { MoveOrderTableHandler } from './move-order-table.handler';
 

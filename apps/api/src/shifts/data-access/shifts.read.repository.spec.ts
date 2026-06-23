@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId, asUserId } from '../../core';
+import { asBarId, asShiftId } from '../../core';
 import { DbService } from '../../core/db';
 import { ShiftsReadRepository } from './shifts.read.repository';
 
@@ -34,8 +34,6 @@ describe('ShiftsReadRepository', () => {
   it('should be defined', () => {
     expect(repository).toBeDefined();
   });
-
-
 
   describe('findByBarId', () => {
     it('should call dbShift.findMany without dates', async () => {

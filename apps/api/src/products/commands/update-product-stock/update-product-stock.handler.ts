@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ProductStockChangedEvent } from '../../../events';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
+import { ProductStockChangedEvent } from '../../events';
 import { ProductsMapper } from '../../mappers/products.mapper';
 import { UpdateProductStockCommand } from './update-product-stock.command';
 

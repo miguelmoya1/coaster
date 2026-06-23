@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { CategoryUpdatedEvent } from '../../../events';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
+import { CategoryUpdatedEvent } from '../../events';
 import { CategoriesMapper } from '../../mappers/categories.mapper';
 import { UpdateCategoryCommand } from './update-category.command';
 

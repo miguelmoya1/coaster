@@ -1,9 +1,9 @@
 import { ConflictException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrepareUserForInviteEvent } from '@users/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asRole, asUserId } from '../../../core';
-import { PrepareUserForInviteEvent } from '../../../events';
 
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { PrepareInviteMemberCommand } from './prepare-invite-member.command';

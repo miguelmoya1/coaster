@@ -1,7 +1,7 @@
 import { ConflictException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { PrepareUserForInviteEvent } from '@users/events';
 import { ErrorCodes } from '../../../core';
-import { PrepareUserForInviteEvent } from '../../../events';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { PrepareInviteMemberCommand } from './prepare-invite-member.command';
 
