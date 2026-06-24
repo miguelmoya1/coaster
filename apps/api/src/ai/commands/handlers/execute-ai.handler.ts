@@ -1,20 +1,15 @@
 import type { BarPermission, BarRole, Category, Order, Product, Table } from '@coaster/common';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
-import { generateText, LanguageModel, stepCountIs } from 'ai';
-import {
-  asBarRole,
-  ErrorCodes,
-  hasPermission,
-  SecurityRepository,
-} from '../../../core';
+import { generateText, LanguageModel } from 'ai';
+import { GetCategoriesQuery } from '../../../categories/queries';
+import { asBarRole, ErrorCodes, hasPermission, SecurityRepository } from '../../../core';
 import { DbBarRole, DbRole } from '../../../core/db';
 import { GetOrdersByBarIdQuery } from '../../../orders/queries';
 import { GetProductsByBarIdQuery } from '../../../products/queries';
 import { GetTablesByBarIdQuery } from '../../../tables/queries';
-import { GetCategoriesQuery } from '../../../categories/queries';
-import { ExecuteAiCommand } from '../impl/execute-ai.command';
 import { getAiTools } from '../../tools';
+import { ExecuteAiCommand } from '../impl/execute-ai.command';
 
 @CommandHandler(ExecuteAiCommand)
 export class ExecuteAiHandler implements ICommandHandler<
@@ -61,9 +56,7 @@ export class ExecuteAiHandler implements ICommandHandler<
     const openOrders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(
       new GetOrdersByBarIdQuery(barId, 'OPEN'),
     );
-    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(
-      new GetCategoriesQuery(barId),
-    );
+    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
 
     const productsList = products
       .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
@@ -71,9 +64,7 @@ export class ExecuteAiHandler implements ICommandHandler<
 
     const tablesList = tables.map((t) => `- ${t.name}: ID=${t.id}, Status=${t.status}`).join('\n');
 
-    const categoriesList = categories
-      .map((c) => `- ${c.name}: ID=${c.id}, Icon=${c.icon || '(None)'}`)
-      .join('\n');
+    const categoriesList = categories.map((c) => `- ${c.name}: ID=${c.id}, Icon=${c.icon || '(None)'}`).join('\n');
 
     const ordersList = openOrders
       .map((o) => {
@@ -121,7 +112,8 @@ ${ordersList || '(None)'}
 3. If the action requires specific permissions, the tool will check them. If the user lacks permissions, report the error message back to the user.
 4. Once the action is successfully executed, confirm what you have done in detail.
 5. Important: Always respond to the user in their preferred language. Currently, the user's language is: "${userLang}" (e.g. "es" for Spanish, "en" for English). Return your final response in this language.
-    `.trim();
+   DO NOT RESPOND, JUST CALL THE TOOLS. 
+`.trim();
 
     const runAction = async (perm: BarPermission, action: () => Promise<any>) => {
       if (!isAdmin && (!userBarRole || !hasPermission(userBarRole, perm))) {
@@ -155,9 +147,7 @@ ${ordersList || '(None)'}
         },
         system: systemPrompt,
         prompt,
-        stopWhen: stepCountIs(2),
-        toolChoice: 'auto',
-        temperature: 0, // deterministic (do not think, just execute)
+        temperature: 0.1, // deterministic (do not think, just execute)
         tools: getAiTools({
           barId,
           products,
