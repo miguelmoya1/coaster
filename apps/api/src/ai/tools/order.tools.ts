@@ -35,7 +35,11 @@ export const createOrderTools = (data: AiToolsData) => ({
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to create order.`);
-        return `Error: Ninguno de los productos solicitados está disponible en el menú de este bar.`;
+        return {
+          isError: true,
+          errorKey: 'ai_voice.errors.products_not_found',
+          text: `Error: None of the requested products are available in this bar's menu.`,
+        } as any;
       }
       return {
         permission: 'bar:create-order',
@@ -68,7 +72,11 @@ export const createOrderTools = (data: AiToolsData) => ({
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to add to order.`);
-        return `Error: Ninguno de los productos solicitados está disponible en el menú de este bar.`;
+        return {
+          isError: true,
+          errorKey: 'ai_voice.errors.products_not_found',
+          text: `Error: None of the requested products are available in this bar's menu.`,
+        } as any;
       }
       return {
         permission: 'bar:update-order',

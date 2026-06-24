@@ -92,5 +92,30 @@ describe('ExecuteAiHandler', () => {
       expect(generateText).toHaveBeenCalled();
       expect(result).toEqual({ text: 'Mesa creada correctamente.' });
     });
+
+    it('should pass message history to generateText when messages are provided', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      queryBus.execute.mockResolvedValue([]);
+      (generateText as any).mockResolvedValue({ text: 'Segunda respuesta' });
+
+      const customMessages = [
+        { role: 'user' as const, content: 'Hola' },
+        { role: 'assistant' as const, content: 'Hola, ¿en qué puedo ayudarte?' },
+        { role: 'user' as const, content: 'Crear mesa 3' },
+      ];
+      const cmdWithMessages = new ExecuteAiCommand(barId, 'Crear mesa 3', user, customMessages);
+      const result = await handler.execute(cmdWithMessages);
+
+      expect(generateText).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messages: [
+            { role: 'user', content: 'Hola' },
+            { role: 'assistant', content: 'Hola, ¿en qué puedo ayudarte?' },
+            { role: 'user', content: 'Crear mesa 3' },
+          ],
+        }),
+      );
+      expect(result).toEqual({ text: 'Segunda respuesta' });
+    });
   });
 });

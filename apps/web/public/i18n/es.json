@@ -93,6 +93,10 @@
     "error": "Error",
     "cancel": "Cancelar",
     "speak_again": "Hablar de nuevo",
+    "reset_chat": "Limpiar historial",
+    "empty_chat": "Empieza una conversación con el asistente...",
+    "user": "Tú",
+    "assistant": "Coaster IA",
     "send": "Enviar",
     "processing": "Procesando...",
     "tooltip_open": "Asistente de Voz IA",
@@ -110,7 +114,9 @@
       "recognition": "Error de reconocimiento de voz.",
       "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
       "network": "Error de red en el reconocimiento de voz.",
-      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde."
+      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde.",
+      "permission_denied": "No tienes permiso para realizar esta acción.",
+      "products_not_found": "Ninguno de los productos solicitados está disponible en el menú de este bar."
     }
   },
   "auth": {

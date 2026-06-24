@@ -1,7 +1,7 @@
 import { effect, inject, resource, Service, signal } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
-import { AiVoiceRepository } from './ai-voice-repository';
+import { AiMessage, AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
 
@@ -45,14 +45,15 @@ export class AiVoiceService {
   public readonly response = signal<string | null>(null);
   public readonly isSupported = signal<boolean>(false);
   public readonly isMuted = signal<boolean>(false);
+  public readonly messages = signal<AiMessage[]>([]);
 
-  readonly #commandParams = signal<{ barId: BarId; prompt: string } | undefined>(undefined);
+  readonly #commandParams = signal<{ barId: BarId; prompt: string; messages: AiMessage[] } | undefined>(undefined);
 
   public readonly aiResource = resource({
     params: () => this.#commandParams(),
     loader: async ({ params }) => {
       if (!params) return null;
-      return await this.#repository.executeCommand(params.barId, params.prompt);
+      return await this.#repository.executeCommand(params.barId, params.prompt, params.messages);
     },
   });
 
@@ -79,6 +80,7 @@ export class AiVoiceService {
             this.status.set('error');
             this.speak(errMsg);
           } else {
+            this.messages.update((msgs) => [...msgs, { role: 'assistant', content: value.text }]);
             this.response.set(value.text);
             this.status.set('success');
             this.speak(value.text);
@@ -227,6 +229,18 @@ export class AiVoiceService {
     this.response.set(null);
   }
 
+  public resetChat() {
+    this.stop();
+    this.stopSpeaking();
+    this.messages.set([]);
+    this.#savedTranscript = '';
+    this.transcript.set('');
+    this.error.set(null);
+    this.response.set(null);
+    this.#commandParams.set(undefined);
+    this.status.set('idle');
+  }
+
   public async send(barId: BarId) {
     const textToSend = this.transcript().trim();
     if (!textToSend) {
@@ -238,7 +252,11 @@ export class AiVoiceService {
     this.error.set(null);
     this.response.set(null);
 
-    this.#commandParams.set({ barId, prompt: textToSend });
+    const updatedMessages: AiMessage[] = [...this.messages(), { role: 'user', content: textToSend }];
+    this.messages.set(updatedMessages);
+    this.transcript.set('');
+
+    this.#commandParams.set({ barId, prompt: textToSend, messages: updatedMessages });
   }
 
   public speak(text: string) {

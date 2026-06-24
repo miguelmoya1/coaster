@@ -30,6 +30,7 @@ describe('AiVoiceButton', () => {
     transcript: signal(''),
     response: signal(null),
     error: signal(null),
+    messages: signal([]),
     toggleMute: vi.fn(),
     cancel: vi.fn(),
     start: vi.fn(),
@@ -37,6 +38,7 @@ describe('AiVoiceButton', () => {
     resume: vi.fn(),
     send: vi.fn(),
     speak: vi.fn(),
+    resetChat: vi.fn(),
   };
 
   beforeEach(async () => {

@@ -93,6 +93,10 @@
     "error": "Error",
     "cancel": "Cancel",
     "speak_again": "Speak again",
+    "reset_chat": "Reset chat",
+    "empty_chat": "Start a conversation with the assistant...",
+    "user": "You",
+    "assistant": "Coaster AI",
     "send": "Send",
     "processing": "Processing...",
     "tooltip_open": "AI Voice Assistant",
@@ -110,7 +114,9 @@
       "recognition": "Speech recognition error.",
       "mic_denied": "Microphone permission denied. Please enable it in your browser.",
       "network": "Network error during speech recognition.",
-      "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later."
+      "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later.",
+      "permission_denied": "You do not have permission to perform this action.",
+      "products_not_found": "None of the requested products are available in this bar's menu."
     }
   },
   "auth": {

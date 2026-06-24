@@ -15,9 +15,10 @@ export class AiController {
     @Param('barId') barId: BarId,
     @Body('prompt') prompt: string,
     @CurrentUser() user: User,
+    @Body('messages') messages?: any[],
   ) {
     return this._commandBus.execute<ExecuteAiCommand, { text: string }>(
-      new ExecuteAiCommand(barId, prompt, user),
+      new ExecuteAiCommand(barId, prompt, user, messages),
     );
   }
 }

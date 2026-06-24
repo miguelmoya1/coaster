@@ -48,34 +48,36 @@ describe('AiVoiceService', () => {
 
     it('should transition through states on send', async () => {
       service.transcript.set('Crear mesa Mesa 5');
-      
+
       service.send(asBarId('bar-1'));
       TestBed.flushEffects();
-      
+
       expect(service.status()).toBe('processing');
       expect(service.error()).toBeNull();
-      
+
       await vi.waitFor(() => {
         TestBed.flushEffects();
         expect(service.status()).toBe('success');
       });
-      
+
       expect(service.response()).toBe('Mesa 5 creada con éxito');
-      expect(repositoryMock.executeCommand).toHaveBeenCalledWith(asBarId('bar-1'), 'Crear mesa Mesa 5');
+      expect(repositoryMock.executeCommand).toHaveBeenCalledWith(asBarId('bar-1'), 'Crear mesa Mesa 5', [
+        { role: 'user', content: 'Crear mesa Mesa 5' },
+      ]);
     });
 
     it('should set error state on send failure', async () => {
       repositoryMock.executeCommand.mockRejectedValueOnce(new Error('Backend error'));
       service.transcript.set('Crear mesa Mesa 5');
-      
+
       service.send(asBarId('bar-1'));
       TestBed.flushEffects();
-      
+
       await vi.waitFor(() => {
         TestBed.flushEffects();
         expect(service.status()).toBe('error');
       });
-      
+
       expect(service.error()).toBe('Backend error');
     });
   });

@@ -20,10 +20,14 @@ export const createCategoryTools = (data: AiToolsData) => ({
         `[AI Tool] 'updateCategory' called with categoryId="${categoryId}", name="${name}", icon="${icon}"`,
       );
       const existingCategory = data.categories.find((c) => c.id === categoryId);
-      const nameToUse = name ?? existingCategory?.name;
-      if (!nameToUse) {
-        return `Error: Category name is required to update it.`;
+      if (!existingCategory) {
+        return {
+          isError: true,
+          errorKey: 'CATEGORY_NOT_FOUND',
+          text: `Error: Category not found.`,
+        } as any;
       }
+      const nameToUse = name ?? existingCategory.name;
       return {
         permission: 'bar:update-category',
         command: new UpdateCategoryCommand(data.barId, asCategoryId(categoryId), {
