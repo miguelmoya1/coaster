@@ -160,12 +160,31 @@ ${ordersList || '(None)'}
         temperature: 0, // deterministic (do not think, just execute)
         tools: getAiTools({
           barId,
-          commandBus: this._commandBus,
           products,
           categories,
-          runAction,
         }),
       });
+
+      let errorResult: { text: string; isError?: boolean; errorKey?: string } | null = null;
+
+      // Execute prepared commands
+      if (result.toolResults) {
+        for (const toolResult of result.toolResults) {
+          const actionDesc = toolResult.output as any;
+          if (actionDesc && typeof actionDesc === 'object' && 'command' in actionDesc && 'permission' in actionDesc) {
+            const actionText = await runAction(actionDesc.permission, () =>
+              this._commandBus.execute(actionDesc.command),
+            );
+            if (actionText.startsWith('Error:')) {
+              errorResult = { text: actionText, isError: true };
+            }
+          }
+        }
+      }
+
+      if (errorResult) {
+        return errorResult;
+      }
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
       return { text: result.text };

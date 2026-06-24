@@ -3,21 +3,22 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { CreateTableCommand, UpdateTableCommand } from '../../tables/commands';
 import { asTableId } from '../../core';
-import type { AiToolsContext } from './context';
+import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('TableTools');
 
-export const createTableTools = (ctx: AiToolsContext) => ({
+export const createTableTools = (data: AiToolsData) => ({
   createTable: tool({
     description: 'Create a new table in the bar.',
     inputSchema: z.object({
       name: z.string().describe("Table name or designation to create, e.g. 'Mesa 4', 'Terraza 1'. Use the exact name mentioned by the user."),
     }),
-    execute: async ({ name }) => {
+    execute: async ({ name }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'createTable' called with name="${name}"`);
-      return ctx.runAction('bar:create-table', () =>
-        ctx.commandBus.execute<CreateTableCommand, void>(new CreateTableCommand(ctx.barId, { name })),
-      );
+      return {
+        permission: 'bar:create-table',
+        command: new CreateTableCommand(data.barId, { name }),
+      };
     },
   }),
 
@@ -27,13 +28,12 @@ export const createTableTools = (ctx: AiToolsContext) => ({
       tableId: z.string().describe('The UUID of the table to update.'),
       name: z.string().describe('New name of the table.'),
     }),
-    execute: async ({ tableId, name }) => {
+    execute: async ({ tableId, name }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'updateTable' called with tableId="${tableId}", name="${name}"`);
-      return ctx.runAction('bar:update-table', () =>
-        ctx.commandBus.execute<UpdateTableCommand, void>(
-          new UpdateTableCommand(ctx.barId, asTableId(tableId), { name }),
-        ),
-      );
+      return {
+        permission: 'bar:update-table',
+        command: new UpdateTableCommand(data.barId, asTableId(tableId), { name }),
+      };
     },
   }),
 });

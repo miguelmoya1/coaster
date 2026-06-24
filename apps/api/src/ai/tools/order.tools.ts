@@ -9,11 +9,11 @@ import {
   CreateOrderCommand,
 } from '../../orders/commands';
 import { asOrderId, asOrderItemId, asProductId, asTableId } from '../../core';
-import type { AiToolsContext } from './context';
+import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('OrderTools');
 
-export const createOrderTools = (ctx: AiToolsContext) => ({
+export const createOrderTools = (data: AiToolsData) => ({
   createOrder: tool({
     description: 'Create a new open order for a specific table in the bar.',
     inputSchema: z.object({
@@ -27,24 +27,23 @@ export const createOrderTools = (ctx: AiToolsContext) => ({
         )
         .describe('List of exact product UUIDs and their quantities.'),
     }),
-    execute: async ({ tableId, items }) => {
+    execute: async ({ tableId, items }): Promise<PreparedAction | string> => {
       logger.debug(
         `[AI Tool] 'createOrder' called with tableId="${tableId}", items=${JSON.stringify(items)}`,
       );
-      const validItems = items.filter((item) => ctx.products.some((p) => p.id === item.productId));
+      const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to create order.`);
         return `Error: Ninguno de los productos solicitados está disponible en el menú de este bar.`;
       }
-      return ctx.runAction('bar:create-order', () =>
-        ctx.commandBus.execute<CreateOrderCommand, void>(
-          new CreateOrderCommand(ctx.barId, {
-            tableId: tableId ? asTableId(tableId) : undefined,
-            items: validItems.map((i) => ({ productId: asProductId(i.productId), quantity: i.quantity })),
-          }),
-        ),
-      );
+      return {
+        permission: 'bar:create-order',
+        command: new CreateOrderCommand(data.barId, {
+          tableId: tableId ? asTableId(tableId) : undefined,
+          items: validItems.map((i) => ({ productId: asProductId(i.productId), quantity: i.quantity })),
+        }),
+      };
     },
   }),
 
@@ -61,23 +60,22 @@ export const createOrderTools = (ctx: AiToolsContext) => ({
         )
         .describe('List of product UUIDs and their quantities.'),
     }),
-    execute: async ({ orderId, items }) => {
+    execute: async ({ orderId, items }): Promise<PreparedAction | string> => {
       logger.debug(
         `[AI Tool] 'addOrderItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`,
       );
-      const validItems = items.filter((item) => ctx.products.some((p) => p.id === item.productId));
+      const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to add to order.`);
         return `Error: Ninguno de los productos solicitados está disponible en el menú de este bar.`;
       }
-      return ctx.runAction('bar:update-order', () =>
-        ctx.commandBus.execute<AddOrderItemsCommand, void>(
-          new AddOrderItemsCommand(ctx.barId, asOrderId(orderId), {
-            items: validItems.map((i) => ({ productId: asProductId(i.productId), quantity: i.quantity })),
-          }),
-        ),
-      );
+      return {
+        permission: 'bar:update-order',
+        command: new AddOrderItemsCommand(data.barId, asOrderId(orderId), {
+          items: validItems.map((i) => ({ productId: asProductId(i.productId), quantity: i.quantity })),
+        }),
+      };
     },
   }),
 
@@ -87,15 +85,14 @@ export const createOrderTools = (ctx: AiToolsContext) => ({
       orderId: z.string().describe('The UUID of the open order to check out. Look up the active open orders list to find the order UUID matching the table or order details.'),
       paymentMethod: z.enum(['CASH', 'CARD']).describe('Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified.'),
     }),
-    execute: async ({ orderId, paymentMethod }) => {
+    execute: async ({ orderId, paymentMethod }): Promise<PreparedAction> => {
       logger.debug(
         `[AI Tool] 'checkoutOrder' called with orderId="${orderId}", paymentMethod="${paymentMethod}"`,
       );
-      return ctx.runAction('bar:checkout-order', () =>
-        ctx.commandBus.execute<CheckoutOrderCommand, void>(
-          new CheckoutOrderCommand(ctx.barId, asOrderId(orderId), paymentMethod),
-        ),
-      );
+      return {
+        permission: 'bar:checkout-order',
+        command: new CheckoutOrderCommand(data.barId, asOrderId(orderId), paymentMethod),
+      };
     },
   }),
 
@@ -122,22 +119,21 @@ export const createOrderTools = (ctx: AiToolsContext) => ({
         )
         .describe('List of order items to update.'),
     }),
-    execute: async ({ orderId, items }) => {
+    execute: async ({ orderId, items }): Promise<PreparedAction> => {
       logger.debug(
         `[AI Tool] 'serveOrPayItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`,
       );
-      return ctx.runAction('bar:update-order', () =>
-        ctx.commandBus.execute<BulkUpdateOrderCommand, void>(
-          new BulkUpdateOrderCommand(ctx.barId, asOrderId(orderId), {
-            items: items.map((i) => ({
-              itemId: asOrderItemId(i.itemId),
-              servedQuantity: i.servedQuantity,
-              paidQuantity: i.paidQuantity,
-              paymentMethod: i.paymentMethod,
-            })),
-          }),
-        ),
-      );
+      return {
+        permission: 'bar:update-order',
+        command: new BulkUpdateOrderCommand(data.barId, asOrderId(orderId), {
+          items: items.map((i) => ({
+            itemId: asOrderItemId(i.itemId),
+            servedQuantity: i.servedQuantity,
+            paidQuantity: i.paidQuantity,
+            paymentMethod: i.paymentMethod,
+          })),
+        }),
+      };
     },
   }),
 
@@ -146,11 +142,12 @@ export const createOrderTools = (ctx: AiToolsContext) => ({
     inputSchema: z.object({
       orderId: z.string().describe('The UUID of the order to cancel. Find the order UUID in the active open orders list.'),
     }),
-    execute: async ({ orderId }) => {
+    execute: async ({ orderId }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'cancelOrder' called with orderId="${orderId}"`);
-      return ctx.runAction('bar:cancel-order', () =>
-        ctx.commandBus.execute<CancelOrderCommand, void>(new CancelOrderCommand(ctx.barId, asOrderId(orderId))),
-      );
+      return {
+        permission: 'bar:cancel-order',
+        command: new CancelOrderCommand(data.barId, asOrderId(orderId)),
+      };
     },
   }),
 });

@@ -3,26 +3,25 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { UpdateProductStockCommand, UpdateProductCommand } from '../../products/commands';
 import { asProductId, asCategoryId } from '../../core';
-import type { AiToolsContext } from './context';
+import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('ProductTools');
 
-export const createProductTools = (ctx: AiToolsContext) => ({
+export const createProductTools = (data: AiToolsData) => ({
   updateProductStock: tool({
     description: 'Update the current stock quantity of a product in the bar.',
     inputSchema: z.object({
       productId: z.string().describe('The UUID of the product to update stock for.'),
       currentStock: z.number().int().min(0).describe('The new current stock quantity.'),
     }),
-    execute: async ({ productId, currentStock }) => {
+    execute: async ({ productId, currentStock }): Promise<PreparedAction> => {
       logger.debug(
         `[AI Tool] 'updateProductStock' called with productId="${productId}", currentStock=${currentStock}`,
       );
-      return ctx.runAction('bar:update-product-stock', () =>
-        ctx.commandBus.execute<UpdateProductStockCommand, void>(
-          new UpdateProductStockCommand(ctx.barId, asProductId(productId), { currentStock }),
-        ),
-      );
+      return {
+        permission: 'bar:update-product-stock',
+        command: new UpdateProductStockCommand(data.barId, asProductId(productId), { currentStock }),
+      };
     },
   }),
 
@@ -35,20 +34,19 @@ export const createProductTools = (ctx: AiToolsContext) => ({
       price: z.number().optional().describe('New price of the product in Euros (e.g. 2.50).'),
       minStockAlert: z.number().int().min(0).optional().describe('Minimum stock level to trigger an alert.'),
     }),
-    execute: async ({ productId, name, categoryId, price, minStockAlert }) => {
+    execute: async ({ productId, name, categoryId, price, minStockAlert }): Promise<PreparedAction> => {
       logger.debug(
         `[AI Tool] 'updateProduct' called with productId="${productId}", name="${name}", categoryId="${categoryId}", price=${price}, minStockAlert=${minStockAlert}`,
       );
-      return ctx.runAction('bar:update-product', () =>
-        ctx.commandBus.execute<UpdateProductCommand, void>(
-          new UpdateProductCommand(ctx.barId, asProductId(productId), {
-            name,
-            categoryId: categoryId ? asCategoryId(categoryId) : undefined,
-            price: price !== undefined ? Math.round(price * 100) : undefined,
-            minStockAlert,
-          }),
-        ),
-      );
+      return {
+        permission: 'bar:update-product',
+        command: new UpdateProductCommand(data.barId, asProductId(productId), {
+          name,
+          categoryId: categoryId ? asCategoryId(categoryId) : undefined,
+          price: price !== undefined ? Math.round(price * 100) : undefined,
+          minStockAlert,
+        }),
+      };
     },
   }),
 });

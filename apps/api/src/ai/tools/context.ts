@@ -1,10 +1,12 @@
-import { CommandBus } from '@nestjs/cqrs';
 import type { BarId, BarPermission, Category, Product } from '@coaster/common';
 
-export interface AiToolsContext {
+export interface AiToolsData {
   barId: BarId;
-  commandBus: CommandBus;
   products: Product[];
   categories: Category[];
-  runAction: (perm: BarPermission, action: () => Promise<any>) => Promise<string>;
+}
+
+export interface PreparedAction {
+  permission: BarPermission;
+  command: any;
 }
