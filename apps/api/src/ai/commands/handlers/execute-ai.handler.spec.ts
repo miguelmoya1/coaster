@@ -75,7 +75,7 @@ describe('ExecuteAiHandler', () => {
       const result = await handler.execute(command);
 
       expect(securityRepository.getUserRole).toHaveBeenCalledWith(user.id);
-      expect(queryBus.execute).toHaveBeenCalledTimes(3); // tables, products, open orders
+      expect(queryBus.execute).toHaveBeenCalledTimes(4); // tables, products, open orders, categories
       expect(generateText).toHaveBeenCalled();
       expect(result).toEqual({ text: 'Mesa creada correctamente.' });
     });
