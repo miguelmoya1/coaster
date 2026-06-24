@@ -67,7 +67,7 @@ describe('AdminTemplates', () => {
 
   it('should navigate back', () => {
     component.goBack();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
   });
 
   describe('validation', () => {

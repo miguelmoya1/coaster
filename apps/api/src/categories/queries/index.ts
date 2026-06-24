@@ -1,5 +1,5 @@
-import { GetCategoriesHandler } from './get-categories/get-categories.handler';
+import { GetCategoriesHandler } from './handlers/get-categories.handler';
 
-export { GetCategoriesQuery } from './get-categories/get-categories.query';
+export { GetCategoriesQuery } from './impl/get-categories.query';
 
 export const QueryHandlers = [GetCategoriesHandler];

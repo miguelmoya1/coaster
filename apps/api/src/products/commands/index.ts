@@ -1,19 +1,13 @@
-import { AdjustProductStockHandler } from './adjust-product-stock/adjust-product-stock.handler';
-import { CreateProductHandler } from './create-product/create-product.handler';
-import { DeleteProductHandler } from './delete-product/delete-product.handler';
-import { UpdateProductStockHandler } from './update-product-stock/update-product-stock.handler';
-import { UpdateProductHandler } from './update-product/update-product.handler';
+import { AdjustProductStockHandler } from './handlers/adjust-product-stock.handler';
+import { CreateProductHandler } from './handlers/create-product.handler';
+import { DeleteProductHandler } from './handlers/delete-product.handler';
+import { UpdateProductHandler } from './handlers/update-product.handler';
+import { UpdateProductStockHandler } from './handlers/update-product-stock.handler';
 
-export { AdjustProductStockCommand } from './adjust-product-stock/adjust-product-stock.command';
-export { CreateProductCommand } from './create-product/create-product.command';
-export { DeleteProductCommand } from './delete-product/delete-product.command';
-export { UpdateProductStockCommand } from './update-product-stock/update-product-stock.command';
-export { UpdateProductCommand } from './update-product/update-product.command';
+export { AdjustProductStockCommand } from './impl/adjust-product-stock.command';
+export { CreateProductCommand } from './impl/create-product.command';
+export { DeleteProductCommand } from './impl/delete-product.command';
+export { UpdateProductCommand } from './impl/update-product.command';
+export { UpdateProductStockCommand } from './impl/update-product-stock.command';
 
-export const CommandHandlers = [
-  CreateProductHandler,
-  UpdateProductStockHandler,
-  UpdateProductHandler,
-  DeleteProductHandler,
-  AdjustProductStockHandler,
-];
+export const CommandHandlers = [AdjustProductStockHandler, CreateProductHandler, DeleteProductHandler, UpdateProductHandler, UpdateProductStockHandler];

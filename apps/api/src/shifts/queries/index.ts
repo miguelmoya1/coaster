@@ -1,5 +1,5 @@
-import { GetShiftsHandler } from './get-shifts/get-shifts.handler';
+import { GetShiftsHandler } from './handlers/get-shifts.handler';
 
-export { GetShiftsQuery } from './get-shifts/get-shifts.query';
+export { GetShiftsQuery } from './impl/get-shifts.query';
 
 export const QueryHandlers = [GetShiftsHandler];

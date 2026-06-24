@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
 import { UsersController } from './controllers/users.controller';
-import { UserRepository } from './data-access/user.repository';
+import { UserReadRepository } from './data-access/user.read.repository';
+import { UserWriteRepository } from './data-access/user.write.repository';
 import { QueryHandlers } from './queries';
 import { UserSagas } from './sagas/user.sagas';
 
 @Module({
   imports: [CqrsModule],
-  providers: [UserRepository, ...CommandHandlers, ...QueryHandlers, UserSagas],
+  providers: [UserReadRepository, UserWriteRepository, ...CommandHandlers, ...QueryHandlers, UserSagas],
   controllers: [UsersController],
 })
 export class UserModule {}

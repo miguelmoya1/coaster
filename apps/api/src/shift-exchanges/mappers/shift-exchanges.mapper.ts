@@ -21,9 +21,9 @@ export const ShiftExchangesMapper = {
       targetId: exchange.targetId ? asUserId(exchange.targetId) : undefined,
       status: exchange.status as ShiftExchangeStatus,
       requesterName: exchange.requester.name,
-      shiftStartTime: exchange.shift.startTime.toISOString(),
-      shiftEndTime: exchange.shift.endTime.toISOString(),
-      createdAt: exchange.createdAt,
+      shiftStartTime: Temporal.Instant.fromEpochMilliseconds(exchange.shift.startTime.getTime()).toString(),
+      shiftEndTime: Temporal.Instant.fromEpochMilliseconds(exchange.shift.endTime.getTime()).toString(),
+      createdAt: Temporal.Instant.fromEpochMilliseconds(exchange.createdAt.getTime()).toString(),
     };
   },
 

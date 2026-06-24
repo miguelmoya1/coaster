@@ -22,7 +22,7 @@ describe('Loading', () => {
 
   describe('rendering', () => {
     it('should show the loading spinner', () => {
-      const spinner = fixture.nativeElement.querySelector('mat-spinner');
+      const spinner = fixture.nativeElement.querySelector('.animate-spin');
       expect(spinner).toBeTruthy();
     });
 

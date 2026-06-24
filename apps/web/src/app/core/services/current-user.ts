@@ -1,6 +1,7 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { effect, inject, Service } from '@angular/core';
 import type { User } from '@coaster/common';
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
 import { Auth } from './auth';
@@ -9,6 +10,7 @@ import { Auth } from './auth';
 export class CurrentUser {
   readonly #auth = inject(Auth);
   readonly #http = inject(HttpClient);
+  readonly #translate = inject(TranslateService);
   readonly #routes = {
     me: '/users/me',
   };
@@ -27,6 +29,23 @@ export class CurrentUser {
   );
 
   public readonly current = this.#current.asReadonly();
+
+  constructor() {
+    effect(() => {
+      const user = this.current.value();
+
+      if (user?.language) {
+        this.#translate.use(user.language);
+      }
+    });
+  }
+
+  public async updateLanguage(language: string) {
+    await firstValueFrom(this.#http.patch<void>(this.#routes.me, { language }));
+
+    this.#translate.use(language);
+    this.#current.reload();
+  }
 
   public async syncUser(user: User) {
     if (this.#checkIfUserNeedToUpdate(user)) {

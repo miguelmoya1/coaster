@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import type { BarId } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
@@ -36,9 +37,9 @@ export class Dashboard {
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #statsStore = inject(StatsStore);
+  readonly #http = inject(HttpClient);
 
   public readonly stats = this.#statsStore.stats;
-
   constructor() {
     effect(() => {
       const now = new Date();

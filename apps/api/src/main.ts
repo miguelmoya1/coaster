@@ -1,14 +1,18 @@
 import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
+import fastifyStatic from '@fastify/static';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getApps, initializeApp } from 'firebase-admin/app';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const startInstant = Temporal.Now.instant();
+
   if (getApps().length === 0) {
     initializeApp({
       projectId: process.env.GCLOUD_PROJECT || 'coaster-437f2',
@@ -33,6 +37,11 @@ async function bootstrap() {
   await app.register(helmet);
 
   await app.register(compression, { encodings: ['gzip', 'deflate'] });
+
+  await app.register(fastifyStatic, {
+    root: join(__dirname, '..', 'public'),
+    prefix: '/public/',
+  });
 
   app.enableCors({
     origin: '*',
@@ -67,6 +76,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+  Logger.log(`Time from bootstrap to start: ${startInstant.until(Temporal.Now.instant()).toLocaleString()}`);
 }
 
 void bootstrap();

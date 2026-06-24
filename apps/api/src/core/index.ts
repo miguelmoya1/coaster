@@ -1,8 +1,10 @@
 export * from './constants';
 export * from './mappers/common.mapper';
 export * from './permissions/bar-member.security';
-export * from './permissions/decorators/permissions.decorator';
-export * from './permissions/guards/permissions.guard';
-export * from './roles/decorators/user-roles.decorator';
-export * from './roles/guards/user-roles.guard';
+export * from './security/data-access/security.repository';
+export * from './security/decorators/admin.decorator';
+export * from './security/decorators/bar-permissions.decorator';
+export * from './security/guards/admin.guard';
+export * from './security/guards/bar-permissions.guard';
 export * from './utils/brands';
+

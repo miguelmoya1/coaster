@@ -1,1 +1,1 @@
-export type BarRole = 'OWNER' | 'STAFF';
+export type BarRole = 'OWNER' | 'MANAGER' | 'STAFF';

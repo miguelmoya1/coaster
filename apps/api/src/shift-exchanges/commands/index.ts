@@ -1,9 +1,9 @@
-import { AcceptExchangeHandler } from './accept-exchange/accept-exchange.handler';
-import { DeleteExchangeHandler } from './delete-exchange/delete-exchange.handler';
-import { RequestExchangeHandler } from './request-exchange/request-exchange.handler';
+import { AcceptExchangeHandler } from './handlers/accept-exchange.handler';
+import { DeleteExchangeHandler } from './handlers/delete-exchange.handler';
+import { RequestExchangeHandler } from './handlers/request-exchange.handler';
 
-export { RequestExchangeCommand } from './request-exchange/request-exchange.command';
-export { AcceptExchangeCommand } from './accept-exchange/accept-exchange.command';
-export { DeleteExchangeCommand } from './delete-exchange/delete-exchange.command';
+export { AcceptExchangeCommand } from './impl/accept-exchange.command';
+export { DeleteExchangeCommand } from './impl/delete-exchange.command';
+export { RequestExchangeCommand } from './impl/request-exchange.command';
 
-export const CommandHandlers = [RequestExchangeHandler, AcceptExchangeHandler, DeleteExchangeHandler];
+export const CommandHandlers = [AcceptExchangeHandler, DeleteExchangeHandler, RequestExchangeHandler];

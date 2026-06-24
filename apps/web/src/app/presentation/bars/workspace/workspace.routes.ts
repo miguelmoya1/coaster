@@ -15,6 +15,7 @@ const mainRoutes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard'),
+        canActivate: [permissionGuard(BarPermission.VIEW_DASHBOARD)],
       },
       {
         path: 'pantry',

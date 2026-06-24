@@ -23,16 +23,8 @@ export default class SelectBar {
 
   readonly bars = this.#barsStore.list;
 
-  readonly isAdmin = computed(() => {
-    return this.#currentUser.current.value()?.role === Role.ADMIN;
-  });
-
   navigateToCreate() {
     this.#router.navigate(['/bars/create']);
-  }
-
-  navigateToAdminTemplates() {
-    this.#router.navigate(['/admin/templates']);
   }
 
   selectBar(id: string) {

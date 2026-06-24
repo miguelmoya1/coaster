@@ -73,6 +73,7 @@ export const SocketEvents = {
 } as const;
 
 export const BarPermission = {
+  VIEW_DASHBOARD: 'bar:view-dashboard',
   INVITE_MEMBER: 'bar:invite-member',
   REMOVE_MEMBER: 'bar:remove-member',
   VIEW_MEMBERS: 'bar:view-members',

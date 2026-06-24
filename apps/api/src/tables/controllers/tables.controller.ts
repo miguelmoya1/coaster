@@ -2,7 +2,7 @@ import type { BarId, Table, TableId } from '@coaster/common';
 import { BarPermission } from '../../core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, Permissions, PermissionsGuard } from '../../core';
+import { commonMapper, BarPermissions, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
 import { CreateTableCommand, UpdateTableCommand, DeleteTableCommand } from '../commands';
 import { CreateTableDto } from '../dto/create-table.dto';
@@ -11,7 +11,7 @@ import { TablesMapper } from '../mappers/tables.mapper';
 import { GetTablesByBarIdQuery } from '../queries';
 
 @Controller('bars/:barId/tables')
-@UseGuards(FirebaseAuthGuard, PermissionsGuard)
+@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
 export class TablesController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -19,14 +19,14 @@ export class TablesController {
   ) {}
 
   @Get()
-  @Permissions(BarPermission.VIEW_TABLES)
+  @BarPermissions(BarPermission.VIEW_TABLES)
   async getTables(@Param('barId') barId: BarId) {
     const tables = await this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId));
     return tables.map((t) => TablesMapper.toDto(t));
   }
 
   @Post()
-  @Permissions(BarPermission.CREATE_TABLE)
+  @BarPermissions(BarPermission.CREATE_TABLE)
   async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto): Promise<void> {
     await this._commandBus.execute<CreateTableCommand, void>(
       new CreateTableCommand(barId, dto),
@@ -34,14 +34,14 @@ export class TablesController {
   }
 
   @Patch(':tableId')
-  @Permissions(BarPermission.UPDATE_TABLE)
+  @BarPermissions(BarPermission.UPDATE_TABLE)
   async updateTable(@Param('barId') barId: BarId, @Param('tableId') tableId: TableId, @Body() dto: UpdateTableDto) {
     await this._commandBus.execute<UpdateTableCommand, void>(new UpdateTableCommand(barId, tableId, dto));
     return commonMapper.getSuccessResponse();
   }
 
   @Delete(':tableId')
-  @Permissions(BarPermission.DELETE_TABLE)
+  @BarPermissions(BarPermission.DELETE_TABLE)
   async deleteTable(@Param('barId') barId: BarId, @Param('tableId') tableId: TableId) {
     await this._commandBus.execute<DeleteTableCommand, void>(new DeleteTableCommand(barId, tableId));
     return commonMapper.getSuccessResponse();

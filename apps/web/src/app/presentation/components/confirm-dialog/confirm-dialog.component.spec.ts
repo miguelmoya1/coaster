@@ -1,9 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { provideTranslateService } from '@ngx-translate/core';
-
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
   let component: ConfirmDialogComponent;
@@ -12,7 +10,7 @@ describe('ConfirmDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ConfirmDialogComponent],
-      providers: [provideNoopAnimations(), provideTranslateService()],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmDialogComponent);
@@ -36,8 +34,6 @@ describe('ConfirmDialogComponent', () => {
     expect(titleEl.textContent.trim()).toBe('Test Title');
     expect(textEls[0].textContent.trim()).toBe('Test Text');
   });
-
-
 
   it('should not show warning icon when destructive is false', () => {
     const iconEl = fixture.nativeElement.querySelector('mat-icon');

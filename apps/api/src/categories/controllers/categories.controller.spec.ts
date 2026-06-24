@@ -3,7 +3,7 @@ import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { PermissionsGuard } from '../../core';
+import { BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
 import { CreateCategoryCommand, UpdateCategoryCommand, DeleteCategoryCommand } from '../commands';
 import { GetCategoriesQuery } from '../queries';
@@ -29,7 +29,7 @@ describe('CategoriesController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
+      .overrideGuard(BarPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 

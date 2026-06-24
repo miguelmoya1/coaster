@@ -1,7 +1,7 @@
-import { GetMemberMeHandler } from './get-member-me/get-member-me.handler';
-import { GetMembersHandler } from './get-members/get-members.handler';
+import { GetMemberMeHandler } from './handlers/get-member-me.handler';
+import { GetMembersHandler } from './handlers/get-members.handler';
 
-export { GetMemberMeQuery } from './get-member-me/get-member-me.query';
-export { GetMembersQuery } from './get-members/get-members.query';
+export { GetMemberMeQuery } from './impl/get-member-me.query';
+export { GetMembersQuery } from './impl/get-members.query';
 
-export const QueryHandlers = [GetMembersHandler, GetMemberMeHandler];
+export const QueryHandlers = [GetMemberMeHandler, GetMembersHandler];

@@ -77,8 +77,8 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars', 'bar-1', 'dashboard']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/bars', 'bar-1', 'dashboard']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars', 'bar-1', 'orders']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/bars', 'bar-1', 'orders']);
   });
 
   it('should set bar ID in store if it does not match current route bar ID', async () => {

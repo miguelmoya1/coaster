@@ -20,15 +20,18 @@
     "@nestjs/websockets": "^11.1.26",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "ai": "^6.0.209",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "firebase-admin": "^14.0.0",
+    "handlebars": "^4.7.9",
     "passport": "^0.7.0",
     "passport-firebase-jwt": "^1.2.1",
+    "prisma": "^7.8.0",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.12.4",
     "rxjs": "^7.8.2",
-    "prisma": "^7.8.0"
+    "zod": "^4.4.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -38,6 +41,7 @@
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.41",
     "@types/express": "^5.0.6",
+    "@types/handlebars": "^4.0.40",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.9.3",
     "@types/supertest": "^7.2.0",

@@ -33,7 +33,7 @@ export interface ShiftExchange {
   shiftId: ShiftId;
   requesterId: UserId;
   targetId?: UserId;
-  createdAt: Date;
+  createdAt: string;
   status: ShiftExchangeStatus;
   requesterName: string;
   shiftStartTime: string;

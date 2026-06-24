@@ -1,5 +1,4 @@
-import { UserInvitedHandler } from './user-invited/user-invited.handler';
+import { MemberInvitedHandler } from './handlers/member-invited.handler';
 
-export { UserInvitedHandler } from './user-invited/user-invited.handler';
 
-export const EventHandlers = [UserInvitedHandler];
+export const EventHandlers = [MemberInvitedHandler];

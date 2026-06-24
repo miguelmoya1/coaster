@@ -1,8 +1,8 @@
 // @ts-check
 import eslint from '@eslint/js';
+import angular from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
-import angular from 'angular-eslint';
 
 export default defineConfig([
   {
@@ -14,6 +14,11 @@ export default defineConfig([
       angular.configs.tsRecommended,
     ],
     processor: angular.processInlineTemplates,
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
       '@angular-eslint/directive-selector': [
         'error',

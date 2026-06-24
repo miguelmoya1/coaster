@@ -1,7 +1,10 @@
 import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
+import { BarPermissionType } from '@coaster/common';
+import { BarPermission } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface NavItem {
@@ -9,7 +12,7 @@ interface NavItem {
   link: string;
   icon: string;
   labelKey: string;
-  ownerOnly?: boolean;
+  requiredPermission?: BarPermissionType;
 }
 
 @Component({
@@ -40,7 +43,7 @@ interface NavItem {
 })
 export class BottomNav {
   public readonly barId = input.required<string>();
-  public readonly isOwner = input(false);
+  readonly #barsStore = inject(BarsStore);
 
   private readonly allNavItems = computed<NavItem[]>(() => [
     {
@@ -48,35 +51,41 @@ export class BottomNav {
       link: `/bars/${this.barId()}/dashboard`,
       icon: 'dashboard',
       labelKey: 'nav.dashboard',
+      requiredPermission: BarPermission.VIEW_DASHBOARD,
     },
     {
       value: 'orders',
       link: `/bars/${this.barId()}/orders`,
       icon: 'assignment',
       labelKey: 'nav.orders',
+      requiredPermission: BarPermission.VIEW_ORDERS,
     },
     {
       value: 'roster',
       link: `/bars/${this.barId()}/roster`,
       icon: 'calendar_today',
       labelKey: 'nav.roster',
+      requiredPermission: BarPermission.VIEW_SHIFTS,
     },
     {
       value: 'pantry',
       link: `/bars/${this.barId()}/pantry`,
       icon: 'inventory_2',
       labelKey: 'nav.pantry',
+      requiredPermission: BarPermission.VIEW_PRODUCTS,
     },
     {
       value: 'staff',
       link: `/bars/${this.barId()}/staff`,
       icon: 'group',
       labelKey: 'nav.staff',
-      ownerOnly: true,
+      requiredPermission: BarPermission.INVITE_MEMBER,
     },
   ]);
 
   protected readonly visibleNavItems = computed(() =>
-    this.allNavItems().filter((item) => !item.ownerOnly || this.isOwner()),
+    this.allNavItems().filter(
+      (item) => !item.requiredPermission || this.#barsStore.hasPermission(item.requiredPermission),
+    ),
   );
 }

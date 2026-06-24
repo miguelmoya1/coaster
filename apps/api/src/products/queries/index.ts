@@ -1,5 +1,5 @@
-import { GetProductsByBarIdHandler } from './get-products-by-bar-id/get-products-by-bar-id.handler';
+import { GetProductsByBarIdHandler } from './handlers/get-products-by-bar-id.handler';
 
-export { GetProductsByBarIdQuery } from './get-products-by-bar-id/get-products-by-bar-id.query';
+export { GetProductsByBarIdQuery } from './impl/get-products-by-bar-id.query';
 
 export const QueryHandlers = [GetProductsByBarIdHandler];

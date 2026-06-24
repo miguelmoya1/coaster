@@ -20,7 +20,7 @@ export const userMapper = (user: unknown): MappedUser => {
     throw new Error('Invalid user');
   }
 
-  const { id, email, name, active, photoUrl, role } = user;
+  const { id, email, name, active, photoUrl, role, language } = user;
 
   return {
     id,
@@ -29,5 +29,6 @@ export const userMapper = (user: unknown): MappedUser => {
     active,
     photoUrl: prepareDefaultProfileImage(photoUrl, name),
     role,
+    language,
   };
 };

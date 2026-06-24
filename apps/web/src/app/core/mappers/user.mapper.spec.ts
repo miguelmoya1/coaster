@@ -10,6 +10,7 @@ describe('User Mapper', () => {
     name: 'Test User',
     active: true,
     role: Role.USER,
+    language: 'es',
   };
 
   describe('checkIsUser', () => {

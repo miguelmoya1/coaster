@@ -1,7 +1,7 @@
-import { PrepareUserForInviteHandler } from './prepare-user-for-invite/prepare-user-for-invite.handler';
-import { UpdateUserHandler } from './update-user/update-user.handler';
+import { PrepareUserForInviteHandler } from './handlers/prepare-user-for-invite.handler';
+import { UpdateUserHandler } from './handlers/update-user.handler';
 
-export { PrepareUserForInviteCommand } from './prepare-user-for-invite/prepare-user-for-invite.command';
-export { UpdateUserCommand } from './update-user/update-user.command';
+export { PrepareUserForInviteCommand } from './impl/prepare-user-for-invite.command';
+export { UpdateUserCommand } from './impl/update-user.command';
 
-export const CommandHandlers = [UpdateUserHandler, PrepareUserForInviteHandler];
+export const CommandHandlers = [PrepareUserForInviteHandler, UpdateUserHandler];

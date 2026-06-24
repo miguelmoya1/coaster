@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/db/client"
+  output   = "../src/core/db/client"
 }
 
 datasource db {
@@ -15,6 +15,7 @@ datasource db {
 
 enum DbBarRole {
   OWNER
+  MANAGER
   STAFF
 
   @@map("BarRole")
@@ -75,6 +76,7 @@ model DbUser {
   photoUrl       String?
   active         Boolean           @default(true)
   role           DbRole            @default(USER)
+  language       String            @default("es")
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   memberships    DbBarMember[]
@@ -109,6 +111,7 @@ model DbBarMember {
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@unique([userId, barId])
   @@map("BarMember")
@@ -146,12 +149,13 @@ model DbShiftExchange {
 }
 
 model DbCategory {
-  id       String      @id @default(uuid())
-  barId    String
-  bar      DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
-  name     String
-  icon     String?
-  products DbProduct[]
+  id        String      @id @default(uuid())
+  barId     String
+  bar       DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  name      String
+  icon      String?
+  products  DbProduct[]
+  deletedAt DateTime?
 
   @@map("Category")
 }
@@ -166,6 +170,7 @@ model DbProduct {
   minStockAlert Int           @default(0)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
   orderItems    DbOrderItem[]
 
   @@map("Product")
@@ -208,41 +213,41 @@ model DbTable {
 }
 
 model DbOrder {
-  id            String          @id @default(uuid())
-  barId         String
-  bar           DbBar           @relation(fields: [barId], references: [id], onDelete: Cascade)
-  tableId       String?
-  table         DbTable?        @relation(fields: [tableId], references: [id], onDelete: SetNull)
-  tableName     String?
-  status        DbOrderStatus   @default(OPEN)
-  totalAmount   Int             @default(0)
-  amountPaidCash Int            @default(0)
-  amountPaidCard Int            @default(0)
-  items         DbOrderItem[]
-  paymentMethod DbPaymentMethod @default(NONE)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id             String          @id @default(uuid())
+  barId          String
+  bar            DbBar           @relation(fields: [barId], references: [id], onDelete: Cascade)
+  tableId        String?
+  table          DbTable?        @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  tableName      String?
+  status         DbOrderStatus   @default(OPEN)
+  totalAmount    Int             @default(0)
+  amountPaidCash Int             @default(0)
+  amountPaidCard Int             @default(0)
+  items          DbOrderItem[]
+  paymentMethod  DbPaymentMethod @default(NONE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@map("Order")
 }
 
 model DbOrderItem {
-  id              String           @id @default(uuid())
-  orderId         String
-  order           DbOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId       String
-  product         DbProduct        @relation(fields: [productId], references: [id], onDelete: Restrict)
-  quantity        Int
-  priceAtPurchase Int
-  paidQuantity    Int              @default(0)
-  paidQuantityCash Int             @default(0)
-  paidQuantityCard Int             @default(0)
-  servedQuantity  Int              @default(0)
-  paymentStatus   DbPaymentStatus  @default(PENDING)
-  deliveryStatus  DbDeliveryStatus @default(PENDING)
-  paymentMethod   DbPaymentMethod  @default(NONE)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  orderId          String
+  order            DbOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          DbProduct        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity         Int
+  priceAtPurchase  Int
+  paidQuantity     Int              @default(0)
+  paidQuantityCash Int              @default(0)
+  paidQuantityCard Int              @default(0)
+  servedQuantity   Int              @default(0)
+  paymentStatus    DbPaymentStatus  @default(PENDING)
+  deliveryStatus   DbDeliveryStatus @default(PENDING)
+  paymentMethod    DbPaymentMethod  @default(NONE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@map("OrderItem")
 }

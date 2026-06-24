@@ -1,6 +1,5 @@
-import { GetBarStatsHandler } from './get-bar-stats/get-bar-stats.handler';
+import { GetBarStatsHandler } from './handlers/get-bar-stats.handler';
 
-export * from './get-bar-stats/get-bar-stats.handler';
-export * from './get-bar-stats/get-bar-stats.query';
+export { GetBarStatsQuery } from './impl/get-bar-stats.query';
 
 export const StatsQueryHandlers = [GetBarStatsHandler];

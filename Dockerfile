@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM node:22-slim AS builder
+FROM node:26-slim AS builder
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ RUN npm run build -w packages/common
 RUN npm run build -w apps/api
 
 # Stage 2: Production dependencies stage
-FROM node:22-slim AS runner-deps
+FROM node:26-slim AS runner-deps
 
 WORKDIR /app
 
@@ -49,7 +49,7 @@ RUN npm ci --omit=dev
 # COPY --from=builder /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 
 # Stage 3: Runner stage (slim runtime)
-FROM node:22-slim AS runner
+FROM node:26-slim AS runner
 
 WORKDIR /app
 

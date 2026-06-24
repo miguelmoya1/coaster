@@ -89,7 +89,7 @@ export class AdminTemplates {
   );
 
   goBack() {
-    this.#router.navigate(['/bars/select']);
+    this.#router.navigate(['/admin/dashboard']);
   }
 
   loadStandardTemplates() {

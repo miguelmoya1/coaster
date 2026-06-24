@@ -1,4 +1,5 @@
 export type BarPermission =
+  | 'bar:view-dashboard'
   | 'bar:invite-member'
   | 'bar:remove-member'
   | 'bar:view-members'

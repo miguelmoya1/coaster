@@ -2,8 +2,8 @@ export interface ICategoryTemplate {
   id: string;
   name: string;
   icon?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IProductTemplate {
@@ -11,8 +11,8 @@ export interface IProductTemplate {
   name: string;
   price: number;
   categoryId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IImportTemplatesResponse {

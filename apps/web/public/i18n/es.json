@@ -10,6 +10,7 @@
   "ERR_MERGE_TABLES": "Error de red al juntar mesas.",
   "ERR_MOVE_TABLE": "Error de red al mover de mesa.",
   "ERR_PAYMENT": "Error de red al cobrar, la acción se ha revertido.",
+  "ERR_PRINT_ORDER": "Error de conexión con la impresora local (localhost:8080).",
   "ERR_REMOVE_ITEM": "Error de red al eliminar producto, la acción se ha revertido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",
@@ -49,6 +50,19 @@
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
+  "admin_dashboard": {
+    "title": "Panel de Administrador",
+    "subtitle": "Zona de administración super controlada.",
+    "templates_title": "Editor de Plantillas",
+    "templates_desc": "Gestiona plantillas de bares estándar usadas durante la creación de un bar.",
+    "templates_btn": "Ir a Plantillas",
+    "search_title": "Buscar un Bar",
+    "search_desc": "Busca un bar específico por su ID o Nombre. Podrás entrar al bar con privilegios de dueño totales.",
+    "search_placeholder": "ID o Nombre del Bar...",
+    "search_btn": "Buscar",
+    "results": "Resultados ({{ count }})",
+    "no_results": "No se encontraron bares que coincidan con la búsqueda."
+  },
   "admin_templates": {
     "back": "Volver",
     "control_panel": "Panel de Control Admin",
@@ -69,6 +83,40 @@
     "validator": {
       "invalid_array": "El JSON debe ser un array de categorías",
       "invalid_format": "El JSON tiene un formato inválido"
+    }
+  },
+  "ai_voice": {
+    "title": "Asistente de Voz Coaster",
+    "placeholder": "Di un comando... Ej: \"Crear mesa Mesa 5\" o \"Añadir 2 cañas a la mesa 3\"",
+    "transcription": "Transcripción",
+    "ai_response": "Respuesta IA",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "speak_again": "Hablar de nuevo",
+    "reset_chat": "Limpiar historial",
+    "empty_chat": "Empieza una conversación con el asistente...",
+    "user": "Tú",
+    "assistant": "Coaster IA",
+    "send": "Enviar",
+    "processing": "Procesando...",
+    "tooltip_open": "Asistente de Voz IA",
+    "tooltip_close": "Cerrar Asistente de Voz",
+    "status": {
+      "listening": "Escuchando...",
+      "paused": "Pausado",
+      "processing": "Procesando...",
+      "success": "Completado",
+      "error": "Error",
+      "idle": "Inactivo"
+    },
+    "errors": {
+      "processing": "Error al procesar la solicitud.",
+      "recognition": "Error de reconocimiento de voz.",
+      "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
+      "network": "Error de red en el reconocimiento de voz.",
+      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde.",
+      "permission_denied": "No tienes permiso para realizar esta acción.",
+      "products_not_found": "Ninguno de los productos solicitados está disponible en el menú de este bar."
     }
   },
   "auth": {
@@ -117,6 +165,7 @@
     "confirm": "Confirmar",
     "create": "Crear",
     "delete": "Eliminar",
+    "download_printer": "Descargar Impresora",
     "duty": {
       "off": "Fuera de Servicio",
       "on": "En Turno"
@@ -129,7 +178,8 @@
       "staff": "Staff"
     },
     "save": "Guardar",
-    "update": "Actualizar"
+    "update": "Actualizar",
+    "loading": "Cargando..."
   },
   "dashboard": {
     "overview": {
@@ -266,6 +316,7 @@
     "partial_delivery": "Servido parcial",
     "partial_payment": "Pago parcial",
     "pay_selected": "Pagar Seleccionados ({{amount}})",
+    "print_ticket": "Imprimir Ticket",
     "pos_title": "Pedido Rápido",
     "payment_method_title": "Método de Pago",
     "payment_method_description": "Selecciona el método con el que se va a cobrar este importe.",

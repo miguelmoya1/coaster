@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "BarRole" ADD VALUE 'MANAGER';

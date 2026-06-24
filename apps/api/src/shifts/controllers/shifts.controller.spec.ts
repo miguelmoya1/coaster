@@ -1,10 +1,9 @@
-import { asBarId, asUserId } from '../../core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { PermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { asBarId, asShiftId, asUserId, BarPermissionsGuard } from '../../core';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
 import { ShiftsController } from './shifts.controller';
@@ -29,7 +28,7 @@ describe('ShiftsController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
+      .overrideGuard(BarPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -50,8 +49,9 @@ describe('ShiftsController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = {
       userId: asUserId('user-1'),
-      startTime: '2026-05-01T08:00:00Z',
-      endTime: '2026-05-01T16:00:00Z',
+      startTime: Temporal.Instant.from('2026-05-01T08:00:00Z'),
+      endTime: Temporal.Instant.from('2026-05-01T16:00:00Z'),
+      notes: 'notes',
       role: 'staff',
     };
 
@@ -64,7 +64,7 @@ describe('ShiftsController', () => {
   it('deleteShift should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.deleteShift(asBarId('bar-1'), 'shift-1');
+    await controller.deleteShift(asBarId('bar-1'), asShiftId('shift-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteShiftCommand));
   });
