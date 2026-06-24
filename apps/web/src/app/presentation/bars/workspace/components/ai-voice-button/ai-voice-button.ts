@@ -330,10 +330,10 @@ export class AiVoiceButton {
 
   constructor() {
     effect(() => {
-      const _messages = this.service.messages();
+      const messageCount = this.service.messages().length;
       const open = this.isOpen();
       const container = this.chatContainer();
-      if (open && container) {
+      if (open && container && messageCount >= 0) {
         setTimeout(() => {
           const el = container.nativeElement;
           el.scrollTop = el.scrollHeight;
