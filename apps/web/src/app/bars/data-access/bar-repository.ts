@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId, CreateBarDto } from '@coaster/common';
+import type { Bar, BarId, CreateBarDto } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -18,7 +18,7 @@ export class BarRepository {
     await firstValueFrom(this.#http.post<void>(this.routes.create, createBarDto));
   }
 
-  public async searchAdmin(query: string): Promise<any[]> {
-    return await firstValueFrom(this.#http.get<any[]>(this.routes.adminSearch(query)));
+  public async searchAdmin(query: string): Promise<Bar[]> {
+    return await firstValueFrom(this.#http.get<Bar[]>(this.routes.adminSearch(query)));
   }
 }

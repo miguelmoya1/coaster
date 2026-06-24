@@ -331,12 +331,18 @@ export class OrdersStore {
   public async printOrder(order: Order): Promise<void> {
     try {
       await this.#printOrder.execute(order);
-    } catch (error: any) {
-      if (error?.error?.message) {
-        this.#toastService.error(error.error.message);
-      } else {
-        this.#toastService.error('ERR_PRINT_ORDER');
+    } catch (error) {
+      let errMsg = 'ERR_PRINT_ORDER';
+      if (error && typeof error === 'object') {
+        const errObj = error as Record<string, unknown>;
+        const innerError = errObj['error'] as Record<string, unknown> | undefined;
+        if (innerError?.['message']) {
+          errMsg = String(innerError['message']);
+        } else if (errObj['message']) {
+          errMsg = String(errObj['message']);
+        }
       }
+      this.#toastService.error(errMsg);
       throw error;
     }
   }

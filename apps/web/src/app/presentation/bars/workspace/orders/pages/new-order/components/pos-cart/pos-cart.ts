@@ -64,7 +64,7 @@ export interface CartItem {
             <select
               class="w-full rounded-xl bg-surface-container-highest text-on-surface p-3 text-sm font-medium border border-outline-variant/30 outline-none focus:border-primary"
               [value]="selectedTableId() ?? ''"
-              (change)="tableSelected.emit($any($event.target).value || undefined)"
+              (change)="onTableChange($event)"
             >
               <option value="">{{ 'orders.no_table' | translate }}</option>
               @for (table of freeTables(); track table.id) {
@@ -107,4 +107,9 @@ export class PosCart {
   readonly freeTables = computed(() => this.tables().filter((t) => t.status === TableStatus.FREE));
 
   readonly totalCents = computed(() => this.items().reduce((sum, item) => sum + item.price * item.quantity, 0));
+
+  protected onTableChange(event: Event) {
+    const target = event.target as HTMLSelectElement | null;
+    this.tableSelected.emit(target?.value || undefined);
+  }
 }

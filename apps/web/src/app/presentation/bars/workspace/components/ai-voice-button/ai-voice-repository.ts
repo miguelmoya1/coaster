@@ -5,6 +5,8 @@ import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
+  isError?: boolean;
+  errorKey?: string;
 }
 
 @Service()

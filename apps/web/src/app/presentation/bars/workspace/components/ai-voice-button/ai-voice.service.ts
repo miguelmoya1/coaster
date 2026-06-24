@@ -5,6 +5,35 @@ import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
 
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  [index: number]: {
+    transcript: string;
+  };
+}
+
+interface SpeechRecognitionEvent {
+  results: Iterable<SpeechRecognitionResult> & {
+    length: number;
+    [index: number]: SpeechRecognitionResult;
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
+interface ISpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+
 @Service()
 export class AiVoiceService {
   readonly #repository = inject(AiVoiceRepository);
@@ -19,7 +48,6 @@ export class AiVoiceService {
 
   readonly #commandParams = signal<{ barId: BarId; prompt: string } | undefined>(undefined);
 
-  // Angular 19+ Resource API for handling the async POST request reactively
   public readonly aiResource = resource({
     params: () => this.#commandParams(),
     loader: async ({ params }) => {
@@ -28,29 +56,45 @@ export class AiVoiceService {
     },
   });
 
-  #recognition: any = null;
+  #recognition: ISpeechRecognition | null = null;
   #savedTranscript = '';
   #lang = 'es';
 
   constructor() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    this.isSupported.set(!!SpeechRecognition);
+    const windowObj = window as Window & {
+      SpeechRecognition?: new () => ISpeechRecognition;
+      webkitSpeechRecognition?: new () => ISpeechRecognition;
+    };
+    this.isSupported.set(!!(windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition));
 
-    // Effect to reactively handle resource state changes
     effect(() => {
       const status = this.aiResource.status();
 
       if (status === 'resolved') {
         const value = this.aiResource.value();
         if (value) {
-          this.response.set(value.text);
-          this.status.set('success');
-          this.speak(value.text);
+          if (value.isError && value.errorKey) {
+            const errMsg = this.#translate.instant(value.errorKey);
+            this.error.set(errMsg);
+            this.status.set('error');
+            this.speak(errMsg);
+          } else {
+            this.response.set(value.text);
+            this.status.set('success');
+            this.speak(value.text);
+          }
         }
       } else if (status === 'error') {
         const error = this.aiResource.error();
         console.error('Resource loader error:', error);
-        const errMsg = (error as any).error?.message || (error as any).message || this.#translate.instant('ai_voice.errors.processing');
+        let errMsg = this.#translate.instant('ai_voice.errors.processing');
+        if (error instanceof Error) {
+          errMsg = error.message;
+        } else if (error && typeof error === 'object') {
+          const errObj = error as Record<string, unknown>;
+          const innerError = errObj['error'] as Record<string, unknown> | undefined;
+          errMsg = String(innerError?.['message'] || errObj['message'] || errMsg);
+        }
         this.error.set(errMsg);
         this.status.set('error');
         this.speak(errMsg);
@@ -61,7 +105,11 @@ export class AiVoiceService {
   }
 
   #initRecognition() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const windowObj = window as Window & {
+      SpeechRecognition?: new () => ISpeechRecognition;
+      webkitSpeechRecognition?: new () => ISpeechRecognition;
+    };
+    const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
     this.#recognition = new SpeechRecognition();
@@ -69,24 +117,23 @@ export class AiVoiceService {
     this.#recognition.interimResults = true;
     this.#recognition.lang = this.#lang;
 
-    this.#recognition.onresult = (event: any) => {
+    this.#recognition.onresult = (event: SpeechRecognitionEvent) => {
       let sessionFinal = '';
       let sessionInterim = '';
-      
-      for (let i = 0; i < event.results.length; ++i) {
-        const result = event.results[i];
+
+      for (const result of event.results) {
         if (result.isFinal) {
           sessionFinal += result[0].transcript + ' ';
         } else {
           sessionInterim += result[0].transcript;
         }
       }
-      
+
       const fullTranscript = (this.#savedTranscript + ' ' + sessionFinal + sessionInterim).trim();
       this.transcript.set(fullTranscript);
     };
 
-    this.#recognition.onerror = (event: any) => {
+    this.#recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('SpeechRecognition error:', event.error, event);
       if (event.error !== 'no-speech') {
         let userFriendlyError = this.#translate.instant('ai_voice.errors.recognition');
@@ -105,7 +152,7 @@ export class AiVoiceService {
       if (this.status() === 'listening') {
         try {
           this.#initRecognition();
-          this.#recognition.start();
+          this.#recognition?.start();
         } catch (e) {
           console.error('Failed to auto-restart speech recognition:', e);
         }
@@ -113,7 +160,7 @@ export class AiVoiceService {
     };
   }
 
-  public start(lang: string = 'es') {
+  public start(lang = 'es') {
     if (!this.isSupported()) return;
     this.#lang = lang;
     this.stopSpeaking();
@@ -125,7 +172,7 @@ export class AiVoiceService {
     this.status.set('listening');
     try {
       this.#initRecognition();
-      this.#recognition.start();
+      this.#recognition?.start();
     } catch (e) {
       console.error('Failed to start speech recognition:', e);
     }
@@ -150,7 +197,7 @@ export class AiVoiceService {
     this.status.set('listening');
     try {
       this.#initRecognition();
-      this.#recognition.start();
+      this.#recognition?.start();
     } catch (e) {
       console.error('Failed to start speech recognition on resume:', e);
     }
@@ -190,8 +237,7 @@ export class AiVoiceService {
     this.stop();
     this.error.set(null);
     this.response.set(null);
-    
-    // Set the command params to trigger the resource loader reactively
+
     this.#commandParams.set({ barId, prompt: textToSend });
   }
 
@@ -212,7 +258,7 @@ export class AiVoiceService {
   }
 
   public toggleMute() {
-    this.isMuted.update(m => !m);
+    this.isMuted.update((m) => !m);
     if (this.isMuted()) {
       this.stopSpeaking();
     }

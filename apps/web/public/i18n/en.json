@@ -109,7 +109,8 @@
       "processing": "Error processing request.",
       "recognition": "Speech recognition error.",
       "mic_denied": "Microphone permission denied. Please enable it in your browser.",
-      "network": "Network error during speech recognition."
+      "network": "Network error during speech recognition.",
+      "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later."
     }
   },
   "auth": {

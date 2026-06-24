@@ -109,7 +109,8 @@
       "processing": "Error al procesar la solicitud.",
       "recognition": "Error de reconocimiento de voz.",
       "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
-      "network": "Error de red en el reconocimiento de voz."
+      "network": "Error de red en el reconocimiento de voz.",
+      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde."
     }
   },
   "auth": {
