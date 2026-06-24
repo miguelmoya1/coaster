@@ -222,7 +222,7 @@ ${ordersList || '(None)'}
       }
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
-      return { text: result.text };
+      return { text: result.text || (userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.') };
     } catch (error: any) {
       this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
       return {
