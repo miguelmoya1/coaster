@@ -36,7 +36,7 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, { tex
     'google/gemini-2.5-flash-lite',
     'nvidia/nemotron-nano-9b-v2',
   ];
-  readonly #model: LanguageModel = 'google/gemini-2.5-flash';
+  readonly #model: LanguageModel = 'nvidia/nemotron-3-nano-30b-a3b';
 
   constructor(
     private readonly _commandBus: CommandBus,

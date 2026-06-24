@@ -85,6 +85,33 @@
       "invalid_format": "El JSON tiene un formato inválido"
     }
   },
+  "ai_voice": {
+    "title": "Asistente de Voz Coaster",
+    "placeholder": "Di un comando... Ej: \"Crear mesa Mesa 5\" o \"Añadir 2 cañas a la mesa 3\"",
+    "transcription": "Transcripción",
+    "ai_response": "Respuesta IA",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "speak_again": "Hablar de nuevo",
+    "send": "Enviar",
+    "processing": "Procesando...",
+    "tooltip_open": "Asistente de Voz IA",
+    "tooltip_close": "Cerrar Asistente de Voz",
+    "status": {
+      "listening": "Escuchando...",
+      "paused": "Pausado",
+      "processing": "Procesando...",
+      "success": "Completado",
+      "error": "Error",
+      "idle": "Inactivo"
+    },
+    "errors": {
+      "processing": "Error al procesar la solicitud.",
+      "recognition": "Error de reconocimiento de voz.",
+      "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
+      "network": "Error de red en el reconocimiento de voz."
+    }
+  },
   "auth": {
     "login": {
       "brand": "COASTER",

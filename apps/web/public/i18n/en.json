@@ -85,6 +85,33 @@
       "invalid_format": "The JSON has an invalid format"
     }
   },
+  "ai_voice": {
+    "title": "Coaster Voice Assistant",
+    "placeholder": "Say a command... e.g. \"Create table Table 5\" or \"Add 2 beers to table 3\"",
+    "transcription": "Transcription",
+    "ai_response": "AI Response",
+    "error": "Error",
+    "cancel": "Cancel",
+    "speak_again": "Speak again",
+    "send": "Send",
+    "processing": "Processing...",
+    "tooltip_open": "AI Voice Assistant",
+    "tooltip_close": "Close Voice Assistant",
+    "status": {
+      "listening": "Listening...",
+      "paused": "Paused",
+      "processing": "Processing...",
+      "success": "Done",
+      "error": "Error",
+      "idle": "Inactive"
+    },
+    "errors": {
+      "processing": "Error processing request.",
+      "recognition": "Speech recognition error.",
+      "mic_denied": "Microphone permission denied. Please enable it in your browser.",
+      "network": "Network error during speech recognition."
+    }
+  },
   "auth": {
     "login": {
       "brand": "COASTER",

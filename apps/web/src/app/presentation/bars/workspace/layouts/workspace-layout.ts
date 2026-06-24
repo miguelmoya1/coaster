@@ -6,10 +6,11 @@ import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { TopAppBar } from '../components/top-app-bar/top-app-bar';
+import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 
 @Component({
   selector: 'coaster-main',
-  imports: [RouterOutlet, TopAppBar, BottomNav],
+  imports: [RouterOutlet, TopAppBar, BottomNav, AiVoiceButton],
   template: `
     @if (currentUser.hasValue()) {
       <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
@@ -20,6 +21,7 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
     </main>
 
     <coaster-bottom-nav [barId]="barId()" />
+    <coaster-ai-voice-button [barId]="barId()" />
   `,
   host: {
     class: 'h-svh w-full flex flex-col items-center overflow-hidden relative',
