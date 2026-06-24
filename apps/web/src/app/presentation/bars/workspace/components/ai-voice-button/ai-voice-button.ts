@@ -330,7 +330,7 @@ export class AiVoiceButton {
 
   constructor() {
     effect(() => {
-      const messages = this.service.messages();
+      const _messages = this.service.messages();
       const open = this.isOpen();
       const container = this.chatContainer();
       if (open && container) {
