@@ -1,3 +1,4 @@
-import { MemberInvitedHandler } from './member-invited/member-invited.handler';
+import { MemberInvitedHandler } from './handlers/member-invited.handler';
+
 
 export const EventHandlers = [MemberInvitedHandler];

@@ -4,7 +4,7 @@ import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
-import { GetBarStatsQuery } from '../queries/get-bar-stats/get-bar-stats.query';
+import { GetBarStatsQuery } from '../queries/impl/get-bar-stats.query';
 
 @Controller('bars/:barId/stats')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)

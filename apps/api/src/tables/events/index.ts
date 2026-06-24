@@ -1,3 +1,6 @@
-export * from './table-created.event';
-export * from './table-updated.event';
-export * from './table-deleted.event';
+
+export * from './impl/table-created.event';
+export * from './impl/table-deleted.event';
+export * from './impl/table-updated.event';
+
+export const EventHandlers = [];

@@ -1,70 +1,70 @@
-import { MemberInvitedHandler } from './impl/bar-members/member-invited.handler';
-import { MemberRemovedHandler } from './impl/bar-members/member-removed.handler';
-import { TableCreatedHandler } from './impl/tables/table-created.handler';
-import { TableUpdatedHandler } from './impl/tables/table-updated.handler';
-import { TableDeletedHandler } from './impl/tables/table-deleted.handler';
-import { CategoryCreatedHandler } from './impl/categories/category-created.handler';
-import { CategoryUpdatedHandler } from './impl/categories/category-updated.handler';
-import { CategoryDeletedHandler } from './impl/categories/category-deleted.handler';
-import { ProductCreatedHandler } from './impl/products/product-created.handler';
-import { ProductUpdatedHandler } from './impl/products/product-updated.handler';
-import { ProductDeletedHandler } from './impl/products/product-deleted.handler';
-import { ProductStockChangedHandler } from './impl/products/product-stock-changed.handler';
-import { OrderCreatedHandler } from './impl/orders/order-created.handler';
-import { OrderUpdatedHandler } from './impl/orders/order-updated.handler';
-import { OrderCancelledHandler } from './impl/orders/order-cancelled.handler';
-import { OrderClosedHandler } from './impl/orders/order-closed.handler';
-import { OrderDeletedHandler } from './impl/orders/order-deleted.handler';
-import { OrderItemsAddedHandler } from './impl/orders/order-items-added.handler';
-import { OrderTableMovedHandler } from './impl/orders/order-table-moved.handler';
-import { OrdersMergedHandler } from './impl/orders/orders-merged.handler';
-import { ShiftCreatedHandler } from './impl/shifts/shift-created.handler';
-import { ShiftDeletedHandler } from './impl/shifts/shift-deleted.handler';
+import { MemberInvitedHandler } from './handlers/member-invited.handler';
+import { MemberRemovedHandler } from './handlers/member-removed.handler';
+import { CategoryCreatedHandler } from './handlers/category-created.handler';
+import { CategoryDeletedHandler } from './handlers/category-deleted.handler';
+import { CategoryUpdatedHandler } from './handlers/category-updated.handler';
+import { OrderCancelledHandler } from './handlers/order-cancelled.handler';
+import { OrderClosedHandler } from './handlers/order-closed.handler';
+import { OrderCreatedHandler } from './handlers/order-created.handler';
+import { OrderDeletedHandler } from './handlers/order-deleted.handler';
+import { OrderItemsAddedHandler } from './handlers/order-items-added.handler';
+import { OrderTableMovedHandler } from './handlers/order-table-moved.handler';
+import { OrderUpdatedHandler } from './handlers/order-updated.handler';
+import { OrdersMergedHandler } from './handlers/orders-merged.handler';
+import { ProductCreatedHandler } from './handlers/product-created.handler';
+import { ProductDeletedHandler } from './handlers/product-deleted.handler';
+import { ProductStockChangedHandler } from './handlers/product-stock-changed.handler';
+import { ProductUpdatedHandler } from './handlers/product-updated.handler';
+import { ShiftCreatedHandler } from './handlers/shift-created.handler';
+import { ShiftDeletedHandler } from './handlers/shift-deleted.handler';
+import { TableCreatedHandler } from './handlers/table-created.handler';
+import { TableDeletedHandler } from './handlers/table-deleted.handler';
+import { TableUpdatedHandler } from './handlers/table-updated.handler';
 
-export * from './impl/bar-members/member-invited.handler';
-export * from './impl/bar-members/member-removed.handler';
-export * from './impl/tables/table-created.handler';
-export * from './impl/tables/table-updated.handler';
-export * from './impl/tables/table-deleted.handler';
-export * from './impl/categories/category-created.handler';
-export * from './impl/categories/category-updated.handler';
-export * from './impl/categories/category-deleted.handler';
-export * from './impl/products/product-created.handler';
-export * from './impl/products/product-updated.handler';
-export * from './impl/products/product-deleted.handler';
-export * from './impl/products/product-stock-changed.handler';
-export * from './impl/orders/order-created.handler';
-export * from './impl/orders/order-updated.handler';
-export * from './impl/orders/order-cancelled.handler';
-export * from './impl/orders/order-closed.handler';
-export * from './impl/orders/order-deleted.handler';
-export * from './impl/orders/order-items-added.handler';
-export * from './impl/orders/order-table-moved.handler';
-export * from './impl/orders/orders-merged.handler';
-export * from './impl/shifts/shift-created.handler';
-export * from './impl/shifts/shift-deleted.handler';
+export * from './handlers/member-invited.handler';
+export * from './handlers/member-removed.handler';
+export * from './handlers/category-created.handler';
+export * from './handlers/category-deleted.handler';
+export * from './handlers/category-updated.handler';
+export * from './handlers/order-cancelled.handler';
+export * from './handlers/order-closed.handler';
+export * from './handlers/order-created.handler';
+export * from './handlers/order-deleted.handler';
+export * from './handlers/order-items-added.handler';
+export * from './handlers/order-table-moved.handler';
+export * from './handlers/order-updated.handler';
+export * from './handlers/orders-merged.handler';
+export * from './handlers/product-created.handler';
+export * from './handlers/product-deleted.handler';
+export * from './handlers/product-stock-changed.handler';
+export * from './handlers/product-updated.handler';
+export * from './handlers/shift-created.handler';
+export * from './handlers/shift-deleted.handler';
+export * from './handlers/table-created.handler';
+export * from './handlers/table-deleted.handler';
+export * from './handlers/table-updated.handler';
 
 export const EventHandlers = [
   MemberInvitedHandler,
   MemberRemovedHandler,
-  TableCreatedHandler,
-  TableUpdatedHandler,
-  TableDeletedHandler,
   CategoryCreatedHandler,
-  CategoryUpdatedHandler,
   CategoryDeletedHandler,
-  ProductCreatedHandler,
-  ProductUpdatedHandler,
-  ProductDeletedHandler,
-  ProductStockChangedHandler,
-  OrderCreatedHandler,
-  OrderUpdatedHandler,
+  CategoryUpdatedHandler,
   OrderCancelledHandler,
   OrderClosedHandler,
+  OrderCreatedHandler,
   OrderDeletedHandler,
   OrderItemsAddedHandler,
   OrderTableMovedHandler,
+  OrderUpdatedHandler,
   OrdersMergedHandler,
+  ProductCreatedHandler,
+  ProductDeletedHandler,
+  ProductStockChangedHandler,
+  ProductUpdatedHandler,
   ShiftCreatedHandler,
   ShiftDeletedHandler,
+  TableCreatedHandler,
+  TableDeletedHandler,
+  TableUpdatedHandler
 ];

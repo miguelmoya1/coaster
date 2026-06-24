@@ -1,2 +1,5 @@
-export * from './shift-created.event';
-export * from './shift-deleted.event';
+
+export * from './impl/shift-created.event';
+export * from './impl/shift-deleted.event';
+
+export const EventHandlers = [];

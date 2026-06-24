@@ -1,7 +1,7 @@
-import { CreateShiftHandler } from './create-shift/create-shift.handler';
-import { DeleteShiftHandler } from './delete-shift/delete-shift.handler';
+import { CreateShiftHandler } from './handlers/create-shift.handler';
+import { DeleteShiftHandler } from './handlers/delete-shift.handler';
 
-export { CreateShiftCommand } from './create-shift/create-shift.command';
-export { DeleteShiftCommand } from './delete-shift/delete-shift.command';
+export { CreateShiftCommand } from './impl/create-shift.command';
+export { DeleteShiftCommand } from './impl/delete-shift.command';
 
 export const CommandHandlers = [CreateShiftHandler, DeleteShiftHandler];

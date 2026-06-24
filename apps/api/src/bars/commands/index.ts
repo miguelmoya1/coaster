@@ -1,5 +1,5 @@
-import { CreateBarHandler } from './create-bar/create-bar.handler';
+import { CreateBarHandler } from './handlers/create-bar.handler';
 
-export { CreateBarCommand } from './create-bar/create-bar.command';
+export { CreateBarCommand } from './impl/create-bar.command';
 
 export const CommandHandlers = [CreateBarHandler];

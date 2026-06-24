@@ -4,7 +4,7 @@ import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { asBarId, asOrderId, asProductId } from '../../core';
-import { AdjustProductStockCommand } from '../../products/commands/adjust-product-stock/adjust-product-stock.command';
+import { AdjustProductStockCommand } from '../../products/commands/impl/adjust-product-stock.command';
 import { OrderCancelledEvent, OrderCreatedEvent, OrderItemRemovedEvent, OrderItemsAddedEvent } from '../events';
 import { OrdersSagas } from './orders.sagas';
 
