@@ -21,7 +21,6 @@ vi.mock('ai', async (importOriginal) => {
 
 describe('ExecuteAiHandler', () => {
   let handler: ExecuteAiHandler;
-  let commandBus: Mocked<CommandBus>;
   let queryBus: Mocked<QueryBus>;
   let securityRepository: Mocked<SecurityRepository>;
 
@@ -43,7 +42,6 @@ describe('ExecuteAiHandler', () => {
     }).compile();
 
     handler = module.get<ExecuteAiHandler>(ExecuteAiHandler);
-    commandBus = module.get(CommandBus);
     queryBus = module.get(QueryBus);
     securityRepository = module.get(SecurityRepository);
   });

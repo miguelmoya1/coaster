@@ -402,7 +402,7 @@ class OrderDetail {
 
     try {
       await this.#ordersStore.printOrder(order);
-    } catch (e) {
+    } catch {
       // Toast handled in the store
     } finally {
       this.isPrinting.set(false);
