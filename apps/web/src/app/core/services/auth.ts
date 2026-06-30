@@ -66,7 +66,17 @@ export class Auth {
     initialValue: undefined,
     requireSync: false,
   });
-  public readonly isAuthLoaded = computed(() => this.#currentUser() !== undefined && this.idToken() !== undefined);
+  public readonly isAuthLoaded = computed(() => {
+    const user = this.#currentUser();
+    const token = this.idToken();
+    if (user === undefined || token === undefined) {
+      return false;
+    }
+    if (user !== null && token === null) {
+      return false;
+    }
+    return true;
+  });
   public readonly isAuthenticated = computed(() => !!this.#currentUser());
   public readonly userProfile = computed(() => {
     const user = this.#currentUser();

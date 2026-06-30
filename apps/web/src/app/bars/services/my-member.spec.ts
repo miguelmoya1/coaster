@@ -8,9 +8,11 @@ import { MyMember } from './my-member';
 
 describe('MyMember', () => {
   let service: MyMember;
+  const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
 
   const authMock = {
+    isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
   };
 
@@ -21,6 +23,7 @@ describe('MyMember', () => {
   };
 
   beforeEach(() => {
+    isAuthLoaded.set(true);
     isAuthenticated.set(true);
     vi.clearAllMocks();
 
@@ -50,6 +53,11 @@ describe('MyMember', () => {
 
     it('should return undefined when not authenticated', () => {
       isAuthenticated.set(false);
+      expect(service.execute(asBarId('bar-1'))).toBeUndefined();
+    });
+
+    it('should return undefined when auth is not loaded', () => {
+      isAuthLoaded.set(false);
       expect(service.execute(asBarId('bar-1'))).toBeUndefined();
     });
 

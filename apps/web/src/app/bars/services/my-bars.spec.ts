@@ -7,9 +7,11 @@ import { MyBars } from './my-bars';
 
 describe('MyBars', () => {
   let service: MyBars;
+  const isAuthLoaded = signal(true);
   const isAuthenticated = signal(true);
 
   const authMock = {
+    isAuthLoaded: isAuthLoaded.asReadonly(),
     isAuthenticated: isAuthenticated.asReadonly(),
   };
 
@@ -20,6 +22,7 @@ describe('MyBars', () => {
   };
 
   beforeEach(() => {
+    isAuthLoaded.set(true);
     isAuthenticated.set(true);
     vi.clearAllMocks();
 
@@ -45,6 +48,11 @@ describe('MyBars', () => {
 
     it('should return undefined when not authenticated', () => {
       isAuthenticated.set(false);
+      expect(service.execute()).toBeUndefined();
+    });
+
+    it('should return undefined when auth is not loaded', () => {
+      isAuthLoaded.set(false);
       expect(service.execute()).toBeUndefined();
     });
   });
