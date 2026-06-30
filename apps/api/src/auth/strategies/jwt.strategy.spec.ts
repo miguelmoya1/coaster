@@ -13,11 +13,11 @@ vi.mock('firebase-admin/auth', () => ({
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let db: { dbUser: { upsert: Mock } };
+  let db: { dbUser: { findUnique: Mock; update: Mock; create: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      dbUser: { upsert: vi.fn() },
+      dbUser: { findUnique: vi.fn(), update: vi.fn(), create: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -32,7 +32,7 @@ describe('JwtStrategy', () => {
     expect(strategy).toBeDefined();
   });
 
-  it('should validate the token and upsert the user', async () => {
+  it('should validate the token and find/update the user', async () => {
     const fakePayload = {
       sub: 'google-123',
       email: 'test@mail.com',
@@ -40,7 +40,13 @@ describe('JwtStrategy', () => {
       picture: 'http://photo.url',
     };
     (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
-    db.dbUser.upsert.mockResolvedValue({
+    db.dbUser.findUnique.mockResolvedValueOnce({
+      id: 'user-1',
+      email: 'test@mail.com',
+      name: 'Test User',
+      googleId: 'google-123',
+    });
+    db.dbUser.update.mockResolvedValue({
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Test User',
@@ -50,13 +56,45 @@ describe('JwtStrategy', () => {
     const result = await strategy.validate('fake-token');
 
     expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
-    expect(db.dbUser.upsert).toHaveBeenCalledWith({
-      where: { email: 'test@mail.com' },
-      update: { googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
-      create: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
+    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
+    expect(db.dbUser.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { photoUrl: 'http://photo.url' },
     });
     expect(result).toEqual({
       id: 'user-1',
+      email: 'test@mail.com',
+      name: 'Test User',
+      googleId: 'google-123',
+    });
+  });
+
+  it('should validate the token and create the user if not found', async () => {
+    const fakePayload = {
+      sub: 'google-123',
+      email: 'test@mail.com',
+      name: 'Test User',
+      picture: 'http://photo.url',
+    };
+    (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
+    db.dbUser.findUnique.mockResolvedValue(null);
+    db.dbUser.create.mockResolvedValue({
+      id: 'user-2',
+      email: 'test@mail.com',
+      name: 'Test User',
+      googleId: 'google-123',
+    });
+
+    const result = await strategy.validate('fake-token');
+
+    expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
+    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
+    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'test@mail.com' } });
+    expect(db.dbUser.create).toHaveBeenCalledWith({
+      data: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
+    });
+    expect(result).toEqual({
+      id: 'user-2',
       email: 'test@mail.com',
       name: 'Test User',
       googleId: 'google-123',
