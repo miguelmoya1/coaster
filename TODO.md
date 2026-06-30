@@ -7,7 +7,7 @@
 - [ ] **Backend (Inventario):** IA para sugerir bajar precios de productos con stock alto y sin ventas recientes.
 - [ ] **Backend (RRHH):** IA para recomendaciones de horarios de empleados y tiempos basados en el flujo de trabajo.
 
-## 🕒 Fichaje y Control Horario (Clock-in / Clock-out)
+## 🕒 Fichaje y Control Horario (Clock-in / Clock-out) (?)
 
 - [ ] **Esquema BD:** Añadir `clockInTime` y `clockOutTime` a `DbShift` (o crear modelo `DbTimeLog` para registrar pausas).
 - [ ] **Frontend:** Interfaz de fichaje en tiempo real (con opción de geolocalización, según README).

@@ -9,7 +9,7 @@ export class CurrentBar {
   readonly #auth = inject(Auth);
 
   public execute(id: BarId | undefined) {
-    if (!this.#auth.isAuthenticated()) {
+    if (!this.#auth.isAuthLoaded() || !this.#auth.isAuthenticated()) {
       return undefined;
     }
 
