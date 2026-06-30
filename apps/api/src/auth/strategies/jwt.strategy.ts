@@ -21,21 +21,35 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 
-      // TODO: Replace for 2 queries and 1 command;
-      const user = await this._db.dbUser.upsert({
-        where: { email: decodedToken.email },
-        update: {
-          googleId: decodedToken.sub,
-          name: decodedToken.name || undefined,
-          photoUrl: decodedToken.picture || undefined,
-        },
-        create: {
-          email: decodedToken.email,
-          googleId: decodedToken.sub,
-          name: decodedToken.name || decodedToken.email.split('@')[0],
-          photoUrl: decodedToken.picture || undefined,
-        },
+      let user = await this._db.dbUser.findUnique({
+        where: { googleId: decodedToken.sub },
       });
+
+      if (!user) {
+        user = await this._db.dbUser.findUnique({
+          where: { email: decodedToken.email },
+        });
+      }
+
+      if (user) {
+        user = await this._db.dbUser.update({
+          where: { id: user.id },
+          data: {
+            googleId: decodedToken.sub,
+            name: decodedToken.name || undefined,
+            photoUrl: decodedToken.picture || undefined,
+          },
+        });
+      } else {
+        user = await this._db.dbUser.create({
+          data: {
+            email: decodedToken.email,
+            googleId: decodedToken.sub,
+            name: decodedToken.name || decodedToken.email.split('@')[0],
+            photoUrl: decodedToken.picture || undefined,
+          },
+        });
+      }
 
       return user;
     } catch (error) {
