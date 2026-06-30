@@ -72,10 +72,7 @@ export class Auth {
     if (user === undefined || token === undefined) {
       return false;
     }
-    if (user !== null && token === null) {
-      return false;
-    }
-    return true;
+    return user === null ? token === null : token !== null;
   });
   public readonly isAuthenticated = computed(() => !!this.#currentUser());
   public readonly userProfile = computed(() => {
