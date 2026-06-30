@@ -8,7 +8,7 @@ export class MyBars {
   readonly #auth = inject(Auth);
 
   public execute() {
-    if (!this.#auth.isAuthenticated()) {
+    if (!this.#auth.isAuthLoaded() || !this.#auth.isAuthenticated()) {
       return undefined;
     }
 
