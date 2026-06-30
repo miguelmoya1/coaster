@@ -59,7 +59,7 @@ describe('JwtStrategy', () => {
     expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
     expect(db.dbUser.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      data: { googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
+      data: { photoUrl: 'http://photo.url' },
     });
     expect(result).toEqual({
       id: 'user-1',

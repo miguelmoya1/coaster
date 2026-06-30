@@ -46,7 +46,7 @@ describe('DeleteOrderHandler', () => {
     );
   });
 
-  it('should delete past-today closed order successfully', async () => {
+  it('should delete today\'s closed order successfully', async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
