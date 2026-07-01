@@ -6,8 +6,13 @@ import (
 	"printer-service/internal/domain"
 )
 
-func AutoDetect() (domain.Printer, error) {
+// AutoDetectFunc allows mocking the OS detection in tests
+var AutoDetectFunc = func() (domain.Printer, error) {
 	return AutoDetectOS()
+}
+
+func AutoDetect() (domain.Printer, error) {
+	return AutoDetectFunc()
 }
 
 type AutoPrinter struct {

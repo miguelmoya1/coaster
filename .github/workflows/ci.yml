@@ -49,6 +49,15 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: apps/printer-service/go.sum
+
+      - name: 🧪 Go Unit Tests (Printer Service)
+        run: cd apps/printer-service && go test -v ./... -cover
+
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
     needs: build-and-test
