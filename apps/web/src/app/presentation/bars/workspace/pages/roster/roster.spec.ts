@@ -119,4 +119,68 @@ describe('Roster', () => {
       expect(component.pendingShiftIds().size).toBe(0);
     });
   });
+
+  describe('interaction logic', () => {
+    it('should handle handleNext correctly', () => {
+      const updateSpy = vi.spyOn(component as any, 'updateQueryParams');
+      (component as any).handleNext();
+      expect(updateSpy).toHaveBeenCalled();
+    });
+
+    it('should handle handlePrev correctly', () => {
+      const updateSpy = vi.spyOn(component as any, 'updateQueryParams');
+      (component as any).handlePrev();
+      expect(updateSpy).toHaveBeenCalled();
+    });
+
+    it('should handle handleToday correctly', () => {
+      const updateSpy = vi.spyOn(component as any, 'updateQueryParams');
+      (component as any).handleToday();
+      expect(updateSpy).toHaveBeenCalled();
+    });
+
+    it('should handleConfirmDeleteShift correctly', async () => {
+      (shiftsStoreMock as any).delete = vi.fn().mockResolvedValue(null);
+      const shift = { id: 's1' } as any;
+      (component as any).shiftDeleting.set(shift);
+      
+      await (component as any).handleConfirmDeleteShift();
+      
+      expect((shiftsStoreMock as any).delete).toHaveBeenCalledWith('s1');
+      expect((component as any).shiftDeleting()).toBeNull();
+      expect(exchangesMock.reload).toHaveBeenCalled();
+    });
+
+    it('should handleConfirmDeleteExchange correctly', async () => {
+      (exchangesMock as any).delete = vi.fn().mockResolvedValue(null);
+      const exchange = { id: 'e1' } as any;
+      (component as any).exchangeDeleting.set(exchange);
+      
+      await (component as any).handleConfirmDeleteExchange();
+      
+      expect((exchangesMock as any).delete).toHaveBeenCalledWith('e1');
+      expect((component as any).exchangeDeleting()).toBeNull();
+      expect(shiftsStoreMock.reload).toHaveBeenCalled();
+    });
+
+    it('should handleOfferExchange correctly', async () => {
+      exchangesMock.request.mockResolvedValue(null);
+      
+      await (component as any).handleOfferExchange('s1');
+      
+      expect(exchangesMock.request).toHaveBeenCalledWith('s1', {});
+      expect(shiftsStoreMock.reload).toHaveBeenCalled();
+      expect(exchangesMock.reload).toHaveBeenCalled();
+    });
+
+    it('should handleAcceptExchange correctly', async () => {
+      exchangesMock.accept.mockResolvedValue(null);
+      
+      await (component as any).handleAcceptExchange('e1');
+      
+      expect(exchangesMock.accept).toHaveBeenCalledWith('e1');
+      expect(shiftsStoreMock.reload).toHaveBeenCalled();
+      expect(exchangesMock.reload).toHaveBeenCalled();
+    });
+  });
 });

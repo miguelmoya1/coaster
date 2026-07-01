@@ -13,9 +13,9 @@ describe('Staff', () => {
 
   const membersStoreMock = {
     list: {
-      value: vi.fn().mockReturnValue([]),
-      isLoading: vi.fn().mockReturnValue(false),
-      hasValue: vi.fn().mockReturnValue(true),
+      value: signal([]),
+      hasValue: signal(false),
+      isLoading: signal(false),
     },
     isOnlyOwner: vi.fn().mockReturnValue(false),
     setBarId: vi.fn(),
@@ -24,8 +24,8 @@ describe('Staff', () => {
 
   const barsStoreMock = {
     myMember: {
-      value: vi.fn().mockReturnValue(undefined),
-      hasValue: vi.fn().mockReturnValue(true),
+      value: signal(undefined),
+      hasValue: signal(true),
     },
     isOwner: signal(false),
   };
@@ -78,6 +78,37 @@ describe('Staff', () => {
 
     it('should return undefined userMember when no matching member', () => {
       expect(component['userMember']()).toBeUndefined();
+    });
+
+    it('should calculate members correctly with permissions', () => {
+      membersStoreMock.list.hasValue.set(true);
+      membersStoreMock.list.value.set([
+        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: 'OWNER' }
+      ] as any);
+      barsStoreMock.myMember.hasValue.set(true);
+      barsStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: 'OWNER' } as any);
+      barsStoreMock.isOwner.set(false);
+      membersStoreMock.isOnlyOwner.mockReturnValue(false);
+
+      const members = component['members']();
+      expect(members.length).toBe(1);
+      expect(members[0].isCurrentUser).toBe(true);
+      expect(members[0].showDeleteButton).toBe(true);
+    });
+  });
+
+  describe('interaction logic', () => {
+    it('should handle modal close navigation', () => {
+      const navigateSpy = vi.spyOn((component as any).router, 'navigate');
+      (component as any).closeModal();
+      expect(navigateSpy).toHaveBeenCalledWith(['/bars', 'bar-1', 'staff']);
+    });
+
+    it('should handle confirm delete member', async () => {
+      membersStoreMock.remove.mockResolvedValue(null);
+      (component as any).memberDeleting.set({ id: 'm1' });
+      await (component as any).handleConfirmDeleteMember();
+      expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
     });
   });
 });

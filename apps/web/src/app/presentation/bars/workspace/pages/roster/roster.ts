@@ -283,7 +283,7 @@ export default class Roster {
     });
   }
 
-  #updateQueryParams(date: Date, view: 'day' | 'week' | 'month') {
+  protected updateQueryParams(date: Date, view: 'day' | 'week' | 'month') {
     this.#router.navigate([], {
       relativeTo: this.#route,
       queryParams: {
@@ -294,10 +294,10 @@ export default class Roster {
     });
   }
 
-  protected handleDaySelected(dayId: string) {
-    const parsed = new Date(dayId);
+  protected handleDaySelected(dateStr: string) {
+    const parsed = new Date(dateStr);
     if (!isNaN(parsed.getTime())) {
-      this.#updateQueryParams(parsed, 'day');
+      this.updateQueryParams(parsed, 'day');
     }
   }
 
@@ -417,20 +417,20 @@ export default class Roster {
 
   protected handleNext() {
     const nextDate = this.#state.calculateNext();
-    this.#updateQueryParams(nextDate, this.viewMode());
+    this.updateQueryParams(nextDate, this.viewMode());
   }
 
   protected handlePrev() {
     const prevDate = this.#state.calculatePrev();
-    this.#updateQueryParams(prevDate, this.viewMode());
+    this.updateQueryParams(prevDate, this.viewMode());
   }
 
   protected handleToday() {
-    this.#updateQueryParams(new Date(), this.viewMode());
+    this.updateQueryParams(new Date(), this.viewMode());
   }
 
   protected handleSetView(view: 'day' | 'week' | 'month') {
-    this.#updateQueryParams(this.#state.selectedDate(), view);
+    this.updateQueryParams(this.#state.selectedDate(), view);
   }
 
   protected handleQuickCreateForDate(date: Date) {
