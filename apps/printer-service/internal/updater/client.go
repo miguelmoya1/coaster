@@ -27,20 +27,24 @@ type Updater struct {
 	ExitFunc        func(code int)
 }
 
+var defaultApplyUpdate = func(r io.Reader) error {
+	return selfupdate.Apply(r, selfupdate.Options{})
+}
+
+var defaultRestart = func(execPath string) error {
+	cmd := exec.Command(execPath, os.Args[1:]...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	return cmd.Start()
+}
+
 func NewUpdater(url string) *Updater {
 	return &Updater{
-		BackendURL: url,
-		ApplyUpdateFunc: func(r io.Reader) error {
-			return selfupdate.Apply(r, selfupdate.Options{})
-		},
-		RestartFunc: func(execPath string) error {
-			cmd := exec.Command(execPath, os.Args[1:]...)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Stdin = os.Stdin
-			return cmd.Start()
-		},
-		ExitFunc: os.Exit,
+		BackendURL:      url,
+		ApplyUpdateFunc: defaultApplyUpdate,
+		RestartFunc:     defaultRestart,
+		ExitFunc:        os.Exit,
 	}
 }
 

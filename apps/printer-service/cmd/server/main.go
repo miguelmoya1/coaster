@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"runtime"
 
 	"printer-service/internal/domain"
@@ -16,12 +17,27 @@ import (
 )
 
 func main() {
-	apiURL := flag.String("api-url", "https://api-774617138158.europe-southwest1.run.app/api/v1", "URL base de la API")
-	isLocal := flag.Bool("local", false, "Usa localhost:3000 como backend de la API")
-	port := flag.String("port", "8080", "Puerto para el servidor HTTP local")
-	printerType := flag.String("printer-type", "usb", "Tipo de impresora (usb o network)")
-	printerPath := flag.String("printer-path", "", "Ruta o IP de la impresora (ej. 'Seypos G80', '/dev/usb/lp0' o '192.168.1.200:9100')")
-	flag.Parse()
+	srv, err := BuildServer(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Failed to build server: %v", err)
+	}
+	log.Printf("Service ready and listening on %s\n", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatalf("HTTP server error: %v", err)
+	}
+}
+
+func BuildServer(args []string) (*http.Server, error) {
+	fs := flag.NewFlagSet("server", flag.ContinueOnError)
+	apiURL := fs.String("api-url", "https://api-774617138158.europe-southwest1.run.app/api/v1", "URL base de la API")
+	isLocal := fs.Bool("local", false, "Usa localhost:3000 como backend de la API")
+	port := fs.String("port", "8080", "Puerto para el servidor HTTP local")
+	printerType := fs.String("printer-type", "usb", "Tipo de impresora (usb o network)")
+	printerPath := fs.String("printer-path", "", "Ruta o IP de la impresora")
+	
+	if err := fs.Parse(args); err != nil {
+		return nil, err
+	}
 
 	if *isLocal {
 		*apiURL = "http://localhost:3000/api/v1"
@@ -60,8 +76,17 @@ func main() {
 	}
 
 	printUC := usecase.NewPrintTicketUseCase(printerDevice)
+	mux := SetupHandler(printUC)
 
-	http.HandleFunc("/print", func(w http.ResponseWriter, r *http.Request) {
+	return &http.Server{
+		Addr:    ":" + *port,
+		Handler: mux,
+	}, nil
+}
+
+func SetupHandler(printUC *usecase.PrintTicketUseCase) *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/print", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
@@ -102,9 +127,5 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
-
-	log.Printf("Service ready and listening on http://localhost:%s\n", *port)
-	if err := http.ListenAndServe(":"+*port, nil); err != nil {
-		log.Fatalf("HTTP server error: %v", err)
-	}
+	return mux
 }
