@@ -122,6 +122,8 @@ export class AiVoiceService {
     this.#recognition.lang = this.#lang;
 
     this.#recognition.onresult = (event: SpeechRecognitionEvent) => {
+      if (this.status() !== 'listening') return;
+
       let sessionFinal = '';
       let sessionInterim = '';
 
