@@ -21,6 +21,8 @@ export default defineConfig({
     exclude: ['**/*.spec.ts'],
     globals: true,
     root: './',
+    globalSetup: ['./test/setup.e2e.ts'],
+    fileParallelism: false,
   },
   plugins: [
     swc.vite({
