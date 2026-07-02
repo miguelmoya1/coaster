@@ -13,6 +13,7 @@ interface SpeechRecognitionResult {
 }
 
 interface SpeechRecognitionEvent {
+  resultIndex: number;
   results: Iterable<SpeechRecognitionResult> & {
     length: number;
     [index: number]: SpeechRecognitionResult;
@@ -59,6 +60,7 @@ export class AiVoiceService {
 
   #recognition: ISpeechRecognition | null = null;
   #savedTranscript = '';
+  #sessionTranscript = '';
   #lang = 'es';
 
   constructor() {
@@ -123,15 +125,24 @@ export class AiVoiceService {
       let sessionFinal = '';
       let sessionInterim = '';
 
-      for (const result of event.results) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const transcript = result[0].transcript.trim();
+
+        if (!transcript) continue;
+
         if (result.isFinal) {
-          sessionFinal += result[0].transcript + ' ';
+          sessionFinal += `${transcript} `;
         } else {
-          sessionInterim += result[0].transcript;
+          sessionInterim += `${transcript} `;
         }
       }
 
-      const fullTranscript = (this.#savedTranscript + ' ' + sessionFinal + sessionInterim).trim();
+      if (sessionFinal) {
+        this.#sessionTranscript = `${this.#sessionTranscript} ${sessionFinal}`.trim();
+      }
+
+      const fullTranscript = `${this.#savedTranscript} ${this.#sessionTranscript} ${sessionInterim}`.trim();
       this.transcript.set(fullTranscript);
     };
 
@@ -167,6 +178,7 @@ export class AiVoiceService {
     this.#lang = lang;
     this.stopSpeaking();
     this.#savedTranscript = '';
+    this.#sessionTranscript = '';
     this.transcript.set('');
     this.error.set(null);
     this.response.set(null);
@@ -184,6 +196,7 @@ export class AiVoiceService {
     if (this.status() !== 'listening') return;
     this.status.set('paused');
     this.#savedTranscript = this.transcript();
+    this.#sessionTranscript = '';
     try {
       if (this.#recognition) {
         this.#recognition.onend = null;
@@ -224,6 +237,7 @@ export class AiVoiceService {
     this.#commandParams.set(undefined);
     this.status.set('idle');
     this.#savedTranscript = '';
+    this.#sessionTranscript = '';
     this.transcript.set('');
     this.error.set(null);
     this.response.set(null);
@@ -234,6 +248,7 @@ export class AiVoiceService {
     this.stopSpeaking();
     this.messages.set([]);
     this.#savedTranscript = '';
+    this.#sessionTranscript = '';
     this.transcript.set('');
     this.error.set(null);
     this.response.set(null);
