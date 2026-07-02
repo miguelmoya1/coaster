@@ -127,7 +127,7 @@ export class AiVoiceService {
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const transcript = result[0].transcript.trim();
+        const transcript = result?.[0]?.transcript?.trim();
 
         if (!transcript) continue;
 
