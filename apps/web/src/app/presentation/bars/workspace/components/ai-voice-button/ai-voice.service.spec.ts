@@ -13,8 +13,31 @@ describe('AiVoiceService', () => {
     executeCommand: vi.fn().mockResolvedValue({ text: 'Mesa 5 creada con éxito' }),
   };
 
+  class MockSpeechRecognition {
+    static latestInstance: MockSpeechRecognition | null = null;
+
+    continuous = false;
+    interimResults = false;
+    lang = 'es';
+    onresult: ((event: unknown) => void) | null = null;
+    onerror: ((event: unknown) => void) | null = null;
+    onend: (() => void) | null = null;
+    start = vi.fn();
+    stop = vi.fn();
+
+    constructor() {
+      MockSpeechRecognition.latestInstance = this;
+    }
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
+    MockSpeechRecognition.latestInstance = null;
+    Object.defineProperty(window, 'webkitSpeechRecognition', {
+      configurable: true,
+      writable: true,
+      value: MockSpeechRecognition,
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -33,9 +56,41 @@ describe('AiVoiceService', () => {
   });
 
   describe('isSupported', () => {
-    it('should set isSupported to false if SpeechRecognition is not on window', () => {
-      expect(service.isSupported()).toBe(false);
+    it('should set isSupported to true if SpeechRecognition is on window', () => {
+      expect(service.isSupported()).toBe(true);
     });
+  });
+
+  it('should avoid transcript duplication when recognition emits cumulative results', () => {
+    service.start('es');
+
+    const firstResultEvent = {
+      resultIndex: 0,
+      results: [
+        {
+          isFinal: true,
+          0: { transcript: 'hola' },
+        },
+      ],
+    };
+    MockSpeechRecognition.latestInstance?.onresult?.(firstResultEvent);
+    expect(service.transcript()).toBe('hola');
+
+    const secondResultEvent = {
+      resultIndex: 1,
+      results: [
+        {
+          isFinal: true,
+          0: { transcript: 'hola' },
+        },
+        {
+          isFinal: true,
+          0: { transcript: 'mundo' },
+        },
+      ],
+    };
+    MockSpeechRecognition.latestInstance?.onresult?.(secondResultEvent);
+    expect(service.transcript()).toBe('hola mundo');
   });
 
   describe('state transitions', () => {
