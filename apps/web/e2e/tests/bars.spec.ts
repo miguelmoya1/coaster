@@ -26,30 +26,18 @@ test.describe('Bars Management', () => {
     
     // 2. Mock the POST request for creating a bar
     const newBar = { id: 'new-bar-123', name: 'My E2E Bar', active: true };
-    
-    // 3. Mock the new list containing the new bar
-    let getCalls = 0;
-    await page.route('**/api/v1/bars', async (route) => {
-      if (route.request().method() === 'GET') {
-         getCalls++;
-         if (getCalls === 1) {
-           await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([]) });
-         } else {
-           await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([newBar]) });
-         }
-      } else if (route.request().method() === 'POST') {
-         await route.fulfill({ status: 201, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(newBar) });
-      } else if (route.request().method() === 'OPTIONS') {
-         await route.fulfill({ status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' } });
-      } else {
-         await route.fallback();
-      }
-    });
+    await mockApiResponse(page, '/bars', 'POST', newBar, 201);
 
     await loginAsTestUser(page, '/bars');
     
     // Click create and fill form
-    await barsPage.createBar('My E2E Bar');
+    await barsPage.createBarButton.click();
+    await barsPage.newBarNameInput.fill('My E2E Bar');
+    
+    // Mock the GET request to return the newly created bar before submitting
+    await mockApiResponse(page, '/bars', 'GET', [newBar]);
+    
+    await barsPage.confirmCreateButton.click();
     
     // Check it redirects to /bars/new-bar-123 or displays it in the list
     // Wait for the UI to update

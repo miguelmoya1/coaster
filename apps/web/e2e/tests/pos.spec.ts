@@ -12,6 +12,8 @@ test.describe('POS Flow', () => {
   });
 
   test('should open a table and add a product', async ({ page }) => {
+    page.on("response", res => { if (res.status() >= 400) console.log("FAILED REQUEST:", res.request().method(), res.url(), res.status()); });
+    page.on("console", msg => console.log(msg.text()));
     // Mock the bar profile
     await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
     await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
@@ -25,7 +27,7 @@ test.describe('POS Flow', () => {
     await mockApiResponse(page, `/bars/${barId}/products`, 'GET', [prod]);
 
     // Mock tables: 1 table available
-    const table = { id: 'table-1', name: 'T1', status: 'AVAILABLE', active: true };
+    const table = { id: 'table-1', barId, name: 'T1', status: 'FREE', active: true };
     await mockApiResponse(page, `/bars/${barId}/tables`, 'GET', [table]);
     
     // Mock shift: active shift
@@ -35,6 +37,10 @@ test.describe('POS Flow', () => {
     const order = { id: 'order-1', tableId: 'table-1', status: 'OPEN', total: 2.50, items: [] };
     await mockApiResponse(page, `/bars/${barId}/orders`, 'POST', order, 201);
     
+    // Mock GET open orders (called by tables page)
+    await mockApiResponse(page, `/bars/${barId}/orders?status=OPEN`, 'GET', []);
+    await mockApiResponse(page, `/bars/${barId}/orders`, 'GET', []);
+
     // After creating order, the app usually fetches the table again or the order
     await mockApiResponse(page, `/bars/${barId}/orders/order-1`, 'GET', order);
 

@@ -23,7 +23,7 @@ export class MenuPage {
     this.confirmCategoryButton = page.getByTestId('submit-btn');
 
     this.productNameInput = page.getByTestId('product-name-input');
-    this.productPriceInput = page.getByTestId('product-price-input');
+    this.productPriceInput = page.getByTestId('product-price-input').locator('input');
     this.confirmProductButton = page.getByTestId('submit-btn');
   }
 
@@ -32,17 +32,17 @@ export class MenuPage {
   }
 
   async createCategory(name: string) {
-    await this.fabButton.click({ force: true });
-    await this.categoryTab.click({ force: true });
+    await this.fabButton.click();
+    await this.categoryTab.click();
     await this.categoryNameInput.fill(name);
-    await this.confirmCategoryButton.click({ force: true });
+    await this.confirmCategoryButton.click();
   }
 
   async createProduct(name: string, price: string) {
-    await this.fabButton.click({ force: true });
-    await this.productTab.click({ force: true });
+    await this.fabButton.click();
+    await this.productTab.click();
     await this.productNameInput.fill(name);
     await this.productPriceInput.fill(price);
-    await this.confirmProductButton.click({ force: true });
+    await this.confirmProductButton.click();
   }
 }

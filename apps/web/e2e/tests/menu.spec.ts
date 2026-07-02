@@ -17,25 +17,24 @@ test.describe('Menu Management', () => {
     await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
       id: 'member-123', userId: 'test-user-123', barId, role: 'OWNER', permissions: [], active: true, userName: 'Test User', userImage: '', userEmail: 'test@example.com'
     });
-    // Initial categories mock
+    // Initial categories and products mock
     await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', []);
+    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', []);
     
     // Mock POST
     const newCat = { id: 'cat-1', name: 'Drinks', order: 1, active: true };
     await mockApiResponse(page, `/bars/${barId}/categories`, 'POST', newCat, 201);
     
-    // Override GET after create
-    await page.route(`**/api/v1/bars/${barId}/categories`, async (route) => {
-      if (route.request().method() === 'GET') {
-         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([newCat]) });
-      } else {
-         await route.fallback();
-      }
-    });
-
     await loginAsTestUser(page, `/bars/${barId}/pantry`);
     
-    await menuPage.createCategory('Drinks');
+    await menuPage.fabButton.click();
+    await menuPage.categoryTab.click();
+    await menuPage.categoryNameInput.fill('Drinks');
+    
+    // Update GET after create
+    await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', [newCat]);
+    
+    await menuPage.confirmCategoryButton.click();
     
     // Verify it appeared in the UI
     await expect(page.getByTestId('category-name').filter({ hasText: 'Drinks' }).first()).toBeVisible();
@@ -53,20 +52,23 @@ test.describe('Menu Management', () => {
     await mockApiResponse(page, `/bars/${barId}/products`, 'GET', []);
     
     // Mock POST product
-    const newProd = { id: 'prod-1', name: 'Cola', price: 2.50, categoryId: 'cat-1', active: true };
+    const newProd = { id: 'prod-1', name: 'Cola', price: 2.50, categoryId: 'cat-1', currentStock: 0, minStockAlert: 5, active: true };
     await mockApiResponse(page, `/bars/${barId}/products`, 'POST', newProd, 201);
     
-    await page.route(`**/api/v1/bars/${barId}/products`, async (route) => {
-      if (route.request().method() === 'GET') {
-         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([newProd]) });
-      } else {
-         await route.fallback();
-      }
-    });
-
     await loginAsTestUser(page, `/bars/${barId}/pantry`);
     
-    await menuPage.createProduct('Cola', '2.50');
+    await menuPage.fabButton.click();
+    await menuPage.productTab.click();
+    await menuPage.productNameInput.fill('Cola');
+    await menuPage.productPriceInput.fill('2.50');
+    // Select category
+    await page.locator('mat-select').click();
+    await page.locator('mat-option').first().click();
+    
+    // Update GET after create
+    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', [newProd]);
+    
+    await menuPage.confirmProductButton.click();
     
     // Verify it appeared
     await expect(page.getByTestId('pantry-item-name').filter({ hasText: 'Cola' }).first()).toBeVisible();

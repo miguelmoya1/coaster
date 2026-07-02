@@ -1,6 +1,14 @@
 import request from 'supertest';
-import { afterAll, beforeAll, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, describe, it, expect, vi } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
+
+vi.mock('ai', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('ai')>();
+  return {
+    ...actual,
+    generateText: vi.fn().mockResolvedValue({ text: 'Mock response', toolResults: [] }),
+  };
+});
 
 describe('AiController (e2e)', () => {
   const testSetup = new E2eTestSetup();

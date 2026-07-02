@@ -134,6 +134,16 @@ export async function setupMockApi(page: Page) {
       await route.fallback();
     }
   });
+  // Wildcard mock for any bar members request
+  await page.route('**/api/v1/bars/*/members', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' } });
+    } else if (route.request().method() === 'GET') {
+      await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([]) });
+    } else {
+      await route.fallback();
+    }
+  });
 }
 
 export async function mockApiResponse(page: Page, path: string, method: string, response: any, status = 200) {
@@ -152,6 +162,7 @@ export async function mockApiResponse(page: Page, path: string, method: string, 
         },
       });
     } else if (route.request().method() === method) {
+      console.log(`Mocking ${method} ${endpoint}`);
       await route.fulfill({
         status,
         contentType: 'application/json',
