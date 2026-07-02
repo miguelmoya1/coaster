@@ -70,10 +70,7 @@ export default class Pantry {
   readonly #dialog = inject(MatDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
 
-  readonly isCreateMode = isActive(
-    createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
-    this.#router,
-  );
+
 
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
@@ -125,24 +122,20 @@ export default class Pantry {
       this.#categoriesStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
     });
+  }
 
-    effect(() => {
-      if (this.isCreateMode()) {
-        const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
-          disableClose: true,
-          bindings: [
-            inputBinding('categories', () => this.categories.value() ?? []),
-            outputBinding('canceled', () => {
-              bottomSheetRef.dismiss();
-              this.#router.navigate(['/bars', this.barId(), 'pantry']);
-            }),
-            outputBinding('created', () => {
-              bottomSheetRef.dismiss();
-              this.#router.navigate(['/bars', this.barId(), 'pantry']);
-            }),
-          ],
-        });
-      }
+  onCreatePantryClicked() {
+    const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
+      disableClose: true,
+      bindings: [
+        inputBinding('categories', () => this.categories.value() ?? []),
+        outputBinding('canceled', () => {
+          bottomSheetRef.dismiss();
+        }),
+        outputBinding('created', () => {
+          bottomSheetRef.dismiss();
+        }),
+      ],
     });
   }
 

@@ -33,7 +33,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       <p class="text-on-surface-variant text-sm">{{ 'auth.login.tagline' | translate }}</p>
     </div>
 
-    <mat-card class="relative overflow-hidden min-w-[320px] max-w-[400px] w-full p-6 shadow-md rounded-2xl">
+    <mat-card data-testid="login-card" class="relative overflow-hidden min-w-[320px] max-w-[400px] w-full p-6 shadow-md rounded-2xl">
       <div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
 
       <mat-card-header class="flex flex-col items-center justify-center text-center pb-4">
@@ -54,6 +54,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           mat-flat-button
           (click)="signIn()"
           [disabled]="isLoading()"
+          data-testid="google-signin-btn"
           class="w-full py-4 text-base font-medium rounded-full"
         >
           {{ 'auth.login.google_button' | translate }}

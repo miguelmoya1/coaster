@@ -8,9 +8,10 @@ import { PricePipe } from '../../../../../pipes/price/price';
   selector: 'coaster-pos-products-list',
   imports: [TranslatePipe, PricePipe, MatCard],
   template: `
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <div data-testid="pos-products-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
       @for (product of products(); track product.id) {
         <mat-card
+          data-testid="pos-product-card"
           class="relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200 p-0!"
           [class.border-error/30]="product.currentStock <= 0"
           [class.opacity-60]="product.currentStock <= 0"

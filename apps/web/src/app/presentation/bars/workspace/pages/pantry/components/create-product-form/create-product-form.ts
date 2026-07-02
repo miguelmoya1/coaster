@@ -32,6 +32,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           <mat-label>{{ 'pantry.create_product.name_label' | translate }}</mat-label>
           <input
             matInput
+            data-testid="product-name-input"
             [formField]="form.name"
             [placeholder]="'pantry.create_product.name_placeholder' | translate"
           />
@@ -60,7 +61,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           }
         </mat-form-field>
 
-        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
+        <coaster-number-input data-testid="product-price-input" [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
         <coaster-number-input
           [formField]="form.currentStock"
@@ -92,6 +93,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           </button>
 
           <button
+            data-testid="submit-btn"
             mat-flat-button
             class="w-full"
             type="submit"

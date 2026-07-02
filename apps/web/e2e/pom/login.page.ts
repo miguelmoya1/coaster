@@ -7,9 +7,8 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.loginCard = page.locator('mat-card');
-    // Finds the button within the login page. We can search by role and text or just button.
-    this.googleSignInButton = page.getByRole('button');
+    this.loginCard = page.getByTestId('login-card');
+    this.googleSignInButton = page.getByTestId('google-signin-btn');
   }
 
   async goto() {

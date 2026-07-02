@@ -9,6 +9,7 @@ describe('PrintersController (e2e)', () => {
   beforeAll(async () => {
     // Temporary make mock user an ADMIN to bypass AdminGuard if needed, but here we just need a bar
     await testSetup.setup();
+    await testSetup.clearDatabase();
     
     // Seed the mock user
     await testSetup.prisma.dbUser.create({

@@ -13,6 +13,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
   imports: [TranslatePipe, PricePipe, TableStatusPipe, MatButton, MatIcon, MatCard, MatChip],
   template: `
     <mat-card
+      data-testid="table-card"
       class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex flex-col items-center min-h-[200px]"
       (click)="cardClicked.emit(table())"
     >
@@ -38,7 +39,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
         </div>
 
         <!-- Table name -->
-        <span class="text-base font-extrabold text-on-surface leading-tight tracking-tight">
+        <span data-testid="table-card-name" class="text-base font-extrabold text-on-surface leading-tight tracking-tight">
           {{ table().name }}
         </span>
 

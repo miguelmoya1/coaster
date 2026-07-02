@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatChipListbox, MatChipListboxChange, MatChipOption } from '@angular/material/chips';
 import { Category } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
       <div class="mb-4">
         <mat-chip-listbox #tabListbox [value]="currentTab()" (change)="onTabChange($event, tabListbox)">
           @for (tab of availableTabs(); track tab.id) {
-            <mat-chip-option [value]="tab.id" [selectable]="true">
+            <mat-chip-option [attr.data-testid]="'tab-' + tab.id" [value]="tab.id" [selectable]="true">
               {{ tab.label | translate }}
             </mat-chip-option>
           }
@@ -46,7 +46,7 @@ export class CreatePantrySheet {
   readonly #translate = inject(TranslateService);
 
   readonly currentTab = signal<PantryTabs>('PRODUCT');
-  readonly availableTabs = signal<{ id: PantryTabs; label: string }[]>([
+  readonly availableTabs = computed<{ id: PantryTabs; label: string }[]>(() => [
     { id: 'PRODUCT', label: this.#translate.instant('pantry.product') },
     { id: 'CATEGORY', label: this.#translate.instant('pantry.category') },
   ]);
