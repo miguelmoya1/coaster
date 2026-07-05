@@ -1,6 +1,5 @@
 import { computed, inject, InjectionToken, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Language } from '@ngx-translate/core';
 import {
   Auth as FirebaseAuth,
@@ -8,7 +7,6 @@ import {
   onAuthStateChanged,
   onIdTokenChanged,
   signInWithPopup,
-  signInWithCustomToken,
   signOut,
   User,
 } from 'firebase/auth';
@@ -67,31 +65,31 @@ export class Auth {
   readonly #idToken$ = idToken(this.#auth);
 
   constructor() {
-    // Escuchar cambios de estado
     this.#user$.subscribe((user) => {
       if (!this.#isTestMode) {
         this.#currentUser.set(user);
       }
     });
+
     this.#idToken$.subscribe((token) => {
       if (!this.#isTestMode) {
         this.#token.set(token);
       }
     });
 
-    // Expose test helpers in non-production environments for E2E testing
-    if (typeof window !== 'undefined' && !(window as any)._production) {
-      (window as any).__TEST_LOGIN__ = async (token = 'fake-jwt-token', targetRoute = '/bars') => {
-        (this as any).#isTestMode = true;
-        this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as any);
-        this.#token.set(token);
-        
-        // Wait a tick for signals to propagate
-        await new Promise(resolve => setTimeout(resolve, 10));
+    if (typeof window !== 'undefined' && !(window as unknown as { _production: boolean })._production) {
+      (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
+        async (token = 'fake-jwt-token', targetRoute = '/bars') => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (this as any).#isTestMode = true;
+          this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
+          this.#token.set(token);
 
-        await this.#router.navigateByUrl(targetRoute);
-      };
-      (window as any).__FIREBASE_AUTH__ = this.#auth;
+          await new Promise((resolve) => setTimeout(resolve, 10));
+
+          await this.#router.navigateByUrl(targetRoute);
+        };
+      (window as unknown as { __FIREBASE_AUTH__: FirebaseAuth }).__FIREBASE_AUTH__ = this.#auth;
     }
   }
 
