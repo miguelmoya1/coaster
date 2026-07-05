@@ -9,12 +9,14 @@
   "scripts": {
     "dev:web": "npm run dev -w apps/web",
     "dev:api": "npm run dev -w apps/api",
-    "dev:emulators": "firebase emulators:start --only auth --import=./.firebase-data --export-on-exit=./.firebase-data",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspaces --if-present",
-    "test:cov": "npm run test:cov --workspaces --if-present"
+    "test:cov": "npm run test:cov --workspaces --if-present",
+    "db:migrate": "docker compose exec api npx prisma migrate dev",
+    "db:generate": "docker compose exec api npx prisma generate",
+    "db:studio": "docker compose exec api npx prisma studio"
   }
 }

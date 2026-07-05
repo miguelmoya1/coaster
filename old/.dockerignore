@@ -1,0 +1,53 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Compilation / Build outputs
+dist/
+**/dist/
+.angular/
+**/ .angular/
+out/
+build/
+.swc/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Firebase emulators and configurations
+.firebase/
+.firebase-data/
+firebase-debug.log
+ui-debug.log
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Test coverage
+coverage/
+**/coverage/
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+*.local
+
+# Frontend source (not needed for backend container)
+apps/web/src/
+apps/web/public/
+apps/web/dist/
+
+# OS files
+.DS_Store
+Thumbs.db

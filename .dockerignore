@@ -1,53 +1,33 @@
-# Dependency directories
+# Dependencias
 node_modules/
 **/node_modules/
 
-# Compilation / Build outputs
+# Builds y compilación
 dist/
 **/dist/
 .angular/
-**/ .angular/
+**/.angular/
 out/
 build/
 .swc/
 *.tsbuildinfo
 **/*.tsbuildinfo
 
-# Firebase emulators and configurations
-.firebase/
-.firebase-data/
-firebase-debug.log
-ui-debug.log
-
-# IDEs and editors
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Version control
-.git/
-.gitignore
-.gitattributes
-
-# Test coverage
-coverage/
-**/coverage/
-
-# Local environment files
+# Entornos y logs
 .env
 .env.local
 .env.*.local
 *.local
+firebase-debug.log
+ui-debug.log
 
-# Frontend source (not needed for backend container)
-apps/web/src/
-apps/web/public/
-apps/web/dist/
-
-# OS files
+# IDEs, OS y Git
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+.git/
+
+# Prisma (opcional, pero buena práctica no copiar la BD local si usas SQLite)
+*.db
+*.db-journal

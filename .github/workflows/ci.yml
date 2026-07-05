@@ -74,7 +74,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: 📦 Checkout code
         uses: actions/checkout@v4
 
       - name: 🔐 Authenticate to Google Cloud
@@ -83,15 +83,15 @@ jobs:
           workload_identity_provider: 'projects/774617138158/locations/global/workloadIdentityPools/github/providers/my-repo'
           service_account: 'github-actions@coaster-437f2.iam.gserviceaccount.com'
 
-      - name: 🐳 Set up Cloud SDK
+      - name: ☁️ Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
-      - name: 🏗️ Build & Push Docker Image
+      - name: 🛠️ Build & Push Docker Image
         run: |
-          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} .
+          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
 
       - name: 🗄️ Run Prisma Migrations (Cloud Run Job)
