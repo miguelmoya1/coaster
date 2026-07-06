@@ -5,7 +5,7 @@ import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
@@ -65,8 +65,6 @@ export default class Pantry {
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #translate = inject(TranslateService);
 
-  readonly #router = inject(Router);
-  readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
 
