@@ -151,8 +151,8 @@ export class CreateShiftForm {
 
   readonly #formBase = signal({
     userId: '',
-    startTime: null as Date | null,
-    endTime: null as Date | null,
+    startTime: null as Date | string | null,
+    endTime: null as Date | string | null,
     notes: '',
   });
 
@@ -169,11 +169,24 @@ export class CreateShiftForm {
           const raw = form().value();
           const selectedDate = new Date(this.#rosterState.selectedDate());
 
-          const startTimeDate = new Date(selectedDate);
-          startTimeDate.setHours(raw.startTime!.getHours(), raw.startTime!.getMinutes(), 0, 0);
+          const parseTime = (time: Date | string): { hours: number; minutes: number } => {
+            if (time instanceof Date) {
+              return { hours: time.getHours(), minutes: time.getMinutes() };
+            }
+            if (typeof time === 'string') {
+              const [h, m] = time.split(':');
+              return { hours: parseInt(h, 10) || 0, minutes: parseInt(m, 10) || 0 };
+            }
+            return { hours: 0, minutes: 0 };
+          };
 
+          const startParsed = parseTime(raw.startTime!);
+          const startTimeDate = new Date(selectedDate);
+          startTimeDate.setHours(startParsed.hours, startParsed.minutes, 0, 0);
+
+          const endParsed = parseTime(raw.endTime!);
           const endTimeDate = new Date(selectedDate);
-          endTimeDate.setHours(raw.endTime!.getHours(), raw.endTime!.getMinutes(), 0, 0);
+          endTimeDate.setHours(endParsed.hours, endParsed.minutes, 0, 0);
 
           if (endTimeDate < startTimeDate) {
             endTimeDate.setDate(endTimeDate.getDate() + 1);
