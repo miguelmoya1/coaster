@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { FormField, FormRoot, form } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -13,16 +13,17 @@ import { Loading } from '../../../components/loading/loading';
 @Component({
   selector: 'coaster-admin-dashboard',
   imports: [
-    FormsModule,
     MatButton,
-    MatFormField,
     MatLabel,
+    MatFormField,
     MatInput,
     MatIcon,
     RouterLink,
     TranslatePipe,
     BarCard,
     Loading,
+    FormRoot,
+    FormField,
   ],
   templateUrl: './admin-dashboard.html',
   host: {
@@ -37,8 +38,28 @@ export default class AdminDashboard {
   readonly searchResults = this.#store.searchResults;
   readonly isSearching = this.#store.isSearching;
 
+  readonly #formBase = signal({
+    query: this.searchQuery(),
+  });
+  readonly searchForm = form(this.#formBase);
+
+  constructor() {
+    effect(() => {
+      const q = this.searchForm().value().query ?? '';
+      if (untracked(() => this.searchQuery()) !== q) {
+        untracked(() => this.searchQuery.set(q));
+      }
+    });
+
+    effect(() => {
+      const q = this.searchQuery();
+      if (untracked(() => this.#formBase().query) !== q) {
+        untracked(() => this.#formBase.set({ query: q }));
+      }
+    });
+  }
+
   selectBar(id: string) {
     this.#router.navigate(['/bars', id, 'dashboard']);
   }
 }
-
