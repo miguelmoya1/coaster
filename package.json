@@ -18,5 +18,8 @@
     "db:migrate": "docker compose exec api npx prisma migrate dev",
     "db:generate": "docker compose exec api npx prisma generate",
     "db:studio": "docker compose exec api npx prisma studio"
+  },
+  "devDependencies": {
+    "@angular/compiler": "^22.0.5"
   }
 }
