@@ -6,8 +6,7 @@ test.describe('POS Flow', () => {
   const barId = 'bar-123';
 
   test('should open a table and add a product', async ({ page }) => {
-    // page.on("response", res => { if (res.status() >= 400) console.log("FAILED REQUEST:", res.request().method(), res.url(), res.status()); });
-    // page.on("console", msg => console.log(msg.text()));
+
     // Mock the bar profile
     await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
     await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
