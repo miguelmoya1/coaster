@@ -57,7 +57,8 @@ jobs:
         working-directory: apps/web
 
       - name: 🧪 Frontend E2E Tests
-        run: npm run e2e -w @coaster/web
+        run: npx playwright test
+        working-directory: apps/web
 
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
