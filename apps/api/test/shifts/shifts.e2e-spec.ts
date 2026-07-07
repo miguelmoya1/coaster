@@ -61,7 +61,7 @@ describe('ShiftsController (e2e)', () => {
         .post(`/api/bars/${barId}/shifts`)
         .send(dto);
 
-      console.log('Create Shift Response:', response.body);
+
       expect(response.status).toBe(201);
 
       // Verify in database
