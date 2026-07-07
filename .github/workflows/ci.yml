@@ -12,10 +12,10 @@ permissions:
 
 env:
   GCP_PROJECT_ID: 'coaster-437f2'
-  GCP_REGION: 'europe-southwest1'
-  GCP_SERVICE_NAME: 'api'
+  GCP_REGION: 'europe-west1'
+  GCP_SERVICE_NAME: 'api-new'
   GCP_JOB_NAME: 'api-migrate'
-  GCP_IMAGE_NAME: 'europe-southwest1-docker.pkg.dev/coaster-437f2/coaster-repo/api'
+  GCP_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/api-new'
 
 jobs:
   build-and-test:
@@ -49,16 +49,16 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
-#      - name: 🧪 Backend E2E Tests
-#        run: npm run test:e2e -w @coaster/api
-#
-#      - name: 🌐 Install Playwright Browsers
-#        run: npx playwright install --with-deps
-#        working-directory: apps/web
-#
-#      - name: 🧪 Frontend E2E Tests
-#        run: npx playwright test
-#        working-directory: apps/web
+      #      - name: 🧪 Backend E2E Tests
+      #        run: npm run test:e2e -w @coaster/api
+      #
+      #      - name: 🌐 Install Playwright Browsers
+      #        run: npx playwright install --with-deps
+      #        working-directory: apps/web
+      #
+      #      - name: 🧪 Frontend E2E Tests
+      #        run: npx playwright test
+      #        working-directory: apps/web
 
       - name: 🐹 Setup Go
         uses: actions/setup-go@v5
