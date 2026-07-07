@@ -52,8 +52,8 @@
     class="hide-scrollbar"
   >
     @for (category of tabs(); track category.id) {
-      <mat-chip-option [value]="category.id" [selectable]="true">
-        <span class="text-sm font-medium">{{ category.label | translate }}</span>
+      <mat-chip-option [value]="category.id" [selectable]="true" data-testid="category-chip">
+        <span class="text-sm font-medium" data-testid="category-name">{{ category.label | translate }}</span>
         @if (canUpdateCategory() && category.id !== 'ALL') {
           <button
             matChipTrailingIcon
@@ -94,5 +94,5 @@
 </div>
 
 @if (canCreateProduct()) {
-  <coaster-fab routerLink="new" />
+  <coaster-fab data-testid="create-pantry-fab" (click)="onCreatePantryClicked()" />
 }

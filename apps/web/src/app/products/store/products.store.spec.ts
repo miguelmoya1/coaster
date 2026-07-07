@@ -172,4 +172,126 @@ describe('ProductsStore', () => {
       expect(list?.[1]).toEqual(mockProducts[1]); // The other product remains unchanged
     });
   });
+
+  describe('delete', () => {
+    it('should delete the product from the list', async () => {
+      const barId = asBarId('bar-1');
+      store.setBarId(barId);
+      TestBed.tick();
+
+      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      getReq.flush(mockProductsRaw);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      const deletePromise = store.delete(mockProducts[0].id);
+
+      const deleteReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}`);
+      expect(deleteReq.request.method).toBe('DELETE');
+      deleteReq.flush({ success: true });
+
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      await deletePromise;
+
+      const list = store.list.value();
+      expect(list?.length).toBe(1);
+      expect(list?.[0].id).toBe(mockProducts[1].id);
+    });
+
+    it('should return error if no bar selected', async () => {
+      store.setBarId(null);
+      const res = await store.delete(mockProducts[0].id);
+      expect(res).not.toBeNull();
+    });
+  });
+
+  describe('create', () => {
+    it('should call create and reload', async () => {
+      const barId = asBarId('bar-1');
+      store.setBarId(barId);
+      
+      const createPromise = store.create({ name: 'New', price: 100 } as any);
+      const createReq = httpMock.expectOne(`/bars/${barId}/products`);
+      expect(createReq.request.method).toBe('POST');
+      createReq.flush({ id: 'new-1' });
+
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+      
+      const reloadReq = httpMock.expectOne(`/bars/${barId}/products`);
+      reloadReq.flush(mockProductsRaw);
+      
+      await createPromise;
+    });
+
+    it('should return error if no bar selected', async () => {
+      store.setBarId(null);
+      const res = await store.create({ name: 'New', price: 100 } as any);
+      expect(res).not.toBeNull();
+    });
+  });
+
+  describe('computed properties', () => {
+    it('should compute total, lowStock, and criticalStock', async () => {
+      const barId = asBarId('bar-1');
+      store.setBarId(barId);
+      TestBed.tick();
+
+      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      getReq.flush([
+        { ...mockProductsRaw[0], currentStock: 10, minStockAlert: 5 }, // GOOD
+        { ...mockProductsRaw[1], currentStock: 5, minStockAlert: 5 },  // WARNING
+        { id: 'p-3', currentStock: 0, minStockAlert: 5, categoryId: 'cat-3', name: 'Alert' } // ALERT
+      ]);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.total()).toBe(3);
+      expect(store.lowStock()).toBe(1);
+      expect(store.criticalStock()).toBe(1);
+    });
+  });
+
+  describe('socket effects', () => {
+    it('should handle productCreated socket event', async () => {
+      const barId = asBarId('bar-1');
+      store.setBarId(barId);
+      TestBed.tick();
+
+      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      getReq.flush(mockProductsRaw);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      mockSocket.productCreated.set({ ...mockProducts[0], id: asProductId('new-sock-1') } as any);
+      TestBed.tick();
+      
+      expect(store.list.value()?.length).toBe(3);
+    });
+
+    it('should handle productDeleted socket event', async () => {
+      const barId = asBarId('bar-1');
+      store.setBarId(barId);
+      TestBed.tick();
+
+      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      getReq.flush(mockProductsRaw);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      mockSocket.productDeleted.set({ id: mockProducts[0].id });
+      TestBed.tick();
+      
+      expect(store.list.value()?.length).toBe(1);
+      expect(store.list.value()?.[0].id).toBe(mockProducts[1].id);
+    });
+  });
 });

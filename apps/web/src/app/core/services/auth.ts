@@ -1,5 +1,5 @@
-import { computed, inject, InjectionToken, Service } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { computed, inject, InjectionToken, Service, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Language } from '@ngx-translate/core';
 import {
   Auth as FirebaseAuth,
@@ -57,18 +57,46 @@ export function idToken(auth: FirebaseAuth): Observable<string | null> {
 @Service()
 export class Auth {
   readonly #auth = inject(FIREBASE_AUTH);
-  readonly #currentUser = toSignal(authState(this.#auth), {
-    initialValue: undefined,
-    requireSync: false,
-  });
+  readonly #router = inject(Router);
+  #isTestMode = false;
+  readonly #currentUser = signal<User | null | undefined>(undefined);
+  readonly #token = signal<string | null | undefined>(undefined);
+  readonly #user$ = authState(this.#auth);
+  readonly #idToken$ = idToken(this.#auth);
 
-  public readonly idToken = toSignal(idToken(this.#auth), {
-    initialValue: undefined,
-    requireSync: false,
-  });
+  constructor() {
+    this.#user$.subscribe((user) => {
+      if (!this.#isTestMode) {
+        this.#currentUser.set(user);
+      }
+    });
+
+    this.#idToken$.subscribe((token) => {
+      if (!this.#isTestMode) {
+        this.#token.set(token);
+      }
+    });
+
+    if (typeof window !== 'undefined' && !(window as unknown as { _production: boolean })._production) {
+      (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
+        async (token = 'fake-jwt-token', targetRoute = '/bars') => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          this.#isTestMode = true;
+          this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
+          this.#token.set(token);
+
+          await new Promise((resolve) => setTimeout(resolve, 10));
+
+          await this.#router.navigateByUrl(targetRoute);
+        };
+      (window as unknown as { __FIREBASE_AUTH__: FirebaseAuth }).__FIREBASE_AUTH__ = this.#auth;
+    }
+  }
+
+  public readonly idToken = this.#token.asReadonly();
   public readonly isAuthLoaded = computed(() => {
     const user = this.#currentUser();
-    const token = this.idToken();
+    const token = this.#token();
     if (user === undefined || token === undefined) {
       return false;
     }

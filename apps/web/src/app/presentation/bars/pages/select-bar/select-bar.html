@@ -8,7 +8,7 @@
 }
 
 <div class="flex justify-evenly gap-6 mb-4">
-  <button mat-stroked-button class="w-full" (click)="navigateToCreate()">
+  <button mat-stroked-button data-testid="create-bar-btn" class="w-full" (click)="navigateToCreate()">
     <mat-icon>add_circle</mat-icon>
     {{ 'common.create' | translate }}
   </button>
@@ -21,7 +21,7 @@
     <div
       class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
     >
-      <span class="text-on-surface-variant font-medium">
+      <span data-testid="empty-bars-message" class="text-on-surface-variant font-medium">
         {{ 'bars.select.empty' | translate }}
       </span>
     </div>

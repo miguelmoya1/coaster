@@ -32,6 +32,10 @@ export class CurrentUser {
 
   constructor() {
     effect(() => {
+      if (!this.current.hasValue()) {
+        return;
+      }
+
       const user = this.current.value();
 
       if (user?.language) {

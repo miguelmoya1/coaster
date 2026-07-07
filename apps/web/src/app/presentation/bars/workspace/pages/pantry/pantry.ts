@@ -5,7 +5,7 @@ import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
@@ -65,15 +65,10 @@ export default class Pantry {
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #translate = inject(TranslateService);
 
-  readonly #router = inject(Router);
-  readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
 
-  readonly isCreateMode = isActive(
-    createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
-    this.#router,
-  );
+
 
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
@@ -125,24 +120,20 @@ export default class Pantry {
       this.#categoriesStore.setBarId(barId);
       this.#productsStore.setBarId(barId);
     });
+  }
 
-    effect(() => {
-      if (this.isCreateMode()) {
-        const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
-          disableClose: true,
-          bindings: [
-            inputBinding('categories', () => this.categories.value() ?? []),
-            outputBinding('canceled', () => {
-              bottomSheetRef.dismiss();
-              this.#router.navigate(['/bars', this.barId(), 'pantry']);
-            }),
-            outputBinding('created', () => {
-              bottomSheetRef.dismiss();
-              this.#router.navigate(['/bars', this.barId(), 'pantry']);
-            }),
-          ],
-        });
-      }
+  onCreatePantryClicked() {
+    const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
+      disableClose: true,
+      bindings: [
+        inputBinding('categories', () => this.categories.value() ?? []),
+        outputBinding('canceled', () => {
+          bottomSheetRef.dismiss();
+        }),
+        outputBinding('created', () => {
+          bottomSheetRef.dismiss();
+        }),
+      ],
     });
   }
 

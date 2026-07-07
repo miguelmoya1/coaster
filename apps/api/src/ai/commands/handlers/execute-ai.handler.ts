@@ -149,7 +149,7 @@ ${ordersList || '(None)'}
           error.stack,
         );
         const errMsg = error.message || String(error);
-        const errorKey = Object.values(ErrorCodes).includes(errMsg as any) ? errMsg : undefined;
+        const errorKey = Object.values(ErrorCodes).some(v => v === errMsg) ? errMsg : undefined;
         return {
           success: false,
           text: `Error: ${errMsg}`,
@@ -201,7 +201,7 @@ ${ordersList || '(None)'}
               break;
             }
             if ('command' in actionDesc && 'permission' in actionDesc) {
-              const runResult = await runAction(actionDesc.permission, () =>
+              const runResult = await runAction(actionDesc.permission as BarPermission, () =>
                 this._commandBus.execute(actionDesc.command),
               );
               if (!runResult.success) {

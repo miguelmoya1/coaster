@@ -49,13 +49,33 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
+#      - name: 🧪 Backend E2E Tests
+#        run: npm run test:e2e -w @coaster/api
+#
+#      - name: 🌐 Install Playwright Browsers
+#        run: npx playwright install --with-deps
+#        working-directory: apps/web
+#
+#      - name: 🧪 Frontend E2E Tests
+#        run: npx playwright test
+#        working-directory: apps/web
+
+      - name: 🐹 Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: apps/printer-service/go.sum
+
+      - name: 🧪 Go Unit Tests (Printer Service)
+        run: cd apps/printer-service && go test -v ./... -cover
+
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: 📦 Checkout code
         uses: actions/checkout@v4
 
       - name: 🔐 Authenticate to Google Cloud
@@ -64,15 +84,15 @@ jobs:
           workload_identity_provider: 'projects/774617138158/locations/global/workloadIdentityPools/github/providers/my-repo'
           service_account: 'github-actions@coaster-437f2.iam.gserviceaccount.com'
 
-      - name: 🐳 Set up Cloud SDK
+      - name: ☁️ Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
       - name: 🔑 Configure Docker
         run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
-      - name: 🏗️ Build & Push Docker Image
+      - name: 🛠️ Build & Push Docker Image
         run: |
-          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} .
+          docker build -t ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} -f apps/api/Dockerfile .
           docker push ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }}
 
       - name: 🗄️ Run Prisma Migrations (Cloud Run Job)

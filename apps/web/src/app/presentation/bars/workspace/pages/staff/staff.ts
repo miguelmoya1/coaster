@@ -31,7 +31,7 @@ export default class Staff {
 
   readonly #membersStore = inject(MembersStore);
   readonly #barsStore = inject(BarsStore);
-  readonly #router = inject(Router);
+  protected readonly router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #dialog = inject(MatDialog);
   readonly #translate = inject(TranslateService);
@@ -66,7 +66,7 @@ export default class Staff {
   });
   protected readonly isInviteMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['invite']),
-    this.#router,
+    this.router,
   );
   protected readonly totalMembers = computed(() => this.members()?.length ?? 0);
 
@@ -86,11 +86,11 @@ export default class Staff {
           bindings: [
             outputBinding('canceled', () => {
               bottomSheetRef.dismiss();
-              this.#closeModal();
+              this.closeModal();
             }),
             outputBinding('invited', () => {
               bottomSheetRef.dismiss();
-              this.#closeModal();
+              this.closeModal();
             }),
           ],
         });
@@ -121,18 +121,18 @@ export default class Staff {
           dialogRef.close();
         }),
         outputBinding('deleted', () => {
-          this.#handleConfirmDeleteMember();
+          this.handleConfirmDeleteMember();
           dialogRef.close();
         }),
       ],
     });
   }
 
-  #closeModal() {
-    this.#router.navigate(['/bars', this.barId(), 'staff']);
+  protected closeModal() {
+    this.router.navigate(['/bars', this.barId(), 'staff']);
   }
 
-  async #handleConfirmDeleteMember() {
+  protected async handleConfirmDeleteMember() {
     const member = this.memberDeleting();
 
     if (member) {

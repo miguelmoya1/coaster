@@ -3,6 +3,7 @@ package updater
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -20,11 +21,31 @@ type VersionResponse struct {
 }
 
 type Updater struct {
-	BackendURL string // URL de tu API, ej: "https://mi-backend.com/api/printer/version"
+	BackendURL      string // URL de tu API, ej: "https://mi-backend.com/api/printer/version"
+	ApplyUpdateFunc func(r io.Reader) error
+	RestartFunc     func(execPath string) error
+	ExitFunc        func(code int)
+}
+
+var defaultApplyUpdate = func(r io.Reader) error {
+	return selfupdate.Apply(r, selfupdate.Options{})
+}
+
+var defaultRestart = func(execPath string) error {
+	cmd := exec.Command(execPath, os.Args[1:]...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	return cmd.Start()
 }
 
 func NewUpdater(url string) *Updater {
-	return &Updater{BackendURL: url}
+	return &Updater{
+		BackendURL:      url,
+		ApplyUpdateFunc: defaultApplyUpdate,
+		RestartFunc:     defaultRestart,
+		ExitFunc:        os.Exit,
+	}
 }
 
 func (u *Updater) AutoUpdate() error {
@@ -67,24 +88,16 @@ func (u *Updater) AutoUpdate() error {
 	}
 
 	// 3. Aplicar la actualización de forma segura (intercambio de archivos en caliente)
-	err = selfupdate.Apply(binaryResp.Body, selfupdate.Options{})
+	err = u.ApplyUpdateFunc(binaryResp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to apply update patch: %w", err)
 	}
 
 	// 4. Reiniciar el proceso para ejecutar la nueva versión
-	if err := u.restartApplication(execPath); err != nil {
+	if err := u.RestartFunc(execPath); err != nil {
 		return fmt.Errorf("failed to restart application: %w", err)
 	}
 
-	os.Exit(0)
+	u.ExitFunc(0)
 	return nil
-}
-
-func (u *Updater) restartApplication(execPath string) error {
-	cmd := exec.Command(execPath, os.Args[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	return cmd.Start()
 }

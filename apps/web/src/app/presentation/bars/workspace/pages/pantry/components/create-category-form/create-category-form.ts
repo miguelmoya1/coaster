@@ -17,6 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           <mat-label>{{ 'pantry.create_category.name_label' | translate }}</mat-label>
           <input
             matInput
+            data-testid="category-name-input"
             [formField]="form.name"
             [placeholder]="'pantry.create_category.name_placeholder' | translate"
           />
@@ -60,7 +61,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button mat-flat-button class="w-full" type="submit" [disabled]="form().submitting() || form().invalid()">
+          <button data-testid="submit-btn" mat-flat-button class="w-full" type="submit" [disabled]="form().submitting() || form().invalid()">
             {{ 'common.create' | translate }}
           </button>
         </div>

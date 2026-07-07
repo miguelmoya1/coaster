@@ -20,3 +20,11 @@
 - [ ] **Backend:** Actualizar la lógica de cálculo de los totales de la orden.
 
 ## Landing Page
+
+...
+
+## Printer
+
+Hay que hacer que el backend de la impresora coja la IP local actual del ordenador, o que la web la detecte, para que cualquiera que esté en la red pueda imprimir y mandar tickets.
+
+Poner seguridad de CORS para la dirección de la URL, o una ruta con una clave que cambie cada cierto tiempo y se regenere automáticamente.

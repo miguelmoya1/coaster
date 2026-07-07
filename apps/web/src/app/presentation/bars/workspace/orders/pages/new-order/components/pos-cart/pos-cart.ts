@@ -79,6 +79,7 @@ export interface CartItem {
           </div>
 
           <button
+            data-testid="submit-order-btn"
             mat-flat-button
             class="w-full"
             [disabled]="items().length === 0 || disabled()"

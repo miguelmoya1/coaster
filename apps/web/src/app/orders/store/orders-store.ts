@@ -216,7 +216,6 @@ export class OrdersStore {
   }
 
   public setHistoryDate(date: string) {
-    console.log('set history date');
     this.#historyDate.set(date);
   }
 

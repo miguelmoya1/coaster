@@ -18,7 +18,7 @@ import { PricePipe } from '../../pipes/price/price';
 
         <!-- Info -->
         <div class="grow min-w-0 flex flex-col gap-0.5">
-          <h3 class="text-sm font-bold text-on-surface truncate" [title]="itemName() | translate">
+          <h3 data-testid="pantry-item-name" class="text-sm font-bold text-on-surface truncate" [title]="itemName() | translate">
             {{ itemName() | translate }}
           </h3>
           @if (price() > 0) {

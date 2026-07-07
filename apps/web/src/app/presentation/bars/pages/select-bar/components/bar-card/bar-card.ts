@@ -9,6 +9,7 @@ import { BarRoleBadge } from '../bar-role-badge/bar-role-badge';
   imports: [MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardAvatar, BarRoleBadge],
   template: `
     <mat-card
+      data-testid="bar-card"
       class="relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-200 p-6"
     >
       <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>

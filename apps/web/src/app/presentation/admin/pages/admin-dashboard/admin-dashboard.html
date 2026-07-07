@@ -29,14 +29,18 @@
     <p class="text-on-surface-variant text-sm">
       {{ 'admin_dashboard.search_desc' | translate }}
     </p>
-    
-    <div class="flex items-center gap-2">
+
+    <form [formRoot]="searchForm" class="flex items-center gap-2">
       <mat-form-field appearance="outline" class="flex-grow w-full">
         <mat-label>{{ 'admin_dashboard.search_placeholder' | translate }}</mat-label>
-        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="'admin_dashboard.search_placeholder' | translate" />
+        <input
+          matInput
+          [formField]="searchForm.query"
+          [placeholder]="'admin_dashboard.search_placeholder' | translate"
+        />
       </mat-form-field>
-      
-      <button mat-flat-button [disabled]="isSearching() || !searchQuery().trim()" class="mb-[22px]">
+
+      <button type="button" mat-flat-button [disabled]="isSearching() || !searchQuery().trim()" class="mb-[22px]">
         @if (isSearching()) {
           <mat-icon>hourglass_empty</mat-icon>
         } @else {
@@ -44,7 +48,7 @@
         }
         {{ 'admin_dashboard.search_btn' | translate }}
       </button>
-    </div>
+    </form>
 
     <!-- Results -->
     @if (isSearching()) {
@@ -53,12 +57,16 @@
       </div>
     } @else if (searchResults() !== null) {
       <div class="flex flex-col gap-3 mt-2">
-        <h3 class="font-medium text-sm text-on-surface-variant mb-1">{{ 'admin_dashboard.results' | translate: { count: searchResults()!.length } }}</h3>
-        
+        <h3 class="font-medium text-sm text-on-surface-variant mb-1">
+          {{ 'admin_dashboard.results' | translate: { count: searchResults()!.length } }}
+        </h3>
+
         @for (bar of searchResults()!; track bar.id) {
           <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
         } @empty {
-          <div class="p-6 bg-surface rounded-xl text-center border border-dashed border-outline-variant text-on-surface-variant text-sm">
+          <div
+            class="p-6 bg-surface rounded-xl text-center border border-dashed border-outline-variant text-on-surface-variant text-sm"
+          >
             {{ 'admin_dashboard.no_results' | translate }}
           </div>
         }
