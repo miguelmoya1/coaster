@@ -1,7 +1,8 @@
 import { Component, computed, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { StockStatus, StockStatusPipe } from '@coaster/products';
+import type { StockStatus } from '@coaster/common';
+import { StockStatusPipe } from '@coaster/products';
 
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../pipes/price/price';

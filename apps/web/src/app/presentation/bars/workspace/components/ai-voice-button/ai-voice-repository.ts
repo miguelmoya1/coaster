@@ -1,18 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId } from '@coaster/common';
+import type { AiMessage, AiResponse, BarId } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
-
-export interface AiMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-export interface AiResponse {
-  text: string;
-  isError?: boolean;
-  errorKey?: string;
-}
 
 @Service()
 export class AiVoiceRepository {

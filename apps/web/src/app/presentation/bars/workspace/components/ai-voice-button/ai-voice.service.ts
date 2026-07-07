@@ -1,7 +1,8 @@
 import { effect, inject, resource, Service, signal } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
-import { AiMessage, AiVoiceRepository } from './ai-voice-repository';
+import type { AiMessage } from '@coaster/common';
+import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
 

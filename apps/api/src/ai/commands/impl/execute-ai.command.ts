@@ -1,9 +1,4 @@
-import type { BarId, User } from '@coaster/common';
-
-export interface AiMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+import type { AiMessage, BarId, User } from '@coaster/common';
 
 export class ExecuteAiCommand {
   constructor(
