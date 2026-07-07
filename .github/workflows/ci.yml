@@ -53,7 +53,7 @@ jobs:
         run: npm run test:e2e -w @coaster/api
 
       - name: 🌐 Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
         working-directory: apps/web
 
       - name: 🧪 Frontend E2E Tests
