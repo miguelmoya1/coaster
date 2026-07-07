@@ -21,6 +21,16 @@ build/
 firebase-debug.log
 ui-debug.log
 
+# Firebase emulators
+.firebase/
+**/.firebase/
+.firebase-data/
+**/.firebase-data/
+
+# Test coverage
+coverage/
+**/coverage/
+
 # IDEs, OS y Git
 .vscode/
 .idea/

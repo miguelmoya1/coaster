@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { LoginPage } from '../pom/login.page';
-import { setupMockApi, mockApiResponse } from './utils/mock-api';
+import { mockApiResponse, setupMockApi } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';
 
 test.describe('Auth Flow', () => {
@@ -11,9 +11,8 @@ test.describe('Auth Flow', () => {
     loginPage = new LoginPage(page);
   });
 
-  test('should display the login card and sign in button', async ({ page }) => {
+  test('should display the login card and sign in button', async () => {
     await loginPage.goto();
-    console.log(await page.content());
     await expect(loginPage.loginCard).toBeVisible();
     await expect(loginPage.googleSignInButton).toBeVisible();
     await expect(loginPage.googleSignInButton).toBeEnabled();

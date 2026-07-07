@@ -25,6 +25,6 @@
 
 ## Printer
 
-Hay que poner que el backend de la impresora coja la ip actual local del ordenador o que la web lo detecte ara que cualquiera que esté en la red pueda imprimir y mandar tickets.
+Hay que hacer que el backend de la impresora coja la IP local actual del ordenador, o que la web la detecte, para que cualquiera que esté en la red pueda imprimir y mandar tickets.
 
-Poner seguridad de cors para la direccion de la url o una pequeña ruta con la clave que cambie cada cierto tiempo y la genere de nuevo.
+Poner seguridad de CORS para la dirección de la URL, o una ruta con una clave que cambie cada cierto tiempo y se regenere automáticamente.

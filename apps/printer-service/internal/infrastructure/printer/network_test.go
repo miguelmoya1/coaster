@@ -34,7 +34,8 @@ func TestNetworkPrinter_Success(t *testing.T) {
 			return
 		}
 		if string(buf) != "test_print_data" {
-			errChan <- err
+			errChan <- io.ErrUnexpectedEOF
+			return
 		}
 		errChan <- nil
 	}()

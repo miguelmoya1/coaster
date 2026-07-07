@@ -25,7 +25,7 @@ export async function setupMockApi(page: Page) {
 
   // Mock Firebase Auth Emulator initialization and token endpoints
   const authEmulatorBase = '**/identitytoolkit.googleapis.com/v1';
-  
+
   await page.route(`${authEmulatorBase}/accounts:signInWithCustomToken?key=*`, async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
@@ -83,9 +83,9 @@ export async function setupMockApi(page: Page) {
             photoUrl: '',
             lastLoginAt: Date.now().toString(),
             createdAt: Date.now().toString(),
-          }
-        ]
-      })
+          },
+        ],
+      }),
     });
   });
 
@@ -96,7 +96,7 @@ export async function setupMockApi(page: Page) {
     name: 'Test User',
     role: 'ADMIN',
     active: true,
-    language: 'es'
+    language: 'es',
   });
 
   // Default global mocks for layout
@@ -127,7 +127,7 @@ export async function setupMockApi(page: Page) {
           active: true,
           userName: 'Test User',
           userImage: '',
-          userEmail: 'test@example.com'
+          userEmail: 'test@example.com',
         }),
       });
     } else {
@@ -137,9 +137,21 @@ export async function setupMockApi(page: Page) {
   // Wildcard mock for any bar members request
   await page.route('**/api/v1/bars/*/members', async (route) => {
     if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({ status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' } });
+      await route.fulfill({
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
     } else if (route.request().method() === 'GET') {
-      await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([]) });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify([]),
+      });
     } else {
       await route.fallback();
     }
@@ -148,31 +160,34 @@ export async function setupMockApi(page: Page) {
 
 export async function mockApiResponse(page: Page, path: string, method: string, response: any, status = 200) {
   const endpoint = `${API_BASE}${path}`;
-  await page.route((url) => {
-    const urlString = url.toString();
-    return urlString === endpoint || urlString.startsWith(endpoint + '?');
-  }, async (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      });
-    } else if (route.request().method() === method) {
-      console.log(`Mocking ${method} ${endpoint}`);
-      await route.fulfill({
-        status,
-        contentType: 'application/json',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify(response),
-      });
-    } else {
-      await route.fallback();
-    }
-  });
+  await page.route(
+    (url) => {
+      const urlString = url.toString();
+      return urlString === endpoint || urlString.startsWith(endpoint + '?');
+    },
+    async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
+      } else if (route.request().method() === method) {
+        if (process.env['DEBUG_E2E_MOCKS']) console.log(`Mocking ${method} ${endpoint}`);
+        await route.fulfill({
+          status,
+          contentType: 'application/json',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify(response),
+        });
+      } else {
+        await route.fallback();
+      }
+    },
+  );
 }

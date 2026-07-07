@@ -58,7 +58,7 @@ export function idToken(auth: FirebaseAuth): Observable<string | null> {
 export class Auth {
   readonly #auth = inject(FIREBASE_AUTH);
   readonly #router = inject(Router);
-  readonly #isTestMode = false;
+  #isTestMode = false;
   readonly #currentUser = signal<User | null | undefined>(undefined);
   readonly #token = signal<string | null | undefined>(undefined);
   readonly #user$ = authState(this.#auth);
@@ -81,7 +81,7 @@ export class Auth {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
         async (token = 'fake-jwt-token', targetRoute = '/bars') => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this as any).#isTestMode = true;
+          this.#isTestMode = true;
           this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
           this.#token.set(token);
 
