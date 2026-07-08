@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
-import type { BarId, BarPermission, CreateBarDto } from '@coaster/common';
-import { BarRole } from '@coaster/common';
+import type { BarId, CreateBarDto } from '@coaster/common';
+import { BarPermission, BarRole } from '@coaster/common';
 import { handleErrorFormField, hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';

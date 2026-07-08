@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
-import { BarPermission } from '@coaster/core';
+import { BarPermission } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
@@ -56,10 +56,14 @@ export default class Pantry {
 
   readonly #barsStore = inject(BarsStore);
 
-  protected readonly canImportTemplates = computed(() => this.#barsStore.hasPermission(BarPermission.IMPORT_TEMPLATES));
-  protected readonly canUpdateCategory = computed(() => this.#barsStore.hasPermission(BarPermission.UPDATE_CATEGORY));
-  protected readonly canUpdateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.UPDATE_PRODUCT));
-  protected readonly canCreateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.CREATE_PRODUCT));
+  protected readonly canImportTemplates = computed(() =>
+    this.#barsStore.hasPermission(BarPermission.BAR_IMPORT_TEMPLATES),
+  );
+  protected readonly canUpdateCategory = computed(() =>
+    this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_CATEGORY),
+  );
+  protected readonly canUpdateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_PRODUCT));
+  protected readonly canCreateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_CREATE_PRODUCT));
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
@@ -67,8 +71,6 @@ export default class Pantry {
 
   readonly #dialog = inject(MatDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
-
-
 
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
@@ -150,8 +152,12 @@ export default class Pantry {
     const bottomSheetRef = this.#bottomSheet.open(UpdateStockProductForm, {
       bindings: [
         inputBinding('product', () => product),
-        outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
-        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('updated', () => {
+          bottomSheetRef.dismiss();
+        }),
+        outputBinding('canceled', () => {
+          bottomSheetRef.dismiss();
+        }),
       ],
     });
   }
@@ -161,8 +167,12 @@ export default class Pantry {
       bindings: [
         inputBinding('product', () => product),
         inputBinding('categories', () => this.categories.value() ?? []),
-        outputBinding('edited', () => { bottomSheetRef.dismiss(); }),
-        outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+        outputBinding('edited', () => {
+          bottomSheetRef.dismiss();
+        }),
+        outputBinding('canceled', () => {
+          bottomSheetRef.dismiss();
+        }),
       ],
     });
   }
@@ -179,8 +189,12 @@ export default class Pantry {
       const bottomSheetRef = this.#bottomSheet.open(EditCategoryForm, {
         bindings: [
           inputBinding('category', () => cat),
-          outputBinding('updated', () => { bottomSheetRef.dismiss(); }),
-          outputBinding('canceled', () => { bottomSheetRef.dismiss(); }),
+          outputBinding('updated', () => {
+            bottomSheetRef.dismiss();
+          }),
+          outputBinding('canceled', () => {
+            bottomSheetRef.dismiss();
+          }),
           outputBinding('deleted', () => {
             bottomSheetRef.dismiss();
             this.handleDeleteCategoryClicked(cat);

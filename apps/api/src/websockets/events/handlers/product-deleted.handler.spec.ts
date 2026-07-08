@@ -1,7 +1,8 @@
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductDeletedEvent } from '@products/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asProductId, SocketEvents } from '../../../core';
+import { asBarId, asProductId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { ProductDeletedHandler } from './product-deleted.handler';
 
@@ -31,6 +32,6 @@ describe('ProductDeletedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_DELETED, { id: productId });
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.productDeleted, { id: productId });
   });
 });

@@ -10,9 +10,8 @@ import type {
   Order,
   OrderId,
   OrderItemId,
-  PaymentMethod,
 } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { handleErrorFormField, Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { BarOrderHistory } from '../services/bar-order-history';

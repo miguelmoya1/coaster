@@ -1,14 +1,14 @@
-import type { BarId, ProductId, Product } from '@coaster/common';
-import { BarPermission } from '../../core';
+import type { BarId, Product, ProductId } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, BarPermissions, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { BarPermissions, BarPermissionsGuard, commonMapper } from '../../core';
 import {
   CreateProductCommand,
-  UpdateProductStockCommand,
-  UpdateProductCommand,
   DeleteProductCommand,
+  UpdateProductCommand,
+  UpdateProductStockCommand,
 } from '../commands';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
@@ -25,7 +25,7 @@ export class ProductsController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.VIEW_PRODUCTS)
+  @BarPermissions(BarPermission.BAR_VIEW_PRODUCTS)
   async getProducts(@Param('barId') barId: BarId) {
     const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(
       new GetProductsByBarIdQuery(barId),
@@ -34,15 +34,13 @@ export class ProductsController {
   }
 
   @Post()
-  @BarPermissions(BarPermission.CREATE_PRODUCT)
+  @BarPermissions(BarPermission.BAR_CREATE_PRODUCT)
   async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto): Promise<void> {
-    await this._commandBus.execute<CreateProductCommand, void>(
-      new CreateProductCommand(barId, dto),
-    );
+    await this._commandBus.execute<CreateProductCommand, void>(new CreateProductCommand(barId, dto));
   }
 
   @Patch(':productId/stock')
-  @BarPermissions(BarPermission.UPDATE_PRODUCT_STOCK)
+  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT_STOCK)
   async updateStock(
     @Param('barId') barId: BarId,
     @Param('productId') productId: ProductId,
@@ -55,7 +53,7 @@ export class ProductsController {
   }
 
   @Patch(':productId')
-  @BarPermissions(BarPermission.UPDATE_PRODUCT)
+  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT)
   async updateProduct(
     @Param('barId') barId: BarId,
     @Param('productId') productId: ProductId,
@@ -66,7 +64,7 @@ export class ProductsController {
   }
 
   @Delete(':productId')
-  @BarPermissions(BarPermission.DELETE_PRODUCT)
+  @BarPermissions(BarPermission.BAR_DELETE_PRODUCT)
   async deleteProduct(@Param('barId') barId: BarId, @Param('productId') productId: ProductId) {
     await this._commandBus.execute<DeleteProductCommand, void>(new DeleteProductCommand(barId, productId));
     return commonMapper.getSuccessResponse();

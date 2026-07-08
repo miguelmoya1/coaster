@@ -1,6 +1,6 @@
 import type { MergeOrdersDto as IMergeOrdersDto, OrderId, TableId } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { ArrayMinSize, IsArray, IsOptional, IsUUID } from 'class-validator';
-import { ErrorCodes } from '../../core';
 
 export class MergeOrdersDto implements IMergeOrdersDto {
   @IsArray({ message: ErrorCodes.INVALID_TYPE })

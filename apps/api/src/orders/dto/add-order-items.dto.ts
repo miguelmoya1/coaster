@@ -1,5 +1,5 @@
 import type { AddOrderItemsDto as IAddOrderItemsDto } from '@coaster/common';
-import { ErrorCodes } from '../../core';
+import { ErrorCodes } from '@coaster/common';
 import { Type } from 'class-transformer';
 import { ArrayMinSize, IsArray, ValidateNested } from 'class-validator';
 import { CreateOrderItemDto } from './create-order-item.dto';

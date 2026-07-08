@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { BarPermission } from '@coaster/core';
+import { BarPermission } from '@coaster/common';
 import { permissionGuard } from '@coaster/core';
 
 const mainRoutes: Routes = [
@@ -15,27 +15,27 @@ const mainRoutes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard'),
-        canActivate: [permissionGuard(BarPermission.VIEW_DASHBOARD)],
+        canActivate: [permissionGuard(BarPermission.BAR_VIEW_DASHBOARD)],
       },
       {
         path: 'pantry',
         loadChildren: () => import('./pages/pantry/pantry.routes'),
-        canActivate: [permissionGuard(BarPermission.VIEW_PRODUCTS)],
+        canActivate: [permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)],
       },
       {
         path: 'roster',
         loadChildren: () => import('./pages/roster/roster.routes'),
-        canActivate: [permissionGuard(BarPermission.VIEW_SHIFTS)],
+        canActivate: [permissionGuard(BarPermission.BAR_VIEW_SHIFTS)],
       },
       {
         path: 'staff',
         loadChildren: () => import('./pages/staff/staff.routes'),
-        canActivate: [permissionGuard(BarPermission.VIEW_MEMBERS)],
+        canActivate: [permissionGuard(BarPermission.BAR_VIEW_MEMBERS)],
       },
       {
         path: 'orders',
         loadChildren: () => import('./orders/orders.routes'),
-        canActivate: [permissionGuard(BarPermission.VIEW_ORDERS)],
+        canActivate: [permissionGuard(BarPermission.BAR_VIEW_ORDERS)],
       },
       {
         path: '**',

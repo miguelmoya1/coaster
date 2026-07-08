@@ -1,7 +1,8 @@
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TableUpdatedEvent } from '@tables/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId, SocketEvents } from '../../../core';
+import { asBarId, asTableId } from '../../../core';
 import { DbTableStatus } from '../../../core/db';
 import { BarGateway } from '../../bar.gateway';
 import { TableUpdatedHandler } from './table-updated.handler';
@@ -37,6 +38,6 @@ describe('TableUpdatedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_UPDATED, table);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableUpdated, table);
   });
 });

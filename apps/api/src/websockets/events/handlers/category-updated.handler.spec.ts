@@ -1,7 +1,8 @@
 import { CategoryUpdatedEvent } from '@categories/events';
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, SocketEvents } from '../../../core';
+import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { CategoryUpdatedHandler } from './category-updated.handler';
 
@@ -37,6 +38,6 @@ describe('CategoryUpdatedHandler', () => {
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.CATEGORY_UPDATED, categoryData);
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.categoryUpdated, categoryData);
   });
 });

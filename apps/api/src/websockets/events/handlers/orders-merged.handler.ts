@@ -1,8 +1,7 @@
-import { TableStatus } from '@coaster/common';
+import { SocketEvents, TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrdersMergedEvent } from '@orders/events';
-import { SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(OrdersMergedEvent)
@@ -13,12 +12,12 @@ export class OrdersMergedHandler implements IEventHandler<OrdersMergedEvent> {
 
   handle(event: OrdersMergedEvent) {
     this.#logger.debug(`Catching OrdersMergedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.ORDER_UPDATED, event.primaryOrder);
+    this._barGateway.server.to(event.barId).emit(SocketEvents.orderUpdated, event.primaryOrder);
 
     for (const source of event.sourceOrders) {
-      this._barGateway.server.to(event.barId).emit(SocketEvents.ORDER_CANCELLED, { id: source.id });
+      this._barGateway.server.to(event.barId).emit(SocketEvents.orderCancelled, { id: source.id });
       if (source.tableId) {
-        this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
+        this._barGateway.server.to(event.barId).emit(SocketEvents.tableStatusChanged, {
           id: source.tableId,
           status: TableStatus.FREE,
         });

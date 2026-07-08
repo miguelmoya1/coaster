@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { ConflictException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { InviteMemberRequestedEvent } from '../../events';
 import { InviteMemberCommand } from '../impl/invite-member.command';

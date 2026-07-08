@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ErrorCodes } from '../../constants';
 import { DbRole } from '../../db';
 import { SecurityRepository } from '../data-access/security.repository';
 import { ADMIN_KEY } from '../decorators/admin.decorator';

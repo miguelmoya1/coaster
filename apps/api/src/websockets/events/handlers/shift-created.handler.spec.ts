@@ -1,7 +1,8 @@
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShiftCreatedEvent } from '@shifts/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, SocketEvents } from '../../../core';
+import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { ShiftCreatedHandler } from './shift-created.handler';
 
@@ -36,6 +37,6 @@ describe('ShiftCreatedHandler', () => {
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.SHIFT_CREATED, shiftData);
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.shiftCreated, shiftData);
   });
 });

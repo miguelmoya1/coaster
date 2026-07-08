@@ -3,8 +3,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarPermissionType } from '@coaster/common';
-import { BarPermission } from '@coaster/core';
+import { BarPermission, BarPermissionType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface NavItem {
@@ -51,35 +50,35 @@ export class BottomNav {
       link: `/bars/${this.barId()}/dashboard`,
       icon: 'dashboard',
       labelKey: 'nav.dashboard',
-      requiredPermission: BarPermission.VIEW_DASHBOARD,
+      requiredPermission: BarPermission.BAR_VIEW_DASHBOARD,
     },
     {
       value: 'orders',
       link: `/bars/${this.barId()}/orders`,
       icon: 'assignment',
       labelKey: 'nav.orders',
-      requiredPermission: BarPermission.VIEW_ORDERS,
+      requiredPermission: BarPermission.BAR_VIEW_ORDERS,
     },
     {
       value: 'roster',
       link: `/bars/${this.barId()}/roster`,
       icon: 'calendar_today',
       labelKey: 'nav.roster',
-      requiredPermission: BarPermission.VIEW_SHIFTS,
+      requiredPermission: BarPermission.BAR_VIEW_SHIFTS,
     },
     {
       value: 'pantry',
       link: `/bars/${this.barId()}/pantry`,
       icon: 'inventory_2',
       labelKey: 'nav.pantry',
-      requiredPermission: BarPermission.VIEW_PRODUCTS,
+      requiredPermission: BarPermission.BAR_VIEW_PRODUCTS,
     },
     {
       value: 'staff',
       link: `/bars/${this.barId()}/staff`,
       icon: 'group',
       labelKey: 'nav.staff',
-      requiredPermission: BarPermission.INVITE_MEMBER,
+      requiredPermission: BarPermission.BAR_INVITE_MEMBER,
     },
   ]);
 

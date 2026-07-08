@@ -8,12 +8,12 @@ import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
-import { asOrderId, OrderStatus } from '@coaster/core';
+import { OrderStatus } from '@coaster/common';
+import { asOrderId } from '@coaster/core';
 import { OrdersStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
-
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({

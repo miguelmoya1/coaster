@@ -1,7 +1,7 @@
 import type { Shift } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
 import { GetShiftsQuery } from '../impl/get-shifts.query';

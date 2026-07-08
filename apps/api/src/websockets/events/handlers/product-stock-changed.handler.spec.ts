@@ -1,8 +1,9 @@
 import type { Product } from '@coaster/common';
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductStockChangedEvent } from '@products/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, SocketEvents } from '../../../core';
+import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { ProductStockChangedHandler } from './product-stock-changed.handler';
 
@@ -32,6 +33,6 @@ describe('ProductStockChangedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.PRODUCT_STOCK_CHANGED, product);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.productStockChanged, product);
   });
 });

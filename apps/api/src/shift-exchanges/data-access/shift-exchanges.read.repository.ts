@@ -1,6 +1,6 @@
 import type { BarId, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { ShiftExchangeStatus } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
-import { ShiftExchangeStatus } from '../../core';
 import { DbService } from '../../core/db';
 
 @Injectable()

@@ -3,7 +3,7 @@ import type {
   BulkUpdateItemDto as IBulkUpdateItemDto,
   OrderItemId,
 } from '@coaster/common';
-import { PaymentMethod } from '@coaster/common';
+import { ErrorCodes, PaymentMethod } from '@coaster/common';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -16,7 +16,6 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ErrorCodes } from '../../core';
 
 export class BulkUpdateItemDto implements IBulkUpdateItemDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })

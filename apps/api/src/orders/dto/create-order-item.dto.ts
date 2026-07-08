@@ -1,6 +1,6 @@
 import type { CreateOrderItemDto as ICreateOrderItemDto, ProductId } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
-import { ErrorCodes } from '../../core';
 
 export class CreateOrderItemDto implements ICreateOrderItemDto {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })

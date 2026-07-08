@@ -1,9 +1,7 @@
-import type { UserId } from '@coaster/common';
+import type { CreateShiftDto as ICreateShiftDto, UserId } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ErrorCodes } from '../../core';
-
-import type { CreateShiftDto as ICreateShiftDto } from '@coaster/common';
 
 export class CreateShiftDto implements Omit<ICreateShiftDto, 'startTime' | 'endTime'> {
   @IsUUID('4', { message: ErrorCodes.INVALID_TYPE })

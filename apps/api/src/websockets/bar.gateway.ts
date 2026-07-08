@@ -1,3 +1,4 @@
+import { ErrorCodes, SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -8,7 +9,6 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ErrorCodes, SocketEvents } from '../core/constants';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 // implements OnGatewayConnection, OnGatewayDisconnect
@@ -26,7 +26,7 @@ export class BarGateway {
     // this._logger.debug(`Cliente desconectado: ${client.id}`);
   }
 
-  @SubscribeMessage(SocketEvents.JOIN_BAR)
+  @SubscribeMessage(SocketEvents.joinBar)
   handleJoinBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
@@ -35,10 +35,10 @@ export class BarGateway {
     void client.join(barId);
     this._logger.debug(`Cliente ${client.id} se unió a la sala del bar: ${barId}`);
 
-    return { event: SocketEvents.JOINED, data: barId };
+    return { event: SocketEvents.joined, data: barId };
   }
 
-  @SubscribeMessage(SocketEvents.LEAVE_BAR)
+  @SubscribeMessage(SocketEvents.leaveBar)
   handleLeaveBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
@@ -47,6 +47,6 @@ export class BarGateway {
     void client.leave(barId);
     this._logger.debug(`Cliente ${client.id} abandonó la sala del bar: ${barId}`);
 
-    return { event: SocketEvents.LEFT, data: barId };
+    return { event: SocketEvents.left, data: barId };
   }
 }

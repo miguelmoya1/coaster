@@ -1,8 +1,9 @@
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
-import { Admin, AdminGuard, BarPermission, BarPermissions, BarPermissionsGuard } from '../../core';
+import { Admin, AdminGuard, BarPermissions, BarPermissionsGuard } from '../../core';
 import {
   BulkCategoryTemplateInput,
   BulkUpsertTemplatesCommand,
@@ -98,7 +99,7 @@ export class TemplatesController {
   }
 
   @Post('bar/:barId')
-  @BarPermissions(BarPermission.IMPORT_TEMPLATES)
+  @BarPermissions(BarPermission.BAR_IMPORT_TEMPLATES)
   @UseGuards(BarPermissionsGuard)
   async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto): Promise<void> {
     await this._commandBus.execute<ImportTemplatesToBarCommand, void>(

@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { BarMember } from '@coaster/common';
-import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/core';
-import { ShiftsStore } from '@coaster/shifts';
 import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import type { BarMember } from '@coaster/common';
+import { BarRole } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, DateFormatterService } from '@coaster/core';
+import { RosterStateService } from '@coaster/roster';
+import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateShiftForm } from './create-shift-form';
-import { RosterStateService } from '@coaster/roster';
-import { DateFormatterService } from '@coaster/core';
 
 describe('CreateShiftForm', () => {
   let component: CreateShiftForm;

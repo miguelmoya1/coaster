@@ -1,5 +1,4 @@
-import type { BarPermission } from '@coaster/common';
-import { BarRole } from '@coaster/common';
+import { BarPermission, BarRole } from '@coaster/common';
 
 const STAFF_PERMISSIONS: BarPermission[] = [
   // --- Members ---

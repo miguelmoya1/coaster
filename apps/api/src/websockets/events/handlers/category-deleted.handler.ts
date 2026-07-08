@@ -1,7 +1,7 @@
 import { CategoryDeletedEvent } from '@categories/events';
+import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(CategoryDeletedEvent)
@@ -12,6 +12,6 @@ export class CategoryDeletedHandler implements IEventHandler<CategoryDeletedEven
 
   handle(event: CategoryDeletedEvent) {
     this.#logger.debug(`Catching CategoryDeletedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.CATEGORY_DELETED, { id: event.categoryId });
+    this._barGateway.server.to(event.barId).emit(SocketEvents.categoryDeleted, { id: event.categoryId });
   }
 }

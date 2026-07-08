@@ -1,11 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
-import { CurrentUser, Role } from '@coaster/core';
-import { AdminFloatingButton } from './presentation/admin/components/admin-floating-button/admin-floating-button';
+import { Role } from '@coaster/common';
+import { CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { inject as injectAnalytics } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import { AdminFloatingButton } from './presentation/admin/components/admin-floating-button/admin-floating-button';
 
 @Component({
   selector: 'coaster-root',

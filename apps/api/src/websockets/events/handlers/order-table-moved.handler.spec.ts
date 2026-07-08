@@ -1,9 +1,9 @@
 import type { Order } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
+import { SocketEvents, TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderTableMovedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId, SocketEvents } from '../../../core';
+import { asBarId, asTableId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrderTableMovedHandler } from './order-table-moved.handler';
 
@@ -35,12 +35,12 @@ describe('OrderTableMovedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, order);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, order);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: oldTableId,
       status: TableStatus.FREE,
     });
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: newTableId,
       status: TableStatus.OCCUPIED,
     });
@@ -55,12 +55,12 @@ describe('OrderTableMovedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, order);
-    expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, order);
+    expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: vi.fn(),
       status: TableStatus.FREE,
     });
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: newTableId,
       status: TableStatus.OCCUPIED,
     });

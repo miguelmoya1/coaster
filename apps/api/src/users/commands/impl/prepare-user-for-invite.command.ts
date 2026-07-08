@@ -1,4 +1,5 @@
-import type { BarId, BarRole } from '@coaster/common';
+import type { BarId } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 
 export class PrepareUserForInviteCommand {
   constructor(

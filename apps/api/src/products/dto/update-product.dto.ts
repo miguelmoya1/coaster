@@ -1,5 +1,5 @@
 import type { CategoryId, UpdateProductDto as IUpdateProductDto } from '@coaster/common';
-import { ErrorCodes } from '../../core';
+import { ErrorCodes } from '@coaster/common';
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdateProductDto implements IUpdateProductDto {

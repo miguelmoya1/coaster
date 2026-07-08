@@ -1,5 +1,5 @@
 import type { UpdateProductStockDto as IUpdateProductStockDto } from '@coaster/common';
-import { ErrorCodes } from '../../core';
+import { ErrorCodes } from '@coaster/common';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class UpdateProductStockDto implements IUpdateProductStockDto {

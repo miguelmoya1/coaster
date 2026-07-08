@@ -1,7 +1,8 @@
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShiftDeletedEvent } from '@shifts/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId, SocketEvents } from '../../../core';
+import { asBarId, asShiftId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { ShiftDeletedHandler } from './shift-deleted.handler';
 
@@ -37,6 +38,6 @@ describe('ShiftDeletedHandler', () => {
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.SHIFT_DELETED, { id: shiftId });
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.shiftDeleted, { id: shiftId });
   });
 });

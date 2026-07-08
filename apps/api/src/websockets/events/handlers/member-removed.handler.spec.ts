@@ -1,7 +1,8 @@
 import { MemberRemovedEvent } from '@bar-members/events';
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId, SocketEvents } from '../../../core';
+import { asBarId, asBarMemberId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { MemberRemovedHandler } from './member-removed.handler';
 
@@ -31,6 +32,6 @@ describe('MemberRemovedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.MEMBER_REMOVED, { id: memberId });
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.memberRemoved, { id: memberId });
   });
 });

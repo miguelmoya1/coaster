@@ -1,7 +1,8 @@
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderDeletedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, SocketEvents } from '../../../core';
+import { asBarId, asOrderId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrderDeletedHandler } from './order-deleted.handler';
 
@@ -37,6 +38,6 @@ describe('OrderDeletedHandler', () => {
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.ORDER_DELETED, { id: orderId });
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.orderDeleted, { id: orderId });
   });
 });

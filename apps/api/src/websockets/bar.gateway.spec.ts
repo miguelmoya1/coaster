@@ -1,10 +1,9 @@
-import { BarId } from '@coaster/common';
+import { BarId, ErrorCodes, SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ErrorCodes, SocketEvents } from '../core/constants';
 import { BarGateway } from './bar.gateway';
 
 describe('BarGateway', () => {
@@ -47,7 +46,7 @@ describe('BarGateway', () => {
       const result = gateway.handleJoinBar(socket, 'bar-1');
 
       expect(socket.join).toHaveBeenCalledWith('bar-1');
-      expect(result).toEqual({ event: SocketEvents.JOINED, data: 'bar-1' });
+      expect(result).toEqual({ event: SocketEvents.joined, data: 'bar-1' });
     });
 
     it('should throw WsException if barId is invalid (null)', () => {
@@ -73,7 +72,7 @@ describe('BarGateway', () => {
       const result = gateway.handleLeaveBar(socket, 'bar-1');
 
       expect(socket.leave).toHaveBeenCalledWith('bar-1');
-      expect(result).toEqual({ event: SocketEvents.LEFT, data: 'bar-1' });
+      expect(result).toEqual({ event: SocketEvents.left, data: 'bar-1' });
     });
 
     it('should throw WsException if barId is invalid (null)', () => {

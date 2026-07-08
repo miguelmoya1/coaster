@@ -1,8 +1,8 @@
 import type { BarMember } from '@coaster/common';
-import { BarRole, Role } from '@coaster/common';
+import { BarRole, ErrorCodes, Role } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { asBarMemberId, ErrorCodes } from '../../../core';
+import { asBarMemberId } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { GetMemberMeQuery } from '../impl/get-member-me.query';

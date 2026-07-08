@@ -1,7 +1,7 @@
+import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrderItemsAddedEvent } from '@orders/events';
-import { SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(OrderItemsAddedEvent)
@@ -12,6 +12,6 @@ export class OrderItemsAddedHandler implements IEventHandler<OrderItemsAddedEven
 
   handle(event: OrderItemsAddedEvent) {
     this.#logger.debug(`Catching OrderItemsAddedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.ORDER_ITEM_ADDED, event.order);
+    this._barGateway.server.to(event.barId).emit(SocketEvents.orderItemAdded, event.order);
   }
 }

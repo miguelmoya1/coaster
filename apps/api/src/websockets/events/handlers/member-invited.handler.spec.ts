@@ -1,7 +1,8 @@
 import { MemberInvitedEvent } from '@bar-members/events';
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId, SocketEvents } from '../../../core';
+import { asBarId, asBarMemberId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { MemberInvitedHandler } from './member-invited.handler';
 
@@ -42,6 +43,6 @@ describe('MemberInvitedHandler', () => {
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.MEMBER_INVITED, { id: 'mem-1' });
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.memberInvited, { id: 'mem-1' });
   });
 });

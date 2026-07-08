@@ -1,7 +1,7 @@
+import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ProductUpdatedEvent } from '@products/events';
-import { SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(ProductUpdatedEvent)
@@ -12,6 +12,6 @@ export class ProductUpdatedHandler implements IEventHandler<ProductUpdatedEvent>
 
   handle(event: ProductUpdatedEvent) {
     this.#logger.debug(`Catching ProductUpdatedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.PRODUCT_UPDATED, event.product);
+    this._barGateway.server.to(event.barId).emit(SocketEvents.productUpdated, event.product);
   }
 }

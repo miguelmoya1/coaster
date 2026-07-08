@@ -2,7 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { Table } from '@coaster/common';
-import { TableStatus } from '@coaster/core';
+import { TableStatus } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 

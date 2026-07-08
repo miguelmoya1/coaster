@@ -1,6 +1,7 @@
+import { ErrorCodes } from '@coaster/common';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asCategoryId, ErrorCodes } from '../../../core';
+import { asCategoryId } from '../../../core';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductUpdatedEvent } from '../../events';

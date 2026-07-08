@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
 import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { ImportTemplatesToBarCommand } from '../impl/import-templates-to-bar.command';

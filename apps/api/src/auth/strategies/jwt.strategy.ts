@@ -1,8 +1,8 @@
+import { ErrorCodes } from '@coaster/common';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { getAuth } from 'firebase-admin/auth';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
-import { ErrorCodes } from '../../core';
 import { DbService } from '../../core/db';
 
 @Injectable()

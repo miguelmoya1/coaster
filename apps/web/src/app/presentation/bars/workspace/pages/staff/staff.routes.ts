@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { BarPermission } from '@coaster/core';
+import { BarPermission } from '@coaster/common';
 import { permissionGuard } from '@coaster/core';
 
 const staffRoutes: Routes = [
@@ -7,7 +7,7 @@ const staffRoutes: Routes = [
   {
     path: 'invite',
     loadComponent: () => import('./staff'),
-    canActivate: [permissionGuard(BarPermission.INVITE_MEMBER)],
+    canActivate: [permissionGuard(BarPermission.BAR_INVITE_MEMBER)],
   },
 ];
 

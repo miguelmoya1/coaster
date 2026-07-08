@@ -1,7 +1,7 @@
+import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { TableUpdatedEvent } from '@tables/events';
-import { SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(TableUpdatedEvent)
@@ -12,6 +12,6 @@ export class TableUpdatedHandler implements IEventHandler<TableUpdatedEvent> {
 
   handle(event: TableUpdatedEvent) {
     this.#logger.debug(`Catching TableUpdatedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_UPDATED, event.table);
+    this._barGateway.server.to(event.barId).emit(SocketEvents.tableUpdated, event.table);
   }
 }

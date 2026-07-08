@@ -1,8 +1,9 @@
+import { ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId, ErrorCodes } from '../../../core';
+import { asBarId, asShiftId } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
 import { ShiftDeletedEvent } from '../../events';

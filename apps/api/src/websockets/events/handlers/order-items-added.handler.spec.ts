@@ -1,8 +1,9 @@
 import type { Order } from '@coaster/common';
+import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderItemsAddedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asProductId, SocketEvents } from '../../../core';
+import { asBarId, asProductId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrderItemsAddedHandler } from './order-items-added.handler';
 
@@ -33,6 +34,6 @@ describe('OrderItemsAddedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_ITEM_ADDED, order);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderItemAdded, order);
   });
 });

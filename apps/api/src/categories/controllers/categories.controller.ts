@@ -1,9 +1,9 @@
 import type { BarId, Category, CategoryId } from '@coaster/common';
-import { BarPermission } from '../../core';
+import { BarPermission } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { commonMapper, BarPermissions, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { BarPermissions, BarPermissionsGuard, commonMapper } from '../../core';
 import { CreateCategoryCommand, DeleteCategoryCommand, UpdateCategoryCommand } from '../commands';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
@@ -19,34 +19,30 @@ export class CategoriesController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.VIEW_CATEGORIES)
+  @BarPermissions(BarPermission.BAR_VIEW_CATEGORIES)
   async getCategories(@Param('barId') barId: BarId) {
     const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
     return categories.map((category) => CategoriesMapper.toDto(category));
   }
 
   @Post()
-  @BarPermissions(BarPermission.CREATE_CATEGORY)
+  @BarPermissions(BarPermission.BAR_CREATE_CATEGORY)
   async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto): Promise<void> {
-    await this._commandBus.execute<CreateCategoryCommand, void>(
-      new CreateCategoryCommand(barId, dto),
-    );
+    await this._commandBus.execute<CreateCategoryCommand, void>(new CreateCategoryCommand(barId, dto));
   }
 
   @Patch(':categoryId')
-  @BarPermissions(BarPermission.UPDATE_CATEGORY)
+  @BarPermissions(BarPermission.BAR_UPDATE_CATEGORY)
   async updateCategory(
     @Param('barId') barId: BarId,
     @Param('categoryId') categoryId: CategoryId,
     @Body() dto: UpdateCategoryDto,
   ): Promise<void> {
-    await this._commandBus.execute<UpdateCategoryCommand, void>(
-      new UpdateCategoryCommand(barId, categoryId, dto),
-    );
+    await this._commandBus.execute<UpdateCategoryCommand, void>(new UpdateCategoryCommand(barId, categoryId, dto));
   }
 
   @Delete(':categoryId')
-  @BarPermissions(BarPermission.DELETE_CATEGORY)
+  @BarPermissions(BarPermission.BAR_DELETE_CATEGORY)
   async deleteCategory(@Param('barId') barId: BarId, @Param('categoryId') categoryId: CategoryId) {
     await this._commandBus.execute<DeleteCategoryCommand, void>(new DeleteCategoryCommand(barId, categoryId));
     return commonMapper.getSuccessResponse();

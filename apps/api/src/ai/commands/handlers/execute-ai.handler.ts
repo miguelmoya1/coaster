@@ -1,10 +1,10 @@
-import type { BarPermission, BarRole, Category, Order, Product, Table } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
+import type { Category, Order, Product, Table } from '@coaster/common';
+import { BarPermission, BarRole, ErrorCodes, OrderStatus } from '@coaster/common';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel } from 'ai';
 import { GetCategoriesQuery } from '../../../categories/queries';
-import { asBarRole, ErrorCodes, hasPermission, SecurityRepository } from '../../../core';
+import { asBarRole, hasPermission, SecurityRepository } from '../../../core';
 import { DbBarRole, DbRole } from '../../../core/db';
 import { GetOrdersByBarIdQuery } from '../../../orders/queries';
 import { GetProductsByBarIdQuery } from '../../../products/queries';

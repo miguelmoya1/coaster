@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import type { BarPermission } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
 import { combineLatest, filter, map, take } from 'rxjs';
 

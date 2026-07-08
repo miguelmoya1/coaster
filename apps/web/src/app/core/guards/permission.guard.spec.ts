@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { BarPermission } from '@coaster/core';
+import { BarPermission } from '@coaster/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { permissionGuard } from './permission.guard';
@@ -60,12 +60,12 @@ describe('permissionGuard', () => {
   it('should allow navigation if user has permission', async () => {
     const route = getMockRoute('bar-1');
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
     expect(result).toBe(true);
-    expect(hasPermissionMock).toHaveBeenCalledWith(BarPermission.VIEW_PRODUCTS);
+    expect(hasPermissionMock).toHaveBeenCalledWith(BarPermission.BAR_VIEW_PRODUCTS);
   });
 
   it('should redirect to dashboard if user lacks permission', async () => {
@@ -73,7 +73,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -86,7 +86,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -103,7 +103,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute('bar-1');
 
     const guardPromise = TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -121,7 +121,7 @@ describe('permissionGuard', () => {
     currentId.set('bar-other');
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
@@ -133,7 +133,7 @@ describe('permissionGuard', () => {
     const route = getMockRoute(null, null);
 
     const result = await TestBed.runInInjectionContext(() => {
-      const guard = permissionGuard(BarPermission.VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
       return guard as unknown as Promise<boolean | UrlTree>;
     });
 

@@ -1,7 +1,8 @@
+import { ShiftExchangeStatus } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftExchangeId, asUserId, ShiftExchangeStatus } from '../../../core';
+import { asBarId, asShiftExchangeId, asUserId } from '../../../core';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { AcceptExchangeCommand } from '../impl/accept-exchange.command';

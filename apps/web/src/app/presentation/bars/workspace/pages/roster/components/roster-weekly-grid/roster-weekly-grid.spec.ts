@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarRole } from '@coaster/common';
+import { asBarId, asShiftId, asUserId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RosterWeeklyGrid, WeeklyDayItem, WeeklyShiftItem } from './roster-weekly-grid';
-import { BarRole, asBarId, asShiftId, asUserId } from '@coaster/core';
-import { describe, expect, it, beforeEach } from 'vitest';
 
 describe('RosterWeeklyGrid', () => {
   let component: RosterWeeklyGrid;

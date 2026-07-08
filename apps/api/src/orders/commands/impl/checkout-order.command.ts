@@ -1,4 +1,5 @@
-import type { BarId, OrderId, PaymentMethod } from '@coaster/common';
+import type { BarId, OrderId } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 
 export class CheckoutOrderCommand {
   constructor(

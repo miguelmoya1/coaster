@@ -1,13 +1,13 @@
-import type { BarId, ShiftExchangeId, ShiftId, User, ShiftExchange } from '@coaster/common';
-import { asUserId, BarPermission } from '../../core';
+import type { BarId, ShiftExchange, ShiftExchangeId, ShiftId, User } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { CurrentUser, FirebaseAuthGuard } from '../../auth';
+import { asUserId, BarPermissions, BarPermissionsGuard } from '../../core';
+import { AcceptExchangeCommand, DeleteExchangeCommand, RequestExchangeCommand } from '../commands';
 import { CreateShiftExchangeDto } from '../dto/create-shift-exchange.dto';
 import { ShiftExchangesMapper } from '../mappers/shift-exchanges.mapper';
 import { GetPendingExchangesQuery } from '../queries';
-import { RequestExchangeCommand, AcceptExchangeCommand, DeleteExchangeCommand } from '../commands';
 
 @Controller('bars/:barId')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
@@ -18,7 +18,7 @@ export class ShiftExchangesController {
   ) {}
 
   @Get('exchanges')
-  @BarPermissions(BarPermission.VIEW_EXCHANGES)
+  @BarPermissions(BarPermission.BAR_VIEW_EXCHANGES)
   async getExchanges(@Param('barId') barId: BarId) {
     const exchanges = await this._queryBus.execute<GetPendingExchangesQuery, ShiftExchange[]>(
       new GetPendingExchangesQuery(barId),
@@ -27,7 +27,7 @@ export class ShiftExchangesController {
   }
 
   @Post('shifts/:shiftId/exchanges')
-  @BarPermissions(BarPermission.CREATE_EXCHANGE)
+  @BarPermissions(BarPermission.BAR_CREATE_EXCHANGE)
   async createExchange(
     @Param('barId') barId: BarId,
     @Param('shiftId') shiftId: ShiftId,
@@ -40,7 +40,7 @@ export class ShiftExchangesController {
   }
 
   @Patch('exchanges/:exchangeId/accept')
-  @BarPermissions(BarPermission.ACCEPT_EXCHANGE)
+  @BarPermissions(BarPermission.BAR_ACCEPT_EXCHANGE)
   async acceptExchange(
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,
@@ -52,7 +52,7 @@ export class ShiftExchangesController {
   }
 
   @Delete('exchanges/:exchangeId')
-  @BarPermissions(BarPermission.DELETE_EXCHANGE)
+  @BarPermissions(BarPermission.BAR_DELETE_EXCHANGE)
   async deleteExchange(
     @Param('barId') barId: BarId,
     @Param('exchangeId') exchangeId: ShiftExchangeId,

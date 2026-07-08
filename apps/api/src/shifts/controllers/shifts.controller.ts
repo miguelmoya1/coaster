@@ -1,8 +1,9 @@
 import type { BarId, Shift, ShiftId } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
-import { BarPermission, BarPermissions, BarPermissionsGuard } from '../../core';
+import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 import { ShiftsMapper } from '../mappers/shifts.mapper';
@@ -17,7 +18,7 @@ export class ShiftsController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.VIEW_SHIFTS)
+  @BarPermissions(BarPermission.BAR_VIEW_SHIFTS)
   async getShifts(
     @Param('barId') barId: BarId,
     @Query('startDate') startDate?: string,
@@ -28,13 +29,13 @@ export class ShiftsController {
   }
 
   @Post()
-  @BarPermissions(BarPermission.CREATE_SHIFT)
+  @BarPermissions(BarPermission.BAR_CREATE_SHIFT)
   async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto): Promise<void> {
     await this._commandBus.execute<CreateShiftCommand, void>(new CreateShiftCommand(barId, dto));
   }
 
   @Delete(':shiftId')
-  @BarPermissions(BarPermission.DELETE_SHIFT)
+  @BarPermissions(BarPermission.BAR_DELETE_SHIFT)
   async deleteShift(@Param('barId') barId: BarId, @Param('shiftId') shiftId: ShiftId): Promise<void> {
     await this._commandBus.execute(new DeleteShiftCommand(barId, shiftId));
   }

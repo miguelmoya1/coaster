@@ -1,4 +1,5 @@
-import type { BarId, OrderStatus } from '@coaster/common';
+import type { BarId } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 
 export class GetOrdersByBarIdQuery {
   constructor(

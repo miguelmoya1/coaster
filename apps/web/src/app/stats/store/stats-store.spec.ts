@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { BarStats, Order } from '@coaster/common';
-import { PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, OrderStatus, Socket } from '@coaster/core';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
+import { asBarId, asOrderId, Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { StatsStore } from './stats-store';
 
