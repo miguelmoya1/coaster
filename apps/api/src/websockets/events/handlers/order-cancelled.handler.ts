@@ -1,3 +1,4 @@
+import { TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrderCancelledEvent } from '@orders/events';
@@ -17,7 +18,7 @@ export class OrderCancelledHandler implements IEventHandler<OrderCancelledEvent>
     if (event.tableId) {
       this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
         id: event.tableId,
-        status: 'FREE',
+        status: TableStatus.FREE,
       });
     }
   }

@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { BarStats, Order } from '@coaster/common';
-import { asBarId, asOrderId, OrderStatus } from '@coaster/core';
-import { Socket } from '@coaster/core';
+import { PaymentMethod } from '@coaster/common';
+import { asBarId, asOrderId, OrderStatus, Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { StatsStore } from './stats-store';
 
@@ -99,7 +99,7 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
         items: [],
       });
       TestBed.tick();
@@ -136,7 +136,7 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
         items: [],
       });
       TestBed.tick();
@@ -166,7 +166,7 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
         items: [],
       });
       TestBed.tick();

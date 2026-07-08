@@ -1,38 +1,41 @@
-export type BarPermission =
-  | 'bar:view-dashboard'
-  | 'bar:invite-member'
-  | 'bar:remove-member'
-  | 'bar:view-members'
-  | 'bar:open-table'
-  | 'bar:view-tables'
-  | 'bar:create-table'
-  | 'bar:update-table'
-  | 'bar:delete-table'
-  | 'bar:create-order'
-  | 'bar:view-orders'
-  | 'bar:update-order'
-  | 'bar:delete-order'
-  | 'bar:delete-order-item'
-  | 'bar:checkout-order'
-  | 'bar:cancel-order'
-  | 'bar:move-order-table'
-  | 'bar:merge-orders'
-  | 'bar:view-products'
-  | 'bar:create-product'
-  | 'bar:update-product'
-  | 'bar:update-product-stock'
-  | 'bar:delete-product'
-  | 'bar:view-categories'
-  | 'bar:create-category'
-  | 'bar:update-category'
-  | 'bar:delete-category'
-  | 'bar:view-shifts'
-  | 'bar:create-shift'
-  | 'bar:delete-shift'
-  | 'bar:view-exchanges'
-  | 'bar:create-exchange'
-  | 'bar:accept-exchange'
-  | 'bar:delete-exchange'
-  | 'bar:import-templates';
+export const BarPermission = {
+  BAR_VIEW_DASHBOARD: 'bar:view-dashboard',
+  BAR_INVITE_MEMBER: 'bar:invite-member',
+  BAR_REMOVE_MEMBER: 'bar:remove-member',
+  BAR_VIEW_MEMBERS: 'bar:view-members',
+  BAR_OPEN_TABLE: 'bar:open-table',
+  BAR_VIEW_TABLES: 'bar:view-tables',
+  BAR_CREATE_TABLE: 'bar:create-table',
+  BAR_UPDATE_TABLE: 'bar:update-table',
+  BAR_DELETE_TABLE: 'bar:delete-table',
+  BAR_CREATE_ORDER: 'bar:create-order',
+  BAR_VIEW_ORDERS: 'bar:view-orders',
+  BAR_UPDATE_ORDER: 'bar:update-order',
+  BAR_DELETE_ORDER: 'bar:delete-order',
+  BAR_DELETE_ORDER_ITEM: 'bar:delete-order-item',
+  BAR_CHECKOUT_ORDER: 'bar:checkout-order',
+  BAR_CANCEL_ORDER: 'bar:cancel-order',
+  BAR_MOVE_ORDER_TABLE: 'bar:move-order-table',
+  BAR_MERGE_ORDERS: 'bar:merge-orders',
+  BAR_VIEW_PRODUCTS: 'bar:view-products',
+  BAR_CREATE_PRODUCT: 'bar:create-product',
+  BAR_UPDATE_PRODUCT: 'bar:update-product',
+  BAR_UPDATE_PRODUCT_STOCK: 'bar:update-product-stock',
+  BAR_DELETE_PRODUCT: 'bar:delete-product',
+  BAR_VIEW_CATEGORIES: 'bar:view-categories',
+  BAR_CREATE_CATEGORY: 'bar:create-category',
+  BAR_UPDATE_CATEGORY: 'bar:update-category',
+  BAR_DELETE_CATEGORY: 'bar:delete-category',
+  BAR_VIEW_SHIFTS: 'bar:view-shifts',
+  BAR_CREATE_SHIFT: 'bar:create-shift',
+  BAR_DELETE_SHIFT: 'bar:delete-shift',
+  BAR_VIEW_EXCHANGES: 'bar:view-exchanges',
+  BAR_CREATE_EXCHANGE: 'bar:create-exchange',
+  BAR_ACCEPT_EXCHANGE: 'bar:accept-exchange',
+  BAR_DELETE_EXCHANGE: 'bar:delete-exchange',
+  BAR_IMPORT_TEMPLATES: 'bar:import-templates',
+} as const;
+
+export type BarPermission = (typeof BarPermission)[keyof typeof BarPermission];
 
 export type BarPermissionType = BarPermission;

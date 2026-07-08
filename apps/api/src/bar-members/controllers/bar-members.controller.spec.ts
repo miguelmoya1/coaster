@@ -1,9 +1,10 @@
+import { BarRole, Role } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '../../core';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
 import { BarMembersController } from './bar-members.controller';
@@ -50,7 +51,7 @@ describe('BarMembersController', () => {
       id: asBarMemberId('mem-1'),
       userId: asUserId('user-1'),
       barId: asBarId('bar-1'),
-      role: 'STAFF' as const,
+      role: BarRole.STAFF,
       permissions: [],
       active: true,
       userName: 'John Doe',
@@ -63,7 +64,8 @@ describe('BarMembersController', () => {
       name: 'John Doe',
       email: 'john@test.com',
       active: true,
-      role: 'USER' as const,
+      role: Role.USER,
+      language: 'en',
     };
     const result = await controller.getMyMember(asBarId('bar-1'), user);
 
@@ -78,8 +80,15 @@ describe('BarMembersController', () => {
 
   it('inviteMember should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue({});
-    const user = { id: asUserId('admin-id'), name: 'Admin', email: 'a@a.com', active: true, role: 'ADMIN' as const };
-    const dto = { email: 'new@staff.com', role: 'STAFF' as const };
+    const user = {
+      id: asUserId('admin-id'),
+      name: 'Admin',
+      email: 'a@a.com',
+      active: true,
+      role: Role.ADMIN,
+      language: 'en',
+    };
+    const dto = { email: 'new@staff.com', role: BarRole.STAFF };
 
     await controller.inviteMember(asBarId('bar-1'), dto, user);
 

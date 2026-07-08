@@ -1,3 +1,4 @@
+import { TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrderTableMovedEvent } from '@orders/events';
@@ -17,13 +18,13 @@ export class OrderTableMovedHandler implements IEventHandler<OrderTableMovedEven
     if (event.oldTableId) {
       this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
         id: event.oldTableId,
-        status: 'FREE',
+        status: TableStatus.FREE,
       });
     }
 
     this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
       id: event.newTableId,
-      status: 'OCCUPIED',
+      status: TableStatus.OCCUPIED,
     });
   }
 }

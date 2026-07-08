@@ -2,8 +2,8 @@ import type {
   BulkUpdateDto as IBulkUpdateDto,
   BulkUpdateItemDto as IBulkUpdateItemDto,
   OrderItemId,
-  PaymentMethod,
 } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -34,7 +34,9 @@ export class BulkUpdateItemDto implements IBulkUpdateItemDto {
   declare servedQuantity?: number;
 
   @IsOptional()
-  @IsIn(['CASH', 'CARD', 'MIXED', 'NONE'], { message: ErrorCodes.INVALID_TYPE })
+  @IsIn([PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.MIXED, PaymentMethod.NONE], {
+    message: ErrorCodes.INVALID_TYPE,
+  })
   declare paymentMethod?: PaymentMethod;
 }
 

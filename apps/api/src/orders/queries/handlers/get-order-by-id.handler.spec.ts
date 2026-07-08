@@ -1,10 +1,11 @@
+import { OrderStatus } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asOrderId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
-import { GetOrderByIdHandler } from './get-order-by-id.handler';
 import { GetOrderByIdQuery } from '../impl/get-order-by-id.query';
+import { GetOrderByIdHandler } from './get-order-by-id.handler';
 
 describe('GetOrderByIdHandler', () => {
   let handler: GetOrderByIdHandler;
@@ -32,7 +33,7 @@ describe('GetOrderByIdHandler', () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       items: [],
       createdAt: new Date(),
       updatedAt: new Date(),

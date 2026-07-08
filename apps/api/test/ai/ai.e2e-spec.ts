@@ -1,5 +1,6 @@
+import { BarRole } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, it, expect, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 vi.mock('ai', async (importOriginal) => {
@@ -19,7 +20,7 @@ describe('AiController (e2e)', () => {
     // Temporary make mock user an ADMIN to bypass AdminGuard if needed, but here we just need a bar
     await testSetup.setup();
     await testSetup.clearDatabase();
-    
+
     // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
@@ -38,7 +39,7 @@ describe('AiController (e2e)', () => {
         members: {
           create: {
             userId: mockUser.id,
-            role: 'OWNER',
+            role: BarRole.OWNER,
           },
         },
       },
@@ -57,7 +58,7 @@ describe('AiController (e2e)', () => {
       const response = await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/ai`)
         .send({ prompt: 'Suggest me a drink' });
-        
+
       expect(response.status === 201 || response.status === 500).toBeTruthy();
     }, 20000);
   });

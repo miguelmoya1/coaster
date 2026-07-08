@@ -1,4 +1,5 @@
 import type { Order } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +37,7 @@ describe('RemoveOrderItemHandler', () => {
     const order = {
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       tableId: 'table-1',
       createdAt: new Date(),
       updatedAt: new Date(),

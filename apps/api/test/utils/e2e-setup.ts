@@ -1,6 +1,7 @@
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { Test, TestingModule } from '@nestjs/testing';
 import { CanActivate, ExecutionContext, ValidationPipe } from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
 import { DbService } from '../../src/core/db';
@@ -37,10 +38,9 @@ export class E2eTestSetup {
       .compile();
 
     this.app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
-    const { IoAdapter } = require('@nestjs/platform-socket.io');
     this.app.useWebSocketAdapter(new IoAdapter(this.app));
     this.app.setGlobalPrefix('api');
-    
+
     this.app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -67,7 +67,7 @@ export class E2eTestSetup {
 
   async clearDatabase() {
     const tablenames = await this.prisma.$queryRaw<
-      Array<{ tablename: string }>
+      { tablename: string }[]
     >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
     const tables = tablenames

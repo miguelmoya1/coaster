@@ -1,4 +1,5 @@
 import type { Order } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderCreatedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +37,7 @@ describe('OrderCreatedHandler', () => {
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CREATED, order);
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
       id: tableId,
-      status: 'OCCUPIED',
+      status: TableStatus.OCCUPIED,
     });
   });
 

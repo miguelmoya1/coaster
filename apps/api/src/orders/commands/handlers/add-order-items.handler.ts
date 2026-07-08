@@ -1,3 +1,4 @@
+import { OrderStatus } from '@coaster/common';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ErrorCodes } from '../../../core';
@@ -23,7 +24,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
-    if (existingOrder.status !== 'OPEN') {
+    if (existingOrder.status !== OrderStatus.OPEN) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 

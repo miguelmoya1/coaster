@@ -1,4 +1,5 @@
 import type { Table } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +37,7 @@ describe('CreateTableHandler', () => {
       id: 'table-1',
       barId: 'bar-1',
       name: 'Mesa 1',
-      status: 'FREE',
+      status: TableStatus.FREE,
       createdAt: new Date('2026-05-01T08:00:00Z'),
       updatedAt: new Date('2026-05-01T08:00:00Z'),
     };

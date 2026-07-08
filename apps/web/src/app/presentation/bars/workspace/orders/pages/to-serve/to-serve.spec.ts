@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { Order, OrderItem } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 import {
   asBarId,
   asOrderId,
@@ -65,7 +66,7 @@ describe('ToServe', () => {
       priceAtPurchase: 100,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
-      paymentMethod: 'NONE',
+      paymentMethod: PaymentMethod.NONE,
       createdAt: timeStr,
       updatedAt: timeStr,
     });
@@ -77,7 +78,7 @@ describe('ToServe', () => {
       totalAmount: 1000,
       amountPaidCash: 0,
       amountPaidCard: 0,
-      paymentMethod: 'NONE',
+      paymentMethod: PaymentMethod.NONE,
       items,
       createdAt: timeStr,
       updatedAt: timeStr,
@@ -133,7 +134,7 @@ describe('ToServe', () => {
       priceAtPurchase: 100,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
-      paymentMethod: 'NONE',
+      paymentMethod: PaymentMethod.NONE,
       createdAt: '2026-05-31T10:00:00Z',
       updatedAt: '2026-05-31T10:00:00Z',
     };
@@ -151,7 +152,7 @@ describe('ToServe', () => {
       priceAtPurchase: 200,
       paymentStatus: PaymentStatus.PENDING,
       deliveryStatus: DeliveryStatus.PENDING,
-      paymentMethod: 'NONE',
+      paymentMethod: PaymentMethod.NONE,
       createdAt: '2026-05-31T10:01:00Z',
       updatedAt: '2026-05-31T10:01:00Z',
     };

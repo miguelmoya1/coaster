@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import type { PaymentMethod } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 
@@ -33,7 +33,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
         <!-- Cash Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
-          (click)="selected.emit('CASH')"
+          (click)="selected.emit(PaymentMethod.CASH)"
         >
           <div
             class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/25 transition-all duration-300 shrink-0"
@@ -48,7 +48,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
         <!-- Card Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
-          (click)="selected.emit('CARD')"
+          (click)="selected.emit(PaymentMethod.CARD)"
         >
           <div
             class="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-300 shrink-0"
@@ -73,6 +73,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
   },
 })
 export class PaymentMethodDialog {
+  protected readonly PaymentMethod = PaymentMethod;
   readonly amount = input.required<number>();
 
   readonly selected = output<PaymentMethod>();

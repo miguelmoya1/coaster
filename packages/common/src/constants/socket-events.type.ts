@@ -1,26 +1,29 @@
-export type SocketEvents =
-  | 'joinBar'
-  | 'leaveBar'
-  | 'joined'
-  | 'left'
-  | 'productCreated'
-  | 'productUpdated'
-  | 'productStockChanged'
-  | 'productDeleted'
-  | 'categoryCreated'
-  | 'categoryUpdated'
-  | 'categoryDeleted'
-  | 'memberInvited'
-  | 'memberRemoved'
-  | 'tableStatusChanged'
-  | 'tableCreated'
-  | 'tableUpdated'
-  | 'tableDeleted'
-  | 'orderCreated'
-  | 'orderUpdated'
-  | 'orderItemAdded'
-  | 'orderClosed'
-  | 'orderCancelled'
-  | 'orderDeleted'
-  | 'shiftCreated'
-  | 'shiftDeleted';
+export const SocketEvents = {
+  joinBar: 'joinBar',
+  leaveBar: 'leaveBar',
+  joined: 'joined',
+  left: 'left',
+  productCreated: 'productCreated',
+  productUpdated: 'productUpdated',
+  productStockChanged: 'productStockChanged',
+  productDeleted: 'productDeleted',
+  categoryCreated: 'categoryCreated',
+  categoryUpdated: 'categoryUpdated',
+  categoryDeleted: 'categoryDeleted',
+  memberInvited: 'memberInvited',
+  memberRemoved: 'memberRemoved',
+  tableStatusChanged: 'tableStatusChanged',
+  tableCreated: 'tableCreated',
+  tableUpdated: 'tableUpdated',
+  tableDeleted: 'tableDeleted',
+  orderCreated: 'orderCreated',
+  orderUpdated: 'orderUpdated',
+  orderItemAdded: 'orderItemAdded',
+  orderClosed: 'orderClosed',
+  orderCancelled: 'orderCancelled',
+  orderDeleted: 'orderDeleted',
+  shiftCreated: 'shiftCreated',
+  shiftDeleted: 'shiftDeleted',
+} as const;
+
+export type SocketEvents = (typeof SocketEvents)[keyof typeof SocketEvents];

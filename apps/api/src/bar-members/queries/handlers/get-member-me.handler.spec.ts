@@ -1,11 +1,12 @@
+import { BarRole } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asBarMemberId, asUserId } from '../../../core';
 import { DbBarRole } from '../../../core/db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
-import { GetMemberMeHandler } from './get-member-me.handler';
 import { GetMemberMeQuery } from '../impl/get-member-me.query';
+import { GetMemberMeHandler } from './get-member-me.handler';
 
 describe('GetMemberMeHandler', () => {
   let handler: GetMemberMeHandler;
@@ -37,7 +38,7 @@ describe('GetMemberMeHandler', () => {
       id: 'member-1',
       userId,
       barId,
-      role: 'STAFF',
+      role: BarRole.STAFF,
       active: true,
       user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
     };
@@ -78,7 +79,7 @@ describe('GetMemberMeHandler', () => {
       id: 'member-1',
       userId,
       barId,
-      role: 'STAFF',
+      role: BarRole.STAFF,
       active: false,
       user: { name: 'John Doe', photoUrl: 'http://test.com/photo.jpg', email: 'john@test.com' },
     };

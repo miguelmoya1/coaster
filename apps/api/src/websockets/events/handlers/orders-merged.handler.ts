@@ -1,3 +1,4 @@
+import { TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrdersMergedEvent } from '@orders/events';
@@ -19,7 +20,7 @@ export class OrdersMergedHandler implements IEventHandler<OrdersMergedEvent> {
       if (source.tableId) {
         this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
           id: source.tableId,
-          status: 'FREE',
+          status: TableStatus.FREE,
         });
       }
     }

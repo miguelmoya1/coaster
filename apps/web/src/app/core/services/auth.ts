@@ -80,7 +80,6 @@ export class Auth {
     if (typeof window !== 'undefined' && !(window as unknown as { _production: boolean })._production) {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
         async (token = 'fake-jwt-token', targetRoute = '/bars') => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.#isTestMode = true;
           this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
           this.#token.set(token);

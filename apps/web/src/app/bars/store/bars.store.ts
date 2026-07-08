@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import type { BarId, BarPermission, CreateBarDto } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { handleErrorFormField, hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
@@ -40,7 +41,7 @@ export class BarsStore {
       return false;
     }
     const member = this.myMember.value();
-    return member?.role === 'OWNER';
+    return member?.role === BarRole.OWNER;
   });
 
   public hasPermission(permission: BarPermission): boolean {

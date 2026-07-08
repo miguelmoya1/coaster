@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { PaymentMethod } from '@coaster/common';
 import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
@@ -65,9 +66,9 @@ describe('ManageOrder', () => {
     it('should delegate to repository', async () => {
       orderRepoMock.checkout.mockResolvedValue(undefined);
 
-      const result = await service.checkout(barId, orderId, { paymentMethod: 'CASH' });
+      const result = await service.checkout(barId, orderId, { paymentMethod: PaymentMethod.CASH });
 
-      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId, { paymentMethod: 'CASH' });
+      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId, { paymentMethod: PaymentMethod.CASH });
       expect(result).toBeUndefined();
     });
   });

@@ -1,4 +1,5 @@
 import type { Order } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 import {
   asBarId,
   asOrderId,
@@ -19,7 +20,7 @@ describe('Order Mapper', () => {
     totalAmount: 1500,
     amountPaidCash: 0,
     amountPaidCard: 0,
-    paymentMethod: 'NONE',
+    paymentMethod: PaymentMethod.NONE,
     items: [
       {
         id: asOrderItemId('item-1'),
@@ -34,7 +35,7 @@ describe('Order Mapper', () => {
         paidQuantityCash: 0,
         paidQuantityCard: 0,
         servedQuantity: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
       },
     ],
   };

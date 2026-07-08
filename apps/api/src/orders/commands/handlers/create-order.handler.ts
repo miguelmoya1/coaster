@@ -1,3 +1,4 @@
+import { TableStatus } from '@coaster/common';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { asTableId, ErrorCodes } from '../../../core';
@@ -32,7 +33,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       if (!table || table.barId !== command.barId) {
         throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
       }
-      if (table.status === 'OCCUPIED') {
+      if (table.status === TableStatus.OCCUPIED) {
         throw new BadRequestException(ErrorCodes.TABLE_ALREADY_OCCUPIED);
       }
     }

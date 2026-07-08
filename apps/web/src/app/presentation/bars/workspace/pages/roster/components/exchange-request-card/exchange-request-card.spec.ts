@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarRole } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExchangeRequestCard } from './exchange-request-card';
 
 describe('ExchangeRequestCard', () => {
@@ -10,7 +11,7 @@ describe('ExchangeRequestCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ExchangeRequestCard],
-      providers: [provideTranslateService()]
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ExchangeRequestCard);
@@ -19,7 +20,7 @@ describe('ExchangeRequestCard', () => {
     // Set required inputs
     fixture.componentRef.setInput('month', 'JAN');
     fixture.componentRef.setInput('day', '15');
-    fixture.componentRef.setInput('roleName', 'OWNER');
+    fixture.componentRef.setInput('roleName', BarRole.OWNER);
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
     fixture.componentRef.setInput('offeredBy', 'John Doe');
 
@@ -39,7 +40,7 @@ describe('ExchangeRequestCard', () => {
 
     it('should display shift details', () => {
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('OWNER');
+      expect(element.textContent).toContain(BarRole.OWNER);
       expect(element.textContent).toContain('08:00 - 16:00');
     });
 

@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { Order } from '@coaster/common';
+import { Order, OrderStatus } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 
@@ -11,9 +11,9 @@ import { PricePipe } from '../../../../../pipes/price/price';
     <div class="flex justify-between items-center bg-surface-container rounded-2xl p-4">
       <div class="flex flex-col gap-1">
         <span class="text-sm text-on-surface-variant font-medium">
-          @if (order().status === 'OPEN') {
+          @if (order().status === OrderStatus.OPEN) {
             {{ 'orders.open_orders' | translate }}
-          } @else if (order().status === 'CLOSED') {
+          } @else if (order().status === OrderStatus.CLOSED) {
             {{ 'history.status_closed' | translate }}
           } @else {
             {{ 'history.status_cancelled' | translate }}
@@ -46,12 +46,13 @@ import { PricePipe } from '../../../../../pipes/price/price';
           }
         </div>
       </div>
-      <span class="text-2xl font-black" [class.text-primary]="order().status === 'OPEN'">
+      <span class="text-2xl font-black" [class.text-primary]="order().status === OrderStatus.OPEN">
         {{ order().totalAmount | price }}
       </span>
     </div>
   `,
 })
 export class OrderSummaryCard {
+  protected readonly OrderStatus = OrderStatus;
   public readonly order = input.required<Order>();
 }

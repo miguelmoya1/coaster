@@ -1,14 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ExecuteAiHandler } from './execute-ai.handler';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { SecurityRepository } from '../../../core';
-import { DbRole } from '../../../core/db';
-import { beforeEach, describe, expect, it, vi, Mocked } from 'vitest';
-import { generateText } from 'ai';
-import { ForbiddenException } from '@nestjs/common';
 import type { User } from '@coaster/common';
-import { asBarId, asUserId } from '../../../core';
+import { BarRole } from '@coaster/common';
+import { ForbiddenException } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { generateText } from 'ai';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { asBarId, asUserId, SecurityRepository } from '../../../core';
+import { DbRole } from '../../../core/db';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
+import { ExecuteAiHandler } from './execute-ai.handler';
 
 // Mock Vercel AI SDK
 vi.mock('ai', async (importOriginal) => {
@@ -60,9 +60,7 @@ describe('ExecuteAiHandler', () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
       securityRepository.getBarMemberRole.mockResolvedValue(null);
 
-      await expect(handler.execute(command)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(handler.execute(command)).rejects.toThrow(ForbiddenException);
     });
 
     it('should execute successfully for an admin', async () => {
@@ -80,7 +78,7 @@ describe('ExecuteAiHandler', () => {
 
     it('should execute successfully for an active staff member', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue({ role: 'STAFF', active: true });
+      securityRepository.getBarMemberRole.mockResolvedValue({ role: BarRole.STAFF, active: true });
       queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'Mesa creada correctamente.' });
 

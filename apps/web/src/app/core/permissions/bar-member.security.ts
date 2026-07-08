@@ -1,4 +1,5 @@
-import type { BarRole, BarPermission } from '@coaster/common';
+import type { BarPermission } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 
 const STAFF_PERMISSIONS: BarPermission[] = [
   // --- Members ---
@@ -36,16 +37,16 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
   MANAGER: [
     // --- Management Dashboard ---
     'bar:view-dashboard',
-    
+
     // --- Staff Management ---
     'bar:invite-member',
-    
+
     // --- Pantry Management ---
     'bar:create-category',
     'bar:update-category',
     'bar:create-product',
     'bar:update-product',
-    
+
     // --- Roster Management ---
     'bar:create-shift',
     'bar:delete-shift',
@@ -57,7 +58,7 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
 };
 
 export const hasPermission = (role: BarRole, permission: BarPermission): boolean => {
-  if (role === 'OWNER') return true;
+  if (role === BarRole.OWNER) return true;
   const permissions = ROLE_PERMISSIONS[role];
   return permissions ? permissions.includes(permission) : false;
 };

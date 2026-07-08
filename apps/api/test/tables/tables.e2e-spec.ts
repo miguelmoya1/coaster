@@ -1,5 +1,6 @@
+import { BarRole, TableStatus } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('TablesController (e2e)', () => {
@@ -12,7 +13,7 @@ describe('TablesController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
+
     // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
@@ -31,7 +32,7 @@ describe('TablesController (e2e)', () => {
         members: {
           create: {
             userId: mockUser.id,
-            role: 'OWNER',
+            role: BarRole.OWNER,
           },
         },
       },
@@ -47,26 +48,20 @@ describe('TablesController (e2e)', () => {
     it('should create a table', async () => {
       const dto = { name: 'Table 1' };
 
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/tables`)
-        .send(dto)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/tables`).send(dto).expect(201);
 
       // Verify in database
       const tables = await testSetup.prisma.dbTable.findMany({
         where: { barId },
       });
-      
+
       expect(tables).toHaveLength(1);
       expect(tables[0].name).toBe(dto.name);
-      expect(tables[0].status).toBe('FREE');
+      expect(tables[0].status).toBe(TableStatus.FREE);
     });
 
     it('should reject invalid payloads', async () => {
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/tables`)
-        .send({})
-        .expect(400);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/tables`).send({}).expect(400);
     });
   });
 
@@ -79,9 +74,7 @@ describe('TablesController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/tables`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/tables`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(table.id);
@@ -119,9 +112,7 @@ describe('TablesController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/tables/${table.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/tables/${table.id}`).expect(200);
 
       const deleted = await testSetup.prisma.dbTable.findUnique({
         where: { id: table.id },

@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
+import { BarRole } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -83,10 +84,10 @@ describe('Staff', () => {
     it('should calculate members correctly with permissions', () => {
       membersStoreMock.list.hasValue.set(true);
       membersStoreMock.list.value.set([
-        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: 'OWNER' }
+        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER },
       ] as any);
       barsStoreMock.myMember.hasValue.set(true);
-      barsStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: 'OWNER' } as any);
+      barsStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER } as any);
       barsStoreMock.isOwner.set(false);
       membersStoreMock.isOnlyOwner.mockReturnValue(false);
 

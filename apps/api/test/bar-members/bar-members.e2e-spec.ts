@@ -1,5 +1,6 @@
+import { BarRole } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('BarMembersController (e2e)', () => {
@@ -13,7 +14,7 @@ describe('BarMembersController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
+
     // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
@@ -44,7 +45,7 @@ describe('BarMembersController (e2e)', () => {
         members: {
           create: {
             userId: mockUser.id,
-            role: 'OWNER',
+            role: BarRole.OWNER,
           },
         },
       },
@@ -58,21 +59,17 @@ describe('BarMembersController (e2e)', () => {
 
   describe('GET /api/bars/:barId/members/me', () => {
     it('should return my membership', async () => {
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/members/me`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/members/me`).expect(200);
 
       expect(response.body.userId).toBe(mockUser.id);
-      expect(response.body.role).toBe('OWNER');
+      expect(response.body.role).toBe(BarRole.OWNER);
       expect(response.body.barId).toBe(barId);
     });
   });
 
   describe('GET /api/bars/:barId/members', () => {
     it('should list members if user has permission', async () => {
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/members`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/members`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].userId).toBe(mockUser.id);
@@ -83,9 +80,7 @@ describe('BarMembersController (e2e)', () => {
         data: { name: 'Unauthorized Bar' },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${otherBar.id}/members`)
-        .expect(403);
+      await request(testSetup.app.getHttpServer()).get(`/api/bars/${otherBar.id}/members`).expect(403);
     });
   });
 
@@ -93,7 +88,7 @@ describe('BarMembersController (e2e)', () => {
     it('should invite a new member if user is OWNER', async () => {
       await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/members`)
-        .send({ email: 'other@example.com', role: 'STAFF' })
+        .send({ email: 'other@example.com', role: BarRole.STAFF })
         .expect(201);
 
       // Verify in DB
@@ -101,13 +96,13 @@ describe('BarMembersController (e2e)', () => {
         where: { barId },
       });
       expect(members).toHaveLength(2);
-      expect(members.some(m => m.userId === otherUserId && m.role === 'STAFF')).toBe(true);
+      expect(members.some((m) => m.userId === otherUserId && m.role === BarRole.STAFF)).toBe(true);
     });
 
     it('should return 400 for invalid email', async () => {
       await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/members`)
-        .send({ email: 'not-an-email', role: 'STAFF' })
+        .send({ email: 'not-an-email', role: BarRole.STAFF })
         .expect(400);
     });
   });
@@ -119,19 +114,17 @@ describe('BarMembersController (e2e)', () => {
         data: {
           barId,
           userId: otherUserId,
-          role: 'STAFF',
+          role: BarRole.STAFF,
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/members/${newMember.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/members/${newMember.id}`).expect(200);
 
       // Verify in DB
       const deletedMember = await testSetup.prisma.dbBarMember.findUnique({
         where: { id: newMember.id },
       });
-      
+
       expect(deletedMember?.deletedAt).not.toBeNull();
     });
   });

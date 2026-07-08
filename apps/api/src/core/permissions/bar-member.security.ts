@@ -1,4 +1,5 @@
-import type { BarRole, BarPermission } from '@coaster/common';
+import type { BarPermission } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 
 const STAFF_PERMISSIONS: BarPermission[] = [
   // --- Members ---
@@ -36,16 +37,16 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
   MANAGER: [
     // --- Management Dashboard ---
     'bar:view-dashboard',
-    
+
     // --- Staff Management ---
     'bar:invite-member',
-    
+
     // --- Pantry Management ---
     'bar:create-category',
     'bar:update-category',
     'bar:create-product',
     'bar:update-product',
-    
+
     // --- Roster Management ---
     'bar:create-shift',
     'bar:delete-shift',
@@ -57,29 +58,29 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
 };
 
 export const hasPermission = (role: BarRole, permission: BarPermission): boolean => {
-  if (role === 'OWNER') return true;
+  if (role === BarRole.OWNER) return true;
   const permissions = ROLE_PERMISSIONS[role];
   return permissions ? permissions.includes(permission) : false;
 };
 
 export const getRolePermissions = (role: BarRole): BarPermission[] => {
-  if (role === 'OWNER') {
+  if (role === BarRole.OWNER) {
     return [
       // --- Management Dashboard ---
       'bar:view-dashboard',
-      
+
       // --- Staff Management ---
       'bar:invite-member',
       'bar:remove-member',
-      
+
       // --- Table Management ---
       'bar:create-table',
       'bar:update-table',
       'bar:delete-table',
-      
+
       // --- Order Management ---
       'bar:delete-order',
-      
+
       // --- Pantry Management ---
       'bar:create-category',
       'bar:update-category',
@@ -88,7 +89,7 @@ export const getRolePermissions = (role: BarRole): BarPermission[] => {
       'bar:update-product',
       'bar:delete-product',
       'bar:import-templates',
-      
+
       // --- Roster Management ---
       'bar:create-shift',
       'bar:delete-shift',

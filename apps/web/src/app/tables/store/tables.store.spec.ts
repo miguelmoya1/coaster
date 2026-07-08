@@ -1,10 +1,11 @@
-import { TestBed } from '@angular/core/testing';
-import { describe, beforeEach, it, expect, afterEach } from 'vitest';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { asBarId, Socket } from '@coaster/core';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { TableStatus } from '@coaster/common';
 import { TablesStore } from './tables.store';
 
 describe('TablesStore', () => {
@@ -50,9 +51,9 @@ describe('TablesStore', () => {
       const req = httpMock.expectOne('/bars/bar-1/tables');
       expect(req.request.method).toBe('GET');
       req.flush([
-        { id: 't-1', status: 'FREE', name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 },
-        { id: 't-2', status: 'OCCUPIED', name: 'T2', number: 2, capacity: 4, barId: 'bar-1', pax: 2 },
-        { id: 't-3', status: 'FREE', name: 'T3', number: 3, capacity: 4, barId: 'bar-1', pax: 0 }
+        { id: 't-1', status: TableStatus.FREE, name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 },
+        { id: 't-2', status: TableStatus.OCCUPIED, name: 'T2', number: 2, capacity: 4, barId: 'bar-1', pax: 2 },
+        { id: 't-3', status: TableStatus.FREE, name: 'T3', number: 3, capacity: 4, barId: 'bar-1', pax: 0 },
       ]);
 
       TestBed.tick();
@@ -69,7 +70,7 @@ describe('TablesStore', () => {
   describe('CRUD operations', () => {
     it('should create table and reload', async () => {
       service.setBarId(asBarId('bar-1'));
-      
+
       const createPromise = service.create({ name: 'Table 1' } as any);
       const req = httpMock.expectOne('/bars/bar-1/tables');
       expect(req.request.method).toBe('POST');
@@ -91,8 +92,10 @@ describe('TablesStore', () => {
       TestBed.tick();
 
       const getReq = httpMock.expectOne('/bars/bar-1/tables');
-      getReq.flush([{ id: 't-1', status: 'FREE', name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
-      
+      getReq.flush([
+        { id: 't-1', status: TableStatus.FREE, name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 },
+      ]);
+
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -115,8 +118,10 @@ describe('TablesStore', () => {
       TestBed.tick();
 
       const getReq = httpMock.expectOne('/bars/bar-1/tables');
-      getReq.flush([{ id: 't-1', status: 'FREE', name: 'Old', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
-      
+      getReq.flush([
+        { id: 't-1', status: TableStatus.FREE, name: 'Old', number: 1, capacity: 4, barId: 'bar-1', pax: 0 },
+      ]);
+
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -148,16 +153,16 @@ describe('TablesStore', () => {
       TestBed.tick();
 
       const req1 = httpMock.expectOne('/bars/bar-1/tables');
-      req1.flush([{ id: 't-1', status: 'FREE', name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
-      
+      req1.flush([{ id: 't-1', status: TableStatus.FREE, name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
+
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.tableStatusChanged.set({ id: 't-1', status: 'OCCUPIED' });
+      mockSocket.tableStatusChanged.set({ id: 't-1', status: TableStatus.OCCUPIED });
       TestBed.tick();
 
-      expect(service.tables.value()?.[0].status).toBe('OCCUPIED');
+      expect(service.tables.value()?.[0].status).toBe(TableStatus.OCCUPIED);
     });
 
     it('should handle tableDeleted', async () => {
@@ -165,8 +170,8 @@ describe('TablesStore', () => {
       TestBed.tick();
 
       const req1 = httpMock.expectOne('/bars/bar-1/tables');
-      req1.flush([{ id: 't-1', status: 'FREE', name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
-      
+      req1.flush([{ id: 't-1', status: TableStatus.FREE, name: 'T1', number: 1, capacity: 4, barId: 'bar-1', pax: 0 }]);
+
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();

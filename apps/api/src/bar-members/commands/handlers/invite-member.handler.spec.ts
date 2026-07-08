@@ -1,3 +1,4 @@
+import { BarRole } from '@coaster/common';
 import { ConflictException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -42,11 +43,11 @@ describe('InviteMemberHandler', () => {
   it('should publish InviteMemberRequestedEvent when member is not registered', async () => {
     repository.isMember.mockResolvedValue(false);
 
-    await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF'));
+    await handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, BarRole.STAFF));
 
     expect(repository.isMember).toHaveBeenCalledWith(asBarId('bar-1'), 'new@test.com');
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new InviteMemberRequestedEvent(asBarId('bar-1'), 'new@test.com', 'STAFF', 'en'),
+      new InviteMemberRequestedEvent(asBarId('bar-1'), 'new@test.com', BarRole.STAFF, 'en'),
     );
   });
 
@@ -54,7 +55,7 @@ describe('InviteMemberHandler', () => {
     repository.isMember.mockResolvedValue(true);
 
     await expect(
-      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, 'STAFF')),
+      handler.execute(new InviteMemberCommand(asBarId('bar-1'), 'new@test.com', fakeUser, BarRole.STAFF)),
     ).rejects.toThrow(ConflictException);
 
     expect(eventBus.publish).not.toHaveBeenCalled();

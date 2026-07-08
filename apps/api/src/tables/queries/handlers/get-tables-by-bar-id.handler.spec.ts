@@ -1,10 +1,11 @@
+import { TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asTableId } from '../../../core';
 import { DbTableStatus } from '../../../core/db';
 import { TablesReadRepository } from '../../data-access/tables.read.repository';
-import { GetTablesByBarIdHandler } from './get-tables-by-bar-id.handler';
 import { GetTablesByBarIdQuery } from '../impl/get-tables-by-bar-id.query';
+import { GetTablesByBarIdHandler } from './get-tables-by-bar-id.handler';
 
 describe('GetTablesByBarIdHandler', () => {
   let handler: GetTablesByBarIdHandler;
@@ -27,7 +28,7 @@ describe('GetTablesByBarIdHandler', () => {
         id: 'table-1',
         barId: 'bar-1',
         name: 'Mesa 1',
-        status: 'FREE',
+        status: TableStatus.FREE,
         createdAt: new Date('2026-05-01T08:00:00Z'),
         updatedAt: new Date('2026-05-01T08:00:00Z'),
       },

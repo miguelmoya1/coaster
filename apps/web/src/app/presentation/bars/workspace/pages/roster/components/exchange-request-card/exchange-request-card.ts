@@ -1,7 +1,8 @@
 import { Component, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { BarRole } from '@coaster/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-exchange-request-card',
@@ -22,7 +23,7 @@ import { MatIcon } from '@angular/material/icon';
         <span class="text-white font-bold title-lg leading-tight truncate">
           {{ offeredBy() }}
         </span>
-        @if (roleName() === 'OWNER') {
+        @if (roleName() === BarRole.OWNER) {
           <div class="flex items-center gap-2 mt-1">
             <span
               class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mat-bg-surface-container-highest mat-text-on-surface-variant"
@@ -74,6 +75,7 @@ import { MatIcon } from '@angular/material/icon';
   },
 })
 export class ExchangeRequestCard {
+  protected readonly BarRole = BarRole;
   readonly month = input.required<string>();
   readonly day = input.required<string>();
   readonly roleName = input.required<string>();

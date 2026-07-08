@@ -1,4 +1,5 @@
-import type { BarRole, InviteBarMemberDto as IInviteBarMemberDto } from '@coaster/common';
+import type { InviteBarMemberDto as IInviteBarMemberDto } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { IsEmail, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 import { ErrorCodes } from '../../core';
 
@@ -8,6 +9,6 @@ export class InviteBarMemberDto implements IInviteBarMemberDto {
   email!: string;
 
   @IsOptional()
-  @IsIn(['OWNER', 'STAFF'])
+  @IsIn([BarRole.OWNER, BarRole.STAFF])
   role?: BarRole;
 }

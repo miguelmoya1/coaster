@@ -1,16 +1,17 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
+import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import type { BarId } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatIcon } from '@angular/material/icon';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
+import { Loading } from '../../../../components/loading/loading';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
-import { Loading } from '../../../../components/loading/loading';
 
 @Component({
   selector: 'coaster-dashboard',
@@ -138,7 +139,7 @@ export class Dashboard {
           id: s.id,
           userName: member.userName,
           userImage: member.userImage,
-          roleLabel: member.role === 'OWNER' ? 'Owner' : 'Staff Member',
+          roleLabel: member.role === BarRole.OWNER ? 'Owner' : 'Staff Member',
           timeRange: `${formatTime(start)} — ${formatTime(end)}`,
           status: isCurrent ? 'current' : 'next',
           startTime: start.getTime(),
@@ -161,7 +162,7 @@ export class Dashboard {
     }
 
     return [
-      { label: 'dashboard.overview.bar_staff', count: members.filter((m) => m.role === 'STAFF').length },
+      { label: 'dashboard.overview.bar_staff', count: members.filter((m) => m.role === BarRole.STAFF).length },
       { label: 'dashboard.overview.floor_leads', count: 0 },
       { label: 'dashboard.overview.security', count: 0 },
     ];

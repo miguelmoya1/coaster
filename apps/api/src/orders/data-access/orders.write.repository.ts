@@ -1,12 +1,5 @@
-import type {
-  AddOrderItemsDto,
-  BarId,
-  CreateOrderDto,
-  OrderId,
-  OrderItemId,
-  PaymentMethod,
-  TableId,
-} from '@coaster/common';
+import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
+import { PaymentMethod } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import {
   DbDeliveryStatus,
@@ -185,9 +178,9 @@ export class OrdersWriteRepository {
           let newCash = item.paidQuantityCash;
 
           if (diff > 0) {
-            if (update.paymentMethod === 'CARD') {
+            if (update.paymentMethod === PaymentMethod.CARD) {
               newCard = item.paidQuantityCard + diff;
-            } else if (update.paymentMethod === 'CASH') {
+            } else if (update.paymentMethod === PaymentMethod.CASH) {
               newCash = item.paidQuantityCash + diff;
             } else {
               newCash = item.paidQuantityCash + diff;

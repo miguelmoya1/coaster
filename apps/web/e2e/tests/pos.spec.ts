@@ -1,3 +1,4 @@
+import { BarRole, OrderStatus, TableStatus } from '@coaster/common';
 import { expect, test } from '@playwright/test';
 import { mockApiResponse } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';
@@ -6,14 +7,13 @@ test.describe('POS Flow', () => {
   const barId = 'bar-123';
 
   test('should open a table and add a product', async ({ page }) => {
-
     // Mock the bar profile
     await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
     await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
       id: 'member-123',
       userId: 'test-user-123',
       barId,
-      role: 'OWNER',
+      role: BarRole.OWNER,
       permissions: [],
       active: true,
       userName: 'Test User',
@@ -28,7 +28,7 @@ test.describe('POS Flow', () => {
     await mockApiResponse(page, `/bars/${barId}/products`, 'GET', [prod]);
 
     // Mock tables: 1 table available
-    const table = { id: 'table-1', barId, name: 'T1', status: 'FREE', active: true };
+    const table = { id: 'table-1', barId, name: 'T1', status: TableStatus.FREE, active: true };
     await mockApiResponse(page, `/bars/${barId}/tables`, 'GET', [table]);
 
     // Mock shift: active shift
@@ -39,7 +39,7 @@ test.describe('POS Flow', () => {
     });
 
     // Mock POST order
-    const order = { id: 'order-1', tableId: 'table-1', status: 'OPEN', total: 2.5, items: [] };
+    const order = { id: 'order-1', tableId: 'table-1', status: OrderStatus.OPEN, total: 2.5, items: [] };
     await mockApiResponse(page, `/bars/${barId}/orders`, 'POST', order, 201);
 
     // Mock GET open orders (called by tables page)

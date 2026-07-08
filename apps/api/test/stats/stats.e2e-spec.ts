@@ -1,5 +1,6 @@
+import { BarRole, OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('StatsController (e2e)', () => {
@@ -12,7 +13,7 @@ describe('StatsController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
+
     // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
@@ -31,7 +32,7 @@ describe('StatsController (e2e)', () => {
         members: {
           create: {
             userId: mockUser.id,
-            role: 'OWNER',
+            role: BarRole.OWNER,
           },
         },
       },
@@ -49,24 +50,22 @@ describe('StatsController (e2e)', () => {
       await testSetup.prisma.dbOrder.create({
         data: {
           barId,
-          status: 'CLOSED',
+          status: OrderStatus.CLOSED,
           totalAmount: 100,
-          paymentMethod: 'CASH',
+          paymentMethod: PaymentMethod.CASH,
         },
       });
 
       await testSetup.prisma.dbOrder.create({
         data: {
           barId,
-          status: 'CLOSED',
+          status: OrderStatus.CLOSED,
           totalAmount: 50,
-          paymentMethod: 'CARD',
+          paymentMethod: PaymentMethod.CARD,
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/stats`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/stats`).expect(200);
 
       expect(response.body).toBeDefined();
       expect(response.body.todayRevenue).toBeDefined();

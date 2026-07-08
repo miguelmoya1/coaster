@@ -4,6 +4,7 @@ import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import type { Table } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
 import { TableStatusPipe } from '@coaster/tables';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -39,7 +40,10 @@ import { PricePipe } from '../../../../../pipes/price/price';
         </div>
 
         <!-- Table name -->
-        <span data-testid="table-card-name" class="text-base font-extrabold text-on-surface leading-tight tracking-tight">
+        <span
+          data-testid="table-card-name"
+          class="text-base font-extrabold text-on-surface leading-tight tracking-tight"
+        >
           {{ table().name }}
         </span>
 
@@ -83,5 +87,5 @@ export class TableCard {
   readonly cardClicked = output<Table>();
   readonly deleteClicked = output<Table>();
 
-  protected readonly isOccupied = computed(() => this.table().status === 'OCCUPIED');
+  protected readonly isOccupied = computed(() => this.table().status === TableStatus.OCCUPIED);
 }

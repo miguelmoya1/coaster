@@ -5,7 +5,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import type { BarId, BarRole, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
@@ -62,6 +63,7 @@ export type PendingExchangeItem = ShiftExchange & {
   templateUrl: './roster.html',
 })
 export default class Roster {
+  protected readonly BarRole = BarRole;
   public readonly barId = input.required<BarId>();
   public readonly date = input<string>();
   public readonly view = input<'day' | 'week' | 'month'>();
@@ -147,7 +149,7 @@ export default class Roster {
       .map((shift) => ({
         ...shift,
         timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-        roleName: 'STAFF' as BarRole,
+        roleName: BarRole.STAFF as BarRole,
         hasPendingExchange: this.pendingShiftIds().has(shift.id),
         isOwn: shift.userId === this.currentUserId(),
         isPast: new Date(shift.startTime) < now,
@@ -169,7 +171,7 @@ export default class Roster {
         .map((shift) => ({
           ...shift,
           timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: 'STAFF' as BarRole,
+          roleName: BarRole.STAFF as BarRole,
           hasPendingExchange: this.pendingShiftIds().has(shift.id),
           isOwn: shift.userId === this.currentUserId(),
           isPast: new Date(shift.startTime) < now,
@@ -201,7 +203,7 @@ export default class Roster {
         .map((shift) => ({
           ...shift,
           timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: 'STAFF' as BarRole,
+          roleName: BarRole.STAFF as BarRole,
           hasPendingExchange: this.pendingShiftIds().has(shift.id),
           isOwn: shift.userId === this.currentUserId(),
           isPast: new Date(shift.startTime) < now,
@@ -225,7 +227,7 @@ export default class Roster {
       day: this.#dateFormatter.formatDay(exchange.shiftStartTime),
       shiftPeriod: 'roster.exchanges.period_' + this.#dateFormatter.formatShiftPeriod(exchange.shiftStartTime),
       timeRange: this.#dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime),
-      roleName: 'STAFF' as BarRole,
+      roleName: BarRole.STAFF as BarRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
     }));
   });

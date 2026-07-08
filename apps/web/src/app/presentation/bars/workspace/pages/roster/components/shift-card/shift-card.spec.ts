@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarRole } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftCard } from './shift-card';
@@ -10,7 +11,7 @@ describe('ShiftCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ShiftCard],
-      providers: [provideTranslateService()]
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShiftCard);
@@ -20,7 +21,7 @@ describe('ShiftCard', () => {
     fixture.componentRef.setInput('staffName', 'John Doe');
     fixture.componentRef.setInput('staffImage', 'https://photo.url/john.jpg');
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');
-    fixture.componentRef.setInput('roleName', 'OWNER');
+    fixture.componentRef.setInput('roleName', BarRole.OWNER);
 
     fixture.detectChanges();
   });
@@ -34,7 +35,7 @@ describe('ShiftCard', () => {
       const element: HTMLElement = fixture.nativeElement;
       expect(element.textContent).toContain('John Doe');
       expect(element.textContent).toContain('08:00 - 16:00');
-      expect(element.textContent).toContain('OWNER');
+      expect(element.textContent).toContain(BarRole.OWNER);
 
       const img = element.querySelector('img');
       expect(img?.src).toBe('https://photo.url/john.jpg');

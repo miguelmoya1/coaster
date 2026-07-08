@@ -1,4 +1,5 @@
 import type { Order, TableId } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +37,7 @@ describe('CancelOrderHandler', () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       tableId: 'table-1',
       items: [],
       createdAt: new Date(),
@@ -45,7 +46,7 @@ describe('CancelOrderHandler', () => {
     repository.cancelOrder.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'CANCELLED',
+      status: OrderStatus.CANCELLED,
       tableId: 'table-1',
       items: [],
       createdAt: new Date(),

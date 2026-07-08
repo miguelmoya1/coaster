@@ -1,4 +1,5 @@
 import type { Order, TableId } from '@coaster/common';
+import { OrderStatus, TableStatus } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -45,18 +46,23 @@ describe('CreateOrderHandler', () => {
 
   it('should throw BadRequestException if table is occupied', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
-    repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'OCCUPIED' });
+    repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: TableStatus.OCCUPIED });
 
     await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(BadRequestException);
   });
 
   it('should create order and publish event', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
-    repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: 'FREE', name: 'Mesa 1' });
+    repository.findTableById.mockResolvedValue({
+      id: 'table-1',
+      barId: 'bar-1',
+      status: TableStatus.FREE,
+      name: 'Mesa 1',
+    });
     repository.createOrder.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       totalAmount: 4,
       tableId: 'table-1',
       tableName: 'Mesa 1',

@@ -27,7 +27,7 @@
           [isOwn]="shift.isOwn"
           [hasPendingExchange]="shift.hasPendingExchange"
           [isPast]="shift.isPast"
-          [showDelete]="currentUserRole() === 'OWNER'"
+          [showDelete]="currentUserRole() === BarRole.OWNER"
           [disabled]="isSubmitting()"
           roleColorClass="bg-primary text-primary"
           (offerExchange)="handleOfferExchange(shift.id)"
@@ -89,7 +89,7 @@
         [timeRange]="exchange.timeRange"
         [offeredBy]="exchange.requesterName"
         [isOwnRequest]="exchange.isOwnRequest"
-        [canDelete]="exchange.isOwnRequest || currentUserRole() === 'OWNER'"
+        [canDelete]="exchange.isOwnRequest || currentUserRole() === BarRole.OWNER"
         [disabled]="isSubmitting()"
         (accepted)="handleAcceptExchange(exchange.id)"
         (delete)="handleClickDeleteExchange(exchange)"
@@ -99,6 +99,6 @@
 }
 
 <!-- Float Action button for Owners -->
-@if (currentUserRole() === 'OWNER') {
+@if (currentUserRole() === BarRole.OWNER) {
   <coaster-fab routerLink="new" queryParamsHandling="preserve" />
 }

@@ -1,5 +1,6 @@
+import { BarRole } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('CategoriesController (e2e)', () => {
@@ -12,7 +13,7 @@ describe('CategoriesController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
+
     // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
@@ -31,7 +32,7 @@ describe('CategoriesController (e2e)', () => {
         members: {
           create: {
             userId: mockUser.id,
-            role: 'OWNER',
+            role: BarRole.OWNER,
           },
         },
       },
@@ -50,16 +51,13 @@ describe('CategoriesController (e2e)', () => {
         icon: 'beer',
       };
 
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/categories`)
-        .send(dto)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/categories`).send(dto).expect(201);
 
       // Verify in database
       const categories = await testSetup.prisma.dbCategory.findMany({
         where: { barId },
       });
-      
+
       expect(categories).toHaveLength(1);
       expect(categories[0].name).toBe(dto.name);
       expect(categories[0].icon).toBe(dto.icon);
@@ -83,9 +81,7 @@ describe('CategoriesController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/categories`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/categories`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(category.id);
@@ -124,9 +120,7 @@ describe('CategoriesController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/categories/${category.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/categories/${category.id}`).expect(200);
 
       // Verify in database
       const deleted = await testSetup.prisma.dbCategory.findUnique({

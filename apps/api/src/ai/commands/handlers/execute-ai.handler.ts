@@ -1,4 +1,5 @@
 import type { BarPermission, BarRole, Category, Order, Product, Table } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel } from 'ai';
@@ -60,7 +61,7 @@ export class ExecuteAiHandler implements ICommandHandler<
       new GetProductsByBarIdQuery(barId),
     );
     const openOrders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(
-      new GetOrdersByBarIdQuery(barId, 'OPEN'),
+      new GetOrdersByBarIdQuery(barId, OrderStatus.OPEN),
     );
     const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
 
@@ -149,7 +150,7 @@ ${ordersList || '(None)'}
           error.stack,
         );
         const errMsg = error.message || String(error);
-        const errorKey = Object.values(ErrorCodes).some(v => v === errMsg) ? errMsg : undefined;
+        const errorKey = Object.values(ErrorCodes).some((v) => v === errMsg) ? errMsg : undefined;
         return {
           success: false,
           text: `Error: ${errMsg}`,
@@ -222,7 +223,9 @@ ${ordersList || '(None)'}
       }
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
-      return { text: result.text || (userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.') };
+      return {
+        text: result.text || (userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.'),
+      };
     } catch (error: any) {
       this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
       return {

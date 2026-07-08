@@ -1,3 +1,4 @@
+import { BarRole } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -42,9 +43,9 @@ describe('CompleteInviteMemberHandler', () => {
       },
     });
 
-    await handler.execute(new CompleteInviteMemberCommand(asUserId('user-1'), asBarId('bar-1'), 'STAFF', 'en'));
+    await handler.execute(new CompleteInviteMemberCommand(asUserId('user-1'), asBarId('bar-1'), BarRole.STAFF, 'en'));
 
-    expect(repository.invite).toHaveBeenCalledWith('bar-1', 'user-1', { role: 'STAFF' });
+    expect(repository.invite).toHaveBeenCalledWith('bar-1', 'user-1', { role: BarRole.STAFF });
     expect(eventBus.publish).toHaveBeenCalledWith(
       new MemberInvitedEvent(asBarId('bar-1'), expect.any(String), 'new@test.com', 'Test Bar', 'User', 'en'),
     );
@@ -54,7 +55,7 @@ describe('CompleteInviteMemberHandler', () => {
     repository.invite.mockRejectedValue(new NotFoundException());
 
     await expect(
-      handler.execute(new CompleteInviteMemberCommand(asUserId('user-1'), asBarId('bar-1'), 'STAFF', 'en')),
+      handler.execute(new CompleteInviteMemberCommand(asUserId('user-1'), asBarId('bar-1'), BarRole.STAFF, 'en')),
     ).rejects.toThrow(NotFoundException);
     expect(eventBus.publish).not.toHaveBeenCalled();
   });

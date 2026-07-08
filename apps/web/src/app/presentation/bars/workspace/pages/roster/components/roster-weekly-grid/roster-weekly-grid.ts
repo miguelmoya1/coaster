@@ -1,7 +1,8 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { BarRole, Shift } from '@coaster/common';
+import type { Shift } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ShiftCard } from '../shift-card/shift-card';
 
@@ -28,7 +29,7 @@ export interface WeeklyDayItem {
   imports: [MatIcon, MatButton, MatIconButton, TranslatePipe, ShiftCard],
   template: `
     <!-- Owner Quick Replicate Action -->
-    @if (currentUserRole() === 'OWNER') {
+    @if (currentUserRole() === BarRole.OWNER) {
       <div
         class="mb-6 bg-linear-to-r from-primary/8 via-primary/3 to-transparent border border-primary/15 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
@@ -83,7 +84,7 @@ export interface WeeklyDayItem {
               }
             </div>
 
-            @if (currentUserRole() === 'OWNER') {
+            @if (currentUserRole() === BarRole.OWNER) {
               <button mat-icon-button (click)="quickCreate.emit(day.date)" title="{{ 'common.create' | translate }}">
                 <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">add</mat-icon>
               </button>
@@ -101,7 +102,7 @@ export interface WeeklyDayItem {
                 [isOwn]="shift.isOwn"
                 [hasPendingExchange]="shift.hasPendingExchange"
                 [isPast]="shift.isPast"
-                [showDelete]="currentUserRole() === 'OWNER'"
+                [showDelete]="currentUserRole() === BarRole.OWNER"
                 [disabled]="isSubmitting()"
                 (delete)="deleteShift.emit(shift)"
               />
@@ -117,6 +118,7 @@ export interface WeeklyDayItem {
   `,
 })
 export class RosterWeeklyGrid {
+  protected readonly BarRole = BarRole;
   readonly weekDays = input.required<WeeklyDayItem[]>();
   readonly currentUserRole = input.required<string | undefined>();
   readonly isSubmitting = input<boolean>(false);

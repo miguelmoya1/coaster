@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -41,7 +42,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       <span [class]="compact() ? 'text-sm font-bold text-white truncate' : 'text-white font-bold title-lg'">
         {{ staffName() }}
       </span>
-      @if (!compact() && roleName() === 'OWNER') {
+      @if (!compact() && roleName() === BarRole.OWNER) {
         <div class="flex items-center gap-2 mt-1">
           <span
             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mat-bg-surface-container-highest mat-text-on-surface-variant"
@@ -114,6 +115,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   },
 })
 export class ShiftCard {
+  protected readonly BarRole = BarRole;
   readonly staffName = input.required<string>();
   readonly staffImage = input<string>('');
   readonly timeRange = input.required<string>();

@@ -16,7 +16,7 @@
     @for (item of order.items; track item.id) {
       <coaster-order-item-card
         [item]="item"
-        [isOpen]="order.status === 'OPEN'"
+        [isOpen]="order.status === OrderStatus.OPEN"
         [isSelected]="isItemSelected(item.id)"
         [selectedQty]="getSelectedQuantities(item.id)"
         (toggleSelect)="toggleSelectItem(item)"
@@ -37,7 +37,7 @@
     />
   }
 
-  @if (order.status === 'OPEN') {
+  @if (order.status === OrderStatus.OPEN) {
     <coaster-order-actions
       [hasTable]="!!order.tableId"
       (addItems)="onAddItems()"

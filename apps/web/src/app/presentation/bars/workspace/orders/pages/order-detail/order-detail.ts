@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
@@ -12,19 +13,31 @@ import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog
 import { Loading } from '../../../../../components/loading/loading';
 import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
-import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
 import { OrderActions } from './components/order-actions/order-actions';
-import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
-import { OrderItemCard } from './components/order-item-card/order-item-card';
 import { OrderBulkActions } from './components/order-bulk-actions/order-bulk-actions';
+import { OrderItemCard } from './components/order-item-card/order-item-card';
+import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
+import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, OrderActions, OrderSummaryCard, OrderItemCard, OrderBulkActions],
+  imports: [
+    Loading,
+    MatButton,
+    MatIconButton,
+    TranslatePipe,
+    MatIcon,
+    OrderTitlePipe,
+    OrderActions,
+    OrderSummaryCard,
+    OrderItemCard,
+    OrderBulkActions,
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
 })
 class OrderDetail {
+  protected readonly OrderStatus = OrderStatus;
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
 

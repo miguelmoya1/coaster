@@ -1,7 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { PaymentMethod } from '@coaster/common';
 import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { OrderRepository } from './order-repository';
 
 describe('OrderRepository', () => {
@@ -70,7 +71,7 @@ describe('OrderRepository', () => {
     const orderId = asOrderId('order-1');
 
     it('should call checkout endpoint', async () => {
-      const promise = service.checkout(barId, orderId, { paymentMethod: 'CASH' });
+      const promise = service.checkout(barId, orderId, { paymentMethod: PaymentMethod.CASH });
       const req = httpMock.expectOne(service.routes.checkout(barId, orderId));
       expect(req.request.method).toBe('POST');
       req.flush(null);

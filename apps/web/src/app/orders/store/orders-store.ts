@@ -12,7 +12,8 @@ import type {
   OrderItemId,
   PaymentMethod,
 } from '@coaster/common';
-import { handleErrorFormField, OrderStatus, Socket, Toast } from '@coaster/core';
+import { OrderStatus } from '@coaster/common';
+import { handleErrorFormField, Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { BarOrderHistory } from '../services/bar-order-history';
 import { BarOrders } from '../services/bar-orders';
@@ -35,7 +36,7 @@ export class OrdersStore {
   readonly #currentBarId = signal<BarId | undefined>(undefined);
   readonly #historyDate = signal<string>(new Date().toISOString().split('T')[0]);
 
-  readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId(), 'OPEN'), {
+  readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId(), OrderStatus.OPEN), {
     parse: (orders) => orderArrayMapper(orders),
   });
 

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
+import { BarRole } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -41,7 +42,7 @@ describe('Pantry', () => {
   const barsStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue({
-        role: 'STAFF',
+        role: BarRole.STAFF,
         permissions: [],
       }),
       hasValue: vi.fn().mockReturnValue(true),

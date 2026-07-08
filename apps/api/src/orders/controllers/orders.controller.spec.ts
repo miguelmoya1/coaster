@@ -1,28 +1,28 @@
 import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asTableId } from '../../core';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { BarPermissionsGuard } from '../../core';
 import { FirebaseAuthGuard } from '../../auth';
+import { asBarId, asOrderId, asOrderItemId, asTableId, BarPermissionsGuard } from '../../core';
 import {
-  CreateOrderCommand,
   AddOrderItemsCommand,
   BulkUpdateOrderCommand,
-  CheckoutOrderCommand,
   CancelOrderCommand,
-  MoveOrderTableCommand,
-  MergeOrdersCommand,
-  RemoveOrderItemCommand,
+  CheckoutOrderCommand,
+  CreateOrderCommand,
   DeleteOrderCommand,
+  MergeOrdersCommand,
+  MoveOrderTableCommand,
+  RemoveOrderItemCommand,
 } from '../commands';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
 import { BulkUpdateDto } from '../dto/bulk-update.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
-import { OrdersController } from './orders.controller';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
+import { OrdersController } from './orders.controller';
 
 describe('OrdersController', () => {
   let controller: OrdersController;
@@ -56,7 +56,7 @@ describe('OrdersController', () => {
   it('getOrders should delegate to query bus for bar ID when no date is provided', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getOrders(asBarId('bar-1'), 'OPEN');
+    await controller.getOrders(asBarId('bar-1'), OrderStatus.OPEN);
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByBarIdQuery));
   });
@@ -91,7 +91,11 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
-    const result = await controller.addItems(asBarId('bar-1'), asOrderId('order-1'), dto as unknown as AddOrderItemsDto);
+    const result = await controller.addItems(
+      asBarId('bar-1'),
+      asOrderId('order-1'),
+      dto as unknown as AddOrderItemsDto,
+    );
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AddOrderItemsCommand));
     expect(result).toBeUndefined();
@@ -110,7 +114,9 @@ describe('OrdersController', () => {
   it('checkout should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'), { paymentMethod: 'CARD' });
+    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'), {
+      paymentMethod: PaymentMethod.CARD,
+    });
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CheckoutOrderCommand));
     expect(result).toBeUndefined();

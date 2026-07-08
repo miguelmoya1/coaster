@@ -1,4 +1,5 @@
 import type { Order } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderTableMovedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,11 +38,11 @@ describe('OrderTableMovedHandler', () => {
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, order);
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
       id: oldTableId,
-      status: 'FREE',
+      status: TableStatus.FREE,
     });
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
       id: newTableId,
-      status: 'OCCUPIED',
+      status: TableStatus.OCCUPIED,
     });
   });
 
@@ -57,11 +58,11 @@ describe('OrderTableMovedHandler', () => {
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_UPDATED, order);
     expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
       id: vi.fn(),
-      status: 'FREE',
+      status: TableStatus.FREE,
     });
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
       id: newTableId,
-      status: 'OCCUPIED',
+      status: TableStatus.OCCUPIED,
     });
   });
 });

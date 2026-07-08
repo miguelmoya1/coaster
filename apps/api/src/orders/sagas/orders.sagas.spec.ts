@@ -1,4 +1,5 @@
 import type { Order } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';
@@ -23,7 +24,7 @@ describe('OrdersSagas', () => {
     const order = {
       id: asOrderId('order-1'),
       barId: asBarId('bar-1'),
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       totalAmount: 10,
       items: [
         { productId: asProductId('prod-1'), quantity: 2 },

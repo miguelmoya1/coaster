@@ -1,4 +1,5 @@
 import type { AddOrderItemsDto } from '@coaster/common';
+import { OrderStatus } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -44,7 +45,7 @@ describe('AddOrderItemsHandler', () => {
   });
 
   it('should throw BadRequestException if order is not open', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'CLOSED' });
+    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: OrderStatus.CLOSED });
 
     await expect(handler.execute(new AddOrderItemsCommand(barId, orderId, dto))).rejects.toThrow(BadRequestException);
   });
@@ -53,7 +54,7 @@ describe('AddOrderItemsHandler', () => {
     const order = {
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       totalAmount: 10,
       createdAt: new Date(),
       updatedAt: new Date(),

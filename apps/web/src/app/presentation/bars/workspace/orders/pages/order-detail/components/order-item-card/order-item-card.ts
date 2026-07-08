@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { OrderItem } from '@coaster/common';
+import { DeliveryStatus, OrderItem, PaymentStatus } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -12,7 +12,9 @@ import { PricePipe } from '../../../../../pipes/price/price';
   template: `
     <div
       class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
-      [class.opacity-50]="item().paymentStatus === 'PAID' && item().deliveryStatus === 'SERVED'"
+      [class.opacity-50]="
+        item().paymentStatus === PaymentStatus.PAID && item().deliveryStatus === DeliveryStatus.SERVED
+      "
       [class.border-primary/20]="isSelected()"
       [class.bg-primary/5]="isSelected()"
       [class.cursor-pointer]="isOpen()"
@@ -71,7 +73,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           </div>
         }
         <div class="flex gap-1.5 mt-1">
-          @if (item().paymentStatus === 'PAID') {
+          @if (item().paymentStatus === PaymentStatus.PAID) {
             <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
               {{ 'orders.paid' | translate }}
             </span>
@@ -80,7 +82,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
               {{ 'orders.partial_payment' | translate }}
             </span>
           }
-          @if (item().deliveryStatus === 'SERVED') {
+          @if (item().deliveryStatus === DeliveryStatus.SERVED) {
             <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
               {{ 'orders.served' | translate }}
             </span>
@@ -121,6 +123,8 @@ import { PricePipe } from '../../../../../pipes/price/price';
   `,
 })
 export class OrderItemCard {
+  protected readonly PaymentStatus = PaymentStatus;
+  protected readonly DeliveryStatus = DeliveryStatus;
   public readonly item = input.required<OrderItem & { productName?: string }>();
   public readonly isOpen = input.required<boolean>();
   public readonly isSelected = input.required<boolean>();
