@@ -19,17 +19,17 @@ import type {
   UserId,
 } from '@coaster/common';
 
-// Casting functions
+// Basic validators
+export const asUserId = (id: string): UserId => id as UserId;
 export const asBarId = (id: string): BarId => id as BarId;
 export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
+export const asTableId = (id: string): TableId => id as TableId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
+export const asProductId = (id: string): ProductId => id as ProductId;
 export const asOrderId = (id: string): OrderId => id as OrderId;
 export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;
-export const asProductId = (id: string): ProductId => id as ProductId;
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
 export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
-export const asTableId = (id: string): TableId => id as TableId;
-export const asUserId = (id: string): UserId => id as UserId;
 
 // Mapper validators
 export const asBarRole = (role: string): BarRole => {
