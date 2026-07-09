@@ -38,11 +38,13 @@ class NewOrder {
   readonly searchQuery = signal<string>('');
   readonly cart = signal<Map<string, CartItem>>(new Map());
   readonly selectedTableId = signal<string | undefined>(undefined);
+  readonly orderNotes = signal<string>('');
   readonly isSubmitting = signal(false);
 
   readonly existingOrderId = signal<OrderId | undefined>(undefined);
   readonly isAddItemsMode = computed(() => !!this.existingOrderId());
   readonly tableLocked = signal(false);
+  #initialNotesLoaded = false;
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
@@ -116,6 +118,22 @@ class NewOrder {
         this.tableLocked.set(true);
       }
     });
+
+    effect(() => {
+      const orderId = this.existingOrderId();
+      if (!orderId || this.#initialNotesLoaded) return;
+      
+      const orders = this.#ordersStore.list.value();
+      if (!orders) return;
+      
+      const existingOrder = orders.find(o => o.id === orderId);
+      if (existingOrder) {
+        if (existingOrder.notes) {
+          this.orderNotes.set(existingOrder.notes);
+        }
+        this.#initialNotesLoaded = true;
+      }
+    });
   }
 
   goBack() {
@@ -133,9 +151,19 @@ class NewOrder {
         productName: product.name,
         price: product.price,
         quantity: 1,
+        notes: '',
       });
     }
     this.cart.set(current);
+  }
+
+  updateItemNotes(event: { productId: string; notes: string }) {
+    const current = new Map(this.cart());
+    const item = current.get(event.productId);
+    if (item) {
+      current.set(event.productId, { ...item, notes: event.notes });
+      this.cart.set(current);
+    }
   }
 
   incrementItem(productId: string) {
@@ -169,19 +197,25 @@ class NewOrder {
       const itemDtos = items.map((item) => ({
         productId: asProductId(item.productId),
         quantity: item.quantity,
+        notes: item.notes,
       }));
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#ordersStore.addItems(this.barId(), orderId, { items: itemDtos });
+        await this.#ordersStore.addItems(this.barId(), orderId, { 
+          items: itemDtos,
+          notes: this.orderNotes()
+        });
       } else {
         await this.#ordersStore.create(this.barId(), {
           tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
+          notes: this.orderNotes(),
         });
       }
 
       this.cart.set(new Map());
+      this.orderNotes.set('');
       this.#ordersStore.reloadOrders();
       this.#tablesStore.reload();
 

@@ -82,8 +82,10 @@ export class OrdersWriteRepository {
               productId: item.productId,
               quantity: item.quantity,
               priceAtPurchase: priceMap.get(item.productId) ?? 0,
+              notes: item.notes?.substring(0, 500) || null,
             })),
           },
+          notes: dto.notes?.substring(0, 500) || null,
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
@@ -116,12 +118,16 @@ export class OrdersWriteRepository {
           productId: item.productId,
           quantity: item.quantity,
           priceAtPurchase: priceMap.get(item.productId) ?? 0,
+          notes: item.notes?.substring(0, 500) || null,
         })),
       });
 
       return tx.dbOrder.update({
         where: { id: orderId },
-        data: { totalAmount: currentTotalAmount + additionalAmount },
+        data: { 
+          totalAmount: currentTotalAmount + additionalAmount,
+          ...(dto.notes !== undefined ? { notes: dto.notes?.substring(0, 500) || null } : {})
+        },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
           table: true,

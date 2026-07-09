@@ -51,6 +51,12 @@ import { TranslatePipe } from '@ngx-translate/core';
           </span>
         </div>
       }
+      @if (notes()) {
+        <div class="flex items-start gap-1.5 mt-2 bg-surface-container p-2 rounded-lg text-sm text-on-surface-variant">
+          <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0! shrink-0">notes</mat-icon>
+          <span class="leading-tight">{{ notes() }}</span>
+        </div>
+      }
     </div>
 
     @if (compact()) {
@@ -120,6 +126,7 @@ export class ShiftCard {
   readonly staffImage = input<string>('');
   readonly timeRange = input.required<string>();
   readonly roleName = input.required<string>();
+  readonly notes = input<string>();
   readonly roleColorClass = input('text-primary bg-primary');
   readonly disabled = input(false);
   readonly isOwn = input(false);

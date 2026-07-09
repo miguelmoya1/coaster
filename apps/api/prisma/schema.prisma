@@ -225,6 +225,7 @@ model DbOrder {
   amountPaidCard Int             @default(0)
   items          DbOrderItem[]
   paymentMethod  DbPaymentMethod @default(NONE)
+  notes          String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
@@ -246,6 +247,7 @@ model DbOrderItem {
   paymentStatus    DbPaymentStatus  @default(PENDING)
   deliveryStatus   DbDeliveryStatus @default(PENDING)
   paymentMethod    DbPaymentMethod  @default(NONE)
+  notes            String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

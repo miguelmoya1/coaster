@@ -45,6 +45,12 @@ import { PricePipe } from '../../../../../pipes/price/price';
             </span>
           }
         </div>
+        @if (order().notes) {
+          <div class="flex items-start gap-1 mt-2 text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg">
+            <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0! shrink-0">notes</mat-icon>
+            <span class="leading-tight break-all">{{ order().notes }}</span>
+          </div>
+        }
       </div>
       <span class="text-2xl font-black" [class.text-primary]="order().status === OrderStatus.OPEN">
         {{ order().totalAmount | price }}

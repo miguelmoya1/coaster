@@ -92,6 +92,12 @@ import { PricePipe } from '../../../../../pipes/price/price';
             </span>
           }
         </div>
+        @if (item().notes) {
+          <div class="flex items-start gap-1 mt-1 text-xs text-on-surface-variant italic">
+            <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0! shrink-0">notes</mat-icon>
+            <span class="leading-tight">{{ item().notes }}</span>
+          </div>
+        }
       </div>
 
       <!-- In-row Compact Adjustment Controls -->

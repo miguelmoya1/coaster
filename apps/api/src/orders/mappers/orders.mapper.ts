@@ -34,6 +34,7 @@ export const OrdersMapper = {
       amountPaidCard: dbOrder.amountPaidCard,
       items: dbOrder.items.map((item) => OrdersMapper.itemToDomain(item)),
       paymentMethod: asPaymentMethod(dbOrder.paymentMethod),
+      notes: dbOrder.notes || undefined,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.updatedAt.getTime()).toString(),
     };
@@ -54,6 +55,7 @@ export const OrdersMapper = {
       paymentStatus: asPaymentStatus(dbItem.paymentStatus),
       deliveryStatus: asDeliveryStatus(dbItem.deliveryStatus),
       paymentMethod: asPaymentMethod(dbItem.paymentMethod),
+      notes: dbItem.notes || undefined,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbItem.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(dbItem.updatedAt.getTime()).toString(),
     };

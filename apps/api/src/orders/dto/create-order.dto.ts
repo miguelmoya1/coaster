@@ -1,7 +1,7 @@
 import type { CreateOrderDto as ICreateOrderDto, TableId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { CreateOrderItemDto } from './create-order-item.dto';
 
 export class CreateOrderDto implements ICreateOrderDto {
@@ -14,4 +14,8 @@ export class CreateOrderDto implements ICreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   declare items: CreateOrderItemDto[];
+
+  @IsString({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare notes?: string;
 }

@@ -24,6 +24,7 @@ export interface OrderItem {
   paymentStatus: PaymentStatus;
   deliveryStatus: DeliveryStatus;
   paymentMethod: PaymentMethod;
+  notes?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,6 +40,7 @@ export interface Order {
   amountPaidCard: number;
   items: OrderItem[];
   paymentMethod: PaymentMethod;
+  notes?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -46,15 +48,18 @@ export interface Order {
 export interface CreateOrderItemDto {
   productId: ProductId;
   quantity: number;
+  notes?: string;
 }
 
 export interface CreateOrderDto {
   tableId?: TableId;
   items: CreateOrderItemDto[];
+  notes?: string;
 }
 
 export interface AddOrderItemsDto {
   items: CreateOrderItemDto[];
+  notes?: string;
 }
 
 export interface MoveTableDto {

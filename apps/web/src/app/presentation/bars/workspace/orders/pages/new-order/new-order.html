@@ -11,22 +11,28 @@
   </h2>
 </div>
 
-<div class="flex flex-col gap-6">
-  <div class="flex flex-col gap-4">
+<div class="flex flex-col gap-6 relative">
+  <div class="flex flex-col gap-4 w-full min-w-0">
     <coaster-pos-search [(query)]="searchQuery" />
     <coaster-pos-category-selector [categories]="categories()" [(selectedCategory)]="selectedCategory" />
     <coaster-pos-products-list [products]="filteredProducts()" (productClicked)="addToCart($event)" />
   </div>
 
-  <coaster-pos-cart
-    [items]="cartItems()"
-    [tables]="isAddItemsMode() ? [] : tables()"
-    [selectedTableId]="selectedTableId()"
-    [disabled]="isSubmitting()"
-    [tableLocked]="tableLocked()"
-    (incrementClicked)="incrementItem($event)"
-    (decrementClicked)="decrementItem($event)"
-    (tableSelected)="selectedTableId.set($event)"
-    (submitClicked)="submitOrder()"
-  />
+  <div class="w-full shrink-0 sticky bottom-4 z-10 pb-4">
+    <coaster-pos-cart
+      class="block bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant/10 p-4"
+      [items]="cartItems()"
+      [tables]="isAddItemsMode() ? [] : tables()"
+      [selectedTableId]="selectedTableId()"
+      [disabled]="isSubmitting()"
+      [tableLocked]="tableLocked()"
+      (incrementClicked)="incrementItem($event)"
+      (decrementClicked)="decrementItem($event)"
+      (tableSelected)="selectedTableId.set($event)"
+      (itemNotesChanged)="updateItemNotes($event)"
+      [orderNotes]="orderNotes()"
+      (orderNotesChanged)="orderNotes.set($event)"
+      (submitClicked)="submitOrder()"
+    />
+  </div>
 </div>

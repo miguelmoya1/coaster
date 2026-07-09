@@ -276,6 +276,8 @@
     "all_categories": "Todos",
     "assign_table": "Asignar Mesa",
     "bar_order": "Pedido de Barra",
+    "item_notes_placeholder": "Notas (ej. sin hielo)",
+    "order_notes_placeholder": "Notas del pedido (ej. mesa exterior)",
     "bar_order_title": "Pedido de Barra",
     "bar_orders": "Pedidos de Barra",
     "bulk_actions_title": "Acciones en Grupo",

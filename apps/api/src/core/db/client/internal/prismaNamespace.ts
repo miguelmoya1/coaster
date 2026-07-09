@@ -1479,6 +1479,7 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCash: 'amountPaidCash',
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1499,6 +1500,7 @@ export const DbOrderItemScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   deliveryStatus: 'deliveryStatus',
   paymentMethod: 'paymentMethod',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -276,6 +276,8 @@
     "all_categories": "All",
     "assign_table": "Assign Table",
     "bar_order": "Bar Order",
+    "item_notes_placeholder": "Notes (e.g. no ice)",
+    "order_notes_placeholder": "Order notes (e.g. outside table)",
     "bar_order_title": "Bar Order",
     "bar_orders": "Bar Orders",
     "bulk_actions_title": "Group Actions",
