@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
@@ -119,7 +120,7 @@ export class ProductsStore {
   public async create(createProductDto: CreateProductDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
     await this.#createProduct.execute(barId, createProductDto);
@@ -129,7 +130,7 @@ export class ProductsStore {
   public async update(productId: ProductId, updateProductDto: UpdateProductDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
     await this.#updateProduct.execute(barId, productId, updateProductDto);
@@ -144,7 +145,7 @@ export class ProductsStore {
   public async updateStock(productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
     await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
@@ -159,7 +160,7 @@ export class ProductsStore {
   public async delete(productId: ProductId) {
     const barId = this.#currentBarId();
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
     await this.#deleteProduct.execute(barId, productId);

@@ -1,7 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type { BarId, ICategoryTemplate, IProductTemplate } from '@coaster/common';
-
 import { GetCategoryTemplates } from '../services/get-category-templates';
 import { GetProductTemplates } from '../services/get-product-templates';
 import { ImportTemplatesToBar } from '../services/import-templates-to-bar';

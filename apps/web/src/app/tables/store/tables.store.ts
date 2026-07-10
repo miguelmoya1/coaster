@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
+import { ErrorCodes, TableStatus } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { BarTables } from '../services/bar-tables';
@@ -118,7 +118,7 @@ export class TablesStore {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
     await this.#createTable.execute(barId, createTableDto);
     this.reload();
@@ -128,7 +128,7 @@ export class TablesStore {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
     await this.#deleteTable.execute(barId, tableId);
     this.#listResource.update((tables) => {
@@ -143,7 +143,7 @@ export class TablesStore {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      throw new Error('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
     await this.#updateTable.execute(barId, tableId, updateTableDto);
     this.#listResource.update((tables) => {
