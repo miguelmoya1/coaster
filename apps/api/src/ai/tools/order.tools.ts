@@ -1,6 +1,6 @@
 import { PaymentMethod } from '@coaster/common';
 import { Logger } from '@nestjs/common';
-import { tool } from 'ai';
+import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
 import { asOrderId, asOrderItemId, asProductId, asTableId } from '../../core';
 import {
@@ -17,7 +17,7 @@ const logger = new Logger('OrderTools');
 export const createOrderTools = (data: AiToolsData) => ({
   createOrder: tool({
     description: 'Create a new open order for a specific table in the bar.',
-    inputSchema: z.object({
+    inputSchema: zodSchema(z.object({
       tableId: z
         .string()
         .describe(
@@ -41,18 +41,14 @@ export const createOrderTools = (data: AiToolsData) => ({
           }),
         )
         .describe('List of exact product UUIDs and their quantities.'),
-    }),
-    execute: async ({ tableId, items }): Promise<PreparedAction | string> => {
+    })),
+    execute: async ({ tableId, items }: { tableId: string; items: { productId: string; quantity: number }[] }): Promise<PreparedAction | string> => {
       logger.debug(`[AI Tool] 'createOrder' called with tableId="${tableId}", items=${JSON.stringify(items)}`);
       const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to create order.`);
-        return {
-          isError: true,
-          errorKey: 'ai_voice.errors.products_not_found',
-          text: `Error: None of the requested products are available in this bar's menu.`,
-        } as any;
+        return `Error: None of the requested products are available in this bar's menu.`;
       }
       return {
         permission: 'bar:create-order',
@@ -66,7 +62,7 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   addOrderItems: tool({
     description: 'Add more items to an existing open order.',
-    inputSchema: z.object({
+    inputSchema: zodSchema(z.object({
       orderId: z
         .string()
         .describe(
@@ -90,18 +86,14 @@ export const createOrderTools = (data: AiToolsData) => ({
           }),
         )
         .describe('List of product UUIDs and their quantities.'),
-    }),
-    execute: async ({ orderId, items }): Promise<PreparedAction | string> => {
+    })),
+    execute: async ({ orderId, items }: { orderId: string; items: { productId: string; quantity: number }[] }): Promise<PreparedAction | string> => {
       logger.debug(`[AI Tool] 'addOrderItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`);
       const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
       if (validItems.length === 0) {
         logger.warn(`[AI Tool] No valid items found to add to order.`);
-        return {
-          isError: true,
-          errorKey: 'ai_voice.errors.products_not_found',
-          text: `Error: None of the requested products are available in this bar's menu.`,
-        } as any;
+        return `Error: None of the requested products are available in this bar's menu.`;
       }
       return {
         permission: 'bar:update-order',
@@ -114,7 +106,7 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   checkoutOrder: tool({
     description: 'Collect payment and close an open order.',
-    inputSchema: z.object({
+    inputSchema: zodSchema(z.object({
       orderId: z
         .string()
         .describe(
@@ -125,8 +117,8 @@ export const createOrderTools = (data: AiToolsData) => ({
         .describe(
           'Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified.',
         ),
-    }),
-    execute: async ({ orderId, paymentMethod }): Promise<PreparedAction> => {
+    })),
+    execute: async ({ orderId, paymentMethod }: { orderId: string; paymentMethod: PaymentMethod }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'checkoutOrder' called with orderId="${orderId}", paymentMethod="${paymentMethod}"`);
       return {
         permission: 'bar:checkout-order',
@@ -137,7 +129,7 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   serveOrPayItems: tool({
     description: 'Update the preparation (served) or payment status of items in an open order.',
-    inputSchema: z.object({
+    inputSchema: zodSchema(z.object({
       orderId: z.string().describe('The UUID of the order to update.'),
       items: z
         .array(
@@ -168,8 +160,8 @@ export const createOrderTools = (data: AiToolsData) => ({
           }),
         )
         .describe('List of order items to update.'),
-    }),
-    execute: async ({ orderId, items }): Promise<PreparedAction> => {
+    })),
+    execute: async ({ orderId, items }: { orderId: string; items: { itemId: string; servedQuantity?: number; paidQuantity?: number; paymentMethod?: PaymentMethod }[] }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'serveOrPayItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`);
       return {
         permission: 'bar:update-order',
@@ -187,12 +179,12 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   cancelOrder: tool({
     description: 'Cancel an open order.',
-    inputSchema: z.object({
+    inputSchema: zodSchema(z.object({
       orderId: z
         .string()
         .describe('The UUID of the order to cancel. Find the order UUID in the active open orders list.'),
-    }),
-    execute: async ({ orderId }): Promise<PreparedAction> => {
+    })),
+    execute: async ({ orderId }: { orderId: string }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'cancelOrder' called with orderId="${orderId}"`);
       return {
         permission: 'bar:cancel-order',

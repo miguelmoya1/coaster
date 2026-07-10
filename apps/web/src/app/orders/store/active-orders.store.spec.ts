@@ -97,8 +97,7 @@ describe('ActiveOrdersStore', () => {
 
     it('should create order and handle error', async () => {
       createOrderMock.execute.mockRejectedValueOnce(new Error('Test error'));
-      const result = await store.create(barId, { items: [] });
-      expect(result.error).toBe('Test error');
+      await expect(store.create(barId, { items: [] })).rejects.toThrow('Test error');
     });
 
     it('should call manageOrder.addItems and handle success', async () => {
@@ -111,11 +110,9 @@ describe('ActiveOrdersStore', () => {
       expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(barId, orderId, { items: [] });
     });
 
-    it('should handle manageOrder errors and show toast', async () => {
+    it('should propagate manageOrder errors', async () => {
       manageOrderMock.checkout.mockRejectedValueOnce(new Error('Checkout error'));
-      
       await expect(store.checkout(barId, orderId, PaymentMethod.CASH)).rejects.toThrow('Checkout error');
-      expect(toastMock.error).toHaveBeenCalledWith('Checkout error');
     });
   });
 });

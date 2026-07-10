@@ -21,7 +21,7 @@ describe('CreateBarHandler', () => {
   });
 
   it('should create a bar', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER, language: "es" };
     const dto = { name: 'New Bar' };
     repository.create.mockResolvedValue({
       id: 'bar-new',

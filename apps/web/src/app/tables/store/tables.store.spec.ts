@@ -84,7 +84,7 @@ describe('TablesStore', () => {
       reloadReq.flush([]);
 
       const result = await createPromise;
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it('should delete table and update local list', async () => {
@@ -141,9 +141,9 @@ describe('TablesStore', () => {
 
     it('should handle errors when no barId is set', async () => {
       service.setBarId(undefined);
-      expect(await service.create({} as any)).not.toBeNull();
-      expect(await service.update('t-1' as any, {} as any)).not.toBeNull();
-      expect(await service.delete('t-1' as any)).not.toBeNull();
+      await expect(service.create({} as any)).rejects.toThrow('MISSING_BAR_ID');
+      await expect(service.update('t-1' as any, {} as any)).rejects.toThrow('MISSING_BAR_ID');
+      await expect(service.delete('t-1' as any)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 

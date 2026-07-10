@@ -21,7 +21,7 @@ describe('GetBarsForUserHandler', () => {
   });
 
   it('should return bars for user', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'a@a.com', active: true, role: DbRole.USER, language: "es" };
     repository.findByUserId.mockResolvedValue([]);
 
     const result = await handler.execute(new GetBarsForUserQuery(user));

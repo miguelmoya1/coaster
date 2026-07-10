@@ -42,7 +42,7 @@ describe('BarsController', () => {
 
   it('createBar should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole, language: 'es' };
     const dto = { name: 'El Bar' };
 
     await controller.createBar(dto, user);
@@ -52,7 +52,7 @@ describe('BarsController', () => {
 
   it('getBars should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole, language: 'es' };
 
     await controller.getBars(user);
 

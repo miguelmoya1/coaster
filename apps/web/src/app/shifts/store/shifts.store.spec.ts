@@ -79,13 +79,12 @@ describe('ShiftsStore', () => {
       reloadReq.flush([]);
 
       const result = await createPromise;
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it('should return error if no barId', async () => {
       service.setBarId(undefined);
-      const res = await service.create({} as any);
-      expect(res).toBeNull();
+      await expect(service.create({} as any)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 
@@ -106,13 +105,12 @@ describe('ShiftsStore', () => {
       reloadReq.flush([]);
 
       const result = await deletePromise;
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it('should return error if no barId', async () => {
       service.setBarId(undefined);
-      const res = await service.delete('s-1');
-      expect(res).toBeNull();
+      await expect(service.delete('s-1')).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 

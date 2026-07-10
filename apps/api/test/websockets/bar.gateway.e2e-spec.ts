@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, describe, it, expect } from 'vitest';
-import { E2eTestSetup } from '../utils/e2e-setup';
 import { io, Socket } from 'socket.io-client';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { E2eTestSetup } from '../utils/e2e-setup';
 
 describe('BarGateway (e2e)', () => {
   const testSetup = new E2eTestSetup();
@@ -8,20 +8,14 @@ describe('BarGateway (e2e)', () => {
 
   beforeAll(async () => {
     await testSetup.setup();
-    
-    // Connect a socket client to the fastify server
-    const address = testSetup.app.getHttpServer().address();
-    let port = 0;
-    if (address && typeof address !== 'string') {
-      port = address.port;
-    }
-    
-    // We need the server to be listening on a real port for WS client to connect
     await testSetup.app.listen(0);
-    const serverUrl = `http://localhost:${testSetup.app.getHttpServer().address()?.port}`;
+
+    const address = testSetup.app.getHttpServer().address();
+    const port = address && typeof address !== 'string' ? address.port : 0;
+    const serverUrl = `http://localhost:${port}`;
 
     socket = io(serverUrl, { transports: ['websocket'] });
-    
+
     await new Promise<void>((resolve) => {
       socket.on('connect', () => {
         resolve();
@@ -42,9 +36,9 @@ describe('BarGateway (e2e)', () => {
 
   it('should join a bar room via joinBar event', async () => {
     const barId = 'test-bar-123';
-    
+
     socket.emit('joinBar', barId);
-    
+
     // Currently the server responds with a message when joined, let's wait for any ack if present
     // The Gateway handler returns { event: 'joined', data: barId } but socket.io doesn't auto-send it to the client
     // unless using emit or WsResponse
@@ -60,9 +54,9 @@ describe('BarGateway (e2e)', () => {
 
   it('should leave a bar room via leaveBar event', async () => {
     const barId = 'test-bar-123';
-    
+
     socket.emit('leaveBar', barId);
-    
+
     const response = await new Promise<any>((resolve) => {
       socket.on('left', (data) => resolve(data));
       setTimeout(() => resolve('timeout'), 1000);

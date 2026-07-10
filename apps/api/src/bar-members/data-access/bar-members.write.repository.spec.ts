@@ -36,7 +36,7 @@ describe('BarMembersWriteRepository', () => {
     it('should call dbBarMember.upsert with correct parameters', async () => {
       const barId = asBarId('bar-1');
       const userId = asUserId('user-1');
-      const createBarMemberDto = { role: DbBarRole.WAITER, active: false };
+      const createBarMemberDto = { role: DbBarRole.STAFF, active: false };
       const expectedResult = { id: 'member-1' };
       vi.mocked(dbService.dbBarMember.upsert).mockResolvedValue(expectedResult as any);
 

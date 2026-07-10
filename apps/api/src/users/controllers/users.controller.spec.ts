@@ -31,7 +31,7 @@ describe('UsersController', () => {
   });
 
   it('findMe should return the user directly using mappers', () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const, language: 'es' };
     const result = controller.findMe(user);
     expect(result?.id).toBe(user.id);
   });
@@ -42,7 +42,7 @@ describe('UsersController', () => {
   });
 
   it('updateMe should delegate to command bus', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const };
+    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const, language: 'es' };
     const dto = { name: 'New Name' };
     commandBus.execute.mockResolvedValue(undefined);
 

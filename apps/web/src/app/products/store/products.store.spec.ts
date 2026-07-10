@@ -204,8 +204,7 @@ describe('ProductsStore', () => {
 
     it('should return error if no bar selected', async () => {
       store.setBarId(null);
-      const res = await store.delete(mockProducts[0].id);
-      expect(res).not.toBeNull();
+      await expect(store.delete(mockProducts[0].id)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 
@@ -231,8 +230,7 @@ describe('ProductsStore', () => {
 
     it('should return error if no bar selected', async () => {
       store.setBarId(null);
-      const res = await store.create({ name: 'New', price: 100 } as any);
-      expect(res).not.toBeNull();
+      await expect(store.create({ name: 'New', price: 100 } as any)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 

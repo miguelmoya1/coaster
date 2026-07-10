@@ -48,7 +48,7 @@ describe('ShiftExchangesController', () => {
 
   it('createExchange should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole, language: 'es' };
     const dto = { targetId: asUserId('user-2') };
 
     await controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto, user);
@@ -58,7 +58,7 @@ describe('ShiftExchangesController', () => {
 
   it('acceptExchange should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
-    const user = { id: asUserId('user-2'), name: 'User 2', email: 'u2@u.com', active: true, role: 'USER' as DbRole };
+    const user = { id: asUserId('user-2'), name: 'User 2', email: 'u2@u.com', active: true, role: 'USER' as DbRole, language: 'es' };
 
     await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
 
@@ -67,7 +67,7 @@ describe('ShiftExchangesController', () => {
 
   it('deleteExchange should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
-    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole };
+    const user = { id: asUserId('user-1'), name: 'User', email: 'u@u.com', active: true, role: 'USER' as DbRole, language: 'es' };
 
     await controller.deleteExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
 
