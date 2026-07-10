@@ -6,7 +6,7 @@ import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { BarMember } from '@coaster/common';
-import { DateFormatterService, asUserId } from '@coaster/core';
+import { DateFormatterService, asUserId, handleErrorFormField } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -192,18 +192,18 @@ export class CreateShiftForm {
             endTimeDate.setDate(endTimeDate.getDate() + 1);
           }
 
-          const error = await this.#shiftsStore.create({
-            userId: asUserId(raw.userId),
-            startTime: startTimeDate.toISOString(),
-            endTime: endTimeDate.toISOString(),
-            notes: raw.notes || undefined,
-          });
-
-          if (!error) {
+          try {
+            await this.#shiftsStore.create({
+              userId: asUserId(raw.userId),
+              startTime: startTimeDate.toISOString(),
+              endTime: endTimeDate.toISOString(),
+              notes: raw.notes || undefined,
+            });
             this.created.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          return error;
         },
       },
     },

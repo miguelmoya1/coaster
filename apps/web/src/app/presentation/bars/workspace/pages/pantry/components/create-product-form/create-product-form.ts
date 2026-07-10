@@ -5,7 +5,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, CreateProductDto } from '@coaster/common';
-import { asCategoryId } from '@coaster/core';
+import { asCategoryId, handleErrorFormField } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
@@ -61,7 +61,11 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           }
         </mat-form-field>
 
-        <coaster-number-input data-testid="product-price-input" [formField]="form.price" [label]="'Precio (Céntimos)'" />
+        <coaster-number-input
+          data-testid="product-price-input"
+          [formField]="form.price"
+          [label]="'Precio (Céntimos)'"
+        />
 
         <coaster-number-input
           [formField]="form.currentStock"
@@ -151,13 +155,13 @@ export class CreateProductForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = await this.#productsStore.create(payload);
-
-          if (!error) {
+          try {
+            await this.#productsStore.create(payload);
             this.created.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          return error;
         },
       },
     },

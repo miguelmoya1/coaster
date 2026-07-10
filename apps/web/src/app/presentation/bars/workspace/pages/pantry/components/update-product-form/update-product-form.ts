@@ -5,7 +5,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, UpdateProductDto } from '@coaster/common';
-import { asCategoryId } from '@coaster/core';
+import { asCategoryId, handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
@@ -135,13 +135,14 @@ export class UpdateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const error = await this.#productStore.update(this.product().id, payload);
 
-          if (!error) {
+          try {
+            await this.#productStore.update(this.product().id, payload);
             this.edited.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          return error;
         },
       },
     },

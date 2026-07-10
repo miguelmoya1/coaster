@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateShiftDto } from '@coaster/common';
-import { asShiftId } from '@coaster/core';
-import { handleErrorFormField, Socket } from '@coaster/core';
+import { ErrorCodes } from '@coaster/common';
+import { asShiftId, Socket } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';
@@ -68,31 +68,21 @@ export class ShiftsStore {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      return null;
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#createShift.execute(barId, createShiftDto);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#createShift.execute(barId, createShiftDto);
+    this.reload();
   }
 
   public async delete(shiftId: string) {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      return null;
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#deleteShift.execute(barId, asShiftId(shiftId));
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#deleteShift.execute(barId, asShiftId(shiftId));
+    this.reload();
   }
 }

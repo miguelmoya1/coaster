@@ -145,7 +145,11 @@ class Tables {
       return;
     }
 
-    await this.#tablesStore.delete(table.id);
+    try {
+      await this.#tablesStore.delete(table.id);
+    } catch (error) {
+      console.error(error);
+    }
     this.tableToDelete.set(null);
   }
 }

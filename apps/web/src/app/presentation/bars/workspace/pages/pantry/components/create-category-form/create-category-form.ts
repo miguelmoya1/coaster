@@ -4,6 +4,7 @@ import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
+import { handleErrorFormField } from '@coaster/core';
 import type { CreateCategoryDto } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -90,15 +91,14 @@ export class CreateCategoryForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const error = await this.#categoryStore.create(payload);
-
-          if (error) {
-            return error;
+          
+          try {
+            await this.#categoryStore.create(payload);
+            this.created.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          this.created.emit();
-
-          return null;
         },
       },
     },

@@ -320,29 +320,29 @@ export default class Roster {
   protected async handleAcceptExchange(exchangeId: ShiftExchangeId) {
     this.isSubmitting.set(true);
 
-    const error = await this.#exchangesStore.accept(exchangeId);
-    if (error) {
+    try {
+      await this.#exchangesStore.accept(exchangeId);
+      this.#shiftsStore.reload();
+      this.#exchangesStore.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
       this.isSubmitting.set(false);
-      return;
     }
-
-    this.#shiftsStore.reload();
-    this.#exchangesStore.reload();
-    this.isSubmitting.set(false);
   }
 
   protected async handleOfferExchange(shiftId: ShiftId) {
     this.isSubmitting.set(true);
 
-    const error = await this.#exchangesStore.request(shiftId, {});
-    if (error) {
+    try {
+      await this.#exchangesStore.request(shiftId, {});
+      this.#shiftsStore.reload();
+      this.#exchangesStore.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
       this.isSubmitting.set(false);
-      return;
     }
-
-    this.#shiftsStore.reload();
-    this.#exchangesStore.reload();
-    this.isSubmitting.set(false);
   }
 
   protected handleClickDeleteShift(shift: DailyShiftItem) {
@@ -373,12 +373,15 @@ export default class Roster {
     if (!shift) return;
 
     this.isSubmitting.set(true);
-    const error = await this.#shiftsStore.delete(shift.id);
-    if (!error) {
+    try {
+      await this.#shiftsStore.delete(shift.id);
       this.shiftDeleting.set(null);
       this.#exchangesStore.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.isSubmitting.set(false);
     }
-    this.isSubmitting.set(false);
   }
 
   protected handleClickDeleteExchange(exchange: PendingExchangeItem) {
@@ -409,12 +412,15 @@ export default class Roster {
     if (!exchange) return;
 
     this.isSubmitting.set(true);
-    const error = await this.#exchangesStore.delete(exchange.id);
-    if (!error) {
+    try {
+      await this.#exchangesStore.delete(exchange.id);
       this.exchangeDeleting.set(null);
       this.#shiftsStore.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.isSubmitting.set(false);
     }
-    this.isSubmitting.set(false);
   }
 
   protected handleNext() {

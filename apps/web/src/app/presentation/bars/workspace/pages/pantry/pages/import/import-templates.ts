@@ -1,5 +1,7 @@
 import { LowerCasePipe } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId } from '@coaster/common';
@@ -7,8 +9,6 @@ import { Toast } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../../components/loading/loading';
 
 import { PricePipe } from '../../../../pipes/price/price';
@@ -120,22 +120,22 @@ export default class ImportTemplates {
     if (ids.length === 0) return;
 
     this.isSubmitting.set(true);
-    const { err } = await this.#templatesStore.importToBar(barId, ids);
-    this.isSubmitting.set(false);
 
-    if (err) {
-      this.#toast.error(this.#translate.instant('common.error'));
-      return;
+    try {
+      await this.#templatesStore.importToBar(barId, ids);
+      this.isSubmitting.set(false);
+
+      const translationResult = this.#translate.instant('pantry.import_success');
+      this.#toast.success(translationResult);
+
+      // Reload stores to refresh the lists in the pantry view
+      this.#categoriesStore.reloadCategories();
+      this.#productsStore.reloadProducts();
+
+      // Navigate back to the pantry
+      this.#router.navigate(['/bars', barId, 'pantry']);
+    } catch {
+      this.isSubmitting.set(false);
     }
-
-    const translationResult = this.#translate.instant('pantry.import_success');
-    this.#toast.success(translationResult);
-
-    // Reload stores to refresh the lists in the pantry view
-    this.#categoriesStore.reloadCategories();
-    this.#productsStore.reloadProducts();
-
-    // Navigate back to the pantry
-    this.#router.navigate(['/bars', barId, 'pantry']);
   }
 }

@@ -235,7 +235,11 @@ export default class Pantry {
 
     this.productDeleting.set(null);
 
-    await this.#productsStore.delete(productToDelete.id);
+    try {
+      await this.#productsStore.delete(productToDelete.id);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   protected handleDeleteCategoryClicked(category: Category) {
@@ -269,6 +273,10 @@ export default class Pantry {
 
     this.categoryDeleting.set(null);
     this.selectedCategoryId.set('ALL');
-    await this.#categoriesStore.delete(categoryToDelete.id);
+    try {
+      await this.#categoriesStore.delete(categoryToDelete.id);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

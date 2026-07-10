@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
-import type { BarId, CategoryId, CreateCategoryDto, UpdateCategoryDto } from '@coaster/common';
-import { handleErrorFormField, Socket } from '@coaster/core';
+import { ErrorCodes, type BarId, type CategoryId, type CreateCategoryDto, type UpdateCategoryDto } from '@coaster/common';
+import { Socket } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
 import { BarCategories } from '../services/bar-categories';
 import { CreateCategory } from '../services/create-category';
@@ -80,52 +80,37 @@ export class CategoriesStore {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reloadCategories();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#createCategory.execute(barId, createCategoryDto);
-      this.reloadCategories();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#createCategory.execute(barId, createCategoryDto);
+    this.reloadCategories();
   }
 
   public async update(categoryId: CategoryId, updateCategoryDto: UpdateCategoryDto) {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reloadCategories();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#updateCategory.execute(barId, categoryId, updateCategoryDto);
-      this.reloadCategories();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#updateCategory.execute(barId, categoryId, updateCategoryDto);
+    this.reloadCategories();
   }
 
   public async delete(categoryId: CategoryId) {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reloadCategories();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#deleteCategory.execute(barId, categoryId);
-      this.#categoriesResource.update((categories) => {
-        if (!categories) {
-          return undefined;
-        }
-        return categories.filter((c) => c.id !== categoryId);
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#deleteCategory.execute(barId, categoryId);
+    this.#categoriesResource.update((categories) => {
+      if (!categories) {
+        return undefined;
+      }
+      return categories.filter((c) => c.id !== categoryId);
+    });
   }
 }

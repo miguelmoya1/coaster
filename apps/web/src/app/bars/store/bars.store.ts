@@ -1,8 +1,8 @@
-import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateBarDto } from '@coaster/common';
 import { BarPermission, BarRole } from '@coaster/common';
-import { handleErrorFormField, hasPermission } from '@coaster/core';
+import { httpResource } from '@angular/common/http';
+import { hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
 import { CreateBar } from '../services/create-bar';
@@ -66,12 +66,7 @@ export class BarsStore {
   }
 
   public async create(createBarDto: CreateBarDto) {
-    try {
-      await this.#createBar.execute(createBarDto);
-      this.reloadMyBars();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#createBar.execute(createBarDto);
+    this.reloadMyBars();
   }
 }

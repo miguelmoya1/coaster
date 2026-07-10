@@ -136,7 +136,11 @@ export default class Staff {
     const member = this.memberDeleting();
 
     if (member) {
-      await this.#membersStore.remove(member.id);
+      try {
+        await this.#membersStore.remove(member.id);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 }

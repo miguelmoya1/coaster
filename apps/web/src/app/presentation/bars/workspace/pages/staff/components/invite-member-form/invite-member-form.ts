@@ -1,11 +1,12 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
+import { MatButton } from '@angular/material/button';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 import type { InviteBarMemberDto } from '@coaster/common';
+import { handleErrorFormField } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe } from '@ngx-translate/core';
-import { MatButton } from '@angular/material/button';
-import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'coaster-invite-member-form',
@@ -77,14 +78,13 @@ export class InviteMemberForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = await this.#membersStore.invite(payload);
-
-          if (error) {
-            return error;
+          try {
+            await this.#membersStore.invite(payload);
+            this.invited.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          this.invited.emit();
-          return null;
         },
       },
     },

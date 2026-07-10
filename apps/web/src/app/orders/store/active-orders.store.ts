@@ -12,7 +12,7 @@ import type {
   OrderItemId,
 } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { Socket, Toast } from '@coaster/core';
+import { Socket } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';
@@ -28,7 +28,6 @@ export class ActiveOrdersStore {
   readonly #manageOrder = inject(ManageOrder);
   readonly #printOrder = inject(PrintOrder);
   readonly #socketService = inject(Socket);
-  readonly #toastService = inject(Toast);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
 
@@ -147,12 +146,7 @@ export class ActiveOrdersStore {
   // --- Actions ---
 
   public async create(barId: BarId, dto: CreateOrderDto) {
-    try {
-      await this.#createOrder.execute(barId, dto);
-      return { error: null };
-    } catch (error) {
-      return { error: this.#extractErrorMessage(error, 'ERR_CREATE_ORDER') };
-    }
+    await this.#createOrder.execute(barId, dto);
   }
 
   public async getOrder(barId: BarId, orderId: OrderId) {
@@ -160,97 +154,38 @@ export class ActiveOrdersStore {
   }
 
   public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
-    try {
-      await this.#manageOrder.addItems(barId, orderId, dto);
-    } catch (e) {
-      this.#toastService.error(this.#extractErrorMessage(e, 'ERR_ADD_ITEMS'));
-      throw e;
-    }
+    await this.#manageOrder.addItems(barId, orderId, dto);
   }
 
   public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto): Promise<void> {
-    try {
-      await this.#manageOrder.bulkUpdate(barId, orderId, dto);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_PAYMENT'));
-      throw error;
-    }
+    await this.#manageOrder.bulkUpdate(barId, orderId, dto);
   }
 
   public async checkout(barId: BarId, orderId: OrderId, paymentMethod: PaymentMethod): Promise<void> {
-    try {
-      await this.#manageOrder.checkout(barId, orderId, { paymentMethod });
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_CHECKOUT'));
-      throw error;
-    }
+    await this.#manageOrder.checkout(barId, orderId, { paymentMethod });
   }
 
   public async cancel(barId: BarId, orderId: OrderId): Promise<void> {
-    try {
-      await this.#manageOrder.cancel(barId, orderId);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_CANCEL_ORDER'));
-      throw error;
-    }
+    await this.#manageOrder.cancel(barId, orderId);
   }
 
   public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto): Promise<void> {
-    try {
-      await this.#manageOrder.moveTable(barId, orderId, dto);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_MOVE_TABLE'));
-      throw error;
-    }
+    await this.#manageOrder.moveTable(barId, orderId, dto);
   }
 
   public async merge(barId: BarId, dto: MergeOrdersDto): Promise<void> {
-    try {
-      await this.#manageOrder.merge(barId, dto);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_MERGE_TABLES'));
-      throw error;
-    }
+    await this.#manageOrder.merge(barId, dto);
   }
 
   public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
-    try {
-      await this.#manageOrder.removeItem(barId, orderId, itemId);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_REMOVE_ITEM'));
-      throw error;
-    }
+    await this.#manageOrder.removeItem(barId, orderId, itemId);
   }
 
   public async deleteOrder(barId: BarId, orderId: OrderId): Promise<void> {
-    try {
-      await this.#deleteOrder.execute(barId, orderId);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_DELETE_ORDER'));
-      throw error;
-    }
+    await this.#deleteOrder.execute(barId, orderId);
   }
 
   public async printOrder(order: Order): Promise<void> {
-    try {
-      await this.#printOrder.execute(order);
-    } catch (error) {
-      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_PRINT_ORDER'));
-      throw error;
-    }
-  }
-
-  #extractErrorMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object') {
-      const errObj = error as Record<string, unknown>;
-      // For some cases where error has an inner `error` object (e.g. HttpErrorResponse)
-      const innerError = errObj['error'] as Record<string, unknown> | undefined;
-      if (innerError?.['message']) {
-        return String(innerError['message']);
-      } else if (errObj['message']) {
-        return String(errObj['message']);
-      }
-    }
-    return fallback;
+    await this.#printOrder.execute(order);
   }
 }

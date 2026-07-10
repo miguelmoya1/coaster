@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, BarMemberId, InviteBarMemberDto } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { handleErrorFormField, Socket } from '@coaster/core';
+import { BarRole, ErrorCodes } from '@coaster/common';
+import { Socket } from '@coaster/core';
 import { memberArrayMapper } from '../mappers/member.mapper';
 import { BarMembers } from '../services/bar-members';
 import { InviteMember } from '../services/invite-member';
@@ -63,35 +63,25 @@ export class MembersStore {
   public async invite(inviteDto: InviteBarMemberDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#inviteMember.execute(barId, inviteDto);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#inviteMember.execute(barId, inviteDto);
+    this.reload();
   }
 
   public async remove(memberId: BarMemberId) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#removeMember.execute(barId, memberId);
-      this.#membersResource.update((members) => {
-        if (!members) {
-          return undefined;
-        }
-        return members.filter((m) => m.id !== memberId);
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#removeMember.execute(barId, memberId);
+    this.#membersResource.update((members) => {
+      if (!members) {
+        return undefined;
+      }
+      return members.filter((m) => m.id !== memberId);
+    });
   }
 }
