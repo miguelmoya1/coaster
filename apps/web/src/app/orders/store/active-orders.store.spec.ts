@@ -1,15 +1,15 @@
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import type { Order } from '@coaster/common';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { asBarId, asOrderId, Socket, Toast } from '@coaster/core';
-import { ActiveOrdersStore } from './active-orders.store';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
 import { PrintOrder } from '../services/print-order';
-import { OrderStatus, PaymentMethod } from '@coaster/common';
-import type { Order } from '@coaster/common';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ActiveOrdersStore } from './active-orders.store';
 
 describe('ActiveOrdersStore', () => {
   let store: ActiveOrdersStore;
@@ -51,7 +51,7 @@ describe('ActiveOrdersStore', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Reset signals
     socketMock.orderCreated.set(null);
     socketMock.orderUpdated.set(null);
@@ -86,7 +86,7 @@ describe('ActiveOrdersStore', () => {
       store.setBarId(asBarId('bar-1'));
       expect(store.currentBarId()).toBe('bar-1');
       // Since it's a resource, setting the signal triggers the resource fetch
-      TestBed.flushEffects();
+      TestBed.tick();
       expect(barOrdersMock.execute).toHaveBeenCalledWith('bar-1', OrderStatus.OPEN);
     });
   });
