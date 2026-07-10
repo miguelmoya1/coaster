@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,7 +12,7 @@ describe('Tables', () => {
   let component: Tables;
   let fixture: ComponentFixture<Tables>;
 
-  const ordersStoreMock = {
+  const activeOrdersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
@@ -48,7 +48,7 @@ describe('Tables', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: OrdersStore, useValue: ordersStoreMock },
+        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
         { provide: TablesStore, useValue: tablesStoreMock },
         { provide: BarsStore, useValue: barsStoreMock },
       ],

@@ -3,7 +3,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
 import { asOrderId, asOrderItemId } from '@coaster/core';
-import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
+import { OrderTitlePipe, ActiveOrdersStore } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../components/loading/loading';
 
@@ -18,7 +18,7 @@ import { NumberInput } from '../../../../../components/number-input/number-input
 class ToServe {
   public readonly barId = input.required<BarId>();
 
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
 
   readonly isLoading = signal(false);
 
@@ -36,13 +36,13 @@ class ToServe {
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
   // Filtered and sorted open orders with pending/unserved items
   protected readonly ordersToServe = computed(() => {
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
     return orders
       .map((order) => {
         const unservedItems = order.items
@@ -125,7 +125,7 @@ class ToServe {
       // Execute bulk updates in parallel
       await Promise.all(
         Array.from(groups.entries()).map(([orderId, items]) =>
-          this.#ordersStore.bulkUpdate(this.barId(), asOrderId(orderId), { items }),
+          this.#activeOrdersStore.bulkUpdate(this.barId(), asOrderId(orderId), { items }),
         ),
       );
 
@@ -141,7 +141,7 @@ class ToServe {
   protected async serveSingleItem(orderId: string, item: OrderItem) {
     try {
       this.isLoading.set(true);
-      await this.#ordersStore.bulkUpdate(this.barId(), asOrderId(orderId), {
+      await this.#activeOrdersStore.bulkUpdate(this.barId(), asOrderId(orderId), {
         items: [
           {
             itemId: asOrderItemId(item.id),

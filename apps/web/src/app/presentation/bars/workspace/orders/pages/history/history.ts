@@ -10,7 +10,7 @@ import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
 import { asOrderId } from '@coaster/core';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
@@ -39,7 +39,8 @@ import { PricePipe } from '../../../pipes/price/price';
 class History {
   public readonly barId = input.required<BarId>();
 
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #orderHistoryStore = inject(OrderHistoryStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #barsStore = inject(BarsStore);
   readonly #dialog = inject(MatDialog);
 
@@ -49,32 +50,33 @@ class History {
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#orderHistoryStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
   readonly today = new Date().toISOString().split('T')[0];
   readonly todayDate = new Date();
-  protected readonly selectedDate = this.#ordersStore.selectedDate;
-  protected readonly selectedDateAsDate = computed(() => new Date(this.#ordersStore.selectedDate()));
-  protected readonly isLoading = this.#ordersStore.history.isLoading;
-  protected readonly totalClosed = this.#ordersStore.totalClosed;
-  protected readonly totalCancelled = this.#ordersStore.totalCancelled;
+  protected readonly selectedDate = this.#orderHistoryStore.selectedDate;
+  protected readonly selectedDateAsDate = computed(() => new Date(this.#orderHistoryStore.selectedDate()));
+  protected readonly isLoading = this.#orderHistoryStore.history.isLoading;
+  protected readonly totalClosed = this.#orderHistoryStore.totalClosed;
+  protected readonly totalCancelled = this.#orderHistoryStore.totalCancelled;
 
   protected readonly orderToDelete = signal<Order | null>(null);
 
-  readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
+  readonly isToday = computed(() => this.#orderHistoryStore.selectedDate() === this.today);
   readonly isOwner = this.#barsStore.isOwner;
 
-  readonly totalRevenue = this.#ordersStore.historyTotalRevenue;
-  readonly averageTicket = this.#ordersStore.averageTicket;
+  readonly totalRevenue = this.#orderHistoryStore.historyTotalRevenue;
+  readonly averageTicket = this.#orderHistoryStore.averageTicket;
 
   protected readonly ordersViewModel = computed(() => {
-    if (!this.#ordersStore.history.hasValue()) {
+    if (!this.#orderHistoryStore.history.hasValue()) {
       return [];
     }
 
-    const orders = this.#ordersStore.history.value() ?? [];
+    const orders = this.#orderHistoryStore.history.value() ?? [];
     return orders.map((order) => ({
       original: order,
       tableName: order.tableName ?? this.#translate.instant('orders.no_table'),
@@ -87,37 +89,37 @@ class History {
   onDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value) {
-      this.#ordersStore.setHistoryDate(input.value);
+      this.#orderHistoryStore.setHistoryDate(input.value);
     }
   }
 
   onDatePickerChange(date: Date | null) {
     if (date) {
-      this.#ordersStore.setHistoryDate(date.toISOString().split('T')[0]);
+      this.#orderHistoryStore.setHistoryDate(date.toISOString().split('T')[0]);
     }
   }
 
   prevDay() {
-    const current = new Date(this.#ordersStore.selectedDate());
+    const current = new Date(this.#orderHistoryStore.selectedDate());
     current.setDate(current.getDate() - 1);
-    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   nextDay() {
     if (this.isToday()) return;
-    const current = new Date(this.#ordersStore.selectedDate());
+    const current = new Date(this.#orderHistoryStore.selectedDate());
     current.setDate(current.getDate() + 1);
-    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   goToday() {
-    this.#ordersStore.setHistoryDate(this.today);
+    this.#orderHistoryStore.setHistoryDate(this.today);
   }
 
   goYesterday() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    this.#ordersStore.setHistoryDate(yesterday.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(yesterday.toISOString().split('T')[0]);
   }
 
   onOrderClicked(order: Order) {
@@ -170,8 +172,8 @@ class History {
       return;
     }
 
-    await this.#ordersStore.deleteOrder(this.barId(), asOrderId(order.id));
-    this.#ordersStore.reloadHistory();
+    await this.#activeOrdersStore.deleteOrder(this.barId(), asOrderId(order.id));
+    this.#orderHistoryStore.reloadHistory();
     this.orderToDelete.set(null);
   }
 }

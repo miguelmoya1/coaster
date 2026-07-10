@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
 import { asOrderId, asProductId, asTableId } from '@coaster/core';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ class NewOrder {
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #tablesStore = inject(TablesStore);
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
@@ -100,7 +100,7 @@ class NewOrder {
       this.#productsStore.setBarId(barId);
       this.#categoriesStore.setBarId(barId);
       this.#tablesStore.setBarId(barId);
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
 
     effect(() => {
@@ -123,7 +123,7 @@ class NewOrder {
       const orderId = this.existingOrderId();
       if (!orderId || this.#initialNotesLoaded) return;
       
-      const orders = this.#ordersStore.list.value();
+      const orders = this.#activeOrdersStore.list.value();
       if (!orders) return;
       
       const existingOrder = orders.find(o => o.id === orderId);
@@ -202,12 +202,12 @@ class NewOrder {
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#ordersStore.addItems(this.barId(), orderId, { 
+        await this.#activeOrdersStore.addItems(this.barId(), orderId, { 
           items: itemDtos,
           notes: this.orderNotes()
         });
       } else {
-        await this.#ordersStore.create(this.barId(), {
+        await this.#activeOrdersStore.create(this.barId(), {
           tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
           notes: this.orderNotes(),
@@ -216,7 +216,7 @@ class NewOrder {
 
       this.cart.set(new Map());
       this.orderNotes.set('');
-      this.#ordersStore.reloadOrders();
+      this.#activeOrdersStore.reloadOrders();
       this.#tablesStore.reload();
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);

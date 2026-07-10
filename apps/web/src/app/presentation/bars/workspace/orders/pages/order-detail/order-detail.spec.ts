@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import OrderDetail from './order-detail';
@@ -11,7 +11,7 @@ describe('OrderDetail', () => {
 
   const routerMock = { navigate: vi.fn().mockResolvedValue(true) };
 
-  const ordersStoreMock = {
+  const activeOrdersStoreMock = {
     list: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
@@ -27,6 +27,10 @@ describe('OrderDetail', () => {
     removeItem: vi.fn(),
     addItems: vi.fn(),
     reloadOrders: vi.fn(),
+    setBarId: vi.fn(),
+  };
+
+  const orderHistoryStoreMock = {
     reloadHistory: vi.fn(),
     setBarId: vi.fn(),
   };
@@ -38,7 +42,8 @@ describe('OrderDetail', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: OrdersStore, useValue: ordersStoreMock },
+        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
+        { provide: OrderHistoryStore, useValue: orderHistoryStoreMock },
       ],
     }).compileComponents();
 

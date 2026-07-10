@@ -17,7 +17,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
@@ -37,7 +37,7 @@ class Tables {
   public readonly barId = input.required<BarId>();
 
   readonly #tablesStore = inject(TablesStore);
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #barsStore = inject(BarsStore);
 
   readonly #router = inject(Router);
@@ -50,7 +50,7 @@ class Tables {
     effect(() => {
       const barId = this.barId();
       this.#tablesStore.setBarId(barId);
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
@@ -62,13 +62,13 @@ class Tables {
 
   protected readonly freeCount = this.#tablesStore.freeCount;
   protected readonly occupiedCount = this.#tablesStore.occupiedCount;
-  protected readonly totalOpen = this.#ordersStore.totalOpen;
+  protected readonly totalOpen = this.#activeOrdersStore.totalOpen;
   protected readonly isLoadingTables = this.#tablesStore.tables.isLoading;
 
   protected readonly tablesViewModel = computed(() => {
     if (!this.#tablesStore.tables.hasValue()) return [];
     const tables = this.#tablesStore.tables.value() ?? [];
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
 
     return tables.map((table) => {
       const order = orders.find((o) => o.tableId === table.id);
@@ -79,14 +79,14 @@ class Tables {
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() => this.#ordersStore.openOrders().filter((o) => !o.tableId));
+  protected readonly barOrdersViewModel = computed(() => this.#activeOrdersStore.openOrders().filter((o) => !o.tableId));
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
-    const order = this.#ordersStore.openOrders().find((o) => o.tableId === table.id);
+    const order = this.#activeOrdersStore.openOrders().find((o) => o.tableId === table.id);
     if (order) {
       this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
     } else {

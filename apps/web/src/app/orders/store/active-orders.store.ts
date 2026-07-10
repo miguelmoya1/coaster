@@ -12,9 +12,8 @@ import type {
   OrderItemId,
 } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { handleErrorFormField, Socket, Toast } from '@coaster/core';
+import { Socket, Toast } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
-import { BarOrderHistory } from '../services/bar-order-history';
 import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
@@ -22,9 +21,8 @@ import { ManageOrder } from '../services/manage-order';
 import { PrintOrder } from '../services/print-order';
 
 @Service()
-export class OrdersStore {
+export class ActiveOrdersStore {
   readonly #barOrders = inject(BarOrders);
-  readonly #barOrderHistory = inject(BarOrderHistory);
   readonly #createOrder = inject(CreateOrder);
   readonly #deleteOrder = inject(DeleteOrder);
   readonly #manageOrder = inject(ManageOrder);
@@ -33,22 +31,13 @@ export class OrdersStore {
   readonly #toastService = inject(Toast);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
-  readonly #historyDate = signal<string>(new Date().toISOString().split('T')[0]);
 
   readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId(), OrderStatus.OPEN), {
     parse: (orders) => orderArrayMapper(orders),
   });
 
-  readonly #historyResource = httpResource(
-    () => this.#barOrderHistory.execute(this.#currentBarId(), this.#historyDate()),
-    {
-      parse: (orders) => orderArrayMapper(orders),
-    },
-  );
-
   public readonly currentBarId = this.#currentBarId.asReadonly();
   public readonly list = this.#ordersResource.asReadonly();
-  public readonly history = this.#historyResource.asReadonly();
 
   public readonly openOrders = computed(() => {
     if (this.#ordersResource.hasValue()) {
@@ -59,60 +48,21 @@ export class OrdersStore {
 
   public readonly totalOpen = computed(() => this.openOrders().length);
 
-  public readonly totalRevenue = computed(() => {
-    if (this.#ordersResource.hasValue()) {
-      return (
-        this.#ordersResource
-          .value()
-          ?.filter((o) => o.status === OrderStatus.CLOSED)
-          .reduce((sum, o) => sum + o.totalAmount, 0) ?? 0
-      );
-    }
-    return 0;
-  });
-
-  public readonly closedOrders = computed(
-    () => this.#historyResource.value()?.filter((o) => o.status === OrderStatus.CLOSED) ?? [],
-  );
-  public readonly cancelledOrders = computed(
-    () => this.#historyResource.value()?.filter((o) => o.status === OrderStatus.CANCELLED) ?? [],
-  );
-  public readonly totalOrders = computed(() => this.#historyResource.value()?.length ?? 0);
-  public readonly totalClosed = computed(() => this.closedOrders().length);
-  public readonly totalCancelled = computed(() => this.cancelledOrders().length);
-  public readonly historyTotalRevenue = computed(() => this.closedOrders().reduce((sum, o) => sum + o.totalAmount, 0));
-  public readonly averageTicket = computed(() => {
-    const closed = this.closedOrders();
-    if (closed.length === 0) return 0;
-    return Math.round(this.historyTotalRevenue() / closed.length);
-  });
-
-  public readonly selectedDate = computed(() => this.#historyDate());
-
   constructor() {
-    const isTodayOrMatchDate = (dateStr: Date | string | undefined) => {
-      if (!dateStr) return false;
-      const targetDate = new Date(dateStr).toISOString().split('T')[0];
-      return targetDate === this.#historyDate();
+    // Shared helper for upserting an order on socket events
+    const upsertOrder = (order: Order) => {
+      this.#ordersResource.update((orders) => {
+        if (!orders) return [order];
+        const exists = orders.some((o) => o.id === order.id);
+        return exists ? orders.map((o) => (o.id === order.id ? order : o)) : [...orders, order];
+      });
     };
 
     // Order created
     effect(() => {
       const created = this.#socketService.orderCreated();
       if (created && this.#currentBarId() === created.barId) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return [created];
-          const exists = orders.some((o) => o.id === created.id);
-          return exists ? orders : [...orders, created];
-        });
-
-        if (isTodayOrMatchDate(created.createdAt)) {
-          this.#historyResource.update((orders) => {
-            if (!orders) return [created];
-            const exists = orders.some((o) => o.id === created.id);
-            return exists ? orders : [...orders, created];
-          });
-        }
+        upsertOrder(created);
       }
     });
 
@@ -120,17 +70,7 @@ export class OrdersStore {
     effect(() => {
       const updated = this.#socketService.orderUpdated();
       if (updated && this.#currentBarId() === updated.barId) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return undefined;
-          return orders.map((o) => (o.id === updated.id ? updated : o));
-        });
-
-        if (isTodayOrMatchDate(updated.createdAt)) {
-          this.#historyResource.update((orders) => {
-            if (!orders) return undefined;
-            return orders.map((o) => (o.id === updated.id ? updated : o));
-          });
-        }
+        upsertOrder(updated);
       }
     });
 
@@ -138,17 +78,7 @@ export class OrdersStore {
     effect(() => {
       const closed = this.#socketService.orderClosed();
       if (closed && this.#currentBarId() === closed.barId) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return undefined;
-          return orders.map((o) => (o.id === closed.id ? closed : o));
-        });
-
-        if (isTodayOrMatchDate(closed.createdAt)) {
-          this.#historyResource.update((orders) => {
-            if (!orders) return undefined;
-            return orders.map((o) => (o.id === closed.id ? closed : o));
-          });
-        }
+        upsertOrder(closed);
       }
     });
 
@@ -160,11 +90,6 @@ export class OrdersStore {
           if (!orders) return undefined;
           return orders.map((o) => (o.id === cancelled.id ? { ...o, status: OrderStatus.CANCELLED } : o));
         });
-
-        this.#historyResource.update((orders) => {
-          if (!orders) return undefined;
-          return orders.map((o) => (o.id === cancelled.id ? { ...o, status: OrderStatus.CANCELLED } : o));
-        });
       }
     });
 
@@ -172,17 +97,7 @@ export class OrdersStore {
     effect(() => {
       const itemAdded = this.#socketService.orderItemAdded();
       if (itemAdded && this.#currentBarId() === itemAdded.barId) {
-        this.#ordersResource.update((orders) => {
-          if (!orders) return undefined;
-          return orders.map((o) => (o.id === itemAdded.id ? itemAdded : o));
-        });
-
-        if (isTodayOrMatchDate(itemAdded.createdAt)) {
-          this.#historyResource.update((orders) => {
-            if (!orders) return undefined;
-            return orders.map((o) => (o.id === itemAdded.id ? itemAdded : o));
-          });
-        }
+        upsertOrder(itemAdded);
       }
     });
 
@@ -191,11 +106,6 @@ export class OrdersStore {
       const deleted = this.#socketService.orderDeleted();
       if (deleted) {
         this.#ordersResource.update((orders) => {
-          if (!orders) return undefined;
-          return orders.filter((o) => o.id !== deleted.id);
-        });
-
-        this.#historyResource.update((orders) => {
           if (!orders) return undefined;
           return orders.filter((o) => o.id !== deleted.id);
         });
@@ -209,14 +119,6 @@ export class OrdersStore {
 
   public reloadOrders() {
     this.#ordersResource.reload();
-  }
-
-  public reloadHistory() {
-    this.#historyResource.reload();
-  }
-
-  public setHistoryDate(date: string) {
-    this.#historyDate.set(date);
   }
 
   public optimisticUpdate(orderId: OrderId, updater: (order: Order) => Order): Order | undefined {
@@ -242,12 +144,14 @@ export class OrdersStore {
     });
   }
 
+  // --- Actions ---
+
   public async create(barId: BarId, dto: CreateOrderDto) {
     try {
       await this.#createOrder.execute(barId, dto);
       return { error: null };
     } catch (error) {
-      return { error: handleErrorFormField(error) };
+      return { error: this.#extractErrorMessage(error, 'ERR_CREATE_ORDER') };
     }
   }
 
@@ -259,7 +163,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.addItems(barId, orderId, dto);
     } catch (e) {
-      this.#toastService.error('ERR_ADD_ITEMS');
+      this.#toastService.error(this.#extractErrorMessage(e, 'ERR_ADD_ITEMS'));
       throw e;
     }
   }
@@ -268,7 +172,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.bulkUpdate(barId, orderId, dto);
     } catch (error) {
-      this.#toastService.error('ERR_PAYMENT');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_PAYMENT'));
       throw error;
     }
   }
@@ -277,7 +181,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.checkout(barId, orderId, { paymentMethod });
     } catch (error) {
-      this.#toastService.error('ERR_CHECKOUT');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_CHECKOUT'));
       throw error;
     }
   }
@@ -286,7 +190,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.cancel(barId, orderId);
     } catch (error) {
-      this.#toastService.error('ERR_CANCEL_ORDER');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_CANCEL_ORDER'));
       throw error;
     }
   }
@@ -295,7 +199,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.moveTable(barId, orderId, dto);
     } catch (error) {
-      this.#toastService.error('ERR_MOVE_TABLE');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_MOVE_TABLE'));
       throw error;
     }
   }
@@ -304,7 +208,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.merge(barId, dto);
     } catch (error) {
-      this.#toastService.error('ERR_MERGE_TABLES');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_MERGE_TABLES'));
       throw error;
     }
   }
@@ -313,7 +217,7 @@ export class OrdersStore {
     try {
       await this.#manageOrder.removeItem(barId, orderId, itemId);
     } catch (error) {
-      this.#toastService.error('ERR_REMOVE_ITEM');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_REMOVE_ITEM'));
       throw error;
     }
   }
@@ -322,7 +226,7 @@ export class OrdersStore {
     try {
       await this.#deleteOrder.execute(barId, orderId);
     } catch (error) {
-      this.#toastService.error('ERR_DELETE_ORDER');
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_DELETE_ORDER'));
       throw error;
     }
   }
@@ -331,18 +235,22 @@ export class OrdersStore {
     try {
       await this.#printOrder.execute(order);
     } catch (error) {
-      let errMsg = 'ERR_PRINT_ORDER';
-      if (error && typeof error === 'object') {
-        const errObj = error as Record<string, unknown>;
-        const innerError = errObj['error'] as Record<string, unknown> | undefined;
-        if (innerError?.['message']) {
-          errMsg = String(innerError['message']);
-        } else if (errObj['message']) {
-          errMsg = String(errObj['message']);
-        }
-      }
-      this.#toastService.error(errMsg);
+      this.#toastService.error(this.#extractErrorMessage(error, 'ERR_PRINT_ORDER'));
       throw error;
     }
+  }
+
+  #extractErrorMessage(error: unknown, fallback: string): string {
+    if (error && typeof error === 'object') {
+      const errObj = error as Record<string, unknown>;
+      // For some cases where error has an inner `error` object (e.g. HttpErrorResponse)
+      const innerError = errObj['error'] as Record<string, unknown> | undefined;
+      if (innerError?.['message']) {
+        return String(innerError['message']);
+      } else if (errObj['message']) {
+        return String(errObj['message']);
+      }
+    }
+    return fallback;
   }
 }

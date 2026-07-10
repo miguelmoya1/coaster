@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import type { Order, OrderItem } from '@coaster/common';
 import { DeliveryStatus, OrderStatus, PaymentMethod, PaymentStatus } from '@coaster/common';
 import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/core';
-import { OrdersStore } from '@coaster/orders';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ToServe from './to-serve';
@@ -15,7 +15,7 @@ describe('ToServe', () => {
 
   const openOrdersSignal = signal<Order[]>([]);
 
-  const ordersStoreMock = {
+  const activeOrdersStoreMock = {
     openOrders: openOrdersSignal,
     setBarId: vi.fn(),
     bulkUpdate: vi.fn(),
@@ -25,7 +25,7 @@ describe('ToServe', () => {
     openOrdersSignal.set([]);
     await TestBed.configureTestingModule({
       imports: [ToServe],
-      providers: [provideTranslateService(), provideRouter([]), { provide: OrdersStore, useValue: ordersStoreMock }],
+      providers: [provideTranslateService(), provideRouter([]), { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock }],
     }).compileComponents();
 
     vi.clearAllMocks();
@@ -41,7 +41,7 @@ describe('ToServe', () => {
 
   it('should set bar ID on the store', () => {
     fixture.detectChanges();
-    expect(ordersStoreMock.setBarId).toHaveBeenCalledWith(asBarId('bar-1'));
+    expect(activeOrdersStoreMock.setBarId).toHaveBeenCalledWith(asBarId('bar-1'));
   });
 
   describe('ordersToServe filtering and sorting', () => {
@@ -174,17 +174,17 @@ describe('ToServe', () => {
     });
 
     it('should serve single item directly', async () => {
-      ordersStoreMock.bulkUpdate.mockResolvedValue({});
+      activeOrdersStoreMock.bulkUpdate.mockResolvedValue({});
 
       await component['serveSingleItem']('order-1', item1);
 
-      expect(ordersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-1'), {
+      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-1'), {
         items: [{ itemId: asOrderItemId('item-1'), servedQuantity: 3 }],
       });
     });
 
     it('should apply bulk serve partially across orders', async () => {
-      ordersStoreMock.bulkUpdate.mockResolvedValue({});
+      activeOrdersStoreMock.bulkUpdate.mockResolvedValue({});
 
       component['toggleSelectItem']('order-1', item1);
       component['toggleSelectItem']('order-2', item2);
@@ -193,11 +193,11 @@ describe('ToServe', () => {
 
       await component['applySelectedChanges']();
 
-      expect(ordersStoreMock.bulkUpdate).toHaveBeenCalledTimes(2);
-      expect(ordersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-1'), {
+      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledTimes(2);
+      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-1'), {
         items: [{ itemId: asOrderItemId('item-1'), servedQuantity: 2 }],
       });
-      expect(ordersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-2'), {
+      expect(activeOrdersStoreMock.bulkUpdate).toHaveBeenCalledWith(asBarId('bar-1'), asOrderId('order-2'), {
         items: [{ itemId: asOrderItemId('item-2'), servedQuantity: 2 }],
       });
       expect(component['totalSelectedItemsCount']()).toBe(0);

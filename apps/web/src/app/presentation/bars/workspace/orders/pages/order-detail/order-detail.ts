@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
-import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
+import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
@@ -41,7 +41,8 @@ class OrderDetail {
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
 
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #orderHistoryStore = inject(OrderHistoryStore);
   readonly #tablesStore = inject(TablesStore);
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
@@ -90,7 +91,7 @@ class OrderDetail {
   });
 
   readonly currentOrder = computed(() => {
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
     return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
   });
 
@@ -118,14 +119,15 @@ class OrderDetail {
     };
   });
 
-  protected readonly isLoadingServices = this.#ordersStore.list.isLoading;
+  protected readonly isLoadingServices = this.#activeOrdersStore.list.isLoading;
 
   #isNavigatingAway = false;
 
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
+      this.#orderHistoryStore.setBarId(barId);
       this.#tablesStore.setBarId(barId);
     });
 
@@ -135,7 +137,7 @@ class OrderDetail {
       if (!current) {
         this.isLoading.set(true);
         try {
-          const order = await this.#ordersStore.getOrder(this.barId(), this.resolvedOrderId());
+          const order = await this.#activeOrdersStore.getOrder(this.barId(), this.resolvedOrderId());
           this.fetchedOrder.set(order);
         } catch (e) {
           console.error(e);
@@ -225,8 +227,8 @@ class OrderDetail {
 
     try {
       this.isLoading.set(true);
-      await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
-      const updated = await this.#ordersStore.getOrder(this.barId(), order.id);
+      await this.#activeOrdersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
       this.fetchedOrder.set(updated);
       this.clearSelection();
     } catch (e) {
@@ -243,10 +245,10 @@ class OrderDetail {
     this.#openPaymentMethodDialog(order.totalAmount).subscribe(async (method) => {
       if (!method) return;
 
-      await this.#ordersStore.checkout(this.barId(), order.id, method);
+      await this.#activeOrdersStore.checkout(this.barId(), order.id, method);
       this.goBack();
       this.#tablesStore.reload();
-      this.#ordersStore.reloadHistory();
+      this.#orderHistoryStore.reloadHistory();
     });
   }
 
@@ -293,10 +295,10 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
 
-    await this.#ordersStore.cancel(this.barId(), order.id);
+    await this.#activeOrdersStore.cancel(this.barId(), order.id);
     this.goBack();
     this.#tablesStore.reload();
-    this.#ordersStore.reloadHistory();
+    this.#orderHistoryStore.reloadHistory();
     this.isCancelingOrderModelOpen.set(false);
   }
 
@@ -330,7 +332,7 @@ class OrderDetail {
       return;
     }
 
-    await this.#ordersStore.removeItem(this.barId(), order.id, item.id);
+    await this.#activeOrdersStore.removeItem(this.barId(), order.id, item.id);
     this.#tablesStore.reload();
     this.orderItemDeleting.set(null);
   }
@@ -358,8 +360,8 @@ class OrderDetail {
 
     if (targetTableId) {
       try {
-        await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: asTableId(targetTableId) });
-        this.#ordersStore.reloadOrders();
+        await this.#activeOrdersStore.moveTable(this.barId(), order.id, { tableId: asTableId(targetTableId) });
+        this.#activeOrdersStore.reloadOrders();
         this.#tablesStore.reload();
       } catch (e) {
         console.error(e);
@@ -390,10 +392,10 @@ class OrderDetail {
 
     if (targetOrderId) {
       try {
-        await this.#ordersStore.merge(this.barId(), {
+        await this.#activeOrdersStore.merge(this.barId(), {
           orderIds: [order.id, asOrderId(targetOrderId)],
         });
-        this.#ordersStore.reloadOrders();
+        this.#activeOrdersStore.reloadOrders();
         this.#tablesStore.reload();
       } catch (e) {
         console.error(e);
@@ -405,7 +407,7 @@ class OrderDetail {
     this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
   );
 
-  protected readonly openOrders = this.#ordersStore.openOrders;
+  protected readonly openOrders = this.#activeOrdersStore.openOrders;
 
   async printOrder() {
     const order = this.displayOrderViewModel();
@@ -414,7 +416,7 @@ class OrderDetail {
     this.isPrinting.set(true);
 
     try {
-      await this.#ordersStore.printOrder(order);
+      await this.#activeOrdersStore.printOrder(order);
     } catch {
       // Toast handled in the store
     } finally {

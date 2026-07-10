@@ -1,3 +1,4 @@
 export { OrderTitlePipe } from './pipes/order-title';
-export { OrdersStore } from './store/orders-store';
+export { ActiveOrdersStore } from './store/active-orders.store';
+export { OrderHistoryStore } from './store/order-history.store';
 export { PrintOrder } from './services/print-order';
