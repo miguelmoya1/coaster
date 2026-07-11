@@ -52,7 +52,6 @@ describe('ActiveOrdersStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Reset signals
     socketMock.orderCreated.set(null);
     socketMock.orderUpdated.set(null);
     socketMock.orderClosed.set(null);
@@ -85,7 +84,6 @@ describe('ActiveOrdersStore', () => {
       expect(store.currentBarId()).toBeUndefined();
       store.setBarId(asBarId('bar-1'));
       expect(store.currentBarId()).toBe('bar-1');
-      // Since it's a resource, setting the signal triggers the resource fetch
       TestBed.tick();
       expect(barOrdersMock.execute).toHaveBeenCalledWith('bar-1', OrderStatus.OPEN);
     });
