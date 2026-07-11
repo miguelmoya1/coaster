@@ -74,5 +74,3 @@ coaster/
 ├── frontend/                   # Angular
 └── printing-bridge/            # Go Application
 ```
-
-**Nota:** Mantener la documentación dentro del propio repositorio (en `/docs`) asegura que evolucione en el mismo ciclo de vida que el código fuente mediante Pull Requests.
