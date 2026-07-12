@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
-import { OrderStatus, PaymentMethod } from '@coaster/common';
+import { OrderStatus, PaymentMethod, AdjustmentTarget } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
@@ -18,6 +18,8 @@ import { OrderBulkActions } from './components/order-bulk-actions/order-bulk-act
 import { OrderItemCard } from './components/order-item-card/order-item-card';
 import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
 import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
+import { UpdateTipDialog } from './components/update-tip-dialog/update-tip-dialog';
+import { AddAdjustmentDialog, AddAdjustmentResult } from './components/add-adjustment-dialog/add-adjustment-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -242,7 +244,8 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
 
-    this.#openPaymentMethodDialog(order.totalAmount).subscribe(async (method) => {
+    const pendingAmount = Math.max(0, order.payableTotal - (order.amountPaidCash + order.amountPaidCard));
+    this.#openPaymentMethodDialog(pendingAmount).subscribe(async (method) => {
       if (!method) return;
 
       await this.#activeOrdersStore.checkout(this.barId(), order.id, method);
@@ -421,6 +424,78 @@ class OrderDetail {
       // Toast handled in the store
     } finally {
       this.isPrinting.set(false);
+    }
+  }
+
+  onUpdateTip(currentTipAmount: number) {
+    const dialogRef = this.#dialog.open(UpdateTipDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('currentTipAmount', () => currentTipAmount),
+        outputBinding('confirmed', (tipCents: number) => {
+          this.handleUpdateTipResult(tipCents);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+  }
+
+  protected async handleUpdateTipResult(tipCents: number) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.updateTip(this.barId(), order.id, tipCents);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  onAddAdjustment(itemId?: string) {
+    const dialogRef = this.#dialog.open(AddAdjustmentDialog, {
+      autoFocus: false,
+      bindings: [
+        outputBinding('confirmed', (result: AddAdjustmentResult) => {
+          this.handleAddAdjustmentResult(result, itemId);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+  }
+
+  protected async handleAddAdjustmentResult(result: AddAdjustmentResult, itemId?: string) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.addAdjustment(this.barId(), order.id, {
+        target: itemId ? AdjustmentTarget.ITEM : AdjustmentTarget.ORDER,
+        type: result.type,
+        value: result.value,
+        reason: result.reason,
+        itemId: itemId,
+      });
+      // Optionally reload the order if the store doesn't handle full state replacement
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onRemoveAdjustment(adjustmentId: string) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.removeAdjustment(this.barId(), order.id, adjustmentId);
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
+    } catch (e) {
+      console.error(e);
     }
   }
 }

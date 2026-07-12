@@ -111,7 +111,14 @@
 
       <div class="flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <span class="text-lg font-black text-primary">{{ order.original.totalAmount | price }}</span>
+          <div class="flex items-center gap-2">
+            @if (order.original.totalAmount !== order.original.payableTotal) {
+              <span class="text-sm font-medium text-on-surface-variant line-through decoration-error/50">
+                {{ order.original.totalAmount | price }}
+              </span>
+            }
+            <span class="text-lg font-black text-primary">{{ order.original.payableTotal | price }}</span>
+          </div>
 
           @if (order.original.amountPaidCash > 0 || order.original.amountPaidCard > 0) {
             <div class="flex items-center gap-1.5 text-xxs">

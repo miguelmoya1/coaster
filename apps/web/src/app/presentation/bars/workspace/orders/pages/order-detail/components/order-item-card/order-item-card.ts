@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { MatIconButton } from '@angular/material/button';
+import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { DeliveryStatus, OrderItem, PaymentStatus } from '@coaster/common';
+import { DeliveryStatus, OrderItem, PaymentStatus, AdjustmentType, AdjustmentTarget, OrderAdjustment } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -46,6 +46,21 @@ import { PricePipe } from '../../../../../pipes/price/price';
           <span class="text-xs text-on-surface-variant">x{{ item().quantity }}</span>
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>
         </div>
+        
+        <!-- Adjustments -->
+        @for (adj of itemAdjustments(); track adj.id) {
+          <div class="text-xs text-tertiary flex items-center gap-1 mt-0.5">
+            <mat-icon class="text-[12px]! w-[12px]! h-[12px]! leading-[12px]!">local_offer</mat-icon>
+            <span>{{ adj.reason || 'Descuento' }}</span>
+            <span class="font-bold">(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span>
+            @if (isOpen()) {
+              <button mat-icon-button class="w-4! h-4! p-0!" (click)="onRemoveAdjustment.emit(adj.id); $event.stopPropagation()">
+                <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]!">close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
         @if (item().quantity > 1 || item().paidQuantity > 0) {
           <div class="flex flex-col gap-0.5 mt-1">
             <span class="text-xxs text-on-surface-variant font-medium">
@@ -118,6 +133,14 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
           <button
             mat-icon-button
+            (click)="onAddAdjustment.emit(item().id); $event.stopPropagation()"
+            title="Añadir descuento/invitación"
+          >
+            <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">local_offer</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
             (click)="removeItem.emit(); $event.stopPropagation()"
             [title]="'orders.remove_item' | translate"
           >
@@ -131,12 +154,22 @@ import { PricePipe } from '../../../../../pipes/price/price';
 export class OrderItemCard {
   protected readonly PaymentStatus = PaymentStatus;
   protected readonly DeliveryStatus = DeliveryStatus;
+  protected readonly AdjustmentType = AdjustmentType;
+
   public readonly item = input.required<OrderItem & { productName?: string }>();
   public readonly isOpen = input.required<boolean>();
   public readonly isSelected = input.required<boolean>();
   public readonly selectedQty = input<{ paidQty: number } | undefined>();
+  public readonly adjustments = input<OrderAdjustment[]>([]);
 
   public readonly toggleSelect = output<void>();
   public readonly updatePayQty = output<number>();
   public readonly removeItem = output<void>();
+
+  public readonly onAddAdjustment = output<string>();
+  public readonly onRemoveAdjustment = output<string>();
+
+  itemAdjustments() {
+    return this.adjustments().filter(a => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);
+  }
 }

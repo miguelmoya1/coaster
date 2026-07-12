@@ -23,7 +23,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
             (click)="selected.emit(order.id)"
           >
             <span class="font-semibold text-on-surface">{{ order.tableName ?? ('orders.bar_order' | translate) }}</span>
-            <span class="font-bold text-primary text-sm">{{ order.totalAmount | price }}</span>
+            <span class="font-bold text-primary text-sm">{{ order.payableTotal | price }}</span>
           </button>
         } @empty {
           <p class="text-on-surface-variant text-sm text-center py-4">{{ 'orders.no_other_orders' | translate }}</p>

@@ -74,7 +74,7 @@ class Tables {
       const order = orders.find((o) => o.tableId === table.id);
       return {
         original: table,
-        orderAmount: order?.totalAmount,
+        orderAmount: order?.payableTotal,
       };
     });
   });

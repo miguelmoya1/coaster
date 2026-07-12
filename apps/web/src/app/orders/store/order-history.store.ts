@@ -33,7 +33,7 @@ export class OrderHistoryStore {
   public readonly totalOrders = computed(() => this.#historyResource.value()?.length ?? 0);
   public readonly totalClosed = computed(() => this.closedOrders().length);
   public readonly totalCancelled = computed(() => this.cancelledOrders().length);
-  public readonly historyTotalRevenue = computed(() => this.closedOrders().reduce((sum, o) => sum + o.totalAmount, 0));
+  public readonly historyTotalRevenue = computed(() => this.closedOrders().reduce((sum, o) => sum + o.orderTotal, 0));
   public readonly averageTicket = computed(() => {
     const closed = this.closedOrders();
     if (closed.length === 0) return 0;

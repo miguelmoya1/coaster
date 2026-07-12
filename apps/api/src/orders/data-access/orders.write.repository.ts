@@ -446,9 +446,40 @@ export class OrdersWriteRepository {
 
       let amountPaidCash = 0;
       let amountPaidCard = 0;
-      for (const item of allItems) {
-        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
-        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
+      
+      const orderInfo = await tx.dbOrder.findUnique({
+        where: { id: orderId },
+        include: { adjustments: true }
+      });
+      
+      if (orderInfo) {
+        let orderTotal = totalAmount;
+        for (const adj of orderInfo.adjustments) {
+          if (adj.type === 'FIXED_AMOUNT') {
+            orderTotal -= adj.value;
+          } else if (adj.type === 'PERCENTAGE') {
+            if (adj.target === 'ORDER') {
+              orderTotal -= Math.round((totalAmount * adj.value) / 100);
+            } else if (adj.target === 'ITEM' && adj.itemId) {
+              const item = allItems.find(i => i.id === adj.itemId);
+              if (item) {
+                orderTotal -= Math.round(((item.priceAtPurchase * item.quantity) * adj.value) / 100);
+              }
+            }
+          }
+        }
+        
+        const payableTotal = orderTotal + orderInfo.tipAmount;
+        const pendingAmount = Math.max(0, payableTotal - (orderInfo.amountPaidCash + orderInfo.amountPaidCard));
+        
+        amountPaidCash = orderInfo.amountPaidCash;
+        amountPaidCard = orderInfo.amountPaidCard;
+        
+        if (paymentMethod === DbPaymentMethod.CARD) {
+          amountPaidCard += pendingAmount;
+        } else {
+          amountPaidCash += pendingAmount;
+        }
       }
 
       let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;

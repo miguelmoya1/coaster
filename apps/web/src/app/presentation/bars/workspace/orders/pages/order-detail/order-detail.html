@@ -10,7 +10,12 @@
 }
 
 @if (displayOrderViewModel(); as order) {
-  <coaster-order-summary-card [order]="order" />
+  <coaster-order-summary-card
+    [order]="order"
+    (onUpdateTip)="onUpdateTip($event)"
+    (onAddAdjustment)="onAddAdjustment()"
+    (onRemoveAdjustment)="onRemoveAdjustment($event)"
+  />
 
   <div class="flex flex-col gap-2">
     @for (item of order.items; track item.id) {
@@ -19,9 +24,12 @@
         [isOpen]="order.status === OrderStatus.OPEN"
         [isSelected]="isItemSelected(item.id)"
         [selectedQty]="getSelectedQuantities(item.id)"
+        [adjustments]="order.adjustments || []"
         (toggleSelect)="toggleSelectItem(item)"
         (updatePayQty)="updateSelectedPayQty(item.id, $event)"
         (removeItem)="handleRemoveItem(item)"
+        (onAddAdjustment)="onAddAdjustment(item.id)"
+        (onRemoveAdjustment)="onRemoveAdjustment($event)"
       />
     }
   </div>

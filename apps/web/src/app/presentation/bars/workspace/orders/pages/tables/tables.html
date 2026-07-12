@@ -108,7 +108,7 @@
             {{ order.items.length }} {{ 'history.items' | translate }}
           </span>
         </div>
-        <span class="text-lg font-black text-primary tracking-tight">{{ order.totalAmount | price }}</span>
+        <span class="text-lg font-black text-primary tracking-tight">{{ order.payableTotal | price }}</span>
       </mat-card>
     }
   </div>
