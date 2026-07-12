@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
   DbBar: 'DbBar',
   DbBarMember: 'DbBarMember',
@@ -79,6 +80,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const DbOrderAdjustmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  target: 'target',
+  itemId: 'itemId',
+  type: 'type',
+  value: 'value',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type DbOrderAdjustmentScalarFieldEnum = (typeof DbOrderAdjustmentScalarFieldEnum)[keyof typeof DbOrderAdjustmentScalarFieldEnum]
 
 
 export const DbUserScalarFieldEnum = {
@@ -219,6 +234,7 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
   notes: 'notes',
+  tipAmount: 'tipAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

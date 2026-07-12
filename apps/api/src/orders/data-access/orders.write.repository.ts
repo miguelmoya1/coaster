@@ -1,4 +1,5 @@
 import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
+import { AdjustmentTarget, AdjustmentType, AddOrderAdjustmentDto } from '@coaster/common';
 import { PaymentMethod } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import {
@@ -32,6 +33,7 @@ export class OrdersWriteRepository {
         data: { totalAmount },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -47,6 +49,7 @@ export class OrdersWriteRepository {
         data: { status: DbOrderStatus.CANCELLED, totalAmount: 0 },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -85,10 +88,21 @@ export class OrdersWriteRepository {
               notes: item.notes?.substring(0, 500) || null,
             })),
           },
+          adjustments: dto.adjustments ? {
+            create: dto.adjustments.map((adj) => ({
+              target: adj.target,
+              type: adj.type,
+              value: adj.value,
+              reason: adj.reason?.substring(0, 500) || null,
+              itemId: adj.itemId ?? null,
+            }))
+          } : undefined,
+          tipAmount: dto.tipAmount ?? 0,
           notes: dto.notes?.substring(0, 500) || null,
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -130,6 +144,7 @@ export class OrdersWriteRepository {
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -264,6 +279,7 @@ export class OrdersWriteRepository {
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -277,6 +293,7 @@ export class OrdersWriteRepository {
         data: { status: DbOrderStatus.CANCELLED },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -311,6 +328,7 @@ export class OrdersWriteRepository {
         data: { tableId: newTableId, tableName: newTableName },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -376,6 +394,7 @@ export class OrdersWriteRepository {
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -452,6 +471,7 @@ export class OrdersWriteRepository {
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+          adjustments: true,
           table: true,
         },
       });
@@ -466,4 +486,55 @@ export class OrdersWriteRepository {
       return closed;
     });
   }
+
+  public async updateOrderTip(orderId: string, tipAmount: number) {
+    return this._db.dbOrder.update({
+      where: { id: orderId },
+      data: { tipAmount },
+      include: {
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
+        table: true,
+      },
+    });
+  }
+
+  public async addAdjustmentToOrder(orderId: string, dto: AddOrderAdjustmentDto) {
+    return this._db.dbOrder.update({
+      where: { id: orderId },
+      data: {
+        adjustments: {
+          create: {
+            target: dto.target,
+            type: dto.type,
+            value: dto.value,
+            reason: dto.reason?.substring(0, 500) || null,
+            itemId: dto.itemId ?? null,
+          },
+        },
+      },
+      include: {
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
+        table: true,
+      },
+    });
+  }
+
+  public async removeAdjustmentFromOrder(orderId: string, adjustmentId: string) {
+    return this._db.dbOrder.update({
+      where: { id: orderId },
+      data: {
+        adjustments: {
+          delete: { id: adjustmentId },
+        },
+      },
+      include: {
+        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
+        table: true,
+      },
+    });
+  }
 }
+

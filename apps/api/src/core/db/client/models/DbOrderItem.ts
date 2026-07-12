@@ -318,6 +318,7 @@ export type DbOrderItemWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"DbOrderItem"> | Date | string
   order?: Prisma.XOR<Prisma.DbOrderScalarRelationFilter, Prisma.DbOrderWhereInput>
   product?: Prisma.XOR<Prisma.DbProductScalarRelationFilter, Prisma.DbProductWhereInput>
+  adjustments?: Prisma.DbOrderAdjustmentListRelationFilter
 }
 
 export type DbOrderItemOrderByWithRelationInput = {
@@ -338,6 +339,7 @@ export type DbOrderItemOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   order?: Prisma.DbOrderOrderByWithRelationInput
   product?: Prisma.DbProductOrderByWithRelationInput
+  adjustments?: Prisma.DbOrderAdjustmentOrderByRelationAggregateInput
 }
 
 export type DbOrderItemWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +363,7 @@ export type DbOrderItemWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"DbOrderItem"> | Date | string
   order?: Prisma.XOR<Prisma.DbOrderScalarRelationFilter, Prisma.DbOrderWhereInput>
   product?: Prisma.XOR<Prisma.DbProductScalarRelationFilter, Prisma.DbProductWhereInput>
+  adjustments?: Prisma.DbOrderAdjustmentListRelationFilter
 }, "id">
 
 export type DbOrderItemOrderByWithAggregationInput = {
@@ -423,6 +426,7 @@ export type DbOrderItemCreateInput = {
   updatedAt?: Date | string
   order: Prisma.DbOrderCreateNestedOneWithoutItemsInput
   product: Prisma.DbProductCreateNestedOneWithoutOrderItemsInput
+  adjustments?: Prisma.DbOrderAdjustmentCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemUncheckedCreateInput = {
@@ -441,6 +445,7 @@ export type DbOrderItemUncheckedCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemUpdateInput = {
@@ -459,6 +464,7 @@ export type DbOrderItemUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.DbOrderUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.DbProductUpdateOneRequiredWithoutOrderItemsNestedInput
+  adjustments?: Prisma.DbOrderAdjustmentUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemUncheckedUpdateInput = {
@@ -477,6 +483,7 @@ export type DbOrderItemUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemCreateManyInput = {
@@ -529,6 +536,11 @@ export type DbOrderItemUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DbOrderItemNullableScalarRelationFilter = {
+  is?: Prisma.DbOrderItemWhereInput | null
+  isNot?: Prisma.DbOrderItemWhereInput | null
 }
 
 export type DbOrderItemListRelationFilter = {
@@ -611,6 +623,22 @@ export type DbOrderItemSumOrderByAggregateInput = {
   paidQuantityCash?: Prisma.SortOrder
   paidQuantityCard?: Prisma.SortOrder
   servedQuantity?: Prisma.SortOrder
+}
+
+export type DbOrderItemCreateNestedOneWithoutAdjustmentsInput = {
+  create?: Prisma.XOR<Prisma.DbOrderItemCreateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedCreateWithoutAdjustmentsInput>
+  connectOrCreate?: Prisma.DbOrderItemCreateOrConnectWithoutAdjustmentsInput
+  connect?: Prisma.DbOrderItemWhereUniqueInput
+}
+
+export type DbOrderItemUpdateOneWithoutAdjustmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.DbOrderItemCreateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedCreateWithoutAdjustmentsInput>
+  connectOrCreate?: Prisma.DbOrderItemCreateOrConnectWithoutAdjustmentsInput
+  upsert?: Prisma.DbOrderItemUpsertWithoutAdjustmentsInput
+  disconnect?: Prisma.DbOrderItemWhereInput | boolean
+  delete?: Prisma.DbOrderItemWhereInput | boolean
+  connect?: Prisma.DbOrderItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbOrderItemUpdateToOneWithWhereWithoutAdjustmentsInput, Prisma.DbOrderItemUpdateWithoutAdjustmentsInput>, Prisma.DbOrderItemUncheckedUpdateWithoutAdjustmentsInput>
 }
 
 export type DbOrderItemCreateNestedManyWithoutProductInput = {
@@ -705,6 +733,94 @@ export type EnumDbDeliveryStatusFieldUpdateOperationsInput = {
   set?: $Enums.DbDeliveryStatus
 }
 
+export type DbOrderItemCreateWithoutAdjustmentsInput = {
+  id?: string
+  quantity: number
+  priceAtPurchase: number
+  paidQuantity?: number
+  paidQuantityCash?: number
+  paidQuantityCard?: number
+  servedQuantity?: number
+  paymentStatus?: $Enums.DbPaymentStatus
+  deliveryStatus?: $Enums.DbDeliveryStatus
+  paymentMethod?: $Enums.DbPaymentMethod
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  order: Prisma.DbOrderCreateNestedOneWithoutItemsInput
+  product: Prisma.DbProductCreateNestedOneWithoutOrderItemsInput
+}
+
+export type DbOrderItemUncheckedCreateWithoutAdjustmentsInput = {
+  id?: string
+  orderId: string
+  productId: string
+  quantity: number
+  priceAtPurchase: number
+  paidQuantity?: number
+  paidQuantityCash?: number
+  paidQuantityCard?: number
+  servedQuantity?: number
+  paymentStatus?: $Enums.DbPaymentStatus
+  deliveryStatus?: $Enums.DbDeliveryStatus
+  paymentMethod?: $Enums.DbPaymentMethod
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type DbOrderItemCreateOrConnectWithoutAdjustmentsInput = {
+  where: Prisma.DbOrderItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbOrderItemCreateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedCreateWithoutAdjustmentsInput>
+}
+
+export type DbOrderItemUpsertWithoutAdjustmentsInput = {
+  update: Prisma.XOR<Prisma.DbOrderItemUpdateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedUpdateWithoutAdjustmentsInput>
+  create: Prisma.XOR<Prisma.DbOrderItemCreateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedCreateWithoutAdjustmentsInput>
+  where?: Prisma.DbOrderItemWhereInput
+}
+
+export type DbOrderItemUpdateToOneWithWhereWithoutAdjustmentsInput = {
+  where?: Prisma.DbOrderItemWhereInput
+  data: Prisma.XOR<Prisma.DbOrderItemUpdateWithoutAdjustmentsInput, Prisma.DbOrderItemUncheckedUpdateWithoutAdjustmentsInput>
+}
+
+export type DbOrderItemUpdateWithoutAdjustmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
+  servedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentStatus?: Prisma.EnumDbPaymentStatusFieldUpdateOperationsInput | $Enums.DbPaymentStatus
+  deliveryStatus?: Prisma.EnumDbDeliveryStatusFieldUpdateOperationsInput | $Enums.DbDeliveryStatus
+  paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.DbOrderUpdateOneRequiredWithoutItemsNestedInput
+  product?: Prisma.DbProductUpdateOneRequiredWithoutOrderItemsNestedInput
+}
+
+export type DbOrderItemUncheckedUpdateWithoutAdjustmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  priceAtPurchase?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantityCash?: Prisma.IntFieldUpdateOperationsInput | number
+  paidQuantityCard?: Prisma.IntFieldUpdateOperationsInput | number
+  servedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentStatus?: Prisma.EnumDbPaymentStatusFieldUpdateOperationsInput | $Enums.DbPaymentStatus
+  deliveryStatus?: Prisma.EnumDbDeliveryStatusFieldUpdateOperationsInput | $Enums.DbDeliveryStatus
+  paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type DbOrderItemCreateWithoutProductInput = {
   id?: string
   quantity: number
@@ -720,6 +836,7 @@ export type DbOrderItemCreateWithoutProductInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   order: Prisma.DbOrderCreateNestedOneWithoutItemsInput
+  adjustments?: Prisma.DbOrderAdjustmentCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemUncheckedCreateWithoutProductInput = {
@@ -737,6 +854,7 @@ export type DbOrderItemUncheckedCreateWithoutProductInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemCreateOrConnectWithoutProductInput = {
@@ -801,6 +919,7 @@ export type DbOrderItemCreateWithoutOrderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.DbProductCreateNestedOneWithoutOrderItemsInput
+  adjustments?: Prisma.DbOrderAdjustmentCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemUncheckedCreateWithoutOrderInput = {
@@ -818,6 +937,7 @@ export type DbOrderItemUncheckedCreateWithoutOrderInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type DbOrderItemCreateOrConnectWithoutOrderInput = {
@@ -878,6 +998,7 @@ export type DbOrderItemUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.DbOrderUpdateOneRequiredWithoutItemsNestedInput
+  adjustments?: Prisma.DbOrderAdjustmentUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemUncheckedUpdateWithoutProductInput = {
@@ -895,6 +1016,7 @@ export type DbOrderItemUncheckedUpdateWithoutProductInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemUncheckedUpdateManyWithoutProductInput = {
@@ -946,6 +1068,7 @@ export type DbOrderItemUpdateWithoutOrderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.DbProductUpdateOneRequiredWithoutOrderItemsNestedInput
+  adjustments?: Prisma.DbOrderAdjustmentUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemUncheckedUpdateWithoutOrderInput = {
@@ -963,6 +1086,7 @@ export type DbOrderItemUncheckedUpdateWithoutOrderInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  adjustments?: Prisma.DbOrderAdjustmentUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type DbOrderItemUncheckedUpdateManyWithoutOrderInput = {
@@ -983,6 +1107,35 @@ export type DbOrderItemUncheckedUpdateManyWithoutOrderInput = {
 }
 
 
+/**
+ * Count Type DbOrderItemCountOutputType
+ */
+
+export type DbOrderItemCountOutputType = {
+  adjustments: number
+}
+
+export type DbOrderItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  adjustments?: boolean | DbOrderItemCountOutputTypeCountAdjustmentsArgs
+}
+
+/**
+ * DbOrderItemCountOutputType without action
+ */
+export type DbOrderItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbOrderItemCountOutputType
+   */
+  select?: Prisma.DbOrderItemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * DbOrderItemCountOutputType without action
+ */
+export type DbOrderItemCountOutputTypeCountAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbOrderAdjustmentWhereInput
+}
+
 
 export type DbOrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1002,6 +1155,8 @@ export type DbOrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedAt?: boolean
   order?: boolean | Prisma.DbOrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbProductDefaultArgs<ExtArgs>
+  adjustments?: boolean | Prisma.DbOrderItem$adjustmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.DbOrderItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbOrderItem"]>
 
 export type DbOrderItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1066,6 +1221,8 @@ export type DbOrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type DbOrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.DbOrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbProductDefaultArgs<ExtArgs>
+  adjustments?: boolean | Prisma.DbOrderItem$adjustmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.DbOrderItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbOrderItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.DbOrderDefaultArgs<ExtArgs>
@@ -1081,6 +1238,7 @@ export type $DbOrderItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     order: Prisma.$DbOrderPayload<ExtArgs>
     product: Prisma.$DbProductPayload<ExtArgs>
+    adjustments: Prisma.$DbOrderAdjustmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1494,6 +1652,7 @@ export interface Prisma__DbOrderItemClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   order<T extends Prisma.DbOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__DbOrderClient<runtime.Types.Result.GetResult<Prisma.$DbOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.DbProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbProductDefaultArgs<ExtArgs>>): Prisma.Prisma__DbProductClient<runtime.Types.Result.GetResult<Prisma.$DbProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  adjustments<T extends Prisma.DbOrderItem$adjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbOrderItem$adjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1936,6 +2095,30 @@ export type DbOrderItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many DbOrderItems to delete.
    */
   limit?: number
+}
+
+/**
+ * DbOrderItem.adjustments
+ */
+export type DbOrderItem$adjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbOrderAdjustment
+   */
+  select?: Prisma.DbOrderAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbOrderAdjustment
+   */
+  omit?: Prisma.DbOrderAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbOrderAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.DbOrderAdjustmentWhereInput
+  orderBy?: Prisma.DbOrderAdjustmentOrderByWithRelationInput | Prisma.DbOrderAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.DbOrderAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbOrderAdjustmentScalarFieldEnum | Prisma.DbOrderAdjustmentScalarFieldEnum[]
 }
 
 /**

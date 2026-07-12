@@ -4,17 +4,9 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 
 ---
 
-## 🏗️ Fases de Implementación Orientadas a Negocio
+## Fase 1: Poner imagenes e iconos en los catalogos y productos y mostrarlos en la app
 
-### Fase 1: El Core Transaccional (TPV Puro)
-
-**Módulo:** Pedidos, Descuentos y Propinas
-
-- **Impacto en Arquitectura:** Modificación directa sobre los agregados principales (`DbOrder` y `DbOrderItem`). Al ser lógica transaccional pura, debe asentarse antes de recibir tráfico de datos reales.
-- **Flujo de Trabajo:**
-  1. Extensión del esquema de la base de datos para almacenar `tipAmount` y `discountAmount`.
-  2. Implementación de los casos de uso correspondientes en el backend para recalcular los totales de forma inmutable.
-  3. Actualización de la interfaz del TPV en Angular para aplicar estos conceptos en caliente.
+Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es necesario.
 
 ### Fase 2: Conectividad y Entorno Físico
 

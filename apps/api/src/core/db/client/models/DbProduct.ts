@@ -515,14 +515,6 @@ export type DbProductUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.DbProductScalarWhereInput | Prisma.DbProductScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type DbProductCreateNestedOneWithoutOrderItemsInput = {
   create?: Prisma.XOR<Prisma.DbProductCreateWithoutOrderItemsInput, Prisma.DbProductUncheckedCreateWithoutOrderItemsInput>
   connectOrCreate?: Prisma.DbProductCreateOrConnectWithoutOrderItemsInput

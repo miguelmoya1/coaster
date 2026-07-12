@@ -1,3 +1,5 @@
+export * from './constants/adjustment-target.type';
+export * from './constants/adjustment-type.type';
 export * from './constants/bar-permissions.type';
 export * from './constants/bar-role.type';
 export * from './constants/delivery-status.type';

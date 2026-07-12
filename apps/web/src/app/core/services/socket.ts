@@ -16,6 +16,8 @@ export class Socket implements OnDestroy {
   readonly orderClosed = signal<Order | null>(null);
   readonly orderCancelled = signal<{ id: string } | Order | null>(null);
   readonly orderItemAdded = signal<Order | null>(null);
+  readonly orderTipUpdated = signal<{ orderId: string, tipAmount: number } | null>(null);
+  readonly orderAdjustmentsUpdated = signal<{ orderId: string, adjustments: any[] } | null>(null);
   readonly tableStatusChanged = signal<Partial<Table> | null>(null);
   readonly productCreated = signal<Product | null>(null);
   readonly productStockChanged = signal<Product | null>(null);
@@ -75,6 +77,14 @@ export class Socket implements OnDestroy {
 
     this.#socket.on(SocketEvents.orderItemAdded, (order: Order) => {
       this.orderItemAdded.set(order);
+    });
+
+    this.#socket.on(SocketEvents.orderTipUpdated, (payload: { orderId: string, tipAmount: number }) => {
+      this.orderTipUpdated.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.orderAdjustmentsUpdated, (payload: { orderId: string, adjustments: any[] }) => {
+      this.orderAdjustmentsUpdated.set(payload);
     });
 
     this.#socket.on(SocketEvents.tableStatusChanged, (table: Partial<Table>) => {

@@ -11,6 +11,8 @@ import type {
   Order,
   OrderId,
   OrderItemId,
+  UpdateOrderTipDto,
+  AddOrderAdjustmentDto,
 } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { orderMapper } from '../mappers/order.mapper';
@@ -34,6 +36,9 @@ export class OrderRepository {
     merge: (barId: BarId) => `/bars/${barId}/orders/merge`,
     removeItem: (barId: BarId, orderId: OrderId, itemId: OrderItemId) =>
       `/bars/${barId}/orders/${orderId}/items/${itemId}`,
+    updateTip: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/tip`,
+    addAdjustment: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/adjustments`,
+    removeAdjustment: (barId: BarId, orderId: OrderId, adjustmentId: string) => `/bars/${barId}/orders/${orderId}/adjustments/${adjustmentId}`,
   };
 
   public async getOrder(barId: BarId, orderId: OrderId) {
@@ -76,5 +81,17 @@ export class OrderRepository {
 
   public async deleteOrder(barId: BarId, orderId: OrderId): Promise<void> {
     return firstValueFrom(this.#http.delete<void>(this.routes.delete(barId, orderId)));
+  }
+
+  public async updateTip(barId: BarId, orderId: OrderId, dto: UpdateOrderTipDto): Promise<void> {
+    return firstValueFrom(this.#http.patch<void>(this.routes.updateTip(barId, orderId), dto));
+  }
+
+  public async addAdjustment(barId: BarId, orderId: OrderId, dto: AddOrderAdjustmentDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.addAdjustment(barId, orderId), dto));
+  }
+
+  public async removeAdjustment(barId: BarId, orderId: OrderId, adjustmentId: string): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(this.routes.removeAdjustment(barId, orderId, adjustmentId)));
   }
 }

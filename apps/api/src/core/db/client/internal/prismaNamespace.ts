@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
   DbBar: 'DbBar',
   DbBarMember: 'DbBarMember',
@@ -411,10 +412,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    DbOrderAdjustment: {
+      payload: Prisma.$DbOrderAdjustmentPayload<ExtArgs>
+      fields: Prisma.DbOrderAdjustmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbOrderAdjustmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbOrderAdjustmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        findFirst: {
+          args: Prisma.DbOrderAdjustmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbOrderAdjustmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        findMany: {
+          args: Prisma.DbOrderAdjustmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>[]
+        }
+        create: {
+          args: Prisma.DbOrderAdjustmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        createMany: {
+          args: Prisma.DbOrderAdjustmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbOrderAdjustmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>[]
+        }
+        delete: {
+          args: Prisma.DbOrderAdjustmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        update: {
+          args: Prisma.DbOrderAdjustmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbOrderAdjustmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbOrderAdjustmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbOrderAdjustmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbOrderAdjustmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbOrderAdjustmentPayload>
+        }
+        aggregate: {
+          args: Prisma.DbOrderAdjustmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbOrderAdjustment>
+        }
+        groupBy: {
+          args: Prisma.DbOrderAdjustmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbOrderAdjustmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbOrderAdjustmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbOrderAdjustmentCountAggregateOutputType> | number
+        }
+      }
+    }
     DbUser: {
       payload: Prisma.$DbUserPayload<ExtArgs>
       fields: Prisma.DbUserFieldRefs
@@ -1342,6 +1417,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const DbOrderAdjustmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  target: 'target',
+  itemId: 'itemId',
+  type: 'type',
+  value: 'value',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type DbOrderAdjustmentScalarFieldEnum = (typeof DbOrderAdjustmentScalarFieldEnum)[keyof typeof DbOrderAdjustmentScalarFieldEnum]
+
+
 export const DbUserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -1480,6 +1569,7 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
   notes: 'notes',
+  tipAmount: 'tipAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1553,6 +1643,62 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
+ * Reference to a field of type 'DbAdjustmentTarget'
+ */
+export type EnumDbAdjustmentTargetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAdjustmentTarget'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAdjustmentTarget[]'
+ */
+export type ListEnumDbAdjustmentTargetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAdjustmentTarget[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAdjustmentType'
+ */
+export type EnumDbAdjustmentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAdjustmentType'>
+    
+
+
+/**
+ * Reference to a field of type 'DbAdjustmentType[]'
+ */
+export type ListEnumDbAdjustmentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAdjustmentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime'
+ */
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime[]'
+ */
+export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -1574,20 +1720,6 @@ export type ListEnumDbRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'DateTime'
- */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
  * Reference to a field of type 'DbBarRole'
  */
 export type EnumDbBarRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbBarRole'>
@@ -1598,20 +1730,6 @@ export type EnumDbBarRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'DbBarRole[]'
  */
 export type ListEnumDbBarRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbBarRole[]'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -1808,6 +1926,7 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
   dbBar?: Prisma.DbBarOmit
   dbBarMember?: Prisma.DbBarMemberOmit

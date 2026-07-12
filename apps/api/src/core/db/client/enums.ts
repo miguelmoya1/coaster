@@ -69,3 +69,19 @@ export const DbDeliveryStatus = {
 } as const
 
 export type DbDeliveryStatus = (typeof DbDeliveryStatus)[keyof typeof DbDeliveryStatus]
+
+
+export const DbAdjustmentType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED_AMOUNT: 'FIXED_AMOUNT'
+} as const
+
+export type DbAdjustmentType = (typeof DbAdjustmentType)[keyof typeof DbAdjustmentType]
+
+
+export const DbAdjustmentTarget = {
+  ORDER: 'ORDER',
+  ITEM: 'ITEM'
+} as const
+
+export type DbAdjustmentTarget = (typeof DbAdjustmentTarget)[keyof typeof DbAdjustmentTarget]

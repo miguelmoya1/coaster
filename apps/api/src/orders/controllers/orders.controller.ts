@@ -14,6 +14,9 @@ import {
   MergeOrdersCommand,
   MoveOrderTableCommand,
   RemoveOrderItemCommand,
+  UpdateOrderTipCommand,
+  AddOrderAdjustmentCommand,
+  RemoveOrderAdjustmentCommand,
 } from '../commands';
 import { AddOrderItemsDto } from '../dto/add-order-items.dto';
 import { BulkUpdateDto } from '../dto/bulk-update.dto';
@@ -21,6 +24,8 @@ import { CheckoutOrderDto } from '../dto/checkout-order.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
 import { MoveTableDto } from '../dto/move-table.dto';
+import { UpdateOrderTipDto } from '../dto/update-order-tip.dto';
+import { AddOrderAdjustmentDto } from '../dto/add-order-adjustment.dto';
 import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
 
@@ -127,4 +132,37 @@ export class OrdersController {
   async deleteOrder(@Param('barId') barId: BarId, @Param('orderId') orderId: OrderId): Promise<void> {
     await this._commandBus.execute<DeleteOrderCommand, void>(new DeleteOrderCommand(barId, orderId));
   }
+
+  @Patch(':orderId/tip')
+  @BarPermissions(BarPermission.BAR_UPDATE_ORDER)
+  async updateOrderTip(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: UpdateOrderTipDto,
+  ): Promise<void> {
+    await this._commandBus.execute<UpdateOrderTipCommand, void>(new UpdateOrderTipCommand(barId, orderId, dto));
+  }
+
+  @Post(':orderId/adjustments')
+  @BarPermissions(BarPermission.BAR_UPDATE_ORDER)
+  async addOrderAdjustment(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Body() dto: AddOrderAdjustmentDto,
+  ): Promise<void> {
+    await this._commandBus.execute<AddOrderAdjustmentCommand, void>(new AddOrderAdjustmentCommand(barId, orderId, dto));
+  }
+
+  @Delete(':orderId/adjustments/:adjustmentId')
+  @BarPermissions(BarPermission.BAR_UPDATE_ORDER)
+  async removeOrderAdjustment(
+    @Param('barId') barId: BarId,
+    @Param('orderId') orderId: OrderId,
+    @Param('adjustmentId') adjustmentId: string,
+  ): Promise<void> {
+    await this._commandBus.execute<RemoveOrderAdjustmentCommand, void>(
+      new RemoveOrderAdjustmentCommand(barId, orderId, adjustmentId as any),
+    );
+  }
 }
+

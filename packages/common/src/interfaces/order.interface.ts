@@ -2,6 +2,8 @@ import { DeliveryStatus } from '../constants/delivery-status.type';
 import { OrderStatus } from '../constants/order-status.type';
 import { PaymentStatus } from '../constants/payment-status.type';
 import { PaymentMethod } from '../constants/payment-method.type';
+import { AdjustmentTarget } from '../constants/adjustment-target.type';
+import { AdjustmentType } from '../constants/adjustment-type.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ProductId } from './product.interface';
@@ -9,6 +11,7 @@ import { TableId } from './table.interface';
 
 export type OrderId = Brand<string, 'OrderId'>;
 export type OrderItemId = Brand<string, 'OrderItemId'>;
+export type OrderAdjustmentId = Brand<string, 'OrderAdjustmentId'>;
 
 export interface OrderItem {
   id: OrderItemId;
@@ -29,6 +32,17 @@ export interface OrderItem {
   updatedAt?: string;
 }
 
+export interface OrderAdjustment {
+  id: OrderAdjustmentId;
+  orderId: OrderId;
+  target: AdjustmentTarget;
+  itemId?: OrderItemId;
+  type: AdjustmentType;
+  value: number;
+  reason?: string;
+  createdAt?: string;
+}
+
 export interface Order {
   id: OrderId;
   barId: BarId;
@@ -39,8 +53,12 @@ export interface Order {
   amountPaidCash: number;
   amountPaidCard: number;
   items: OrderItem[];
+  adjustments: OrderAdjustment[];
   paymentMethod: PaymentMethod;
   notes?: string;
+  tipAmount: number;
+  orderTotal: number;
+  payableTotal: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -54,6 +72,8 @@ export interface CreateOrderItemDto {
 export interface CreateOrderDto {
   tableId?: TableId;
   items: CreateOrderItemDto[];
+  adjustments?: AddOrderAdjustmentDto[];
+  tipAmount?: number;
   notes?: string;
 }
 
@@ -86,3 +106,18 @@ export interface CheckoutOrderDto {
   paymentMethod: PaymentMethod;
 }
 
+export interface AddOrderAdjustmentDto {
+  target: AdjustmentTarget;
+  itemId?: OrderItemId;
+  type: AdjustmentType;
+  value: number;
+  reason?: string;
+}
+
+export interface RemoveOrderAdjustmentDto {
+  adjustmentId: OrderAdjustmentId;
+}
+
+export interface UpdateOrderTipDto {
+  tipAmount: number;
+}

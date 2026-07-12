@@ -100,6 +100,46 @@ export class ActiveOrdersStore {
       }
     });
 
+    // Order tip updated
+    effect(() => {
+      const tipUpdated = this.#socketService.orderTipUpdated();
+      if (tipUpdated) {
+        this.#ordersResource.update((orders) => {
+          if (!orders) return undefined;
+          return orders.map((o) => {
+            if (o.id === tipUpdated.orderId) {
+              const orderTotal = o.orderTotal ?? o.totalAmount;
+              return {
+                ...o,
+                tipAmount: tipUpdated.tipAmount,
+                payableTotal: orderTotal + tipUpdated.tipAmount,
+              };
+            }
+            return o;
+          });
+        });
+      }
+    });
+
+    // Order adjustments updated
+    effect(() => {
+      const adjUpdated = this.#socketService.orderAdjustmentsUpdated();
+      if (adjUpdated) {
+        // Since adjustments recalculate total, we actually want to fetch the updated order from the backend.
+        // Let's reload the whole store or a specific order. The easiest is calling getOrder and upserting.
+        // But since we are in an effect and we can't await cleanly without messy code, let's just trigger a reload of all orders,
+        // OR better yet, recalculate optimistically.
+        // Even better, trigger a fetch for the specific order.
+        const orderId = adjUpdated.orderId as OrderId;
+        const currentBarId = this.#currentBarId();
+        if (currentBarId) {
+          this.getOrder(currentBarId, orderId).then((updatedOrder) => {
+             upsertOrder(updatedOrder);
+          });
+        }
+      }
+    });
+
     // Order deleted
     effect(() => {
       const deleted = this.#socketService.orderDeleted();
@@ -188,4 +228,28 @@ export class ActiveOrdersStore {
   public async printOrder(order: Order): Promise<void> {
     await this.#printOrder.execute(order);
   }
+
+  public async updateTip(barId: BarId, orderId: OrderId, tipAmount: number): Promise<void> {
+    // Optimistic update
+    const original = this.optimisticUpdate(orderId, (o) => ({
+      ...o,
+      tipAmount,
+      payableTotal: (o.orderTotal ?? o.totalAmount) + tipAmount,
+    }));
+    try {
+      await this.#manageOrder.updateTip(barId, orderId, { tipAmount });
+    } catch (e) {
+      this.revertUpdate(original);
+      throw e;
+    }
+  }
+
+  public async addAdjustment(barId: BarId, orderId: OrderId, dto: any): Promise<void> {
+    await this.#manageOrder.addAdjustment(barId, orderId, dto);
+  }
+
+  public async removeAdjustment(barId: BarId, orderId: OrderId, adjustmentId: string): Promise<void> {
+    await this.#manageOrder.removeAdjustment(barId, orderId, adjustmentId);
+  }
 }
+

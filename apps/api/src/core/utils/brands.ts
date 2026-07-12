@@ -9,6 +9,7 @@ import type {
   ShiftId,
   TableId,
   UserId,
+  OrderAdjustmentId,
 } from '@coaster/common';
 import {
   BarRole,
@@ -19,6 +20,8 @@ import {
   Role,
   ShiftExchangeStatus,
   TableStatus,
+  AdjustmentType,
+  AdjustmentTarget,
 } from '@coaster/common';
 
 // Casting functions
@@ -27,6 +30,7 @@ export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
 export const asOrderId = (id: string): OrderId => id as OrderId;
 export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;
+export const asOrderAdjustmentId = (id: string): OrderAdjustmentId => id as OrderAdjustmentId;
 export const asProductId = (id: string): ProductId => id as ProductId;
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
 export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
@@ -89,3 +93,18 @@ export const asTableStatus = (status: string): TableStatus => {
   console.warn(`Invalid TableStatus mapping: ${status}, defaulting to FREE`);
   return TableStatus.FREE;
 };
+
+export const asAdjustmentType = (type: string): AdjustmentType => {
+  const types: AdjustmentType[] = Object.values(AdjustmentType);
+  if (types.includes(type as AdjustmentType)) return type as AdjustmentType;
+  console.warn(`Invalid AdjustmentType mapping: ${type}, defaulting to FIXED_AMOUNT`);
+  return AdjustmentType.FIXED_AMOUNT;
+};
+
+export const asAdjustmentTarget = (target: string): AdjustmentTarget => {
+  const targets: AdjustmentTarget[] = Object.values(AdjustmentTarget);
+  if (targets.includes(target as AdjustmentTarget)) return target as AdjustmentTarget;
+  console.warn(`Invalid AdjustmentTarget mapping: ${target}, defaulting to ORDER`);
+  return AdjustmentTarget.ORDER;
+};
+

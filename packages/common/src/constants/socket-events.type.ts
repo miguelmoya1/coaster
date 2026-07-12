@@ -22,6 +22,8 @@ export const SocketEvents = {
   orderClosed: 'orderClosed',
   orderCancelled: 'orderCancelled',
   orderDeleted: 'orderDeleted',
+  orderTipUpdated: 'orderTipUpdated',
+  orderAdjustmentsUpdated: 'orderAdjustmentsUpdated',
   shiftCreated: 'shiftCreated',
   shiftDeleted: 'shiftDeleted',
 } as const;
