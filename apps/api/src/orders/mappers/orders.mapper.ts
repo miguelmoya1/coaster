@@ -1,4 +1,5 @@
 import type { Order, OrderItem, OrderAdjustment } from '@coaster/common';
+import { OrderPricingEngine } from '@coaster/common';
 import {
   asBarId,
   asDeliveryStatus,
@@ -29,23 +30,24 @@ export const OrdersMapper = {
   toDomain(dbOrder: OrderWithRelations): Order {
     const adjustments = dbOrder.adjustments ? dbOrder.adjustments.map((a) => OrdersMapper.adjustmentToDomain(a)) : [];
     
-    let orderTotal = dbOrder.totalAmount;
-    for (const adj of adjustments) {
-      if (adj.type === 'FIXED_AMOUNT') {
-        orderTotal -= adj.value;
-      } else if (adj.type === 'PERCENTAGE') {
-        if (adj.target === 'ORDER') {
-          orderTotal -= Math.round((dbOrder.totalAmount * adj.value) / 100);
-        } else if (adj.target === 'ITEM' && adj.itemId) {
-          const item = dbOrder.items.find(i => i.id === adj.itemId);
-          if (item) {
-            orderTotal -= Math.round(((item.priceAtPurchase * item.quantity) * adj.value) / 100);
-          }
-        }
-      }
-    }
-
-    const payableTotal = orderTotal + dbOrder.tipAmount;
+    const pricing = OrderPricingEngine.calculate({
+      items: dbOrder.items.map(i => ({
+        id: i.id,
+        priceAtPurchase: i.priceAtPurchase,
+        quantity: i.quantity,
+        paidQuantity: i.paidQuantity,
+      })),
+      adjustments: adjustments.map(a => ({
+        id: a.id,
+        target: a.target,
+        type: a.type,
+        value: a.value,
+        itemId: a.itemId,
+      })),
+      tipAmount: dbOrder.tipAmount,
+      amountPaidCash: dbOrder.amountPaidCash,
+      amountPaidCard: dbOrder.amountPaidCard,
+    });
 
     return {
       id: asOrderId(dbOrder.id),
@@ -61,8 +63,8 @@ export const OrdersMapper = {
       paymentMethod: asPaymentMethod(dbOrder.paymentMethod),
       notes: dbOrder.notes || undefined,
       tipAmount: dbOrder.tipAmount,
-      orderTotal,
-      payableTotal,
+      orderTotal: pricing.orderTotal,
+      payableTotal: pricing.payableTotal,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.updatedAt.getTime()).toString(),
     };

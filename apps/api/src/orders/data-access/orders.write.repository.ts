@@ -1,6 +1,14 @@
-import type { AddOrderItemsDto, BarId, CreateOrderDto, OrderId, OrderItemId, TableId } from '@coaster/common';
-import { AdjustmentTarget, AdjustmentType, AddOrderAdjustmentDto } from '@coaster/common';
-import { PaymentMethod } from '@coaster/common';
+import type {
+  AddOrderItemsDto,
+  AdjustmentTarget,
+  AdjustmentType,
+  BarId,
+  CreateOrderDto,
+  OrderId,
+  OrderItemId,
+  TableId,
+} from '@coaster/common';
+import { AddOrderAdjustmentDto, OrderPricingEngine, PaymentMethod } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import {
   DbDeliveryStatus,
@@ -88,15 +96,17 @@ export class OrdersWriteRepository {
               notes: item.notes?.substring(0, 500) || null,
             })),
           },
-          adjustments: dto.adjustments ? {
-            create: dto.adjustments.map((adj) => ({
-              target: adj.target,
-              type: adj.type,
-              value: adj.value,
-              reason: adj.reason?.substring(0, 500) || null,
-              itemId: adj.itemId ?? null,
-            }))
-          } : undefined,
+          adjustments: dto.adjustments
+            ? {
+                create: dto.adjustments.map((adj) => ({
+                  target: adj.target,
+                  type: adj.type,
+                  value: adj.value,
+                  reason: adj.reason?.substring(0, 500) || null,
+                  itemId: adj.itemId ?? null,
+                })),
+              }
+            : undefined,
           tipAmount: dto.tipAmount ?? 0,
           notes: dto.notes?.substring(0, 500) || null,
         },
@@ -138,9 +148,9 @@ export class OrdersWriteRepository {
 
       return tx.dbOrder.update({
         where: { id: orderId },
-        data: { 
+        data: {
           totalAmount: currentTotalAmount + additionalAmount,
-          ...(dto.notes !== undefined ? { notes: dto.notes?.substring(0, 500) || null } : {})
+          ...(dto.notes !== undefined ? { notes: dto.notes?.substring(0, 500) || null } : {}),
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
@@ -254,11 +264,42 @@ export class OrdersWriteRepository {
       }
 
       const allItems = await tx.dbOrderItem.findMany({ where: { orderId } });
+      const orderInfo = await tx.dbOrder.findUnique({
+        where: { id: orderId },
+        include: { adjustments: true },
+      });
+
       let amountPaidCash = 0;
       let amountPaidCard = 0;
-      for (const item of allItems) {
-        amountPaidCash += item.paidQuantityCash * item.priceAtPurchase;
-        amountPaidCard += item.paidQuantityCard * item.priceAtPurchase;
+
+      if (orderInfo) {
+        const pricing = OrderPricingEngine.calculate({
+          items: allItems.map((i) => ({
+            id: i.id,
+            priceAtPurchase: i.priceAtPurchase,
+            quantity: i.quantity,
+            paidQuantity: i.paidQuantity,
+          })),
+          adjustments: orderInfo.adjustments.map((a) => ({
+            id: a.id,
+            target: a.target as AdjustmentTarget,
+            type: a.type as AdjustmentType,
+            value: a.value,
+            itemId: a.itemId,
+          })),
+          tipAmount: orderInfo.tipAmount,
+          amountPaidCash: orderInfo.amountPaidCash,
+          amountPaidCard: orderInfo.amountPaidCard,
+        });
+
+        for (const item of allItems) {
+          const pricingLine = pricing.itemLines.find((l) => l.id === item.id);
+          if (pricingLine && item.quantity > 0) {
+            const unitFinalPrice = pricingLine.finalTotal / item.quantity;
+            amountPaidCash += Math.round(unitFinalPrice * item.paidQuantityCash);
+            amountPaidCard += Math.round(unitFinalPrice * item.paidQuantityCard);
+          }
+        }
       }
 
       let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
@@ -446,35 +487,37 @@ export class OrdersWriteRepository {
 
       let amountPaidCash = 0;
       let amountPaidCard = 0;
-      
+
       const orderInfo = await tx.dbOrder.findUnique({
         where: { id: orderId },
-        include: { adjustments: true }
+        include: { adjustments: true },
       });
-      
+
       if (orderInfo) {
-        let orderTotal = totalAmount;
-        for (const adj of orderInfo.adjustments) {
-          if (adj.type === 'FIXED_AMOUNT') {
-            orderTotal -= adj.value;
-          } else if (adj.type === 'PERCENTAGE') {
-            if (adj.target === 'ORDER') {
-              orderTotal -= Math.round((totalAmount * adj.value) / 100);
-            } else if (adj.target === 'ITEM' && adj.itemId) {
-              const item = allItems.find(i => i.id === adj.itemId);
-              if (item) {
-                orderTotal -= Math.round(((item.priceAtPurchase * item.quantity) * adj.value) / 100);
-              }
-            }
-          }
-        }
-        
-        const payableTotal = orderTotal + orderInfo.tipAmount;
-        const pendingAmount = Math.max(0, payableTotal - (orderInfo.amountPaidCash + orderInfo.amountPaidCard));
-        
+        const pricing = OrderPricingEngine.calculate({
+          items: allItems.map((i) => ({
+            id: i.id,
+            priceAtPurchase: i.priceAtPurchase,
+            quantity: i.quantity,
+            paidQuantity: i.paidQuantity,
+          })),
+          adjustments: orderInfo.adjustments.map((a) => ({
+            id: a.id,
+            target: a.target as any,
+            type: a.type as any,
+            value: a.value,
+            itemId: a.itemId,
+          })),
+          tipAmount: orderInfo.tipAmount,
+          amountPaidCash: orderInfo.amountPaidCash,
+          amountPaidCard: orderInfo.amountPaidCard,
+        });
+
+        const pendingAmount = pricing.pendingAmount;
+
         amountPaidCash = orderInfo.amountPaidCash;
         amountPaidCard = orderInfo.amountPaidCard;
-        
+
         if (paymentMethod === DbPaymentMethod.CARD) {
           amountPaidCard += pendingAmount;
         } else {
@@ -568,4 +611,3 @@ export class OrdersWriteRepository {
     });
   }
 }
-
