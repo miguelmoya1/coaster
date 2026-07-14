@@ -32,6 +32,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
       price: command.dto.price ?? 0,
       currentStock: command.dto.currentStock ?? 0,
       minStockAlert: command.dto.minStockAlert ?? 0,
+      imageUrl: command.dto.imageUrl ?? null,
     };
 
     const product = await this.writeRepo.create(validCategoryId, createData);

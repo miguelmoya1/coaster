@@ -11,6 +11,7 @@ export const ProductsMapper = {
       price: dbProduct.price,
       currentStock: dbProduct.currentStock,
       minStockAlert: dbProduct.minStockAlert,
+      imageUrl: dbProduct.imageUrl ?? undefined,
       lastUpdated: dbProduct.updatedAt.toISOString(),
     };
   },

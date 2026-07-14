@@ -8,16 +8,7 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 
 Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es necesario.
 
-### Fase 2: Conectividad y Entorno Físico
-
-**Módulo:** Printer (Impresora de tickets)
-
-- **Impacto en Arquitectura:** Aislamiento de la infraestructura local mediante el bridge en Go.
-- **Estrategia de Seguridad y Red:**
-  1. Descubrimiento dinámico de la IP local o detección desde la interfaz web.
-  2. Implementación de CORS estricto o un sistema de rutas securizadas mediante tokens de autenticación dinámicos rotativos.
-
-### Fase 3: Infraestructura SaaS y Comercialización
+## Fase 2: Infraestructura SaaS y Comercialización
 
 **Módulos:** Landing Page & Monetización con Stripe
 
@@ -26,7 +17,7 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
   1. Migración del enrutamiento de la aplicación hacia `coaster.business/app`, liberando la raíz para la landing comercial.
   2. Integración de Webhooks de Stripe desacoplados. El webhook capturará el evento externo y disparará un evento de dominio interno (`SubscriptionRenewedEvent` o `SubscriptionCancelledEvent`) para actualizar de forma asíncrona el estado del local.
 
-### Fase 4: Operativa Interna y Cumplimiento Legal
+## Fase 3: Operativa Interna y Cumplimiento Legal
 
 **Módulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
@@ -35,7 +26,7 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-### Fase 5: Capa de Inteligencia y Valor Añadido
+## Fase 4: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 

@@ -7,10 +7,11 @@ import { CategoriesStore } from '@coaster/categories';
 import type { Category } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
 
 @Component({
   selector: 'coaster-edit-category-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe, IconPicker],
   host: {
     class: 'block px-6 pb-6 pt-2',
   },
@@ -27,15 +28,11 @@ import { TranslatePipe } from '@ngx-translate/core';
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'pantry.edit_category.icon_label' | translate }}</mat-label>
-          <input matInput [formField]="form.icon" [placeholder]="'pantry.edit_category.icon_placeholder' | translate" />
-          @if (form.icon().errors().length > 0) {
-            <mat-error>{{
-              form.icon().errors()[0].message || form.icon().errors()[0].kind | translate: form.icon().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        <coaster-icon-picker
+          [formField]="form.icon"
+          [label]="'pantry.edit_category.icon_label' | translate"
+          [placeholder]="'pantry.edit_category.icon_placeholder' | translate"
+        />
 
         @if (form().errors().length > 0) {
           <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">

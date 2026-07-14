@@ -53,7 +53,14 @@
   >
     @for (category of tabs(); track category.id) {
       <mat-chip-option [value]="category.id" [selectable]="true" data-testid="category-chip">
-        <span class="text-sm font-medium" data-testid="category-name">{{ category.label | translate }}</span>
+        <div class="flex items-center gap-1.5">
+          @if (category.icon) {
+            <mat-icon fontSet="material-symbols-outlined" class="text-[18px] w-[18px] h-[18px]">
+              {{ category.icon }}
+            </mat-icon>
+          }
+          <span class="text-sm font-medium" data-testid="category-name">{{ category.label | translate }}</span>
+        </div>
         @if (canUpdateCategory() && category.id !== 'ALL') {
           <button
             matChipTrailingIcon
@@ -81,6 +88,7 @@
         [itemName]="product.name"
         [qty]="product.currentStock"
         [price]="product.price"
+        [imageUrl]="product.imageUrl"
         [statusLevel]="product.stockStatus"
         [showEditButton]="canUpdateProduct()"
         (click)="onProductClicked(product)"

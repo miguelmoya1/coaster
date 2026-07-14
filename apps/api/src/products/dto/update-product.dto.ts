@@ -19,4 +19,8 @@ export class UpdateProductDto implements IUpdateProductDto {
   @Min(0, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   declare minStockAlert?: number;
+
+  @IsString({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare imageUrl?: string;
 }

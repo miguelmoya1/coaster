@@ -181,6 +181,7 @@ export const DbProductScalarFieldEnum = {
   categoryId: 'categoryId',
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -205,6 +206,7 @@ export const DbProductTemplateScalarFieldEnum = {
   name: 'name',
   price: 'price',
   categoryId: 'categoryId',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

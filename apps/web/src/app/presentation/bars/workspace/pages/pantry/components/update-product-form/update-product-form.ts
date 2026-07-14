@@ -59,6 +59,21 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'pantry.edit_product.image_url_label' | translate }}</mat-label>
+          <input matInput [formField]="form.imageUrl" [placeholder]="'https://...'" />
+        </mat-form-field>
+
+        @if (form.imageUrl().value()) {
+          <div class="w-full flex justify-center mb-4">
+            <img
+              [src]="form.imageUrl().value()"
+              alt="Preview"
+              class="w-32 h-32 object-cover rounded-xl shadow-md border border-outline-variant/30"
+            />
+          </div>
+        }
+
         <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
         <coaster-number-input
@@ -115,6 +130,7 @@ export class UpdateProductForm {
     price: 0,
     minStockAlert: 0,
     name: '',
+    imageUrl: '',
   });
 
   readonly form = form(
@@ -157,6 +173,7 @@ export class UpdateProductForm {
           categoryId: product.categoryId,
           price: product.price ?? 0,
           minStockAlert: product.minStockAlert,
+          imageUrl: product.imageUrl ?? '',
         });
       }
     });

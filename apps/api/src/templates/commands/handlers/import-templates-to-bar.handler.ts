@@ -58,6 +58,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
       price: number;
       currentStock: number;
       minStockAlert: number;
+      imageUrl?: string | null;
     }[] = [];
 
     for (const categoryTemplate of categoryTemplates) {
@@ -73,6 +74,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
               price: productTemplate.price,
               currentStock: 0,
               minStockAlert: 0,
+              imageUrl: productTemplate.imageUrl,
             });
           }
         }

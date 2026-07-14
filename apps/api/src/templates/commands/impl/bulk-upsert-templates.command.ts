@@ -4,6 +4,7 @@ export interface BulkCategoryTemplateInput {
   products?: {
     name: string;
     price: number;
+    imageUrl?: string;
   }[];
 }
 

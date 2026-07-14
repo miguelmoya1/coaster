@@ -76,19 +76,19 @@ export class TemplatesWriteRepository {
     });
   }
 
-  public async upsertProductTemplate(name: string, price: number, categoryId: string) {
+  public async upsertProductTemplate(name: string, price: number, categoryId: string, imageUrl?: string | null) {
     const existing = await this._db.dbProductTemplate.findFirst({ where: { name, categoryId } });
     if (existing) {
-      if (existing.price !== price) {
+      if (existing.price !== price || existing.imageUrl !== imageUrl) {
         return this._db.dbProductTemplate.update({
           where: { id: existing.id },
-          data: { price },
+          data: { price, imageUrl },
         });
       }
       return existing;
     }
     return this._db.dbProductTemplate.create({
-      data: { name, price, categoryId },
+      data: { name, price, categoryId, imageUrl },
     });
   }
 
@@ -103,7 +103,14 @@ export class TemplatesWriteRepository {
   }
 
   public async createManyProducts(
-    data: { categoryId: string; name: string; price: number; currentStock: number; minStockAlert: number }[],
+    data: {
+      categoryId: string;
+      name: string;
+      price: number;
+      currentStock: number;
+      minStockAlert: number;
+      imageUrl?: string | null;
+    }[],
     skipDuplicates = true,
   ) {
     return this._db.dbProduct.createMany({

@@ -39,6 +39,7 @@ export type DbProductTemplateMinAggregateOutputType = {
   name: string | null
   price: number | null
   categoryId: string | null
+  imageUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type DbProductTemplateMaxAggregateOutputType = {
   name: string | null
   price: number | null
   categoryId: string | null
+  imageUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,6 +59,7 @@ export type DbProductTemplateCountAggregateOutputType = {
   name: number
   price: number
   categoryId: number
+  imageUrl: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -76,6 +79,7 @@ export type DbProductTemplateMinAggregateInputType = {
   name?: true
   price?: true
   categoryId?: true
+  imageUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,6 +89,7 @@ export type DbProductTemplateMaxAggregateInputType = {
   name?: true
   price?: true
   categoryId?: true
+  imageUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type DbProductTemplateCountAggregateInputType = {
   name?: true
   price?: true
   categoryId?: true
+  imageUrl?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -190,6 +196,7 @@ export type DbProductTemplateGroupByOutputType = {
   name: string
   price: number
   categoryId: string
+  imageUrl: string | null
   createdAt: Date
   updatedAt: Date
   _count: DbProductTemplateCountAggregateOutputType | null
@@ -222,6 +229,7 @@ export type DbProductTemplateWhereInput = {
   name?: Prisma.StringFilter<"DbProductTemplate"> | string
   price?: Prisma.IntFilter<"DbProductTemplate"> | number
   categoryId?: Prisma.StringFilter<"DbProductTemplate"> | string
+  imageUrl?: Prisma.StringNullableFilter<"DbProductTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
   category?: Prisma.XOR<Prisma.DbCategoryTemplateScalarRelationFilter, Prisma.DbCategoryTemplateWhereInput>
@@ -232,6 +240,7 @@ export type DbProductTemplateOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.DbCategoryTemplateOrderByWithRelationInput
@@ -245,6 +254,7 @@ export type DbProductTemplateWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"DbProductTemplate"> | string
   price?: Prisma.IntFilter<"DbProductTemplate"> | number
   categoryId?: Prisma.StringFilter<"DbProductTemplate"> | string
+  imageUrl?: Prisma.StringNullableFilter<"DbProductTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
   category?: Prisma.XOR<Prisma.DbCategoryTemplateScalarRelationFilter, Prisma.DbCategoryTemplateWhereInput>
@@ -255,6 +265,7 @@ export type DbProductTemplateOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbProductTemplateCountOrderByAggregateInput
@@ -272,6 +283,7 @@ export type DbProductTemplateScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"DbProductTemplate"> | string
   price?: Prisma.IntWithAggregatesFilter<"DbProductTemplate"> | number
   categoryId?: Prisma.StringWithAggregatesFilter<"DbProductTemplate"> | string
+  imageUrl?: Prisma.StringNullableWithAggregatesFilter<"DbProductTemplate"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbProductTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbProductTemplate"> | Date | string
 }
@@ -280,6 +292,7 @@ export type DbProductTemplateCreateInput = {
   id?: string
   name: string
   price?: number
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.DbCategoryTemplateCreateNestedOneWithoutProductsInput
@@ -290,6 +303,7 @@ export type DbProductTemplateUncheckedCreateInput = {
   name: string
   price?: number
   categoryId: string
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -298,6 +312,7 @@ export type DbProductTemplateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.DbCategoryTemplateUpdateOneRequiredWithoutProductsNestedInput
@@ -308,6 +323,7 @@ export type DbProductTemplateUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +333,7 @@ export type DbProductTemplateCreateManyInput = {
   name: string
   price?: number
   categoryId: string
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -325,6 +342,7 @@ export type DbProductTemplateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -334,6 +352,7 @@ export type DbProductTemplateUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -353,6 +372,7 @@ export type DbProductTemplateCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -366,6 +386,7 @@ export type DbProductTemplateMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -375,6 +396,7 @@ export type DbProductTemplateMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -429,6 +451,7 @@ export type DbProductTemplateCreateWithoutCategoryInput = {
   id?: string
   name: string
   price?: number
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +460,7 @@ export type DbProductTemplateUncheckedCreateWithoutCategoryInput = {
   id?: string
   name: string
   price?: number
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -475,6 +499,7 @@ export type DbProductTemplateScalarWhereInput = {
   name?: Prisma.StringFilter<"DbProductTemplate"> | string
   price?: Prisma.IntFilter<"DbProductTemplate"> | number
   categoryId?: Prisma.StringFilter<"DbProductTemplate"> | string
+  imageUrl?: Prisma.StringNullableFilter<"DbProductTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbProductTemplate"> | Date | string
 }
@@ -483,6 +508,7 @@ export type DbProductTemplateCreateManyCategoryInput = {
   id?: string
   name: string
   price?: number
+  imageUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -491,6 +517,7 @@ export type DbProductTemplateUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -499,6 +526,7 @@ export type DbProductTemplateUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -507,6 +535,7 @@ export type DbProductTemplateUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -518,6 +547,7 @@ export type DbProductTemplateSelect<ExtArgs extends runtime.Types.Extensions.Int
   name?: boolean
   price?: boolean
   categoryId?: boolean
+  imageUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.DbCategoryTemplateDefaultArgs<ExtArgs>
@@ -528,6 +558,7 @@ export type DbProductTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   price?: boolean
   categoryId?: boolean
+  imageUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.DbCategoryTemplateDefaultArgs<ExtArgs>
@@ -538,6 +569,7 @@ export type DbProductTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   price?: boolean
   categoryId?: boolean
+  imageUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.DbCategoryTemplateDefaultArgs<ExtArgs>
@@ -548,11 +580,12 @@ export type DbProductTemplateSelectScalar = {
   name?: boolean
   price?: boolean
   categoryId?: boolean
+  imageUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbProductTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["dbProductTemplate"]>
+export type DbProductTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "categoryId" | "imageUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["dbProductTemplate"]>
 export type DbProductTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.DbCategoryTemplateDefaultArgs<ExtArgs>
 }
@@ -573,6 +606,7 @@ export type $DbProductTemplatePayload<ExtArgs extends runtime.Types.Extensions.I
     name: string
     price: number
     categoryId: string
+    imageUrl: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dbProductTemplate"]>
@@ -1003,6 +1037,7 @@ export interface DbProductTemplateFieldRefs {
   readonly name: Prisma.FieldRef<"DbProductTemplate", 'String'>
   readonly price: Prisma.FieldRef<"DbProductTemplate", 'Int'>
   readonly categoryId: Prisma.FieldRef<"DbProductTemplate", 'String'>
+  readonly imageUrl: Prisma.FieldRef<"DbProductTemplate", 'String'>
   readonly createdAt: Prisma.FieldRef<"DbProductTemplate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbProductTemplate", 'DateTime'>
 }

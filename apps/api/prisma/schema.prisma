@@ -198,6 +198,7 @@ model DbProduct {
   category      DbCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   currentStock  Int           @default(0)
   minStockAlert Int           @default(0)
+  imageUrl      String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?
@@ -223,6 +224,7 @@ model DbProductTemplate {
   price      Int                @default(0)
   categoryId String
   category   DbCategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  imageUrl   String?
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
 

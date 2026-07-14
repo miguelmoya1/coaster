@@ -87,8 +87,8 @@ export default class Pantry {
   readonly tabs = computed(() => {
     const rawCategories = this.categories.value() ?? [];
     return [
-      { id: 'ALL', label: this.#translate.instant('pantry.all') },
-      ...rawCategories.map((c) => ({ id: c.id, label: c.name })),
+      { id: 'ALL', label: this.#translate.instant('pantry.all'), icon: null },
+      ...rawCategories.map((c) => ({ id: c.id, label: c.name, icon: c.icon })),
     ];
   });
 

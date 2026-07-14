@@ -11,6 +11,7 @@ export interface IProductTemplate {
   name: string;
   price: number;
   categoryId: string;
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

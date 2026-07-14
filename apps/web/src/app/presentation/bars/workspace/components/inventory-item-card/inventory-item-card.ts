@@ -12,14 +12,33 @@ import { PricePipe } from '../../pipes/price/price';
   template: `
     <div class="flex items-center justify-between w-full gap-2 min-w-0">
       <div class="flex items-center min-w-0 flex-1 gap-3">
-        <!-- Icon -->
-        <div class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0">
-          <mat-icon [class]="'text-xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
+        <!-- Icon / Image -->
+        <div
+          class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
+        >
+          @if (imageUrl()) {
+            <img
+              [src]="imageUrl()"
+              alt="product image"
+              class="w-full h-full object-cover"
+              (error)="imageError = true"
+              [class.hidden]="imageError"
+            />
+            @if (imageError) {
+              <mat-icon [class]="'text-xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
+            }
+          } @else {
+            <mat-icon [class]="'text-xl ' + (statusLevel() | stockStatus: 'text-color')">{{ icon() }}</mat-icon>
+          }
         </div>
 
         <!-- Info -->
         <div class="grow min-w-0 flex flex-col gap-0.5">
-          <h3 data-testid="pantry-item-name" class="text-sm font-bold text-on-surface truncate" [title]="itemName() | translate">
+          <h3
+            data-testid="pantry-item-name"
+            class="text-sm font-bold text-on-surface truncate"
+            [title]="itemName() | translate"
+          >
             {{ itemName() | translate }}
           </h3>
           @if (price() > 0) {
@@ -75,11 +94,14 @@ export class InventoryItemCard {
   readonly qty = input.required<number>();
   readonly price = input<number>(0);
   readonly icon = input('inventory_2');
+  readonly imageUrl = input<string | undefined | null>();
   readonly statusLevel = input<StockStatus>('GOOD');
   readonly disabled = input(false);
   readonly showEditButton = input(false);
   readonly editClicked = output<void>();
   readonly deleteClicked = output<void>();
+
+  imageError = false;
 
   readonly hostClasses = computed(
     () =>

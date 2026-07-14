@@ -18,6 +18,7 @@ export class TemplatesMapper {
       name: productTemplate.name,
       price: productTemplate.price,
       categoryId: productTemplate.categoryId,
+      imageUrl: productTemplate.imageUrl ?? undefined,
       createdAt: Temporal.Instant.fromEpochMilliseconds(productTemplate.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(productTemplate.updatedAt.getTime()).toString(),
     };

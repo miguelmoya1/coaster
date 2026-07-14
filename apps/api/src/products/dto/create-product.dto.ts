@@ -22,4 +22,8 @@ export class CreateProductDto implements ICreateProductDto {
   @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   declare minStockAlert?: number;
+
+  @IsString({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare imageUrl?: string;
 }
