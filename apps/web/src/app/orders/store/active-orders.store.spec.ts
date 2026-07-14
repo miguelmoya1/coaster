@@ -8,7 +8,6 @@ import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
-import { PrintOrder } from '../services/print-order';
 import { ActiveOrdersStore } from './active-orders.store';
 
 describe('ActiveOrdersStore', () => {
@@ -32,9 +31,6 @@ describe('ActiveOrdersStore', () => {
     moveTable: vi.fn().mockResolvedValue(undefined),
     merge: vi.fn().mockResolvedValue(undefined),
     removeItem: vi.fn().mockResolvedValue(undefined),
-  };
-  const printOrderMock = {
-    execute: vi.fn().mockResolvedValue(undefined),
   };
   const socketMock = {
     orderCreated: signal<Order | null>(null),
@@ -66,7 +62,6 @@ describe('ActiveOrdersStore', () => {
         { provide: CreateOrder, useValue: createOrderMock },
         { provide: DeleteOrder, useValue: deleteOrderMock },
         { provide: ManageOrder, useValue: manageOrderMock },
-        { provide: PrintOrder, useValue: printOrderMock },
         { provide: Socket, useValue: socketMock },
         { provide: Toast, useValue: toastMock },
       ],

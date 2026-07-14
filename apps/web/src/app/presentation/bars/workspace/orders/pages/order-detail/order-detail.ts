@@ -4,13 +4,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
-import { OrderStatus, PaymentMethod, AdjustmentTarget } from '@coaster/common';
+import { AdjustmentTarget, OrderStatus, PaymentMethod } from '@coaster/common';
 import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
+import { PrintTicket } from '@coaster/printer';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../../components/loading/loading';
+import { AddAdjustmentDialog, AddAdjustmentResult } from './components/add-adjustment-dialog/add-adjustment-dialog';
 import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
 import { OrderActions } from './components/order-actions/order-actions';
@@ -19,7 +21,6 @@ import { OrderItemCard } from './components/order-item-card/order-item-card';
 import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
 import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
 import { UpdateTipDialog } from './components/update-tip-dialog/update-tip-dialog';
-import { AddAdjustmentDialog, AddAdjustmentResult } from './components/add-adjustment-dialog/add-adjustment-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
@@ -48,6 +49,7 @@ class OrderDetail {
   readonly #tablesStore = inject(TablesStore);
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
+  readonly #printTicket = inject(PrintTicket);
 
   readonly #translate = inject(TranslateService);
 
@@ -419,9 +421,7 @@ class OrderDetail {
     this.isPrinting.set(true);
 
     try {
-      await this.#activeOrdersStore.printOrder(order);
-    } catch {
-      // Toast handled in the store
+      await this.#printTicket.execute(order);
     } finally {
       this.isPrinting.set(false);
     }
@@ -477,9 +477,8 @@ class OrderDetail {
         type: result.type,
         value: result.value,
         reason: result.reason,
-        itemId: itemId,
+        itemId: itemId ? asOrderItemId(itemId) : undefined,
       });
-      // Optionally reload the order if the store doesn't handle full state replacement
       const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
       this.fetchedOrder.set(updated);
     } catch (e) {

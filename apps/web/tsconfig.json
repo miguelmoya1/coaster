@@ -19,6 +19,7 @@
       "@coaster/exchanges": ["./src/app/exchanges/index.ts"],
       "@coaster/members": ["./src/app/members/index.ts"],
       "@coaster/orders": ["./src/app/orders/index.ts"],
+      "@coaster/printer": ["./src/app/printer/index.ts"],
       "@coaster/products": ["./src/app/products/index.ts"],
       "@coaster/roster": ["./src/app/roster/index.ts"],
       "@coaster/shifts": ["./src/app/shifts/index.ts"],

@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type {
+  AddOrderAdjustmentDto,
   AddOrderItemsDto,
   BarId,
   BulkUpdateDto,
@@ -18,7 +19,6 @@ import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
-import { PrintOrder } from '../services/print-order';
 
 @Service()
 export class ActiveOrdersStore {
@@ -26,7 +26,6 @@ export class ActiveOrdersStore {
   readonly #createOrder = inject(CreateOrder);
   readonly #deleteOrder = inject(DeleteOrder);
   readonly #manageOrder = inject(ManageOrder);
-  readonly #printOrder = inject(PrintOrder);
   readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | undefined>(undefined);
@@ -134,7 +133,7 @@ export class ActiveOrdersStore {
         const currentBarId = this.#currentBarId();
         if (currentBarId) {
           this.getOrder(currentBarId, orderId).then((updatedOrder) => {
-             upsertOrder(updatedOrder);
+            upsertOrder(updatedOrder);
           });
         }
       }
@@ -225,9 +224,6 @@ export class ActiveOrdersStore {
     await this.#deleteOrder.execute(barId, orderId);
   }
 
-  public async printOrder(order: Order): Promise<void> {
-    await this.#printOrder.execute(order);
-  }
 
   public async updateTip(barId: BarId, orderId: OrderId, tipAmount: number): Promise<void> {
     // Optimistic update
@@ -244,7 +240,7 @@ export class ActiveOrdersStore {
     }
   }
 
-  public async addAdjustment(barId: BarId, orderId: OrderId, dto: any): Promise<void> {
+  public async addAdjustment(barId: BarId, orderId: OrderId, dto: AddOrderAdjustmentDto): Promise<void> {
     await this.#manageOrder.addAdjustment(barId, orderId, dto);
   }
 
@@ -252,4 +248,3 @@ export class ActiveOrdersStore {
     await this.#manageOrder.removeAdjustment(barId, orderId, adjustmentId);
   }
 }
-
