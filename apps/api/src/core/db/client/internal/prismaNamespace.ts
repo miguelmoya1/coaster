@@ -396,7 +396,8 @@ export const ModelName = {
   DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
-  DbOrderItem: 'DbOrderItem'
+  DbOrderItem: 'DbOrderItem',
+  DbPrinterConfig: 'DbPrinterConfig'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DbPrinterConfig: {
+      payload: Prisma.$DbPrinterConfigPayload<ExtArgs>
+      fields: Prisma.DbPrinterConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbPrinterConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbPrinterConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.DbPrinterConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbPrinterConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        findMany: {
+          args: Prisma.DbPrinterConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>[]
+        }
+        create: {
+          args: Prisma.DbPrinterConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        createMany: {
+          args: Prisma.DbPrinterConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbPrinterConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.DbPrinterConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        update: {
+          args: Prisma.DbPrinterConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbPrinterConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbPrinterConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbPrinterConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbPrinterConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.DbPrinterConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbPrinterConfig>
+        }
+        groupBy: {
+          args: Prisma.DbPrinterConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbPrinterConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbPrinterConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbPrinterConfigCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1596,6 +1671,20 @@ export const DbOrderItemScalarFieldEnum = {
 } as const
 
 export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[keyof typeof DbOrderItemScalarFieldEnum]
+
+
+export const DbPrinterConfigScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  deviceKey: 'deviceKey',
+  ipAddress: 'ipAddress',
+  port: 'port',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1939,6 +2028,7 @@ export type GlobalOmitConfig = {
   dbTable?: Prisma.DbTableOmit
   dbOrder?: Prisma.DbOrderOmit
   dbOrderItem?: Prisma.DbOrderItemOmit
+  dbPrinterConfig?: Prisma.DbPrinterConfigOmit
 }
 
 /* Types for Logging */

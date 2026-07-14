@@ -29,6 +29,9 @@ const STAFF_PERMISSIONS: BarPermission[] = [
   'bar:create-exchange',
   'bar:accept-exchange',
   'bar:delete-exchange',
+
+  // --- Printer ---
+  'bar:view-printer',
 ];
 
 export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
@@ -49,6 +52,9 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
     // --- Roster Management ---
     'bar:create-shift',
     'bar:delete-shift',
+
+    // --- Printer Management ---
+    'bar:manage-printer',
 
     // Inherits all staff permissions
     ...STAFF_PERMISSIONS,
@@ -92,6 +98,9 @@ export const getRolePermissions = (role: BarRole): BarPermission[] => {
       // --- Roster Management ---
       'bar:create-shift',
       'bar:delete-shift',
+
+      // --- Printer Management ---
+      'bar:manage-printer',
 
       // Inherits all staff permissions
       ...STAFF_PERMISSIONS,

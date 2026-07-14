@@ -63,7 +63,8 @@ export const ModelName = {
   DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
-  DbOrderItem: 'DbOrderItem'
+  DbOrderItem: 'DbOrderItem',
+  DbPrinterConfig: 'DbPrinterConfig'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -261,6 +262,20 @@ export const DbOrderItemScalarFieldEnum = {
 } as const
 
 export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[keyof typeof DbOrderItemScalarFieldEnum]
+
+
+export const DbPrinterConfigScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  deviceKey: 'deviceKey',
+  ipAddress: 'ipAddress',
+  port: 'port',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
 
 
 export const SortOrder = {

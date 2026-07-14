@@ -82,3 +82,8 @@ export type DbOrder = Prisma.DbOrderModel
  * 
  */
 export type DbOrderItem = Prisma.DbOrderItemModel
+/**
+ * Model DbPrinterConfig
+ * 
+ */
+export type DbPrinterConfig = Prisma.DbPrinterConfigModel

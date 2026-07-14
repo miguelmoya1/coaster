@@ -117,15 +117,16 @@ model DbUser {
 }
 
 model DbBar {
-  id         String        @id @default(uuid())
+  id         String           @id @default(uuid())
   name       String
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
   members    DbBarMember[]
   shifts     DbShift[]
   categories DbCategory[]
   tables     DbTable[]
   orders     DbOrder[]
+  printer    DbPrinterConfig?
 
   @@map("Bar")
 }
@@ -284,4 +285,18 @@ model DbOrderItem {
   updatedAt        DateTime            @updatedAt
 
   @@map("OrderItem")
+}
+
+model DbPrinterConfig {
+  id         String    @id @default(uuid())
+  barId      String    @unique
+  bar        DbBar     @relation(fields: [barId], references: [id], onDelete: Cascade)
+  deviceKey  String    @default(uuid())
+  ipAddress  String?
+  port       Int       @default(8080)
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("PrinterConfig")
 }
