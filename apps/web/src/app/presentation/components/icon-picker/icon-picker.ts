@@ -5,6 +5,25 @@ import { MatIcon } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 
+export const AVAILABLE_ICONS = [
+  'category',
+  'local_bar',
+  'local_cafe',
+  'restaurant',
+  'fastfood',
+  'sports_bar',
+  'icecream',
+  'tapas',
+  'wine_bar',
+  'liquor',
+  'local_dining',
+  'local_pizza',
+  'lunch_dining',
+  'coffee',
+  'bakery_dining',
+  'cake',
+];
+
 @Component({
   selector: 'coaster-icon-picker',
   imports: [MatFormField, MatLabel, MatHint, MatError, TranslatePipe, MatIcon, MatSelectModule],
@@ -69,24 +88,7 @@ export class IconPicker {
   readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
   readonly required = input<boolean>(false);
 
-  readonly availableIcons = [
-    'category',
-    'local_bar',
-    'local_cafe',
-    'restaurant',
-    'fastfood',
-    'sports_bar',
-    'icecream',
-    'tapas',
-    'wine_bar',
-    'liquor',
-    'local_dining',
-    'local_pizza',
-    'lunch_dining',
-    'coffee',
-    'bakery_dining',
-    'cake',
-  ];
+  readonly availableIcons = AVAILABLE_ICONS;
 
   onSelectionChange(newValue: string) {
     this.value.set(newValue);

@@ -14,7 +14,7 @@
 <div class="flex flex-col gap-6 relative">
   <div class="flex flex-col gap-4 w-full min-w-0">
     <coaster-pos-search [(query)]="searchQuery" />
-    <coaster-pos-category-selector [categories]="categories()" [(selectedCategory)]="selectedCategory" />
+    <coaster-category-filter [categories]="categories()" [(selectedCategoryId)]="selectedCategory" />
     <coaster-pos-products-list [products]="filteredProducts()" (productClicked)="addToCart($event)" />
   </div>
 

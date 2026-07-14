@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, input, inputBinding, outputBinding
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIcon } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -12,6 +11,7 @@ import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CategoryFilter } from '../../../../components/category-filter/category-filter';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Loading } from '../../../../components/loading/loading';
 import { Fab } from '../../components/fab/fab';
@@ -25,9 +25,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
 @Component({
   selector: 'coaster-pantry',
   imports: [
-    MatChipListbox,
-    MatChipOption,
-    MatChipTrailingIcon,
+    CategoryFilter,
     InventoryItemCard,
     Loading,
     RouterLink,
@@ -84,14 +82,6 @@ export default class Pantry {
   readonly criticalProductsCount = this.#productsStore.criticalStock;
   readonly alertProductsCount = this.#productsStore.lowStock;
 
-  readonly tabs = computed(() => {
-    const rawCategories = this.categories.value() ?? [];
-    return [
-      { id: 'ALL', label: this.#translate.instant('pantry.all'), icon: null },
-      ...rawCategories.map((c) => ({ id: c.id, label: c.name, icon: c.icon })),
-    ];
-  });
-
   readonly filteredProducts = computed(() => {
     if (!this.products.hasValue()) {
       return [];
@@ -139,15 +129,6 @@ export default class Pantry {
     });
   }
 
-  onCategoryChange(event: MatChipListboxChange, listbox: MatChipListbox) {
-    const value = event.value;
-    if (value === undefined || value === null) {
-      listbox.value = this.selectedCategoryId();
-    } else {
-      this.selectedCategoryId.set(value);
-    }
-  }
-
   onProductClicked(product: Product) {
     const bottomSheetRef = this.#bottomSheet.open(UpdateStockProductForm, {
       bindings: [
@@ -177,11 +158,7 @@ export default class Pantry {
     });
   }
 
-  onEditCategoryClicked(event?: Event, categoryId?: string) {
-    if (event) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
+  onEditCategoryClicked(categoryId: string) {
     const targetId = categoryId || this.selectedCategoryId();
     if (targetId === 'ALL') return;
     const cat = this.categories.value()?.find((c) => c.id === targetId);

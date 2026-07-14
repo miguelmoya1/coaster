@@ -1,4 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
@@ -7,18 +9,16 @@ import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
 
+import { CategoryFilter } from '../../../../../components/category-filter/category-filter';
 import { CartItem, PosCart } from './components/pos-cart/pos-cart';
-import { PosSearch } from './components/pos-search/pos-search';
-import { PosCategorySelector } from './components/pos-category-selector/pos-category-selector';
 import { PosProductsList } from './components/pos-products-list/pos-products-list';
+import { PosSearch } from './components/pos-search/pos-search';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [PosSearch, PosCategorySelector, PosProductsList, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
+  imports: [CategoryFilter, PosProductsList, PosSearch, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
 })
@@ -122,11 +122,11 @@ class NewOrder {
     effect(() => {
       const orderId = this.existingOrderId();
       if (!orderId || this.#initialNotesLoaded) return;
-      
+
       const orders = this.#activeOrdersStore.list.value();
       if (!orders) return;
-      
-      const existingOrder = orders.find(o => o.id === orderId);
+
+      const existingOrder = orders.find((o) => o.id === orderId);
       if (existingOrder) {
         if (existingOrder.notes) {
           this.orderNotes.set(existingOrder.notes);
@@ -202,9 +202,9 @@ class NewOrder {
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#activeOrdersStore.addItems(this.barId(), orderId, { 
+        await this.#activeOrdersStore.addItems(this.barId(), orderId, {
           items: itemDtos,
-          notes: this.orderNotes()
+          notes: this.orderNotes(),
         });
       } else {
         await this.#activeOrdersStore.create(this.barId(), {
