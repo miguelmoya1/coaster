@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { MatCard } from '@angular/material/card';
 import { Product } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -21,6 +21,11 @@ import { PricePipe } from '../../../../../pipes/price/price';
             [class.border-error/30]="product.currentStock <= 0"
             (click)="productClicked.emit(product)"
           >
+            @if (product.imageUrl && !brokenImages().has(product.id)) {
+              <div class="w-14 h-14 rounded-lg overflow-hidden shrink-0 mb-1 bg-surface-container-highest">
+                <img [src]="product.imageUrl" alt="product image" class="w-full h-full object-cover" (error)="handleImageError(product.id)" />
+              </div>
+            }
             <span
               class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 wrap-break-word w-full h-10 flex items-center justify-center"
               [title]="product.name | translate"
@@ -57,4 +62,12 @@ import { PricePipe } from '../../../../../pipes/price/price';
 export class PosProductsList {
   readonly products = input.required<Product[]>();
   readonly productClicked = output<Product>();
+  
+  readonly brokenImages = signal<Set<string>>(new Set());
+
+  handleImageError(productId: string) {
+    const current = new Set(this.brokenImages());
+    current.add(productId);
+    this.brokenImages.set(current);
+  }
 }
