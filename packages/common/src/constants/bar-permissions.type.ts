@@ -34,6 +34,8 @@ export const BarPermission = {
   BAR_ACCEPT_EXCHANGE: 'bar:accept-exchange',
   BAR_DELETE_EXCHANGE: 'bar:delete-exchange',
   BAR_IMPORT_TEMPLATES: 'bar:import-templates',
+  BAR_VIEW_PRINTER: 'bar:view-printer',
+  BAR_MANAGE_PRINTER: 'bar:manage-printer',
 } as const;
 
 export type BarPermission = (typeof BarPermission)[keyof typeof BarPermission];

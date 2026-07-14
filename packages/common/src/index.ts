@@ -20,6 +20,7 @@ export * from './interfaces/brand.type';
 export * from './interfaces/category.interface';
 export * from './interfaces/common.interface';
 export * from './interfaces/order.interface';
+export * from './interfaces/printer.interface';
 export * from './interfaces/product.interface';
 export * from './interfaces/shift.interface';
 export * from './interfaces/stats.interface';
