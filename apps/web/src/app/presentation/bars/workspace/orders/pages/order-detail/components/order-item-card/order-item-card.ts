@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { DeliveryStatus, OrderItem, PaymentStatus, AdjustmentType, AdjustmentTarget, OrderAdjustment } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -54,7 +54,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
             <span>{{ adj.reason || 'Descuento' }}</span>
             <span class="font-bold">(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span>
             @if (isOpen()) {
-              <button mat-icon-button class="w-4! h-4! p-0!" (click)="onRemoveAdjustment.emit(adj.id); $event.stopPropagation()">
+              <button mat-icon-button class="w-4! h-4! p-0!" (click)="removeAdjustment.emit(adj.id); $event.stopPropagation()">
                 <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]!">close</mat-icon>
               </button>
             }
@@ -133,7 +133,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
           <button
             mat-icon-button
-            (click)="onAddAdjustment.emit(item().id); $event.stopPropagation()"
+            (click)="addAdjustment.emit(item().id); $event.stopPropagation()"
             title="Añadir descuento/invitación"
           >
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">local_offer</mat-icon>
@@ -166,8 +166,8 @@ export class OrderItemCard {
   public readonly updatePayQty = output<number>();
   public readonly removeItem = output<void>();
 
-  public readonly onAddAdjustment = output<string>();
-  public readonly onRemoveAdjustment = output<string>();
+  public readonly addAdjustment = output<string>();
+  public readonly removeAdjustment = output<string>();
 
   itemAdjustments() {
     return this.adjustments().filter(a => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);

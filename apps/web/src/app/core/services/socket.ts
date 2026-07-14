@@ -1,5 +1,5 @@
 import { OnDestroy, Service, signal } from '@angular/core';
-import type { Category, Order, Product, Shift, Table } from '@coaster/common';
+import type { Category, Order, OrderAdjustment, Product, Shift, Table } from '@coaster/common';
 import { SocketEvents } from '@coaster/common';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
@@ -17,7 +17,7 @@ export class Socket implements OnDestroy {
   readonly orderCancelled = signal<{ id: string } | Order | null>(null);
   readonly orderItemAdded = signal<Order | null>(null);
   readonly orderTipUpdated = signal<{ orderId: string, tipAmount: number } | null>(null);
-  readonly orderAdjustmentsUpdated = signal<{ orderId: string, adjustments: any[] } | null>(null);
+  readonly orderAdjustmentsUpdated = signal<{ orderId: string, adjustments: OrderAdjustment[] } | null>(null);
   readonly tableStatusChanged = signal<Partial<Table> | null>(null);
   readonly productCreated = signal<Product | null>(null);
   readonly productStockChanged = signal<Product | null>(null);
@@ -83,7 +83,7 @@ export class Socket implements OnDestroy {
       this.orderTipUpdated.set(payload);
     });
 
-    this.#socket.on(SocketEvents.orderAdjustmentsUpdated, (payload: { orderId: string, adjustments: any[] }) => {
+    this.#socket.on(SocketEvents.orderAdjustmentsUpdated, (payload: { orderId: string, adjustments: OrderAdjustment[] }) => {
       this.orderAdjustmentsUpdated.set(payload);
     });
 

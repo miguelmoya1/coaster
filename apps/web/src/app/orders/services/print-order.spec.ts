@@ -10,8 +10,6 @@ describe('PrintOrder', () => {
   let printerRepositoryMock: {
     printText: ReturnType<typeof vi.fn>;
   };
-  let toLocaleStringSpy: any;
-
   beforeEach(() => {
     printerRepositoryMock = {
       printText: vi.fn().mockResolvedValue(undefined),
@@ -22,7 +20,7 @@ describe('PrintOrder', () => {
     });
 
     service = TestBed.inject(PrintOrder);
-    toLocaleStringSpy = vi.spyOn(Date.prototype, 'toLocaleString').mockReturnValue('7/13/2026, 7:43:40 PM');
+    vi.spyOn(Date.prototype, 'toLocaleString').mockReturnValue('7/13/2026, 7:43:40 PM');
   });
 
   afterEach(() => {

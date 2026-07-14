@@ -1,4 +1,4 @@
-import type { BarId, Order, OrderId, OrderItemId } from '@coaster/common';
+import type { BarId, Order, OrderId, OrderItemId, OrderAdjustmentId } from '@coaster/common';
 import { BarPermission, OrderStatus } from '@coaster/common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -161,7 +161,7 @@ export class OrdersController {
     @Param('adjustmentId') adjustmentId: string,
   ): Promise<void> {
     await this._commandBus.execute<RemoveOrderAdjustmentCommand, void>(
-      new RemoveOrderAdjustmentCommand(barId, orderId, adjustmentId as any),
+      new RemoveOrderAdjustmentCommand(barId, orderId, adjustmentId as OrderAdjustmentId),
     );
   }
 }

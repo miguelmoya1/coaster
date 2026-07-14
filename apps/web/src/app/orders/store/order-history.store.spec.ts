@@ -65,9 +65,9 @@ describe('OrderHistoryStore', () => {
     it('should calculate totals and average ticket correctly', () => {
       // Simulate resource loading data
       const mockOrders: any[] = [
-        { id: '1', status: OrderStatus.CLOSED, totalAmount: 1000 },
-        { id: '2', status: OrderStatus.CLOSED, totalAmount: 2000 },
-        { id: '3', status: OrderStatus.CANCELLED, totalAmount: 500 },
+        { id: '1', status: OrderStatus.CLOSED, totalAmount: 1000, orderTotal: 1000 },
+        { id: '2', status: OrderStatus.CLOSED, totalAmount: 2000, orderTotal: 2000 },
+        { id: '3', status: OrderStatus.CANCELLED, totalAmount: 500, orderTotal: 500 },
       ];
       
       // Override the internal resource value

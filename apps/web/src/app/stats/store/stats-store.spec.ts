@@ -100,6 +100,10 @@ describe('StatsStore', () => {
         amountPaidCash: 0,
         amountPaidCard: 0,
         paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();
@@ -137,6 +141,10 @@ describe('StatsStore', () => {
         amountPaidCash: 0,
         amountPaidCard: 0,
         paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();
@@ -167,6 +175,10 @@ describe('StatsStore', () => {
         amountPaidCash: 0,
         amountPaidCard: 0,
         paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();

@@ -39,6 +39,8 @@ describe('ActiveOrdersStore', () => {
     orderCancelled: signal<Order | null>(null),
     orderItemAdded: signal<Order | null>(null),
     orderDeleted: signal<{ id: string } | null>(null),
+    orderTipUpdated: signal<{ orderId: string; tipAmount: number } | null>(null),
+    orderAdjustmentsUpdated: signal<{ orderId: string; adjustments: unknown[] } | null>(null),
   };
   const toastMock = {
     error: vi.fn(),
@@ -54,6 +56,8 @@ describe('ActiveOrdersStore', () => {
     socketMock.orderCancelled.set(null);
     socketMock.orderItemAdded.set(null);
     socketMock.orderDeleted.set(null);
+    socketMock.orderTipUpdated.set(null);
+    socketMock.orderAdjustmentsUpdated.set(null);
 
     TestBed.configureTestingModule({
       providers: [

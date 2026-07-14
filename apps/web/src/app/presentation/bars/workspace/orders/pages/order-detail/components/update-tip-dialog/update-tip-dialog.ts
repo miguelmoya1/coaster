@@ -4,7 +4,6 @@ import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
-import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-update-tip-dialog',

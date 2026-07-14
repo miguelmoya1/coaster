@@ -20,7 +20,7 @@ type OrderItemWithProduct = OrderItemDb & {
   product: { name: string };
 };
 
-type OrderWithRelations = OrderDb & {
+export type OrderWithRelations = OrderDb & {
   items: OrderItemWithProduct[];
   table: { name: string } | null;
   adjustments: OrderAdjustmentDb[];

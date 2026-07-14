@@ -12,9 +12,9 @@
 @if (displayOrderViewModel(); as order) {
   <coaster-order-summary-card
     [order]="order"
-    (onUpdateTip)="onUpdateTip($event)"
-    (onAddAdjustment)="onAddAdjustment()"
-    (onRemoveAdjustment)="onRemoveAdjustment($event)"
+    (updateTip)="onUpdateTip($event)"
+    (addAdjustment)="onAddAdjustment()"
+    (removeAdjustment)="onRemoveAdjustment($event)"
   />
 
   <div class="flex flex-col gap-2">
@@ -28,8 +28,8 @@
         (toggleSelect)="toggleSelectItem(item)"
         (updatePayQty)="updateSelectedPayQty(item.id, $event)"
         (removeItem)="handleRemoveItem(item)"
-        (onAddAdjustment)="onAddAdjustment(item.id)"
-        (onRemoveAdjustment)="onRemoveAdjustment($event)"
+        (addAdjustment)="onAddAdjustment(item.id)"
+        (removeAdjustment)="onRemoveAdjustment($event)"
       />
     }
   </div>

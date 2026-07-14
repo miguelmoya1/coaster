@@ -5,7 +5,7 @@ import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderAdjustmentsUpdatedEvent } from '../../events';
 import { RemoveOrderAdjustmentCommand } from '../impl/remove-order-adjustment.command';
-import { OrdersMapper } from '../../mappers/orders.mapper';
+import { OrdersMapper, OrderWithRelations } from '../../mappers/orders.mapper';
 
 @CommandHandler(RemoveOrderAdjustmentCommand)
 export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrderAdjustmentCommand, void> {
@@ -31,7 +31,7 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
     }
 
     const updatedOrderDb = await this.writeRepo.removeAdjustmentFromOrder(command.orderId, command.adjustmentId);
-    const updatedOrderDomain = OrdersMapper.toDomain(updatedOrderDb as any);
+    const updatedOrderDomain = OrdersMapper.toDomain(updatedOrderDb as OrderWithRelations);
 
     this.#logger.debug(`Publishing OrderAdjustmentsUpdatedEvent...`);
     this._eventBus.publish(new OrderAdjustmentsUpdatedEvent(command.barId, command.orderId, updatedOrderDomain.adjustments));

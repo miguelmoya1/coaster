@@ -64,7 +64,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           @for (adj of globalAdjustments(); track adj.id) {
             <div class="text-sm text-tertiary flex items-center gap-2">
               @if (order().status === OrderStatus.OPEN) {
-                <button mat-icon-button class="w-6! h-6! p-0!" (click)="onRemoveAdjustment.emit(adj.id)">
+                <button mat-icon-button class="w-6! h-6! p-0!" (click)="removeAdjustment.emit(adj.id)">
                   <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]!">close</mat-icon>
                 </button>
               }
@@ -74,7 +74,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
           <div class="text-sm text-on-surface-variant flex items-center gap-2 group">
             @if (order().status === OrderStatus.OPEN) {
-              <button mat-icon-button class="w-6! h-6! p-0! opacity-0 group-hover:opacity-100 transition-opacity" (click)="onUpdateTip.emit(order().tipAmount || 0)">
+              <button mat-icon-button class="w-6! h-6! p-0! opacity-0 group-hover:opacity-100 transition-opacity" (click)="updateTip.emit(order().tipAmount || 0)">
                 <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]!">edit</mat-icon>
               </button>
             }
@@ -84,8 +84,8 @@ import { PricePipe } from '../../../../../pipes/price/price';
           
           @if (order().status === OrderStatus.OPEN) {
             <div class="mt-1 flex gap-2">
-              <button mat-button class="text-xs" (click)="onAddAdjustment.emit()">+ Descuento</button>
-              <button mat-button class="text-xs" (click)="onUpdateTip.emit(order().tipAmount || 0)">+ Propina</button>
+              <button mat-button class="text-xs" (click)="addAdjustment.emit()">+ Descuento</button>
+              <button mat-button class="text-xs" (click)="updateTip.emit(order().tipAmount || 0)">+ Propina</button>
             </div>
           }
         </div>
@@ -106,9 +106,9 @@ export class OrderSummaryCard {
   
   public readonly order = input.required<Order>();
 
-  public readonly onUpdateTip = output<number>();
-  public readonly onAddAdjustment = output<void>();
-  public readonly onRemoveAdjustment = output<string>();
+  public readonly updateTip = output<number>();
+  public readonly addAdjustment = output<void>();
+  public readonly removeAdjustment = output<string>();
 
   globalAdjustments() {
     return this.order().adjustments?.filter(a => a.target === AdjustmentTarget.ORDER) || [];

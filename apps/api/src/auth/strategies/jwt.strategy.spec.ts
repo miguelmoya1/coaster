@@ -13,11 +13,11 @@ vi.mock('firebase-admin/auth', () => ({
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let db: { dbUser: { findUnique: Mock; update: Mock; create: Mock } };
+  let db: { dbUser: { findUnique: Mock } };
 
   beforeEach(async () => {
     const mockPrisma = {
-      dbUser: { findUnique: vi.fn(), update: vi.fn(), create: vi.fn() },
+      dbUser: { findUnique: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -32,7 +32,7 @@ describe('JwtStrategy', () => {
     expect(strategy).toBeDefined();
   });
 
-  it('should validate the token and find/update the user', async () => {
+  it('should validate the token and return the user', async () => {
     const fakePayload = {
       sub: 'google-123',
       email: 'test@mail.com',
@@ -46,21 +46,11 @@ describe('JwtStrategy', () => {
       name: 'Test User',
       googleId: 'google-123',
     });
-    db.dbUser.update.mockResolvedValue({
-      id: 'user-1',
-      email: 'test@mail.com',
-      name: 'Test User',
-      googleId: 'google-123',
-    });
 
     const result = await strategy.validate('fake-token');
 
     expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
     expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
-    expect(db.dbUser.update).toHaveBeenCalledWith({
-      where: { id: 'user-1' },
-      data: { photoUrl: 'http://photo.url' },
-    });
     expect(result).toEqual({
       id: 'user-1',
       email: 'test@mail.com',
@@ -69,7 +59,7 @@ describe('JwtStrategy', () => {
     });
   });
 
-  it('should validate the token and create the user if not found', async () => {
+  it('should throw UnauthorizedException if user is not found', async () => {
     const fakePayload = {
       sub: 'google-123',
       email: 'test@mail.com',
@@ -78,27 +68,8 @@ describe('JwtStrategy', () => {
     };
     (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
     db.dbUser.findUnique.mockResolvedValue(null);
-    db.dbUser.create.mockResolvedValue({
-      id: 'user-2',
-      email: 'test@mail.com',
-      name: 'Test User',
-      googleId: 'google-123',
-    });
 
-    const result = await strategy.validate('fake-token');
-
-    expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
-    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
-    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { email: 'test@mail.com' } });
-    expect(db.dbUser.create).toHaveBeenCalledWith({
-      data: { email: 'test@mail.com', googleId: 'google-123', name: 'Test User', photoUrl: 'http://photo.url' },
-    });
-    expect(result).toEqual({
-      id: 'user-2',
-      email: 'test@mail.com',
-      name: 'Test User',
-      googleId: 'google-123',
-    });
+    await expect(strategy.validate('fake-token')).rejects.toThrow(UnauthorizedException);
   });
 
   it('should throw UnauthorizedException if the payload has no sub', async () => {
@@ -113,3 +84,4 @@ describe('JwtStrategy', () => {
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 });
+

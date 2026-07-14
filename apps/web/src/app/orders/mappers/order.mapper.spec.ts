@@ -13,6 +13,10 @@ describe('Order Mapper', () => {
     amountPaidCash: 0,
     amountPaidCard: 0,
     paymentMethod: PaymentMethod.NONE,
+    adjustments: [],
+    tipAmount: 0,
+    orderTotal: 1500,
+    payableTotal: 1500,
     items: [
       {
         id: asOrderItemId('item-1'),
