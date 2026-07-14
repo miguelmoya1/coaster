@@ -9,6 +9,7 @@ import { asCategoryId, handleErrorFormField } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
+import { ImageUploader } from '../../../../../../components/image-uploader/image-uploader';
 
 @Component({
   selector: 'coaster-create-product-form',
@@ -24,6 +25,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
     FormField,
     MatButton,
     TranslatePipe,
+    ImageUploader,
   ],
   template: `
     <form [formRoot]="form">
@@ -61,21 +63,14 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'pantry.create_product.image_url_label' | translate }}</mat-label>
-          <input matInput [formField]="form.imageUrl" [placeholder]="'https://...'" />
-        </mat-form-field>
-
-        @if (form.imageUrl().value()) {
-          <div class="w-full flex justify-center mb-4">
-            <img
-              [src]="form.imageUrl().value()"
-              alt="Preview"
-              class="w-32 h-32 object-cover rounded-xl shadow-md border border-outline-variant/30"
-              (error)="form.imageUrl().value.set('')"
-            />
-          </div>
-        }
+        <coaster-image-uploader
+          [barId]="barId()!"
+          entityType="products"
+          [label]="'pantry.create_product.image_url_label' | translate"
+          [value]="form.imageUrl().value()"
+          (valueChange)="form.imageUrl().value.set($event)"
+          [disabled]="form().submitting() || form().disabled()"
+        />
 
         <coaster-number-input
           data-testid="product-price-input"
@@ -130,6 +125,7 @@ export class CreateProductForm {
   readonly categories = input.required<Category[]>();
   readonly #productsStore = inject(ProductsStore);
   readonly #translate = inject(TranslateService);
+  readonly barId = this.#productsStore.currentBarId;
 
   readonly canceled = output<void>();
   readonly created = output<void>();

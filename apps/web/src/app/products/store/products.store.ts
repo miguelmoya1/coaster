@@ -20,6 +20,8 @@ export class ProductsStore {
   readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | null>(null);
+  public readonly currentBarId = this.#currentBarId.asReadonly();
+
 
   readonly #productsResource = httpResource(() => this.#barProducts.execute(this.#currentBarId()), {
     parse: (products) => productArrayMapper(products),

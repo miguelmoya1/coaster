@@ -19,6 +19,7 @@ export * from './interfaces/bar.interface';
 export * from './interfaces/brand.type';
 export * from './interfaces/category.interface';
 export * from './interfaces/common.interface';
+export * from './interfaces/media.interface';
 export * from './interfaces/order.interface';
 export * from './interfaces/printer.interface';
 export * from './interfaces/product.interface';
