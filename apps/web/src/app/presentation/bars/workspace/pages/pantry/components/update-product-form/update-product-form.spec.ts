@@ -1,5 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
 import { asBarId, asCategoryId, asProductId } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';

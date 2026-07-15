@@ -169,7 +169,6 @@ describe('Pantry', () => {
       expect(filtered[1].id).toBe('p-1'); // Vodka
       expect(filtered[2].id).toBe('p-3'); // Zinebra
     });
-
   });
 
   describe('actions', () => {

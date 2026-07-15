@@ -1,10 +1,10 @@
-import { Component, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatSpinner } from '@angular/material/progress-spinner';
+import type { BarId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
-import type { BarId } from '@coaster/common';
 
 @Component({
   selector: 'coaster-image-uploader',
@@ -48,7 +48,8 @@ import type { BarId } from '@coaster/common';
           <div class="flex flex-col items-center justify-center p-4 text-center">
             <mat-icon class="text-gray-400 mb-2">cloud_upload</mat-icon>
             <p class="text-sm text-gray-600">
-              <span class="font-semibold">{{ 'UPLOAD_CLICK_TO_UPLOAD' | translate }}</span> {{ 'UPLOAD_DRAG_DROP' | translate }}
+              <span class="font-semibold">{{ 'UPLOAD_CLICK_TO_UPLOAD' | translate }}</span>
+              {{ 'UPLOAD_DRAG_DROP' | translate }}
             </p>
             <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP</p>
           </div>
@@ -90,7 +91,7 @@ export class ImageUploader {
 
   readonly isDragging = signal(false);
   readonly uploading = signal(false);
-  
+
   // Use a computed-like signal for preview URL (if we have a local preview, use it, else use the value)
   readonly localPreviewUrl = signal<string | null>(null);
 
@@ -115,7 +116,7 @@ export class ImageUploader {
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.isDragging.set(false);
-    
+
     if (this.disabled() || this.uploading()) return;
 
     const files = event.dataTransfer?.files;
@@ -158,9 +159,11 @@ export class ImageUploader {
         const { uploadUrl, publicUrl } = response[0];
 
         // 2. Upload file directly to GCS via PUT
-        await this.http.put(uploadUrl, file, {
-          headers: { 'Content-Type': file.type },
-        }).toPromise();
+        await this.http
+          .put(uploadUrl, file, {
+            headers: { 'Content-Type': file.type },
+          })
+          .toPromise();
 
         // 3. Update the model with the public URL
         this.value.set(publicUrl);

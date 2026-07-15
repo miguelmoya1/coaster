@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
-import { Product, ProductsStore } from '@coaster/products';
 import { ActiveOrdersStore } from '@coaster/orders';
+import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
