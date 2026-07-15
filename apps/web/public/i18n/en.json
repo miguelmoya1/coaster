@@ -46,6 +46,9 @@
   "UNAUTHORIZED": "You do not have permissions to perform this action.",
   "UNAUTHORIZED_SHIFT_ACTION": "You are not authorized to manage this work shift.",
   "UNEXPECTED_ERROR": "An unexpected error occurred",
+  "UPLOAD_CLICK_TO_UPLOAD": "Click to upload",
+  "UPLOAD_DRAG_DROP": "or drag and drop",
+  "UPLOAD_OR_PASTE_URL": "Or paste an image URL...",
   "USER_ALREADY_EXISTS": "User already exists in the system.",
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_CREATION_FAILED": "An error occurred and the user could not be registered.",
@@ -371,6 +374,7 @@
       "category_label": "Category",
       "category_placeholder": "Select a category",
       "current_stock_label": "Current Stock",
+      "image_url_label": "Product Image",
       "min_stock_label": "Min Stock Alert",
       "name_label": "Product Name",
       "name_placeholder": "e.g. Absolut Vodka"
@@ -394,6 +398,7 @@
     "edit_product": {
       "category_label": "Category",
       "category_placeholder": "Select a category",
+      "image_url_label": "Product Image",
       "min_stock_label": "Min Stock Alert",
       "name_label": "Product Name",
       "name_placeholder": "e.g. Absolut Vodka"

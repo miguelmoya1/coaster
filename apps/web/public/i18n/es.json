@@ -46,6 +46,9 @@
   "UNAUTHORIZED": "No tienes permisos para realizar esta acción.",
   "UNAUTHORIZED_SHIFT_ACTION": "No estás autorizado para gestionar este turno de trabajo.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
+  "UPLOAD_CLICK_TO_UPLOAD": "Haz clic para subir",
+  "UPLOAD_DRAG_DROP": "o arrastra y suelta",
+  "UPLOAD_OR_PASTE_URL": "O pega la URL de una imagen...",
   "USER_ALREADY_EXISTS": "El usuario ya existe en el sistema.",
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
@@ -371,6 +374,7 @@
       "category_label": "Categoría",
       "category_placeholder": "Selecciona una categoría",
       "current_stock_label": "Stock Actual",
+      "image_url_label": "Imagen del Producto",
       "min_stock_label": "Alerta de Stock Mínimo",
       "name_label": "Nombre del Producto",
       "name_placeholder": "Ej. Absolut Vodka"
@@ -394,6 +398,7 @@
     "edit_product": {
       "category_label": "Categoría",
       "category_placeholder": "Selecciona una categoría",
+      "image_url_label": "Imagen del Producto",
       "min_stock_label": "Alerta de Stock Mínimo",
       "name_label": "Nombre del Producto",
       "name_placeholder": "Ej. Absolut Vodka"
