@@ -103,7 +103,7 @@ describe('NewOrder', () => {
 
     it('should render category selector', () => {
       fixture.detectChanges();
-      const selector = fixture.nativeElement.querySelector('coaster-pos-category-selector');
+      const selector = fixture.nativeElement.querySelector('coaster-category-filter');
       expect(selector).toBeTruthy();
     });
 

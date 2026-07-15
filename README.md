@@ -38,28 +38,31 @@ Tracks what items are missing and swiftly generates supply orders.
 
 Coaster is built using a modern, scalable, and robust technological stack:
 
-- **Monorepo Strategy:** Nx (Integrated).
+- **Monorepo Strategy:** npm workspaces.
 - **Backend:** NestJS + Prisma ORM + PostgreSQL.
-- **Frontend:** Angular 21 + Tailwind CSS v4 + Signals.
-- **Testing:** Jest (Unit Tests) + Supertest/Playwright (E2E).
+- **Frontend:** Angular 22 + Tailwind CSS v4 + Signals.
+- **Testing:** Vitest (Unit Tests) + Supertest/Playwright (E2E).
 - **Infrastructure:** Docker (Local Development) / Google Cloud Run + Neon (Production Environment).
 
 ---
 
 ## 🚀 Getting Started & Running Tasks
 
-This project is an [Nx workspace](https://nx.dev).
+The repository is an npm workspace containing the API, web application, shared TypeScript package, Firebase emulator, and printer service.
 
 ### Run the Dev Servers
 
 To run the frontend/backend servers for your app, use:
 
 ```sh
+# Start local infrastructure
+docker compose up db firebase
+
 # Run the Backend API
-npx nx serve api
+npm run dev:api
 
 # Run the Frontend App
-npx nx serve coaster
+npm run dev:web
 ```
 
 ### Build for Production
@@ -67,15 +70,16 @@ npx nx serve coaster
 To create a production bundle:
 
 ```sh
-npx nx build api
-npx nx build coaster
+npm run build
 ```
 
 ### Useful Commands
 
-- Run Unit Tests: `npx nx test api` / `npx nx test coaster`
-- Explore Workspace: `npx nx graph`
-- Generate new code using Nx plugins: `npx nx g @nx/angular:component my-component`
+- Run Unit Tests: `npm test`
+- Run API E2E Tests: `npm run test:e2e -w @coaster/api`
+- Run Web E2E Tests: `cd apps/web && npx playwright test`
+- Run Printer Tests: `cd apps/printer-service && go test ./...`
+- Generate Prisma Client: `npm run db:generate`
 
 ## 🤝 Support & Nx Resources
 

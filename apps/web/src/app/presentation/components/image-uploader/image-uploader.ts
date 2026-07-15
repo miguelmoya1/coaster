@@ -13,10 +13,11 @@ import type { BarId } from '@coaster/common';
   template: `
     <div class="flex flex-col gap-2 w-full">
       @if (label()) {
-        <label class="text-sm font-medium text-gray-700">{{ label() }}</label>
+        <span class="text-sm font-medium text-gray-700">{{ label() }}</span>
       }
 
-      <div
+      <label
+        [attr.for]="fileInputId"
         class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg transition-colors overflow-hidden group cursor-pointer"
         [class.border-primary-500]="isDragging()"
         [class.bg-primary-50]="isDragging()"
@@ -25,10 +26,10 @@ import type { BarId } from '@coaster/common';
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave($event)"
         (drop)="onDrop($event)"
-        (click)="fileInput.click()"
       >
         <input
           #fileInput
+          [id]="fileInputId"
           type="file"
           class="hidden"
           accept="image/*"
@@ -58,7 +59,7 @@ import type { BarId } from '@coaster/common';
             <mat-spinner diameter="32"></mat-spinner>
           </div>
         }
-      </div>
+      </label>
 
       <!-- Option to paste URL directly -->
       <div class="flex items-center gap-2 mt-2">
@@ -75,6 +76,8 @@ import type { BarId } from '@coaster/common';
   `,
 })
 export class ImageUploader {
+  private static nextId = 0;
+
   private readonly mediaRepo = inject(MediaRepository);
   private readonly http = inject(HttpClient);
 
@@ -83,6 +86,7 @@ export class ImageUploader {
   readonly entityType = input<string>('products');
   readonly label = input<string>('');
   readonly disabled = input<boolean>(false);
+  readonly fileInputId = `image-uploader-file-${ImageUploader.nextId++}`;
 
   readonly isDragging = signal(false);
   readonly uploading = signal(false);

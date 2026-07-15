@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import type { Category } from '@coaster/common';
 import { asBarId, asCategoryId } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
@@ -11,6 +12,7 @@ describe('CreateProductForm', () => {
   let fixture: ComponentFixture<CreateProductForm>;
   let productsStoreMock: {
     create: ReturnType<typeof vi.fn>;
+    currentBarId: ReturnType<typeof signal>;
   };
 
   const mockCategories: Category[] = [{ id: asCategoryId('cat-1'), name: 'Drinks', barId: asBarId('bar-1') }];
@@ -18,6 +20,7 @@ describe('CreateProductForm', () => {
   beforeEach(async () => {
     productsStoreMock = {
       create: vi.fn().mockResolvedValue(null),
+      currentBarId: signal(asBarId('bar-1')),
     };
 
     await TestBed.configureTestingModule({
@@ -73,6 +76,7 @@ describe('CreateProductForm', () => {
         currentStock: 10,
         minStockAlert: 5,
         price: 0,
+        imageUrl: '',
       });
     });
   });

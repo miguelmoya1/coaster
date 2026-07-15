@@ -64,6 +64,7 @@ describe('CreateProductHandler', () => {
       price: 2,
       currentStock: 0,
       minStockAlert: 0,
+      imageUrl: null,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
       new ProductCreatedEvent(barId, expect.any(Object) as unknown as Product),

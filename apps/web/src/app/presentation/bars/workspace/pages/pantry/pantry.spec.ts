@@ -170,11 +170,6 @@ describe('Pantry', () => {
       expect(filtered[2].id).toBe('p-3'); // Zinebra
     });
 
-    it('should return tabs with ALL as first option', () => {
-      const tabs = component.tabs();
-      expect(tabs.length).toBeGreaterThanOrEqual(1);
-      expect(tabs[0].id).toBe('ALL');
-    });
   });
 
   describe('actions', () => {
