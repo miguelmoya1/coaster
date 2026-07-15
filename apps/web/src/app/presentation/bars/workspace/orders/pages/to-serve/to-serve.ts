@@ -2,8 +2,8 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
-import { asOrderId, asOrderItemId } from '@coaster/core';
-import { OrderTitlePipe, ActiveOrdersStore } from '@coaster/orders';
+import { ActionFeedback, asOrderId, asOrderItemId } from '@coaster/core';
+import { ActiveOrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../components/loading/loading';
 
@@ -19,6 +19,7 @@ class ToServe {
   public readonly barId = input.required<BarId>();
 
   readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly isLoading = signal(false);
 
@@ -131,7 +132,7 @@ class ToServe {
 
       this.clearSelection();
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     } finally {
       this.isLoading.set(false);
     }
@@ -156,7 +157,7 @@ class ToServe {
         this.selectedItems.set(current);
       }
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     } finally {
       this.isLoading.set(false);
     }

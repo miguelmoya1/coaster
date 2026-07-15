@@ -1,26 +1,16 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  inputBinding,
-  linkedSignal,
-  outputBinding,
-  signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
+import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
@@ -41,8 +31,9 @@ class Tables {
   readonly #barsStore = inject(BarsStore);
 
   readonly #router = inject(Router);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly #translate = inject(TranslateService);
 
@@ -55,8 +46,6 @@ class Tables {
   }
 
   readonly isSubmitting = signal(false);
-  readonly tableToDelete = signal<Table | null>(null);
-  readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
 
   readonly isOwner = this.#barsStore.isOwner;
 
@@ -79,7 +68,9 @@ class Tables {
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() => this.#activeOrdersStore.openOrders().filter((o) => !o.tableId));
+  protected readonly barOrdersViewModel = computed(() =>
+    this.#activeOrdersStore.openOrders().filter((o) => !o.tableId),
+  );
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
@@ -108,7 +99,7 @@ class Tables {
             await this.#tablesStore.create({ name });
             bottomSheetRef.dismiss();
           } catch (e) {
-            console.error(e);
+            this.#feedback.error(e);
           }
           this.isSubmitting.set(false);
         }),
@@ -116,41 +107,20 @@ class Tables {
     });
   }
 
-  protected handleDeleteTable(table: Table) {
-    this.tableToDelete.set(table);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('orders.delete_table_title')),
-        inputBinding('text', () => this.#translate.instant('orders.delete_table_message', { name: table.name })),
-        outputBinding('canceled', () => {
-          this.handleCloseDeleteTableModal();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteTable();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteTable(table: Table) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('orders.delete_table_title'),
+      text: this.#translate.instant('orders.delete_table_message', { name: table.name }),
     });
-  }
 
-  protected handleCloseDeleteTableModal() {
-    this.tableToDelete.set(null);
-  }
-
-  protected async handleConfirmDeleteTable() {
-    const table = this.tableToDelete();
-    if (!table) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       await this.#tablesStore.delete(table.id);
     } catch (error) {
-      console.error(error);
+      this.#feedback.error(error);
     }
-    this.tableToDelete.set(null);
   }
 }
 

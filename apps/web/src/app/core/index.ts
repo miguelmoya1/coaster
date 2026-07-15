@@ -10,6 +10,7 @@ export * from './interceptors/url-interceptor';
 export * from './mappers/common.mapper';
 export * from './mappers/user.mapper';
 export * from './permissions/bar-member.security';
+export * from './services/action-feedback';
 export * from './services/auth';
 export * from './services/current-user';
 export * from './services/date-formatter';

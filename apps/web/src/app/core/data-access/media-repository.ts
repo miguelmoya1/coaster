@@ -14,4 +14,12 @@ export class MediaRepository {
   public async generateUploadUrls(barId: BarId, dto: GenerateUploadUrlsDto): Promise<MediaUploadResponse[]> {
     return firstValueFrom(this.#http.post<MediaUploadResponse[]>(this.routes.generateUploadUrls(barId), dto));
   }
+
+  public async uploadFile(uploadUrl: string, file: File): Promise<void> {
+    await firstValueFrom(
+      this.#http.put(uploadUrl, file, {
+        headers: { 'Content-Type': file.type },
+      }),
+    );
+  }
 }

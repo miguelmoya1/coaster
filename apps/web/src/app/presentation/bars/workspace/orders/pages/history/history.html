@@ -31,45 +31,10 @@
 </div>
 
 <div class="grid grid-cols-2 gap-3">
-  <mat-card class="relative overflow-hidden p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-    <mat-card-subtitle class="text-xs text-on-surface-variant font-medium m-0!">
-      {{ 'history.revenue' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-2xl font-black text-on-surface m-0!">
-      {{ totalRevenue() | price }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
-    <mat-card-subtitle class="text-xs text-on-surface-variant font-medium m-0!">
-      {{ 'history.total_orders' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-2xl font-black text-on-surface m-0!">
-      {{ totalClosed() }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
-    <mat-card-subtitle class="text-xs text-on-surface-variant font-medium m-0!">
-      {{ 'history.cancelled' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-2xl font-black text-on-surface m-0!">
-      {{ totalCancelled() }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
-    <mat-card-subtitle class="text-xs text-on-surface-variant font-medium m-0!">
-      {{ 'history.avg_ticket' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-2xl font-black text-on-surface m-0!">
-      {{ averageTicket() | price }}
-    </mat-card-title>
-  </mat-card>
+  <coaster-stat-card [label]="'history.revenue' | translate" [value]="totalRevenue() | price" />
+  <coaster-stat-card [label]="'history.total_orders' | translate" [value]="totalClosed()" tone="secondary" />
+  <coaster-stat-card [label]="'history.cancelled' | translate" [value]="totalCancelled()" tone="error" />
+  <coaster-stat-card [label]="'history.avg_ticket' | translate" [value]="averageTicket() | price" tone="tertiary" />
 </div>
 
 <h2 class="heading-2">{{ 'history.orders_list' | translate }}</h2>

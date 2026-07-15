@@ -1,12 +1,12 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
+import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
@@ -33,11 +33,11 @@ export default class Staff {
   readonly #barsStore = inject(BarsStore);
   protected readonly router = inject(Router);
   readonly #route = inject(ActivatedRoute);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
   readonly #bottomSheet = inject(MatBottomSheet);
 
-  protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
   protected readonly userMember = computed(() => {
@@ -98,49 +98,28 @@ export default class Staff {
     });
   }
 
-  protected handleClickDeleteMember(member: MemberItem) {
-    this.memberDeleting.set(member);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.title' : 'members.delete.title', {
-            name: member.userName,
-          }),
-        ),
-        inputBinding('text', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.message' : 'members.delete.message', {
-            name: member.userName,
-          }),
-        ),
-        inputBinding('confirmLabel', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave' : 'common.delete'),
-        ),
-        outputBinding('canceled', () => {
-          this.memberDeleting.set(null);
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteMember();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleClickDeleteMember(member: MemberItem) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.title' : 'members.delete.title', {
+        name: member.userName,
+      }),
+      text: this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.message' : 'members.delete.message', {
+        name: member.userName,
+      }),
+      confirmLabel: member.isCurrentUser ? 'members.leave' : 'common.delete',
     });
+
+    if (!confirmed) return;
+
+    try {
+      await this.#membersStore.remove(member.id);
+    } catch (error) {
+      this.#feedback.error(error);
+    }
   }
 
   protected closeModal() {
     this.router.navigate(['/bars', this.barId(), 'staff']);
-  }
-
-  protected async handleConfirmDeleteMember() {
-    const member = this.memberDeleting();
-
-    if (member) {
-      try {
-        await this.#membersStore.remove(member.id);
-      } catch (error) {
-        console.error(error);
-      }
-    }
   }
 }

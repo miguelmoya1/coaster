@@ -14,6 +14,7 @@ export default defineConfig({
       '@coaster/exchanges': new URL('./src/app/exchanges/index.ts', import.meta.url).pathname,
       '@coaster/members': new URL('./src/app/members/index.ts', import.meta.url).pathname,
       '@coaster/orders': new URL('./src/app/orders/index.ts', import.meta.url).pathname,
+      '@coaster/printer': new URL('./src/app/printer/index.ts', import.meta.url).pathname,
       '@coaster/products': new URL('./src/app/products/index.ts', import.meta.url).pathname,
       '@coaster/roster': new URL('./src/app/roster/index.ts', import.meta.url).pathname,
       '@coaster/shifts': new URL('./src/app/shifts/index.ts', import.meta.url).pathname,

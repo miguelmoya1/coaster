@@ -301,6 +301,7 @@
     "items": "items",
     "mark_paid": "Mark as paid",
     "mark_served": "Mark as served",
+    "select_item": "Select {{name}}",
     "merge": "Merge",
     "merge_description": "Select an order to merge with the current one.",
     "merge_title": "Merge Orders",

@@ -1,27 +1,23 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
-import { asOrderId } from '@coaster/core';
+import { ActionFeedback, asOrderId } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
+import { StatCard } from '../../../../../components/stat-card/stat-card';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
   imports: [
-    MatCard,
-    MatCardTitle,
-    MatCardSubtitle,
     MatDatepicker,
     MatDatepickerInput,
     MatDatepickerToggle,
@@ -32,6 +28,7 @@ import { PricePipe } from '../../../pipes/price/price';
     MatButton,
     MatIconButton,
     PricePipe,
+    StatCard,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
@@ -42,10 +39,11 @@ class History {
   readonly #orderHistoryStore = inject(OrderHistoryStore);
   readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #barsStore = inject(BarsStore);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
+  readonly #feedback = inject(ActionFeedback);
 
   constructor() {
     effect(() => {
@@ -62,8 +60,6 @@ class History {
   protected readonly isLoading = this.#orderHistoryStore.history.isLoading;
   protected readonly totalClosed = this.#orderHistoryStore.totalClosed;
   protected readonly totalCancelled = this.#orderHistoryStore.totalCancelled;
-
-  protected readonly orderToDelete = signal<Order | null>(null);
 
   readonly isToday = computed(() => this.#orderHistoryStore.selectedDate() === this.today);
   readonly isOwner = this.#barsStore.isOwner;
@@ -143,38 +139,21 @@ class History {
     return 'history.status_open';
   }
 
-  protected handleDeleteOrder(order: Order) {
-    this.orderToDelete.set(order);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('history.delete_title')),
-        inputBinding('text', () => this.#translate.instant('history.delete_message')),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteOrder();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleDeleteOrderConfirmed();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteOrder(order: Order) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('history.delete_title'),
+      text: this.#translate.instant('history.delete_message'),
     });
-  }
 
-  protected handleCancelDeleteOrder() {
-    this.orderToDelete.set(null);
-  }
+    if (!confirmed) return;
 
-  protected async handleDeleteOrderConfirmed() {
-    const order = this.orderToDelete();
-    if (!order) {
-      return;
+    try {
+      await this.#activeOrdersStore.deleteOrder(this.barId(), asOrderId(order.id));
+      this.#orderHistoryStore.reloadHistory();
+    } catch (error) {
+      this.#feedback.error(error);
     }
-
-    await this.#activeOrdersStore.deleteOrder(this.barId(), asOrderId(order.id));
-    this.#orderHistoryStore.reloadHistory();
-    this.orderToDelete.set(null);
   }
 }
 

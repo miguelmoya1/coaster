@@ -1,79 +1,75 @@
-<div
-  class="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
->
-  <div class="flex items-center justify-between border-b border-outline-variant pb-4">
-    <button mat-button (click)="goBack()">
-      <mat-icon class="text-xl group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
-      <span class="font-bold text-sm tracking-wider uppercase">{{ 'admin_templates.back' | translate }}</span>
+<div class="flex items-center justify-between border-b border-outline-variant pb-4">
+  <button mat-button (click)="goBack()">
+    <mat-icon class="text-xl group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
+    <span class="font-bold text-sm tracking-wider uppercase">{{ 'admin_templates.back' | translate }}</span>
+  </button>
+
+  <div class="flex items-center gap-2 text-primary font-black uppercase tracking-wider text-sm">
+    <mat-icon class="text-lg spin">settings</mat-icon>
+    <span>{{ 'admin_templates.control_panel' | translate }}</span>
+  </div>
+</div>
+
+<div class="flex flex-col gap-2 items-center text-center">
+  <h1 class="heading-1">{{ 'admin_templates.title' | translate }}</h1>
+  <p class="text-on-surface-variant text-sm">{{ 'admin_templates.description' | translate }}</p>
+</div>
+
+<div class="bg-surface-container rounded-2xl border border-outline-variant p-6 flex flex-col gap-6 shadow-xl">
+  <form [formRoot]="form" (submit)="$event.preventDefault()" class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+      <div
+        class="text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center justify-between ml-1"
+      >
+        <span>{{ 'admin_templates.editor_title' | translate }}</span>
+        @if (form.jsonContent().value() && form.jsonContent().invalid()) {
+          <span class="text-error flex items-center gap-1 animate-in fade-in">
+            <mat-icon>warning</mat-icon>
+            @for (error of form.jsonContent().errors(); track error) {
+              {{ error.message }}
+            }
+          </span>
+        } @else if (form.jsonContent().value() && form.jsonContent().valid()) {
+          <span class="text-success flex items-center gap-1 animate-in fade-in">
+            <mat-icon>check</mat-icon>
+            {{ 'admin_templates.valid_format' | translate }}
+          </span>
+        }
+      </div>
+
+      <mat-form-field appearance="outline" class="w-full font-mono text-sm">
+        <textarea
+          matInput
+          [formField]="form.jsonContent"
+          [placeholder]="'admin_templates.placeholder' | translate"
+          rows="12"
+        ></textarea>
+      </mat-form-field>
+
+      <p
+        class="text-xs text-on-surface-variant leading-relaxed ml-1"
+        [innerHTML]="'admin_templates.hint' | translate"
+      ></p>
+    </div>
+
+    <button mat-stroked-button type="button" (click)="loadStandardTemplates()" class="self-center">
+      <mat-icon class="text-lg group-hover:scale-110 transition-transform">auto_awesome</mat-icon>
+      {{ 'admin_templates.load_standard' | translate }}
     </button>
 
-    <div class="flex items-center gap-2 text-primary font-black uppercase tracking-wider text-sm">
-      <mat-icon class="text-lg spin">settings</mat-icon>
-      <span>{{ 'admin_templates.control_panel' | translate }}</span>
-    </div>
-  </div>
-
-  <div class="flex flex-col gap-2 items-center text-center">
-    <h1 class="heading-1">{{ 'admin_templates.title' | translate }}</h1>
-    <p class="text-on-surface-variant text-sm">{{ 'admin_templates.description' | translate }}</p>
-  </div>
-
-  <div class="bg-surface-container rounded-2xl border border-outline-variant p-6 flex flex-col gap-6 shadow-xl">
-    <form [formRoot]="form" (submit)="$event.preventDefault()" class="flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <div
-          class="text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center justify-between ml-1"
-        >
-          <span>{{ 'admin_templates.editor_title' | translate }}</span>
-          @if (form.jsonContent().value() && form.jsonContent().invalid()) {
-            <span class="text-error flex items-center gap-1 animate-in fade-in">
-              <mat-icon>warning</mat-icon>
-              @for (error of form.jsonContent().errors(); track error) {
-                {{ error.message }}
-              }
-            </span>
-          } @else if (form.jsonContent().value() && form.jsonContent().valid()) {
-            <span class="text-success flex items-center gap-1 animate-in fade-in">
-              <mat-icon>check</mat-icon>
-              {{ 'admin_templates.valid_format' | translate }}
-            </span>
-          }
-        </div>
-
-        <mat-form-field appearance="outline" class="w-full font-mono text-sm">
-          <textarea
-            matInput
-            [formField]="form.jsonContent"
-            [placeholder]="'admin_templates.placeholder' | translate"
-            rows="12"
-          ></textarea>
-        </mat-form-field>
-
-        <p
-          class="text-xs text-on-surface-variant leading-relaxed ml-1"
-          [innerHTML]="'admin_templates.hint' | translate"
-        ></p>
-      </div>
-
-      <button mat-stroked-button type="button" (click)="loadStandardTemplates()" class="self-center">
-        <mat-icon class="text-lg group-hover:scale-110 transition-transform">auto_awesome</mat-icon>
-        {{ 'admin_templates.load_standard' | translate }}
+    <div class="flex flex-col gap-3 mt-2 items-center">
+      <button mat-flat-button type="submit" [disabled]="form().disabled() || form().submitting() || form().invalid()">
+        @if (form().submitting()) {
+          <coaster-loading class="scale-75" />
+        } @else {
+          <mat-icon class="text-lg">upload</mat-icon>
+        }
+        @if (form().submitting()) {
+          <span>{{ 'admin_templates.processing' | translate }}</span>
+        } @else {
+          <span>{{ 'admin_templates.submit' | translate }}</span>
+        }
       </button>
-
-      <div class="flex flex-col gap-3 mt-2 items-center">
-        <button mat-flat-button type="submit" [disabled]="form().disabled() || form().submitting() || form().invalid()">
-          @if (form().submitting()) {
-            <coaster-loading class="scale-75" />
-          } @else {
-            <mat-icon class="text-lg">upload</mat-icon>
-          }
-          @if (form().submitting()) {
-            <span>{{ 'admin_templates.processing' | translate }}</span>
-          } @else {
-            <span>{{ 'admin_templates.submit' | translate }}</span>
-          }
-        </button>
-      </div>
-    </form>
-  </div>
+    </div>
+  </form>
 </div>

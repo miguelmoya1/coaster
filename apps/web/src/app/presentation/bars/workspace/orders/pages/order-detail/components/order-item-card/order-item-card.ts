@@ -1,7 +1,14 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { DeliveryStatus, OrderItem, PaymentStatus, AdjustmentType, AdjustmentTarget, OrderAdjustment } from '@coaster/common';
+import {
+  AdjustmentTarget,
+  AdjustmentType,
+  DeliveryStatus,
+  OrderAdjustment,
+  OrderItem,
+  PaymentStatus,
+} from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -17,22 +24,19 @@ import { PricePipe } from '../../../../../pipes/price/price';
       "
       [class.border-primary/20]="isSelected()"
       [class.bg-primary/5]="isSelected()"
-      [class.cursor-pointer]="isOpen()"
-      [attr.role]="isOpen() ? 'button' : null"
-      [attr.tabindex]="isOpen() ? 0 : null"
-      (click)="isOpen() && toggleSelect.emit()"
-      (keydown.enter)="isOpen() && toggleSelect.emit(); $event.preventDefault()"
-      (keydown.space)="isOpen() && toggleSelect.emit(); $event.preventDefault()"
     >
       <!-- Selection Checkbox -->
       @if (isOpen()) {
         <button
+          type="button"
+          [attr.aria-label]="'orders.select_item' | translate: { name: item().productName }"
+          [attr.aria-pressed]="isSelected()"
           class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
           [class.border-primary]="isSelected()"
           [class.bg-primary]="isSelected()"
           [class.text-on-primary]="isSelected()"
           [class.border-on-surface-variant]="!isSelected()"
-          (click)="toggleSelect.emit(); $event.stopPropagation()"
+          (click)="toggleSelect.emit()"
         >
           @if (isSelected()) {
             <mat-icon class="stroke-3 text-xs w-3 h-3 leading-3">check</mat-icon>
@@ -46,15 +50,17 @@ import { PricePipe } from '../../../../../pipes/price/price';
           <span class="text-xs text-on-surface-variant">x{{ item().quantity }}</span>
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>
         </div>
-        
+
         <!-- Adjustments -->
         @for (adj of itemAdjustments(); track adj.id) {
           <div class="text-xs text-tertiary flex items-center gap-1 mt-0.5">
             <mat-icon class="text-[12px]! w-[12px]! h-[12px]! leading-[12px]!">local_offer</mat-icon>
             <span>{{ adj.reason || 'Descuento' }}</span>
-            <span class="font-bold">(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span>
+            <span class="font-bold"
+              >(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span
+            >
             @if (isOpen()) {
-              <button mat-icon-button class="w-4! h-4! p-0!" (click)="removeAdjustment.emit(adj.id); $event.stopPropagation()">
+              <button mat-icon-button class="w-4! h-4! p-0!" (click)="removeAdjustment.emit(adj.id)">
                 <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]!">close</mat-icon>
               </button>
             }
@@ -131,19 +137,11 @@ import { PricePipe } from '../../../../../pipes/price/price';
             </div>
           }
 
-          <button
-            mat-icon-button
-            (click)="addAdjustment.emit(item().id); $event.stopPropagation()"
-            title="Añadir descuento/invitación"
-          >
+          <button mat-icon-button (click)="addAdjustment.emit(item().id)" title="Añadir descuento/invitación">
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">local_offer</mat-icon>
           </button>
 
-          <button
-            mat-icon-button
-            (click)="removeItem.emit(); $event.stopPropagation()"
-            [title]="'orders.remove_item' | translate"
-          >
+          <button mat-icon-button (click)="removeItem.emit()" [title]="'orders.remove_item' | translate">
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">delete</mat-icon>
           </button>
         </div>
@@ -170,6 +168,6 @@ export class OrderItemCard {
   public readonly removeAdjustment = output<string>();
 
   itemAdjustments() {
-    return this.adjustments().filter(a => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);
+    return this.adjustments().filter((a) => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);
   }
 }

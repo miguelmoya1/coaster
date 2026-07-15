@@ -4,7 +4,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
-import { asOrderId, asProductId, asTableId } from '@coaster/core';
+import { ActionFeedback, asOrderId, asProductId, asTableId } from '@coaster/core';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
@@ -33,6 +33,7 @@ class NewOrder {
   readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly selectedCategory = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
@@ -221,7 +222,7 @@ class NewOrder {
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     }
     this.isSubmitting.set(false);
   }

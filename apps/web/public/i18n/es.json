@@ -301,6 +301,7 @@
     "items": "artículos",
     "mark_paid": "Marcar como pagado",
     "mark_served": "Marcar como servido",
+    "select_item": "Seleccionar {{name}}",
     "merge": "Juntar",
     "merge_description": "Selecciona el pedido con el que quieres juntar este.",
     "merge_title": "Juntar Pedidos",

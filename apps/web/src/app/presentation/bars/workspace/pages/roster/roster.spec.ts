@@ -6,6 +6,7 @@ import { MembersStore } from '@coaster/members';
 import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import Roster from './roster';
 
 describe('Roster', () => {
@@ -51,6 +52,10 @@ describe('Roster', () => {
     reload: vi.fn(),
   };
 
+  const confirmationDialogMock = {
+    confirm: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Roster],
@@ -61,6 +66,7 @@ describe('Roster', () => {
         { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: BarsStore, useValue: barsStoreMock },
         { provide: ExchangesStore, useValue: exchangesMock },
+        { provide: ConfirmationDialog, useValue: confirmationDialogMock },
       ],
     }).compileComponents();
 
@@ -139,35 +145,35 @@ describe('Roster', () => {
       expect(updateSpy).toHaveBeenCalled();
     });
 
-    it('should handleConfirmDeleteShift correctly', async () => {
+    it('should delete a shift after confirmation', async () => {
       (shiftsStoreMock as any).delete = vi.fn().mockResolvedValue(null);
       const shift = { id: 's1' } as any;
-      (component as any).shiftDeleting.set(shift);
-      
-      await (component as any).handleConfirmDeleteShift();
-      
+      confirmationDialogMock.confirm.mockResolvedValue(true);
+
+      await (component as any).handleClickDeleteShift(shift);
+
+      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
       expect((shiftsStoreMock as any).delete).toHaveBeenCalledWith('s1');
-      expect((component as any).shiftDeleting()).toBeNull();
       expect(exchangesMock.reload).toHaveBeenCalled();
     });
 
-    it('should handleConfirmDeleteExchange correctly', async () => {
+    it('should delete an exchange after confirmation', async () => {
       (exchangesMock as any).delete = vi.fn().mockResolvedValue(null);
       const exchange = { id: 'e1' } as any;
-      (component as any).exchangeDeleting.set(exchange);
-      
-      await (component as any).handleConfirmDeleteExchange();
-      
+      confirmationDialogMock.confirm.mockResolvedValue(true);
+
+      await (component as any).handleClickDeleteExchange(exchange);
+
+      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
       expect((exchangesMock as any).delete).toHaveBeenCalledWith('e1');
-      expect((component as any).exchangeDeleting()).toBeNull();
       expect(shiftsStoreMock.reload).toHaveBeenCalled();
     });
 
     it('should handleOfferExchange correctly', async () => {
       exchangesMock.request.mockResolvedValue(null);
-      
+
       await (component as any).handleOfferExchange('s1');
-      
+
       expect(exchangesMock.request).toHaveBeenCalledWith('s1', {});
       expect(shiftsStoreMock.reload).toHaveBeenCalled();
       expect(exchangesMock.reload).toHaveBeenCalled();
@@ -175,9 +181,9 @@ describe('Roster', () => {
 
     it('should handleAcceptExchange correctly', async () => {
       exchangesMock.accept.mockResolvedValue(null);
-      
+
       await (component as any).handleAcceptExchange('e1');
-      
+
       expect(exchangesMock.accept).toHaveBeenCalledWith('e1');
       expect(shiftsStoreMock.reload).toHaveBeenCalled();
       expect(exchangesMock.reload).toHaveBeenCalled();

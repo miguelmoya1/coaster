@@ -27,21 +27,18 @@
             class="bg-surface-container-low border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200"
             [class.border-primary/20]="isItemSelected(item.id)"
             [class.bg-primary/5]="isItemSelected(item.id)"
-            [class.cursor-pointer]="true"
-            role="button"
-            [attr.tabindex]="0"
-            (click)="toggleSelectItem(order.id, item)"
-            (keydown.enter)="toggleSelectItem(order.id, item); $event.preventDefault()"
-            (keydown.space)="toggleSelectItem(order.id, item); $event.preventDefault()"
           >
             <!-- Checkbox Selection -->
             <button
+              type="button"
+              [attr.aria-label]="'orders.select_item' | translate: { name: item.productName }"
+              [attr.aria-pressed]="isItemSelected(item.id)"
               class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
               [class.border-primary]="isItemSelected(item.id)"
               [class.bg-primary]="isItemSelected(item.id)"
               [class.text-on-primary]="isItemSelected(item.id)"
               [class.border-on-surface-variant]="!isItemSelected(item.id)"
-              (click)="toggleSelectItem(order.id, item); $event.stopPropagation()"
+              (click)="toggleSelectItem(order.id, item)"
             >
               @if (isItemSelected(item.id)) {
                 <mat-icon class="stroke-3 text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
@@ -75,7 +72,7 @@
             <!-- Quick Action button -->
             <button
               mat-icon-button
-              (click)="serveSingleItem(order.id, item); $event.stopPropagation()"
+              (click)="serveSingleItem(order.id, item)"
               [title]="'orders.mark_served' | translate"
             >
               <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">chef_hat</mat-icon>

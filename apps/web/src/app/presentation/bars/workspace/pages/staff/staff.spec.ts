@@ -6,6 +6,7 @@ import { BarRole } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import Staff from './staff';
 
 describe('Staff', () => {
@@ -31,6 +32,10 @@ describe('Staff', () => {
     isOwner: signal(false),
   };
 
+  const confirmationDialogMock = {
+    confirm: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Staff],
@@ -39,6 +44,7 @@ describe('Staff', () => {
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: BarsStore, useValue: barsStoreMock },
+        { provide: ConfirmationDialog, useValue: confirmationDialogMock },
       ],
     }).compileComponents();
 
@@ -105,10 +111,19 @@ describe('Staff', () => {
       expect(navigateSpy).toHaveBeenCalledWith(['/bars', 'bar-1', 'staff']);
     });
 
-    it('should handle confirm delete member', async () => {
+    it('should remove a member after confirmation', async () => {
       membersStoreMock.remove.mockResolvedValue(null);
-      (component as any).memberDeleting.set({ id: 'm1' });
-      await (component as any).handleConfirmDeleteMember();
+      confirmationDialogMock.confirm.mockResolvedValue(true);
+
+      await (component as any).handleClickDeleteMember({
+        id: 'm1',
+        userId: 'u1',
+        userName: 'Test User',
+        role: BarRole.STAFF,
+        isCurrentUser: false,
+      });
+
+      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
       expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
     });
   });

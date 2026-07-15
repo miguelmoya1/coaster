@@ -10,6 +10,7 @@ import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
+import { StatCard } from '../../../../components/stat-card/stat-card';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
 
@@ -22,12 +23,16 @@ import { PricePipe } from '../../pipes/price/price';
     InventoryItemCard,
     PricePipe,
     Loading,
+    StatCard,
     MatCard,
     MatCardContent,
     MatCardHeader,
     MatCardTitle,
     MatCardSubtitle,
   ],
+  host: {
+    class: 'p-6 max-w-2xl mx-auto flex flex-col gap-8 pb-workspace',
+  },
   templateUrl: './dashboard.html',
 })
 export class Dashboard {

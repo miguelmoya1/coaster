@@ -1,33 +1,24 @@
 <div class="flex gap-4 mb-6">
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.total' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ totalProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.critical' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ criticalProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.alerts' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ alertProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
+  <coaster-stat-card
+    class="flex-1"
+    [label]="'pantry.total' | translate"
+    [value]="totalProductsCount() ?? 0"
+    size="large"
+  />
+  <coaster-stat-card
+    class="flex-1"
+    [label]="'pantry.critical' | translate"
+    [value]="criticalProductsCount() ?? 0"
+    tone="error"
+    size="large"
+  />
+  <coaster-stat-card
+    class="flex-1"
+    [label]="'pantry.alerts' | translate"
+    [value]="alertProductsCount() ?? 0"
+    tone="tertiary"
+    size="large"
+  />
 </div>
 
 <div class="flex items-center justify-between gap-4 mb-2">

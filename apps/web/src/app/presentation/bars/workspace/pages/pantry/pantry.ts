@@ -1,19 +1,19 @@
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
-import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
+import { ActionFeedback } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoryFilter } from '../../../../components/category-filter/category-filter';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { StatCard } from '../../../../components/stat-card/stat-card';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { CreatePantrySheet } from './components/create-pantry-sheet/create-pantry-sheet';
@@ -28,11 +28,9 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
     CategoryFilter,
     InventoryItemCard,
     Loading,
+    StatCard,
     RouterLink,
     TranslatePipe,
-    MatCard,
-    MatCardTitle,
-    MatCardSubtitle,
     MatIcon,
     MatButton,
     PantrySearch,
@@ -66,15 +64,14 @@ export default class Pantry {
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
 
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly isSubmitting = signal(false);
   readonly selectedCategoryId = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
-  readonly productDeleting = signal<Product | null>(null);
-  readonly categoryDeleting = signal<Category | null>(null);
 
   readonly categories = this.#categoriesStore.list;
   readonly products = this.#productsStore.list;
@@ -181,79 +178,36 @@ export default class Pantry {
     }
   }
 
-  protected handleDeleteProductClicked(product: Product) {
-    this.productDeleting.set(product);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('pantry.delete_product.title')),
-        inputBinding('text', () => this.#translate.instant('pantry.delete_product.message', { name: product.name })),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteProduct();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteProduct();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteProductClicked(product: Product) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('pantry.delete_product.title'),
+      text: this.#translate.instant('pantry.delete_product.message', { name: product.name }),
     });
-  }
 
-  protected handleCancelDeleteProduct() {
-    this.productDeleting.set(null);
-  }
-
-  protected async handleConfirmDeleteProduct() {
-    const productToDelete = this.productDeleting();
-    if (!productToDelete) {
-      return;
-    }
-
-    this.productDeleting.set(null);
+    if (!confirmed) return;
 
     try {
-      await this.#productsStore.delete(productToDelete.id);
+      await this.#productsStore.delete(product.id);
     } catch (error) {
-      console.error(error);
+      this.#feedback.error(error);
     }
   }
 
-  protected handleDeleteCategoryClicked(category: Category) {
-    this.categoryDeleting.set(category);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('pantry.delete_category.title')),
-        inputBinding('text', () => this.#translate.instant('pantry.delete_category.message', { name: category.name })),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteCategory();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteCategory();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteCategoryClicked(category: Category) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('pantry.delete_category.title'),
+      text: this.#translate.instant('pantry.delete_category.message', { name: category.name }),
     });
-  }
 
-  protected handleCancelDeleteCategory() {
-    this.categoryDeleting.set(null);
-  }
+    if (!confirmed) return;
 
-  protected async handleConfirmDeleteCategory() {
-    const categoryToDelete = this.categoryDeleting();
-    if (!categoryToDelete) {
-      return;
-    }
-
-    this.categoryDeleting.set(null);
     this.selectedCategoryId.set('ALL');
     try {
-      await this.#categoriesStore.delete(categoryToDelete.id);
+      await this.#categoriesStore.delete(category.id);
     } catch (error) {
-      console.error(error);
+      this.#feedback.error(error);
     }
   }
 }

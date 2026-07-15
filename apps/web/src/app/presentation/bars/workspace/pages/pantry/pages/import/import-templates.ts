@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId } from '@coaster/common';
-import { Toast } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -27,7 +27,7 @@ export default class ImportTemplates {
   readonly #templatesStore = inject(TemplatesStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #productsStore = inject(ProductsStore);
-  readonly #toast = inject(Toast);
+  readonly #feedback = inject(ActionFeedback);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
@@ -126,7 +126,7 @@ export default class ImportTemplates {
       this.isSubmitting.set(false);
 
       const translationResult = this.#translate.instant('pantry.import_success');
-      this.#toast.success(translationResult);
+      this.#feedback.success(translationResult);
 
       // Reload stores to refresh the lists in the pantry view
       this.#categoriesStore.reloadCategories();
@@ -134,7 +134,8 @@ export default class ImportTemplates {
 
       // Navigate back to the pantry
       this.#router.navigate(['/bars', barId, 'pantry']);
-    } catch {
+    } catch (error) {
+      this.#feedback.error(error);
       this.isSubmitting.set(false);
     }
   }
