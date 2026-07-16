@@ -133,7 +133,7 @@ export default class ImportTemplates {
       this.#productsStore.reloadProducts();
 
       // Navigate back to the pantry
-      this.#router.navigate(['/bars', barId, 'pantry']);
+      this.#router.navigate(['/app/bars', barId, 'pantry']);
     } catch (error) {
       this.#feedback.error(error);
       this.isSubmitting.set(false);

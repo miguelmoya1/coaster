@@ -79,12 +79,12 @@ describe('SelectBar', () => {
   describe('actions', () => {
     it('should navigate to create bar on button click', () => {
       component.navigateToCreate();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/create']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars/create']);
     });
 
     it('should navigate to bar dashboard on selection', () => {
       component.selectBar('bar-1');
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars', 'bar-1', 'dashboard']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars', 'bar-1', 'dashboard']);
     });
   });
 });

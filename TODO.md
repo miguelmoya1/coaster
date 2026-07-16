@@ -4,11 +4,7 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 
 ---
 
-## Fase 1: Poner imagenes e iconos en los catalogos y productos y mostrarlos en la app
-
-Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es necesario.
-
-## Fase 2: Infraestructura SaaS y Comercialización
+## Fase 1: Infraestructura SaaS y Comercialización
 
 **Módulos:** Landing Page & Monetización con Stripe
 
@@ -17,7 +13,7 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
   1. Migración del enrutamiento de la aplicación hacia `coaster.business/app`, liberando la raíz para la landing comercial.
   2. Integración de Webhooks de Stripe desacoplados. El webhook capturará el evento externo y disparará un evento de dominio interno (`SubscriptionRenewedEvent` o `SubscriptionCancelledEvent`) para actualizar de forma asíncrona el estado del local.
 
-## Fase 3: Operativa Interna y Cumplimiento Legal
+## Fase 2: Operativa Interna y Cumplimiento Legal
 
 **Módulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
@@ -26,7 +22,7 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-## Fase 4: Capa de Inteligencia y Valor Añadido
+## Fase 3: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 

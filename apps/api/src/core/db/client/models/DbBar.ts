@@ -180,6 +180,7 @@ export type DbBarWhereInput = {
   tables?: Prisma.DbTableListRelationFilter
   orders?: Prisma.DbOrderListRelationFilter
   printer?: Prisma.XOR<Prisma.DbPrinterConfigNullableScalarRelationFilter, Prisma.DbPrinterConfigWhereInput> | null
+  billing?: Prisma.XOR<Prisma.DbBarSubscriptionNullableScalarRelationFilter, Prisma.DbBarSubscriptionWhereInput> | null
 }
 
 export type DbBarOrderByWithRelationInput = {
@@ -193,6 +194,7 @@ export type DbBarOrderByWithRelationInput = {
   tables?: Prisma.DbTableOrderByRelationAggregateInput
   orders?: Prisma.DbOrderOrderByRelationAggregateInput
   printer?: Prisma.DbPrinterConfigOrderByWithRelationInput
+  billing?: Prisma.DbBarSubscriptionOrderByWithRelationInput
 }
 
 export type DbBarWhereUniqueInput = Prisma.AtLeast<{
@@ -209,6 +211,7 @@ export type DbBarWhereUniqueInput = Prisma.AtLeast<{
   tables?: Prisma.DbTableListRelationFilter
   orders?: Prisma.DbOrderListRelationFilter
   printer?: Prisma.XOR<Prisma.DbPrinterConfigNullableScalarRelationFilter, Prisma.DbPrinterConfigWhereInput> | null
+  billing?: Prisma.XOR<Prisma.DbBarSubscriptionNullableScalarRelationFilter, Prisma.DbBarSubscriptionWhereInput> | null
 }, "id">
 
 export type DbBarOrderByWithAggregationInput = {
@@ -242,6 +245,7 @@ export type DbBarCreateInput = {
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateInput = {
@@ -255,6 +259,7 @@ export type DbBarUncheckedCreateInput = {
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUpdateInput = {
@@ -268,6 +273,7 @@ export type DbBarUpdateInput = {
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateInput = {
@@ -281,6 +287,7 @@ export type DbBarUncheckedUpdateInput = {
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateManyInput = {
@@ -414,6 +421,20 @@ export type DbBarUpdateOneRequiredWithoutPrinterNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbBarUpdateToOneWithWhereWithoutPrinterInput, Prisma.DbBarUpdateWithoutPrinterInput>, Prisma.DbBarUncheckedUpdateWithoutPrinterInput>
 }
 
+export type DbBarCreateNestedOneWithoutBillingInput = {
+  create?: Prisma.XOR<Prisma.DbBarCreateWithoutBillingInput, Prisma.DbBarUncheckedCreateWithoutBillingInput>
+  connectOrCreate?: Prisma.DbBarCreateOrConnectWithoutBillingInput
+  connect?: Prisma.DbBarWhereUniqueInput
+}
+
+export type DbBarUpdateOneRequiredWithoutBillingNestedInput = {
+  create?: Prisma.XOR<Prisma.DbBarCreateWithoutBillingInput, Prisma.DbBarUncheckedCreateWithoutBillingInput>
+  connectOrCreate?: Prisma.DbBarCreateOrConnectWithoutBillingInput
+  upsert?: Prisma.DbBarUpsertWithoutBillingInput
+  connect?: Prisma.DbBarWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbBarUpdateToOneWithWhereWithoutBillingInput, Prisma.DbBarUpdateWithoutBillingInput>, Prisma.DbBarUncheckedUpdateWithoutBillingInput>
+}
+
 export type DbBarCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -424,6 +445,7 @@ export type DbBarCreateWithoutMembersInput = {
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutMembersInput = {
@@ -436,6 +458,7 @@ export type DbBarUncheckedCreateWithoutMembersInput = {
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutMembersInput = {
@@ -464,6 +487,7 @@ export type DbBarUpdateWithoutMembersInput = {
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutMembersInput = {
@@ -476,6 +500,7 @@ export type DbBarUncheckedUpdateWithoutMembersInput = {
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutShiftsInput = {
@@ -488,6 +513,7 @@ export type DbBarCreateWithoutShiftsInput = {
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutShiftsInput = {
@@ -500,6 +526,7 @@ export type DbBarUncheckedCreateWithoutShiftsInput = {
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutShiftsInput = {
@@ -528,6 +555,7 @@ export type DbBarUpdateWithoutShiftsInput = {
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutShiftsInput = {
@@ -540,6 +568,7 @@ export type DbBarUncheckedUpdateWithoutShiftsInput = {
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutCategoriesInput = {
@@ -552,6 +581,7 @@ export type DbBarCreateWithoutCategoriesInput = {
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutCategoriesInput = {
@@ -564,6 +594,7 @@ export type DbBarUncheckedCreateWithoutCategoriesInput = {
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutCategoriesInput = {
@@ -592,6 +623,7 @@ export type DbBarUpdateWithoutCategoriesInput = {
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutCategoriesInput = {
@@ -604,6 +636,7 @@ export type DbBarUncheckedUpdateWithoutCategoriesInput = {
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutTablesInput = {
@@ -616,6 +649,7 @@ export type DbBarCreateWithoutTablesInput = {
   categories?: Prisma.DbCategoryCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutTablesInput = {
@@ -628,6 +662,7 @@ export type DbBarUncheckedCreateWithoutTablesInput = {
   categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutTablesInput = {
@@ -656,6 +691,7 @@ export type DbBarUpdateWithoutTablesInput = {
   categories?: Prisma.DbCategoryUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutTablesInput = {
@@ -668,6 +704,7 @@ export type DbBarUncheckedUpdateWithoutTablesInput = {
   categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutOrdersInput = {
@@ -680,6 +717,7 @@ export type DbBarCreateWithoutOrdersInput = {
   categories?: Prisma.DbCategoryCreateNestedManyWithoutBarInput
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutOrdersInput = {
@@ -692,6 +730,7 @@ export type DbBarUncheckedCreateWithoutOrdersInput = {
   categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutBarInput
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutOrdersInput = {
@@ -720,6 +759,7 @@ export type DbBarUpdateWithoutOrdersInput = {
   categories?: Prisma.DbCategoryUpdateManyWithoutBarNestedInput
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutOrdersInput = {
@@ -732,6 +772,7 @@ export type DbBarUncheckedUpdateWithoutOrdersInput = {
   categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutBarNestedInput
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutPrinterInput = {
@@ -744,6 +785,7 @@ export type DbBarCreateWithoutPrinterInput = {
   categories?: Prisma.DbCategoryCreateNestedManyWithoutBarInput
   tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutPrinterInput = {
@@ -756,6 +798,7 @@ export type DbBarUncheckedCreateWithoutPrinterInput = {
   categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutBarInput
   tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
   orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
+  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutPrinterInput = {
@@ -784,6 +827,7 @@ export type DbBarUpdateWithoutPrinterInput = {
   categories?: Prisma.DbCategoryUpdateManyWithoutBarNestedInput
   tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutPrinterInput = {
@@ -796,6 +840,75 @@ export type DbBarUncheckedUpdateWithoutPrinterInput = {
   categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutBarNestedInput
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
+  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
+}
+
+export type DbBarCreateWithoutBillingInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbBarMemberCreateNestedManyWithoutBarInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutBarInput
+  categories?: Prisma.DbCategoryCreateNestedManyWithoutBarInput
+  tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
+  orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
+  printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
+}
+
+export type DbBarUncheckedCreateWithoutBillingInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbBarMemberUncheckedCreateNestedManyWithoutBarInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutBarInput
+  categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutBarInput
+  tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
+  orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
+  printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
+}
+
+export type DbBarCreateOrConnectWithoutBillingInput = {
+  where: Prisma.DbBarWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbBarCreateWithoutBillingInput, Prisma.DbBarUncheckedCreateWithoutBillingInput>
+}
+
+export type DbBarUpsertWithoutBillingInput = {
+  update: Prisma.XOR<Prisma.DbBarUpdateWithoutBillingInput, Prisma.DbBarUncheckedUpdateWithoutBillingInput>
+  create: Prisma.XOR<Prisma.DbBarCreateWithoutBillingInput, Prisma.DbBarUncheckedCreateWithoutBillingInput>
+  where?: Prisma.DbBarWhereInput
+}
+
+export type DbBarUpdateToOneWithWhereWithoutBillingInput = {
+  where?: Prisma.DbBarWhereInput
+  data: Prisma.XOR<Prisma.DbBarUpdateWithoutBillingInput, Prisma.DbBarUncheckedUpdateWithoutBillingInput>
+}
+
+export type DbBarUpdateWithoutBillingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbBarMemberUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutBarNestedInput
+  categories?: Prisma.DbCategoryUpdateManyWithoutBarNestedInput
+  tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
+  orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
+  printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
+}
+
+export type DbBarUncheckedUpdateWithoutBillingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbBarMemberUncheckedUpdateManyWithoutBarNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutBarNestedInput
+  categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutBarNestedInput
+  tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
+  orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
+  printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
 }
 
 
@@ -876,6 +989,7 @@ export type DbBarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tables?: boolean | Prisma.DbBar$tablesArgs<ExtArgs>
   orders?: boolean | Prisma.DbBar$ordersArgs<ExtArgs>
   printer?: boolean | Prisma.DbBar$printerArgs<ExtArgs>
+  billing?: boolean | Prisma.DbBar$billingArgs<ExtArgs>
   _count?: boolean | Prisma.DbBarCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbBar"]>
 
@@ -908,6 +1022,7 @@ export type DbBarInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   tables?: boolean | Prisma.DbBar$tablesArgs<ExtArgs>
   orders?: boolean | Prisma.DbBar$ordersArgs<ExtArgs>
   printer?: boolean | Prisma.DbBar$printerArgs<ExtArgs>
+  billing?: boolean | Prisma.DbBar$billingArgs<ExtArgs>
   _count?: boolean | Prisma.DbBarCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbBarIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -922,6 +1037,7 @@ export type $DbBarPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     tables: Prisma.$DbTablePayload<ExtArgs>[]
     orders: Prisma.$DbOrderPayload<ExtArgs>[]
     printer: Prisma.$DbPrinterConfigPayload<ExtArgs> | null
+    billing: Prisma.$DbBarSubscriptionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1328,6 +1444,7 @@ export interface Prisma__DbBarClient<T, Null = never, ExtArgs extends runtime.Ty
   tables<T extends Prisma.DbBar$tablesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$tablesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTablePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orders<T extends Prisma.DbBar$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   printer<T extends Prisma.DbBar$printerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$printerArgs<ExtArgs>>): Prisma.Prisma__DbPrinterConfigClient<runtime.Types.Result.GetResult<Prisma.$DbPrinterConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  billing<T extends Prisma.DbBar$billingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$billingArgs<ExtArgs>>): Prisma.Prisma__DbBarSubscriptionClient<runtime.Types.Result.GetResult<Prisma.$DbBarSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1890,6 +2007,25 @@ export type DbBar$printerArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.DbPrinterConfigInclude<ExtArgs> | null
   where?: Prisma.DbPrinterConfigWhereInput
+}
+
+/**
+ * DbBar.billing
+ */
+export type DbBar$billingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbBarSubscription
+   */
+  select?: Prisma.DbBarSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbBarSubscription
+   */
+  omit?: Prisma.DbBarSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbBarSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.DbBarSubscriptionWhereInput
 }
 
 /**

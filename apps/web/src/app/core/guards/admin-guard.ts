@@ -19,7 +19,7 @@ export const adminGuard: CanActivateFn = () => {
     take(1),
     switchMap(() => {
       if (!authService.isAuthenticated()) {
-        return [router.createUrlTree(['/login'])];
+        return [router.createUrlTree(['/app/login'])];
       }
 
       return currentUser$.pipe(
@@ -29,7 +29,7 @@ export const adminGuard: CanActivateFn = () => {
           if (user && user.role === Role.ADMIN) {
             return true;
           }
-          return router.createUrlTree(['/']);
+          return router.createUrlTree(['/app/bars/select']);
         }),
       );
     }),

@@ -1,10 +1,11 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -45,10 +46,24 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
       </button>
 
       <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
-        <a mat-menu-item routerLink="/bars/select">
+        <a mat-menu-item routerLink="/app/bars/select">
           <mat-icon>swap_horiz</mat-icon>
           <span>{{ 'common.change_bar' | translate }}</span>
         </a>
+
+        @if (canManageBilling()) {
+          @if (!isProActive()) {
+            <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
+              <mat-icon>rocket_launch</mat-icon>
+              <span>Activar plan Pro</span>
+            </button>
+          }
+
+          <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
+            <mat-icon>receipt_long</mat-icon>
+            <span>Gestionar suscripcion y facturas</span>
+          </button>
+        }
 
         <mat-divider />
 
@@ -118,11 +133,21 @@ export class TopAppBar {
 
   readonly #auth = inject(Auth);
   readonly #currentUser = inject(CurrentUser);
+  readonly #barsStore = inject(BarsStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
+  readonly canManageBilling = this.#barsStore.isOwner;
+  readonly isProActive = computed(() => {
+    const subscription = this.#barsStore.subscription().value;
+    if (!subscription) {
+      return false;
+    }
+
+    return subscription.status === 'ACTIVE' || subscription.status === 'TRIALING';
+  });
 
   setLanguage(lang: string): void {
     if (this.#auth.isAuthenticated()) {
@@ -132,6 +157,24 @@ export class TopAppBar {
 
   async logout(): Promise<void> {
     await this.#auth.logout();
-    await this.#router.navigate(['/login'], { replaceUrl: true });
+    await this.#router.navigate(['/app/login'], { replaceUrl: true });
+  }
+
+  async manageBilling(): Promise<void> {
+    const returnUrl = window.location.origin + '/app/bars/select';
+    const portalUrl = await this.#barsStore.createCustomerPortalSession(returnUrl);
+
+    if (portalUrl) {
+      window.location.assign(portalUrl);
+    }
+  }
+
+  async activatePro(): Promise<void> {
+    const returnUrl = window.location.origin + '/app/bars/select';
+    const checkoutUrl = await this.#barsStore.createCheckoutSession(returnUrl);
+
+    if (checkoutUrl) {
+      window.location.assign(checkoutUrl);
+    }
   }
 }

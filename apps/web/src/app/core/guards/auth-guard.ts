@@ -12,11 +12,12 @@ export const authGuard: CanActivateFn = () => {
     filter((isLoaded) => isLoaded),
     take(1),
     map(() => {
+      console.log('aqui');
       if (authService.isAuthenticated()) {
         return true;
       }
 
-      return router.createUrlTree(['/login']);
+      return router.createUrlTree(['/app/login']);
     }),
   );
 };

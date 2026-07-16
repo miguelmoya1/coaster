@@ -68,7 +68,20 @@ describe('permissionGuard', () => {
     expect(hasPermissionMock).toHaveBeenCalledWith(BarPermission.BAR_VIEW_PRODUCTS);
   });
 
-  it('should redirect to dashboard if user lacks permission', async () => {
+  it('should redirect to orders if user lacks permission but has orders permission', async () => {
+    hasPermissionMock.mockImplementation((perm) => perm === BarPermission.BAR_VIEW_ORDERS);
+    const route = getMockRoute('bar-1');
+
+    const result = await TestBed.runInInjectionContext(() => {
+      const guard = permissionGuard(BarPermission.BAR_VIEW_PRODUCTS)(route, {} as unknown as RouterStateSnapshot);
+      return firstValueFrom(guard as Observable<boolean | UrlTree>);
+    });
+
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars', 'bar-1', 'orders']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars', 'bar-1', 'orders']);
+  });
+
+  it('should redirect to select if user lacks permission and lacks orders permission', async () => {
     hasPermissionMock.mockReturnValue(false);
     const route = getMockRoute('bar-1');
 
@@ -77,8 +90,8 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars', 'bar-1', 'orders']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/bars', 'bar-1', 'orders']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars/select']);
   });
 
   it('should set bar ID in store if it does not match current route bar ID', async () => {
@@ -137,7 +150,7 @@ describe('permissionGuard', () => {
       return guard as unknown as Promise<boolean | UrlTree>;
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars/select']);
   });
 });

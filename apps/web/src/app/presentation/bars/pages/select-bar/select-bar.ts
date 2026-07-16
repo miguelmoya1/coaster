@@ -22,10 +22,10 @@ export default class SelectBar {
   readonly bars = this.#barsStore.list;
 
   navigateToCreate() {
-    this.#router.navigate(['/bars/create']);
+    this.#router.navigate(['/app/bars/create']);
   }
 
   selectBar(id: string) {
-    this.#router.navigate(['/bars', id, 'dashboard']);
+    this.#router.navigate(['/app/bars', id, 'dashboard']);
   }
 }

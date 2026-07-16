@@ -26,6 +26,27 @@ export const DbRole = {
 export type DbRole = (typeof DbRole)[keyof typeof DbRole]
 
 
+export const DbSubscriptionPlan = {
+  FREE: 'FREE',
+  PRO_MONTHLY: 'PRO_MONTHLY',
+  PRO_YEARLY: 'PRO_YEARLY'
+} as const
+
+export type DbSubscriptionPlan = (typeof DbSubscriptionPlan)[keyof typeof DbSubscriptionPlan]
+
+
+export const DbSubscriptionStatus = {
+  INACTIVE: 'INACTIVE',
+  TRIALING: 'TRIALING',
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELED: 'CANCELED',
+  UNPAID: 'UNPAID'
+} as const
+
+export type DbSubscriptionStatus = (typeof DbSubscriptionStatus)[keyof typeof DbSubscriptionStatus]
+
+
 export const DbTableStatus = {
   FREE: 'FREE',
   OCCUPIED: 'OCCUPIED'

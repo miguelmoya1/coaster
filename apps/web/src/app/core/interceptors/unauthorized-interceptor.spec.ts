@@ -50,7 +50,7 @@ describe('unauthorizedInterceptor', () => {
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
     expect(authMock.logout).toHaveBeenCalled();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/login'], { replaceUrl: true });
   });
 
   it('should not redirect or call logout on non-401 errors', () => {

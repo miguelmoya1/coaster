@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { BarsStore } from '@coaster/bars';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -25,12 +26,20 @@ describe('TopAppBar', () => {
     }),
   };
 
+  const barsStoreMock = {
+    isOwner: signal(true).asReadonly(),
+    subscription: signal({ status: 'ready', value: { status: 'INACTIVE' } }).asReadonly(),
+    createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
+    createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopAppBar],
       providers: [
         provideTranslateService(),
         provideRouter([]),
+        { provide: BarsStore, useValue: barsStoreMock },
         { provide: Auth, useValue: authMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],
@@ -85,10 +94,10 @@ describe('TopAppBar', () => {
   });
 
   describe('menu actions', () => {
-    it('should log out and navigate to /login when logout is called', async () => {
+    it('should log out and navigate to /app/login when logout is called', async () => {
       await component.logout();
       expect(authMock.logout).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+      expect(router.navigate).toHaveBeenCalledWith(['/app/login'], { replaceUrl: true });
     });
   });
 });

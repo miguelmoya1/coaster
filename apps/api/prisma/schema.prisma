@@ -28,6 +28,25 @@ enum DbRole {
   @@map("Role")
 }
 
+enum DbSubscriptionPlan {
+  FREE
+  PRO_MONTHLY
+  PRO_YEARLY
+
+  @@map("SubscriptionPlan")
+}
+
+enum DbSubscriptionStatus {
+  INACTIVE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+
+  @@map("SubscriptionStatus")
+}
+
 enum DbTableStatus {
   FREE
   OCCUPIED
@@ -117,16 +136,17 @@ model DbUser {
 }
 
 model DbBar {
-  id         String           @id @default(uuid())
+  id         String             @id @default(uuid())
   name       String
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
   members    DbBarMember[]
   shifts     DbShift[]
   categories DbCategory[]
   tables     DbTable[]
   orders     DbOrder[]
   printer    DbPrinterConfig?
+  billing    DbBarSubscription?
 
   @@map("Bar")
 }
@@ -301,4 +321,33 @@ model DbPrinterConfig {
   updatedAt  DateTime  @updatedAt
 
   @@map("PrinterConfig")
+}
+
+model DbBarSubscription {
+  id                   String               @id @default(uuid())
+  barId                String               @unique
+  bar                  DbBar                @relation(fields: [barId], references: [id], onDelete: Cascade)
+  plan                 DbSubscriptionPlan   @default(FREE)
+  status               DbSubscriptionStatus @default(INACTIVE)
+  stripeCustomerId     String?              @unique
+  stripeSubscriptionId String?              @unique
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean              @default(false)
+  canceledAt           DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@index([status])
+  @@map("BarSubscription")
+}
+
+model DbStripeWebhookEvent {
+  id            String   @id @default(uuid())
+  stripeEventId String   @unique
+  type          String
+  payload       Json
+  processedAt   DateTime @default(now())
+
+  @@map("StripeWebhookEvent")
 }

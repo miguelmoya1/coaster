@@ -102,6 +102,9 @@ export const getRolePermissions = (role: BarRole): BarPermission[] => {
       // --- Printer Management ---
       'bar:manage-printer',
 
+      // --- Billing ---
+      'bar:manage-billing',
+
       // Inherits all staff permissions
       ...STAFF_PERMISSIONS,
     ];

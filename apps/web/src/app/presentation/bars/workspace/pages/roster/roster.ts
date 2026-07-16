@@ -299,7 +299,7 @@ export default class Roster {
   }
 
   protected handleCloseModal() {
-    this.#router.navigate(['/bars', this.barId(), 'roster'], {
+    this.#router.navigate(['/app/bars', this.barId(), 'roster'], {
       queryParams: {
         date: this.#dateFormatter.formatDayId(this.#state.selectedDate()),
         view: this.viewMode(),
@@ -399,7 +399,7 @@ export default class Roster {
   }
 
   protected handleQuickCreateForDate(date: Date) {
-    this.#router.navigate(['/bars', this.barId(), 'roster', 'new'], {
+    this.#router.navigate(['/app/bars', this.barId(), 'roster', 'new'], {
       queryParams: {
         date: this.#dateFormatter.formatDayId(date),
         view: this.viewMode(),

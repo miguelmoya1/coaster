@@ -111,3 +111,13 @@ export type DbOrderItem = Prisma.DbOrderItemModel
  * 
  */
 export type DbPrinterConfig = Prisma.DbPrinterConfigModel
+/**
+ * Model DbBarSubscription
+ * 
+ */
+export type DbBarSubscription = Prisma.DbBarSubscriptionModel
+/**
+ * Model DbStripeWebhookEvent
+ * 
+ */
+export type DbStripeWebhookEvent = Prisma.DbStripeWebhookEventModel

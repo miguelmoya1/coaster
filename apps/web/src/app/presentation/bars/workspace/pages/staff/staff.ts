@@ -120,6 +120,6 @@ export default class Staff {
   }
 
   protected closeModal() {
-    this.router.navigate(['/bars', this.barId(), 'staff']);
+    this.router.navigate(['/app/bars', this.barId(), 'staff']);
   }
 }

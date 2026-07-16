@@ -32,10 +32,10 @@ export default class CreateBar {
   readonly #router = inject(Router);
 
   protected onSubmit() {
-    this.#router.navigate(['/bars/select']);
+    this.#router.navigate(['/app/bars/select']);
   }
 
   protected onCancel() {
-    this.#router.navigate(['/bars/select']);
+    this.#router.navigate(['/app/bars/select']);
   }
 }

@@ -397,7 +397,9 @@ export const ModelName = {
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
-  DbPrinterConfig: 'DbPrinterConfig'
+  DbPrinterConfig: 'DbPrinterConfig',
+  DbBarSubscription: 'DbBarSubscription',
+  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbBarSubscription" | "dbStripeWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1455,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DbBarSubscription: {
+      payload: Prisma.$DbBarSubscriptionPayload<ExtArgs>
+      fields: Prisma.DbBarSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbBarSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbBarSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.DbBarSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbBarSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.DbBarSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.DbBarSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.DbBarSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbBarSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.DbBarSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.DbBarSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbBarSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbBarSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbBarSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbBarSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.DbBarSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBarSubscription>
+        }
+        groupBy: {
+          args: Prisma.DbBarSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBarSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbBarSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBarSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbStripeWebhookEvent: {
+      payload: Prisma.$DbStripeWebhookEventPayload<ExtArgs>
+      fields: Prisma.DbStripeWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbStripeWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbStripeWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.DbStripeWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbStripeWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.DbStripeWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.DbStripeWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.DbStripeWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbStripeWebhookEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
+        }
+        delete: {
+          args: Prisma.DbStripeWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.DbStripeWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbStripeWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbStripeWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbStripeWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbStripeWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.DbStripeWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbStripeWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.DbStripeWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbStripeWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbStripeWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbStripeWebhookEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1689,12 +1839,48 @@ export const DbPrinterConfigScalarFieldEnum = {
 export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
 
 
+export const DbBarSubscriptionScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  plan: 'plan',
+  status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  canceledAt: 'canceledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+
+
+export const DbStripeWebhookEventScalarFieldEnum = {
+  id: 'id',
+  stripeEventId: 'stripeEventId',
+  type: 'type',
+  payload: 'payload',
+  processedAt: 'processedAt'
+} as const
+
+export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1711,6 +1897,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1895,6 +2090,48 @@ export type ListEnumDbDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'DbSubscriptionPlan'
+ */
+export type EnumDbSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionPlan'>
+    
+
+
+/**
+ * Reference to a field of type 'DbSubscriptionPlan[]'
+ */
+export type ListEnumDbSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionPlan[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbSubscriptionStatus'
+ */
+export type EnumDbSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DbSubscriptionStatus[]'
+ */
+export type ListEnumDbSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2031,6 +2268,8 @@ export type GlobalOmitConfig = {
   dbOrder?: Prisma.DbOrderOmit
   dbOrderItem?: Prisma.DbOrderItemOmit
   dbPrinterConfig?: Prisma.DbPrinterConfigOmit
+  dbBarSubscription?: Prisma.DbBarSubscriptionOmit
+  dbStripeWebhookEvent?: Prisma.DbStripeWebhookEventOmit
 }
 
 /* Types for Logging */

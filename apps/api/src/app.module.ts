@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { BarMembersModule } from './bar-members/bar-members.module';
 import { BarsModule } from './bars/bars.module';
+import { BillingModule } from './billing/billing.module';
 import { CategoriesModule } from './categories/categories.module';
 import { DbModule } from './core/db';
 import { SecurityModule } from './core/security/security.module';
 import { EmailModule } from './email/email.module';
+import { MediaModule } from './media/media.module';
 import { OrdersModule } from './orders/orders.module';
 import { PrinterModule } from './printer/printer.module';
 import { ProductsModule } from './products/products.module';
@@ -17,8 +20,6 @@ import { TablesModule } from './tables/tables.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
 import { WebsocketsModule } from './websockets/websockets.module';
-import { AiModule } from './ai/ai.module';
-import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MediaModule } from './media/media.module';
     AuthModule,
     UserModule,
     BarsModule,
+    BillingModule,
     BarMembersModule,
     CategoriesModule,
     ProductsModule,

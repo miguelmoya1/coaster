@@ -40,7 +40,7 @@ describe('noAuthGuard', () => {
     expect(result).toBe(true);
   });
 
-  it('should return UrlTree to root if already authenticated', async () => {
+  it('should return UrlTree to bars selection if already authenticated', async () => {
     isAuthenticated.set(true);
 
     await TestBed.runInInjectionContext(() => {
@@ -48,6 +48,6 @@ describe('noAuthGuard', () => {
       return firstValueFrom(guard as Observable<UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
   });
 });

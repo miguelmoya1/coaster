@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
-import { combineLatest, filter, map, take } from 'rxjs';
+import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 
 export const permissionGuard = (permission: BarPermission): CanActivateFn => {
   return (route) => {
@@ -19,7 +19,7 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
     }
 
     if (!barId) {
-      return router.createUrlTree(['/']);
+      return router.createUrlTree(['/app/bars/select']);
     }
 
     const cleanBarId = asBarId(barId);
@@ -31,14 +31,20 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
     const isLoading$ = toObservable(barsStore.myMember.isLoading);
     const currentId$ = toObservable(barsStore.currentId);
 
-    return combineLatest([isLoading$, currentId$]).pipe(
+    return timer(0).pipe(
+      switchMap(() => combineLatest([isLoading$, currentId$])),
       filter(([isLoading, currentId]) => !isLoading && currentId === cleanBarId),
       take(1),
       map(() => {
         if (barsStore.hasPermission(permission)) {
           return true;
         }
-        return router.createUrlTree(['/bars', cleanBarId, 'orders']);
+        
+        if (permission !== BarPermission.BAR_VIEW_ORDERS && barsStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)) {
+          return router.createUrlTree(['/app/bars', cleanBarId, 'orders']);
+        }
+
+        return router.createUrlTree(['/app/bars/select']);
       }),
     );
   };

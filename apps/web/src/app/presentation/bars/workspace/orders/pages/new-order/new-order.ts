@@ -138,7 +138,7 @@ class NewOrder {
   }
 
   goBack() {
-    this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
+    this.#router.navigate(['/app/bars', this.barId(), 'orders', 'tables']);
   }
 
   addToCart(product: Product) {
@@ -220,7 +220,7 @@ class NewOrder {
       this.#activeOrdersStore.reloadOrders();
       this.#tablesStore.reload();
 
-      await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
+      await this.#router.navigate(['/app/bars', this.barId(), 'orders', 'tables']);
     } catch (e) {
       this.#feedback.error(e);
     }

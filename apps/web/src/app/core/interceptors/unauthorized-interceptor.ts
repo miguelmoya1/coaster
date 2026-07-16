@@ -12,7 +12,7 @@ export const unauthorizedInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         auth.logout();
-        router.navigate(['/login'], { replaceUrl: true });
+        router.navigate(['/app/login'], { replaceUrl: true });
       }
       return throwError(() => error);
     }),

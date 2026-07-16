@@ -156,7 +156,7 @@ describe('NewOrder', () => {
   describe('actions', () => {
     it('should navigate back on goBack', () => {
       component.goBack();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars', 'bar-1', 'orders', 'tables']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars', 'bar-1', 'orders', 'tables']);
     });
 
     it('should add product to cart', () => {

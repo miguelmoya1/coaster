@@ -27,6 +27,6 @@ export class AdminFloatingButton {
   readonly #router = inject(Router);
 
   navigateToAdmin() {
-    this.#router.navigate(['/admin/dashboard']);
+    this.#router.navigate(['/app/admin/dashboard']);
   }
 }

@@ -6,6 +6,7 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import fastifyRawBody from 'fastify-raw-body';
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -41,6 +42,14 @@ async function bootstrap() {
   await app.register(fastifyStatic, {
     root: join(__dirname, '..', 'public'),
     prefix: '/public/',
+  });
+
+  await app.register(fastifyRawBody, {
+    field: 'rawBody',
+    encoding: 'utf8',
+    global: false,
+    runFirst: true,
+    routes: ['/api/v1/billing/webhook'],
   });
 
   app.enableCors({

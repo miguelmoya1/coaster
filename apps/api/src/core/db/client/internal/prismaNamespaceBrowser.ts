@@ -64,7 +64,9 @@ export const ModelName = {
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
-  DbPrinterConfig: 'DbPrinterConfig'
+  DbPrinterConfig: 'DbPrinterConfig',
+  DbBarSubscription: 'DbBarSubscription',
+  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -280,12 +282,48 @@ export const DbPrinterConfigScalarFieldEnum = {
 export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
 
 
+export const DbBarSubscriptionScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  plan: 'plan',
+  status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  canceledAt: 'canceledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+
+
+export const DbStripeWebhookEventScalarFieldEnum = {
+  id: 'id',
+  stripeEventId: 'stripeEventId',
+  type: 'type',
+  payload: 'payload',
+  processedAt: 'processedAt'
+} as const
+
+export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -302,4 +340,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

@@ -272,13 +272,13 @@
         [qty]="product.currentStock"
         [statusLevel]="product.stockStatus"
         [price]="product.price"
-        [routerLink]="['/bars', barId(), 'pantry']"
+        [routerLink]="['/app/bars', barId(), 'pantry']"
       />
     }
 
     @if (hasMorePantryAlerts()) {
       <a
-        [routerLink]="['/bars', barId(), 'pantry']"
+        [routerLink]="['/app/bars', barId(), 'pantry']"
         class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
       >
         <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
@@ -295,7 +295,7 @@
       {{ 'dashboard.sections.roster' | translate }}
     </h2>
     <a
-      [routerLink]="['/bars', barId(), 'roster']"
+      [routerLink]="['/app/bars', barId(), 'roster']"
       class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
     >
       {{ 'dashboard.sections.roster_full' | translate }}
@@ -316,7 +316,7 @@
         </h4>
       </div>
       <a
-        [routerLink]="['/bars', barId(), 'roster']"
+        [routerLink]="['/app/bars', barId(), 'roster']"
         class="w-full bg-primary hover:bg-primary-container text-on-primary font-black py-3 px-4 rounded-xl text-xxs-plus tracking-widest uppercase transition-all shadow-md active:scale-95 text-center"
       >
         {{ 'dashboard.roster.assign_shifts' | translate }}

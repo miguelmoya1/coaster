@@ -4,28 +4,52 @@ import { adminGuard, authGuard, noAuthGuard } from './core';
 export const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'bars',
-    pathMatch: 'full',
+    loadComponent: () => import('./presentation/landing/landing'),
   },
   {
     path: 'login',
-    canActivate: [noAuthGuard],
-    loadChildren: () => import('./presentation/auth/auth.routes'),
+    redirectTo: 'app/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'bar',
+    redirectTo: 'app/bars',
+    pathMatch: 'full',
   },
   {
     path: 'bars',
-    canActivate: [authGuard],
-    loadChildren: () => import('./presentation/bars/bars.routes'),
+    redirectTo: 'app/bars',
+    pathMatch: 'full',
   },
   {
-    path: 'admin/dashboard',
-    canActivate: [adminGuard],
-    loadComponent: () => import('./presentation/admin/pages/admin-dashboard/admin-dashboard'),
-  },
-  {
-    path: 'admin/templates',
-    canActivate: [adminGuard],
-    loadComponent: () => import('./presentation/admin/pages/admin-templates/admin-templates'),
+    path: 'app',
+    children: [
+      {
+        path: 'login',
+        canActivate: [noAuthGuard],
+        loadChildren: () => import('./presentation/auth/auth.routes'),
+      },
+      {
+        path: 'bars',
+        canActivate: [authGuard],
+        loadChildren: () => import('./presentation/bars/bars.routes'),
+      },
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        loadChildren: () => import('./presentation/admin/admin.routes'),
+      },
+      {
+        path: '',
+        redirectTo: 'bars',
+        pathMatch: 'full',
+      },
+      {
+        path: '**',
+        redirectTo: 'bars',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
     path: '**',
