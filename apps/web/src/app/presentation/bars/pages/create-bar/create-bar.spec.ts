@@ -63,12 +63,12 @@ describe('CreateBar', () => {
   describe('actions', () => {
     it('should navigate to select bar on submit', () => {
       component['onSubmit']();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars/select']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
 
     it('should navigate to select bar on cancel', () => {
       component['onCancel']();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars/select']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
   });
 });

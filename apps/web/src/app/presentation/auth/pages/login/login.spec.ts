@@ -69,7 +69,7 @@ describe('Login', () => {
     it('should navigate to /bars/select after successful signIn', async () => {
       await component.signIn();
 
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/app/bars/select']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
 
     it('should set isLoading to false after signIn completes', async () => {

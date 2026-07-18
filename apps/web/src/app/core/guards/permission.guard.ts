@@ -19,7 +19,7 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
     }
 
     if (!barId) {
-      return router.createUrlTree(['/app/bars/select']);
+      return router.createUrlTree(['/bars/select']);
     }
 
     const cleanBarId = asBarId(barId);
@@ -41,10 +41,10 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
         }
         
         if (permission !== BarPermission.BAR_VIEW_ORDERS && barsStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)) {
-          return router.createUrlTree(['/app/bars', cleanBarId, 'orders']);
+          return router.createUrlTree(['/bars', cleanBarId, 'orders']);
         }
 
-        return router.createUrlTree(['/app/bars/select']);
+        return router.createUrlTree(['/bars/select']);
       }),
     );
   };

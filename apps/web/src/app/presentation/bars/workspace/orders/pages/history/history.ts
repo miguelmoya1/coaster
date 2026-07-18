@@ -119,7 +119,7 @@ class History {
   }
 
   onOrderClicked(order: Order) {
-    this.#router.navigate(['/app/bars', this.barId(), 'orders', order.id]);
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
   #formatTime(isoDate?: string): string {

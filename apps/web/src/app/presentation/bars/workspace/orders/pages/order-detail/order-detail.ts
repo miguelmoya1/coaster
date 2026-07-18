@@ -168,13 +168,13 @@ class OrderDetail {
 
   async goBack() {
     this.#isNavigatingAway = true;
-    await this.#router.navigate(['/app/bars', this.barId(), 'orders', 'tables']);
+    await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
   }
 
   onAddItems() {
     const order = this.currentOrder();
     if (!order) return;
-    this.#router.navigate(['/app/bars', this.barId(), 'orders', order.id, 'add']);
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id, 'add']);
   }
 
   protected isItemSelected(itemId: string): boolean {

@@ -48,6 +48,6 @@ describe('noAuthGuard', () => {
       return firstValueFrom(guard as Observable<UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars/select']);
   });
 });

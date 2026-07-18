@@ -73,20 +73,20 @@ class Tables {
   );
 
   onBarOrder() {
-    this.#router.navigate(['/app/bars', this.barId(), 'orders', 'new']);
+    this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
     const order = this.#activeOrdersStore.openOrders().find((o) => o.tableId === table.id);
     if (order) {
-      this.#router.navigate(['/app/bars', this.barId(), 'orders', order.id]);
+      this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
     } else {
-      this.#router.navigate(['/app/bars', this.barId(), 'orders', 'new', table.id]);
+      this.#router.navigate(['/bars', this.barId(), 'orders', 'new', table.id]);
     }
   }
 
   onBarOrderClicked(order: Order) {
-    this.#router.navigate(['/app/bars', this.barId(), 'orders', order.id]);
+    this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
   }
 
   onCreateTable() {

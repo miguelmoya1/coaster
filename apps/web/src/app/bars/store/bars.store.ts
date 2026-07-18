@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Service, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal, untracked } from '@angular/core';
 import type { BarId, CreateBarDto } from '@coaster/common';
 import { BarPermission, BarRole } from '@coaster/common';
 import { hasPermission } from '@coaster/core';
@@ -70,7 +70,7 @@ export class BarsStore {
   public reloadCurrentBar() {
     this.#currentBarResource.reload();
     this.#myMemberResource.reload();
-    void this.#loadSubscription();
+    void this.#loadSubscription(this.#currentBarId());
   }
 
   public reloadMyBars() {
@@ -111,18 +111,19 @@ export class BarsStore {
   }
 
   readonly #subscriptionLoader = effect(() => {
-    void this.#loadSubscription();
+    const barId = this.#currentBarId();
+    untracked(() => {
+      void this.#loadSubscription(barId);
+    });
   });
 
-  async #loadSubscription(): Promise<void> {
-    const barId = this.#currentBarId();
-
+  async #loadSubscription(barId: BarId | undefined): Promise<void> {
     if (!barId) {
       this.#subscription.set({ status: 'idle', value: undefined });
       return;
     }
 
-    this.#subscription.set({ status: 'loading', value: this.#subscription().value });
+    this.#subscription.update(s => ({ status: 'loading', value: s.value }));
 
     try {
       const subscription = await this.#barRepository.getSubscription(barId);

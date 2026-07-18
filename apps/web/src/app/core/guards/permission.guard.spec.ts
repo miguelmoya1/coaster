@@ -77,8 +77,8 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars', 'bar-1', 'orders']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars', 'bar-1', 'orders']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars', 'bar-1', 'orders']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/bars', 'bar-1', 'orders']);
   });
 
   it('should redirect to select if user lacks permission and lacks orders permission', async () => {
@@ -90,8 +90,8 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars/select']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars/select']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/bars/select']);
   });
 
   it('should set bar ID in store if it does not match current route bar ID', async () => {
@@ -150,7 +150,7 @@ describe('permissionGuard', () => {
       return guard as unknown as Promise<boolean | UrlTree>;
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/bars/select']);
-    expect((result as unknown as { path: string[] }).path).toEqual(['/app/bars/select']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/bars/select']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/bars/select']);
   });
 });

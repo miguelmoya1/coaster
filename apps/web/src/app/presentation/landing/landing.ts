@@ -17,7 +17,7 @@ import { RouterLink } from '@angular/router';
           <p class="font-black tracking-tight text-xl">Coaster</p>
         </div>
 
-        <a mat-stroked-button routerLink="/app/login">Entrar</a>
+        <a mat-stroked-button routerLink="/login">Entrar</a>
       </header>
 
       <section class="mt-16 sm:mt-24 grid lg:grid-cols-2 gap-10 items-center">
@@ -32,8 +32,8 @@ import { RouterLink } from '@angular/router';
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a mat-flat-button routerLink="/app/login" class="!rounded-full !px-6 !py-6">Probar Coaster</a>
-            <a mat-button routerLink="/app/login" class="!rounded-full !px-6 !py-6">Ver demo</a>
+            <a mat-flat-button routerLink="/login" class="!rounded-full !px-6 !py-6">Probar Coaster</a>
+            <a mat-button routerLink="/login" class="!rounded-full !px-6 !py-6">Ver demo</a>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ import { RouterLink } from '@angular/router';
             </li>
           </ul>
 
-          <a mat-flat-button routerLink="/app/login" class="!mt-8 !w-full !rounded-xl !py-6">Empezar ahora</a>
+          <a mat-flat-button routerLink="/login" class="!mt-8 !w-full !rounded-xl !py-6">Empezar ahora</a>
         </div>
       </section>
     </main>

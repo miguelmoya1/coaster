@@ -8,48 +8,23 @@ export const appRoutes: Routes = [
   },
   {
     path: 'login',
-    redirectTo: 'app/login',
-    pathMatch: 'full',
-  },
-  {
-    path: 'bar',
-    redirectTo: 'app/bars',
-    pathMatch: 'full',
+    canActivate: [noAuthGuard],
+    loadChildren: () => import('./presentation/auth/auth.routes'),
   },
   {
     path: 'bars',
-    redirectTo: 'app/bars',
-    pathMatch: 'full',
+    canActivate: [authGuard],
+    loadChildren: () => import('./presentation/bars/bars.routes'),
   },
   {
-    path: 'app',
-    children: [
-      {
-        path: 'login',
-        canActivate: [noAuthGuard],
-        loadChildren: () => import('./presentation/auth/auth.routes'),
-      },
-      {
-        path: 'bars',
-        canActivate: [authGuard],
-        loadChildren: () => import('./presentation/bars/bars.routes'),
-      },
-      {
-        path: 'admin',
-        canActivate: [adminGuard],
-        loadChildren: () => import('./presentation/admin/admin.routes'),
-      },
-      {
-        path: '',
-        redirectTo: 'bars',
-        pathMatch: 'full',
-      },
-      {
-        path: '**',
-        redirectTo: 'bars',
-        pathMatch: 'full',
-      },
-    ],
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadChildren: () => import('./presentation/admin/admin.routes'),
+  },
+  {
+    path: 'bar',
+    redirectTo: 'bars',
+    pathMatch: 'full',
   },
   {
     path: '**',

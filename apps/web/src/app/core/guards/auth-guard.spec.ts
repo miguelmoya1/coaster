@@ -56,8 +56,8 @@ describe('authGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/app/login']);
-    expect((result as UrlTree & { path: string[] }).path).toEqual(['/app/login']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
+    expect((result as UrlTree & { path: string[] }).path).toEqual(['/login']);
   });
 
   it('should wait for auth to load before emitting', async () => {

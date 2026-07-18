@@ -46,7 +46,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
       </button>
 
       <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
-        <a mat-menu-item routerLink="/app/bars/select">
+        <a mat-menu-item routerLink="/bars/select">
           <mat-icon>swap_horiz</mat-icon>
           <span>{{ 'common.change_bar' | translate }}</span>
         </a>
@@ -157,11 +157,11 @@ export class TopAppBar {
 
   async logout(): Promise<void> {
     await this.#auth.logout();
-    await this.#router.navigate(['/app/login'], { replaceUrl: true });
+    await this.#router.navigate(['/login'], { replaceUrl: true });
   }
 
   async manageBilling(): Promise<void> {
-    const returnUrl = window.location.origin + '/app/bars/select';
+    const returnUrl = window.location.origin + '/bars/select';
     const portalUrl = await this.#barsStore.createCustomerPortalSession(returnUrl);
 
     if (portalUrl) {
@@ -170,7 +170,7 @@ export class TopAppBar {
   }
 
   async activatePro(): Promise<void> {
-    const returnUrl = window.location.origin + '/app/bars/select';
+    const returnUrl = window.location.origin + '/bars/select';
     const checkoutUrl = await this.#barsStore.createCheckoutSession(returnUrl);
 
     if (checkoutUrl) {

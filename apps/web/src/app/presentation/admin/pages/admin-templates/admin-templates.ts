@@ -92,7 +92,7 @@ export class AdminTemplates {
   );
 
   goBack() {
-    this.#router.navigate(['/app/admin/dashboard']);
+    this.#router.navigate(['/admin/dashboard']);
   }
 
   loadStandardTemplates() {
