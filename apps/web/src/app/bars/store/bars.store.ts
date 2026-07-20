@@ -1,11 +1,11 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Service, signal, untracked } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateBarDto } from '@coaster/common';
 import { BarPermission, BarRole } from '@coaster/common';
 import { hasPermission } from '@coaster/core';
 import { memberMapper } from '@coaster/members';
 import { BarRepository } from '../data-access/bar-repository';
-import { barArrayMapper, barMapper } from '../mappers/bar.mapper';
+import { barArrayMapper, barMapper, barSubscriptionMapper } from '../mappers/bar.mapper';
 import { CreateBar } from '../services/create-bar';
 import { CurrentBar } from '../services/current-bar';
 import { MyBars } from '../services/my-bars';
@@ -33,19 +33,24 @@ export class BarsStore {
     parse: (member) => memberMapper(member),
   });
 
-  readonly #subscription = signal<{
-    status: 'idle' | 'loading' | 'error' | 'ready';
-    value?: Awaited<ReturnType<BarRepository['getSubscription']>>;
-  }>({
-    status: 'idle',
-    value: undefined,
-  });
+  readonly #subscriptionResource = httpResource(
+    () => {
+      const barId = this.#currentBarId();
+      if (!barId) {
+        return undefined;
+      }
+      return this.#barRepository.routes.getSubscription(barId);
+    },
+    {
+      parse: (subscription) => barSubscriptionMapper(subscription),
+    },
+  );
 
   public readonly list = this.#myBarsResource.asReadonly();
   public readonly current = this.#currentBarResource.asReadonly();
   public readonly currentId = this.#currentBarId.asReadonly();
   public readonly myMember = this.#myMemberResource.asReadonly();
-  public readonly subscription = this.#subscription.asReadonly();
+  public readonly subscription = this.#subscriptionResource.asReadonly();
 
   public readonly isOwner = computed(() => {
     if (!this.myMember.hasValue()) {
@@ -70,7 +75,7 @@ export class BarsStore {
   public reloadCurrentBar() {
     this.#currentBarResource.reload();
     this.#myMemberResource.reload();
-    void this.#loadSubscription(this.#currentBarId());
+    this.#subscriptionResource.reload();
   }
 
   public reloadMyBars() {
@@ -89,8 +94,13 @@ export class BarsStore {
       return undefined;
     }
 
-    const { url } = await this.#barRepository.createCustomerPortalSession(barId, { returnUrl });
-    return url;
+    try {
+      const { url } = await this.#barRepository.createCustomerPortalSession(barId, { returnUrl });
+      return url;
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
   }
 
   public async createCheckoutSession(returnUrl: string): Promise<string | undefined> {
@@ -101,35 +111,17 @@ export class BarsStore {
     }
 
     const currentPath = window.location.pathname + window.location.search;
-    const { url } = await this.#barRepository.createCheckoutSession(barId, {
-      plan: 'PRO_MONTHLY',
-      successUrl: returnUrl,
-      cancelUrl: window.location.origin + currentPath,
-    });
-
-    return url;
-  }
-
-  readonly #subscriptionLoader = effect(() => {
-    const barId = this.#currentBarId();
-    untracked(() => {
-      void this.#loadSubscription(barId);
-    });
-  });
-
-  async #loadSubscription(barId: BarId | undefined): Promise<void> {
-    if (!barId) {
-      this.#subscription.set({ status: 'idle', value: undefined });
-      return;
-    }
-
-    this.#subscription.update(s => ({ status: 'loading', value: s.value }));
-
     try {
-      const subscription = await this.#barRepository.getSubscription(barId);
-      this.#subscription.set({ status: 'ready', value: subscription });
-    } catch {
-      this.#subscription.set({ status: 'error', value: undefined });
+      const { url } = await this.#barRepository.createCheckoutSession(barId, {
+        plan: 'PRO_MONTHLY',
+        successUrl: returnUrl,
+        cancelUrl: window.location.origin + currentPath,
+      });
+
+      return url;
+    } catch (e) {
+      console.error(e);
+      return undefined;
     }
   }
 }

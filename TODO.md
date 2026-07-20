@@ -4,16 +4,7 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 
 ---
 
-## Fase 1: Infraestructura SaaS y Comercialización
-
-**Módulos:** Landing Page & Monetización con Stripe
-
-- **Impacto en Arquitectura:** Introducción formal del concepto de multi-inquilino (_Multi-tenancy_) y control de límites por suscripción (_Free Tier_ vs _Premium_).
-- **Flujo de Trabajo:**
-  1. Migración del enrutamiento de la aplicación hacia `coaster.business/app`, liberando la raíz para la landing comercial.
-  2. Integración de Webhooks de Stripe desacoplados. El webhook capturará el evento externo y disparará un evento de dominio interno (`SubscriptionRenewedEvent` o `SubscriptionCancelledEvent`) para actualizar de forma asíncrona el estado del local.
-
-## Fase 2: Operativa Interna y Cumplimiento Legal
+## Fase 1: Operativa Interna y Cumplimiento Legal
 
 **Módulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
@@ -22,7 +13,7 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-## Fase 3: Capa de Inteligencia y Valor Añadido
+## Fase 2: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 

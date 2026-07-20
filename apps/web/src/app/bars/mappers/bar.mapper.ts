@@ -1,4 +1,4 @@
-import type { Bar } from '@coaster/common';
+import type { Bar, BarSubscription } from '@coaster/common';
 
 export const checkIsBar = (bar: unknown): bar is Bar => {
   return typeof bar === 'object' && bar !== null && 'id' in bar && 'name' in bar;
@@ -18,4 +18,16 @@ export const barArrayMapper = (bars: unknown): Bar[] => {
   }
 
   return bars.map(barMapper);
+};
+
+export const checkIsBarSubscription = (subscription: unknown): subscription is BarSubscription => {
+  return typeof subscription === 'object' && subscription !== null && 'barId' in subscription && 'plan' in subscription && 'status' in subscription;
+};
+
+export const barSubscriptionMapper = (subscription: unknown): BarSubscription => {
+  if (!checkIsBarSubscription(subscription)) {
+    throw new Error('Invalid BarSubscription payload');
+  }
+
+  return { ...subscription };
 };

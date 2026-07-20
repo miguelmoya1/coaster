@@ -30,14 +30,6 @@ export class BarRepository {
     await firstValueFrom(this.#http.post<void>(this.routes.create, createBarDto));
   }
 
-  public async searchAdmin(query: string): Promise<Bar[]> {
-    return await firstValueFrom(this.#http.get<Bar[]>(this.routes.adminSearch(query)));
-  }
-
-  public async getSubscription(barId: BarId): Promise<BarSubscription> {
-    return await firstValueFrom(this.#http.get<BarSubscription>(this.routes.getSubscription(barId)));
-  }
-
   public async createCheckoutSession(
     barId: BarId,
     dto: CreateCheckoutSessionDto,

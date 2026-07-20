@@ -6,7 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { BarsStore } from '@coaster/bars';
-import { Auth, CurrentUser } from '@coaster/core';
+import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
@@ -136,12 +136,13 @@ export class TopAppBar {
   readonly #barsStore = inject(BarsStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
+  readonly #actionFeedback = inject(ActionFeedback);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
   readonly canManageBilling = this.#barsStore.isOwner;
   readonly isProActive = computed(() => {
-    const subscription = this.#barsStore.subscription().value;
+    const subscription = this.#barsStore.subscription.value();
     if (!subscription) {
       return false;
     }
@@ -166,6 +167,8 @@ export class TopAppBar {
 
     if (portalUrl) {
       window.location.assign(portalUrl);
+    } else {
+      this.#actionFeedback.error('errors.stripe_connection');
     }
   }
 
@@ -175,6 +178,8 @@ export class TopAppBar {
 
     if (checkoutUrl) {
       window.location.assign(checkoutUrl);
+    } else {
+      this.#actionFeedback.error('errors.stripe_connection');
     }
   }
 }
