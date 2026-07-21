@@ -1,22 +1,21 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import { SubscriptionPlan } from '@coaster/common';
-import { BarRepository } from '../data-access/bar-repository';
 import { barSubscriptionMapper } from '../mappers/bar.mapper';
+import { BarSubscription } from '../services/bar-subscription';
+import { CreateCheckoutSession } from '../services/create-checkout-session';
+import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 import { CurrentBarStore } from './current-bar.store';
 
 @Service()
 export class BarSubscriptionStore {
-  readonly #barRepository = inject(BarRepository);
   readonly #currentBarStore = inject(CurrentBarStore);
+  readonly #barSubscription = inject(BarSubscription);
+  readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
+  readonly #createCheckoutSession = inject(CreateCheckoutSession);
 
   readonly #subscriptionResource = httpResource(
     () => {
-      const barId = this.#currentBarStore.currentId();
-      if (!barId) {
-        return undefined;
-      }
-      return this.#barRepository.routes.getSubscription(barId);
+      return this.#barSubscription.execute(this.#currentBarStore.currentId());
     },
     {
       parse: (subscription) => barSubscriptionMapper(subscription),
@@ -30,40 +29,10 @@ export class BarSubscriptionStore {
   }
 
   public async createCustomerPortalSession(returnUrl: string): Promise<string | undefined> {
-    const barId = this.#currentBarStore.currentId();
-
-    if (!barId) {
-      return undefined;
-    }
-
-    try {
-      const { url } = await this.#barRepository.createCustomerPortalSession(barId, { returnUrl });
-      return url;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+    return this.#createCustomerPortalSession.execute(this.#currentBarStore.currentId(), returnUrl);
   }
 
   public async createCheckoutSession(returnUrl: string): Promise<string | undefined> {
-    const barId = this.#currentBarStore.currentId();
-
-    if (!barId) {
-      return undefined;
-    }
-
-    const currentPath = window.location.pathname + window.location.search;
-    try {
-      const { url } = await this.#barRepository.createCheckoutSession(barId, {
-        plan: SubscriptionPlan.PRO_MONTHLY,
-        successUrl: returnUrl,
-        cancelUrl: window.location.origin + currentPath,
-      });
-
-      return url;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+    return this.#createCheckoutSession.execute(this.#currentBarStore.currentId(), returnUrl);
   }
 }
