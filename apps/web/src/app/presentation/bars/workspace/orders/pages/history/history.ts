@@ -4,7 +4,7 @@ import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
 import { ActionFeedback, asOrderId } from '@coaster/core';
@@ -38,7 +38,7 @@ class History {
 
   readonly #orderHistoryStore = inject(OrderHistoryStore);
   readonly #activeOrdersStore = inject(ActiveOrdersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   readonly #confirmation = inject(ConfirmationDialog);
 
   readonly #translate = inject(TranslateService);
@@ -62,7 +62,7 @@ class History {
   protected readonly totalCancelled = this.#orderHistoryStore.totalCancelled;
 
   readonly isToday = computed(() => this.#orderHistoryStore.selectedDate() === this.today);
-  readonly isOwner = this.#barsStore.isOwner;
+  readonly isOwner = this.#myMemberStore.isOwner;
 
   readonly totalRevenue = this.#orderHistoryStore.historyTotalRevenue;
   readonly averageTicket = this.#orderHistoryStore.averageTicket;

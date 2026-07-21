@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
 import { CurrentUser, Socket, Auth } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -19,13 +19,16 @@ describe('WorkspaceLayout', () => {
     },
   };
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     current: {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
     },
-    isOwner: signal(false),
     setBarId: vi.fn(),
+  };
+
+  const myMemberStoreMock = {
+    isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(true),
   };
 
@@ -54,7 +57,8 @@ describe('WorkspaceLayout', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: CurrentUser, useValue: currentUserMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: Socket, useValue: socketMock },
         { provide: Auth, useValue: authMock },

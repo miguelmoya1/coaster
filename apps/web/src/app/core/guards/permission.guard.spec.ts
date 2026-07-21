@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,12 +12,15 @@ describe('permissionGuard', () => {
   const currentId = signal<string | undefined>('bar-1');
   const hasPermissionMock = vi.fn(() => true);
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     currentId: currentId.asReadonly(),
+    setBarId: vi.fn((id: string | undefined) => currentId.set(id)),
+  };
+
+  const myMemberStoreMock = {
     myMember: {
       isLoading: isLoading.asReadonly(),
     },
-    setBarId: vi.fn((id: string | undefined) => currentId.set(id)),
     hasPermission: hasPermissionMock,
   };
 
@@ -51,7 +54,8 @@ describe('permissionGuard', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: Router, useValue: routerMock },
       ],
     });
@@ -104,7 +108,7 @@ describe('permissionGuard', () => {
     });
 
     // It should have called setBarId to switch the bar
-    expect(barsStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+    expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
 
     // Await the promise to resolve so there is no unhandled EmptyError rejection
     const result = await guardPromise;
@@ -138,7 +142,7 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(barsStoreMock.setBarId).toHaveBeenCalledWith('bar-parent');
+    expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-parent');
     expect(result).toBe(true);
   });
 

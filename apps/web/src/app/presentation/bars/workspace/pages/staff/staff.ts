@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
@@ -30,7 +30,7 @@ export default class Staff {
   public readonly barId = input.required<BarId>();
 
   readonly #membersStore = inject(MembersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   protected readonly router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -41,12 +41,12 @@ export default class Staff {
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
   protected readonly userMember = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value();
+    return this.#myMemberStore.myMember.value();
   });
-  protected readonly isOwner = this.#barsStore.isOwner;
+  protected readonly isOwner = this.#myMemberStore.isOwner;
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];

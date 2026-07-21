@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -35,7 +35,7 @@ describe('History', () => {
     setBarId: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     isOwner: signal(false),
   };
 
@@ -48,7 +48,7 @@ describe('History', () => {
         provideRouter([]),
         { provide: OrderHistoryStore, useValue: orderHistoryStoreMock },
         { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
 

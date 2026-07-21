@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CreateBar from './create-bar';
@@ -12,7 +12,7 @@ describe('CreateBar', () => {
     navigate: vi.fn().mockResolvedValue(true),
   };
 
-  const barsStoreMock = {
+  const barListStoreMock = {
     create: vi.fn(),
   };
 
@@ -23,7 +23,7 @@ describe('CreateBar', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: BarListStore, useValue: barListStoreMock },
       ],
     }).compileComponents();
 

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import { BarRole } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
@@ -39,7 +39,7 @@ describe('Pantry', () => {
     setBarId: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue({
         role: BarRole.STAFF,
@@ -59,7 +59,7 @@ describe('Pantry', () => {
         provideRouter([]),
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
 

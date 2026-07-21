@@ -2,7 +2,7 @@ import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import { BarPermission, BarPermissionType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -42,7 +42,7 @@ interface NavItem {
 })
 export class BottomNav {
   public readonly barId = input.required<string>();
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
 
   private readonly allNavItems = computed<NavItem[]>(() => [
     {
@@ -84,7 +84,7 @@ export class BottomNav {
 
   protected readonly visibleNavItems = computed(() =>
     this.allNavItems().filter(
-      (item) => !item.requiredPermission || this.#barsStore.hasPermission(item.requiredPermission),
+      (item) => !item.requiredPermission || this.#myMemberStore.hasPermission(item.requiredPermission),
     ),
   );
 }

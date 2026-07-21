@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
@@ -13,7 +13,7 @@ describe('ExchangesStore', () => {
 
   const currentBarId = signal<BarId | undefined>(undefined);
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     currentId: currentBarId.asReadonly(),
   };
 
@@ -46,7 +46,7 @@ describe('ExchangesStore', () => {
       providers: [
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: ExchangeRepository, useValue: repositoryMock },
       ],
     });

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore, BarSubscriptionStore } from '@coaster/bars';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -26,8 +26,11 @@ describe('TopAppBar', () => {
     }),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     isOwner: signal(true).asReadonly(),
+  };
+
+  const barSubscriptionStoreMock = {
     subscription: signal({ status: 'ready', value: { status: 'INACTIVE' } }).asReadonly(),
     createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
@@ -39,7 +42,8 @@ describe('TopAppBar', () => {
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
         { provide: Auth, useValue: authMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],

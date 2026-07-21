@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import { BarRole } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -24,7 +24,7 @@ describe('Staff', () => {
     remove: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     myMember: {
       value: signal(undefined),
       hasValue: signal(true),
@@ -43,7 +43,7 @@ describe('Staff', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
       ],
     }).compileComponents();
@@ -92,9 +92,9 @@ describe('Staff', () => {
       membersStoreMock.list.value.set([
         { id: 'm1', userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER },
       ] as any);
-      barsStoreMock.myMember.hasValue.set(true);
-      barsStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER } as any);
-      barsStoreMock.isOwner.set(false);
+      myMemberStoreMock.myMember.hasValue.set(true);
+      myMemberStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER } as any);
+      myMemberStoreMock.isOwner.set(false);
       membersStoreMock.isOnlyOwner.mockReturnValue(false);
 
       const members = component['members']();

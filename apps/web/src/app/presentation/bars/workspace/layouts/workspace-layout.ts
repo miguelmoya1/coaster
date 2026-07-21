@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
@@ -31,14 +31,15 @@ export default class WorkspaceLayout {
   public readonly barId = input.required<BarId>();
 
   readonly #currentUser = inject(CurrentUser);
-  readonly #barsStore = inject(BarsStore);
+  readonly #currentBarStore = inject(CurrentBarStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   readonly #membersStore = inject(MembersStore);
   readonly #socketService = inject(Socket);
 
   protected readonly currentUser = this.#currentUser.current;
-  protected readonly currentBar = this.#barsStore.current;
+  protected readonly currentBar = this.#currentBarStore.current;
 
-  protected readonly isOwner = this.#barsStore.isOwner;
+  protected readonly isOwner = this.#myMemberStore.isOwner;
 
   protected readonly titleToShow = computed(() => {
     if (!this.currentBar.hasValue() || !this.currentUser.hasValue()) {
@@ -59,12 +60,12 @@ export default class WorkspaceLayout {
   constructor() {
     effect((cleanup) => {
       const barId = this.barId();
-      this.#barsStore.setBarId(barId);
+      this.#currentBarStore.setBarId(barId);
       this.#socketService.joinBar(barId);
       this.#membersStore.setBarId(barId);
 
       cleanup(() => {
-        this.#barsStore.setBarId(undefined);
+        this.#currentBarStore.setBarId(undefined);
         this.#socketService.leaveBar(barId);
         this.#membersStore.setBarId(undefined);
       });

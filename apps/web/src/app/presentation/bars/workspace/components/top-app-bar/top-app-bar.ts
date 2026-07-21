@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore, BarSubscriptionStore } from '@coaster/bars';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -133,16 +133,17 @@ export class TopAppBar {
 
   readonly #auth = inject(Auth);
   readonly #currentUser = inject(CurrentUser);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
+  readonly #barSubscriptionStore = inject(BarSubscriptionStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
-  readonly canManageBilling = this.#barsStore.isOwner;
+  readonly canManageBilling = this.#myMemberStore.isOwner;
   readonly isProActive = computed(() => {
-    const subscription = this.#barsStore.subscription.value();
+    const subscription = this.#barSubscriptionStore.subscription.value();
     if (!subscription) {
       return false;
     }
@@ -163,7 +164,7 @@ export class TopAppBar {
 
   async manageBilling(): Promise<void> {
     const returnUrl = window.location.origin + '/bars/select';
-    const portalUrl = await this.#barsStore.createCustomerPortalSession(returnUrl);
+    const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession(returnUrl);
 
     if (portalUrl) {
       window.location.assign(portalUrl);
@@ -174,7 +175,7 @@ export class TopAppBar {
 
   async activatePro(): Promise<void> {
     const returnUrl = window.location.origin + '/bars/select';
-    const checkoutUrl = await this.#barsStore.createCheckoutSession(returnUrl);
+    const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl);
 
     if (checkoutUrl) {
       window.location.assign(checkoutUrl);

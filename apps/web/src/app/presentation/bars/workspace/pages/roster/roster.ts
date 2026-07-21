@@ -3,7 +3,7 @@ import { Component, computed, effect, inject, input, inputBinding, outputBinding
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { BarRole } from '@coaster/common';
 import { ActionFeedback, DateFormatterService } from '@coaster/core';
@@ -86,7 +86,7 @@ export default class Roster {
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #dateFormatter = inject(DateFormatterService);
   readonly #membersStore = inject(MembersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   readonly #exchangesStore = inject(ExchangesStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
@@ -121,19 +121,19 @@ export default class Roster {
   });
 
   readonly currentUserId = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value()?.userId;
+    return this.#myMemberStore.myMember.value()?.userId;
   });
 
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
 
   readonly currentUserRole = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value()?.role;
+    return this.#myMemberStore.myMember.value()?.role;
   });
 
   readonly pendingShiftIds = computed(() => {

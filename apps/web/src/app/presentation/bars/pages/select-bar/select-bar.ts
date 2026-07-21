@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../components/loading/loading';
 import { BarCard } from './components/bar-card/bar-card';
@@ -17,9 +17,9 @@ import { BarCard } from './components/bar-card/bar-card';
 })
 export default class SelectBar {
   readonly #router = inject(Router);
-  readonly #barsStore = inject(BarsStore);
+  readonly #barListStore = inject(BarListStore);
 
-  readonly bars = this.#barsStore.list;
+  readonly bars = this.#barListStore.list;
 
   navigateToCreate() {
     this.#router.navigate(['/bars/create']);

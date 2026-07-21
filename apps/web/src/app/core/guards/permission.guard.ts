@@ -1,14 +1,15 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
 import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 
 export const permissionGuard = (permission: BarPermission): CanActivateFn => {
   return (route) => {
-    const barsStore = inject(BarsStore);
+    const currentBarStore = inject(CurrentBarStore);
+    const myMemberStore = inject(MyMemberStore);
     const router = inject(Router);
 
     let barId = route.paramMap.get('barId');
@@ -24,23 +25,23 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
 
     const cleanBarId = asBarId(barId);
 
-    if (barsStore.currentId() !== cleanBarId) {
-      barsStore.setBarId(cleanBarId);
+    if (currentBarStore.currentId() !== cleanBarId) {
+      currentBarStore.setBarId(cleanBarId);
     }
 
-    const isLoading$ = toObservable(barsStore.myMember.isLoading);
-    const currentId$ = toObservable(barsStore.currentId);
+    const isLoading$ = toObservable(myMemberStore.myMember.isLoading);
+    const currentId$ = toObservable(currentBarStore.currentId);
 
     return timer(0).pipe(
       switchMap(() => combineLatest([isLoading$, currentId$])),
       filter(([isLoading, currentId]) => !isLoading && currentId === cleanBarId),
       take(1),
       map(() => {
-        if (barsStore.hasPermission(permission)) {
+        if (myMemberStore.hasPermission(permission)) {
           return true;
         }
         
-        if (permission !== BarPermission.BAR_VIEW_ORDERS && barsStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)) {
+        if (permission !== BarPermission.BAR_VIEW_ORDERS && myMemberStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)) {
           return router.createUrlTree(['/bars', cleanBarId, 'orders']);
         }
 

@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
@@ -50,16 +50,16 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
 
   protected readonly canImportTemplates = computed(() =>
-    this.#barsStore.hasPermission(BarPermission.BAR_IMPORT_TEMPLATES),
+    this.#myMemberStore.hasPermission(BarPermission.BAR_IMPORT_TEMPLATES),
   );
   protected readonly canUpdateCategory = computed(() =>
-    this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_CATEGORY),
+    this.#myMemberStore.hasPermission(BarPermission.BAR_UPDATE_CATEGORY),
   );
-  protected readonly canUpdateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_PRODUCT));
-  protected readonly canCreateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_CREATE_PRODUCT));
+  protected readonly canUpdateProduct = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_UPDATE_PRODUCT));
+  protected readonly canCreateProduct = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_CREATE_PRODUCT));
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);

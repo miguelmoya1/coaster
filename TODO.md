@@ -13,7 +13,11 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-## Fase 2: Capa de Inteligencia y Valor Añadido
+## Fase 2: Usar la nueva Livekit para ia en tiempo real hablada
+
+Toda la logica que tenemos de habalr y que realice acciones sobre la app, hay que modificarla y poner la nueva livekit, eso y dejar lo de vercel gateway para el paso de fase 3.
+
+## Fase 3: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 
