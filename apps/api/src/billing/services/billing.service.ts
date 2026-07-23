@@ -265,14 +265,19 @@ export class BillingService {
 
   private async getOrCreateCustomerId(barId: BarId): Promise<string> {
     const existing = await this._db.dbBarSubscription.findUnique({ where: { barId } });
+    const bar = await this._db.dbBar.findUnique({ where: { id: barId } });
+    const customerName = bar?.name || `Bar ${barId}`;
 
     if (existing?.stripeCustomerId) {
+      await this.getStripeClient().customers.update(existing.stripeCustomerId, {
+        name: customerName,
+      });
       return existing.stripeCustomerId;
     }
 
     const customer = await this.getStripeClient().customers.create({
       metadata: { barId },
-      name: `Bar ${barId}`,
+      name: customerName,
     });
 
     await this._db.dbBarSubscription.upsert({

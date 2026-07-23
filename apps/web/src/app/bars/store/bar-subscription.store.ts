@@ -1,5 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
+import { SubscriptionPlan } from '@coaster/common';
 import { barSubscriptionMapper } from '../mappers/bar.mapper';
 import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
@@ -32,7 +33,10 @@ export class BarSubscriptionStore {
     return this.#createCustomerPortalSession.execute(this.#currentBarStore.currentId(), returnUrl);
   }
 
-  public async createCheckoutSession(returnUrl: string): Promise<string | undefined> {
-    return this.#createCheckoutSession.execute(this.#currentBarStore.currentId(), returnUrl);
+  public async createCheckoutSession(
+    returnUrl: string,
+    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO_MONTHLY,
+  ): Promise<string | undefined> {
+    return this.#createCheckoutSession.execute(this.#currentBarStore.currentId(), returnUrl, plan);
   }
 }

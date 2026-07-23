@@ -7,7 +7,11 @@ import { BarRepository } from '../data-access/bar-repository';
 export class CreateCheckoutSession {
   readonly #barRepository = inject(BarRepository);
 
-  public async execute(barId: BarId | undefined, returnUrl: string): Promise<string | undefined> {
+  public async execute(
+    barId: BarId | undefined,
+    returnUrl: string,
+    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO_MONTHLY,
+  ): Promise<string | undefined> {
     if (!barId) {
       return undefined;
     }
@@ -15,7 +19,7 @@ export class CreateCheckoutSession {
     const currentPath = window.location.pathname + window.location.search;
     try {
       const { url } = await this.#barRepository.createCheckoutSession(barId, {
-        plan: SubscriptionPlan.PRO_MONTHLY,
+        plan,
         successUrl: returnUrl,
         cancelUrl: window.location.origin + currentPath,
       });

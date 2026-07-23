@@ -1,6 +1,7 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core';
+import type { BarId } from '@coaster/common';
 import { SubscriptionPlan } from '@coaster/common';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { CreateCheckoutSession } from './create-checkout-session';
 
@@ -14,19 +15,17 @@ describe('CreateCheckoutSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [
-        { provide: BarRepository, useValue: repositoryMock },
-      ],
+      providers: [{ provide: BarRepository, useValue: repositoryMock }],
     });
     service = TestBed.inject(CreateCheckoutSession);
-    
+
     Object.defineProperty(window, 'location', {
       value: {
         pathname: '/test',
         search: '?q=1',
         origin: 'http://localhost',
       },
-      writable: true
+      writable: true,
     });
   });
 
@@ -37,11 +36,11 @@ describe('CreateCheckoutSession', () => {
 
   it('should create a checkout session and return url', async () => {
     repositoryMock.createCheckoutSession.mockResolvedValue({ url: 'http://stripe.checkout' });
-    
-    const result = await service.execute('bar-1', 'http://return.url');
-    
+
+    const result = await service.execute('bar-1' as BarId, 'http://return.url', SubscriptionPlan.PRO_MONTHLY);
+
     expect(result).toBe('http://stripe.checkout');
-    expect(repositoryMock.createCheckoutSession).toHaveBeenCalledWith('bar-1', {
+    expect(repositoryMock.createCheckoutSession).toHaveBeenCalledWith('bar-1' as BarId, {
       plan: SubscriptionPlan.PRO_MONTHLY,
       successUrl: 'http://return.url',
       cancelUrl: 'http://localhost/test?q=1',
@@ -50,9 +49,9 @@ describe('CreateCheckoutSession', () => {
 
   it('should return undefined on error', async () => {
     repositoryMock.createCheckoutSession.mockRejectedValue(new Error('test error'));
-    
-    const result = await service.execute('bar-1', 'http://return.url');
-    
+
+    const result = await service.execute('bar-1' as BarId, 'http://return.url');
+
     expect(result).toBeUndefined();
   });
 });

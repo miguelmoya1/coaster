@@ -563,5 +563,20 @@
       "wine_white_bottle": "Bottle of White Wine (Rueda)",
       "wine_white_glass": "Glass of White Wine (Rueda)"
     }
+  },
+  "billing": {
+    "activate_pro_title": "Activate Pro plan",
+    "activate_pro_subtitle": "Choose the billing option for your venue",
+    "manage_billing": "Manage subscription and invoices",
+    "monthly_title": "Monthly Plan",
+    "monthly_subtitle": "Total flexibility with no commitment",
+    "monthly_feat_1": "Full access to Pro features",
+    "monthly_feat_2": "Order and inventory management",
+    "yearly_title": "Annual Plan",
+    "yearly_subtitle": "Best price for your business",
+    "yearly_badge": "Save 2 months",
+    "yearly_feat_1": "All Pro Plan advantages",
+    "yearly_feat_2": "Exclusive annual discount",
+    "continue_to_checkout": "Continue to checkout"
   }
 }

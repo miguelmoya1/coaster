@@ -1,15 +1,18 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, outputBinding } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { MyMemberStore, BarSubscriptionStore } from '@coaster/bars';
+import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
+import { SubscriptionPlan } from '@coaster/common';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
+import { SelectPlanDialog } from '../select-plan-dialog/select-plan-dialog';
 
 @Component({
   selector: 'coaster-top-app-bar',
@@ -55,13 +58,13 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           @if (!isProActive()) {
             <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
               <mat-icon>rocket_launch</mat-icon>
-              <span>Activar plan Pro</span>
+              <span>{{ 'billing.activate_pro_title' | translate }}</span>
             </button>
           }
 
           <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
             <mat-icon>receipt_long</mat-icon>
-            <span>Gestionar suscripcion y facturas</span>
+            <span>{{ 'billing.manage_billing' | translate }}</span>
           </button>
         }
 
@@ -138,6 +141,7 @@ export class TopAppBar {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
+  readonly #dialog = inject(MatDialog);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
@@ -173,14 +177,26 @@ export class TopAppBar {
     }
   }
 
-  async activatePro(): Promise<void> {
-    const returnUrl = window.location.origin + '/bars/select';
-    const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl);
+  activatePro(): void {
+    const dialogRef = this.#dialog.open(SelectPlanDialog, {
+      width: '520px',
+      maxWidth: '90vw',
+      bindings: [
+        outputBinding('selected', async (plan: Exclude<SubscriptionPlan, 'FREE'>) => {
+          dialogRef.close();
+          const returnUrl = window.location.origin + '/bars/select';
+          const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl, plan);
 
-    if (checkoutUrl) {
-      window.location.assign(checkoutUrl);
-    } else {
-      this.#actionFeedback.error('errors.stripe_connection');
-    }
+          if (checkoutUrl) {
+            window.location.assign(checkoutUrl);
+          } else {
+            this.#actionFeedback.error('errors.stripe_connection');
+          }
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
   }
 }

@@ -73,7 +73,7 @@ describe('permissionGuard', () => {
   });
 
   it('should redirect to orders if user lacks permission but has orders permission', async () => {
-    hasPermissionMock.mockImplementation((perm) => perm === BarPermission.BAR_VIEW_ORDERS);
+    hasPermissionMock.mockImplementation((perm?: BarPermission) => perm === BarPermission.BAR_VIEW_ORDERS);
     const route = getMockRoute('bar-1');
 
     const result = await TestBed.runInInjectionContext(() => {

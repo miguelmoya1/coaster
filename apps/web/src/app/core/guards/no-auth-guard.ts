@@ -11,7 +11,6 @@ export const noAuthGuard: CanActivateFn = () => {
   return toObservable(authService.isAuthLoaded).pipe(
     filter((isLoaded) => isLoaded),
     map(() => {
-      console.log('here');
       if (!authService.isAuthenticated()) {
         return true;
       }

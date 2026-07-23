@@ -1,5 +1,6 @@
-import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import { TestBed } from '@angular/core';
+import type { BarId } from '@coaster/common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { CreateCustomerPortalSession } from './create-customer-portal-session';
 
@@ -13,9 +14,7 @@ describe('CreateCustomerPortalSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [
-        { provide: BarRepository, useValue: repositoryMock },
-      ],
+      providers: [{ provide: BarRepository, useValue: repositoryMock }],
     });
     service = TestBed.inject(CreateCustomerPortalSession);
   });
@@ -27,20 +26,20 @@ describe('CreateCustomerPortalSession', () => {
 
   it('should create a portal session and return url', async () => {
     repositoryMock.createCustomerPortalSession.mockResolvedValue({ url: 'http://stripe.portal' });
-    
-    const result = await service.execute('bar-1', 'http://return.url');
-    
+
+    const result = await service.execute('bar-1' as BarId, 'http://return.url');
+
     expect(result).toBe('http://stripe.portal');
-    expect(repositoryMock.createCustomerPortalSession).toHaveBeenCalledWith('bar-1', {
+    expect(repositoryMock.createCustomerPortalSession).toHaveBeenCalledWith('bar-1' as BarId, {
       returnUrl: 'http://return.url',
     });
   });
 
   it('should return undefined on error', async () => {
     repositoryMock.createCustomerPortalSession.mockRejectedValue(new Error('test error'));
-    
-    const result = await service.execute('bar-1', 'http://return.url');
-    
+
+    const result = await service.execute('bar-1' as BarId, 'http://return.url');
+
     expect(result).toBeUndefined();
   });
 });

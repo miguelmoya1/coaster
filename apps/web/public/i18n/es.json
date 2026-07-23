@@ -563,5 +563,20 @@
       "wine_white_bottle": "Botella de Vino Blanco (Rueda)",
       "wine_white_glass": "Copa de Vino Blanco (Rueda)"
     }
+  },
+  "billing": {
+    "activate_pro_title": "Activar plan Pro",
+    "activate_pro_subtitle": "Elige la modalidad de facturación para tu local",
+    "manage_billing": "Gestionar suscripción y facturas",
+    "monthly_title": "Plan Mensual",
+    "monthly_subtitle": "Flexibilidad total sin permanencia",
+    "monthly_feat_1": "Acceso completo a funciones Pro",
+    "monthly_feat_2": "Gestión de comandas e inventario",
+    "yearly_title": "Plan Anual",
+    "yearly_subtitle": "Mejor precio para tu negocio",
+    "yearly_badge": "Ahorra 2 meses",
+    "yearly_feat_1": "Todas las ventajas del Plan Pro",
+    "yearly_feat_2": "Descuento exclusivo anual",
+    "continue_to_checkout": "Continuar al checkout"
   }
 }
