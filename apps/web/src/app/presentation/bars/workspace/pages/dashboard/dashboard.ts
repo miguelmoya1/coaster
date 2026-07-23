@@ -31,7 +31,7 @@ import { PricePipe } from '../../pipes/price/price';
     MatCardSubtitle,
   ],
   host: {
-    class: 'p-6 max-w-2xl mx-auto flex flex-col gap-8 pb-workspace',
+    class: 'flex flex-col gap-8',
   },
   templateUrl: './dashboard.html',
 })

@@ -12,6 +12,7 @@ import { AdminFloatingButton } from './presentation/admin/components/admin-float
   imports: [RouterOutlet, AdminFloatingButton],
   template: `
     <router-outlet />
+
     @if (isAdmin()) {
       <coaster-admin-floating-button />
     }
