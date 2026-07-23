@@ -31,7 +31,9 @@ describe('TopAppBar', () => {
   };
 
   const barSubscriptionStoreMock = {
-    subscription: signal({ status: 'ready', value: { status: 'INACTIVE' } }).asReadonly(),
+    subscription: {
+      value: signal({ status: 'INACTIVE' }),
+    },
     createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
   };
@@ -98,10 +100,10 @@ describe('TopAppBar', () => {
   });
 
   describe('menu actions', () => {
-    it('should log out and navigate to /app/login when logout is called', async () => {
+    it('should log out and navigate to /login when logout is called', async () => {
       await component.logout();
       expect(authMock.logout).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/app/login'], { replaceUrl: true });
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
     });
   });
 });

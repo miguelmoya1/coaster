@@ -45,6 +45,12 @@ export class BillingService {
         barId,
         plan,
       },
+      subscription_data: {
+        metadata: {
+          barId,
+          plan,
+        },
+      },
     });
 
     if (!session.url) {
@@ -202,36 +208,43 @@ export class BillingService {
 
     const firstItem = subscription.items.data[0];
 
+    const currentPeriodStart = firstItem?.current_period_start
+      ? new Date(firstItem.current_period_start * 1000)
+      : null;
+    const currentPeriodEnd = firstItem?.current_period_end
+      ? new Date(firstItem.current_period_end * 1000)
+      : null;
+
     await this._db.dbBarSubscription.upsert({
       where: { barId },
       create: {
         barId,
         stripeCustomerId: customerId,
         stripeSubscriptionId: subscription.id,
-        plan: this.toDbPlan(subscription.items.data[0]?.price?.id),
+        plan: this.toDbPlan(firstItem?.price?.id),
         status: this.toDbStatus(subscription.status),
-        currentPeriodStart: firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null,
-        currentPeriodEnd: firstItem?.current_period_end ? new Date(firstItem.current_period_end * 1000) : null,
+        currentPeriodStart,
+        currentPeriodEnd,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
       },
       update: {
         stripeCustomerId: customerId,
         stripeSubscriptionId: subscription.id,
-        plan: this.toDbPlan(subscription.items.data[0]?.price?.id),
+        plan: this.toDbPlan(firstItem?.price?.id),
         status: this.toDbStatus(subscription.status),
-        currentPeriodStart: firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null,
-        currentPeriodEnd: firstItem?.current_period_end ? new Date(firstItem.current_period_end * 1000) : null,
+        currentPeriodStart,
+        currentPeriodEnd,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
       },
     });
 
-    const currentPeriodEnd = firstItem?.current_period_end ? new Date(firstItem.current_period_end * 1000) : undefined;
+    const eventPeriodEnd = currentPeriodEnd ?? undefined;
     const canceledAt = subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : undefined;
 
     if (subscription.status === 'active' || subscription.status === 'trialing') {
-      this._eventBus.publish(new SubscriptionRenewedEvent(barId as BarId, subscription.id, currentPeriodEnd));
+      this._eventBus.publish(new SubscriptionRenewedEvent(barId as BarId, subscription.id, eventPeriodEnd));
     }
 
     if (subscription.status === 'canceled' || subscription.cancel_at_period_end) {
@@ -243,23 +256,29 @@ export class BillingService {
 
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
     const customerId = typeof invoice.customer === 'string' ? invoice.customer : (invoice.customer?.id ?? null);
+    const rawSub = invoice.parent?.subscription_details?.subscription;
+    const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
 
-    if (!customerId) {
+    if (!customerId && !subscriptionId) {
       return;
     }
 
+    const where = subscriptionId
+      ? { stripeSubscriptionId: subscriptionId }
+      : { stripeCustomerId: customerId! };
+
     const affectedSubscriptions = await this._db.dbBarSubscription.findMany({
-      where: { stripeCustomerId: customerId },
+      where,
       select: { barId: true },
     });
 
     await this._db.dbBarSubscription.updateMany({
-      where: { stripeCustomerId: customerId },
+      where,
       data: { status: DbSubscriptionStatus.PAST_DUE },
     });
 
     for (const subscription of affectedSubscriptions) {
-      this._eventBus.publish(new SubscriptionPaymentFailedEvent(subscription.barId as BarId, customerId));
+      this._eventBus.publish(new SubscriptionPaymentFailedEvent(subscription.barId as BarId, customerId ?? ''));
     }
   }
 

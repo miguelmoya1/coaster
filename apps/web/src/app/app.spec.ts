@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CurrentUser } from '@coaster/core';
 import { App } from './app';
@@ -10,7 +11,7 @@ describe('App', () => {
       providers: [
         {
           provide: CurrentUser,
-          useValue: { current: { value: () => null } },
+          useValue: { current: { value: () => null }, isAdmin: signal(false) },
         },
       ],
     }).compileComponents();

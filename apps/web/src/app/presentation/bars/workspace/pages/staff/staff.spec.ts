@@ -108,7 +108,7 @@ describe('Staff', () => {
     it('should handle modal close navigation', () => {
       const navigateSpy = vi.spyOn((component as any).router, 'navigate');
       (component as any).closeModal();
-      expect(navigateSpy).toHaveBeenCalledWith(['/app/bars', 'bar-1', 'staff']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/bars', 'bar-1', 'staff']);
     });
 
     it('should remove a member after confirmation', async () => {

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import type { BarId } from '@coaster/common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarRepository } from '../data-access/bar-repository';
 import { BarSubscription } from './bar-subscription';
 
@@ -27,6 +28,6 @@ describe('BarSubscription', () => {
   });
 
   it('should return the subscription route', () => {
-    expect(service.execute('bar-1')).toBe('/bars/bar-1/subscription');
+    expect(service.execute('bar-1' as BarId)).toBe('/bars/bar-1/subscription');
   });
 });
