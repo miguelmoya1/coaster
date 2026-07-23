@@ -1,7 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
-import { Role } from '@coaster/common';
 import { CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { inject as injectAnalytics } from '@vercel/analytics';
@@ -23,9 +22,7 @@ export class App {
   readonly #iconRegistry = inject(MatIconRegistry);
   readonly #currentUser = inject(CurrentUser);
 
-  readonly isAdmin = computed(() => {
-    return this.#currentUser.current.value()?.role === Role.ADMIN;
-  });
+  readonly isAdmin = this.#currentUser.isAdmin;
 
   constructor() {
     this.#iconRegistry.setDefaultFontSetClass('material-symbols-outlined');

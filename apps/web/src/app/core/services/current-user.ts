@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { effect, inject, Service } from '@angular/core';
-import type { User } from '@coaster/common';
+import { computed, effect, inject, Service } from '@angular/core';
+import { Role, type User } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { userMapper } from '../mappers/user.mapper';
@@ -29,6 +29,14 @@ export class CurrentUser {
   );
 
   public readonly current = this.#current.asReadonly();
+
+  public readonly isAdmin = computed(() => {
+    if (!this.#auth.isAuthLoaded() || !this.#auth.isAuthenticated()) {
+      return false;
+    }
+
+    return this.#current.value()?.role === Role.ADMIN;
+  });
 
   constructor() {
     effect(() => {
