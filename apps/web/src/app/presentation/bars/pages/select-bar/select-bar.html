@@ -1,29 +1,28 @@
-<div class="flex flex-col gap-2 items-center text-center mb-6">
-  <h1 class="heading-1">{{ 'bars.select.title' | translate }}</h1>
-  <p class="text-on-surface-variant text-sm">{{ 'bars.select.subtitle' | translate }}</p>
-</div>
+<coaster-page-container size="sm">
+  <coaster-page-header [title]="'bars.select.title' | translate" [subtitle]="'bars.select.subtitle' | translate">
+    <button actions mat-flat-button data-testid="create-bar-btn" (click)="navigateToCreate()">
+      <mat-icon>add_circle</mat-icon>
+      <span>{{ 'common.create' | translate }}</span>
+    </button>
+  </coaster-page-header>
 
-@if (bars.isLoading()) {
-  <coaster-loading />
-}
+  @if (bars.isLoading()) {
+    <coaster-loading />
+  }
 
-<div class="flex justify-evenly gap-6 mb-4">
-  <button mat-stroked-button data-testid="create-bar-btn" class="w-full" (click)="navigateToCreate()">
-    <mat-icon>add_circle</mat-icon>
-    {{ 'common.create' | translate }}
-  </button>
-</div>
-
-@if (bars.hasValue()) {
-  @for (bar of bars.value(); track bar.id) {
-    <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
-  } @empty {
-    <div
-      class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
-    >
-      <span data-testid="empty-bars-message" class="text-on-surface-variant font-medium">
-        {{ 'bars.select.empty' | translate }}
-      </span>
+  @if (bars.hasValue()) {
+    <div class="flex flex-col gap-3">
+      @for (bar of bars.value(); track bar.id) {
+        <coaster-bar-card [bar]="bar" (click)="selectBar(bar.id)" />
+      } @empty {
+        <div
+          class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
+        >
+          <span data-testid="empty-bars-message" class="text-on-surface-variant font-medium">
+            {{ 'bars.select.empty' | translate }}
+          </span>
+        </div>
+      }
     </div>
   }
-}
+</coaster-page-container>

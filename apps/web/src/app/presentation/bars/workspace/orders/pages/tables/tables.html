@@ -1,10 +1,10 @@
-<div class="flex gap-3">
-  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+  <mat-card class="relative overflow-hidden p-4! flex! flex-row! items-center! gap-3">
     <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-success to-success/20 rounded-r"></div>
     <div class="w-9 h-9 min-w-9 rounded-[10px] bg-success/12 text-success flex items-center justify-center">
       <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">check_circle</mat-icon>
     </div>
-    <div class="flex flex-col gap-px">
+    <div class="flex flex-col gap-px min-w-0">
       <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ freeCount() ?? 0 }}</span>
       <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
         {{ 'orders.free_tables' | translate }}
@@ -12,12 +12,12 @@
     </div>
   </mat-card>
 
-  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+  <mat-card class="relative overflow-hidden p-4! flex! flex-row! items-center! gap-3">
     <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-error to-error/20 rounded-r"></div>
     <div class="w-9 h-9 min-w-9 rounded-[10px] bg-error/12 text-error flex items-center justify-center">
       <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">group</mat-icon>
     </div>
-    <div class="flex flex-col gap-px">
+    <div class="flex flex-col gap-px min-w-0">
       <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ occupiedCount() ?? 0 }}</span>
       <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
         {{ 'orders.occupied_tables' | translate }}
@@ -25,12 +25,12 @@
     </div>
   </mat-card>
 
-  <mat-card class="relative overflow-hidden flex-1 p-4! flex! flex-row! items-center! gap-3">
+  <mat-card class="relative overflow-hidden p-4! flex! flex-row! items-center! gap-3">
     <div class="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-primary to-primary/20 rounded-r"></div>
     <div class="w-9 h-9 min-w-9 rounded-[10px] bg-primary/12 text-primary flex items-center justify-center">
       <mat-icon class="text-[20px]! w-[20px]! h-[20px]! m-0!">receipt_long</mat-icon>
     </div>
-    <div class="flex flex-col gap-px">
+    <div class="flex flex-col gap-px min-w-0">
       <span class="text-2xl font-black text-on-surface leading-none tracking-tight">{{ totalOpen() }}</span>
       <span class="text-[0.6rem] font-semibold text-on-surface-variant uppercase tracking-wide leading-snug truncate">
         {{ 'orders.open_orders' | translate }}
@@ -46,7 +46,7 @@
 }
 
 <!-- ─── Tables grid ─── -->
-<div class="grid grid-cols-3 gap-3">
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
   <!-- Bar order card (special) -->
   <mat-card
     class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex! flex-col! items-center! min-h-50"

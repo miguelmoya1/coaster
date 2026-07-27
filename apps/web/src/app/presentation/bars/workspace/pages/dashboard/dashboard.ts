@@ -14,6 +14,9 @@ import { StatCard } from '../../../../components/stat-card/stat-card';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
 import { PricePipe } from '../../pipes/price/price';
 
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
+
 @Component({
   selector: 'coaster-dashboard',
   imports: [
@@ -29,9 +32,11 @@ import { PricePipe } from '../../pipes/price/price';
     MatCardHeader,
     MatCardTitle,
     MatCardSubtitle,
+    PageContainer,
+    PageHeader,
   ],
   host: {
-    class: 'flex flex-col gap-8',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   templateUrl: './dashboard.html',
 })

@@ -1,29 +1,35 @@
-<div class="flex flex-col gap-2 mb-8">
-  <h2 class="heading-2">{{ 'members.staff.title' | translate }}</h2>
-  <p class="text-on-surface-variant text-sm">
-    {{ 'members.staff.description' | translate: { count: totalMembers() } }}
-  </p>
-</div>
-
-@if (membersLoading()) {
-  <coaster-loading />
-}
-
-@for (member of members(); track member.id) {
-  <coaster-staff-member-card
-    [staffName]="member.userName"
-    [staffEmail]="member.userEmail"
-    [staffImage]="member.userImage"
-    [roleName]="member.role"
-    [showDeleteButton]="member.showDeleteButton"
-    [isCurrentUser]="member.isCurrentUser"
-    [isOnlyOwner]="member.isOnlyOwner"
-    (deleteClicked)="handleClickDeleteMember(member)"
+<coaster-page-container size="lg">
+  <coaster-page-header
+    [title]="'members.staff.title' | translate"
+    [subtitle]="'members.staff.description' | translate: { count: totalMembers() }"
   />
-} @empty {
-  <p>{{ 'members.staff.no_members' | translate }}</p>
-}
 
-@if (isOwner()) {
-  <coaster-fab routerLink="invite" />
-}
+  @if (membersLoading()) {
+    <coaster-loading />
+  }
+
+  <div class="flex flex-col gap-3">
+    @for (member of members(); track member.id) {
+      <coaster-staff-member-card
+        [staffName]="member.userName"
+        [staffEmail]="member.userEmail"
+        [staffImage]="member.userImage"
+        [roleName]="member.role"
+        [showDeleteButton]="member.showDeleteButton"
+        [isCurrentUser]="member.isCurrentUser"
+        [isOnlyOwner]="member.isOnlyOwner"
+        (deleteClicked)="handleClickDeleteMember(member)"
+      />
+    } @empty {
+      <p
+        class="text-on-surface-variant text-sm py-8 text-center bg-surface-container rounded-xl border border-dashed border-outline-variant"
+      >
+        {{ 'members.staff.no_members' | translate }}
+      </p>
+    }
+  </div>
+
+  @if (isOwner()) {
+    <coaster-fab routerLink="invite" />
+  }
+</coaster-page-container>

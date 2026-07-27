@@ -1,105 +1,109 @@
-<coaster-roster-navigation
-  [displayMonthYear]="displayMonthYear()"
-  [viewMode]="viewMode()"
-  (prev)="handlePrev()"
-  (next)="handleNext()"
-  (today)="handleToday()"
-  (viewChanged)="handleSetView($event)"
-/>
+<coaster-page-container size="lg">
+  <coaster-page-header [title]="'nav.roster' | translate" [subtitle]="'roster.daily_assignments' | translate" />
 
-<!-- ================= DAY VIEW ================= -->
-@if (viewMode() === 'day') {
-  <h2 class="heading-2 mb-4 flex items-center gap-2 text-on-surface">
-    <mat-icon class="text-primary text-xl">schedule</mat-icon>
-    {{ 'roster.daily_assignments' | translate }}: {{ displaySelectedDate() }}
-  </h2>
+  <coaster-roster-navigation
+    [displayMonthYear]="displayMonthYear()"
+    [viewMode]="viewMode()"
+    (prev)="handlePrev()"
+    (next)="handleNext()"
+    (today)="handleToday()"
+    (viewChanged)="handleSetView($event)"
+  />
 
-  @if (shifts.isLoading()) {
-    <coaster-loading />
-  } @else {
+  <!-- ================= DAY VIEW ================= -->
+  @if (viewMode() === 'day') {
+    <h2 class="heading-2 my-4 flex items-center gap-2 text-on-surface">
+      <mat-icon class="text-primary text-xl">schedule</mat-icon>
+      {{ 'roster.daily_assignments' | translate }}: {{ displaySelectedDate() }}
+    </h2>
+
+    @if (shifts.isLoading()) {
+      <coaster-loading />
+    } @else {
+      <div class="flex flex-col gap-3">
+        @for (shift of dailyShifts(); track shift.id) {
+          <coaster-shift-card
+            [timeRange]="shift.timeRange"
+            [staffName]="shift.userName || ('roster.unassigned' | translate)"
+            [roleName]="shift.roleName"
+            [staffImage]="shift.userImage || ''"
+            [isOwn]="shift.isOwn"
+            [hasPendingExchange]="shift.hasPendingExchange"
+            [isPast]="shift.isPast"
+            [notes]="shift.notes"
+            [showDelete]="currentUserRole() === BarRole.OWNER"
+            [disabled]="isSubmitting()"
+            roleColorClass="bg-primary text-primary"
+            (offerExchange)="handleOfferExchange(shift.id)"
+            (delete)="handleClickDeleteShift(shift)"
+          />
+        } @empty {
+          <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
+            {{ 'roster.no_shifts' | translate }}
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ================= WEEK VIEW ================= -->
+  @if (viewMode() === 'week') {
+    <coaster-roster-weekly-grid
+      [weekDays]="weekViewDays()"
+      [currentUserRole]="currentUserRole()"
+      [isSubmitting]="isSubmitting()"
+      (quickCreate)="handleQuickCreateForDate($event)"
+      (deleteShift)="handleClickDeleteShift($event)"
+      (replicatePreviousWeek)="handleOpenReplicateConfirm()"
+    />
+  }
+
+  <!-- ================= MONTH VIEW ================= -->
+  @if (viewMode() === 'month') {
+    @if (shifts.isLoading()) {
+      <coaster-loading />
+    } @else {
+      <coaster-roster-monthly-grid
+        [calendarDays]="calendarMonthDaysWithShifts()"
+        (daySelected)="handleDaySelected($event)"
+      />
+    }
+  }
+
+  <!-- ================= EXCHANGES MARKETPLACE ================= -->
+  @if (pendingExchangesList().length) {
+    <h2 class="heading-2 mt-8 mb-4 flex items-center gap-2 text-on-surface">
+      <mat-icon class="text-tertiary text-xl">cached</mat-icon>
+      {{ 'roster.exchanges.title' | translate }}
+      <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
+        {{ pendingExchangesList().length }}
+      </span>
+    </h2>
+
+    <p class="text-xs text-on-surface-variant leading-relaxed max-w-2xl mb-4">
+      {{ 'roster.exchanges.description' | translate }}
+    </p>
+
     <div class="flex flex-col gap-3">
-      @for (shift of dailyShifts(); track shift.id) {
-        <coaster-shift-card
-          [timeRange]="shift.timeRange"
-          [staffName]="shift.userName || ('roster.unassigned' | translate)"
-          [roleName]="shift.roleName"
-          [staffImage]="shift.userImage || ''"
-          [isOwn]="shift.isOwn"
-          [hasPendingExchange]="shift.hasPendingExchange"
-          [isPast]="shift.isPast"
-          [notes]="shift.notes"
-          [showDelete]="currentUserRole() === BarRole.OWNER"
+      @for (exchange of pendingExchangesList(); track exchange.id) {
+        <coaster-exchange-request-card
+          [month]="exchange.month"
+          [day]="exchange.day"
+          [roleName]="exchange.roleName"
+          [timeRange]="exchange.timeRange"
+          [offeredBy]="exchange.requesterName"
+          [isOwnRequest]="exchange.isOwnRequest"
+          [canDelete]="exchange.isOwnRequest || currentUserRole() === BarRole.OWNER"
           [disabled]="isSubmitting()"
-          roleColorClass="bg-primary text-primary"
-          (offerExchange)="handleOfferExchange(shift.id)"
-          (delete)="handleClickDeleteShift(shift)"
+          (accepted)="handleAcceptExchange(exchange.id)"
+          (delete)="handleClickDeleteExchange(exchange)"
         />
-      } @empty {
-        <div class="text-center py-10 opacity-50 text-white font-bold my-auto">
-          {{ 'roster.no_shifts' | translate }}
-        </div>
       }
     </div>
   }
-}
 
-<!-- ================= WEEK VIEW ================= -->
-@if (viewMode() === 'week') {
-  <coaster-roster-weekly-grid
-    [weekDays]="weekViewDays()"
-    [currentUserRole]="currentUserRole()"
-    [isSubmitting]="isSubmitting()"
-    (quickCreate)="handleQuickCreateForDate($event)"
-    (deleteShift)="handleClickDeleteShift($event)"
-    (replicatePreviousWeek)="handleOpenReplicateConfirm()"
-  />
-}
-
-<!-- ================= MONTH VIEW ================= -->
-@if (viewMode() === 'month') {
-  @if (shifts.isLoading()) {
-    <coaster-loading />
-  } @else {
-    <coaster-roster-monthly-grid
-      [calendarDays]="calendarMonthDaysWithShifts()"
-      (daySelected)="handleDaySelected($event)"
-    />
+  <!-- Float Action button for Owners -->
+  @if (currentUserRole() === BarRole.OWNER) {
+    <coaster-fab routerLink="new" queryParamsHandling="preserve" />
   }
-}
-
-<!-- ================= EXCHANGES MARKETPLACE ================= -->
-@if (pendingExchangesList().length) {
-  <h2 class="heading-2 mt-8 mb-4 flex items-center gap-2 text-on-surface">
-    <mat-icon class="text-tertiary text-xl">cached</mat-icon>
-    {{ 'roster.exchanges.title' | translate }}
-    <span class="ml-auto text-sm font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">
-      {{ pendingExchangesList().length }}
-    </span>
-  </h2>
-
-  <p class="text-xs text-on-surface-variant leading-relaxed max-w-2xl mb-4">
-    {{ 'roster.exchanges.description' | translate }}
-  </p>
-
-  <div class="flex flex-col gap-3">
-    @for (exchange of pendingExchangesList(); track exchange.id) {
-      <coaster-exchange-request-card
-        [month]="exchange.month"
-        [day]="exchange.day"
-        [roleName]="exchange.roleName"
-        [timeRange]="exchange.timeRange"
-        [offeredBy]="exchange.requesterName"
-        [isOwnRequest]="exchange.isOwnRequest"
-        [canDelete]="exchange.isOwnRequest || currentUserRole() === BarRole.OWNER"
-        [disabled]="isSubmitting()"
-        (accepted)="handleAcceptExchange(exchange.id)"
-        (delete)="handleClickDeleteExchange(exchange)"
-      />
-    }
-  </div>
-}
-
-<!-- Float Action button for Owners -->
-@if (currentUserRole() === BarRole.OWNER) {
-  <coaster-fab routerLink="new" queryParamsHandling="preserve" />
-}
+</coaster-page-container>

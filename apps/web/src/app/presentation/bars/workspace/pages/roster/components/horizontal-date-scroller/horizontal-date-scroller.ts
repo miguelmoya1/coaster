@@ -12,7 +12,7 @@ import { ScrollerDay } from '@coaster/roster';
       [class.pointer-events-none]="disabled()"
       ngListbox
       orientation="horizontal"
-      class="flex gap-3 overflow-x-auto hide-scrollbar py-2 -mx-4 px-4 outline-none"
+      class="flex gap-3 overflow-x-auto hide-scrollbar py-2 px-1 w-full max-w-full outline-none"
     >
       @for (day of days(); track day.id) {
         @if (day.isActive) {
@@ -45,6 +45,9 @@ import { ScrollerDay } from '@coaster/roster';
       }
     </div>
   `,
+  host: {
+    class: 'block w-full max-w-full overflow-hidden',
+  },
 })
 export class HorizontalDateScroller {
   readonly days = input<ScrollerDay[]>([]);

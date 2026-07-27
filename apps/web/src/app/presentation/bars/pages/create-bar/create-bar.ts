@@ -1,31 +1,31 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PageContainer } from '../../../components/page-container/page-container';
+import { PageHeader } from '../../../components/page-header/page-header';
 import { CreateBarForm } from './components/create-bar-form';
 
 @Component({
   selector: 'coaster-create-bar',
-  imports: [TranslatePipe, CreateBarForm],
+  imports: [TranslatePipe, CreateBarForm, PageContainer, PageHeader],
   host: {
-    class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   template: `
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-4 mb-2">
-        <div class="h-0.5 w-12 bg-primary"></div>
-        <span class="text-primary font-bold tracking-[0.25em] uppercase text-sm">
-          {{ 'bars.create.badge' | translate }}
-        </span>
-      </div>
+    <coaster-page-container size="sm">
+      <coaster-page-header
+        [title]="'bars.create.title' | translate"
+        [subtitle]="'bars.create.description' | translate"
+        [badge]="'bars.create.badge' | translate"
+        backUrl="/bars/select"
+      />
 
-      <h1 class="heading-1 border-b border-outline-variant pb-2">{{ 'bars.create.title' | translate }}</h1>
-
-      <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">
-        {{ 'bars.create.description' | translate }}
-      </p>
-    </div>
-
-    <coaster-create-bar-form data-testid="create-bar-form" (formSubmitted)="onSubmit()" (formCancelled)="onCancel()" />
+      <coaster-create-bar-form
+        data-testid="create-bar-form"
+        (formSubmitted)="onSubmit()"
+        (formCancelled)="onCancel()"
+      />
+    </coaster-page-container>
   `,
 })
 export default class CreateBar {

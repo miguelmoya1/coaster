@@ -4,9 +4,9 @@ import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
+import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { TopAppBar } from '../components/top-app-bar/top-app-bar';
-import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 
 @Component({
   selector: 'coaster-main',
@@ -16,7 +16,7 @@ import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
       <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
 
-    <main class="w-full max-w-xl flex-1 min-h-0 overflow-y-auto px-4 pt-4 pb-28 hide-scrollbar">
+    <main class="w-full flex-1 min-h-0 overflow-y-auto pb-28 hide-scrollbar flex flex-col">
       <router-outlet />
     </main>
 
@@ -24,7 +24,7 @@ import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
     <coaster-ai-voice-button [barId]="barId()" />
   `,
   host: {
-    class: 'h-svh w-full flex flex-col items-center overflow-hidden relative',
+    class: 'h-svh w-full flex flex-col overflow-hidden relative bg-background',
   },
 })
 export default class WorkspaceLayout {

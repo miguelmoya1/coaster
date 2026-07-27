@@ -19,25 +19,25 @@ export class BarBillingController {
 
   @Get('subscription')
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
-  async getSubscription(@Param('barId') barId: string): Promise<BarSubscription> {
-    return this._billingService.getBarSubscription(barId as BarId);
+  async getSubscription(@Param('barId') barId: BarId): Promise<BarSubscription> {
+    return this._billingService.getBarSubscription(barId);
   }
 
   @Post('checkout-session')
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
   async createCheckoutSession(
-    @Param('barId') barId: string,
+    @Param('barId') barId: BarId,
     @Body() dto: CreateCheckoutSessionDto,
   ): Promise<CreateCheckoutSessionResponse> {
-    return this._billingService.createCheckoutSession(barId as BarId, dto.plan, dto.successUrl, dto.cancelUrl);
+    return this._billingService.createCheckoutSession(barId, dto.plan, dto.successUrl, dto.cancelUrl);
   }
 
   @Post('customer-portal-session')
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
   async createCustomerPortalSession(
-    @Param('barId') barId: string,
+    @Param('barId') barId: BarId,
     @Body() dto: CreateCustomerPortalSessionDto,
   ): Promise<CreateCustomerPortalSessionResponse> {
-    return this._billingService.createCustomerPortalSession(barId as BarId, dto.returnUrl);
+    return this._billingService.createCustomerPortalSession(barId, dto.returnUrl);
   }
 }

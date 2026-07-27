@@ -8,6 +8,8 @@ import { MembersStore } from '@coaster/members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
@@ -20,9 +22,9 @@ type MemberItem = BarMember & {
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink],
+  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink, PageContainer, PageHeader],
   host: {
-    class: 'flex flex-col gap-2',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },
   templateUrl: './staff.html',
 })

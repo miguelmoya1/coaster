@@ -16,6 +16,8 @@ import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
@@ -69,10 +71,12 @@ const toDailyShiftItem = (
     RosterWeeklyGrid,
     RosterMonthlyGrid,
     MatIcon,
+    PageContainer,
+    PageHeader,
   ],
   providers: [RosterStateService],
   host: {
-    class: 'flex flex-col gap-2 relative',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },
   templateUrl: './roster.html',
 })

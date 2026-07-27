@@ -11,14 +11,26 @@ import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { Loading } from '../../../components/loading/loading';
+import { PageContainer } from '../../../components/page-container/page-container';
+import { PageHeader } from '../../../components/page-header/page-header';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, MatFormField, MatInput, MatButton, MatIcon, Loading, TranslatePipe],
+  imports: [
+    FormRoot,
+    FormField,
+    MatFormField,
+    MatInput,
+    MatButton,
+    MatIcon,
+    Loading,
+    TranslatePipe,
+    PageContainer,
+    PageHeader,
+  ],
   host: {
-    class:
-      'w-full max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
