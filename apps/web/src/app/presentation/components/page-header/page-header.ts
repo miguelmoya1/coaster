@@ -58,5 +58,5 @@ export class PageHeader {
   public readonly title = input.required<string>();
   public readonly subtitle = input<string | undefined>(undefined);
   public readonly badge = input<string | undefined>(undefined);
-  public readonly backUrl = input<string | any[] | undefined>(undefined);
+  public readonly backUrl = input<string | unknown[] | undefined>(undefined);
 }
