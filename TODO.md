@@ -48,3 +48,9 @@ coaster/
 ├── frontend/                   # Angular
 └── printing-bridge/            # Go Application
 ```
+
+## SISTEMA DE RESERVA DE MESAS (PLANTEAR).
+
+## visualizar la carta de forma publica.
+
+## Mostrar las ventajas de la subscripcion y poner los limites en backend y algo mas visual en el front.
