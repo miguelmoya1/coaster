@@ -195,13 +195,25 @@ export class Dashboard {
     }
 
     const points = revenues.map((r, i) => {
-      const x = 25 + i * 58;
+      const x = 25 + i * 55;
       const y = 90 - (r.amount / max) * 70;
-      return { x, y, amount: r.amount, dayName: r.dayName };
+      return {
+        x,
+        y,
+        xPct: (x / 380) * 100,
+        yPct: (y / 110) * 100,
+        amount: r.amount,
+        dayName: r.dayName,
+        isFirst: i === 0,
+        isLast: i === revenues.length - 1,
+      };
     });
 
-    const linePath = 'M ' + points.map((p) => `${p.x},${p.y}`).join(' L ');
-    const areaPath = `${linePath} L ${points[points.length - 1].x},100 L ${points[0].x},100 Z`;
+    const firstPt = points[0];
+    const lastPt = points[points.length - 1];
+
+    const linePath = `M 0,${firstPt.y} L ` + points.map((p) => `${p.x},${p.y}`).join(' L ') + ` L 380,${lastPt.y}`;
+    const areaPath = `${linePath} L 380,100 L 0,100 Z`;
 
     return {
       linePath,

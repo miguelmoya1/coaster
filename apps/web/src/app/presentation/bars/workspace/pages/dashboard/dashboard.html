@@ -34,7 +34,7 @@
           />
         </div>
 
-        <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30!">
+        <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! overflow-hidden">
           <mat-card-header class="flex justify-between items-center p-0">
             <h3
               class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
@@ -49,91 +49,110 @@
             </span>
           </mat-card-header>
 
-          <mat-card-content class="relative w-full h-32.5 flex flex-col justify-end p-0">
-            <svg viewBox="0 0 380 110" class="w-full h-25" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
-                  <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
-                </linearGradient>
-              </defs>
+          <mat-card-content class="relative w-full flex flex-col justify-end p-0">
+            <div class="relative w-full h-25">
+              <svg viewBox="0 0 380 110" class="w-full h-full" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
+                    <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
+                  </linearGradient>
+                </defs>
 
-              <line
-                x1="20"
-                y1="20"
-                x2="360"
-                y2="20"
-                stroke="var(--color-border-ghost)"
-                stroke-opacity="0.2"
-                stroke-dasharray="3"
-              />
-              <line
-                x1="20"
-                y1="55"
-                x2="360"
-                y2="55"
-                stroke="var(--color-border-ghost)"
-                stroke-opacity="0.2"
-                stroke-dasharray="3"
-              />
-              <line
-                x1="20"
-                y1="90"
-                x2="360"
-                y2="90"
-                stroke="var(--color-border-ghost)"
-                stroke-opacity="0.2"
-                stroke-dasharray="3"
-              />
-
-              @if (chartPaths().points.length > 0) {
-                <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
-
-                <path
-                  [attr.d]="chartPaths().linePath"
-                  fill="none"
-                  stroke="var(--color-primary)"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                <line
+                  x1="0"
+                  y1="20"
+                  x2="380"
+                  y2="20"
+                  stroke="var(--color-border-ghost)"
+                  stroke-opacity="0.2"
+                  stroke-dasharray="3"
+                />
+                <line
+                  x1="0"
+                  y1="55"
+                  x2="380"
+                  y2="55"
+                  stroke="var(--color-border-ghost)"
+                  stroke-opacity="0.2"
+                  stroke-dasharray="3"
+                />
+                <line
+                  x1="0"
+                  y1="90"
+                  x2="380"
+                  y2="90"
+                  stroke="var(--color-border-ghost)"
+                  stroke-opacity="0.2"
+                  stroke-dasharray="3"
                 />
 
-                @for (pt of chartPaths().points; track pt.dayName) {
-                  <line
-                    [attr.x1]="pt.x"
-                    [attr.y1]="pt.y"
-                    [attr.x2]="pt.x"
-                    y2="100"
+                @if (chartPaths().points.length > 0) {
+                  <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
+
+                  <path
+                    [attr.d]="chartPaths().linePath"
+                    fill="none"
                     stroke="var(--color-primary)"
-                    stroke-opacity="0.15"
-                    stroke-width="1.5"
-                    stroke-dasharray="2"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    vector-effect="non-scaling-stroke"
                   />
 
-                  @if (pt.amount > 0) {
-                    <text
-                      [attr.x]="pt.x"
-                      [attr.y]="pt.y - 8"
-                      text-anchor="middle"
-                      class="fill-on-surface text-[8px] font-black tracking-tighter"
-                    >
-                      {{ pt.amount | price }}
-                    </text>
+                  @for (pt of chartPaths().points; track pt.dayName) {
+                    <line
+                      [attr.x1]="pt.x"
+                      [attr.y1]="pt.y"
+                      [attr.x2]="pt.x"
+                      y2="100"
+                      stroke="var(--color-primary)"
+                      stroke-opacity="0.15"
+                      stroke-width="1.5"
+                      stroke-dasharray="2"
+                      vector-effect="non-scaling-stroke"
+                    />
                   }
-
-                  <circle
-                    [attr.cx]="pt.x"
-                    [attr.cy]="pt.y"
-                    r="4.5"
-                    class="fill-primary stroke-surface stroke-[2.5] transition-all hover:r-[6] cursor-pointer"
-                  />
                 }
-              }
-            </svg>
+              </svg>
 
-            <div class="flex justify-between px-3 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
-              @for (dr of stats.value().dailyRevenues; track dr.dateStr) {
-                <span class="text-center w-10 uppercase select-none">{{ dr.dayName }}</span>
+              @if (chartPaths().points.length > 0) {
+                <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+                  @for (pt of chartPaths().points; track pt.dayName) {
+                    <div
+                      class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-auto"
+                      [style.left.%]="pt.xPct"
+                      [style.top.%]="pt.yPct"
+                    >
+                      @if (pt.amount > 0) {
+                        <span
+                          class="absolute bottom-full mb-1 text-on-surface text-[8px] font-black tracking-tighter whitespace-nowrap select-none"
+                          [class.left-0]="pt.isFirst"
+                          [class.right-0]="pt.isLast"
+                          [class.translate-x-0]="pt.isFirst || pt.isLast"
+                          [class.left-1/2]="!pt.isFirst && !pt.isLast"
+                          [class.-translate-x-1/2]="!pt.isFirst && !pt.isLast"
+                        >
+                          {{ pt.amount | price }}
+                        </span>
+                      }
+                      <div
+                        class="w-2.5 h-2.5 rounded-full bg-primary border-2 border-surface transition-transform hover:scale-150 cursor-pointer shadow-xs"
+                      ></div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="relative w-full h-4 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
+              @for (pt of chartPaths().points; track pt.dayName) {
+                <span
+                  class="absolute -translate-x-1/2 uppercase select-none text-center"
+                  [style.left.%]="pt.xPct"
+                >
+                  {{ pt.dayName }}
+                </span>
               }
             </div>
           </mat-card-content>
