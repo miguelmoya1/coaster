@@ -6,21 +6,25 @@ import {
   CreateCustomerPortalSessionResponse,
 } from '@coaster/common';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
 import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { CreateCheckoutSessionDto } from '../dto/create-checkout-session.dto';
 import { CreateCustomerPortalSessionDto } from '../dto/create-customer-portal-session.dto';
-import { BillingService } from '../services/billing.service';
+import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand, GetBarSubscriptionQuery } from '../stripe';
 
 @Controller('bars/:barId/billing')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
 export class BarBillingController {
-  constructor(private readonly _billingService: BillingService) {}
+  constructor(
+    private readonly _commandBus: CommandBus,
+    private readonly _queryBus: QueryBus,
+  ) {}
 
   @Get('subscription')
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
   async getSubscription(@Param('barId') barId: BarId): Promise<BarSubscription> {
-    return this._billingService.getBarSubscription(barId);
+    return this._queryBus.execute(new GetBarSubscriptionQuery(barId));
   }
 
   @Post('checkout-session')
@@ -29,7 +33,7 @@ export class BarBillingController {
     @Param('barId') barId: BarId,
     @Body() dto: CreateCheckoutSessionDto,
   ): Promise<CreateCheckoutSessionResponse> {
-    return this._billingService.createCheckoutSession(barId, dto.plan, dto.successUrl, dto.cancelUrl);
+    return this._commandBus.execute(new CreateCheckoutSessionCommand(barId, dto.plan, dto.successUrl, dto.cancelUrl));
   }
 
   @Post('customer-portal-session')
@@ -38,6 +42,6 @@ export class BarBillingController {
     @Param('barId') barId: BarId,
     @Body() dto: CreateCustomerPortalSessionDto,
   ): Promise<CreateCustomerPortalSessionResponse> {
-    return this._billingService.createCustomerPortalSession(barId, dto.returnUrl);
+    return this._commandBus.execute(new CreateCustomerPortalSessionCommand(barId, dto.returnUrl));
   }
 }

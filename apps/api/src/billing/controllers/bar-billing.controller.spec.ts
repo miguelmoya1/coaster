@@ -1,68 +1,62 @@
-import { BarId, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { BarId, SubscriptionPlan } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand, GetBarSubscriptionQuery } from '../stripe';
 import { BarBillingController } from './bar-billing.controller';
 
 describe('BarBillingController', () => {
   let controller: BarBillingController;
-  let billingServiceMock: any;
-
-  const mockBarId = 'bar-123' as BarId;
+  let commandBusMock: any;
+  let queryBusMock: any;
 
   beforeEach(() => {
-    billingServiceMock = {
-      getBarSubscription: vi.fn(),
-      createCheckoutSession: vi.fn(),
-      createCustomerPortalSession: vi.fn(),
+    commandBusMock = {
+      execute: vi.fn(),
+    };
+    queryBusMock = {
+      execute: vi.fn(),
     };
 
-    controller = new BarBillingController(billingServiceMock);
+    controller = new BarBillingController(commandBusMock, queryBusMock);
   });
 
-  it('should delegate getSubscription to BillingService', async () => {
-    const mockSubscription = {
-      barId: mockBarId,
-      plan: SubscriptionPlan.PRO_MONTHLY,
-      status: SubscriptionStatus.ACTIVE,
-      cancelAtPeriodEnd: false,
-    };
-    billingServiceMock.getBarSubscription.mockResolvedValue(mockSubscription);
+  it('should execute GetBarSubscriptionQuery on getSubscription', async () => {
+    const barId = 'bar_123' as BarId;
+    const mockSubscription = { barId, plan: SubscriptionPlan.PRO_MONTHLY };
+    queryBusMock.execute.mockResolvedValue(mockSubscription);
 
-    const result = await controller.getSubscription(mockBarId);
+    const result = await controller.getSubscription(barId);
 
-    expect(billingServiceMock.getBarSubscription).toHaveBeenCalledWith(mockBarId);
+    expect(queryBusMock.execute).toHaveBeenCalledWith(new GetBarSubscriptionQuery(barId));
     expect(result).toEqual(mockSubscription);
   });
 
-  it('should delegate createCheckoutSession to BillingService', async () => {
-    const mockResponse = { id: 'cs_123', url: 'https://checkout.stripe.com' };
-    billingServiceMock.createCheckoutSession.mockResolvedValue(mockResponse);
-
+  it('should execute CreateCheckoutSessionCommand on createCheckoutSession', async () => {
+    const barId = 'bar_123' as BarId;
     const dto = {
       plan: SubscriptionPlan.PRO_MONTHLY as Exclude<SubscriptionPlan, 'FREE'>,
-      successUrl: 'https://app.com/success',
-      cancelUrl: 'https://app.com/cancel',
+      successUrl: 'https://example.com/success',
+      cancelUrl: 'https://example.com/cancel',
     };
+    const mockResponse = { id: 'cs_123', url: 'https://stripe.com/checkout' };
+    commandBusMock.execute.mockResolvedValue(mockResponse);
 
-    const result = await controller.createCheckoutSession(mockBarId, dto);
+    const result = await controller.createCheckoutSession(barId, dto);
 
-    expect(billingServiceMock.createCheckoutSession).toHaveBeenCalledWith(
-      mockBarId,
-      dto.plan,
-      dto.successUrl,
-      dto.cancelUrl,
+    expect(commandBusMock.execute).toHaveBeenCalledWith(
+      new CreateCheckoutSessionCommand(barId, dto.plan, dto.successUrl, dto.cancelUrl),
     );
     expect(result).toEqual(mockResponse);
   });
 
-  it('should delegate createCustomerPortalSession to BillingService', async () => {
-    const mockResponse = { url: 'https://billing.stripe.com' };
-    billingServiceMock.createCustomerPortalSession.mockResolvedValue(mockResponse);
+  it('should execute CreateCustomerPortalSessionCommand on createCustomerPortalSession', async () => {
+    const barId = 'bar_123' as BarId;
+    const dto = { returnUrl: 'https://example.com/return' };
+    const mockResponse = { url: 'https://stripe.com/portal' };
+    commandBusMock.execute.mockResolvedValue(mockResponse);
 
-    const dto = { returnUrl: 'https://app.com/return' };
+    const result = await controller.createCustomerPortalSession(barId, dto);
 
-    const result = await controller.createCustomerPortalSession(mockBarId, dto);
-
-    expect(billingServiceMock.createCustomerPortalSession).toHaveBeenCalledWith(mockBarId, dto.returnUrl);
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCustomerPortalSessionCommand(barId, dto.returnUrl));
     expect(result).toEqual(mockResponse);
   });
 });
