@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { effect, inject, Service } from '@angular/core';
 import { SubscriptionPlan } from '@coaster/common';
+import { Socket } from '@coaster/core';
 import { barSubscriptionMapper } from '../mappers/bar.mapper';
 import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
@@ -13,6 +14,7 @@ export class BarSubscriptionStore {
   readonly #barSubscription = inject(BarSubscription);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
+  readonly #socketService = inject(Socket);
 
   readonly #subscriptionResource = httpResource(
     () => {
@@ -24,6 +26,16 @@ export class BarSubscriptionStore {
   );
 
   public readonly subscription = this.#subscriptionResource.asReadonly();
+
+  constructor() {
+    effect(() => {
+      const event = this.#socketService.subscriptionUpdated();
+      const currentBarId = this.#currentBarStore.currentId();
+      if (event && (!event.barId || event.barId === currentBarId)) {
+        this.reloadSubscription();
+      }
+    });
+  }
 
   public reloadSubscription() {
     this.#subscriptionResource.reload();

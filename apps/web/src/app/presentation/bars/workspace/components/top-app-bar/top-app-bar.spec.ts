@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { MyMemberStore, BarSubscriptionStore } from '@coaster/bars';
+import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
+import { BarPermission } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -28,11 +29,13 @@ describe('TopAppBar', () => {
 
   const myMemberStoreMock = {
     isOwner: signal(true).asReadonly(),
+    hasPermission: vi.fn().mockImplementation((perm: BarPermission) => perm === BarPermission.BAR_MANAGE_BILLING),
   };
 
+  const subscriptionSignal = signal<{ status: string } | null>({ status: 'INACTIVE' });
   const barSubscriptionStoreMock = {
     subscription: {
-      value: signal({ status: 'INACTIVE' }),
+      value: subscriptionSignal,
     },
     createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
@@ -80,6 +83,23 @@ describe('TopAppBar', () => {
       const avatar = fixture.nativeElement.querySelector('coaster-avatar-badge');
       expect(avatar).toBeTruthy();
       expect(component.image()).toBe('https://photo.url/user.jpg');
+    });
+  });
+
+  describe('permissions and subscription status', () => {
+    it('should calculate canManageBilling based on BAR_MANAGE_BILLING permission', () => {
+      expect(myMemberStoreMock.hasPermission).toHaveBeenCalledWith(BarPermission.BAR_MANAGE_BILLING);
+      expect(component.canManageBilling()).toBe(true);
+    });
+
+    it('should evaluate isProActive as false when subscription status is INACTIVE', () => {
+      subscriptionSignal.set({ status: 'INACTIVE' });
+      expect(component.isProActive()).toBe(false);
+    });
+
+    it('should evaluate isProActive as true when subscription status is ACTIVE', () => {
+      subscriptionSignal.set({ status: 'ACTIVE' });
+      expect(component.isProActive()).toBe(true);
     });
   });
 

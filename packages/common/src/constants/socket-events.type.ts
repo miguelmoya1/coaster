@@ -26,6 +26,7 @@ export const SocketEvents = {
   orderAdjustmentsUpdated: 'orderAdjustmentsUpdated',
   shiftCreated: 'shiftCreated',
   shiftDeleted: 'shiftDeleted',
+  subscriptionUpdated: 'subscriptionUpdated',
 } as const;
 
 export type SocketEvents = (typeof SocketEvents)[keyof typeof SocketEvents];

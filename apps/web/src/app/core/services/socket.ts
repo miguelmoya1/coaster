@@ -34,6 +34,7 @@ export class Socket implements OnDestroy {
   readonly shiftCreated = signal<Shift | null>(null);
   readonly shiftDeleted = signal<{ id: string } | null>(null);
   readonly memberInvited = signal<{ id: string } | null>(null);
+  readonly subscriptionUpdated = signal<{ barId: string } | null>(null);
 
   constructor() {
     this.connect();
@@ -149,6 +150,10 @@ export class Socket implements OnDestroy {
 
     this.#socket.on(SocketEvents.memberInvited, (payload: { id: string }) => {
       this.memberInvited.set(payload);
+    });
+
+    this.#socket.on(SocketEvents.subscriptionUpdated, (payload: { barId: string }) => {
+      this.subscriptionUpdated.set(payload);
     });
   }
 

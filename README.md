@@ -85,3 +85,5 @@ npm run build
 
 - [Learn more about Nx Workspaces](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial)
 - [Nx Console for your IDE](https://nx.dev/getting-started/editor-setup)
+
+stripe listen --forward-to localhost:3000/api/v1/billing/webhook

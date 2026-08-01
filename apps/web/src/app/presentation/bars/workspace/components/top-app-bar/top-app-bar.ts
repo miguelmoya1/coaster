@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
-import { SubscriptionPlan } from '@coaster/common';
+import { BarPermission, SubscriptionPlan } from '@coaster/common';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -55,17 +55,17 @@ import { SelectPlanDialog } from '../select-plan-dialog/select-plan-dialog';
         </a>
 
         @if (canManageBilling()) {
-          @if (!isProActive()) {
+          @if (isProActive()) {
+            <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
+              <mat-icon>receipt_long</mat-icon>
+              <span>{{ 'billing.manage_billing' | translate }}</span>
+            </button>
+          } @else {
             <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
               <mat-icon>rocket_launch</mat-icon>
               <span>{{ 'billing.activate_pro_title' | translate }}</span>
             </button>
           }
-
-          <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
-            <mat-icon>receipt_long</mat-icon>
-            <span>{{ 'billing.manage_billing' | translate }}</span>
-          </button>
         }
 
         <mat-divider />
@@ -145,7 +145,7 @@ export class TopAppBar {
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
-  readonly canManageBilling = this.#myMemberStore.isOwner;
+  readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly isProActive = computed(() => {
     const subscription = this.#barSubscriptionStore.subscription.value();
     if (!subscription) {
