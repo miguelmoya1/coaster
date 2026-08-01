@@ -1,7 +1,7 @@
 import { BarSubscription, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BillingReadRepository } from '../../../data-access/billing.read.repository';
+import { BillingReadRepository } from '../../data-access/billing.read.repository';
 import { GetBarSubscriptionQuery } from '../impl/get-bar-subscription.query';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BillingWriteRepository } from '../../../data-access/billing.write.repository';
+import { BillingWriteRepository } from '../../data-access/billing.write.repository';
 import { RecordStripeWebhookEventCommand } from '../impl/record-stripe-webhook-event.command';
 
 @Injectable()

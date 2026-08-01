@@ -1,8 +1,8 @@
 import { CreateCustomerPortalSessionResponse } from '@coaster/common';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BillingReadRepository } from '../../../data-access/billing.read.repository';
-import { StripeClient } from '../../stripe-client.provider';
+import { StripeClient } from '../../../stripe';
+import { BillingReadRepository } from '../../data-access/billing.read.repository';
 import { CreateCustomerPortalSessionCommand } from '../impl/create-customer-portal-session.command';
 
 @Injectable()

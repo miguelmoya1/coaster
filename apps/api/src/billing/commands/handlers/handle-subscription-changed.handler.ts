@@ -2,10 +2,10 @@ import { BarId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { BillingReadRepository } from '../../../data-access/billing.read.repository';
-import { BillingWriteRepository } from '../../../data-access/billing.write.repository';
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../events';
-import { toDbPlan, toDbStatus } from '../../utils/stripe.utils';
+import { BillingReadRepository } from '../../data-access/billing.read.repository';
+import { BillingWriteRepository } from '../../data-access/billing.write.repository';
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';
+import { toDbPlan, toDbStatus } from '../../../stripe';
 import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-changed.command';
 
 @Injectable()

@@ -2,7 +2,7 @@ import { SubscriptionPlan } from '@coaster/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../../core/db';
+import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
   const monthly = configService.get<string>('STRIPE_PRICE_PRO_MONTHLY');

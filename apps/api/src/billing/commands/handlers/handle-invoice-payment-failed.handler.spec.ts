@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SubscriptionPaymentFailedEvent } from '../../../events';
+import { SubscriptionPaymentFailedEvent } from '../../events';
 import { HandleInvoicePaymentFailedCommand } from '../impl/handle-invoice-payment-failed.command';
 import { HandleInvoicePaymentFailedHandler } from './handle-invoice-payment-failed.handler';
 

@@ -2,10 +2,9 @@ import { BarId, CreateCheckoutSessionResponse } from '@coaster/common';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BillingReadRepository } from '../../../data-access/billing.read.repository';
-import { BillingWriteRepository } from '../../../data-access/billing.write.repository';
-import { StripeClient } from '../../stripe-client.provider';
-import { getPriceId } from '../../utils/stripe.utils';
+import { StripeClient, getPriceId } from '../../../stripe';
+import { BillingReadRepository } from '../../data-access/billing.read.repository';
+import { BillingWriteRepository } from '../../data-access/billing.write.repository';
 import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.command';
 
 @Injectable()

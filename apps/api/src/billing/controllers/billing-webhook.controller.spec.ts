@@ -5,7 +5,7 @@ import {
   HandleInvoicePaymentFailedCommand,
   HandleSubscriptionChangedCommand,
   RecordStripeWebhookEventCommand,
-} from '../stripe';
+} from '../commands';
 import { BillingWebhookController } from './billing-webhook.controller';
 
 describe('BillingWebhookController', () => {

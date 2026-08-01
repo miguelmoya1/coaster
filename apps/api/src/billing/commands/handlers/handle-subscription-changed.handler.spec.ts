@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../events';
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';
 import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-changed.command';
 import { HandleSubscriptionChangedHandler } from './handle-subscription-changed.handler';
 

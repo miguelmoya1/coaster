@@ -1,6 +1,7 @@
 import { BarId, SubscriptionPlan } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand, GetBarSubscriptionQuery } from '../stripe';
+import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
+import { GetBarSubscriptionQuery } from '../queries';
 import { BarBillingController } from './bar-billing.controller';
 
 describe('BarBillingController', () => {

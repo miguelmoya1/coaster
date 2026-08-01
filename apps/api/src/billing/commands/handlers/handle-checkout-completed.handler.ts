@@ -1,7 +1,7 @@
 import { BarId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BillingWriteRepository } from '../../../data-access/billing.write.repository';
+import { BillingWriteRepository } from '../../data-access/billing.write.repository';
 import { HandleCheckoutCompletedCommand } from '../impl/handle-checkout-completed.command';
 
 @Injectable()

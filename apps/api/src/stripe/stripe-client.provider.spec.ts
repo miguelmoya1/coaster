@@ -3,28 +3,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StripeClient } from './stripe-client.provider';
 
 describe('StripeClient', () => {
-  let provider: StripeClient;
   let configServiceMock: any;
 
   beforeEach(() => {
     configServiceMock = {
       get: vi.fn(),
     };
-    provider = new StripeClient(configServiceMock);
   });
 
-  it('should throw InternalServerErrorException if STRIPE_SECRET_KEY is not configured', () => {
+  it('should throw InternalServerErrorException if STRIPE_SECRET_KEY is missing', () => {
     configServiceMock.get.mockReturnValue(undefined);
+    const clientProvider = new StripeClient(configServiceMock);
 
-    expect(() => provider.client).toThrow(InternalServerErrorException);
+    expect(() => clientProvider.client).toThrow(InternalServerErrorException);
   });
 
-  it('should return Stripe instance when STRIPE_SECRET_KEY is configured', () => {
+  it('should initialize and return Stripe client when STRIPE_SECRET_KEY is present', () => {
     configServiceMock.get.mockReturnValue('sk_test_123');
+    const clientProvider = new StripeClient(configServiceMock);
 
-    const client = provider.client;
+    const client = clientProvider.client;
     expect(client).toBeDefined();
-    // Cache check
-    expect(provider.client).toBe(client);
+    expect(clientProvider.client).toBe(client);
   });
 });

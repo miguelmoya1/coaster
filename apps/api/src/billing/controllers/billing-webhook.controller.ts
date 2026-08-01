@@ -1,14 +1,13 @@
 import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import Stripe from 'stripe';
+import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe';
 import {
-  type FastifyStripeRequest,
   HandleCheckoutCompletedCommand,
   HandleInvoicePaymentFailedCommand,
   HandleSubscriptionChangedCommand,
   RecordStripeWebhookEventCommand,
-  StripeWebhookGuard,
-} from '../stripe';
+} from '../commands';
 
 @Controller('billing')
 export class BillingWebhookController {

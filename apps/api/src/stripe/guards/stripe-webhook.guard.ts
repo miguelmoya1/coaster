@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
-import { BillingReadRepository } from '../../data-access/billing.read.repository';
+import { DbService } from '../../core/db';
 import { StripeClient } from '../stripe-client.provider';
 
 export type FastifyStripeRequest = FastifyRequest & {
@@ -25,7 +25,7 @@ export class StripeWebhookGuard implements CanActivate {
   constructor(
     private readonly _stripeClient: StripeClient,
     private readonly _configService: ConfigService,
-    private readonly _readRepo: BillingReadRepository,
+    private readonly _db: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -52,7 +52,9 @@ export class StripeWebhookGuard implements CanActivate {
       throw new BadRequestException('Invalid Stripe signature');
     }
 
-    const alreadyProcessed = await this._readRepo.findWebhookEventById(event.id);
+    const alreadyProcessed = await this._db.dbStripeWebhookEvent.findUnique({
+      where: { stripeEventId: event.id },
+    });
 
     request.stripeEvent = event;
     request.stripeEventAlreadyProcessed = !!alreadyProcessed;

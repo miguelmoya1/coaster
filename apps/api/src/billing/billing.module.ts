@@ -1,22 +1,17 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { StripeModule } from '../stripe';
+import { BillingCommandHandlers } from './commands';
 import { BarBillingController } from './controllers/bar-billing.controller';
 import { BillingWebhookController } from './controllers/billing-webhook.controller';
 import { BillingReadRepository } from './data-access/billing.read.repository';
 import { BillingWriteRepository } from './data-access/billing.write.repository';
-import { StripeClient, StripeCommandHandlers, StripeQueryHandlers, StripeWebhookGuard } from './stripe';
+import { BillingQueryHandlers } from './queries';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, StripeModule],
   controllers: [BillingWebhookController, BarBillingController],
-  providers: [
-    BillingReadRepository,
-    BillingWriteRepository,
-    StripeClient,
-    StripeWebhookGuard,
-    ...StripeCommandHandlers,
-    ...StripeQueryHandlers,
-  ],
-  exports: [BillingReadRepository, BillingWriteRepository, StripeClient],
+  providers: [BillingReadRepository, BillingWriteRepository, ...BillingCommandHandlers, ...BillingQueryHandlers],
+  exports: [BillingReadRepository, BillingWriteRepository],
 })
 export class BillingModule {}

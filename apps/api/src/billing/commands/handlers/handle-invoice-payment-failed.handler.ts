@@ -1,9 +1,9 @@
 import { BarId } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { BillingReadRepository } from '../../../data-access/billing.read.repository';
-import { BillingWriteRepository } from '../../../data-access/billing.write.repository';
-import { SubscriptionPaymentFailedEvent } from '../../../events';
+import { BillingReadRepository } from '../../data-access/billing.read.repository';
+import { BillingWriteRepository } from '../../data-access/billing.write.repository';
+import { SubscriptionPaymentFailedEvent } from '../../events';
 import { HandleInvoicePaymentFailedCommand } from '../impl/handle-invoice-payment-failed.command';
 
 @Injectable()

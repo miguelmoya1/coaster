@@ -19,7 +19,7 @@ import { HandleInvoicePaymentFailedHandler } from './handlers/handle-invoice-pay
 import { HandleSubscriptionChangedHandler } from './handlers/handle-subscription-changed.handler';
 import { RecordStripeWebhookEventHandler } from './handlers/record-stripe-webhook-event.handler';
 
-export const StripeCommandHandlers = [
+export const BillingCommandHandlers = [
   CreateCheckoutSessionHandler,
   CreateCustomerPortalSessionHandler,
   HandleCheckoutCompletedHandler,

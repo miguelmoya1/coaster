@@ -9,9 +9,10 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
 import { BarPermissions, BarPermissionsGuard } from '../../core';
+import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
 import { CreateCheckoutSessionDto } from '../dto/create-checkout-session.dto';
 import { CreateCustomerPortalSessionDto } from '../dto/create-customer-portal-session.dto';
-import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand, GetBarSubscriptionQuery } from '../stripe';
+import { GetBarSubscriptionQuery } from '../queries';
 
 @Controller('bars/:barId/billing')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
