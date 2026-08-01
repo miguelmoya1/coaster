@@ -29,6 +29,7 @@ export class StripeWebhookGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    this._logger.debug('Validating incoming Stripe webhook request...');
     const request = context.switchToHttp().getRequest<FastifyStripeRequest>();
     const signature = request.headers['stripe-signature'] as string | undefined;
     const rawBody = request.rawBody ?? '';
@@ -36,10 +37,12 @@ export class StripeWebhookGuard implements CanActivate {
     const webhookSecret = this._configService.get<string>('STRIPE_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
+      this._logger.error('STRIPE_WEBHOOK_SECRET is not configured in environment variables');
       throw new InternalServerErrorException('STRIPE_WEBHOOK_SECRET is not configured');
     }
 
     if (!signature) {
+      this._logger.warn('Stripe webhook request missing stripe-signature header');
       throw new BadRequestException('Missing Stripe signature header');
     }
 
@@ -52,12 +55,18 @@ export class StripeWebhookGuard implements CanActivate {
       throw new BadRequestException('Invalid Stripe signature');
     }
 
+    this._logger.debug(`Stripe webhook signature verified. Event ID: ${event.id}, Event Type: ${event.type}`);
+
     const alreadyProcessed = await this._db.dbStripeWebhookEvent.findUnique({
       where: { stripeEventId: event.id },
     });
 
     request.stripeEvent = event;
     request.stripeEventAlreadyProcessed = !!alreadyProcessed;
+
+    if (alreadyProcessed) {
+      this._logger.debug(`Stripe webhook event ${event.id} was already processed previously. Skipping handling.`);
+    }
 
     return true;
   }

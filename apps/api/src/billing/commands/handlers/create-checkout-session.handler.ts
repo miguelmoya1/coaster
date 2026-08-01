@@ -1,5 +1,5 @@
 import { BarId, CreateCheckoutSessionResponse } from '@coaster/common';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { StripeClient, getPriceId } from '../../../stripe';
@@ -13,6 +13,8 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
   CreateCheckoutSessionCommand,
   CreateCheckoutSessionResponse
 > {
+  private readonly _logger = new Logger(CreateCheckoutSessionHandler.name);
+
   constructor(
     private readonly _stripeClient: StripeClient,
     private readonly _configService: ConfigService,
@@ -22,6 +24,8 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
 
   async execute(command: CreateCheckoutSessionCommand): Promise<CreateCheckoutSessionResponse> {
     const { barId, plan, successUrl, cancelUrl } = command;
+    this._logger.debug(`Executing CreateCheckoutSessionCommand for barId=${barId}, plan=${plan}`);
+
     const priceId = getPriceId(plan, this._configService);
     const customerId = await this.getOrCreateCustomerId(barId);
 
@@ -46,8 +50,11 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     });
 
     if (!session.url) {
+      this._logger.error(`Stripe checkout session creation returned null URL for barId=${barId}`);
       throw new InternalServerErrorException('Unable to create Stripe checkout session');
     }
+
+    this._logger.debug(`Checkout session created successfully: id=${session.id}`);
 
     return {
       id: session.id,
@@ -61,18 +68,21 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     const customerName = bar?.name || `Bar ${barId}`;
 
     if (existing?.stripeCustomerId) {
+      this._logger.debug(`Reusing existing Stripe customerId=${existing.stripeCustomerId} for barId=${barId}`);
       await this._stripeClient.client.customers.update(existing.stripeCustomerId, {
         name: customerName,
       });
       return existing.stripeCustomerId;
     }
 
+    this._logger.debug(`Creating new Stripe customer for barId=${barId}`);
     const customer = await this._stripeClient.client.customers.create({
       metadata: { barId },
       name: customerName,
     });
 
     await this._writeRepo.upsertBarCustomerId(barId, customer.id);
+    this._logger.debug(`Created and associated new Stripe customerId=${customer.id} for barId=${barId}`);
 
     return customer.id;
   }

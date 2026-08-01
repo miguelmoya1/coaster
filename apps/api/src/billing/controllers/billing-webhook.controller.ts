@@ -1,4 +1,4 @@
-import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, HttpCode, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import Stripe from 'stripe';
 import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe';
@@ -11,6 +11,8 @@ import {
 
 @Controller('billing')
 export class BillingWebhookController {
+  private readonly _logger = new Logger(BillingWebhookController.name);
+
   constructor(private readonly _commandBus: CommandBus) {}
 
   @Post('webhook')
@@ -18,14 +20,18 @@ export class BillingWebhookController {
   @HttpCode(200)
   async handleWebhook(@Req() request: FastifyStripeRequest): Promise<{ received: true }> {
     if (request.stripeEventAlreadyProcessed) {
+      this._logger.debug('Webhook event already processed previously, returning received: true early');
       return { received: true };
     }
 
     const event = request.stripeEvent;
 
     if (!event) {
+      this._logger.warn('No Stripe event attached to request object');
       return { received: true };
     }
+
+    this._logger.debug(`Dispatching command for webhook event type: ${event.type}`);
 
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -45,6 +51,7 @@ export class BillingWebhookController {
         break;
       }
       default:
+        this._logger.debug(`Unhandled webhook event type: ${event.type}`);
         break;
     }
 

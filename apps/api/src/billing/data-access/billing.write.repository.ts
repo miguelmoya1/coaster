@@ -1,5 +1,5 @@
 import type { BarId } from '@coaster/common';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DbService, DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 
 export interface UpsertSubscriptionData {
@@ -15,9 +15,14 @@ export interface UpsertSubscriptionData {
 
 @Injectable()
 export class BillingWriteRepository {
+  private readonly _logger = new Logger(BillingWriteRepository.name);
+
   constructor(private readonly _db: DbService) {}
 
   public async upsertBarCustomerId(barId: BarId, stripeCustomerId: string, stripeSubscriptionId?: string | null) {
+    this._logger.debug(
+      `upsertBarCustomerId: barId=${barId}, stripeCustomerId=${stripeCustomerId}, stripeSubscriptionId=${stripeSubscriptionId}`,
+    );
     return this._db.dbBarSubscription.upsert({
       where: { barId },
       create: {
@@ -33,6 +38,7 @@ export class BillingWriteRepository {
   }
 
   public async upsertSubscriptionDetails(barId: BarId, data: UpsertSubscriptionData) {
+    this._logger.debug(`upsertSubscriptionDetails: barId=${barId}, plan=${data.plan}, status=${data.status}`);
     return this._db.dbBarSubscription.upsert({
       where: { barId },
       create: {
@@ -48,6 +54,9 @@ export class BillingWriteRepository {
       return { count: 0 };
     }
 
+    this._logger.debug(
+      `updateManySubscriptionsStatusToPastDue: subscriptionId=${subscriptionId}, customerId=${customerId}`,
+    );
     const where = subscriptionId ? { stripeSubscriptionId: subscriptionId } : { stripeCustomerId: customerId! };
 
     return this._db.dbBarSubscription.updateMany({
@@ -57,6 +66,7 @@ export class BillingWriteRepository {
   }
 
   public async recordStripeWebhookEvent(stripeEventId: string, type: string, payload: any) {
+    this._logger.debug(`recordStripeWebhookEvent: stripeEventId=${stripeEventId}, type=${type}`);
     return this._db.dbStripeWebhookEvent.create({
       data: {
         stripeEventId,
