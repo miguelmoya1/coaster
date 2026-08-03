@@ -1,9 +1,12 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { BarSubscriptionStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
-import { BarRole } from '@coaster/common';
+import { BarPermission, BarRole } from '@coaster/common';
+import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
@@ -22,6 +25,7 @@ import { PageHeader } from '../../../../components/page-header/page-header';
   imports: [
     TranslatePipe,
     MatIcon,
+    MatButton,
     RouterLink,
     InventoryItemCard,
     PricePipe,
@@ -47,8 +51,97 @@ export class Dashboard {
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #statsStore = inject(StatsStore);
+  readonly #barSubscriptionStore = inject(BarSubscriptionStore);
+  readonly #myMemberStore = inject(MyMemberStore);
+  readonly #planDialogService = inject(PlanDialogService);
+  readonly #actionFeedback = inject(ActionFeedback);
 
   public readonly stats = this.#statsStore.stats;
+
+  readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
+  readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
+  readonly trialDaysRemaining = computed(() => this.#barSubscriptionStore.trialDaysRemaining());
+  readonly isTrialActive = computed(() => this.#barSubscriptionStore.isTrialActive());
+
+  readonly planLabelKey = computed(() => {
+    const sub = this.subscription();
+    if (!sub || sub.plan === 'FREE') return 'billing.plan_name.free';
+    if (sub.plan === 'PRO_MONTHLY') return 'billing.plan_name.pro_monthly';
+    if (sub.plan === 'PRO_YEARLY') return 'billing.plan_name.pro_yearly';
+    return 'billing.plan_name.free';
+  });
+
+  readonly statusLabelKey = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'billing.status.free';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'billing.status.active';
+      case 'TRIALING':
+        return 'billing.status.trialing';
+      case 'PAST_DUE':
+        return 'billing.status.past_due';
+      case 'CANCELED':
+        return 'billing.status.canceled';
+      case 'UNPAID':
+        return 'billing.status.unpaid';
+      default:
+        return 'billing.status.inactive';
+    }
+  });
+
+  readonly formattedPeriodEnd = computed(() => {
+    const sub = this.subscription();
+    if (!sub?.currentPeriodEnd) return null;
+    return new Date(sub.currentPeriodEnd).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+
+  readonly formattedTrialEnds = computed(() => {
+    const sub = this.subscription();
+    if (!sub?.trialEndsAt) return null;
+    return new Date(sub.trialEndsAt).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+
+  readonly statusIconContainerClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'bg-surface-container-highest text-on-surface-variant';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'bg-emerald-500/15 text-emerald-500';
+      case 'TRIALING':
+        return 'bg-sky-400/15 text-sky-400';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'bg-amber-500/15 text-amber-500';
+      default:
+        return 'bg-surface-container-highest text-on-surface-variant';
+    }
+  });
+
+  readonly statusBadgeStyleClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'text-on-surface-variant bg-surface-container border-outline-variant/30';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+      case 'TRIALING':
+        return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+      default:
+        return 'text-on-surface-variant bg-surface-container border-outline-variant/30';
+    }
+  });
+
   constructor() {
     effect(() => {
       const now = new Date();
@@ -65,6 +158,21 @@ export class Dashboard {
       this.#shiftsStore.setBarId(barId);
       this.#statsStore.setBarId(barId);
     });
+  }
+
+  async manageBilling(): Promise<void> {
+    const barId = this.barId();
+    const returnUrl = `${window.location.origin}/bars/${barId}/dashboard`;
+    const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession(returnUrl);
+    if (portalUrl) {
+      window.location.assign(portalUrl);
+    } else {
+      this.#actionFeedback.error('errors.stripe_connection');
+    }
+  }
+
+  activatePro(): void {
+    this.#planDialogService.open();
   }
 
   readonly pantryAlerts = computed(() => {

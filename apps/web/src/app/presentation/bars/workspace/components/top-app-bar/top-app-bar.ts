@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { BarSubscriptionStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
+import { BarSubscriptionStore, CurrentBarStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
@@ -37,9 +37,19 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <coaster-avatar-badge [imageSrc]="image" altText="User profile" class="shrink-0" />
         }
 
-        <h1 class="heading-1 font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
-          {{ label() }}
-        </h1>
+        <div class="flex items-center gap-2 sm:gap-3 truncate min-w-0">
+          <h1 class="heading-1 font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
+            {{ label() }}
+          </h1>
+
+          <div
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] sm:text-xs font-black tracking-wider uppercase shrink-0 transition-all"
+            [class]="statusBadgeTextClass()"
+          >
+            <span class="w-2 h-2 rounded-full shrink-0" [class]="statusDotClass()"></span>
+            <span>{{ statusBadgeKey() | translate }}</span>
+          </div>
+        </div>
       </div>
 
       <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
@@ -136,6 +146,7 @@ export class TopAppBar {
   readonly #currentUser = inject(CurrentUser);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #barSubscriptionStore = inject(BarSubscriptionStore);
+  readonly #currentBarStore = inject(CurrentBarStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
@@ -144,9 +155,58 @@ export class TopAppBar {
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
+  readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
+
   readonly isProActive = computed(() => {
-    const subscription = this.#barSubscriptionStore.subscription.value();
-    return subscription?.status === 'ACTIVE';
+    return this.subscription()?.status === 'ACTIVE';
+  });
+
+  readonly statusDotClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'bg-zinc-400';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
+      case 'TRIALING':
+        return 'bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+      default:
+        return 'bg-zinc-400';
+    }
+  });
+
+  readonly statusBadgeKey = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'billing.status_badge.free';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'billing.status_badge.active';
+      case 'TRIALING':
+        return 'billing.status_badge.trialing';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'billing.status_badge.past_due';
+      default:
+        return 'billing.status_badge.free';
+    }
+  });
+
+  readonly statusBadgeTextClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+      case 'TRIALING':
+        return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+      default:
+        return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
+    }
   });
 
   setLanguage(lang: string): void {
@@ -162,7 +222,10 @@ export class TopAppBar {
   }
 
   async manageBilling(): Promise<void> {
-    const returnUrl = window.location.origin + '/bars/select';
+    const barId = this.#currentBarStore.currentId();
+    const returnUrl = barId
+      ? `${window.location.origin}/bars/${barId}/dashboard`
+      : `${window.location.origin}/bars/select`;
     const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession(returnUrl);
 
     if (portalUrl) {

@@ -224,7 +224,8 @@
       "pantry": "Alertas Críticas de Despensa",
       "pantry_issues": "INCIDENCIAS",
       "roster": "Turnos de Hoy",
-      "roster_full": "HORARIO COMPLETO"
+      "roster_full": "HORARIO COMPLETO",
+      "subscription": "Suscripción del Local"
     },
     "title": "Panel de Control"
   },
@@ -577,7 +578,31 @@
     "yearly_badge": "Ahorra 2 meses",
     "yearly_feat_1": "Todas las ventajas del Plan Pro",
     "yearly_feat_2": "Descuento exclusivo anual",
-    "continue_to_checkout": "Continuar al checkout"
+    "continue_to_checkout": "Continuar al checkout",
+    "status": {
+      "active": "Activa",
+      "trialing": "Prueba Gratuita",
+      "past_due": "Pago Pendiente",
+      "canceled": "Cancelada",
+      "unpaid": "Impagada",
+      "inactive": "Inactiva / Gratuita"
+    },
+    "status_badge": {
+      "active": "PRO",
+      "trialing": "TRIAL",
+      "past_due": "PENDIENTE",
+      "free": "FREE"
+    },
+    "plan_name": {
+      "free": "Plan Gratuito",
+      "pro_monthly": "Plan Coaster Pro (Mensual)",
+      "pro_yearly": "Plan Coaster Pro (Anual)"
+    },
+    "renews_on": "Se renovará el {{date}}",
+    "cancels_on": "Se cancelará el {{date}}",
+    "trial_ends_on": "La prueba finaliza el {{date}}",
+    "trial_days_remaining": "{{days}} días de prueba restantes",
+    "past_due_warning": "El último intento de cobro ha fallado. Actualiza tu método de pago para evitar la interrupción del servicio."
   },
   "landing": {
     "nav": {

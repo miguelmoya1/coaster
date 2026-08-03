@@ -1,5 +1,8 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { BarSubscriptionStore, CurrentBarStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
+import { BarId, BarPermission } from '@coaster/common';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
@@ -61,6 +64,29 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
+  const subscriptionSignal = signal({ status: 'ACTIVE', plan: 'PRO_MONTHLY' });
+  const barSubscriptionStoreMock = {
+    subscription: {
+      value: subscriptionSignal,
+    },
+    trialDaysRemaining: signal(0).asReadonly(),
+    isTrialActive: signal(false).asReadonly(),
+    createCustomerPortalSession: vi.fn().mockResolvedValue('https://stripe.portal'),
+    createCheckoutSession: vi.fn().mockResolvedValue('https://stripe.checkout'),
+  };
+
+  const myMemberStoreMock = {
+    hasPermission: vi.fn().mockImplementation((perm: BarPermission) => perm === BarPermission.BAR_MANAGE_BILLING),
+  };
+
+  const currentBarStoreMock = {
+    currentId: signal<BarId | undefined>('bar-1' as BarId).asReadonly(),
+  };
+
+  const planDialogServiceMock = {
+    open: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Dashboard],
@@ -71,6 +97,10 @@ describe('Dashboard', () => {
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: StatsStore, useValue: statsStoreMock },
+        { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: PlanDialogService, useValue: planDialogServiceMock },
       ],
     }).compileComponents();
 

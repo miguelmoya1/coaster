@@ -6,12 +6,33 @@ import { GetBarSubscriptionHandler } from './get-bar-subscription.handler';
 describe('GetBarSubscriptionHandler', () => {
   let handler: GetBarSubscriptionHandler;
   let readRepoMock: any;
+  let writeRepoMock: any;
+  let stripeClientMock: any;
+  let configServiceMock: any;
 
   beforeEach(() => {
     readRepoMock = {
       findSubscriptionByBarId: vi.fn(),
     };
-    handler = new GetBarSubscriptionHandler(readRepoMock as any);
+    writeRepoMock = {
+      upsertSubscriptionDetails: vi.fn(),
+    };
+    stripeClientMock = {
+      client: {
+        subscriptions: {
+          retrieve: vi.fn().mockRejectedValue(new Error('Stripe error or not mocked')),
+        },
+      },
+    };
+    configServiceMock = {
+      get: vi.fn(),
+    };
+    handler = new GetBarSubscriptionHandler(
+      readRepoMock as any,
+      writeRepoMock as any,
+      stripeClientMock as any,
+      configServiceMock as any,
+    );
   });
 
   it('should return FREE inactive subscription default if bar has no subscription in DB', async () => {

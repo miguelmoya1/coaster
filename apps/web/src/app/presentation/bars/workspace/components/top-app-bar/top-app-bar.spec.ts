@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
-import { BarPermission } from '@coaster/common';
+import { BarSubscriptionStore, CurrentBarStore, MyMemberStore } from '@coaster/bars';
+import { BarId, BarPermission } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -41,6 +41,10 @@ describe('TopAppBar', () => {
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
   };
 
+  const currentBarStoreMock = {
+    currentId: signal<BarId | undefined>('bar-123' as BarId).asReadonly(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopAppBar],
@@ -49,6 +53,7 @@ describe('TopAppBar', () => {
         provideRouter([]),
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: Auth, useValue: authMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],

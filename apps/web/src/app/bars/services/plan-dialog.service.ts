@@ -4,11 +4,13 @@ import { SubscriptionPlan } from '@coaster/common';
 import { Toast } from '../../core/services/toast';
 import { SelectPlanDialog } from '../../presentation/bars/workspace/components/select-plan-dialog/select-plan-dialog';
 import { BarSubscriptionStore } from '../store/bar-subscription.store';
+import { CurrentBarStore } from '../store/current-bar.store';
 
 @Injectable({ providedIn: 'root' })
 export class PlanDialogService {
   readonly #dialog = inject(MatDialog);
   readonly #barSubscriptionStore = inject(BarSubscriptionStore);
+  readonly #currentBarStore = inject(CurrentBarStore);
   readonly #toast = inject(Toast);
 
   public open(): void {
@@ -18,7 +20,10 @@ export class PlanDialogService {
       bindings: [
         outputBinding('selected', async (plan: Exclude<SubscriptionPlan, 'FREE'>) => {
           dialogRef.close();
-          const returnUrl = window.location.origin + '/bars/select';
+          const barId = this.#currentBarStore.currentId();
+          const returnUrl = barId
+            ? `${window.location.origin}/bars/${barId}/dashboard`
+            : `${window.location.origin}/bars/select`;
           const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl, plan);
 
           if (checkoutUrl) {

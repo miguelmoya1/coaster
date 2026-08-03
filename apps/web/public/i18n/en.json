@@ -224,7 +224,8 @@
       "pantry": "Critical Pantry Alerts",
       "pantry_issues": "{{count}} ISSUES",
       "roster": "Today's Roster",
-      "roster_full": "FULL SCHEDULE"
+      "roster_full": "FULL SCHEDULE",
+      "subscription": "Venue Subscription"
     },
     "title": "Control Panel"
   },
@@ -577,7 +578,31 @@
     "yearly_badge": "Save 2 months",
     "yearly_feat_1": "All Pro Plan advantages",
     "yearly_feat_2": "Exclusive annual discount",
-    "continue_to_checkout": "Continue to checkout"
+    "continue_to_checkout": "Continue to checkout",
+    "status": {
+      "active": "Active",
+      "trialing": "Free Trial",
+      "past_due": "Payment Due",
+      "canceled": "Canceled",
+      "unpaid": "Unpaid",
+      "inactive": "Inactive / Free"
+    },
+    "status_badge": {
+      "active": "PRO",
+      "trialing": "TRIAL",
+      "past_due": "DUE",
+      "free": "FREE"
+    },
+    "plan_name": {
+      "free": "Free Plan",
+      "pro_monthly": "Coaster Pro Plan (Monthly)",
+      "pro_yearly": "Coaster Pro Plan (Annual)"
+    },
+    "renews_on": "Renews on {{date}}",
+    "cancels_on": "Cancels on {{date}}",
+    "trial_ends_on": "Trial ends on {{date}}",
+    "trial_days_remaining": "{{days}} trial days remaining",
+    "past_due_warning": "Your last payment failed. Please update your payment method to prevent service interruption."
   },
   "landing": {
     "nav": {

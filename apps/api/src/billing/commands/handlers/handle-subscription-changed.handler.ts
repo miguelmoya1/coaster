@@ -39,9 +39,18 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
       return;
     }
 
+    const subAny = subscription as any;
     const firstItem = subscription.items.data[0];
-    const currentPeriodStart = firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null;
-    const currentPeriodEnd = firstItem?.current_period_end ? new Date(firstItem.current_period_end * 1000) : null;
+    const currentPeriodStart = subAny.current_period_start
+      ? new Date(subAny.current_period_start * 1000)
+      : firstItem?.current_period_start
+        ? new Date(firstItem.current_period_start * 1000)
+        : null;
+    const currentPeriodEnd = (subAny.cancel_at || subAny.current_period_end)
+      ? new Date((subAny.cancel_at || subAny.current_period_end) * 1000)
+      : firstItem?.current_period_end
+        ? new Date(firstItem.current_period_end * 1000)
+        : null;
     const plan = toDbPlan(firstItem?.price?.id, this._configService);
     const status = toDbStatus(subscription.status);
 
