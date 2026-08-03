@@ -106,6 +106,11 @@ describe('TopAppBar', () => {
       subscriptionSignal.set({ status: 'ACTIVE' });
       expect(component.isProActive()).toBe(true);
     });
+
+    it('should compute statusBadgeKey as cancel_at_period_end when cancelAtPeriodEnd is true', () => {
+      subscriptionSignal.set({ status: 'ACTIVE', cancelAtPeriodEnd: true });
+      expect(component.statusBadgeKey()).toBe('billing.status_badge.cancel_at_period_end');
+    });
   });
 
   describe('language switching', () => {

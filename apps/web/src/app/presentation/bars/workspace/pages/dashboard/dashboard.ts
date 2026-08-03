@@ -74,6 +74,9 @@ export class Dashboard {
   readonly statusLabelKey = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'billing.status.free';
+    if (sub.cancelAtPeriodEnd) {
+      return 'billing.status.cancel_at_period_end';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'billing.status.active';
@@ -88,6 +91,12 @@ export class Dashboard {
       default:
         return 'billing.status.inactive';
     }
+  });
+
+  readonly periodInfoKey = computed(() => {
+    const sub = this.subscription();
+    if (!sub?.currentPeriodEnd) return null;
+    return sub.cancelAtPeriodEnd ? 'billing.cancels_on' : 'billing.renews_on';
   });
 
   readonly formattedPeriodEnd = computed(() => {
@@ -113,6 +122,9 @@ export class Dashboard {
   readonly statusIconContainerClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'bg-surface-container-highest text-on-surface-variant';
+    if (sub.cancelAtPeriodEnd) {
+      return 'bg-amber-500/15 text-amber-500';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'bg-emerald-500/15 text-emerald-500';
@@ -129,6 +141,9 @@ export class Dashboard {
   readonly statusBadgeStyleClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'text-on-surface-variant bg-surface-container border-outline-variant/30';
+    if (sub.cancelAtPeriodEnd) {
+      return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';

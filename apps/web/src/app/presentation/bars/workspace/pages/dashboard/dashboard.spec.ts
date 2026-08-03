@@ -144,6 +144,12 @@ describe('Dashboard', () => {
       expect(stats.length).toBe(3);
       expect(stats[0].count).toBe(0);
     });
+
+    it('should compute statusLabelKey as cancel_at_period_end when cancelAtPeriodEnd is true', () => {
+      subscriptionSignal.set({ status: 'ACTIVE', cancelAtPeriodEnd: true, currentPeriodEnd: '2026-08-31T00:00:00.000Z' } as any);
+      expect(component.statusLabelKey()).toBe('billing.status.cancel_at_period_end');
+      expect(component.periodInfoKey()).toBe('billing.cancels_on');
+    });
   });
 
   describe('rendering', () => {

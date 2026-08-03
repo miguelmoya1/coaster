@@ -180,6 +180,9 @@ export class TopAppBar {
   readonly statusBadgeKey = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'billing.status_badge.free';
+    if (sub.cancelAtPeriodEnd) {
+      return 'billing.status_badge.cancel_at_period_end';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'billing.status_badge.active';
@@ -196,6 +199,9 @@ export class TopAppBar {
   readonly statusBadgeTextClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
+    if (sub.cancelAtPeriodEnd) {
+      return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';

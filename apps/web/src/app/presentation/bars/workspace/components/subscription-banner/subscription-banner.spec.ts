@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubscriptionBanner } from './subscription-banner';
 
@@ -20,6 +21,7 @@ describe('SubscriptionBanner', () => {
     TestBed.configureTestingModule({
       imports: [SubscriptionBanner],
       providers: [
+        provideTranslateService(),
         {
           provide: BarSubscriptionStore,
           useValue: {
@@ -34,6 +36,20 @@ describe('SubscriptionBanner', () => {
         },
       ],
     });
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      billing: {
+        banner: {
+          read_only: 'Tu periodo de prueba ha finalizado. La aplicación está en modo lectura.',
+          activate_pro: 'Activar Plan Premium',
+          trial_expiring_one: 'Queda 1 día de prueba. ¡Suscríbete para mantener tus funciones activas!',
+          trial_expiring_other: 'Quedan {{days}} días de prueba. ¡Suscríbete para mantener tus funciones activas!',
+          view_plans: 'Ver Planes',
+        },
+      },
+    });
+    translate.use('es');
 
     fixture = TestBed.createComponent(SubscriptionBanner);
     fixture.detectChanges();

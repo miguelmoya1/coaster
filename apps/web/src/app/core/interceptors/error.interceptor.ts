@@ -8,6 +8,7 @@ import { Toast } from '../services/toast';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toast = inject(Toast);
+  const planDialogService = inject(PlanDialogService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -26,7 +27,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       const cleanError = new ApiError(errorCode, error.status, error);
 
       if (error.status === 402 || errorCode === 'SUBSCRIPTION_EXPIRED') {
-        const planDialogService = inject(PlanDialogService);
         toast.error('errors.subscription_expired');
         planDialogService.open();
       } else if (error.status !== 401) {

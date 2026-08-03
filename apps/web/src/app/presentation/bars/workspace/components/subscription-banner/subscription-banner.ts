@@ -1,56 +1,56 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-subscription-banner',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButton, MatIcon, TranslatePipe],
   template: `
     @if (subStore.isReadOnly()) {
-      <div
-        class="w-full bg-amber-500/15 border-b border-amber-500/30 text-amber-950 dark:text-amber-200 px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm font-medium animate-in fade-in duration-300"
-      >
-        <div class="flex items-center gap-2 min-w-0">
-          <mat-icon class="text-amber-600 dark:text-amber-400 shrink-0 text-base sm:text-lg">lock</mat-icon>
-          <span class="truncate"> Tu periodo de prueba ha finalizado. La aplicación está en modo lectura. </span>
-        </div>
-        <button
-          type="button"
-          mat-flat-button
-          color="primary"
-          class="!rounded-xl !text-xs shrink-0"
-          (click)="planDialogService.open()"
-        >
-          Activar Plan Premium
-        </button>
+      <div class="flex items-center gap-2.5 min-w-0">
+        <mat-icon class="text-amber-600 dark:text-amber-400 shrink-0 text-base sm:text-lg">lock</mat-icon>
+        <span class="truncate sm:whitespace-normal">
+          {{ 'billing.banner.read_only' | translate }}
+        </span>
       </div>
+      <button
+        type="button"
+        mat-flat-button
+        color="primary"
+        class="rounded-xl! text-xs! shrink-0"
+        (click)="planDialogService.open()"
+      >
+        {{ 'billing.banner.activate_pro' | translate }}
+      </button>
     } @else if (subStore.isTrialExpiringSoon()) {
-      <div
-        class="w-full bg-blue-500/10 border-b border-blue-500/20 text-blue-950 dark:text-blue-200 px-4 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm font-medium animate-in fade-in duration-300"
-      >
-        <div class="flex items-center gap-2 min-w-0">
-          <mat-icon class="text-blue-600 dark:text-blue-400 shrink-0 text-base sm:text-lg">timer</mat-icon>
-          <span class="truncate">
-            Quedan <strong>{{ subStore.trialDaysRemaining() }}</strong>
-            {{ subStore.trialDaysRemaining() === 1 ? 'día' : 'días' }} de prueba. ¡Suscríbete para mantener tus
-            funciones activas!
-          </span>
-        </div>
-        <button
-          type="button"
-          mat-stroked-button
-          class="!rounded-xl !text-xs shrink-0"
-          (click)="planDialogService.open()"
-        >
-          Ver Planes
-        </button>
+      <div class="flex items-center gap-2.5 min-w-0">
+        <mat-icon class="text-primary shrink-0 text-base sm:text-lg">timer</mat-icon>
+        <span class="truncate sm:whitespace-normal">
+          @if (subStore.trialDaysRemaining() === 1) {
+            {{ 'billing.banner.trial_expiring_one' | translate }}
+          } @else {
+            {{ 'billing.banner.trial_expiring_other' | translate: { days: subStore.trialDaysRemaining() } }}
+          }
+        </span>
       </div>
+      <button type="button" mat-stroked-button class="rounded-xl! text-xs! shrink-0" (click)="planDialogService.open()">
+        {{ 'billing.banner.view_plans' | translate }}
+      </button>
     }
   `,
   host: {
-    class: 'block w-full',
+    '[class.hidden]': '!subStore.isReadOnly() && !subStore.isTrialExpiringSoon()',
+    '[class.bg-amber-500/10]': 'subStore.isReadOnly()',
+    '[class.border-amber-500/20]': 'subStore.isReadOnly()',
+    '[class.text-amber-900]': 'subStore.isReadOnly()',
+    '[class.dark:text-amber-200]': 'subStore.isReadOnly()',
+    '[class.bg-primary/10]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
+    '[class.border-primary/20]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
+    '[class.text-on-surface]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
+    class:
+      'flex items-center justify-between gap-3 sm:gap-4 mx-4 sm:mx-6 my-2 px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-all animate-in fade-in duration-300',
   },
 })
 export class SubscriptionBanner {

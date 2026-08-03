@@ -579,16 +579,26 @@
     "yearly_feat_1": "Todas las ventajas del Plan Pro",
     "yearly_feat_2": "Descuento exclusivo anual",
     "continue_to_checkout": "Continuar al checkout",
+    "banner": {
+      "read_only": "Tu periodo de prueba ha finalizado. La aplicación está en modo lectura.",
+      "activate_pro": "Activar Plan Premium",
+      "trial_expiring_one": "Queda 1 día de prueba. ¡Suscríbete para mantener tus funciones activas!",
+      "trial_expiring_other": "Quedan {{days}} días de prueba. ¡Suscríbete para mantener tus funciones activas!",
+      "view_plans": "Ver Planes"
+    },
     "status": {
       "active": "Activa",
+      "cancel_at_period_end": "Cancelación pendiente",
       "trialing": "Prueba Gratuita",
       "past_due": "Pago Pendiente",
       "canceled": "Cancelada",
       "unpaid": "Impagada",
-      "inactive": "Inactiva / Gratuita"
+      "inactive": "Inactiva / Gratuita",
+      "free": "Gratuita"
     },
     "status_badge": {
       "active": "PRO",
+      "cancel_at_period_end": "CANCELÁNDOSE",
       "trialing": "TRIAL",
       "past_due": "PENDIENTE",
       "free": "FREE"

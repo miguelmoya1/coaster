@@ -27,6 +27,11 @@
                   {{ statusLabelKey() | translate }}
                 </span>
               </div>
+              @if (periodInfoKey() && formattedPeriodEnd()) {
+                <span class="text-xs text-on-surface-variant/80 font-medium">
+                  {{ periodInfoKey() | translate:{ date: formattedPeriodEnd() } }}
+                </span>
+              }
             </div>
           </div>
 

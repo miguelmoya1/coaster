@@ -68,6 +68,7 @@ describe('RequireSubscriptionDirective', () => {
     button.dispatchEvent(event);
     fixture.detectChanges();
 
+    expect(fixture.componentInstance.actionCalled).toBe(false);
     expect(planDialogServiceMock.open).toHaveBeenCalled();
   });
 });
