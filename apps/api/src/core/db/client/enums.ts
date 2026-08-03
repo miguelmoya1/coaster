@@ -41,7 +41,8 @@ export const DbSubscriptionStatus = {
   ACTIVE: 'ACTIVE',
   PAST_DUE: 'PAST_DUE',
   CANCELED: 'CANCELED',
-  UNPAID: 'UNPAID'
+  UNPAID: 'UNPAID',
+  EXPIRED: 'EXPIRED'
 } as const
 
 export type DbSubscriptionStatus = (typeof DbSubscriptionStatus)[keyof typeof DbSubscriptionStatus]

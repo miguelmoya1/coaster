@@ -29,9 +29,11 @@ export class BillingWriteRepository {
         barId,
         stripeCustomerId,
         stripeSubscriptionId,
+        status: DbSubscriptionStatus.ACTIVE,
       },
       update: {
         stripeCustomerId,
+        status: DbSubscriptionStatus.ACTIVE,
         ...(stripeSubscriptionId !== undefined ? { stripeSubscriptionId } : {}),
       },
     });

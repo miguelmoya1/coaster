@@ -26,12 +26,20 @@ export class GetBarSubscriptionHandler implements IQueryHandler<GetBarSubscripti
       };
     }
 
-    this._logger.debug(`Subscription found for barId=${barId}: plan=${subscription.plan}, status=${subscription.status}`);
+    let status: SubscriptionStatus = subscription.status as SubscriptionStatus;
+    const now = new Date();
+
+    if (status === SubscriptionStatus.TRIALING && subscription.trialEndsAt && now > subscription.trialEndsAt) {
+      status = SubscriptionStatus.EXPIRED;
+    }
+
+    this._logger.debug(`Subscription found for barId=${barId}: plan=${subscription.plan}, status=${status}`);
     return {
       barId,
-      plan: subscription.plan,
-      status: subscription.status,
+      plan: subscription.plan as SubscriptionPlan,
+      status,
       cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      trialEndsAt: subscription.trialEndsAt?.toISOString(),
       currentPeriodStart: subscription.currentPeriodStart?.toISOString(),
       currentPeriodEnd: subscription.currentPeriodEnd?.toISOString(),
       canceledAt: subscription.canceledAt?.toISOString(),

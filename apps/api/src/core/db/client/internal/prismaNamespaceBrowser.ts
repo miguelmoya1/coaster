@@ -291,6 +291,7 @@ export const DbBarSubscriptionScalarFieldEnum = {
   stripeSubscriptionId: 'stripeSubscriptionId',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
+  trialEndsAt: 'trialEndsAt',
   cancelAtPeriodEnd: 'cancelAtPeriodEnd',
   canceledAt: 'canceledAt',
   createdAt: 'createdAt',

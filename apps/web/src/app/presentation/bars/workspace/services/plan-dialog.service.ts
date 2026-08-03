@@ -1,0 +1,36 @@
+import { inject, Injectable } from '@angular/core';
+import { MatDialog, outputBinding } from '@angular/material/dialog';
+import { SubscriptionPlan } from '@coaster/common';
+import { BarSubscriptionStore } from '../../../../bars/store/bar-subscription.store';
+import { Toast } from '../../../../core/services/toast';
+import { SelectPlanDialog } from '../components/select-plan-dialog/select-plan-dialog';
+
+@Injectable({ providedIn: 'root' })
+export class PlanDialogService {
+  readonly #dialog = inject(MatDialog);
+  readonly #barSubscriptionStore = inject(BarSubscriptionStore);
+  readonly #toast = inject(Toast);
+
+  public open(): void {
+    const dialogRef = this.#dialog.open(SelectPlanDialog, {
+      width: '520px',
+      maxWidth: '90vw',
+      bindings: [
+        outputBinding('selected', async (plan: Exclude<SubscriptionPlan, 'FREE'>) => {
+          dialogRef.close();
+          const returnUrl = window.location.origin + '/bars/select';
+          const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl, plan);
+
+          if (checkoutUrl) {
+            window.location.assign(checkoutUrl);
+          } else {
+            this.#toast.error('errors.stripe_connection');
+          }
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+  }
+}

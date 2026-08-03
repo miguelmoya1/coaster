@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { PlanDialogService } from '../../presentation/bars/workspace/services/plan-dialog.service';
 import { ApiError } from '../errors/api-error';
 import { Toast } from '../services/toast';
 
@@ -24,7 +25,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       const cleanError = new ApiError(errorCode, error.status, error);
 
-      if (error.status !== 401) {
+      if (error.status === 402 || errorCode === 'SUBSCRIPTION_EXPIRED') {
+        const planDialogService = inject(PlanDialogService);
+        toast.error('errors.subscription_expired');
+        planDialogService.open();
+      } else if (error.status !== 401) {
         toast.error(cleanError.code || 'UNEXPECTED_ERROR');
       }
 

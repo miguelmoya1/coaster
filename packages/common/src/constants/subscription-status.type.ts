@@ -5,6 +5,7 @@ export const SubscriptionStatus = {
   PAST_DUE: 'PAST_DUE',
   CANCELED: 'CANCELED',
   UNPAID: 'UNPAID',
+  EXPIRED: 'EXPIRED',
 } as const;
 
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];

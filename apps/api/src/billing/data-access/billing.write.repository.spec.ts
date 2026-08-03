@@ -33,10 +33,12 @@ describe('BillingWriteRepository', () => {
         barId,
         stripeCustomerId: 'cus_123',
         stripeSubscriptionId: 'sub_123',
+        status: DbSubscriptionStatus.ACTIVE,
       },
       update: {
         stripeCustomerId: 'cus_123',
         stripeSubscriptionId: 'sub_123',
+        status: DbSubscriptionStatus.ACTIVE,
       },
     });
     expect(result).toEqual({ barId, stripeCustomerId: 'cus_123' });

@@ -6,15 +6,18 @@ import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
+import { SubscriptionBanner } from '../components/subscription-banner/subscription-banner';
 import { TopAppBar } from '../components/top-app-bar/top-app-bar';
 
 @Component({
   selector: 'coaster-main',
-  imports: [RouterOutlet, TopAppBar, BottomNav, AiVoiceButton],
+  imports: [RouterOutlet, TopAppBar, BottomNav, AiVoiceButton, SubscriptionBanner],
   template: `
     @if (currentUser.hasValue()) {
       <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
+
+    <coaster-subscription-banner />
 
     <main class="w-full flex-1 min-h-0 overflow-y-auto pb-28 hide-scrollbar flex flex-col">
       <router-outlet />

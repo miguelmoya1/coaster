@@ -33,6 +33,7 @@ export type DbBarSubscriptionMinAggregateOutputType = {
   stripeSubscriptionId: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
   cancelAtPeriodEnd: boolean | null
   canceledAt: Date | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type DbBarSubscriptionMaxAggregateOutputType = {
   stripeSubscriptionId: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
   cancelAtPeriodEnd: boolean | null
   canceledAt: Date | null
   createdAt: Date | null
@@ -63,6 +65,7 @@ export type DbBarSubscriptionCountAggregateOutputType = {
   stripeSubscriptionId: number
   currentPeriodStart: number
   currentPeriodEnd: number
+  trialEndsAt: number
   cancelAtPeriodEnd: number
   canceledAt: number
   createdAt: number
@@ -80,6 +83,7 @@ export type DbBarSubscriptionMinAggregateInputType = {
   stripeSubscriptionId?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
   cancelAtPeriodEnd?: true
   canceledAt?: true
   createdAt?: true
@@ -95,6 +99,7 @@ export type DbBarSubscriptionMaxAggregateInputType = {
   stripeSubscriptionId?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
   cancelAtPeriodEnd?: true
   canceledAt?: true
   createdAt?: true
@@ -110,6 +115,7 @@ export type DbBarSubscriptionCountAggregateInputType = {
   stripeSubscriptionId?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
   cancelAtPeriodEnd?: true
   canceledAt?: true
   createdAt?: true
@@ -198,6 +204,7 @@ export type DbBarSubscriptionGroupByOutputType = {
   stripeSubscriptionId: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
   cancelAtPeriodEnd: boolean
   canceledAt: Date | null
   createdAt: Date
@@ -234,6 +241,7 @@ export type DbBarSubscriptionWhereInput = {
   stripeSubscriptionId?: Prisma.StringNullableFilter<"DbBarSubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFilter<"DbBarSubscription"> | boolean
   canceledAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
@@ -250,6 +258,7 @@ export type DbBarSubscriptionOrderByWithRelationInput = {
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelAtPeriodEnd?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -269,6 +278,7 @@ export type DbBarSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumDbSubscriptionStatusFilter<"DbBarSubscription"> | $Enums.DbSubscriptionStatus
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFilter<"DbBarSubscription"> | boolean
   canceledAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
@@ -285,6 +295,7 @@ export type DbBarSubscriptionOrderByWithAggregationInput = {
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelAtPeriodEnd?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -306,6 +317,7 @@ export type DbBarSubscriptionScalarWhereWithAggregatesInput = {
   stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"DbBarSubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolWithAggregatesFilter<"DbBarSubscription"> | boolean
   canceledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbBarSubscription"> | Date | string
@@ -320,6 +332,7 @@ export type DbBarSubscriptionCreateInput = {
   stripeSubscriptionId?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
   cancelAtPeriodEnd?: boolean
   canceledAt?: Date | string | null
   createdAt?: Date | string
@@ -336,6 +349,7 @@ export type DbBarSubscriptionUncheckedCreateInput = {
   stripeSubscriptionId?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
   cancelAtPeriodEnd?: boolean
   canceledAt?: Date | string | null
   createdAt?: Date | string
@@ -350,6 +364,7 @@ export type DbBarSubscriptionUpdateInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -366,6 +381,7 @@ export type DbBarSubscriptionUncheckedUpdateInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -381,6 +397,7 @@ export type DbBarSubscriptionCreateManyInput = {
   stripeSubscriptionId?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
   cancelAtPeriodEnd?: boolean
   canceledAt?: Date | string | null
   createdAt?: Date | string
@@ -395,6 +412,7 @@ export type DbBarSubscriptionUpdateManyMutationInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -410,6 +428,7 @@ export type DbBarSubscriptionUncheckedUpdateManyInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +449,7 @@ export type DbBarSubscriptionCountOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   cancelAtPeriodEnd?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -445,6 +465,7 @@ export type DbBarSubscriptionMaxOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   cancelAtPeriodEnd?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -460,6 +481,7 @@ export type DbBarSubscriptionMinOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   cancelAtPeriodEnd?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -514,6 +536,7 @@ export type DbBarSubscriptionCreateWithoutBarInput = {
   stripeSubscriptionId?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
   cancelAtPeriodEnd?: boolean
   canceledAt?: Date | string | null
   createdAt?: Date | string
@@ -528,6 +551,7 @@ export type DbBarSubscriptionUncheckedCreateWithoutBarInput = {
   stripeSubscriptionId?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
   cancelAtPeriodEnd?: boolean
   canceledAt?: Date | string | null
   createdAt?: Date | string
@@ -558,6 +582,7 @@ export type DbBarSubscriptionUpdateWithoutBarInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -572,6 +597,7 @@ export type DbBarSubscriptionUncheckedUpdateWithoutBarInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -589,6 +615,7 @@ export type DbBarSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.Int
   stripeSubscriptionId?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
   cancelAtPeriodEnd?: boolean
   canceledAt?: boolean
   createdAt?: boolean
@@ -605,6 +632,7 @@ export type DbBarSubscriptionSelectCreateManyAndReturn<ExtArgs extends runtime.T
   stripeSubscriptionId?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
   cancelAtPeriodEnd?: boolean
   canceledAt?: boolean
   createdAt?: boolean
@@ -621,6 +649,7 @@ export type DbBarSubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   stripeSubscriptionId?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
   cancelAtPeriodEnd?: boolean
   canceledAt?: boolean
   createdAt?: boolean
@@ -637,13 +666,14 @@ export type DbBarSubscriptionSelectScalar = {
   stripeSubscriptionId?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
   cancelAtPeriodEnd?: boolean
   canceledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbBarSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "canceledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbBarSubscription"]>
+export type DbBarSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "cancelAtPeriodEnd" | "canceledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbBarSubscription"]>
 export type DbBarSubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }
@@ -668,6 +698,7 @@ export type $DbBarSubscriptionPayload<ExtArgs extends runtime.Types.Extensions.I
     stripeSubscriptionId: string | null
     currentPeriodStart: Date | null
     currentPeriodEnd: Date | null
+    trialEndsAt: Date | null
     cancelAtPeriodEnd: boolean
     canceledAt: Date | null
     createdAt: Date
@@ -1104,6 +1135,7 @@ export interface DbBarSubscriptionFieldRefs {
   readonly stripeSubscriptionId: Prisma.FieldRef<"DbBarSubscription", 'String'>
   readonly currentPeriodStart: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly currentPeriodEnd: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
+  readonly trialEndsAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly cancelAtPeriodEnd: Prisma.FieldRef<"DbBarSubscription", 'Boolean'>
   readonly canceledAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>

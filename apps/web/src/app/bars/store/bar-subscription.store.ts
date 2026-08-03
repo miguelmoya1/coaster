@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { effect, inject, Service } from '@angular/core';
-import { SubscriptionPlan } from '@coaster/common';
+import { computed, effect, inject, Service } from '@angular/core';
+import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { barSubscriptionMapper } from '../mappers/bar.mapper';
 import { BarSubscription } from '../services/bar-subscription';
@@ -26,6 +26,48 @@ export class BarSubscriptionStore {
   );
 
   public readonly subscription = this.#subscriptionResource.asReadonly();
+
+  public readonly isReadOnly = computed(() => {
+    const sub = this.subscription.value();
+    if (!sub) return false;
+    if (sub.status === SubscriptionStatus.ACTIVE) return false;
+    if (
+      sub.status === SubscriptionStatus.EXPIRED ||
+      sub.status === SubscriptionStatus.PAST_DUE ||
+      sub.status === SubscriptionStatus.CANCELED ||
+      sub.status === SubscriptionStatus.UNPAID ||
+      sub.status === SubscriptionStatus.INACTIVE
+    ) {
+      return true;
+    }
+    if (sub.status === SubscriptionStatus.TRIALING) {
+      if (!sub.trialEndsAt) return false;
+      return new Date() > new Date(sub.trialEndsAt);
+    }
+    return false;
+  });
+
+  public readonly trialDaysRemaining = computed(() => {
+    const sub = this.subscription.value();
+    if (!sub || sub.status !== SubscriptionStatus.TRIALING || !sub.trialEndsAt) {
+      return 0;
+    }
+    const diffMs = new Date(sub.trialEndsAt).getTime() - new Date().getTime();
+    if (diffMs <= 0) return 0;
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  });
+
+  public readonly isTrialActive = computed(() => {
+    const sub = this.subscription.value();
+    if (!sub) return false;
+    if (sub.status !== SubscriptionStatus.TRIALING) return false;
+    if (!sub.trialEndsAt) return true;
+    return new Date() <= new Date(sub.trialEndsAt);
+  });
+
+  public readonly isTrialExpiringSoon = computed(() => {
+    return this.isTrialActive() && this.trialDaysRemaining() <= 3;
+  });
 
   constructor() {
     effect(() => {

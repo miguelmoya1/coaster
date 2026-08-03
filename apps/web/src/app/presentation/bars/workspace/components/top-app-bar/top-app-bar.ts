@@ -1,18 +1,17 @@
-import { Component, computed, inject, input, outputBinding } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
-import { BarPermission, SubscriptionPlan } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { PlanDialogService } from '../../services/plan-dialog.service';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
-import { SelectPlanDialog } from '../select-plan-dialog/select-plan-dialog';
 
 @Component({
   selector: 'coaster-top-app-bar',
@@ -141,22 +140,19 @@ export class TopAppBar {
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
-  readonly #dialog = inject(MatDialog);
+  readonly #planDialogService = inject(PlanDialogService);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly isProActive = computed(() => {
     const subscription = this.#barSubscriptionStore.subscription.value();
-    if (!subscription) {
-      return false;
-    }
-
-    return subscription.status === 'ACTIVE' || subscription.status === 'TRIALING';
+    return subscription?.status === 'ACTIVE';
   });
 
   setLanguage(lang: string): void {
     if (this.#auth.isAuthenticated()) {
+      this.#translate.use(lang);
       this.#currentUser.updateLanguage(lang);
     }
   }
@@ -178,25 +174,6 @@ export class TopAppBar {
   }
 
   activatePro(): void {
-    const dialogRef = this.#dialog.open(SelectPlanDialog, {
-      width: '520px',
-      maxWidth: '90vw',
-      bindings: [
-        outputBinding('selected', async (plan: Exclude<SubscriptionPlan, 'FREE'>) => {
-          dialogRef.close();
-          const returnUrl = window.location.origin + '/bars/select';
-          const checkoutUrl = await this.#barSubscriptionStore.createCheckoutSession(returnUrl, plan);
-
-          if (checkoutUrl) {
-            window.location.assign(checkoutUrl);
-          } else {
-            this.#actionFeedback.error('errors.stripe_connection');
-          }
-        }),
-        outputBinding('canceled', () => {
-          dialogRef.close();
-        }),
-      ],
-    });
+    this.#planDialogService.open();
   }
 }

@@ -44,6 +44,13 @@ describe('BarWriteRepository', () => {
         data: {
           ...createBarDto,
           members: { create: { userId, role: DbBarRole.OWNER } },
+          billing: {
+            create: {
+              plan: 'FREE',
+              status: 'TRIALING',
+              trialEndsAt: expect.any(Date),
+            },
+          },
         },
       });
       expect(result).toEqual(expectedResult);

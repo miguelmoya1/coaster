@@ -1,3 +1,4 @@
+export * from './directives/require-subscription.directive';
 export * from './errors/api-error';
 export * from './guards/admin-guard';
 export * from './guards/auth-guard';

@@ -43,6 +43,7 @@ enum DbSubscriptionStatus {
   PAST_DUE
   CANCELED
   UNPAID
+  EXPIRED
 
   @@map("SubscriptionStatus")
 }
@@ -333,6 +334,7 @@ model DbBarSubscription {
   stripeSubscriptionId String?              @unique
   currentPeriodStart   DateTime?
   currentPeriodEnd     DateTime?
+  trialEndsAt          DateTime?
   cancelAtPeriodEnd    Boolean              @default(false)
   canceledAt           DateTime?
   createdAt            DateTime             @default(now())
