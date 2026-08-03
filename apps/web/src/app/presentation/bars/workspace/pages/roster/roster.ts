@@ -6,7 +6,7 @@ import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink
 import { MyMemberStore } from '@coaster/bars';
 import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { BarRole } from '@coaster/common';
-import { ActionFeedback, DateFormatterService } from '@coaster/core';
+import { ActionFeedback, DateFormatterService, RequireSubscriptionDirective } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';
@@ -73,6 +73,7 @@ const toDailyShiftItem = (
     MatIcon,
     PageContainer,
     PageHeader,
+    RequireSubscriptionDirective,
   ],
   providers: [RosterStateService],
   host: {

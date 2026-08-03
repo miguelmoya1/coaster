@@ -17,9 +17,7 @@ describe('AdminTemplates', () => {
     post: vi.fn(),
   };
 
-  const routerMock = {
-    navigate: vi.fn().mockResolvedValue(true),
-  };
+  let router: Router;
 
   const feedbackMock = {
     success: vi.fn(),
@@ -38,16 +36,15 @@ describe('AdminTemplates', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
         { provide: ActionFeedback, useValue: feedbackMock },
         { provide: TemplatesStore, useValue: templatesStoreMock },
       ],
     }).compileComponents();
 
-    vi.clearAllMocks();
-
     fixture = TestBed.createComponent(AdminTemplates);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
@@ -67,7 +64,7 @@ describe('AdminTemplates', () => {
 
   it('should navigate back', () => {
     component.goBack();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
   });
 
   describe('validation', () => {

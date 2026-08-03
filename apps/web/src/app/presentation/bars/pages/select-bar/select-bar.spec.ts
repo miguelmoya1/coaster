@@ -71,7 +71,7 @@ describe('SelectBar', () => {
     });
 
     it('should render create button', () => {
-      const button = fixture.nativeElement.querySelector('button[mat-stroked-button]');
+      const button = fixture.nativeElement.querySelector('button[mat-flat-button]');
       expect(button).toBeTruthy();
     });
   });

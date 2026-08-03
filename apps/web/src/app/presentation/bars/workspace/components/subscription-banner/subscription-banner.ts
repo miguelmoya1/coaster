@@ -1,8 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BarSubscriptionStore } from '../../../../../bars/store/bar-subscription.store';
-import { PlanDialogService } from '../../services/plan-dialog.service';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 
 @Component({
   selector: 'coaster-subscription-banner',

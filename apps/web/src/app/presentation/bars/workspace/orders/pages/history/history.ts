@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
-import { ActionFeedback, asOrderId } from '@coaster/core';
+import { ActionFeedback, asOrderId, RequireSubscriptionDirective } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -29,6 +29,7 @@ import { PricePipe } from '../../../pipes/price/price';
     MatIconButton,
     PricePipe,
     StatCard,
+    RequireSubscriptionDirective,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',

@@ -3,8 +3,8 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatPrefix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import type { Table } from '@coaster/common';
-import { TableStatus } from '@coaster/common';
+import { TableStatus, type Table } from '@coaster/common';
+import { RequireSubscriptionDirective } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 
@@ -18,7 +18,18 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, PricePipe, MatFormField, MatLabel, MatInput, MatPrefix],
+  imports: [
+    MatIcon,
+    TranslatePipe,
+    MatButton,
+    MatIconButton,
+    PricePipe,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatPrefix,
+    RequireSubscriptionDirective,
+  ],
   template: `
     <div class="flex flex-col gap-3">
       <div class="flex justify-between items-center">
@@ -43,13 +54,17 @@ export interface CartItem {
               <div class="flex justify-between items-center gap-3">
                 <div class="flex-1 flex flex-col gap-0 min-w-0">
                   <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName | translate }}</span>
-                  <span class="text-xs text-on-surface-variant whitespace-nowrap">{{ item.price * item.quantity | price }}</span>
+                  <span class="text-xs text-on-surface-variant whitespace-nowrap">
+                    {{ item.price * item.quantity | price }}
+                  </span>
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0">
                   <button mat-icon-button (click)="decrementClicked.emit(item.productId)">
                     @if (item.quantity === 1) {
-                      <mat-icon class="text-error text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">delete</mat-icon>
+                      <mat-icon class="text-error text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">
+                        delete
+                      </mat-icon>
                     } @else {
                       <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">remove</mat-icon>
                     }
@@ -63,10 +78,14 @@ export interface CartItem {
 
               <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full mt-1">
                 <mat-label>{{ 'orders.item_notes_placeholder' | translate }}</mat-label>
-                <mat-icon matPrefix class="text-on-surface-variant text-[16px]! w-[16px]! h-[16px]! leading-[16px]! mx-2!">notes</mat-icon>
-                <input 
+                <mat-icon
+                  matPrefix
+                  class="text-on-surface-variant text-[16px]! w-[16px]! h-[16px]! leading-[16px]! mx-2!"
+                  >notes</mat-icon
+                >
+                <input
                   matInput
-                  type="text" 
+                  type="text"
                   [value]="item.notes || ''"
                   (change)="onItemNotesChange(item.productId, $event)"
                 />
@@ -107,6 +126,7 @@ export interface CartItem {
           <button
             data-testid="submit-order-btn"
             mat-flat-button
+            coasterRequireSubscription
             class="w-full"
             [disabled]="items().length === 0 || disabled()"
             (click)="submitClicked.emit()"

@@ -67,6 +67,6 @@
   </div>
 
   @if (canCreateProduct()) {
-    <coaster-fab data-testid="create-pantry-fab" (click)="onCreatePantryClicked()" />
+    <coaster-fab data-testid="create-pantry-fab" coasterRequireSubscription (click)="onCreatePantryClicked()" />
   }
 </coaster-page-container>

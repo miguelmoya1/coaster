@@ -7,7 +7,7 @@ import { MyMemberStore } from '@coaster/bars';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, RequireSubscriptionDirective } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoryFilter } from '../../../../components/category-filter/category-filter';
@@ -39,6 +39,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
     Fab,
     PageContainer,
     PageHeader,
+    RequireSubscriptionDirective,
   ],
   host: {
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',

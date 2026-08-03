@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/bars';
 import type { BarId, Order, Table } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, RequireSubscriptionDirective } from '@coaster/core';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -19,7 +19,7 @@ import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip],
+  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip, RequireSubscriptionDirective],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
 })

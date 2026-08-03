@@ -5,12 +5,11 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
+import { BarSubscriptionStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
 import { BarPermission } from '@coaster/common';
 import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { PlanDialogService } from '../../services/plan-dialog.service';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
 @Component({

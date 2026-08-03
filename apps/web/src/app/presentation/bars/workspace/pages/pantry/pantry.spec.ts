@@ -90,7 +90,7 @@ describe('Pantry', () => {
 
     it('should render inventory title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('.heading-2');
+      const title = fixture.nativeElement.querySelector('coaster-page-header');
       expect(title).toBeTruthy();
     });
 

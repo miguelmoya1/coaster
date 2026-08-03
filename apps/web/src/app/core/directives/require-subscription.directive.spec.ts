@@ -1,8 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarSubscriptionStore } from '../../bars/store/bar-subscription.store';
-import { PlanDialogService } from '../../presentation/bars/workspace/services/plan-dialog.service';
 import { RequireSubscriptionDirective } from './require-subscription.directive';
 
 @Component({

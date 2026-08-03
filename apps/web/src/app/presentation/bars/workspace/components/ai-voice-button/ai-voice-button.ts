@@ -3,18 +3,19 @@ import { Component, ElementRef, computed, effect, inject, input, signal, viewChi
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId } from '@coaster/common';
+import { RequireSubscriptionDirective } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AiVoiceService } from './ai-voice.service';
 
 @Component({
   selector: 'coaster-ai-voice-button',
-  imports: [MatButton, MatFabButton, MatIconButton, MatIcon, CdkDrag, TranslatePipe],
+  imports: [MatButton, MatFabButton, MatIconButton, MatIcon, CdkDrag, TranslatePipe, RequireSubscriptionDirective],
   template: `
     @if (service.isSupported()) {
       <!-- Voice Overlay Card -->
       @if (isOpen()) {
         <div
-          class="voice-card fixed bottom-28 left-4 right-4 z-[9999] md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-96 h-[32rem] max-h-[80vh] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col gap-4 text-white shadow-elevated transition-all duration-300"
+          class="voice-card fixed bottom-28 left-4 right-4 z-9999 md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-96 h-[32rem] max-h-[80vh] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col gap-4 text-white shadow-elevated transition-all duration-300"
         >
           <!-- Card Header -->
           <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -224,6 +225,7 @@ import { AiVoiceService } from './ai-voice.service';
       <button
         mat-fab
         cdkDrag
+        coasterRequireSubscription
         (click)="togglePanel()"
         [class.listening-pulse]="service.status() === 'listening'"
         [class.paused-border]="service.status() === 'paused'"

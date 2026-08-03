@@ -2,6 +2,7 @@ import { Component, input, output, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { StockStatus } from '@coaster/common';
+import { RequireSubscriptionDirective } from '@coaster/core';
 import { StockStatusPipe } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../pipes/price/price';
@@ -9,7 +10,15 @@ import { StatusBadge } from '../status-badge/status-badge';
 
 @Component({
   selector: 'coaster-inventory-item-card',
-  imports: [MatIcon, PricePipe, StatusBadge, StockStatusPipe, TranslatePipe, MatIconButton],
+  imports: [
+    MatIcon,
+    PricePipe,
+    StatusBadge,
+    StockStatusPipe,
+    TranslatePipe,
+    MatIconButton,
+    RequireSubscriptionDirective,
+  ],
   template: `
     <span class="absolute inset-y-0 left-0 w-1 rounded-full" [class]="statusLevel() | stockStatus: 'bg-color'"></span>
 
@@ -54,10 +63,10 @@ import { StatusBadge } from '../status-badge/status-badge';
 
     @if (showEditButton()) {
       <div class="flex items-center gap-1">
-        <button mat-icon-button (click)="onEditClick($event)">
+        <button mat-icon-button coasterRequireSubscription (click)="onEditClick($event)">
           <mat-icon class="text-base">edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="onDeleteClick($event)">
+        <button mat-icon-button coasterRequireSubscription (click)="onDeleteClick($event)">
           <mat-icon class="text-base">delete</mat-icon>
         </button>
       </div>

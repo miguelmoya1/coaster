@@ -1,8 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { PlanDialogService } from '@coaster/bars';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { PlanDialogService } from '../../presentation/bars/workspace/services/plan-dialog.service';
 import { ApiError } from '../errors/api-error';
 import { Toast } from '../services/toast';
 

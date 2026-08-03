@@ -1,9 +1,9 @@
-import { inject, Injectable } from '@angular/core';
-import { MatDialog, outputBinding } from '@angular/material/dialog';
+import { inject, Injectable, outputBinding } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { SubscriptionPlan } from '@coaster/common';
-import { BarSubscriptionStore } from '../../../../bars/store/bar-subscription.store';
-import { Toast } from '../../../../core/services/toast';
-import { SelectPlanDialog } from '../components/select-plan-dialog/select-plan-dialog';
+import { Toast } from '../../core/services/toast';
+import { SelectPlanDialog } from '../../presentation/bars/workspace/components/select-plan-dialog/select-plan-dialog';
+import { BarSubscriptionStore } from '../store/bar-subscription.store';
 
 @Injectable({ providedIn: 'root' })
 export class PlanDialogService {

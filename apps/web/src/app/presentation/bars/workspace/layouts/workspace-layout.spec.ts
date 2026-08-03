@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
-import { CurrentUser, Socket, Auth } from '@coaster/core';
+import { BarSubscriptionStore, CurrentBarStore, MyMemberStore } from '@coaster/bars';
+import { Auth, CurrentUser, Socket } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,6 +24,7 @@ describe('WorkspaceLayout', () => {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
     },
+    currentId: signal('bar-1'),
     setBarId: vi.fn(),
   };
 
@@ -44,10 +45,22 @@ describe('WorkspaceLayout', () => {
   const socketMock = {
     joinBar: vi.fn(),
     leaveBar: vi.fn(),
+    subscriptionUpdated: signal(null),
   };
 
   const authMock = {
     logout: vi.fn().mockResolvedValue(undefined),
+  };
+
+  const barSubscriptionStoreMock = {
+    isReadOnly: signal(false),
+    isTrialExpiringSoon: signal(false),
+    trialDaysRemaining: signal(14),
+    subscription: {
+      value: vi.fn().mockReturnValue(null),
+      hasValue: vi.fn().mockReturnValue(false),
+    },
+    reloadSubscription: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -58,6 +71,7 @@ describe('WorkspaceLayout', () => {
         provideRouter([]),
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: Socket, useValue: socketMock },

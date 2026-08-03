@@ -19,14 +19,7 @@ describe('CreateCheckoutSession', () => {
     });
     service = TestBed.inject(CreateCheckoutSession);
 
-    Object.defineProperty(window, 'location', {
-      value: {
-        pathname: '/test',
-        search: '?q=1',
-        origin: 'http://localhost',
-      },
-      writable: true,
-    });
+    window.history.pushState({}, '', '/test?q=1');
   });
 
   it('should return undefined if barId is undefined', async () => {
@@ -43,7 +36,7 @@ describe('CreateCheckoutSession', () => {
     expect(repositoryMock.createCheckoutSession).toHaveBeenCalledWith('bar-1' as BarId, {
       plan: SubscriptionPlan.PRO_MONTHLY,
       successUrl: 'http://return.url',
-      cancelUrl: 'http://localhost/test?q=1',
+      cancelUrl: `${window.location.origin}/test?q=1`,
     });
   });
 

@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { ActionFeedback, RequireSubscriptionDirective } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -22,7 +22,16 @@ type MemberItem = BarMember & {
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink, PageContainer, PageHeader],
+  imports: [
+    Loading,
+    StaffMemberCard,
+    Fab,
+    TranslatePipe,
+    RouterLink,
+    PageContainer,
+    PageHeader,
+    RequireSubscriptionDirective,
+  ],
   host: {
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },

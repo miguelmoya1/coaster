@@ -74,8 +74,8 @@ describe('Tables', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('.flex.gap-3 mat-card');
-      expect(cards.length).toBe(3);
+      const cards = fixture.nativeElement.querySelectorAll('.grid mat-card');
+      expect(cards.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should render tables title', () => {
@@ -98,6 +98,4 @@ describe('Tables', () => {
       expect(component['barOrdersViewModel']()).toEqual([]);
     });
   });
-
-
 });

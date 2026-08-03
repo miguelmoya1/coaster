@@ -1,19 +1,32 @@
 import { Directive, ElementRef, HostListener, effect, inject } from '@angular/core';
-import { BarSubscriptionStore } from '../../bars/store/bar-subscription.store';
-import { PlanDialogService } from '../../presentation/bars/workspace/services/plan-dialog.service';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 
 @Directive({
   selector: '[coasterRequireSubscription]',
   standalone: true,
 })
 export class RequireSubscriptionDirective {
-  readonly #subStore = inject(BarSubscriptionStore);
-  readonly #planDialogService = inject(PlanDialogService);
+  readonly #subStore = (() => {
+    try {
+      return inject(BarSubscriptionStore, { optional: true });
+    } catch {
+      return null;
+    }
+  })();
+
+  readonly #planDialogService = (() => {
+    try {
+      return inject(PlanDialogService, { optional: true });
+    } catch {
+      return null;
+    }
+  })();
+
   readonly #elementRef = inject(ElementRef<HTMLElement>);
 
   constructor() {
     effect(() => {
-      const isReadOnly = this.#subStore.isReadOnly();
+      const isReadOnly = this.#subStore?.isReadOnly() ?? false;
       const el = this.#elementRef.nativeElement;
 
       if (isReadOnly) {
@@ -34,11 +47,11 @@ export class RequireSubscriptionDirective {
 
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
-    if (this.#subStore.isReadOnly()) {
+    if (this.#subStore?.isReadOnly()) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
-      this.#planDialogService.open();
+      this.#planDialogService?.open();
     }
   }
 }
