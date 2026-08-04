@@ -10,7 +10,7 @@ import {
 
 type CreateBarDto = Omit<
   DbBarUncheckedCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'members' | 'shifts' | 'categories' | 'tables' | 'orders' | 'billing'
+  'id' | 'createdAt' | 'updatedAt' | 'members' | 'shifts' | 'categories' | 'tables' | 'orders' | 'billing' | 'printer'
 >;
 
 @Injectable()
