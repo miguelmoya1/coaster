@@ -1,7 +1,6 @@
 import { ErrorCodes } from '@coaster/common';
-import { Controller, HttpCode, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import Stripe from 'stripe';
 import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe';
 import {
   HandleCheckoutCompletedCommand,
@@ -22,7 +21,6 @@ export class BillingWebhookController {
 
   @Post('webhook')
   @UseGuards(StripeWebhookGuard)
-  @HttpCode(200)
   async handleWebhook(@Req() request: FastifyStripeRequest): Promise<{ received: true }> {
     const event = request.stripeEvent;
 
@@ -42,9 +40,7 @@ export class BillingWebhookController {
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          await this._commandBus.execute(
-            new HandleCheckoutCompletedCommand(event.data.object as Stripe.Checkout.Session),
-          );
+          await this._commandBus.execute(new HandleCheckoutCompletedCommand(event.data.object));
           break;
         }
         case 'customer.subscription.created':
@@ -52,17 +48,15 @@ export class BillingWebhookController {
         case 'customer.subscription.deleted':
         case 'customer.subscription.paused':
         case 'customer.subscription.resumed': {
-          await this._commandBus.execute(
-            new HandleSubscriptionChangedCommand(event.data.object as Stripe.Subscription),
-          );
+          await this._commandBus.execute(new HandleSubscriptionChangedCommand(event.data.object));
           break;
         }
         case 'invoice.payment_failed': {
-          await this._commandBus.execute(new HandleInvoicePaymentFailedCommand(event.data.object as Stripe.Invoice));
+          await this._commandBus.execute(new HandleInvoicePaymentFailedCommand(event.data.object));
           break;
         }
         case 'invoice.paid': {
-          await this._commandBus.execute(new HandleInvoicePaidCommand(event.data.object as Stripe.Invoice));
+          await this._commandBus.execute(new HandleInvoicePaidCommand(event.data.object));
           break;
         }
         default:
