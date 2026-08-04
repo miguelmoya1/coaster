@@ -5,15 +5,7 @@ import Stripe from 'stripe';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
-  const monthly = configService.get<string>('STRIPE_PRICE_PRO_MONTHLY');
-  const yearly = configService.get<string>('STRIPE_PRICE_PRO_YEARLY');
-
-  const prices = {
-    [SubscriptionPlan.PRO_MONTHLY]: monthly,
-    [SubscriptionPlan.PRO_YEARLY]: yearly,
-  };
-
-  const priceId = prices[plan];
+  const priceId = configService.get<string>('STRIPE_PRICE_PRO');
 
   if (!priceId) {
     throw new InternalServerErrorException(`Missing Stripe price for plan ${plan}`);
@@ -23,15 +15,10 @@ export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configServic
 }
 
 export function toDbPlan(priceId: string | undefined, configService: ConfigService): DbSubscriptionPlan {
-  const monthly = configService.get<string>('STRIPE_PRICE_PRO_MONTHLY');
-  const yearly = configService.get<string>('STRIPE_PRICE_PRO_YEARLY');
+  const proPrice = configService.get<string>('STRIPE_PRICE_PRO');
 
-  if (priceId && monthly && priceId === monthly) {
-    return DbSubscriptionPlan.PRO_MONTHLY;
-  }
-
-  if (priceId && yearly && priceId === yearly) {
-    return DbSubscriptionPlan.PRO_YEARLY;
+  if (priceId && proPrice && priceId === proPrice) {
+    return DbSubscriptionPlan.PRO;
   }
 
   return DbSubscriptionPlan.FREE;

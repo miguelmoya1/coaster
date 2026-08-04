@@ -76,6 +76,10 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
+    if (sub.status === DbSubscriptionStatus.CANCELED && sub.currentPeriodEnd && now <= sub.currentPeriodEnd) {
+      return true;
+    }
+
     throw new HttpException(
       {
         statusCode: HttpStatus.PAYMENT_REQUIRED,

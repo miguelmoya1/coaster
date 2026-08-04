@@ -64,7 +64,7 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
-  const subscriptionSignal = signal({ status: 'ACTIVE', plan: 'PRO_MONTHLY' });
+  const subscriptionSignal = signal({ status: 'ACTIVE', plan: 'PRO' });
   const barSubscriptionStoreMock = {
     subscription: {
       value: subscriptionSignal,
@@ -145,8 +145,9 @@ describe('Dashboard', () => {
       expect(stats[0].count).toBe(0);
     });
 
-    it('should compute statusLabelKey as cancel_at_period_end when cancelAtPeriodEnd is true', () => {
-      subscriptionSignal.set({ status: 'ACTIVE', cancelAtPeriodEnd: true, currentPeriodEnd: '2026-08-31T00:00:00.000Z' } as any);
+    it('should compute statusLabelKey as cancel_at_period_end when status is CANCELED and period is active', () => {
+      const futureDate = new Date(Date.now() + 86400000).toISOString();
+      subscriptionSignal.set({ status: 'CANCELED', currentPeriodEnd: futureDate } as any);
       expect(component.statusLabelKey()).toBe('billing.status.cancel_at_period_end');
       expect(component.periodInfoKey()).toBe('billing.cancels_on');
     });

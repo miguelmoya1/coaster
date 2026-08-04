@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   template: `
     @if (subStore.isReadOnly()) {
       <div class="flex items-center gap-2.5 min-w-0">
-        <mat-icon class="text-amber-600 dark:text-amber-400 shrink-0 text-base sm:text-lg">lock</mat-icon>
+        <mat-icon class="text-secondary shrink-0 text-base sm:text-lg">lock</mat-icon>
         <span class="truncate sm:whitespace-normal">
           {{ 'billing.banner.read_only' | translate }}
         </span>
@@ -42,15 +42,12 @@ import { TranslatePipe } from '@ngx-translate/core';
   `,
   host: {
     '[class.hidden]': '!subStore.isReadOnly() && !subStore.isTrialExpiringSoon()',
-    '[class.bg-amber-500/10]': 'subStore.isReadOnly()',
-    '[class.border-amber-500/20]': 'subStore.isReadOnly()',
-    '[class.text-amber-900]': 'subStore.isReadOnly()',
-    '[class.dark:text-amber-200]': 'subStore.isReadOnly()',
+    '[class.bg-secondary/10]': 'subStore.isReadOnly()',
+    '[class.border-secondary/20]': 'subStore.isReadOnly()',
     '[class.bg-primary/10]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
     '[class.border-primary/20]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
-    '[class.text-on-surface]': '!subStore.isReadOnly() && subStore.isTrialExpiringSoon()',
     class:
-      'flex items-center justify-between gap-3 sm:gap-4 mx-4 sm:mx-6 my-2 px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-all animate-in fade-in duration-300',
+      'flex items-center justify-between gap-3 sm:gap-4 mx-4 sm:mx-6 my-2 px-4 py-2.5 rounded-xl border text-on-surface text-xs sm:text-sm font-medium transition-all animate-in fade-in duration-300',
   },
 })
 export class SubscriptionBanner {

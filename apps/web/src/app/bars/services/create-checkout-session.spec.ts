@@ -30,11 +30,11 @@ describe('CreateCheckoutSession', () => {
   it('should create a checkout session and return url', async () => {
     repositoryMock.createCheckoutSession.mockResolvedValue({ url: 'http://stripe.checkout' });
 
-    const result = await service.execute('bar-1' as BarId, 'http://return.url', SubscriptionPlan.PRO_MONTHLY);
+    const result = await service.execute('bar-1' as BarId, 'http://return.url', SubscriptionPlan.PRO);
 
     expect(result).toBe('http://stripe.checkout');
     expect(repositoryMock.createCheckoutSession).toHaveBeenCalledWith('bar-1' as BarId, {
-      plan: SubscriptionPlan.PRO_MONTHLY,
+      plan: SubscriptionPlan.PRO,
       successUrl: 'http://return.url',
       cancelUrl: `${window.location.origin}/test?q=1`,
     });

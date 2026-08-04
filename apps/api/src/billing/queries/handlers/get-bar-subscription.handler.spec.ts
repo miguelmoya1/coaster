@@ -6,33 +6,12 @@ import { GetBarSubscriptionHandler } from './get-bar-subscription.handler';
 describe('GetBarSubscriptionHandler', () => {
   let handler: GetBarSubscriptionHandler;
   let readRepoMock: any;
-  let writeRepoMock: any;
-  let stripeClientMock: any;
-  let configServiceMock: any;
 
   beforeEach(() => {
     readRepoMock = {
       findSubscriptionByBarId: vi.fn(),
     };
-    writeRepoMock = {
-      upsertSubscriptionDetails: vi.fn(),
-    };
-    stripeClientMock = {
-      client: {
-        subscriptions: {
-          retrieve: vi.fn().mockRejectedValue(new Error('Stripe error or not mocked')),
-        },
-      },
-    };
-    configServiceMock = {
-      get: vi.fn(),
-    };
-    handler = new GetBarSubscriptionHandler(
-      readRepoMock as any,
-      writeRepoMock as any,
-      stripeClientMock as any,
-      configServiceMock as any,
-    );
+    handler = new GetBarSubscriptionHandler(readRepoMock);
   });
 
   it('should return FREE inactive subscription default if bar has no subscription in DB', async () => {
@@ -45,7 +24,6 @@ describe('GetBarSubscriptionHandler', () => {
       barId,
       plan: SubscriptionPlan.FREE,
       status: SubscriptionStatus.INACTIVE,
-      cancelAtPeriodEnd: false,
     });
   });
 
@@ -54,9 +32,8 @@ describe('GetBarSubscriptionHandler', () => {
     const now = new Date();
     const dbSub = {
       barId,
-      plan: SubscriptionPlan.PRO_MONTHLY,
+      plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
-      cancelAtPeriodEnd: false,
       currentPeriodStart: now,
       currentPeriodEnd: now,
       canceledAt: null,
@@ -69,9 +46,8 @@ describe('GetBarSubscriptionHandler', () => {
 
     expect(result).toEqual({
       barId,
-      plan: SubscriptionPlan.PRO_MONTHLY,
+      plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
-      cancelAtPeriodEnd: false,
       currentPeriodStart: now.toISOString(),
       currentPeriodEnd: now.toISOString(),
       canceledAt: undefined,

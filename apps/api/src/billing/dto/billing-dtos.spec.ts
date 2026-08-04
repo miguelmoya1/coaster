@@ -15,7 +15,7 @@ describe('Billing DTOs', () => {
 
   it('should validate CreateCheckoutSessionDto with localhost URLs', async () => {
     const dto = new CreateCheckoutSessionDto();
-    dto.plan = SubscriptionPlan.PRO_MONTHLY;
+    dto.plan = SubscriptionPlan.PRO;
     dto.successUrl = 'http://localhost:4200/bars/select';
     dto.cancelUrl = 'http://localhost:4200/bars/select';
 

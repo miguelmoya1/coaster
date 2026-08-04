@@ -10,7 +10,7 @@ export class CreateCheckoutSession {
   public async execute(
     barId: BarId | undefined,
     returnUrl: string,
-    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO_MONTHLY,
+    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO,
   ): Promise<string | undefined> {
     if (!barId) {
       return undefined;

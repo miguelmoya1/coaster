@@ -4,12 +4,11 @@ import { DbService, DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/
 
 export interface UpsertSubscriptionData {
   stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  stripeSubscriptionId: string | null;
   plan: DbSubscriptionPlan;
   status: DbSubscriptionStatus;
   currentPeriodStart: Date | null;
   currentPeriodEnd: Date | null;
-  cancelAtPeriodEnd: boolean;
   canceledAt: Date | null;
 }
 

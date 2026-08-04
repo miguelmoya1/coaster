@@ -33,7 +33,7 @@ import { AiVoiceService } from './ai-voice.service';
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     }
                     @case ('paused') {
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
                     }
                     @case ('processing') {
                       <span
@@ -191,7 +191,7 @@ import { AiVoiceService } from './ai-voice.service';
             <div class="flex items-center gap-2">
               @if (service.status() === 'listening') {
                 <button mat-icon-button (click)="service.pause()">
-                  <mat-icon class="!text-amber-500">pause</mat-icon>
+                  <mat-icon class="!text-secondary">pause</mat-icon>
                 </button>
               } @else if (service.status() === 'paused') {
                 <button mat-icon-button (click)="service.resume()">

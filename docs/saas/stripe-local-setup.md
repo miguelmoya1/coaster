@@ -33,8 +33,7 @@ Abre el archivo `apps/api/.env` (si no existe, créalo copiando el contenido de 
 STRIPE_SECRET_KEY="sk_test_..."
 
 # Los IDs de los precios que creaste en el paso 1
-STRIPE_PRICE_PRO_MONTHLY="price_..."
-STRIPE_PRICE_PRO_YEARLY="price_..."
+STRIPE_PRICE_PRO="price_..."
 ```
 
 _(El `STRIPE_WEBHOOK_SECRET` lo configuraremos en el siguiente paso)._
@@ -115,8 +114,7 @@ En las variables de entorno de tu servidor de producción (Vercel, Railway, Dock
 env
 
 STRIPE_SECRET_KEY="sk_live_..."
-STRIPE_PRICE_PRO_MONTHLY="price_..."
-STRIPE_PRICE_PRO_YEARLY="price_..."
+STRIPE_PRICE_PRO="price_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
 Resumen de diferencias Local vs Producción
 Concepto Entorno Local (Desarrollo) Entorno Producción

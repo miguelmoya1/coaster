@@ -22,7 +22,7 @@ describe('BarBillingController', () => {
 
   it('should execute GetBarSubscriptionQuery on getSubscription', async () => {
     const barId = 'bar_123' as BarId;
-    const mockSubscription = { barId, plan: SubscriptionPlan.PRO_MONTHLY };
+    const mockSubscription = { barId, plan: SubscriptionPlan.PRO };
     queryBusMock.execute.mockResolvedValue(mockSubscription);
 
     const result = await controller.getSubscription(barId);
@@ -34,7 +34,7 @@ describe('BarBillingController', () => {
   it('should execute CreateCheckoutSessionCommand on createCheckoutSession', async () => {
     const barId = 'bar_123' as BarId;
     const dto = {
-      plan: SubscriptionPlan.PRO_MONTHLY as Exclude<SubscriptionPlan, 'FREE'>,
+      plan: SubscriptionPlan.PRO as Exclude<SubscriptionPlan, 'FREE'>,
       successUrl: 'https://example.com/success',
       cancelUrl: 'https://example.com/cancel',
     };

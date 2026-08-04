@@ -107,8 +107,9 @@ describe('TopAppBar', () => {
       expect(component.isProActive()).toBe(true);
     });
 
-    it('should compute statusBadgeKey as cancel_at_period_end when cancelAtPeriodEnd is true', () => {
-      subscriptionSignal.set({ status: 'ACTIVE', cancelAtPeriodEnd: true });
+    it('should compute statusBadgeKey as cancel_at_period_end when status is CANCELED and period is active', () => {
+      const futureDate = new Date(Date.now() + 86400000).toISOString();
+      subscriptionSignal.set({ status: 'CANCELED', currentPeriodEnd: futureDate });
       expect(component.statusBadgeKey()).toBe('billing.status_badge.cancel_at_period_end');
     });
   });

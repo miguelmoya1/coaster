@@ -28,7 +28,7 @@ describe('CreateCheckoutSessionHandler', () => {
 
     configServiceMock = {
       get: vi.fn().mockImplementation((key: string) => {
-        if (key === 'STRIPE_PRICE_PRO_MONTHLY') return 'price_monthly';
+        if (key === 'STRIPE_PRICE_PRO') return 'price_monthly';
         return undefined;
       }),
     };
@@ -62,7 +62,7 @@ describe('CreateCheckoutSessionHandler', () => {
 
     const command = new CreateCheckoutSessionCommand(
       barId,
-      SubscriptionPlan.PRO_MONTHLY,
+      SubscriptionPlan.PRO,
       'https://success',
       'https://cancel',
     );
@@ -86,7 +86,7 @@ describe('CreateCheckoutSessionHandler', () => {
 
     const command = new CreateCheckoutSessionCommand(
       barId,
-      SubscriptionPlan.PRO_MONTHLY,
+      SubscriptionPlan.PRO,
       'https://success',
       'https://cancel',
     );
@@ -109,7 +109,7 @@ describe('CreateCheckoutSessionHandler', () => {
 
     const command = new CreateCheckoutSessionCommand(
       barId,
-      SubscriptionPlan.PRO_MONTHLY,
+      SubscriptionPlan.PRO,
       'https://success',
       'https://cancel',
     );

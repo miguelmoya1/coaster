@@ -29,7 +29,7 @@
               </div>
               @if (periodInfoKey() && formattedPeriodEnd()) {
                 <span class="text-xs text-on-surface-variant/80 font-medium">
-                  {{ periodInfoKey() | translate:{ date: formattedPeriodEnd() } }}
+                  {{ periodInfoKey() | translate: { date: formattedPeriodEnd() } }}
                 </span>
               }
             </div>
@@ -37,13 +37,12 @@
 
           @if (canManageBilling()) {
             <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
-              @if (subscription()?.status === 'ACTIVE' || subscription()?.stripeCustomerId) {
-                <button mat-button (click)="manageBilling()" class="!rounded-xl font-bold border border-outline-variant/30">
+              @if (isPendingCancel() || subscription()?.status === 'ACTIVE') {
+                <button mat-flat-button color="primary" (click)="manageBilling()" class="!rounded-xl font-bold">
                   <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
                   {{ 'billing.manage_billing' | translate }}
                 </button>
-              }
-              @if (subscription()?.status !== 'ACTIVE') {
+              } @else {
                 <button mat-flat-button color="primary" (click)="activatePro()" class="!rounded-xl font-bold">
                   <mat-icon class="text-sm mr-1">rocket_launch</mat-icon>
                   {{ 'billing.activate_pro_title' | translate }}
@@ -200,10 +199,7 @@
 
             <div class="relative w-full h-4 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
               @for (pt of chartPaths().points; track pt.dayName) {
-                <span
-                  class="absolute -translate-x-1/2 uppercase select-none text-center"
-                  [style.left.%]="pt.xPct"
-                >
+                <span class="absolute -translate-x-1/2 uppercase select-none text-center" [style.left.%]="pt.xPct">
                   {{ pt.dayName }}
                 </span>
               }
@@ -387,10 +383,10 @@
 
       @if (totalAssignedToday() === 0) {
         <div
-          class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-amber-500/15"
+          class="bg-secondary/10 border border-secondary/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-secondary/15"
         >
           <div
-            class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 animate-pulse"
+            class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary animate-pulse"
           >
             <mat-icon class="text-2xl">error</mat-icon>
           </div>

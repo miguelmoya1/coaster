@@ -31,10 +31,13 @@ export class BarSubscriptionStore {
     const sub = this.subscription.value();
     if (!sub) return false;
     if (sub.status === SubscriptionStatus.ACTIVE) return false;
+    if (sub.status === SubscriptionStatus.CANCELED) {
+      if (!sub.currentPeriodEnd) return true;
+      return new Date() > new Date(sub.currentPeriodEnd);
+    }
     if (
       sub.status === SubscriptionStatus.EXPIRED ||
       sub.status === SubscriptionStatus.PAST_DUE ||
-      sub.status === SubscriptionStatus.CANCELED ||
       sub.status === SubscriptionStatus.UNPAID ||
       sub.status === SubscriptionStatus.INACTIVE
     ) {
@@ -89,7 +92,7 @@ export class BarSubscriptionStore {
 
   public async createCheckoutSession(
     returnUrl: string,
-    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO_MONTHLY,
+    plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO,
   ): Promise<string | undefined> {
     return this.#createCheckoutSession.execute(this.#currentBarStore.currentId(), returnUrl, plan);
   }

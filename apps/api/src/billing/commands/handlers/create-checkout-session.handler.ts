@@ -1,7 +1,8 @@
 import { BarId, CreateCheckoutSessionResponse } from '@coaster/common';
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { DbSubscriptionStatus } from '../../../core/db';
 import { StripeClient, getPriceId } from '../../../stripe';
 import { BillingReadRepository } from '../../data-access/billing.read.repository';
 import { BillingWriteRepository } from '../../data-access/billing.write.repository';
@@ -25,6 +26,18 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
   async execute(command: CreateCheckoutSessionCommand): Promise<CreateCheckoutSessionResponse> {
     const { barId, plan, successUrl, cancelUrl } = command;
     this._logger.debug(`Executing CreateCheckoutSessionCommand for barId=${barId}, plan=${plan}`);
+
+    const existing = await this._readRepo.findSubscriptionByBarId(barId);
+    const now = new Date();
+    const hasActiveStripeSub =
+      existing?.stripeSubscriptionId &&
+      (existing.status === DbSubscriptionStatus.ACTIVE ||
+        (existing.status === DbSubscriptionStatus.CANCELED && existing.currentPeriodEnd && now <= existing.currentPeriodEnd));
+
+    if (hasActiveStripeSub) {
+      this._logger.warn(`Bar barId=${barId} already has an active subscription ${existing.stripeSubscriptionId}`);
+      throw new BadRequestException('Bar already has an active subscription. Use Customer Portal to modify plans.');
+    }
 
     const priceId = getPriceId(plan, this._configService);
     const customerId = await this.getOrCreateCustomerId(barId);

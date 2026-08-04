@@ -11,35 +11,26 @@ describe('stripe.utils', () => {
   beforeEach(() => {
     configServiceMock = {
       get: vi.fn().mockImplementation((key: string) => {
-        if (key === 'STRIPE_PRICE_PRO_MONTHLY') return 'price_monthly_123';
-        if (key === 'STRIPE_PRICE_PRO_YEARLY') return 'price_yearly_456';
+        if (key === 'STRIPE_PRICE_PRO') return 'price_pro_123';
         return undefined;
       }),
     };
   });
 
   describe('getPriceId', () => {
-    it('should return price ID for PRO_MONTHLY', () => {
-      expect(getPriceId(SubscriptionPlan.PRO_MONTHLY, configServiceMock)).toBe('price_monthly_123');
-    });
-
-    it('should return price ID for PRO_YEARLY', () => {
-      expect(getPriceId(SubscriptionPlan.PRO_YEARLY, configServiceMock)).toBe('price_yearly_456');
+    it('should return price ID for PRO', () => {
+      expect(getPriceId(SubscriptionPlan.PRO, configServiceMock)).toBe('price_pro_123');
     });
 
     it('should throw InternalServerErrorException if price is not configured', () => {
       configServiceMock.get.mockReturnValue(undefined);
-      expect(() => getPriceId(SubscriptionPlan.PRO_MONTHLY, configServiceMock)).toThrow(InternalServerErrorException);
+      expect(() => getPriceId(SubscriptionPlan.PRO, configServiceMock)).toThrow(InternalServerErrorException);
     });
   });
 
   describe('toDbPlan', () => {
-    it('should return PRO_MONTHLY when price matches monthly price', () => {
-      expect(toDbPlan('price_monthly_123', configServiceMock)).toBe(DbSubscriptionPlan.PRO_MONTHLY);
-    });
-
-    it('should return PRO_YEARLY when price matches yearly price', () => {
-      expect(toDbPlan('price_yearly_456', configServiceMock)).toBe(DbSubscriptionPlan.PRO_YEARLY);
+    it('should return PRO when price matches pro price', () => {
+      expect(toDbPlan('price_pro_123', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
     });
 
     it('should return FREE when price does not match any configured plan', () => {

@@ -6,7 +6,6 @@ export interface BarSubscription {
   barId: BarId;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
-  cancelAtPeriodEnd: boolean;
   trialEndsAt?: string;
   currentPeriodStart?: string;
   currentPeriodEnd?: string;

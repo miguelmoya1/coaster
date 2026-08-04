@@ -28,8 +28,7 @@ export type DbRole = (typeof DbRole)[keyof typeof DbRole]
 
 export const DbSubscriptionPlan = {
   FREE: 'FREE',
-  PRO_MONTHLY: 'PRO_MONTHLY',
-  PRO_YEARLY: 'PRO_YEARLY'
+  PRO: 'PRO'
 } as const
 
 export type DbSubscriptionPlan = (typeof DbSubscriptionPlan)[keyof typeof DbSubscriptionPlan]

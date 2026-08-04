@@ -161,9 +161,22 @@ export class TopAppBar {
     return this.subscription()?.status === 'ACTIVE';
   });
 
+  readonly isPendingCancel = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return false;
+    if (sub.status === 'CANCELED') {
+      if (!sub.currentPeriodEnd) return true;
+      return new Date() <= new Date(sub.currentPeriodEnd);
+    }
+    return false;
+  });
+
   readonly statusDotClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'bg-zinc-400';
+    if (this.isPendingCancel()) {
+      return 'bg-secondary shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+    }
     switch (sub.status) {
       case 'ACTIVE':
         return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
@@ -171,7 +184,7 @@ export class TopAppBar {
         return 'bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]';
       case 'PAST_DUE':
       case 'UNPAID':
-        return 'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+        return 'bg-secondary animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]';
       default:
         return 'bg-zinc-400';
     }
@@ -180,7 +193,7 @@ export class TopAppBar {
   readonly statusBadgeKey = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'billing.status_badge.free';
-    if (sub.cancelAtPeriodEnd) {
+    if (this.isPendingCancel()) {
       return 'billing.status_badge.cancel_at_period_end';
     }
     switch (sub.status) {
@@ -199,8 +212,8 @@ export class TopAppBar {
   readonly statusBadgeTextClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
-    if (sub.cancelAtPeriodEnd) {
-      return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+    if (this.isPendingCancel()) {
+      return 'text-secondary bg-secondary/10 border-secondary/20';
     }
     switch (sub.status) {
       case 'ACTIVE':
@@ -209,7 +222,7 @@ export class TopAppBar {
         return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
       case 'PAST_DUE':
       case 'UNPAID':
-        return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+        return 'text-secondary bg-secondary/10 border-secondary/20';
       default:
         return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
     }

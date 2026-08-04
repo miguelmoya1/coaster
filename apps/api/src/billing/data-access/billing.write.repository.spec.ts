@@ -49,11 +49,10 @@ describe('BillingWriteRepository', () => {
     const data: UpsertSubscriptionData = {
       stripeCustomerId: 'cus_123',
       stripeSubscriptionId: 'sub_123',
-      plan: DbSubscriptionPlan.PRO_MONTHLY,
+      plan: DbSubscriptionPlan.PRO,
       status: DbSubscriptionStatus.ACTIVE,
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(),
-      cancelAtPeriodEnd: false,
       canceledAt: null,
     };
     dbMock.dbBarSubscription.upsert.mockResolvedValue({ barId, ...data });

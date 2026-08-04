@@ -66,15 +66,23 @@ export class Dashboard {
   readonly planLabelKey = computed(() => {
     const sub = this.subscription();
     if (!sub || sub.plan === 'FREE') return 'billing.plan_name.free';
-    if (sub.plan === 'PRO_MONTHLY') return 'billing.plan_name.pro_monthly';
-    if (sub.plan === 'PRO_YEARLY') return 'billing.plan_name.pro_yearly';
-    return 'billing.plan_name.free';
+    return 'billing.plan_name.pro';
+  });
+
+  readonly isPendingCancel = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return false;
+    if (sub.status === 'CANCELED') {
+      if (!sub.currentPeriodEnd) return true;
+      return new Date() <= new Date(sub.currentPeriodEnd);
+    }
+    return false;
   });
 
   readonly statusLabelKey = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'billing.status.free';
-    if (sub.cancelAtPeriodEnd) {
+    if (this.isPendingCancel()) {
       return 'billing.status.cancel_at_period_end';
     }
     switch (sub.status) {
@@ -96,7 +104,13 @@ export class Dashboard {
   readonly periodInfoKey = computed(() => {
     const sub = this.subscription();
     if (!sub?.currentPeriodEnd) return null;
-    return sub.cancelAtPeriodEnd ? 'billing.cancels_on' : 'billing.renews_on';
+    if (this.isPendingCancel()) {
+      return 'billing.cancels_on';
+    }
+    if (sub.status === 'ACTIVE') {
+      return 'billing.renews_on';
+    }
+    return null;
   });
 
   readonly formattedPeriodEnd = computed(() => {
@@ -122,8 +136,8 @@ export class Dashboard {
   readonly statusIconContainerClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'bg-surface-container-highest text-on-surface-variant';
-    if (sub.cancelAtPeriodEnd) {
-      return 'bg-amber-500/15 text-amber-500';
+    if (this.isPendingCancel()) {
+      return 'bg-secondary/15 text-secondary';
     }
     switch (sub.status) {
       case 'ACTIVE':
@@ -132,7 +146,7 @@ export class Dashboard {
         return 'bg-sky-400/15 text-sky-400';
       case 'PAST_DUE':
       case 'UNPAID':
-        return 'bg-amber-500/15 text-amber-500';
+        return 'bg-secondary/15 text-secondary';
       default:
         return 'bg-surface-container-highest text-on-surface-variant';
     }
@@ -141,8 +155,8 @@ export class Dashboard {
   readonly statusBadgeStyleClass = computed(() => {
     const sub = this.subscription();
     if (!sub) return 'text-on-surface-variant bg-surface-container border-outline-variant/30';
-    if (sub.cancelAtPeriodEnd) {
-      return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+    if (this.isPendingCancel()) {
+      return 'text-secondary bg-secondary/10 border-secondary/20';
     }
     switch (sub.status) {
       case 'ACTIVE':
@@ -151,7 +165,7 @@ export class Dashboard {
         return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
       case 'PAST_DUE':
       case 'UNPAID':
-        return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+        return 'text-secondary bg-secondary/10 border-secondary/20';
       default:
         return 'text-on-surface-variant bg-surface-container border-outline-variant/30';
     }

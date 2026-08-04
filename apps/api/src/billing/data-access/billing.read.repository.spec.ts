@@ -26,7 +26,7 @@ describe('BillingReadRepository', () => {
 
   it('should find subscription by barId', async () => {
     const barId = 'bar_123' as BarId;
-    const mockSub = { barId, plan: 'PRO_MONTHLY' };
+    const mockSub = { barId, plan: 'PRO' };
     dbMock.dbBarSubscription.findUnique.mockResolvedValue(mockSub);
 
     const result = await repository.findSubscriptionByBarId(barId);

@@ -20,6 +20,6 @@
     "db:studio": "docker compose exec api npx prisma studio"
   },
   "devDependencies": {
-    "@angular/compiler": "^22.0.6"
+    "@angular/compiler": "22.0.6"
   }
 }

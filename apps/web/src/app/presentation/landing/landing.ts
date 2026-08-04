@@ -20,7 +20,7 @@ interface FaqKeyItem {
     <!-- Background Aura Accents -->
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <div
-        class="absolute -top-40 -left-40 w-96 h-96 sm:w-lg sm:h-lg bg-radial from-primary/15 via-amber-500/5 to-transparent rounded-full blur-3xl"
+        class="absolute -top-40 -left-40 w-96 h-96 sm:w-lg sm:h-lg bg-radial from-primary/15 via-secondary/5 to-transparent rounded-full blur-3xl"
       ></div>
       <div
         class="absolute top-1/3 -right-40 w-96 h-96 sm:w-lg sm:h-lg bg-radial from-blue-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl"
@@ -41,7 +41,7 @@ interface FaqKeyItem {
           class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-primary rounded-xl p-1"
         >
           <div
-            class="h-10 w-10 rounded-xl bg-linear-to-tr from-primary to-amber-500 text-black grid place-items-center font-black text-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
+            class="h-10 w-10 rounded-xl bg-linear-to-tr from-primary to-secondary text-black grid place-items-center font-black text-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
           >
             C
           </div>
@@ -86,7 +86,7 @@ interface FaqKeyItem {
 
           <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
             {{ 'landing.hero.title_main' | translate }}<br />
-            <span class="bg-linear-to-r from-primary via-amber-500 to-yellow-400 bg-clip-text text-transparent">
+            <span class="bg-linear-to-r from-primary via-secondary to-yellow-400 bg-clip-text text-transparent">
               {{ 'landing.hero.title_gradient' | translate }}
             </span>
           </h1>
@@ -163,7 +163,7 @@ interface FaqKeyItem {
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
               <div
-                class="h-14 w-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 grid place-items-center group-hover:scale-110 transition-transform"
+                class="h-14 w-14 rounded-2xl bg-secondary/10 border border-secondary/30 text-secondary grid place-items-center group-hover:scale-110 transition-transform"
               >
                 <span class="material-symbols-outlined text-3xl">table_bar</span>
               </div>
@@ -472,7 +472,7 @@ interface FaqKeyItem {
               class="p-8 sm:p-10 rounded-3xl bg-surface-container border-2 border-primary flex flex-col justify-between relative shadow-xl reveal-on-scroll"
             >
               <div
-                class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-linear-to-r from-primary to-amber-500 text-black text-xs font-black uppercase tracking-wider shadow-md whitespace-nowrap"
+                class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-linear-to-r from-primary to-secondary text-black text-xs font-black uppercase tracking-wider shadow-md whitespace-nowrap"
               >
                 {{ 'landing.pricing.pro_badge' | translate }}
               </div>
@@ -498,7 +498,7 @@ interface FaqKeyItem {
                   </span>
                   <span class="text-slate-400 text-sm">{{ 'landing.pricing.free_period' | translate }}</span>
                 </div>
-                <p class="text-xs text-amber-400 font-semibold mt-1">
+                <p class="text-xs text-secondary font-semibold mt-1">
                   {{
                     billingCycle() === 'yearly'
                       ? ('landing.pricing.pro_subtext_yearly' | translate)
@@ -649,7 +649,7 @@ interface FaqKeyItem {
       <section class="py-20 relative overflow-hidden">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div
-            class="rounded-3xl p-10 sm:p-16 bg-linear-to-r from-primary via-amber-500 to-yellow-400 text-black text-center relative overflow-hidden shadow-2xl reveal-on-scroll"
+            class="rounded-3xl p-10 sm:p-16 bg-linear-to-r from-primary via-secondary to-yellow-400 text-black text-center relative overflow-hidden shadow-2xl reveal-on-scroll"
           >
             <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
               {{ 'landing.cta.title' | translate }}
@@ -679,7 +679,7 @@ interface FaqKeyItem {
           <div class="space-y-3">
             <div class="flex items-center gap-3">
               <div
-                class="h-9 w-9 rounded-xl bg-linear-to-tr from-primary to-amber-500 text-black grid place-items-center font-black"
+                class="h-9 w-9 rounded-xl bg-linear-to-tr from-primary to-secondary text-black grid place-items-center font-black"
               >
                 C
               </div>
