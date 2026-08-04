@@ -20,26 +20,22 @@ describe('CreateCustomerPortalSession', () => {
   });
 
   it('should return undefined if barId is undefined', async () => {
-    const result = await service.execute(undefined, 'http://return.url');
+    const result = await service.execute(undefined);
     expect(result).toBeUndefined();
   });
 
   it('should create a portal session and return url', async () => {
     repositoryMock.createCustomerPortalSession.mockResolvedValue({ url: 'http://stripe.portal' });
 
-    const result = await service.execute('bar-1' as BarId, 'http://return.url');
+    const result = await service.execute('bar-1' as BarId);
 
     expect(result).toBe('http://stripe.portal');
-    expect(repositoryMock.createCustomerPortalSession).toHaveBeenCalledWith('bar-1' as BarId, {
-      returnUrl: 'http://return.url',
-    });
+    expect(repositoryMock.createCustomerPortalSession).toHaveBeenCalledWith('bar-1' as BarId, {});
   });
 
-  it('should return undefined on error', async () => {
+  it('should propagate errors so the interceptor can translate them', async () => {
     repositoryMock.createCustomerPortalSession.mockRejectedValue(new Error('test error'));
 
-    const result = await service.execute('bar-1' as BarId, 'http://return.url');
-
-    expect(result).toBeUndefined();
+    await expect(service.execute('bar-1' as BarId)).rejects.toThrow('test error');
   });
 });

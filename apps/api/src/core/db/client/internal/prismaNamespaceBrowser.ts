@@ -305,7 +305,12 @@ export const DbStripeWebhookEventScalarFieldEnum = {
   stripeEventId: 'stripeEventId',
   type: 'type',
   payload: 'payload',
-  processedAt: 'processedAt'
+  processingStatus: 'processingStatus',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]

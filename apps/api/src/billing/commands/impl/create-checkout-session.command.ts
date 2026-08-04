@@ -4,7 +4,5 @@ export class CreateCheckoutSessionCommand {
   constructor(
     public readonly barId: BarId,
     public readonly plan: Exclude<SubscriptionPlan, 'FREE'>,
-    public readonly successUrl: string,
-    public readonly cancelUrl: string,
   ) {}
 }

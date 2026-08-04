@@ -30,6 +30,6 @@
   </div>
 
   @if (isOwner()) {
-    <coaster-fab coasterRequireSubscription routerLink="invite" />
+    <coaster-fab coasterRequireSubscription [barId]="barId()" routerLink="invite" />
   }
 </coaster-page-container>

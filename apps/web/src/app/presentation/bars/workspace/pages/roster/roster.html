@@ -104,6 +104,6 @@
 
   <!-- Float Action button for Owners -->
   @if (currentUserRole() === BarRole.OWNER) {
-    <coaster-fab coasterRequireSubscription routerLink="new" queryParamsHandling="preserve" />
+    <coaster-fab coasterRequireSubscription [barId]="barId()" routerLink="new" queryParamsHandling="preserve" />
   }
 </coaster-page-container>

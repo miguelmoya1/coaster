@@ -14,14 +14,15 @@
 Modelos de persistencia introducidos en Fase 1:
 
 - BarSubscription
-  - plan: FREE | PRO_MONTHLY | PRO_YEARLY
-  - status: INACTIVE | TRIALING | ACTIVE | PAST_DUE | CANCELED | UNPAID
+  - plan: FREE | PRO
+  - status: INACTIVE | TRIALING | ACTIVE | PAST_DUE | CANCELED | UNPAID | EXPIRED
   - stripeCustomerId / stripeSubscriptionId
   - ventanas de periodo y estado de cancelacion
 
 - StripeWebhookEvent
   - Idempotencia por stripeEventId
   - Payload completo para auditoria tecnica
+  - processingStatus, attempts, lastError y processedAt para reintentos seguros
 
 ## Eventos de dominio de billing
 

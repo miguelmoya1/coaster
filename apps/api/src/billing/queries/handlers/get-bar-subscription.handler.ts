@@ -28,7 +28,9 @@ export class GetBarSubscriptionHandler implements IQueryHandler<GetBarSubscripti
     let status: SubscriptionStatus = subscription.status;
     const now = new Date();
 
-    if (status === SubscriptionStatus.TRIALING && subscription.trialEndsAt && now > subscription.trialEndsAt) {
+    if (status === SubscriptionStatus.ACTIVE && (!subscription.stripeSubscriptionId || !subscription.currentPeriodEnd)) {
+      status = SubscriptionStatus.INACTIVE;
+    } else if (status === SubscriptionStatus.TRIALING && subscription.trialEndsAt && now > subscription.trialEndsAt) {
       status = SubscriptionStatus.EXPIRED;
     } else if (
       (status === SubscriptionStatus.CANCELED || status === SubscriptionStatus.ACTIVE) &&

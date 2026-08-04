@@ -6,16 +6,15 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
-import { DbService } from '../../core/db';
 import { StripeClient } from '../stripe-client.provider';
 
 export type FastifyStripeRequest = FastifyRequest & {
   rawBody?: string;
   stripeEvent?: Stripe.Event;
-  stripeEventAlreadyProcessed?: boolean;
 };
 
 @Injectable()
@@ -25,7 +24,6 @@ export class StripeWebhookGuard implements CanActivate {
   constructor(
     private readonly _stripeClient: StripeClient,
     private readonly _configService: ConfigService,
-    private readonly _db: DbService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,12 +36,12 @@ export class StripeWebhookGuard implements CanActivate {
 
     if (!webhookSecret) {
       this._logger.error('STRIPE_WEBHOOK_SECRET is not configured in environment variables');
-      throw new InternalServerErrorException('STRIPE_WEBHOOK_SECRET is not configured');
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED);
     }
 
     if (!signature) {
       this._logger.warn('Stripe webhook request missing stripe-signature header');
-      throw new BadRequestException('Missing Stripe signature header');
+      throw new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_MISSING);
     }
 
     let event: Stripe.Event;
@@ -52,21 +50,12 @@ export class StripeWebhookGuard implements CanActivate {
       event = this._stripeClient.client.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (error) {
       this._logger.warn(`Stripe webhook signature verification failed: ${(error as Error).message}`);
-      throw new BadRequestException('Invalid Stripe signature');
+      throw new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_INVALID);
     }
 
     this._logger.debug(`Stripe webhook signature verified. Event ID: ${event.id}, Event Type: ${event.type}`);
 
-    const alreadyProcessed = await this._db.dbStripeWebhookEvent.findUnique({
-      where: { stripeEventId: event.id },
-    });
-
     request.stripeEvent = event;
-    request.stripeEventAlreadyProcessed = !!alreadyProcessed;
-
-    if (alreadyProcessed) {
-      this._logger.debug(`Stripe webhook event ${event.id} was already processed previously. Skipping handling.`);
-    }
 
     return true;
   }

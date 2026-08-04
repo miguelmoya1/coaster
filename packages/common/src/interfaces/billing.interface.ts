@@ -16,8 +16,6 @@ export interface BarSubscription {
 
 export interface CreateCheckoutSessionDto {
   plan: Exclude<SubscriptionPlan, 'FREE'>;
-  successUrl: string;
-  cancelUrl: string;
 }
 
 export interface CreateCheckoutSessionResponse {
@@ -25,9 +23,7 @@ export interface CreateCheckoutSessionResponse {
   url: string;
 }
 
-export interface CreateCustomerPortalSessionDto {
-  returnUrl: string;
-}
+export interface CreateCustomerPortalSessionDto {}
 
 export interface CreateCustomerPortalSessionResponse {
   url: string;

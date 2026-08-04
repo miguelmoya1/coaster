@@ -23,28 +23,24 @@ describe('CreateCheckoutSession', () => {
   });
 
   it('should return undefined if barId is undefined', async () => {
-    const result = await service.execute(undefined, 'http://return.url');
+    const result = await service.execute(undefined);
     expect(result).toBeUndefined();
   });
 
   it('should create a checkout session and return url', async () => {
     repositoryMock.createCheckoutSession.mockResolvedValue({ url: 'http://stripe.checkout' });
 
-    const result = await service.execute('bar-1' as BarId, 'http://return.url', SubscriptionPlan.PRO);
+    const result = await service.execute('bar-1' as BarId, SubscriptionPlan.PRO);
 
     expect(result).toBe('http://stripe.checkout');
     expect(repositoryMock.createCheckoutSession).toHaveBeenCalledWith('bar-1' as BarId, {
       plan: SubscriptionPlan.PRO,
-      successUrl: 'http://return.url',
-      cancelUrl: `${window.location.origin}/test?q=1`,
     });
   });
 
-  it('should return undefined on error', async () => {
+  it('should propagate errors so the interceptor can translate them', async () => {
     repositoryMock.createCheckoutSession.mockRejectedValue(new Error('test error'));
 
-    const result = await service.execute('bar-1' as BarId, 'http://return.url');
-
-    expect(result).toBeUndefined();
+    await expect(service.execute('bar-1' as BarId)).rejects.toThrow('test error');
   });
 });

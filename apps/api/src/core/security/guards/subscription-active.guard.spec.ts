@@ -80,6 +80,8 @@ describe('SubscriptionActiveGuard', () => {
     dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
     dbService.dbBarSubscription.findUnique.mockResolvedValue({
       status: DbSubscriptionStatus.ACTIVE,
+      stripeSubscriptionId: 'sub_123',
+      currentPeriodEnd: new Date(Date.now() + 100000),
     });
 
     expect(await guard.canActivate(context)).toBe(true);
@@ -104,6 +106,35 @@ describe('SubscriptionActiveGuard', () => {
       trialEndsAt: new Date(Date.now() - 100000),
     });
 
+    await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+  });
+
+  it('should allow ACTIVE only while its Stripe period is current', async () => {
+    const context = createMockContext('POST', '/bars/bar-1/orders', 'bar-1', 'user-1');
+    dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+    dbService.dbBarSubscription.findUnique.mockResolvedValue({
+      status: DbSubscriptionStatus.ACTIVE,
+      stripeSubscriptionId: 'sub_123',
+      currentPeriodEnd: new Date(Date.now() - 100000),
+    });
+
+    await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+  });
+
+  it('should allow CANCELED until currentPeriodEnd and then block it', async () => {
+    const context = createMockContext('POST', '/bars/bar-1/orders', 'bar-1', 'user-1');
+    dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+    dbService.dbBarSubscription.findUnique.mockResolvedValue({
+      status: DbSubscriptionStatus.CANCELED,
+      currentPeriodEnd: new Date(Date.now() + 100000),
+    });
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+
+    dbService.dbBarSubscription.findUnique.mockResolvedValue({
+      status: DbSubscriptionStatus.CANCELED,
+      currentPeriodEnd: new Date(Date.now() - 100000),
+    });
     await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
   });
 

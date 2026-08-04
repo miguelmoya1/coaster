@@ -1,61 +1,80 @@
-import { Controller, HttpCode, Logger, Post, Req, UseGuards } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { Controller, HttpCode, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import Stripe from 'stripe';
 import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe';
 import {
   HandleCheckoutCompletedCommand,
+  HandleInvoicePaidCommand,
   HandleInvoicePaymentFailedCommand,
   HandleSubscriptionChangedCommand,
-  RecordStripeWebhookEventCommand,
 } from '../commands';
+import { BillingWriteRepository } from '../data-access/billing.write.repository';
 
 @Controller('billing')
 export class BillingWebhookController {
   private readonly _logger = new Logger(BillingWebhookController.name);
 
-  constructor(private readonly _commandBus: CommandBus) {}
+  constructor(
+    private readonly _commandBus: CommandBus,
+    private readonly _writeRepo: BillingWriteRepository,
+  ) {}
 
   @Post('webhook')
   @UseGuards(StripeWebhookGuard)
   @HttpCode(200)
   async handleWebhook(@Req() request: FastifyStripeRequest): Promise<{ received: true }> {
-    if (request.stripeEventAlreadyProcessed) {
-      this._logger.debug('Webhook event already processed previously, returning received: true early');
-      return { received: true };
-    }
-
     const event = request.stripeEvent;
 
     if (!event) {
       this._logger.warn('No Stripe event attached to request object');
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_EVENT_MISSING);
+    }
+
+    const shouldProcess = await this._writeRepo.claimStripeWebhookEvent(event);
+    if (!shouldProcess) {
+      this._logger.debug(`Webhook event ${event.id} is already processed or currently being processed`);
       return { received: true };
     }
 
     this._logger.debug(`Dispatching command for webhook event type: ${event.type}`);
 
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        await this._commandBus.execute(
-          new HandleCheckoutCompletedCommand(event.data.object as Stripe.Checkout.Session),
-        );
-        break;
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          await this._commandBus.execute(
+            new HandleCheckoutCompletedCommand(event.data.object as Stripe.Checkout.Session),
+          );
+          break;
+        }
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+        case 'customer.subscription.paused':
+        case 'customer.subscription.resumed': {
+          await this._commandBus.execute(
+            new HandleSubscriptionChangedCommand(event.data.object as Stripe.Subscription),
+          );
+          break;
+        }
+        case 'invoice.payment_failed': {
+          await this._commandBus.execute(new HandleInvoicePaymentFailedCommand(event.data.object as Stripe.Invoice));
+          break;
+        }
+        case 'invoice.paid': {
+          await this._commandBus.execute(new HandleInvoicePaidCommand(event.data.object as Stripe.Invoice));
+          break;
+        }
+        default:
+          this._logger.debug(`Unhandled webhook event type: ${event.type}`);
+          break;
       }
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated':
-      case 'customer.subscription.deleted': {
-        await this._commandBus.execute(new HandleSubscriptionChangedCommand(event.data.object as Stripe.Subscription));
-        break;
-      }
-      case 'invoice.payment_failed': {
-        await this._commandBus.execute(new HandleInvoicePaymentFailedCommand(event.data.object as Stripe.Invoice));
-        break;
-      }
-      default:
-        this._logger.debug(`Unhandled webhook event type: ${event.type}`);
-        break;
-    }
 
-    await this._commandBus.execute(new RecordStripeWebhookEventCommand(event));
+      await this._writeRepo.markStripeWebhookEventProcessed(event.id);
+    } catch (error) {
+      await this._writeRepo.markStripeWebhookEventFailed(event.id, error);
+      throw error;
+    }
 
     return { received: true };
   }

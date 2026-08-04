@@ -35,10 +35,10 @@
             </div>
           </div>
 
-          @if (canManageBilling()) {
-            <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
-              @if (isPendingCancel() || subscription()?.status === 'ACTIVE') {
-                <button mat-flat-button color="primary" (click)="manageBilling()" class="!rounded-xl font-bold">
+          @if (canManageBilling() && showBillingAction()) {
+            <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
+              @if (billingAction() === BillingAction.MANAGE) {
+                <button mat-button (click)="manageBilling()" class="!rounded-xl font-bold border border-outline-variant/30">
                   <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
                   {{ 'billing.manage_billing' | translate }}
                 </button>
@@ -346,6 +346,7 @@
       <div class="flex flex-col gap-3">
         @for (product of pantryAlertsSliced(); track product.id) {
           <coaster-inventory-item-card
+            [barId]="barId()"
             [itemName]="product.name"
             [qty]="product.currentStock"
             [statusLevel]="product.stockStatus"

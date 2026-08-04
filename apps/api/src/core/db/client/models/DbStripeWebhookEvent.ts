@@ -20,22 +20,42 @@ export type DbStripeWebhookEventModel = runtime.Types.Result.DefaultSelection<Pr
 
 export type AggregateDbStripeWebhookEvent = {
   _count: DbStripeWebhookEventCountAggregateOutputType | null
+  _avg: DbStripeWebhookEventAvgAggregateOutputType | null
+  _sum: DbStripeWebhookEventSumAggregateOutputType | null
   _min: DbStripeWebhookEventMinAggregateOutputType | null
   _max: DbStripeWebhookEventMaxAggregateOutputType | null
+}
+
+export type DbStripeWebhookEventAvgAggregateOutputType = {
+  attempts: number | null
+}
+
+export type DbStripeWebhookEventSumAggregateOutputType = {
+  attempts: number | null
 }
 
 export type DbStripeWebhookEventMinAggregateOutputType = {
   id: string | null
   stripeEventId: string | null
   type: string | null
+  processingStatus: string | null
+  attempts: number | null
+  lastError: string | null
+  receivedAt: Date | null
   processedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type DbStripeWebhookEventMaxAggregateOutputType = {
   id: string | null
   stripeEventId: string | null
   type: string | null
+  processingStatus: string | null
+  attempts: number | null
+  lastError: string | null
+  receivedAt: Date | null
   processedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type DbStripeWebhookEventCountAggregateOutputType = {
@@ -43,23 +63,46 @@ export type DbStripeWebhookEventCountAggregateOutputType = {
   stripeEventId: number
   type: number
   payload: number
+  processingStatus: number
+  attempts: number
+  lastError: number
+  receivedAt: number
   processedAt: number
+  updatedAt: number
   _all: number
 }
 
+
+export type DbStripeWebhookEventAvgAggregateInputType = {
+  attempts?: true
+}
+
+export type DbStripeWebhookEventSumAggregateInputType = {
+  attempts?: true
+}
 
 export type DbStripeWebhookEventMinAggregateInputType = {
   id?: true
   stripeEventId?: true
   type?: true
+  processingStatus?: true
+  attempts?: true
+  lastError?: true
+  receivedAt?: true
   processedAt?: true
+  updatedAt?: true
 }
 
 export type DbStripeWebhookEventMaxAggregateInputType = {
   id?: true
   stripeEventId?: true
   type?: true
+  processingStatus?: true
+  attempts?: true
+  lastError?: true
+  receivedAt?: true
   processedAt?: true
+  updatedAt?: true
 }
 
 export type DbStripeWebhookEventCountAggregateInputType = {
@@ -67,7 +110,12 @@ export type DbStripeWebhookEventCountAggregateInputType = {
   stripeEventId?: true
   type?: true
   payload?: true
+  processingStatus?: true
+  attempts?: true
+  lastError?: true
+  receivedAt?: true
   processedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -109,6 +157,18 @@ export type DbStripeWebhookEventAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DbStripeWebhookEventAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DbStripeWebhookEventSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DbStripeWebhookEventMinAggregateInputType
@@ -139,6 +199,8 @@ export type DbStripeWebhookEventGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: DbStripeWebhookEventCountAggregateInputType | true
+  _avg?: DbStripeWebhookEventAvgAggregateInputType
+  _sum?: DbStripeWebhookEventSumAggregateInputType
   _min?: DbStripeWebhookEventMinAggregateInputType
   _max?: DbStripeWebhookEventMaxAggregateInputType
 }
@@ -148,8 +210,15 @@ export type DbStripeWebhookEventGroupByOutputType = {
   stripeEventId: string
   type: string
   payload: runtime.JsonValue
-  processedAt: Date
+  processingStatus: string
+  attempts: number
+  lastError: string | null
+  receivedAt: Date
+  processedAt: Date | null
+  updatedAt: Date
   _count: DbStripeWebhookEventCountAggregateOutputType | null
+  _avg: DbStripeWebhookEventAvgAggregateOutputType | null
+  _sum: DbStripeWebhookEventSumAggregateOutputType | null
   _min: DbStripeWebhookEventMinAggregateOutputType | null
   _max: DbStripeWebhookEventMaxAggregateOutputType | null
 }
@@ -177,7 +246,12 @@ export type DbStripeWebhookEventWhereInput = {
   stripeEventId?: Prisma.StringFilter<"DbStripeWebhookEvent"> | string
   type?: Prisma.StringFilter<"DbStripeWebhookEvent"> | string
   payload?: Prisma.JsonFilter<"DbStripeWebhookEvent">
-  processedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
+  processingStatus?: Prisma.StringFilter<"DbStripeWebhookEvent"> | string
+  attempts?: Prisma.IntFilter<"DbStripeWebhookEvent"> | number
+  lastError?: Prisma.StringNullableFilter<"DbStripeWebhookEvent"> | string | null
+  receivedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
+  processedAt?: Prisma.DateTimeNullableFilter<"DbStripeWebhookEvent"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
 }
 
 export type DbStripeWebhookEventOrderByWithRelationInput = {
@@ -185,7 +259,12 @@ export type DbStripeWebhookEventOrderByWithRelationInput = {
   stripeEventId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   payload?: Prisma.SortOrder
-  processedAt?: Prisma.SortOrder
+  processingStatus?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
+  lastError?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
+  processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type DbStripeWebhookEventWhereUniqueInput = Prisma.AtLeast<{
@@ -196,7 +275,12 @@ export type DbStripeWebhookEventWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DbStripeWebhookEventWhereInput | Prisma.DbStripeWebhookEventWhereInput[]
   type?: Prisma.StringFilter<"DbStripeWebhookEvent"> | string
   payload?: Prisma.JsonFilter<"DbStripeWebhookEvent">
-  processedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
+  processingStatus?: Prisma.StringFilter<"DbStripeWebhookEvent"> | string
+  attempts?: Prisma.IntFilter<"DbStripeWebhookEvent"> | number
+  lastError?: Prisma.StringNullableFilter<"DbStripeWebhookEvent"> | string | null
+  receivedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
+  processedAt?: Prisma.DateTimeNullableFilter<"DbStripeWebhookEvent"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"DbStripeWebhookEvent"> | Date | string
 }, "id" | "stripeEventId">
 
 export type DbStripeWebhookEventOrderByWithAggregationInput = {
@@ -204,10 +288,17 @@ export type DbStripeWebhookEventOrderByWithAggregationInput = {
   stripeEventId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   payload?: Prisma.SortOrder
-  processedAt?: Prisma.SortOrder
+  processingStatus?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
+  lastError?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
+  processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbStripeWebhookEventCountOrderByAggregateInput
+  _avg?: Prisma.DbStripeWebhookEventAvgOrderByAggregateInput
   _max?: Prisma.DbStripeWebhookEventMaxOrderByAggregateInput
   _min?: Prisma.DbStripeWebhookEventMinOrderByAggregateInput
+  _sum?: Prisma.DbStripeWebhookEventSumOrderByAggregateInput
 }
 
 export type DbStripeWebhookEventScalarWhereWithAggregatesInput = {
@@ -218,7 +309,12 @@ export type DbStripeWebhookEventScalarWhereWithAggregatesInput = {
   stripeEventId?: Prisma.StringWithAggregatesFilter<"DbStripeWebhookEvent"> | string
   type?: Prisma.StringWithAggregatesFilter<"DbStripeWebhookEvent"> | string
   payload?: Prisma.JsonWithAggregatesFilter<"DbStripeWebhookEvent">
-  processedAt?: Prisma.DateTimeWithAggregatesFilter<"DbStripeWebhookEvent"> | Date | string
+  processingStatus?: Prisma.StringWithAggregatesFilter<"DbStripeWebhookEvent"> | string
+  attempts?: Prisma.IntWithAggregatesFilter<"DbStripeWebhookEvent"> | number
+  lastError?: Prisma.StringNullableWithAggregatesFilter<"DbStripeWebhookEvent"> | string | null
+  receivedAt?: Prisma.DateTimeWithAggregatesFilter<"DbStripeWebhookEvent"> | Date | string
+  processedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbStripeWebhookEvent"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbStripeWebhookEvent"> | Date | string
 }
 
 export type DbStripeWebhookEventCreateInput = {
@@ -226,7 +322,12 @@ export type DbStripeWebhookEventCreateInput = {
   stripeEventId: string
   type: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Date | string
+  processingStatus?: string
+  attempts?: number
+  lastError?: string | null
+  receivedAt?: Date | string
+  processedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type DbStripeWebhookEventUncheckedCreateInput = {
@@ -234,7 +335,12 @@ export type DbStripeWebhookEventUncheckedCreateInput = {
   stripeEventId: string
   type: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Date | string
+  processingStatus?: string
+  attempts?: number
+  lastError?: string | null
+  receivedAt?: Date | string
+  processedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type DbStripeWebhookEventUpdateInput = {
@@ -242,7 +348,12 @@ export type DbStripeWebhookEventUpdateInput = {
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DbStripeWebhookEventUncheckedUpdateInput = {
@@ -250,7 +361,12 @@ export type DbStripeWebhookEventUncheckedUpdateInput = {
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DbStripeWebhookEventCreateManyInput = {
@@ -258,7 +374,12 @@ export type DbStripeWebhookEventCreateManyInput = {
   stripeEventId: string
   type: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Date | string
+  processingStatus?: string
+  attempts?: number
+  lastError?: string | null
+  receivedAt?: Date | string
+  processedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type DbStripeWebhookEventUpdateManyMutationInput = {
@@ -266,7 +387,12 @@ export type DbStripeWebhookEventUpdateManyMutationInput = {
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DbStripeWebhookEventUncheckedUpdateManyInput = {
@@ -274,7 +400,12 @@ export type DbStripeWebhookEventUncheckedUpdateManyInput = {
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  processedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DbStripeWebhookEventCountOrderByAggregateInput = {
@@ -282,21 +413,44 @@ export type DbStripeWebhookEventCountOrderByAggregateInput = {
   stripeEventId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   payload?: Prisma.SortOrder
+  processingStatus?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
+  lastError?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type DbStripeWebhookEventAvgOrderByAggregateInput = {
+  attempts?: Prisma.SortOrder
 }
 
 export type DbStripeWebhookEventMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  processingStatus?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
+  lastError?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type DbStripeWebhookEventMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  processingStatus?: Prisma.SortOrder
+  attempts?: Prisma.SortOrder
+  lastError?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type DbStripeWebhookEventSumOrderByAggregateInput = {
+  attempts?: Prisma.SortOrder
 }
 
 
@@ -306,7 +460,12 @@ export type DbStripeWebhookEventSelect<ExtArgs extends runtime.Types.Extensions.
   stripeEventId?: boolean
   type?: boolean
   payload?: boolean
+  processingStatus?: boolean
+  attempts?: boolean
+  lastError?: boolean
+  receivedAt?: boolean
   processedAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["dbStripeWebhookEvent"]>
 
 export type DbStripeWebhookEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -314,7 +473,12 @@ export type DbStripeWebhookEventSelectCreateManyAndReturn<ExtArgs extends runtim
   stripeEventId?: boolean
   type?: boolean
   payload?: boolean
+  processingStatus?: boolean
+  attempts?: boolean
+  lastError?: boolean
+  receivedAt?: boolean
   processedAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["dbStripeWebhookEvent"]>
 
 export type DbStripeWebhookEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -322,7 +486,12 @@ export type DbStripeWebhookEventSelectUpdateManyAndReturn<ExtArgs extends runtim
   stripeEventId?: boolean
   type?: boolean
   payload?: boolean
+  processingStatus?: boolean
+  attempts?: boolean
+  lastError?: boolean
+  receivedAt?: boolean
   processedAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["dbStripeWebhookEvent"]>
 
 export type DbStripeWebhookEventSelectScalar = {
@@ -330,10 +499,15 @@ export type DbStripeWebhookEventSelectScalar = {
   stripeEventId?: boolean
   type?: boolean
   payload?: boolean
+  processingStatus?: boolean
+  attempts?: boolean
+  lastError?: boolean
+  receivedAt?: boolean
   processedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type DbStripeWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stripeEventId" | "type" | "payload" | "processedAt", ExtArgs["result"]["dbStripeWebhookEvent"]>
+export type DbStripeWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stripeEventId" | "type" | "payload" | "processingStatus" | "attempts" | "lastError" | "receivedAt" | "processedAt" | "updatedAt", ExtArgs["result"]["dbStripeWebhookEvent"]>
 
 export type $DbStripeWebhookEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbStripeWebhookEvent"
@@ -343,7 +517,12 @@ export type $DbStripeWebhookEventPayload<ExtArgs extends runtime.Types.Extension
     stripeEventId: string
     type: string
     payload: runtime.JsonValue
-    processedAt: Date
+    processingStatus: string
+    attempts: number
+    lastError: string | null
+    receivedAt: Date
+    processedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["dbStripeWebhookEvent"]>
   composites: {}
 }
@@ -771,7 +950,12 @@ export interface DbStripeWebhookEventFieldRefs {
   readonly stripeEventId: Prisma.FieldRef<"DbStripeWebhookEvent", 'String'>
   readonly type: Prisma.FieldRef<"DbStripeWebhookEvent", 'String'>
   readonly payload: Prisma.FieldRef<"DbStripeWebhookEvent", 'Json'>
+  readonly processingStatus: Prisma.FieldRef<"DbStripeWebhookEvent", 'String'>
+  readonly attempts: Prisma.FieldRef<"DbStripeWebhookEvent", 'Int'>
+  readonly lastError: Prisma.FieldRef<"DbStripeWebhookEvent", 'String'>
+  readonly receivedAt: Prisma.FieldRef<"DbStripeWebhookEvent", 'DateTime'>
   readonly processedAt: Prisma.FieldRef<"DbStripeWebhookEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"DbStripeWebhookEvent", 'DateTime'>
 }
     
 

@@ -1,15 +1,17 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import type { BarId } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RequireSubscriptionDirective } from './require-subscription.directive';
 
 @Component({
   standalone: true,
   imports: [RequireSubscriptionDirective],
-  template: `<button coasterRequireSubscription (click)="onAction()">Click Me</button>`,
+  template: `<button coasterRequireSubscription [barId]="barId" (click)="onAction()">Click Me</button>`,
 })
 class TestComponent {
+  barId = 'bar-1' as BarId;
   actionCalled = false;
   onAction() {
     this.actionCalled = true;
@@ -56,12 +58,13 @@ describe('RequireSubscriptionDirective', () => {
     expect(planDialogServiceMock.open).not.toHaveBeenCalled();
   });
 
-  it('should disable button and open plan dialog when read-only', () => {
+  it('should preserve clickability and open plan dialog when read-only', () => {
     isReadOnlySignal.set(true);
     fixture.detectChanges();
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(button.disabled).toBe(true);
+    expect(button.disabled).toBe(false);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
     expect(button.classList.contains('opacity-60')).toBe(true);
 
     const event = new MouseEvent('click', { cancelable: true });
@@ -69,6 +72,6 @@ describe('RequireSubscriptionDirective', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.actionCalled).toBe(false);
-    expect(planDialogServiceMock.open).toHaveBeenCalled();
+    expect(planDialogServiceMock.open).toHaveBeenCalledWith('bar-1');
   });
 });

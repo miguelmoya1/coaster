@@ -29,13 +29,14 @@ describe('GetBarSubscriptionHandler', () => {
 
   it('should return mapped subscription domain model when subscription exists in DB', async () => {
     const barId = 'bar_123' as BarId;
-    const now = new Date();
+    const now = new Date(Date.now() - 60_000);
+    const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const dbSub = {
       barId,
       plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
       currentPeriodStart: now,
-      currentPeriodEnd: now,
+      currentPeriodEnd: periodEnd,
       canceledAt: null,
       stripeCustomerId: 'cus_123',
       stripeSubscriptionId: 'sub_123',
@@ -49,8 +50,9 @@ describe('GetBarSubscriptionHandler', () => {
       plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
       currentPeriodStart: now.toISOString(),
-      currentPeriodEnd: now.toISOString(),
+      currentPeriodEnd: periodEnd.toISOString(),
       canceledAt: undefined,
+      trialEndsAt: undefined,
       stripeCustomerId: 'cus_123',
       stripeSubscriptionId: 'sub_123',
     });

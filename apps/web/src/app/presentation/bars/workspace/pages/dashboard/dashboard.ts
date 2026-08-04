@@ -3,10 +3,10 @@ import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { BarSubscriptionStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
+import { BarSubscriptionStore, BillingAction, MyMemberStore, PlanDialogService } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
-import { BarPermission, BarRole } from '@coaster/common';
-import { ActionFeedback } from '@coaster/core';
+import { BarPermission, BarRole, ErrorCodes } from '@coaster/common';
+import { ActionFeedback, ApiError } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
@@ -60,6 +60,9 @@ export class Dashboard {
 
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
+  readonly billingAction = this.#barSubscriptionStore.billingAction;
+  readonly showBillingAction = this.#barSubscriptionStore.showBillingAction;
+  readonly BillingAction = BillingAction;
   readonly trialDaysRemaining = computed(() => this.#barSubscriptionStore.trialDaysRemaining());
   readonly isTrialActive = computed(() => this.#barSubscriptionStore.isTrialActive());
 
@@ -190,18 +193,22 @@ export class Dashboard {
   }
 
   async manageBilling(): Promise<void> {
-    const barId = this.barId();
-    const returnUrl = `${window.location.origin}/bars/${barId}/dashboard`;
-    const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession(returnUrl);
-    if (portalUrl) {
-      window.location.assign(portalUrl);
-    } else {
-      this.#actionFeedback.error('errors.stripe_connection');
+    try {
+      const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession();
+      if (portalUrl) {
+        window.location.assign(portalUrl);
+      } else {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
     }
   }
 
   activatePro(): void {
-    this.#planDialogService.open();
+    this.#planDialogService.open(this.barId());
   }
 
   readonly pantryAlerts = computed(() => {

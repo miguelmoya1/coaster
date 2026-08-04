@@ -4,6 +4,7 @@ import {
   BarSubscription,
   CreateCheckoutSessionResponse,
   CreateCustomerPortalSessionResponse,
+  SubscriptionPlan,
 } from '@coaster/common';
 import { Body, Controller, Get, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -37,19 +38,18 @@ export class BarBillingController {
     @Param('barId') barId: BarId,
     @Body() dto: CreateCheckoutSessionDto,
   ): Promise<CreateCheckoutSessionResponse> {
-    this._logger.debug(
-      `[POST /bars/${barId}/billing/checkout-session] Creating checkout session for plan: ${dto.plan}`,
-    );
-    return this._commandBus.execute(new CreateCheckoutSessionCommand(barId, dto.plan, dto.successUrl, dto.cancelUrl));
+    const plan = dto.plan ?? SubscriptionPlan.PRO;
+    this._logger.debug(`[POST /bars/${barId}/billing/checkout-session] Creating checkout session for plan: ${plan}`);
+    return this._commandBus.execute(new CreateCheckoutSessionCommand(barId, plan));
   }
 
   @Post('customer-portal-session')
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
   async createCustomerPortalSession(
     @Param('barId') barId: BarId,
-    @Body() dto: CreateCustomerPortalSessionDto,
+    @Body() _dto: CreateCustomerPortalSessionDto,
   ): Promise<CreateCustomerPortalSessionResponse> {
     this._logger.debug(`[POST /bars/${barId}/billing/customer-portal-session] Creating portal session`);
-    return this._commandBus.execute(new CreateCustomerPortalSessionCommand(barId, dto.returnUrl));
+    return this._commandBus.execute(new CreateCustomerPortalSessionCommand(barId));
   }
 }

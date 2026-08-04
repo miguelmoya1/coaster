@@ -3,8 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-type BillingCycle = 'monthly' | 'yearly';
-
 interface FaqKeyItem {
   questionKey: string;
   answerKey: string;
@@ -351,57 +349,8 @@ interface FaqKeyItem {
               {{ 'landing.pricing.subtitle' | translate }}
             </p>
 
-            <!-- Billing Toggle Switch with Angular Material Buttons -->
-            <div
-              class="mt-10 inline-flex items-center p-1.5 rounded-2xl bg-surface-container border border-white/10 gap-2"
-            >
-              @if (billingCycle() === 'monthly') {
-                <button
-                  type="button"
-                  mat-flat-button
-                  (click)="billingCycle.set('monthly')"
-                  class="bg-primary! text-black! font-bold! rounded-xl! px-6! py-3!"
-                >
-                  {{ 'landing.pricing.monthly' | translate }}
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  mat-button
-                  (click)="billingCycle.set('monthly')"
-                  class="text-slate-300! hover:text-white! font-semibold! rounded-xl! px-6! py-3!"
-                >
-                  {{ 'landing.pricing.monthly' | translate }}
-                </button>
-              }
-
-              @if (billingCycle() === 'yearly') {
-                <button
-                  type="button"
-                  mat-flat-button
-                  (click)="billingCycle.set('yearly')"
-                  class="bg-primary! text-black! font-bold! rounded-xl! px-6! py-3! flex items-center gap-2"
-                >
-                  <span>{{ 'landing.pricing.yearly' | translate }}</span>
-                  <span class="px-2 py-0.5 rounded-full bg-black/30 text-black text-xs font-black uppercase">
-                    {{ 'landing.pricing.save_discount' | translate }}
-                  </span>
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  mat-button
-                  (click)="billingCycle.set('yearly')"
-                  class="text-slate-300! hover:text-white! font-semibold! rounded-xl! px-6! py-3! flex items-center gap-2"
-                >
-                  <span>{{ 'landing.pricing.yearly' | translate }}</span>
-                  <span
-                    class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black uppercase"
-                  >
-                    {{ 'landing.pricing.save_discount' | translate }}
-                  </span>
-                </button>
-              }
+            <div class="mt-10 inline-flex items-center rounded-2xl bg-surface-container border border-white/10 px-6 py-3">
+              <span class="text-primary font-bold">{{ 'landing.pricing.monthly' | translate }}</span>
             </div>
           </div>
 
@@ -490,20 +439,12 @@ interface FaqKeyItem {
 
                 <div class="mt-6 flex items-baseline gap-1">
                   <span class="text-5xl font-black text-white font-mono">
-                    {{
-                      billingCycle() === 'monthly'
-                        ? ('landing.pricing.pro_price_monthly' | translate)
-                        : ('landing.pricing.pro_price_yearly' | translate)
-                    }}
+                    {{ 'landing.pricing.pro_price_monthly' | translate }}
                   </span>
                   <span class="text-slate-400 text-sm">{{ 'landing.pricing.free_period' | translate }}</span>
                 </div>
                 <p class="text-xs text-secondary font-semibold mt-1">
-                  {{
-                    billingCycle() === 'yearly'
-                      ? ('landing.pricing.pro_subtext_yearly' | translate)
-                      : ('landing.pricing.pro_subtext_monthly' | translate)
-                  }}
+                  {{ 'landing.pricing.pro_subtext_monthly' | translate }}
                 </p>
 
                 <ul class="mt-8 space-y-3.5 text-sm text-slate-200">
@@ -721,7 +662,6 @@ interface FaqKeyItem {
 export default class Landing {
   private readonly elRef = inject(ElementRef);
 
-  billingCycle = signal<BillingCycle>('monthly');
   activeFaq = signal<number | null>(null);
   currentYear = new Date().getFullYear();
 

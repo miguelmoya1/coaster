@@ -1,15 +1,10 @@
-import { SubscriptionPlan } from '@coaster/common';
-import { IsIn, IsUrl } from 'class-validator';
+import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
+import { IsIn, IsOptional } from 'class-validator';
 
 const BILLING_PLANS = [SubscriptionPlan.PRO] as const;
 
 export class CreateCheckoutSessionDto {
-  @IsIn(BILLING_PLANS)
-  plan!: (typeof BILLING_PLANS)[number];
-
-  @IsUrl({ require_tld: false })
-  successUrl!: string;
-
-  @IsUrl({ require_tld: false })
-  cancelUrl!: string;
+  @IsOptional()
+  @IsIn(BILLING_PLANS, { message: ErrorCodes.INVALID_SUBSCRIPTION_PLAN })
+  plan: (typeof BILLING_PLANS)[number] = SubscriptionPlan.PRO;
 }

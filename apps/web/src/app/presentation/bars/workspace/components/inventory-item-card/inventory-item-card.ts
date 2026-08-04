@@ -1,6 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import type { BarId } from '@coaster/common';
 import { StockStatus } from '@coaster/common';
 import { RequireSubscriptionDirective } from '@coaster/core';
 import { StockStatusPipe } from '@coaster/products';
@@ -63,10 +64,10 @@ import { StatusBadge } from '../status-badge/status-badge';
 
     @if (showEditButton()) {
       <div class="flex items-center gap-1">
-        <button mat-icon-button coasterRequireSubscription (click)="onEditClick($event)">
+        <button mat-icon-button coasterRequireSubscription [barId]="barId()" (click)="onEditClick($event)">
           <mat-icon class="text-base">edit</mat-icon>
         </button>
-        <button mat-icon-button coasterRequireSubscription (click)="onDeleteClick($event)">
+        <button mat-icon-button coasterRequireSubscription [barId]="barId()" (click)="onDeleteClick($event)">
           <mat-icon class="text-base">delete</mat-icon>
         </button>
       </div>
@@ -89,6 +90,7 @@ import { StatusBadge } from '../status-badge/status-badge';
   `,
 })
 export class InventoryItemCard {
+  readonly barId = input.required<BarId>();
   readonly itemName = input.required<string>();
   readonly qty = input.required<number>();
   readonly price = input<number>(0);

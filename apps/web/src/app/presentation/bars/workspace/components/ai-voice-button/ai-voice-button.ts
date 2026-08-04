@@ -226,6 +226,7 @@ import { AiVoiceService } from './ai-voice.service';
         mat-fab
         cdkDrag
         coasterRequireSubscription
+        [barId]="barId()"
         (click)="togglePanel()"
         [class.listening-pulse]="service.status() === 'listening'"
         [class.paused-border]="service.status() === 'paused'"

@@ -115,5 +115,5 @@
 }
 
 @if (isOwner()) {
-  <coaster-fab coasterRequireSubscription (click)="onCreateTable()" />
+  <coaster-fab coasterRequireSubscription [barId]="barId()" (click)="onCreateTable()" />
 }

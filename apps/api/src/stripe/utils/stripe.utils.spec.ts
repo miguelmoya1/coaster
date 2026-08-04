@@ -1,4 +1,4 @@
-import { SubscriptionPlan } from '@coaster/common';
+import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -25,6 +25,12 @@ describe('stripe.utils', () => {
     it('should throw InternalServerErrorException if price is not configured', () => {
       configServiceMock.get.mockReturnValue(undefined);
       expect(() => getPriceId(SubscriptionPlan.PRO, configServiceMock)).toThrow(InternalServerErrorException);
+    });
+
+    it('should reject plans outside the supported catalog with an application error code', () => {
+      expect(() => getPriceId('YEARLY' as Exclude<SubscriptionPlan, 'FREE'>, configServiceMock)).toThrow(
+        ErrorCodes.INVALID_SUBSCRIPTION_PLAN,
+      );
     });
   });
 

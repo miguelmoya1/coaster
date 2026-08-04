@@ -51,6 +51,7 @@
   <div class="flex flex-col gap-4">
     @for (product of filteredProducts(); track product.id) {
       <coaster-inventory-item-card
+        [barId]="barId()"
         [itemName]="product.name"
         [qty]="product.currentStock"
         [price]="product.price"
@@ -67,6 +68,11 @@
   </div>
 
   @if (canCreateProduct()) {
-    <coaster-fab data-testid="create-pantry-fab" coasterRequireSubscription (click)="onCreatePantryClicked()" />
+    <coaster-fab
+      data-testid="create-pantry-fab"
+      coasterRequireSubscription
+      [barId]="barId()"
+      (click)="onCreatePantryClicked()"
+    />
   }
 </coaster-page-container>

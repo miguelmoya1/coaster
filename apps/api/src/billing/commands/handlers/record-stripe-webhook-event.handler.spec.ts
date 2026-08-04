@@ -9,15 +9,18 @@ describe('RecordStripeWebhookEventHandler', () => {
 
   beforeEach(() => {
     writeRepoMock = {
-      recordStripeWebhookEvent: vi.fn(),
+      claimStripeWebhookEvent: vi.fn().mockResolvedValue(true),
+      markStripeWebhookEventProcessed: vi.fn(),
+      markStripeWebhookEventFailed: vi.fn(),
     };
     handler = new RecordStripeWebhookEventHandler(writeRepoMock as any);
   });
 
-  it('should call recordStripeWebhookEvent on write repository', async () => {
+  it('should claim and mark a webhook event as processed', async () => {
     const event = { id: 'evt_123', type: 'checkout.session.completed' } as Stripe.Event;
     await handler.execute(new RecordStripeWebhookEventCommand(event));
 
-    expect(writeRepoMock.recordStripeWebhookEvent).toHaveBeenCalledWith('evt_123', 'checkout.session.completed', event);
+    expect(writeRepoMock.claimStripeWebhookEvent).toHaveBeenCalledWith(event);
+    expect(writeRepoMock.markStripeWebhookEventProcessed).toHaveBeenCalledWith(event.id);
   });
 });

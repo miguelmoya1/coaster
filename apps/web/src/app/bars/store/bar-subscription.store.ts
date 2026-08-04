@@ -1,12 +1,20 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service } from '@angular/core';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { barSubscriptionMapper } from '../mappers/bar.mapper';
 import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 import { CurrentBarStore } from './current-bar.store';
+
+export const BillingAction = {
+  ACTIVATE: 'ACTIVATE',
+  MANAGE: 'MANAGE',
+} as const;
+
+export type BillingAction = (typeof BillingAction)[keyof typeof BillingAction];
 
 @Service()
 export class BarSubscriptionStore {
@@ -30,7 +38,13 @@ export class BarSubscriptionStore {
   public readonly isReadOnly = computed(() => {
     const sub = this.subscription.value();
     if (!sub) return false;
-    if (sub.status === SubscriptionStatus.ACTIVE) return false;
+    if (sub.status === SubscriptionStatus.ACTIVE) {
+      return !(
+        sub.stripeSubscriptionId &&
+        sub.currentPeriodEnd &&
+        new Date() <= new Date(sub.currentPeriodEnd)
+      );
+    }
     if (sub.status === SubscriptionStatus.CANCELED) {
       if (!sub.currentPeriodEnd) return true;
       return new Date() > new Date(sub.currentPeriodEnd);
@@ -44,8 +58,7 @@ export class BarSubscriptionStore {
       return true;
     }
     if (sub.status === SubscriptionStatus.TRIALING) {
-      if (!sub.trialEndsAt) return false;
-      return new Date() > new Date(sub.trialEndsAt);
+      return !(sub.trialEndsAt && new Date() <= new Date(sub.trialEndsAt));
     }
     return false;
   });
@@ -72,6 +85,22 @@ export class BarSubscriptionStore {
     return this.isTrialActive() && this.trialDaysRemaining() <= 3;
   });
 
+  public readonly showSubscriptionBanner = computed(() => {
+    return this.isReadOnly() || this.isTrialExpiringSoon();
+  });
+
+  public readonly billingAction = computed<BillingAction>(() => {
+    if (this.showSubscriptionBanner()) {
+      return BillingAction.ACTIVATE;
+    }
+
+    return this.subscription.value()?.status === SubscriptionStatus.ACTIVE
+      ? BillingAction.MANAGE
+      : BillingAction.ACTIVATE;
+  });
+
+  public readonly showBillingAction = computed(() => !this.showSubscriptionBanner());
+
   constructor() {
     effect(() => {
       const event = this.#socketService.subscriptionUpdated();
@@ -86,14 +115,14 @@ export class BarSubscriptionStore {
     this.#subscriptionResource.reload();
   }
 
-  public async createCustomerPortalSession(returnUrl: string): Promise<string | undefined> {
-    return this.#createCustomerPortalSession.execute(this.#currentBarStore.currentId(), returnUrl);
+  public async createCustomerPortalSession(): Promise<string | undefined> {
+    return this.#createCustomerPortalSession.execute(this.#currentBarStore.currentId());
   }
 
   public async createCheckoutSession(
-    returnUrl: string,
+    barId: BarId,
     plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO,
   ): Promise<string | undefined> {
-    return this.#createCheckoutSession.execute(this.#currentBarStore.currentId(), returnUrl, plan);
+    return this.#createCheckoutSession.execute(barId, plan);
   }
 }

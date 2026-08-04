@@ -55,6 +55,9 @@ describe('WorkspaceLayout', () => {
   const barSubscriptionStoreMock = {
     isReadOnly: signal(false),
     isTrialExpiringSoon: signal(false),
+    showSubscriptionBanner: signal(false),
+    billingAction: signal('ACTIVATE'),
+    showBillingAction: signal(true),
     trialDaysRemaining: signal(14),
     subscription: {
       value: vi.fn().mockReturnValue(null),

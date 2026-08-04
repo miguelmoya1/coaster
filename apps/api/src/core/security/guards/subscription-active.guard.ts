@@ -67,16 +67,29 @@ export class SubscriptionActiveGuard implements CanActivate {
       );
     }
 
-    if (sub.status === DbSubscriptionStatus.ACTIVE) {
-      return true;
-    }
-
     const now = new Date();
-    if (sub.status === DbSubscriptionStatus.TRIALING && sub.trialEndsAt && now <= sub.trialEndsAt) {
+    if (
+      sub.status === DbSubscriptionStatus.ACTIVE &&
+      sub.stripeSubscriptionId &&
+      sub.currentPeriodEnd &&
+      now <= sub.currentPeriodEnd
+    ) {
       return true;
     }
 
-    if (sub.status === DbSubscriptionStatus.CANCELED && sub.currentPeriodEnd && now <= sub.currentPeriodEnd) {
+    if (
+      sub.status === DbSubscriptionStatus.TRIALING &&
+      sub.trialEndsAt &&
+      now <= sub.trialEndsAt
+    ) {
+      return true;
+    }
+
+    if (
+      sub.status === DbSubscriptionStatus.CANCELED &&
+      sub.currentPeriodEnd &&
+      now <= sub.currentPeriodEnd
+    ) {
       return true;
     }
 

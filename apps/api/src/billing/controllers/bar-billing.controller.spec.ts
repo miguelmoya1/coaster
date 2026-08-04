@@ -35,29 +35,34 @@ describe('BarBillingController', () => {
     const barId = 'bar_123' as BarId;
     const dto = {
       plan: SubscriptionPlan.PRO as Exclude<SubscriptionPlan, 'FREE'>,
-      successUrl: 'https://example.com/success',
-      cancelUrl: 'https://example.com/cancel',
     };
     const mockResponse = { id: 'cs_123', url: 'https://stripe.com/checkout' };
     commandBusMock.execute.mockResolvedValue(mockResponse);
 
     const result = await controller.createCheckoutSession(barId, dto);
 
-    expect(commandBusMock.execute).toHaveBeenCalledWith(
-      new CreateCheckoutSessionCommand(barId, dto.plan, dto.successUrl, dto.cancelUrl),
-    );
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCheckoutSessionCommand(barId, dto.plan));
     expect(result).toEqual(mockResponse);
+  });
+
+  it('should default a missing plan to PRO', async () => {
+    const barId = 'bar_123' as BarId;
+    commandBusMock.execute.mockResolvedValue({ id: 'cs_123', url: 'https://stripe.com/checkout' });
+
+    await controller.createCheckoutSession(barId, {} as never);
+
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
   });
 
   it('should execute CreateCustomerPortalSessionCommand on createCustomerPortalSession', async () => {
     const barId = 'bar_123' as BarId;
-    const dto = { returnUrl: 'https://example.com/return' };
+    const dto = {};
     const mockResponse = { url: 'https://stripe.com/portal' };
     commandBusMock.execute.mockResolvedValue(mockResponse);
 
     const result = await controller.createCustomerPortalSession(barId, dto);
 
-    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCustomerPortalSessionCommand(barId, dto.returnUrl));
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCustomerPortalSessionCommand(barId));
     expect(result).toEqual(mockResponse);
   });
 });

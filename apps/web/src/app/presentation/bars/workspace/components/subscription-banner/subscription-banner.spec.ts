@@ -1,6 +1,7 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import type { BarId } from '@coaster/common';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubscriptionBanner } from './subscription-banner';
@@ -25,9 +26,11 @@ describe('SubscriptionBanner', () => {
         {
           provide: BarSubscriptionStore,
           useValue: {
-            isReadOnly: isReadOnlySignal,
-            isTrialExpiringSoon: isTrialExpiringSoonSignal,
-            trialDaysRemaining: trialDaysRemainingSignal,
+          isReadOnly: isReadOnlySignal,
+          isTrialExpiringSoon: isTrialExpiringSoonSignal,
+          trialDaysRemaining: trialDaysRemainingSignal,
+          showSubscriptionBanner: computed(() => isReadOnlySignal() || isTrialExpiringSoonSignal()),
+          billingAction: signal('ACTIVATE'),
           },
         },
         {
@@ -52,6 +55,7 @@ describe('SubscriptionBanner', () => {
     translate.use('es');
 
     fixture = TestBed.createComponent(SubscriptionBanner);
+    fixture.componentRef.setInput('barId', 'bar-123' as BarId);
     fixture.detectChanges();
   });
 
@@ -68,7 +72,7 @@ describe('SubscriptionBanner', () => {
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();
-    expect(planDialogServiceMock.open).toHaveBeenCalled();
+    expect(planDialogServiceMock.open).toHaveBeenCalledWith('bar-123');
   });
 
   it('should render expiring soon banner when trial has <= 3 days left', () => {
@@ -82,6 +86,6 @@ describe('SubscriptionBanner', () => {
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();
-    expect(planDialogServiceMock.open).toHaveBeenCalled();
+    expect(planDialogServiceMock.open).toHaveBeenCalledWith('bar-123');
   });
 });

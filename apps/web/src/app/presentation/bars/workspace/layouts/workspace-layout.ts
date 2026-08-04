@@ -14,10 +14,10 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
   imports: [RouterOutlet, TopAppBar, BottomNav, AiVoiceButton, SubscriptionBanner],
   template: `
     @if (currentUser.hasValue()) {
-      <coaster-top-app-bar [label]="titleToShow()" [image]="photoUrlToShow()" />
+      <coaster-top-app-bar [barId]="barId()" [label]="titleToShow()" [image]="photoUrlToShow()" />
     }
 
-    <coaster-subscription-banner />
+    <coaster-subscription-banner [barId]="barId()" />
 
     <main class="w-full flex-1 min-h-0 overflow-y-auto pb-28 hide-scrollbar flex flex-col">
       <router-outlet />

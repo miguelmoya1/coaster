@@ -1,4 +1,4 @@
-import { BarId, SubscriptionPlan } from '@coaster/common';
+import { BarId, ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.command';
@@ -9,14 +9,12 @@ describe('CreateCheckoutSessionHandler', () => {
   let stripeClientMock: any;
   let configServiceMock: any;
   let readRepoMock: any;
-  let writeRepoMock: any;
 
   beforeEach(() => {
     stripeClientMock = {
       client: {
-        customers: {
-          update: vi.fn(),
-          create: vi.fn(),
+        subscriptions: {
+          retrieve: vi.fn(),
         },
         checkout: {
           sessions: {
@@ -38,66 +36,42 @@ describe('CreateCheckoutSessionHandler', () => {
       findBarById: vi.fn(),
     };
 
-    writeRepoMock = {
-      upsertBarCustomerId: vi.fn(),
-    };
-
-    handler = new CreateCheckoutSessionHandler(
-      stripeClientMock,
-      configServiceMock,
-      readRepoMock as any,
-      writeRepoMock as any,
-    );
+    handler = new CreateCheckoutSessionHandler(stripeClientMock, configServiceMock, readRepoMock as any);
   });
 
   it('should reuse existing stripeCustomerId and create checkout session', async () => {
     const barId = 'bar_123' as BarId;
     readRepoMock.findSubscriptionByBarId.mockResolvedValue({ stripeCustomerId: 'cus_existing' });
-    readRepoMock.findBarById.mockResolvedValue({ id: barId, name: 'Cool Bar' });
-
     stripeClientMock.client.checkout.sessions.create.mockResolvedValue({
       id: 'cs_123',
       url: 'https://checkout.stripe.com/pay',
     });
 
-    const command = new CreateCheckoutSessionCommand(
-      barId,
-      SubscriptionPlan.PRO,
-      'https://success',
-      'https://cancel',
-    );
+    const command = new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO);
 
     const result = await handler.execute(command);
 
-    expect(stripeClientMock.client.customers.update).toHaveBeenCalledWith('cus_existing', { name: 'Cool Bar' });
+    expect(stripeClientMock.client.checkout.sessions.create).toHaveBeenCalledWith(
+      expect.objectContaining({ customer: 'cus_existing' }),
+    );
     expect(result).toEqual({ id: 'cs_123', url: 'https://checkout.stripe.com/pay' });
   });
 
-  it('should create new customer if no stripeCustomerId exists', async () => {
+  it('should let Stripe create the customer if no stripeCustomerId exists', async () => {
     const barId = 'bar_123' as BarId;
     readRepoMock.findSubscriptionByBarId.mockResolvedValue(null);
-    readRepoMock.findBarById.mockResolvedValue(null);
-    stripeClientMock.client.customers.create.mockResolvedValue({ id: 'cus_new' });
-
     stripeClientMock.client.checkout.sessions.create.mockResolvedValue({
       id: 'cs_123',
       url: 'https://checkout.stripe.com/pay',
     });
 
-    const command = new CreateCheckoutSessionCommand(
-      barId,
-      SubscriptionPlan.PRO,
-      'https://success',
-      'https://cancel',
-    );
+    const command = new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO);
 
     const result = await handler.execute(command);
 
-    expect(stripeClientMock.client.customers.create).toHaveBeenCalledWith({
-      metadata: { barId },
-      name: 'Bar bar_123',
-    });
-    expect(writeRepoMock.upsertBarCustomerId).toHaveBeenCalledWith(barId, 'cus_new');
+    expect(stripeClientMock.client.checkout.sessions.create).toHaveBeenCalledWith(
+      expect.not.objectContaining({ customer: expect.anything() }),
+    );
     expect(result).toEqual({ id: 'cs_123', url: 'https://checkout.stripe.com/pay' });
   });
 
@@ -107,13 +81,47 @@ describe('CreateCheckoutSessionHandler', () => {
 
     stripeClientMock.client.checkout.sessions.create.mockResolvedValue({ id: 'cs_123', url: null });
 
-    const command = new CreateCheckoutSessionCommand(
-      barId,
-      SubscriptionPlan.PRO,
-      'https://success',
-      'https://cancel',
-    );
+    const command = new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO);
 
-    await expect(handler.execute(command)).rejects.toThrow(InternalServerErrorException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED),
+    );
+  });
+
+  it('should recover from a stale subscription reference without writing the database', async () => {
+    const barId = 'bar_123' as BarId;
+    readRepoMock.findSubscriptionByBarId.mockResolvedValue({
+      stripeCustomerId: null,
+      stripeSubscriptionId: 'sub_stale',
+      status: 'ACTIVE',
+    });
+    stripeClientMock.client.subscriptions.retrieve.mockRejectedValue({
+      code: 'resource_missing',
+      message: 'No such subscription: sub_stale',
+    });
+    stripeClientMock.client.checkout.sessions.create.mockResolvedValue({
+      id: 'cs_recovery',
+      url: 'https://checkout.stripe.com/recovery',
+    });
+
+    const result = await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+
+    expect(result.url).toBe('https://checkout.stripe.com/recovery');
+    expect(stripeClientMock.client.checkout.sessions.create).toHaveBeenCalledWith(
+      expect.not.objectContaining({ customer: expect.anything() }),
+    );
+  });
+
+  it('should retry checkout without a stale customer reference', async () => {
+    const barId = 'bar_123' as BarId;
+    readRepoMock.findSubscriptionByBarId.mockResolvedValue({ stripeCustomerId: 'cus_stale' });
+    stripeClientMock.client.checkout.sessions.create
+      .mockRejectedValueOnce({ code: 'resource_missing', param: 'customer', message: 'No such customer: cus_stale' })
+      .mockResolvedValueOnce({ id: 'cs_recovery', url: 'https://checkout.stripe.com/recovery' });
+
+    await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+
+    expect(stripeClientMock.client.checkout.sessions.create).toHaveBeenCalledTimes(2);
+    expect(stripeClientMock.client.checkout.sessions.create.mock.calls[1][0]).not.toHaveProperty('customer');
   });
 });

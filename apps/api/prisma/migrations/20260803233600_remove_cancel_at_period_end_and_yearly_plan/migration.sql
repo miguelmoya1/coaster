@@ -1,7 +1,6 @@
 -- AlterEnum
-BEGIN;
 ALTER TABLE "BarSubscription" ALTER COLUMN "plan" DROP DEFAULT;
-DROP TYPE IF EXISTS "SubscriptionPlan" CASCADE;
+ALTER TYPE "SubscriptionPlan" RENAME TO "SubscriptionPlan_old";
 CREATE TYPE "SubscriptionPlan" AS ENUM ('FREE', 'PRO');
 ALTER TABLE "BarSubscription" ALTER COLUMN "plan" TYPE "SubscriptionPlan" USING (
   CASE 
@@ -11,7 +10,7 @@ ALTER TABLE "BarSubscription" ALTER COLUMN "plan" TYPE "SubscriptionPlan" USING 
   END
 );
 ALTER TABLE "BarSubscription" ALTER COLUMN "plan" SET DEFAULT 'FREE';
-COMMIT;
+DROP TYPE "SubscriptionPlan_old";
 
 -- AlterTable
 ALTER TABLE "BarSubscription" DROP COLUMN IF EXISTS "cancelAtPeriodEnd";

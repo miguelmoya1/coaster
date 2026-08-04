@@ -69,6 +69,8 @@ describe('Dashboard', () => {
     subscription: {
       value: subscriptionSignal,
     },
+    billingAction: signal('MANAGE').asReadonly(),
+    showBillingAction: signal(true).asReadonly(),
     trialDaysRemaining: signal(0).asReadonly(),
     isTrialActive: signal(false).asReadonly(),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://stripe.portal'),

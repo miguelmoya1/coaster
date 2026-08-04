@@ -1,11 +1,12 @@
-import { BarId, CreateCheckoutSessionResponse } from '@coaster/common';
+import { CreateCheckoutSessionResponse, ErrorCodes } from '@coaster/common';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import Stripe from 'stripe';
 import { DbSubscriptionStatus } from '../../../core/db';
-import { StripeClient, getPriceId } from '../../../stripe';
+import { StripeClient, createIntegrationIdentifier, getPriceId, isStripeResourceMissingError } from '../../../stripe';
 import { BillingReadRepository } from '../../data-access/billing.read.repository';
-import { BillingWriteRepository } from '../../data-access/billing.write.repository';
+import { getCheckoutCancelUrl, getCheckoutSuccessUrl } from '../../utils/billing-urls';
 import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.command';
 
 @Injectable()
@@ -20,51 +21,73 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     private readonly _stripeClient: StripeClient,
     private readonly _configService: ConfigService,
     private readonly _readRepo: BillingReadRepository,
-    private readonly _writeRepo: BillingWriteRepository,
   ) {}
 
   async execute(command: CreateCheckoutSessionCommand): Promise<CreateCheckoutSessionResponse> {
-    const { barId, plan, successUrl, cancelUrl } = command;
+    const { barId, plan } = command;
     this._logger.debug(`Executing CreateCheckoutSessionCommand for barId=${barId}, plan=${plan}`);
 
     const existing = await this._readRepo.findSubscriptionByBarId(barId);
-    const now = new Date();
-    const hasActiveStripeSub =
-      existing?.stripeSubscriptionId &&
-      (existing.status === DbSubscriptionStatus.ACTIVE ||
-        (existing.status === DbSubscriptionStatus.CANCELED && existing.currentPeriodEnd && now <= existing.currentPeriodEnd));
+    const hasStripeSubscription = Boolean(existing?.stripeSubscriptionId);
+    const isPendingCancellation =
+      existing?.status === DbSubscriptionStatus.CANCELED &&
+      Boolean(existing.currentPeriodEnd && new Date() <= existing.currentPeriodEnd);
+    const isTerminalCancellation = existing?.status === DbSubscriptionStatus.CANCELED && !isPendingCancellation;
+    const hasRemoteSubscription =
+      Boolean(existing?.stripeSubscriptionId) &&
+      !isTerminalCancellation &&
+      (await this.hasRemoteSubscription(existing!.stripeSubscriptionId!));
 
-    if (hasActiveStripeSub) {
-      this._logger.warn(`Bar barId=${barId} already has an active subscription ${existing.stripeSubscriptionId}`);
-      throw new BadRequestException('Bar already has an active subscription. Use Customer Portal to modify plans.');
+    if (hasRemoteSubscription) {
+      if (isPendingCancellation) {
+        this._logger.warn(`Bar barId=${barId} has a subscription pending cancellation`);
+        throw new BadRequestException(ErrorCodes.STRIPE_SUBSCRIPTION_PENDING_CANCELLATION);
+      }
+
+      this._logger.warn(`Bar barId=${barId} already has a Stripe subscription ${existing?.stripeSubscriptionId}`);
+      throw new BadRequestException(ErrorCodes.STRIPE_SUBSCRIPTION_ALREADY_EXISTS);
+    }
+
+    if (isPendingCancellation && !existing?.stripeSubscriptionId) {
+      this._logger.warn(`Bar barId=${barId} has a subscription pending cancellation`);
+      throw new BadRequestException(ErrorCodes.STRIPE_SUBSCRIPTION_PENDING_CANCELLATION);
+    }
+
+    if (hasStripeSubscription && !isTerminalCancellation) {
+      this._logger.warn(
+        `Ignoring stale Stripe subscription reference for barId=${barId}: ${existing?.stripeSubscriptionId}`,
+      );
     }
 
     const priceId = getPriceId(plan, this._configService);
-    const customerId = await this.getOrCreateCustomerId(barId);
+    const customerId = existing?.stripeCustomerId;
 
-    const session = await this._stripeClient.client.checkout.sessions.create({
-      mode: 'subscription',
-      customer: customerId,
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      client_reference_id: barId,
-      allow_promotion_codes: true,
-      line_items: [{ price: priceId, quantity: 1 }],
-      metadata: {
-        barId,
-        plan,
-      },
-      subscription_data: {
+    const session = await this.createCheckoutSession(
+      {
+        mode: 'subscription',
+        success_url: getCheckoutSuccessUrl(this._configService, barId),
+        cancel_url: getCheckoutCancelUrl(this._configService, barId),
+        client_reference_id: barId,
+        allow_promotion_codes: true,
+        line_items: [{ price: priceId, quantity: 1 }],
+        integration_identifier: createIntegrationIdentifier(),
         metadata: {
           barId,
           plan,
         },
+        subscription_data: {
+          metadata: {
+            barId,
+            plan,
+          },
+        },
       },
-    });
+      customerId,
+    );
 
     if (!session.url) {
       this._logger.error(`Stripe checkout session creation returned null URL for barId=${barId}`);
-      throw new InternalServerErrorException('Unable to create Stripe checkout session');
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
     }
 
     this._logger.debug(`Checkout session created successfully: id=${session.id}`);
@@ -75,28 +98,44 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     };
   }
 
-  private async getOrCreateCustomerId(barId: BarId): Promise<string> {
-    const existing = await this._readRepo.findSubscriptionByBarId(barId);
-    const bar = await this._readRepo.findBarById(barId);
-    const customerName = bar?.name || `Bar ${barId}`;
+  private async hasRemoteSubscription(subscriptionId: string): Promise<boolean> {
+    try {
+      await this._stripeClient.client.subscriptions.retrieve(subscriptionId);
+      return true;
+    } catch (error) {
+      if (isStripeResourceMissingError(error, 'subscription')) {
+        return false;
+      }
 
-    if (existing?.stripeCustomerId) {
-      this._logger.debug(`Reusing existing Stripe customerId=${existing.stripeCustomerId} for barId=${barId}`);
-      await this._stripeClient.client.customers.update(existing.stripeCustomerId, {
-        name: customerName,
-      });
-      return existing.stripeCustomerId;
+      this._logger.error(`Could not verify Stripe subscription ${subscriptionId}`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_SUBSCRIPTION_LOOKUP_FAILED);
     }
+  }
 
-    this._logger.debug(`Creating new Stripe customer for barId=${barId}`);
-    const customer = await this._stripeClient.client.customers.create({
-      metadata: { barId },
-      name: customerName,
-    });
+  private async createCheckoutSession(
+    params: Stripe.Checkout.SessionCreateParams,
+    customerId?: string | null,
+  ): Promise<Stripe.Checkout.Session> {
+    const request = customerId ? { ...params, customer: customerId } : params;
 
-    await this._writeRepo.upsertBarCustomerId(barId, customer.id);
-    this._logger.debug(`Created and associated new Stripe customerId=${customer.id} for barId=${barId}`);
+    try {
+      return await this._stripeClient.client.checkout.sessions.create(request);
+    } catch (error) {
+      if (!customerId || !isStripeResourceMissingError(error, 'customer')) {
+        this._logger.error('Stripe checkout session creation failed');
+        throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
+      }
 
-    return customer.id;
+      this._logger.warn(`Stripe customer ${customerId} is missing; retrying Checkout without a customer`);
+      const retryRequest = { ...params };
+      delete retryRequest.customer;
+
+      try {
+        return await this._stripeClient.client.checkout.sessions.create(retryRequest);
+      } catch {
+        this._logger.error('Stripe checkout session retry failed');
+        throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
+      }
+    }
   }
 }

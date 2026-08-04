@@ -1,29 +1,17 @@
-import { Directive, DestroyRef, ElementRef, HostListener, effect, inject } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import type { BarId } from '@coaster/common';
 
 @Directive({
   selector: '[coasterRequireSubscription]',
   standalone: true,
 })
 export class RequireSubscriptionDirective {
-  readonly #subStore = (() => {
-    try {
-      return inject(BarSubscriptionStore, { optional: true });
-    } catch {
-      return null;
-    }
-  })();
-
-  readonly #planDialogService = (() => {
-    try {
-      return inject(PlanDialogService, { optional: true });
-    } catch {
-      return null;
-    }
-  })();
-
+  readonly #subStore = inject(BarSubscriptionStore, { optional: true });
+  readonly #planDialogService = inject(PlanDialogService, { optional: true });
   readonly #elementRef = inject(ElementRef<HTMLElement>);
   readonly #destroyRef = inject(DestroyRef);
+  readonly barId = input.required<BarId>();
 
   constructor() {
     const el = this.#elementRef.nativeElement;
@@ -33,45 +21,41 @@ export class RequireSubscriptionDirective {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        this.#planDialogService?.open();
+        this.#planDialogService?.open(this.barId());
       }
     };
 
-    // Listen in capture phase to intercept click before template (click) handlers fire
+    const handleCaptureKeydown = (event: KeyboardEvent) => {
+      if (!this.#subStore?.isReadOnly() || !['Enter', ' '].includes(event.key)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      this.#planDialogService?.open(this.barId());
+    };
+
     el.addEventListener('click', handleCaptureClick, true);
+    el.addEventListener('keydown', handleCaptureKeydown, true);
 
     this.#destroyRef.onDestroy(() => {
       el.removeEventListener('click', handleCaptureClick, true);
+      el.removeEventListener('keydown', handleCaptureKeydown, true);
     });
 
     effect(() => {
       const isReadOnly = this.#subStore?.isReadOnly() ?? false;
 
       if (isReadOnly) {
-        if ('disabled' in el) {
-          (el as HTMLButtonElement).disabled = true;
-        }
         el.style.pointerEvents = 'auto';
+        el.setAttribute('aria-disabled', 'true');
         el.setAttribute('title', 'Acción no disponible: Suscripción o prueba finalizada');
         el.classList.add('opacity-60', 'cursor-not-allowed');
       } else {
-        if ('disabled' in el) {
-          (el as HTMLButtonElement).disabled = false;
-        }
         el.style.pointerEvents = '';
+        el.removeAttribute('aria-disabled');
         el.removeAttribute('title');
         el.classList.remove('opacity-60', 'cursor-not-allowed');
       }
     });
-  }
-
-  @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
-    if (this.#subStore?.isReadOnly()) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      this.#planDialogService?.open();
-    }
   }
 }

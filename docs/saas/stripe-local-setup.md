@@ -9,10 +9,8 @@ Para que la aplicación sepa qué planes ofrecer, necesitas configurarlos en el 
 1. Ve a [Stripe Dashboard](https://dashboard.stripe.com/) (asegúrate de estar en modo **Prueba** / **Test Mode**).
 2. Ve a la sección **Catálogo de productos** (Products).
 3. Crea un producto llamado **Coaster Pro**.
-4. Añádele dos precios (Prices):
-   - Uno recurrente **Mensual** (ej. 29.99 € / mes).
-   - Uno recurrente **Anual** (ej. 299.99 € / año).
-5. Copia los IDs de los precios generados. Empiezan por `price_...`.
+4. Añádele un único precio recurrente **Mensual** (ej. 29.99 € / mes).
+5. Copia el ID del precio generado. Empieza por `price_...`.
 
 ## 2. Configurar Portal de Cliente (Customer Portal)
 
@@ -34,6 +32,7 @@ STRIPE_SECRET_KEY="sk_test_..."
 
 # Los IDs de los precios que creaste en el paso 1
 STRIPE_PRICE_PRO="price_..."
+FRONTEND_URL="http://localhost:4200"
 ```
 
 _(El `STRIPE_WEBHOOK_SECRET` lo configuraremos en el siguiente paso)._
@@ -49,7 +48,7 @@ Para que tu servidor local (NestJS) pueda recibir notificaciones de que un pago 
    ```
 3. Inicia el reenvío de webhooks hacia tu API local:
    ```bash
-   stripe listen --forward-to localhost:3000/billing/webhook
+   stripe listen --forward-to localhost:3000/api/v1/billing/webhook
    ```
 4. El terminal te devolverá un secreto para el webhook que empieza por `whsec_...`. Cópialo.
 5. Pégalo en tu archivo `apps/api/.env`:
@@ -68,7 +67,7 @@ Con el frontend, el backend y el `stripe listen` ejecutándose:
 4. Usa una tarjeta de prueba de Stripe (por ejemplo, `4242 4242 4242 4242`, fecha futura, cualquier CVC).
 5. Completa el pago.
 6. Observa la consola de `stripe listen`, verás cómo llegan los eventos (`checkout.session.completed`, `customer.subscription.created`).
-7. El backend los procesará y tu bar ahora será Premium (podrás verlo reflejado en la base de datos o si haces clic en "Gestionar suscripción y facturas").
+7. El backend enlazará Customer/Subscription y proyectará el estado en `BarSubscription` únicamente al procesar esos webhooks.
 
 ---
 
@@ -77,12 +76,10 @@ importante
 
 Para pasar a producción con Stripe en Coaster, sí es obligatorio configurar STRIPE_WEBHOOK_SECRET.
 
-En la API (
-billing.service.ts
-), el backend verifica la firma criptográfica de cada notificación enviada por Stripe (stripe.webhooks.constructEvent). Si la variable falta o no coincide, tu backend rechazará las notificaciones y las suscripciones no se activarán automáticamente.
+En la API, `StripeWebhookGuard` verifica la firma criptográfica de cada notificación enviada por Stripe (`stripe.webhooks.constructEvent`). Si la variable falta o no coincide, tu backend rechazará las notificaciones y las suscripciones no se activarán automáticamente.
 
 ¿Cómo funciona la configuración del Webhook en Producción?
-A diferencia de desarrollo local (donde usas stripe listen para reenviar eventos a tu localhost), en producción tu servidor backend ya tiene una URL pública con HTTPS (por ejemplo: https://api.tu-dominio.com/billing/webhook).
+A diferencia de desarrollo local (donde usas stripe listen para reenviar eventos a tu localhost), en producción tu servidor backend ya tiene una URL pública con HTTPS (por ejemplo: https://api.tu-dominio.com/api/v1/billing/webhook).
 
 Por lo tanto, la configuración en producción se hace directamente en el Dashboard de Stripe:
 
@@ -90,7 +87,7 @@ Paso 1. Obtener claves y productos en Modo Real (Live Mode)
 Entra a Stripe Dashboard.
 Desactiva el interruptor "Test mode" (Modo de prueba) para pasar al entorno real.
 Ve a Developers > API keys y copia tu Secret key (empieza por sk_live_...).
-Ve a Product Catalog y crea los productos/planes reales. Copia los IDs de los precios mensual y anual (price_...).
+Ve a Product Catalog y crea el producto con un único precio mensual (price_...).
 En Settings > Billing > Customer Portal, activa y configura el portal de cliente en modo Real.
 Paso 2. Registrar la URL del Webhook en Stripe
 Dentro de Stripe (en Live Mode), ve a Developers > Webhooks.
@@ -98,14 +95,14 @@ Haz clic en Add Endpoint (Añadir punto de enlace).
 En Endpoint URL, introduce la URL pública de tu API de producción:
 text
 
-https://api.tu-dominio.com/billing/webhook
+https://api.tu-dominio.com/api/v1/billing/webhook
 En Select events to listen to (Eventos a escuchar), selecciona los eventos que maneja la aplicación:
 checkout.session.completed
 customer.subscription.created
 customer.subscription.updated
 customer.subscription.deleted
-invoice.payment_succeeded
 invoice.payment_failed
+invoice.paid
 Guarda el endpoint.
 Una vez creado, entra en el detalle de ese webhook y busca el apartado Signing secret (Clave secreta para firmar). Haz clic en Revelar para copiar el secreto, que empieza por whsec_....
 Paso 3. Configurar las 4 variables de entorno en tu servidor de Producción
@@ -116,6 +113,7 @@ env
 STRIPE_SECRET_KEY="sk_live_..."
 STRIPE_PRICE_PRO="price_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
+FRONTEND_URL="https://app.tu-dominio.com"
 Resumen de diferencias Local vs Producción
 Concepto Entorno Local (Desarrollo) Entorno Producción
 Modo Stripe Test Mode (sk_test_...) Live Mode (sk_live_...)

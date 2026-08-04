@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { PlanDialogService } from '@coaster/bars';
+import { ErrorCodes } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Toast } from '../services/toast';
 import { errorInterceptor } from './error.interceptor';
@@ -40,16 +41,25 @@ describe('errorInterceptor', () => {
   });
 
   it('should call toast.error and planDialogService.open on 402 error', () => {
-    httpClient.get('/test').subscribe({
+    httpClient.get('/bars/bar-1/orders').subscribe({
       error: (err) => {
         expect(err.status).toBe(402);
       },
     });
 
-    const req = httpMock.expectOne('/test');
+    const req = httpMock.expectOne('/bars/bar-1/orders');
     req.flush({ message: 'SUBSCRIPTION_EXPIRED' }, { status: 402, statusText: 'Payment Required' });
 
-    expect(toastMock.error).toHaveBeenCalledWith('errors.subscription_expired');
-    expect(planDialogServiceMock.open).toHaveBeenCalled();
+    expect(toastMock.error).toHaveBeenCalledWith(ErrorCodes.SUBSCRIPTION_EXPIRED);
+    expect(planDialogServiceMock.open).toHaveBeenCalledWith('bar-1');
+  });
+
+  it('should only show the error when a 402 request has no bar context', () => {
+    httpClient.get('/account/profile').subscribe({ error: () => undefined });
+    const req = httpMock.expectOne('/account/profile');
+    req.flush({ message: 'SUBSCRIPTION_EXPIRED' }, { status: 402, statusText: 'Payment Required' });
+
+    expect(toastMock.error).toHaveBeenCalledWith(ErrorCodes.SUBSCRIPTION_EXPIRED);
+    expect(planDialogServiceMock.open).not.toHaveBeenCalled();
   });
 });

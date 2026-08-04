@@ -1,8 +1,9 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarSubscriptionStore, CurrentBarStore, MyMemberStore } from '@coaster/bars';
-import { BarId, BarPermission } from '@coaster/common';
+import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
+import { BarPermission } from '@coaster/common';
+import type { BarId } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,17 +33,15 @@ describe('TopAppBar', () => {
     hasPermission: vi.fn().mockImplementation((perm: BarPermission) => perm === BarPermission.BAR_MANAGE_BILLING),
   };
 
-  const subscriptionSignal = signal<{ status: string } | null>({ status: 'INACTIVE' });
+  const subscriptionSignal = signal<{ status: string; currentPeriodEnd?: string } | null>({ status: 'INACTIVE' });
   const barSubscriptionStoreMock = {
     subscription: {
       value: subscriptionSignal,
     },
+    billingAction: computed(() => (subscriptionSignal()?.status === 'ACTIVE' ? 'MANAGE' : 'ACTIVATE')),
+    showBillingAction: signal(true).asReadonly(),
     createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
-  };
-
-  const currentBarStoreMock = {
-    currentId: signal<BarId | undefined>('bar-123' as BarId).asReadonly(),
   };
 
   beforeEach(async () => {
@@ -53,7 +52,6 @@ describe('TopAppBar', () => {
         provideRouter([]),
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
-        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: Auth, useValue: authMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],
@@ -70,6 +68,7 @@ describe('TopAppBar', () => {
 
     fixture.componentRef.setInput('label', 'Dashboard');
     fixture.componentRef.setInput('image', 'https://photo.url/user.jpg');
+    fixture.componentRef.setInput('barId', 'bar-123' as BarId);
 
     fixture.detectChanges();
   });

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InventoryItemCard } from './inventory-item-card';
@@ -10,7 +11,11 @@ describe('InventoryItemCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InventoryItemCard],
-      providers: [provideTranslateService()],
+      providers: [
+        provideTranslateService(),
+        { provide: BarSubscriptionStore, useValue: { isReadOnly: () => false } },
+        { provide: PlanDialogService, useValue: { open: vi.fn() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InventoryItemCard);
@@ -18,6 +23,7 @@ describe('InventoryItemCard', () => {
 
     fixture.componentRef.setInput('itemName', 'Beer');
     fixture.componentRef.setInput('qty', 10);
+    fixture.componentRef.setInput('barId', 'bar-1');
 
     fixture.detectChanges();
   });

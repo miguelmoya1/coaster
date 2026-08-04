@@ -12,7 +12,15 @@ export class RecordStripeWebhookEventHandler implements ICommandHandler<RecordSt
 
   async execute(command: RecordStripeWebhookEventCommand): Promise<void> {
     const { event } = command;
-    this._logger.debug(`Recording webhook event: eventId=${event.id}, type=${event.type}`);
-    await this._writeRepo.recordStripeWebhookEvent(event.id, event.type, event);
+    const shouldProcess = await this._writeRepo.claimStripeWebhookEvent(event);
+    if (!shouldProcess) return;
+
+    this._logger.debug(`Processing webhook event: eventId=${event.id}, type=${event.type}`);
+    try {
+      await this._writeRepo.markStripeWebhookEventProcessed(event.id);
+    } catch (error) {
+      await this._writeRepo.markStripeWebhookEventFailed(event.id, error);
+      throw error;
+    }
   }
 }

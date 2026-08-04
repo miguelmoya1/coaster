@@ -5,9 +5,10 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { BarSubscriptionStore, CurrentBarStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
-import { BarPermission } from '@coaster/common';
-import { ActionFeedback, Auth, CurrentUser } from '@coaster/core';
+import { BarSubscriptionStore, BillingAction, MyMemberStore, PlanDialogService } from '@coaster/bars';
+import type { BarId } from '@coaster/common';
+import { BarPermission, ErrorCodes } from '@coaster/common';
+import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
@@ -56,14 +57,14 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
         <mat-icon>more_vert</mat-icon>
       </button>
 
-      <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
+        <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
         <a mat-menu-item routerLink="/bars/select">
           <mat-icon>swap_horiz</mat-icon>
           <span>{{ 'common.change_bar' | translate }}</span>
         </a>
 
-        @if (canManageBilling()) {
-          @if (isProActive()) {
+        @if (canManageBilling() && showBillingAction()) {
+          @if (billingAction() === BillingAction.MANAGE) {
             <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
               <mat-icon>receipt_long</mat-icon>
               <span>{{ 'billing.manage_billing' | translate }}</span>
@@ -139,6 +140,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
   `,
 })
 export class TopAppBar {
+  readonly barId = input.required<BarId>();
   readonly label = input.required<string>();
   readonly image = input.required<string>();
 
@@ -146,7 +148,6 @@ export class TopAppBar {
   readonly #currentUser = inject(CurrentUser);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #barSubscriptionStore = inject(BarSubscriptionStore);
-  readonly #currentBarStore = inject(CurrentBarStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
   readonly #actionFeedback = inject(ActionFeedback);
@@ -156,9 +157,12 @@ export class TopAppBar {
   readonly apiUrl = environment.apiUrl;
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
+  readonly billingAction = this.#barSubscriptionStore.billingAction;
+  readonly showBillingAction = this.#barSubscriptionStore.showBillingAction;
+  readonly BillingAction = BillingAction;
 
   readonly isProActive = computed(() => {
-    return this.subscription()?.status === 'ACTIVE';
+    return this.billingAction() === BillingAction.MANAGE;
   });
 
   readonly isPendingCancel = computed(() => {
@@ -241,20 +245,22 @@ export class TopAppBar {
   }
 
   async manageBilling(): Promise<void> {
-    const barId = this.#currentBarStore.currentId();
-    const returnUrl = barId
-      ? `${window.location.origin}/bars/${barId}/dashboard`
-      : `${window.location.origin}/bars/select`;
-    const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession(returnUrl);
+    try {
+      const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession();
 
-    if (portalUrl) {
-      window.location.assign(portalUrl);
-    } else {
-      this.#actionFeedback.error('errors.stripe_connection');
+      if (portalUrl) {
+        window.location.assign(portalUrl);
+      } else {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
     }
   }
 
   activatePro(): void {
-    this.#planDialogService.open();
+    this.#planDialogService.open(this.barId());
   }
 }

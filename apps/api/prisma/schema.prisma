@@ -343,11 +343,16 @@ model DbBarSubscription {
 }
 
 model DbStripeWebhookEvent {
-  id            String   @id @default(uuid())
-  stripeEventId String   @unique
-  type          String
-  payload       Json
-  processedAt   DateTime @default(now())
+  id               String   @id @default(uuid())
+  stripeEventId    String   @unique
+  type             String
+  payload          Json
+  processingStatus String   @default("PROCESSED")
+  attempts         Int      @default(0)
+  lastError        String?
+  receivedAt       DateTime @default(now())
+  processedAt      DateTime?
+  updatedAt        DateTime @updatedAt
 
   @@map("StripeWebhookEvent")
 }

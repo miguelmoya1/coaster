@@ -9,24 +9,15 @@ export class CreateCheckoutSession {
 
   public async execute(
     barId: BarId | undefined,
-    returnUrl: string,
     plan: Exclude<SubscriptionPlan, 'FREE'> = SubscriptionPlan.PRO,
   ): Promise<string | undefined> {
     if (!barId) {
       return undefined;
     }
 
-    const currentPath = window.location.pathname + window.location.search;
-    try {
-      const { url } = await this.#barRepository.createCheckoutSession(barId, {
-        plan,
-        successUrl: returnUrl,
-        cancelUrl: window.location.origin + currentPath,
-      });
-      return url;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+    const { url } = await this.#barRepository.createCheckoutSession(barId, {
+      plan: plan === SubscriptionPlan.PRO ? plan : SubscriptionPlan.PRO,
+    });
+    return url;
   }
 }

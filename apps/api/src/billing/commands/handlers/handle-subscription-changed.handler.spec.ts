@@ -1,3 +1,5 @@
+import { ErrorCodes } from '@coaster/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';
@@ -33,18 +35,22 @@ describe('HandleSubscriptionChangedHandler', () => {
     );
   });
 
-  it('should return early if customer is missing', async () => {
+  it('should fail and leave the event retryable if customer is missing', async () => {
     const subscription = { id: 'sub_123' } as Stripe.Subscription;
-    await handler.execute(new HandleSubscriptionChangedCommand(subscription));
+    await expect(handler.execute(new HandleSubscriptionChangedCommand(subscription))).rejects.toEqual(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_CUSTOMER_MISSING),
+    );
 
     expect(writeRepoMock.upsertSubscriptionDetails).not.toHaveBeenCalled();
   });
 
-  it('should return early if barId cannot be resolved', async () => {
+  it('should fail and leave the event retryable if barId cannot be resolved', async () => {
     const subscription = { id: 'sub_123', customer: 'cus_123', items: { data: [] } } as any;
     readRepoMock.findSubscriptionByStripeIds.mockResolvedValue(null);
 
-    await handler.execute(new HandleSubscriptionChangedCommand(subscription));
+    await expect(handler.execute(new HandleSubscriptionChangedCommand(subscription))).rejects.toEqual(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING),
+    );
 
     expect(writeRepoMock.upsertSubscriptionDetails).not.toHaveBeenCalled();
   });
@@ -72,6 +78,30 @@ describe('HandleSubscriptionChangedHandler', () => {
       }),
     );
     expect(eventBusMock.publish).toHaveBeenCalledWith(expect.any(SubscriptionRenewedEvent));
+  });
+
+  it('should create the local projection when the subscription row does not exist', async () => {
+    const subscription = {
+      id: 'sub_123',
+      customer: 'cus_123',
+      metadata: { barId: 'bar_123' },
+      status: 'active',
+      cancel_at_period_end: false,
+      canceled_at: null,
+      items: { data: [{ current_period_start: 1000, current_period_end: 2000, price: { id: 'price_1' } }] },
+    } as any;
+    readRepoMock.findSubscriptionByStripeIds.mockResolvedValue(null);
+
+    await handler.execute(new HandleSubscriptionChangedCommand(subscription));
+
+    expect(writeRepoMock.upsertSubscriptionDetails).toHaveBeenCalledWith(
+      'bar_123',
+      expect.objectContaining({
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        status: 'ACTIVE',
+      }),
+    );
   });
 
   it('should publish SubscriptionCancelledEvent if canceled or cancel_at_period_end', async () => {

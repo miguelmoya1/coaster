@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 import { asBarId } from '@coaster/core';
 import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -51,6 +52,8 @@ describe('AiVoiceButton', () => {
         { provide: CurrentUser, useValue: currentUserMock },
         { provide: AiVoiceRepository, useValue: aiVoiceRepositoryMock },
         { provide: AiVoiceService, useValue: aiVoiceServiceMock },
+        { provide: BarSubscriptionStore, useValue: { isReadOnly: () => false } },
+        { provide: PlanDialogService, useValue: { open: vi.fn() } },
       ],
     }).compileComponents();
 

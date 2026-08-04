@@ -3,7 +3,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatPrefix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { TableStatus, type Table } from '@coaster/common';
+import { TableStatus, type BarId, type Table } from '@coaster/common';
 import { RequireSubscriptionDirective } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -127,6 +127,7 @@ export interface CartItem {
             data-testid="submit-order-btn"
             mat-flat-button
             coasterRequireSubscription
+            [barId]="barId()"
             class="w-full"
             [disabled]="items().length === 0 || disabled()"
             (click)="submitClicked.emit()"
@@ -140,6 +141,7 @@ export interface CartItem {
   `,
 })
 export class PosCart {
+  readonly barId = input.required<BarId>();
   readonly items = input.required<CartItem[]>();
   readonly tables = input<Table[]>([]);
   readonly selectedTableId = input<string | undefined>(undefined);

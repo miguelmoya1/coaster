@@ -1,6 +1,6 @@
-import { IsUrl } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 export class CreateCustomerPortalSessionDto {
-  @IsUrl({ require_tld: false })
-  returnUrl!: string;
+  @IsOptional()
+  readonly _?: never;
 }

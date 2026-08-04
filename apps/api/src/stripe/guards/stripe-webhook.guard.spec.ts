@@ -1,4 +1,5 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StripeWebhookGuard } from './stripe-webhook.guard';
 
@@ -6,7 +7,6 @@ describe('StripeWebhookGuard', () => {
   let guard: StripeWebhookGuard;
   let stripeClientMock: any;
   let configServiceMock: any;
-  let dbMock: any;
 
   beforeEach(() => {
     stripeClientMock = {
@@ -21,13 +21,7 @@ describe('StripeWebhookGuard', () => {
       get: vi.fn(),
     };
 
-    dbMock = {
-      dbStripeWebhookEvent: {
-        findUnique: vi.fn(),
-      },
-    };
-
-    guard = new StripeWebhookGuard(stripeClientMock, configServiceMock, dbMock as any);
+    guard = new StripeWebhookGuard(stripeClientMock, configServiceMock);
   });
 
   const createMockContext = (headers: Record<string, string> = {}, rawBody?: string) => {
@@ -44,14 +38,18 @@ describe('StripeWebhookGuard', () => {
     configServiceMock.get.mockReturnValue(undefined);
     const { context } = createMockContext({ 'stripe-signature': 'sig_123' }, 'body');
 
-    await expect(guard.canActivate(context as any)).rejects.toThrow(InternalServerErrorException);
+    await expect(guard.canActivate(context as any)).rejects.toThrow(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED),
+    );
   });
 
   it('should throw BadRequestException if signature is missing', async () => {
     configServiceMock.get.mockReturnValue('whsec_secret');
     const { context } = createMockContext({}, 'body');
 
-    await expect(guard.canActivate(context as any)).rejects.toThrow(BadRequestException);
+    await expect(guard.canActivate(context as any)).rejects.toThrow(
+      new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_MISSING),
+    );
   });
 
   it('should throw BadRequestException if signature verification fails', async () => {
@@ -62,14 +60,15 @@ describe('StripeWebhookGuard', () => {
 
     const { context } = createMockContext({ 'stripe-signature': 'sig_invalid' }, 'body');
 
-    await expect(guard.canActivate(context as any)).rejects.toThrow(BadRequestException);
+    await expect(guard.canActivate(context as any)).rejects.toThrow(
+      new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_INVALID),
+    );
   });
 
-  it('should attach stripeEvent and stripeEventAlreadyProcessed: false when new event', async () => {
+  it('should attach the verified event without querying persistence', async () => {
     configServiceMock.get.mockReturnValue('whsec_secret');
     const mockEvent = { id: 'evt_123', type: 'checkout.session.completed' };
     stripeClientMock.client.webhooks.constructEvent.mockReturnValue(mockEvent);
-    dbMock.dbStripeWebhookEvent.findUnique.mockResolvedValue(null);
 
     const { context, request } = createMockContext({ 'stripe-signature': 'sig_valid' }, 'body');
 
@@ -77,21 +76,6 @@ describe('StripeWebhookGuard', () => {
 
     expect(canActivate).toBe(true);
     expect(request.stripeEvent).toEqual(mockEvent);
-    expect(request.stripeEventAlreadyProcessed).toBe(false);
-  });
-
-  it('should attach stripeEvent and stripeEventAlreadyProcessed: true when event exists in DB', async () => {
-    configServiceMock.get.mockReturnValue('whsec_secret');
-    const mockEvent = { id: 'evt_123', type: 'checkout.session.completed' };
-    stripeClientMock.client.webhooks.constructEvent.mockReturnValue(mockEvent);
-    dbMock.dbStripeWebhookEvent.findUnique.mockResolvedValue({ id: 'local_id', stripeEventId: 'evt_123' });
-
-    const { context, request } = createMockContext({ 'stripe-signature': 'sig_valid' }, 'body');
-
-    const canActivate = await guard.canActivate(context as any);
-
-    expect(canActivate).toBe(true);
-    expect(request.stripeEvent).toEqual(mockEvent);
-    expect(request.stripeEventAlreadyProcessed).toBe(true);
+    expect(stripeClientMock.client.webhooks.constructEvent).toHaveBeenCalledWith('body', 'sig_valid', 'whsec_secret');
   });
 });

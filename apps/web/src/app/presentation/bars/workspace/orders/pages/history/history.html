@@ -111,6 +111,7 @@
           <button
             mat-icon-button
             coasterRequireSubscription
+            [barId]="barId()"
             (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
           >
             <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>

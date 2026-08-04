@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -47,18 +47,29 @@ import { TranslatePipe } from '@ngx-translate/core';
     </mat-dialog-content>
 
     <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-button (click)="canceled.emit()">
+      <button mat-button [disabled]="loading()" (click)="canceled.emit()">
         {{ 'common.cancel' | translate }}
       </button>
-      <button mat-flat-button color="primary" (click)="selected.emit(SubscriptionPlan.PRO)">
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="loading()"
+        [attr.aria-busy]="loading()"
+        (click)="selected.emit(SubscriptionPlan.PRO)"
+      >
+        @if (loading()) {
+          <mat-icon class="animate-spin">progress_activity</mat-icon>
+        }
         {{ 'billing.continue_to_checkout' | translate }}
       </button>
     </mat-dialog-actions>
   `,
 })
 export class SelectPlanDialog {
+  readonly loading = input(false);
   protected readonly SubscriptionPlan = SubscriptionPlan;
 
   readonly selected = output<Exclude<SubscriptionPlan, 'FREE'>>();
   readonly canceled = output<void>();
+
 }

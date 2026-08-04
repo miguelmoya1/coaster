@@ -6,17 +6,12 @@ import { BarRepository } from '../data-access/bar-repository';
 export class CreateCustomerPortalSession {
   readonly #barRepository = inject(BarRepository);
 
-  public async execute(barId: BarId | undefined, returnUrl: string): Promise<string | undefined> {
+  public async execute(barId: BarId | undefined): Promise<string | undefined> {
     if (!barId) {
       return undefined;
     }
 
-    try {
-      const { url } = await this.#barRepository.createCustomerPortalSession(barId, { returnUrl });
-      return url;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+    const { url } = await this.#barRepository.createCustomerPortalSession(barId, {});
+    return url;
   }
 }

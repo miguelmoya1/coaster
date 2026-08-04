@@ -1,3 +1,5 @@
+import { ErrorCodes } from '@coaster/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HandleCheckoutCompletedCommand } from '../impl/handle-checkout-completed.command';
@@ -9,7 +11,7 @@ describe('HandleCheckoutCompletedHandler', () => {
 
   beforeEach(() => {
     writeRepoMock = {
-      upsertBarCustomerId: vi.fn(),
+      linkStripeReferences: vi.fn(),
     };
     handler = new HandleCheckoutCompletedHandler(writeRepoMock as any);
   });
@@ -18,14 +20,38 @@ describe('HandleCheckoutCompletedHandler', () => {
     const session = { mode: 'payment' } as Stripe.Checkout.Session;
     await handler.execute(new HandleCheckoutCompletedCommand(session));
 
-    expect(writeRepoMock.upsertBarCustomerId).not.toHaveBeenCalled();
+    expect(writeRepoMock.linkStripeReferences).not.toHaveBeenCalled();
   });
 
-  it('should ignore sessions missing barId or customerId', async () => {
+  it('should fail and leave the event retryable when barId is missing', async () => {
     const session = { mode: 'subscription', customer: 'cus_123' } as Stripe.Checkout.Session;
-    await handler.execute(new HandleCheckoutCompletedCommand(session));
+    await expect(handler.execute(new HandleCheckoutCompletedCommand(session))).rejects.toEqual(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING),
+    );
 
-    expect(writeRepoMock.upsertBarCustomerId).not.toHaveBeenCalled();
+    expect(writeRepoMock.linkStripeReferences).not.toHaveBeenCalled();
+  });
+
+  it('should fail and leave the event retryable when customerId is missing', async () => {
+    const session = { mode: 'subscription', metadata: { barId: 'bar_123' } } as Stripe.Checkout.Session;
+    await expect(handler.execute(new HandleCheckoutCompletedCommand(session))).rejects.toEqual(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_CUSTOMER_MISSING),
+    );
+
+    expect(writeRepoMock.linkStripeReferences).not.toHaveBeenCalled();
+  });
+
+  it('should fail and leave the event retryable when subscriptionId is missing', async () => {
+    const session = {
+      mode: 'subscription',
+      metadata: { barId: 'bar_123' },
+      customer: 'cus_123',
+    } as Stripe.Checkout.Session;
+    await expect(handler.execute(new HandleCheckoutCompletedCommand(session))).rejects.toEqual(
+      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_SUBSCRIPTION_MISSING),
+    );
+
+    expect(writeRepoMock.linkStripeReferences).not.toHaveBeenCalled();
   });
 
   it('should upsert customer and subscription ID when session is valid', async () => {
@@ -38,6 +64,6 @@ describe('HandleCheckoutCompletedHandler', () => {
 
     await handler.execute(new HandleCheckoutCompletedCommand(session));
 
-    expect(writeRepoMock.upsertBarCustomerId).toHaveBeenCalledWith('bar_123', 'cus_123', 'sub_123');
+    expect(writeRepoMock.linkStripeReferences).toHaveBeenCalledWith('bar_123', 'cus_123', 'sub_123');
   });
 });

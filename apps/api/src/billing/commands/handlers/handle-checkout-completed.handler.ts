@@ -1,5 +1,5 @@
-import { BarId } from '@coaster/common';
-import { Injectable, Logger } from '@nestjs/common';
+import { BarId, ErrorCodes } from '@coaster/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BillingWriteRepository } from '../../data-access/billing.write.repository';
 import { HandleCheckoutCompletedCommand } from '../impl/handle-checkout-completed.command';
@@ -20,15 +20,28 @@ export class HandleCheckoutCompletedHandler implements ICommandHandler<HandleChe
     }
 
     const barId = (session.metadata?.barId || session.client_reference_id) as BarId | undefined;
-    const customerId = typeof session.customer === 'string' ? session.customer : null;
-    const stripeSubscriptionId = typeof session.subscription === 'string' ? session.subscription : null;
+    const customerId = typeof session.customer === 'string' ? session.customer : (session.customer?.id ?? null);
+    const stripeSubscriptionId =
+      typeof session.subscription === 'string' ? session.subscription : (session.subscription?.id ?? null);
 
-    if (!barId || !customerId) {
-      this._logger.warn(`Cannot process checkout completion for session ${session.id}: barId or customerId missing`);
-      return;
+    if (!barId) {
+      this._logger.error(`Cannot process checkout completion for session ${session.id}: barId missing`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING);
     }
 
-    this._logger.debug(`Processing completed checkout session for barId=${barId}, customerId=${customerId}, subscriptionId=${stripeSubscriptionId}`);
-    await this._writeRepo.upsertBarCustomerId(barId, customerId, stripeSubscriptionId);
+    if (!customerId) {
+      this._logger.error(`Cannot process checkout completion for session ${session.id}: customerId missing`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_CUSTOMER_MISSING);
+    }
+
+    if (!stripeSubscriptionId) {
+      this._logger.error(`Cannot process checkout completion for session ${session.id}: subscriptionId missing`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_SUBSCRIPTION_MISSING);
+    }
+
+    this._logger.debug(
+      `Processing completed checkout session for barId=${barId}, customerId=${customerId}, subscriptionId=${stripeSubscriptionId}`,
+    );
+    await this._writeRepo.linkStripeReferences(barId, customerId, stripeSubscriptionId);
   }
 }
