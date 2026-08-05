@@ -1,20 +1,29 @@
 import type { BarId } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId } from '../../core';
+import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
+import { CreateCheckoutSessionDto, CreateCustomerPortalSessionDto } from '../dto';
 import { FindBarSubscriptionQuery } from '../queries';
 import { BarSubscriptionController } from './bar-subscription.controller';
 
 describe('BarSubscriptionController', () => {
   let controller: BarSubscriptionController;
+  let commandBusMock: { execute: ReturnType<typeof vi.fn> };
   let queryBusMock: { execute: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    commandBusMock = {
+      execute: vi.fn(),
+    };
     queryBusMock = {
       execute: vi.fn(),
     };
-    controller = new BarSubscriptionController(queryBusMock as unknown as QueryBus);
+    controller = new BarSubscriptionController(
+      commandBusMock as unknown as CommandBus,
+      queryBusMock as unknown as QueryBus,
+    );
   });
 
   it('should execute FindBarSubscriptionQuery and return subscription', async () => {
@@ -39,5 +48,29 @@ describe('BarSubscriptionController', () => {
 
     expect(queryBusMock.execute).toHaveBeenCalledWith(new FindBarSubscriptionQuery(barId));
     expect(result).toEqual(mockSubscription);
+  });
+
+  it('should execute CreateCheckoutSessionCommand on createCheckoutSession', async () => {
+    const barId = asBarId('bar-123');
+    const dto: CreateCheckoutSessionDto = { plan: SubscriptionPlan.PRO };
+    const expectedResponse = { id: 'cs_123', url: 'https://checkout.stripe.com' };
+    commandBusMock.execute.mockResolvedValue(expectedResponse);
+
+    const result = await controller.createCheckoutSession(barId, dto);
+
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCheckoutSessionCommand(barId, dto.plan));
+    expect(result).toEqual(expectedResponse);
+  });
+
+  it('should execute CreateCustomerPortalSessionCommand on createCustomerPortalSession', async () => {
+    const barId = asBarId('bar-123');
+    const dto: CreateCustomerPortalSessionDto = {};
+    const expectedResponse = { url: 'https://portal.stripe.com' };
+    commandBusMock.execute.mockResolvedValue(expectedResponse);
+
+    const result = await controller.createCustomerPortalSession(barId, dto);
+
+    expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCustomerPortalSessionCommand(barId));
+    expect(result).toEqual(expectedResponse);
   });
 });

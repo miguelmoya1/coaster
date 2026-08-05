@@ -1,3 +1,4 @@
+import { StripeModule } from '@coaster/stripe';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
@@ -8,7 +9,7 @@ import { QueryHandlers } from './queries';
 import { BarSubscriptionSagas } from './sagas';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, StripeModule],
   controllers: [...BarSubscriptionControllers],
   providers: [
     BarSubscriptionReadRepository,

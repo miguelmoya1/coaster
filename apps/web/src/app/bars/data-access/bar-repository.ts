@@ -19,9 +19,9 @@ export class BarRepository {
     bar: (barId: BarId) => `/bars/${barId}`,
     create: '/bars',
     adminSearch: (query: string) => `/bars/admin/search?q=${query}`,
-    getSubscription: (barId: BarId) => `/bars/${barId}/billing/subscription`,
-    createCheckoutSession: (barId: BarId) => `/bars/${barId}/billing/checkout-session`,
-    createCustomerPortalSession: (barId: BarId) => `/bars/${barId}/billing/customer-portal-session`,
+    getSubscription: (barId: BarId) => `/bars/${barId}/bar-subscription`,
+    createCheckoutSession: (barId: BarId) => `/bars/${barId}/bar-subscription/checkout-session`,
+    createCustomerPortalSession: (barId: BarId) => `/bars/${barId}/bar-subscription/customer-portal-session`,
   };
 
   public async create(createBarDto: CreateBarDto): Promise<void> {
