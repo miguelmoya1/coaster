@@ -1,3 +1,4 @@
+import { ErrorCodes } from '@coaster/common';
 import {
   BadRequestException,
   CanActivate,
@@ -6,7 +7,6 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { ErrorCodes } from '@coaster/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
@@ -44,18 +44,15 @@ export class StripeWebhookGuard implements CanActivate {
       throw new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_MISSING);
     }
 
-    let event: Stripe.Event;
-
     try {
-      event = this._stripeClient.client.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      const event = this._stripeClient.client.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      this._logger.debug(`Stripe webhook signature verified. Event ID: ${event.id}, Event Type: ${event.type}`);
+
+      request.stripeEvent = event;
     } catch (error) {
       this._logger.warn(`Stripe webhook signature verification failed: ${(error as Error).message}`);
       throw new BadRequestException(ErrorCodes.STRIPE_WEBHOOK_SIGNATURE_INVALID);
     }
-
-    this._logger.debug(`Stripe webhook signature verified. Event ID: ${event.id}, Event Type: ${event.type}`);
-
-    request.stripeEvent = event;
 
     return true;
   }
