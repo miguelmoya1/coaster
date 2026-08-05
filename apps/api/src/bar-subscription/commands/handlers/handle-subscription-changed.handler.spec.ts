@@ -1,6 +1,7 @@
 import { ErrorCodes } from '@coaster/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';
 import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-changed.command';
 import { HandleSubscriptionChangedHandler } from './handle-subscription-changed.handler';
 
@@ -9,6 +10,7 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
   let readRepoMock: any;
   let writeRepoMock: any;
   let configServiceMock: any;
+  let eventBusMock: any;
 
   beforeEach(() => {
     readRepoMock = {
@@ -21,8 +23,11 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
     configServiceMock = {
       get: vi.fn().mockReturnValue('price_pro'),
     };
+    eventBusMock = {
+      publish: vi.fn(),
+    };
 
-    handler = new HandleSubscriptionChangedHandler(readRepoMock, writeRepoMock, configServiceMock);
+    handler = new HandleSubscriptionChangedHandler(readRepoMock, writeRepoMock, configServiceMock, eventBusMock);
   });
 
   it('should fail if customerId is missing', async () => {
@@ -74,6 +79,7 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
       }),
       expect.any(Object),
     );
+    expect(eventBusMock.publish).toHaveBeenCalledWith(expect.any(SubscriptionRenewedEvent));
   });
 
   it('should fall back to subscription.metadata.barId when no local record exists yet', async () => {
@@ -125,6 +131,8 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
       }),
       expect.any(Object),
     );
+    expect(eventBusMock.publish).toHaveBeenCalledWith(expect.any(SubscriptionCancelledEvent));
+    expect(eventBusMock.publish).not.toHaveBeenCalledWith(expect.any(SubscriptionRenewedEvent));
   });
 
   it('should set status CANCELED but keep the subscriptionId for a scheduled (not yet effective) cancellation', async () => {

@@ -49,7 +49,7 @@ async function bootstrap() {
     encoding: 'utf8',
     global: false,
     runFirst: true,
-    routes: ['/api/v1/billing/webhook'],
+    routes: ['/api/v1/stripe/webhook'],
   });
 
   app.enableCors({

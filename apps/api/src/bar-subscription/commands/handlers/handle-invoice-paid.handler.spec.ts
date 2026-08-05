@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SubscriptionRenewedEvent } from '../../events';
 import { HandleInvoicePaidCommand } from '../impl/handle-invoice-paid.command';
 import { HandleInvoicePaidHandler } from './handle-invoice-paid.handler';
 
@@ -6,6 +7,7 @@ describe('HandleInvoicePaidHandler (bar-subscription)', () => {
   let handler: HandleInvoicePaidHandler;
   let readRepoMock: any;
   let writeRepoMock: any;
+  let eventBusMock: any;
 
   beforeEach(() => {
     readRepoMock = {
@@ -15,8 +17,11 @@ describe('HandleInvoicePaidHandler (bar-subscription)', () => {
     writeRepoMock = {
       update: vi.fn(),
     };
+    eventBusMock = {
+      publish: vi.fn(),
+    };
 
-    handler = new HandleInvoicePaidHandler(readRepoMock, writeRepoMock);
+    handler = new HandleInvoicePaidHandler(readRepoMock, writeRepoMock, eventBusMock);
   });
 
   it('should do nothing when both customerId and subscriptionId are missing', async () => {
@@ -65,6 +70,7 @@ describe('HandleInvoicePaidHandler (bar-subscription)', () => {
     await handler.execute(new HandleInvoicePaidCommand(invoice));
 
     expect(writeRepoMock.update).toHaveBeenCalledWith('bar_123', { status: 'ACTIVE' });
+    expect(eventBusMock.publish).toHaveBeenCalledWith(expect.any(SubscriptionRenewedEvent));
   });
 
   it('should recover an UNPAID subscription looked up by customerId when subscriptionId is absent', async () => {

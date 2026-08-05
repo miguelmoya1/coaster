@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SubscriptionPaymentFailedEvent } from '../../events';
 import { HandleInvoicePaymentFailedCommand } from '../impl/handle-invoice-payment-failed.command';
 import { HandleInvoicePaymentFailedHandler } from './handle-invoice-payment-failed.handler';
 
@@ -6,6 +7,7 @@ describe('HandleInvoicePaymentFailedHandler (bar-subscription)', () => {
   let handler: HandleInvoicePaymentFailedHandler;
   let readRepoMock: any;
   let writeRepoMock: any;
+  let eventBusMock: any;
 
   beforeEach(() => {
     readRepoMock = {
@@ -15,8 +17,11 @@ describe('HandleInvoicePaymentFailedHandler (bar-subscription)', () => {
     writeRepoMock = {
       update: vi.fn(),
     };
+    eventBusMock = {
+      publish: vi.fn(),
+    };
 
-    handler = new HandleInvoicePaymentFailedHandler(readRepoMock, writeRepoMock);
+    handler = new HandleInvoicePaymentFailedHandler(readRepoMock, writeRepoMock, eventBusMock);
   });
 
   it('should do nothing when both customerId and subscriptionId are missing', async () => {
@@ -52,6 +57,7 @@ describe('HandleInvoicePaymentFailedHandler (bar-subscription)', () => {
     await handler.execute(new HandleInvoicePaymentFailedCommand(invoice));
 
     expect(writeRepoMock.update).toHaveBeenCalledWith('bar_123', { status: 'PAST_DUE' });
+    expect(eventBusMock.publish).toHaveBeenCalledWith(expect.any(SubscriptionPaymentFailedEvent));
   });
 
   it('should look up by customerId when subscriptionId is absent', async () => {

@@ -48,7 +48,7 @@ Para que tu servidor local (NestJS) pueda recibir notificaciones de que un pago 
    ```
 3. Inicia el reenvío de webhooks hacia tu API local:
    ```bash
-   stripe listen --forward-to localhost:3000/api/v1/billing/webhook
+   stripe listen --forward-to localhost:3000/api/v1/stripe/webhook
    ```
 4. El terminal te devolverá un secreto para el webhook que empieza por `whsec_...`. Cópialo.
 5. Pégalo en tu archivo `apps/api/.env`:
@@ -79,7 +79,7 @@ Para pasar a producción con Stripe en Coaster, sí es obligatorio configurar ST
 En la API, `StripeWebhookGuard` verifica la firma criptográfica de cada notificación enviada por Stripe (`stripe.webhooks.constructEvent`). Si la variable falta o no coincide, tu backend rechazará las notificaciones y las suscripciones no se activarán automáticamente.
 
 ¿Cómo funciona la configuración del Webhook en Producción?
-A diferencia de desarrollo local (donde usas stripe listen para reenviar eventos a tu localhost), en producción tu servidor backend ya tiene una URL pública con HTTPS (por ejemplo: https://api.tu-dominio.com/api/v1/billing/webhook).
+A diferencia de desarrollo local (donde usas stripe listen para reenviar eventos a tu localhost), en producción tu servidor backend ya tiene una URL pública con HTTPS (por ejemplo: https://api.tu-dominio.com/api/v1/stripe/webhook).
 
 Por lo tanto, la configuración en producción se hace directamente en el Dashboard de Stripe:
 
@@ -95,7 +95,7 @@ Haz clic en Add Endpoint (Añadir punto de enlace).
 En Endpoint URL, introduce la URL pública de tu API de producción:
 text
 
-https://api.tu-dominio.com/api/v1/billing/webhook
+https://api.tu-dominio.com/api/v1/stripe/webhook
 En Select events to listen to (Eventos a escuchar), selecciona los eventos que maneja la aplicación:
 checkout.session.completed
 customer.subscription.created

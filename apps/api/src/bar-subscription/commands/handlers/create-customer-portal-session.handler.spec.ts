@@ -7,22 +7,17 @@ import { CreateCustomerPortalSessionHandler } from './create-customer-portal-ses
 
 describe('CreateCustomerPortalSessionHandler (bar-subscription)', () => {
   let handler: CreateCustomerPortalSessionHandler;
-  let stripeClientMock: any;
+  let stripeApiMock: any;
   let readRepoMock: any;
   let configServiceMock: any;
 
+  const barId = 'bar_123' as BarId;
+  const returnUrl = 'https://app.example.com/bars/bar_123/dashboard';
+
   beforeEach(() => {
-    stripeClientMock = {
-      client: {
-        billingPortal: {
-          sessions: {
-            create: vi.fn(),
-          },
-        },
-        subscriptions: {
-          retrieve: vi.fn(),
-        },
-      },
+    stripeApiMock = {
+      createBillingPortalSession: vi.fn(),
+      findSubscriptionCustomerId: vi.fn().mockResolvedValue(null),
     };
 
     readRepoMock = {
@@ -32,60 +27,62 @@ describe('CreateCustomerPortalSessionHandler (bar-subscription)', () => {
       get: vi.fn().mockReturnValue('https://app.example.com'),
     };
 
-    handler = new CreateCustomerPortalSessionHandler(stripeClientMock, readRepoMock as any, configServiceMock);
+    handler = new CreateCustomerPortalSessionHandler(stripeApiMock, readRepoMock, configServiceMock);
   });
 
   it('should throw BadRequestException if no subscription or stripeCustomerId exists', async () => {
-    const barId = 'bar_123' as BarId;
     readRepoMock.findByBarId.mockResolvedValue(null);
 
-    const command = new CreateCustomerPortalSessionCommand(barId);
-
-    await expect(handler.execute(command)).rejects.toThrow(
+    await expect(handler.execute(new CreateCustomerPortalSessionCommand(barId))).rejects.toThrow(
       new BadRequestException(ErrorCodes.STRIPE_CUSTOMER_NOT_FOUND),
     );
+    expect(stripeApiMock.createBillingPortalSession).not.toHaveBeenCalled();
   });
 
   it('should create billing portal session when stripeCustomerId exists', async () => {
-    const barId = 'bar_123' as BarId;
     readRepoMock.findByBarId.mockResolvedValue({ stripeCustomerId: 'cus_123' });
-    stripeClientMock.client.billingPortal.sessions.create.mockResolvedValue({ url: 'https://portal.stripe.com' });
+    stripeApiMock.createBillingPortalSession.mockResolvedValue({ url: 'https://portal.stripe.com' });
 
-    const command = new CreateCustomerPortalSessionCommand(barId);
+    const result = await handler.execute(new CreateCustomerPortalSessionCommand(barId));
 
-    const result = await handler.execute(command);
-
-    expect(stripeClientMock.client.billingPortal.sessions.create).toHaveBeenCalledWith({
-      customer: 'cus_123',
-      return_url: 'https://app.example.com/bars/bar_123/dashboard',
-    });
+    expect(stripeApiMock.createBillingPortalSession).toHaveBeenCalledWith('cus_123', returnUrl);
     expect(result).toEqual({ url: 'https://portal.stripe.com' });
   });
 
   it('should recover the customer from the remote subscription when the local customer is stale', async () => {
-    const barId = 'bar_123' as BarId;
     readRepoMock.findByBarId.mockResolvedValue({
       stripeCustomerId: 'cus_stale',
       stripeSubscriptionId: 'sub_123',
     });
-    stripeClientMock.client.billingPortal.sessions.create
-      .mockRejectedValueOnce({ code: 'resource_missing', param: 'customer', message: 'No such customer: cus_stale' })
+    stripeApiMock.createBillingPortalSession
+      .mockResolvedValueOnce(null)
       .mockResolvedValueOnce({ url: 'https://portal.stripe.com/recovered' });
-    stripeClientMock.client.subscriptions.retrieve.mockResolvedValue({ customer: 'cus_remote' });
+    stripeApiMock.findSubscriptionCustomerId.mockResolvedValue('cus_remote');
 
     const result = await handler.execute(new CreateCustomerPortalSessionCommand(barId));
 
     expect(result).toEqual({ url: 'https://portal.stripe.com/recovered' });
-    expect(stripeClientMock.client.billingPortal.sessions.create).toHaveBeenLastCalledWith({
-      customer: 'cus_remote',
-      return_url: 'https://app.example.com/bars/bar_123/dashboard',
-    });
+    expect(stripeApiMock.createBillingPortalSession).toHaveBeenLastCalledWith('cus_remote', returnUrl);
   });
 
-  it('should map Stripe portal failures to an application error code', async () => {
-    const barId = 'bar_123' as BarId;
+  it('should throw when the customer is gone and no remote customer can be resolved', async () => {
+    readRepoMock.findByBarId.mockResolvedValue({
+      stripeCustomerId: 'cus_stale',
+      stripeSubscriptionId: 'sub_123',
+    });
+    stripeApiMock.createBillingPortalSession.mockResolvedValue(null);
+    stripeApiMock.findSubscriptionCustomerId.mockResolvedValue(null);
+
+    await expect(handler.execute(new CreateCustomerPortalSessionCommand(barId))).rejects.toThrow(
+      new BadRequestException(ErrorCodes.STRIPE_CUSTOMER_NOT_FOUND),
+    );
+  });
+
+  it('should surface Stripe transport failures raised by the adapter', async () => {
     readRepoMock.findByBarId.mockResolvedValue({ stripeCustomerId: 'cus_123' });
-    stripeClientMock.client.billingPortal.sessions.create.mockRejectedValue(new Error('Stripe unavailable'));
+    stripeApiMock.createBillingPortalSession.mockRejectedValue(
+      new InternalServerErrorException(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED),
+    );
 
     await expect(handler.execute(new CreateCustomerPortalSessionCommand(barId))).rejects.toThrow(
       new InternalServerErrorException(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED),

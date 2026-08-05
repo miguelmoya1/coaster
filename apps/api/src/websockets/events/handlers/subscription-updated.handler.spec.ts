@@ -1,7 +1,7 @@
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../billing/events';
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../bar-subscription/events';
 import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { SubscriptionUpdatedHandler } from './subscription-updated.handler';
@@ -40,7 +40,7 @@ describe('SubscriptionUpdatedHandler', () => {
   });
 
   it('should emit SUBSCRIPTION_UPDATED event when SubscriptionCancelledEvent is received', () => {
-    const event = new SubscriptionCancelledEvent(asBarId('bar-1'), 'sub_123', false);
+    const event = new SubscriptionCancelledEvent(asBarId('bar-1'), 'sub_123', new Date());
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');

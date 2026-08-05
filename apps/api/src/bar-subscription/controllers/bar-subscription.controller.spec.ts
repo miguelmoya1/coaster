@@ -1,4 +1,3 @@
-import type { BarId } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

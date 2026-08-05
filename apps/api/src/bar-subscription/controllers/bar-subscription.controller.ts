@@ -1,5 +1,6 @@
 import type {
   BarId,
+  BarSubscription,
   CreateCheckoutSessionResponse,
   CreateCustomerPortalSessionResponse,
 } from '@coaster/common';
@@ -24,7 +25,7 @@ export class BarSubscriptionController {
 
   @Get()
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
-  async getBarSubscription(@Param('barId') barId: BarId) {
+  async getBarSubscription(@Param('barId') barId: BarId): Promise<BarSubscription> {
     this._logger.debug(`[GET /bars/${barId}/bar-subscription] Fetching bar subscription from read repo`);
     return await this._queryBus.execute(new FindBarSubscriptionQuery(barId));
   }

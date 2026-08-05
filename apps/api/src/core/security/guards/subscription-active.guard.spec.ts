@@ -56,8 +56,8 @@ describe('SubscriptionActiveGuard', () => {
     expect(await guard.canActivate(context)).toBe(true);
   });
 
-  it('should allow billing routes exempt from subscription check', async () => {
-    const context = createMockContext('POST', '/bars/bar-1/billing/checkout-session', 'bar-1');
+  it('should allow bar-subscription routes exempt from subscription check', async () => {
+    const context = createMockContext('POST', '/bars/bar-1/bar-subscription/checkout-session', 'bar-1');
 
     expect(await guard.canActivate(context)).toBe(true);
   });

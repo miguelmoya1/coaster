@@ -1,4 +1,3 @@
-import type { BarId } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId } from '../../core';
 import type { DbService } from '../../core/db';

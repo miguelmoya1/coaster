@@ -1,9 +1,10 @@
 import type { BarId } from '@coaster/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { DbSubscriptionStatus } from '../../../core/db';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
+import { SubscriptionPaymentFailedEvent } from '../../events';
 import { HandleInvoicePaymentFailedCommand } from '../impl/handle-invoice-payment-failed.command';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class HandleInvoicePaymentFailedHandler implements ICommandHandler<Handle
   constructor(
     private readonly _readRepo: BarSubscriptionReadRepository,
     private readonly _writeRepo: BarSubscriptionWriteRepository,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: HandleInvoicePaymentFailedCommand): Promise<void> {
@@ -47,5 +49,9 @@ export class HandleInvoicePaymentFailedHandler implements ICommandHandler<Handle
 
     this._logger.debug(`Marking subscription past due for barId=${existing.barId}`);
     await this._writeRepo.update(existing.barId as BarId, { status: DbSubscriptionStatus.PAST_DUE });
+
+    this._eventBus.publish(
+      new SubscriptionPaymentFailedEvent(existing.barId as BarId, stripeCustomerId ?? existing.stripeCustomerId ?? ''),
+    );
   }
 }

@@ -6,7 +6,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AiModule } from './ai/ai.module';
 import { BarsModule } from './bars/bars.module';
-import { BillingModule } from './billing/billing.module';
 import { CategoriesModule } from './categories/categories.module';
 import { DbModule } from './core/db';
 import { SecurityModule } from './core/security/security.module';
@@ -36,7 +35,6 @@ import { WebsocketsModule } from './websockets/websockets.module';
     UserModule,
     BarsModule,
     BarSubscriptionModule,
-    BillingModule,
     BarMembersModule,
     CategoriesModule,
     ProductsModule,

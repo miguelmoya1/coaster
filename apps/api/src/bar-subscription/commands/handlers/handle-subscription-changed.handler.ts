@@ -2,11 +2,12 @@ import type { BarId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../../core/db';
 import { toDbPlan, toDbStatus } from '../../../stripe/utils/stripe.utils';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';
 import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-changed.command';
 
 @Injectable()
@@ -18,6 +19,7 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
     private readonly _readRepo: BarSubscriptionReadRepository,
     private readonly _writeRepo: BarSubscriptionWriteRepository,
     private readonly _configService: ConfigService,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: HandleSubscriptionChangedCommand): Promise<void> {
@@ -74,5 +76,16 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
     };
 
     await this._writeRepo.upsert(barId, data, data);
+
+    if (isCancellation) {
+      this._logger.debug(`Publishing SubscriptionCancelledEvent for barId=${barId}`);
+      this._eventBus.publish(new SubscriptionCancelledEvent(barId, subscription.id, canceledAt ?? undefined));
+      return;
+    }
+
+    if (subscription.status === 'active' || subscription.status === 'trialing') {
+      this._logger.debug(`Publishing SubscriptionRenewedEvent for barId=${barId}`);
+      this._eventBus.publish(new SubscriptionRenewedEvent(barId, subscription.id, currentPeriodEnd ?? undefined));
+    }
   }
 }

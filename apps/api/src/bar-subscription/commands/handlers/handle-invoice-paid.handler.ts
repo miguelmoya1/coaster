@@ -1,9 +1,10 @@
 import type { BarId } from '@coaster/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { DbSubscriptionStatus } from '../../../core/db';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
+import { SubscriptionRenewedEvent } from '../../events';
 import { HandleInvoicePaidCommand } from '../impl/handle-invoice-paid.command';
 
 const RECOVERABLE_STATUSES: DbSubscriptionStatus[] = [DbSubscriptionStatus.PAST_DUE, DbSubscriptionStatus.UNPAID];
@@ -16,6 +17,7 @@ export class HandleInvoicePaidHandler implements ICommandHandler<HandleInvoicePa
   constructor(
     private readonly _readRepo: BarSubscriptionReadRepository,
     private readonly _writeRepo: BarSubscriptionWriteRepository,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: HandleInvoicePaidCommand): Promise<void> {
@@ -47,5 +49,13 @@ export class HandleInvoicePaidHandler implements ICommandHandler<HandleInvoicePa
 
     this._logger.debug(`Recovering subscription for barId=${existing.barId} after successful invoice payment`);
     await this._writeRepo.update(existing.barId as BarId, { status: DbSubscriptionStatus.ACTIVE });
+
+    this._eventBus.publish(
+      new SubscriptionRenewedEvent(
+        existing.barId as BarId,
+        stripeSubscriptionId ?? existing.stripeSubscriptionId ?? '',
+        existing.currentPeriodEnd ?? undefined,
+      ),
+    );
   }
 }

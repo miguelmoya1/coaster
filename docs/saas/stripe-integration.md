@@ -1,5 +1,32 @@
 # Stripe Integration
 
+## Arquitectura de modulos
+
+El antiguo modulo `billing` esta eliminado. La integracion vive en dos modulos con una unica
+direccion de dependencia: `bar-subscription` -> `stripe`.
+
+**`stripe/`** — adaptador de infraestructura. No sabe nada de bares.
+
+- `StripeClient`: instancia perezosa del SDK.
+- `StripeApi`: unico punto del codigo que llama a `stripe.*`. Normaliza los errores de Stripe
+  (`resource_missing` -> `null`, resto -> `ErrorCodes` de aplicacion).
+- `StripeWebhookGuard`: verifica la firma y adjunta el evento a la request.
+- `StripeWebhookController` + `StripeWebhookWriteRepository`: recibe, reclama (idempotencia) y
+  marca el resultado del evento.
+- Publica `StripeCheckoutCompletedEvent`, `StripeSubscriptionChangedEvent`,
+  `StripeInvoicePaidEvent`, `StripeInvoicePaymentFailedEvent`.
+
+**`bar-subscription/`** — dominio. Contiene las reglas de negocio.
+
+- Sagas que traducen los eventos de Stripe a comandos del dominio.
+- Handlers de proyeccion que escriben el read model `BarSubscription`.
+- Casos de uso (`CreateCheckoutSessionCommand`, `CreateCustomerPortalSessionCommand`) que aplican
+  las reglas (suscripcion ya existente, cancelacion pendiente, customer obsoleto) y delegan en
+  `StripeApi`.
+
+Las sesiones de Checkout/Portal **no** viven en `stripe` a proposito: necesitan consultar el
+estado local del bar, y moverlas alli crearia una dependencia circular entre ambos modulos.
+
 ## Flujo base
 
 1. El owner selecciona plan en Coaster.
@@ -10,10 +37,10 @@
 
 ## Endpoints API (v1)
 
-- POST /api/v1/bars/:barId/billing/checkout-session
-- POST /api/v1/bars/:barId/billing/customer-portal-session
-- GET /api/v1/bars/:barId/billing/subscription
-- POST /api/v1/billing/webhook
+- POST /api/v1/bars/:barId/bar-subscription/checkout-session
+- POST /api/v1/bars/:barId/bar-subscription/customer-portal-session
+- GET /api/v1/bars/:barId/bar-subscription
+- POST /api/v1/stripe/webhook
 
 ## Seguridad webhook
 

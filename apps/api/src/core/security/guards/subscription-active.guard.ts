@@ -35,7 +35,9 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    if (request.url && request.url.includes('/billing')) {
+    // Subscription management must stay reachable while locked out, otherwise an expired bar
+    // could never re-subscribe to unlock itself.
+    if (request.url?.includes('/bar-subscription')) {
       return true;
     }
 
@@ -77,19 +79,11 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    if (
-      sub.status === DbSubscriptionStatus.TRIALING &&
-      sub.trialEndsAt &&
-      now <= sub.trialEndsAt
-    ) {
+    if (sub.status === DbSubscriptionStatus.TRIALING && sub.trialEndsAt && now <= sub.trialEndsAt) {
       return true;
     }
 
-    if (
-      sub.status === DbSubscriptionStatus.CANCELED &&
-      sub.currentPeriodEnd &&
-      now <= sub.currentPeriodEnd
-    ) {
+    if (sub.status === DbSubscriptionStatus.CANCELED && sub.currentPeriodEnd && now <= sub.currentPeriodEnd) {
       return true;
     }
 
