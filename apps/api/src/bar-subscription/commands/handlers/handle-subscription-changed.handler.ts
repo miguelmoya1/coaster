@@ -1,5 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import type { BarId } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../../core/db';
+import { toDbPlan, toDbStatus } from '../../../stripe/utils/stripe.utils';
+import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
+import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
 import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-changed.command';
 
 @Injectable()
@@ -7,8 +14,65 @@ import { HandleSubscriptionChangedCommand } from '../impl/handle-subscription-ch
 export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleSubscriptionChangedCommand, void> {
   private readonly _logger = new Logger(HandleSubscriptionChangedHandler.name);
 
+  constructor(
+    private readonly _readRepo: BarSubscriptionReadRepository,
+    private readonly _writeRepo: BarSubscriptionWriteRepository,
+    private readonly _configService: ConfigService,
+  ) {}
+
   async execute(command: HandleSubscriptionChangedCommand): Promise<void> {
     const { subscription } = command;
-    this._logger.debug(`Handling subscription changed for subscription: ${subscription.id}`);
+
+    const stripeCustomerId =
+      typeof subscription.customer === 'string' ? subscription.customer : (subscription.customer?.id ?? null);
+
+    if (!stripeCustomerId) {
+      this._logger.error(`Cannot process subscription ${subscription.id}: customerId missing`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_CUSTOMER_MISSING);
+    }
+
+    const existing =
+      (await this._readRepo.findByStripeSubscriptionId(subscription.id)) ??
+      (await this._readRepo.findByStripeCustomerId(stripeCustomerId));
+    const barId = (existing?.barId || subscription.metadata?.barId) as BarId | undefined;
+
+    if (!barId) {
+      this._logger.error(`Cannot process subscription ${subscription.id}: barId missing`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING);
+    }
+
+    const firstItem = subscription.items.data[0];
+    const isTerminalCancellation = subscription.status === 'canceled';
+    const isScheduledCancellation = Boolean(subscription.cancel_at_period_end || subscription.cancel_at);
+    const isCancellation = isTerminalCancellation || isScheduledCancellation;
+
+    const plan = isTerminalCancellation ? DbSubscriptionPlan.FREE : toDbPlan(firstItem?.price?.id, this._configService);
+    const status = isCancellation ? DbSubscriptionStatus.CANCELED : toDbStatus(subscription.status);
+
+    const currentPeriodStart = firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null;
+    const currentPeriodEnd = subscription.cancel_at
+      ? new Date(subscription.cancel_at * 1000)
+      : firstItem?.current_period_end
+        ? new Date(firstItem.current_period_end * 1000)
+        : null;
+    const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+    const canceledAt = subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null;
+
+    this._logger.debug(
+      `Updating subscription for barId=${barId}: subscriptionId=${subscription.id}, plan=${plan}, status=${status}`,
+    );
+
+    const data = {
+      stripeCustomerId,
+      stripeSubscriptionId: isTerminalCancellation ? null : subscription.id,
+      plan,
+      status,
+      currentPeriodStart,
+      currentPeriodEnd,
+      trialEndsAt,
+      canceledAt,
+    };
+
+    await this._writeRepo.upsert(barId, data, data);
   }
 }
