@@ -18,6 +18,7 @@ export * from './domain/pricing';
 export * from './interfaces/ai.interface';
 export * from './interfaces/bar-member.interface';
 export * from './interfaces/bar.interface';
+export * from './interfaces/bar-subscription.interface';
 export * from './interfaces/billing.interface';
 export * from './interfaces/brand.type';
 export * from './interfaces/category.interface';
