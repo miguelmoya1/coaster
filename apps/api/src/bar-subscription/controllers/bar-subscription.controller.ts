@@ -1,28 +1,22 @@
 import type { BarId } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
-import { Controller, Get, Logger, NotFoundException, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Param, UseGuards } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import { FirebaseAuthGuard } from '../../auth';
 import { BarPermissions, BarPermissionsGuard } from '../../core';
-import { BarSubscriptionReadRepository } from '../data-access/bar-subscription.read.repository';
+import { FindBarSubscriptionQuery } from '../queries';
 
 @Controller('bars/:barId/bar-subscription')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
 export class BarSubscriptionController {
   private readonly _logger = new Logger(BarSubscriptionController.name);
 
-  constructor(private readonly _readRepo: BarSubscriptionReadRepository) {}
+  constructor(private readonly _queryBus: QueryBus) {}
 
   @Get()
   @BarPermissions(BarPermission.BAR_MANAGE_BILLING)
   async getBarSubscription(@Param('barId') barId: BarId) {
     this._logger.debug(`[GET /bars/${barId}/bar-subscription] Fetching bar subscription from read repo`);
-    const subscription = await this._readRepo.findByBarId(barId);
-
-    if (!subscription) {
-      this._logger.debug(`Bar subscription not found for barId=${barId}`);
-      throw new NotFoundException(`Bar subscription not found for barId: ${barId}`);
-    }
-
-    return subscription;
+    return await this._queryBus.execute(new FindBarSubscriptionQuery(barId));
   }
 }

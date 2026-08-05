@@ -20,7 +20,7 @@ describe('GetBarSubscriptionHandler', () => {
 
     const result = await handler.execute(new GetBarSubscriptionQuery(barId));
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       barId,
       plan: SubscriptionPlan.FREE,
       status: SubscriptionStatus.INACTIVE,
@@ -31,30 +31,40 @@ describe('GetBarSubscriptionHandler', () => {
     const barId = 'bar_123' as BarId;
     const now = new Date(Date.now() - 60_000);
     const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const createdAt = new Date();
+    const updatedAt = new Date();
     const dbSub = {
+      id: 'sub_123',
       barId,
       plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
       currentPeriodStart: now,
       currentPeriodEnd: periodEnd,
       canceledAt: null,
+      trialEndsAt: null,
       stripeCustomerId: 'cus_123',
       stripeSubscriptionId: 'sub_123',
+      createdAt,
+      updatedAt,
     };
     readRepoMock.findSubscriptionByBarId.mockResolvedValue(dbSub);
 
     const result = await handler.execute(new GetBarSubscriptionQuery(barId));
 
     expect(result).toEqual({
+      id: 'sub_123',
       barId,
       plan: SubscriptionPlan.PRO,
       status: SubscriptionStatus.ACTIVE,
       currentPeriodStart: now.toISOString(),
       currentPeriodEnd: periodEnd.toISOString(),
-      canceledAt: undefined,
-      trialEndsAt: undefined,
+      canceledAt: null,
+      trialEndsAt: null,
       stripeCustomerId: 'cus_123',
       stripeSubscriptionId: 'sub_123',
+      createdAt: createdAt.toISOString(),
+      updatedAt: updatedAt.toISOString(),
     });
   });
 });
+

@@ -1,4 +1,4 @@
-import { BarSubscription, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { BarSubscription, BarSubscriptionId, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { BillingReadRepository } from '../../data-access/billing.read.repository';
@@ -19,9 +19,18 @@ export class GetBarSubscriptionHandler implements IQueryHandler<GetBarSubscripti
     if (!subscription) {
       this._logger.debug(`No active subscription found in DB for barId=${barId}, returning default FREE plan`);
       return {
+        id: '' as BarSubscriptionId,
         barId,
         plan: SubscriptionPlan.FREE,
         status: SubscriptionStatus.INACTIVE,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        trialEndsAt: null,
+        canceledAt: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
     }
 
@@ -43,15 +52,19 @@ export class GetBarSubscriptionHandler implements IQueryHandler<GetBarSubscripti
     this._logger.debug(`Subscription found for barId=${barId}: plan=${subscription.plan}, status=${status}`);
 
     return {
+      id: subscription.id as BarSubscriptionId,
       barId,
       plan: subscription.plan,
       status,
-      trialEndsAt: subscription.trialEndsAt?.toISOString(),
-      currentPeriodStart: subscription.currentPeriodStart?.toISOString(),
-      currentPeriodEnd: subscription.currentPeriodEnd?.toISOString(),
-      canceledAt: subscription.canceledAt?.toISOString(),
-      stripeCustomerId: subscription.stripeCustomerId ?? undefined,
-      stripeSubscriptionId: subscription.stripeSubscriptionId ?? undefined,
+      trialEndsAt: subscription.trialEndsAt ? subscription.trialEndsAt.toISOString() : null,
+      currentPeriodStart: subscription.currentPeriodStart ? subscription.currentPeriodStart.toISOString() : null,
+      currentPeriodEnd: subscription.currentPeriodEnd ? subscription.currentPeriodEnd.toISOString() : null,
+      canceledAt: subscription.canceledAt ? subscription.canceledAt.toISOString() : null,
+      stripeCustomerId: subscription.stripeCustomerId ?? null,
+      stripeSubscriptionId: subscription.stripeSubscriptionId ?? null,
+      createdAt: subscription.createdAt.toISOString(),
+      updatedAt: subscription.updatedAt.toISOString(),
     };
   }
 }
+
