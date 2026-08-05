@@ -3,7 +3,8 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import Stripe from 'stripe';
-import { StripeClient, isStripeResourceMissingError } from '../../../stripe';
+import { StripeClient } from '../../../stripe/utils/stripe-client.provider';
+import { isStripeResourceMissingError } from '../../../stripe/utils/stripe.utils';
 import { BillingReadRepository } from '../../data-access/billing.read.repository';
 import { getBillingDashboardUrl } from '../../utils/billing-urls';
 import { CreateCustomerPortalSessionCommand } from '../impl/create-customer-portal-session.command';

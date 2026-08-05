@@ -18,7 +18,6 @@ import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
 import { ShiftsModule } from './shifts/shifts.module';
 import { StatsModule } from './stats/stats.module';
 import { StripeModule } from './stripe';
-import { validateStripeConfiguration } from './stripe/stripe.config';
 import { TablesModule } from './tables/tables.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserModule } from './users/user.module';
@@ -28,7 +27,6 @@ import { WebsocketsModule } from './websockets/websockets.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate: validateStripeConfiguration,
     }),
     DbModule,
     StripeModule,

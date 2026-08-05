@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import Stripe from 'stripe';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../../core/db';
-import { toDbPlan, toDbStatus } from '../../../stripe';
+import { toDbPlan, toDbStatus } from '../../../stripe/utils/stripe.utils';
 import { BillingReadRepository } from '../../data-access/billing.read.repository';
 import { BillingWriteRepository } from '../../data-access/billing.write.repository';
 import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../events';

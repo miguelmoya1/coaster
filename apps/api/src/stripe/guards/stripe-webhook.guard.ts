@@ -10,7 +10,7 @@ import { ErrorCodes } from '@coaster/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
-import { StripeClient } from '../stripe-client.provider';
+import { StripeClient } from '../utils/stripe-client.provider';
 
 export type FastifyStripeRequest = FastifyRequest & {
   rawBody?: string;

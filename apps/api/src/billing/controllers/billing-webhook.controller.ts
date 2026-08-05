@@ -1,7 +1,7 @@
 import { ErrorCodes } from '@coaster/common';
 import { Controller, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe';
+import { type FastifyStripeRequest, StripeWebhookGuard } from '../../stripe/guards/stripe-webhook.guard';
 import {
   HandleCheckoutCompletedCommand,
   HandleInvoicePaidCommand,
