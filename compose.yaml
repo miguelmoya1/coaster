@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     ports:
       - '5432:5432'
     environment:
@@ -65,6 +65,22 @@ services:
       - /app/node_modules
       - /app/apps/web/node_modules
       - /app/packages/common/node_modules
+      - web_angular_cache:/app/apps/web/.angular
+
+  stripe:
+    image: stripe/stripe-cli:latest
+    env_file:
+      - ./apps/api/.env
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - >-
+        exec stripe listen --api-key "$${STRIPE_SECRET_KEY}"
+        --forward-to http://web:4200/api/v1/billing/webhook
+    depends_on:
+      web:
+        condition: service_started
 
 volumes:
   postgres_data:
+  web_angular_cache:
