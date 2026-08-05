@@ -2,7 +2,7 @@ import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
-import Stripe from 'stripe';
+import type { Subscription } from 'stripe';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
@@ -43,7 +43,7 @@ export function toDbPlan(priceId: string | undefined, configService: ConfigServi
   return DbSubscriptionPlan.FREE;
 }
 
-export function toDbStatus(status: Stripe.Subscription.Status): DbSubscriptionStatus {
+export function toDbStatus(status: Subscription.Status): DbSubscriptionStatus {
   switch (status) {
     case 'trialing':
       return DbSubscriptionStatus.TRIALING;

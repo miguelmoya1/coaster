@@ -9,12 +9,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest } from 'fastify';
-import Stripe from 'stripe';
+import type { Event as StripeEvent } from 'stripe';
 import { StripeClient } from '../utils/stripe-client.provider';
 
 export type FastifyStripeRequest = FastifyRequest & {
   rawBody?: string;
-  stripeEvent?: Stripe.Event;
+  stripeEvent?: StripeEvent;
 };
 
 @Injectable()

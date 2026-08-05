@@ -1,5 +1,5 @@
-import Stripe from 'stripe';
+import type { Subscription } from 'stripe';
 
 export class StripeSubscriptionChangedEvent {
-  constructor(public readonly subscription: Stripe.Subscription) {}
+  constructor(public readonly subscription: Subscription) {}
 }

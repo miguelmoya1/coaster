@@ -1,5 +1,5 @@
-import Stripe from 'stripe';
+import type { Invoice } from 'stripe';
 
 export class StripeInvoicePaymentFailedEvent {
-  constructor(public readonly invoice: Stripe.Invoice) {}
+  constructor(public readonly invoice: Invoice) {}
 }
