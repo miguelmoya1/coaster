@@ -1,12 +1,15 @@
-import { OnDestroy, Service, signal } from '@angular/core';
+import { effect, inject, OnDestroy, Service, signal } from '@angular/core';
 import type { Category, Order, OrderAdjustment, Product, Shift, Table } from '@coaster/common';
 import { SocketEvents } from '@coaster/common';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
+import { Auth } from './auth';
 
 @Service()
 export class Socket implements OnDestroy {
+  readonly #auth = inject(Auth);
   #socket: SocketClient | null = null;
+  #currentBarId: string | null = null;
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
 
@@ -16,8 +19,8 @@ export class Socket implements OnDestroy {
   readonly orderClosed = signal<Order | null>(null);
   readonly orderCancelled = signal<{ id: string } | Order | null>(null);
   readonly orderItemAdded = signal<Order | null>(null);
-  readonly orderTipUpdated = signal<{ orderId: string, tipAmount: number } | null>(null);
-  readonly orderAdjustmentsUpdated = signal<{ orderId: string, adjustments: OrderAdjustment[] } | null>(null);
+  readonly orderTipUpdated = signal<{ orderId: string; tipAmount: number } | null>(null);
+  readonly orderAdjustmentsUpdated = signal<{ orderId: string; adjustments: OrderAdjustment[] } | null>(null);
   readonly tableStatusChanged = signal<Partial<Table> | null>(null);
   readonly productCreated = signal<Product | null>(null);
   readonly productStockChanged = signal<Product | null>(null);
@@ -37,11 +40,33 @@ export class Socket implements OnDestroy {
   readonly subscriptionUpdated = signal<{ barId: string } | null>(null);
 
   constructor() {
-    this.connect();
+    // The gateway authenticates the handshake, so the connection has to follow the session:
+    // open it once we hold a token, and tear it down on logout.
+    effect(() => {
+      const token = this.#auth.idToken();
+
+      if (!token) {
+        this.#teardown();
+        return;
+      }
+
+      this.connect(token);
+    });
   }
 
-  public connect() {
-    if (this.#socket?.connected) {
+  public connect(token: string | null | undefined = this.#auth.idToken()) {
+    if (!token) {
+      return;
+    }
+
+    if (this.#socket) {
+      // Keep the credentials fresh for the next handshake without dropping a healthy connection.
+      this.#socket.auth = { token };
+
+      if (!this.#socket.connected) {
+        this.#socket.connect();
+      }
+
       return;
     }
 
@@ -49,14 +74,26 @@ export class Socket implements OnDestroy {
       transports: ['websocket'],
       autoConnect: true,
       reconnection: true,
+      auth: { token },
     });
 
     this.#socket.on('connect', () => {
       this.#connected.set(true);
+
+      // Rooms do not survive a reconnect, so the membership has to be re-declared each time.
+      if (this.#currentBarId) {
+        this.#socket?.emit(SocketEvents.joinBar, this.#currentBarId);
+      }
     });
 
     this.#socket.on('disconnect', () => {
       this.#connected.set(false);
+    });
+
+    this.#socket.on(SocketEvents.unauthorized, () => {
+      // The server rejected our token: stop retrying and wait for a fresh one.
+      this.#connected.set(false);
+      this.#socket?.disconnect();
     });
 
     // Listen to business events
@@ -80,13 +117,16 @@ export class Socket implements OnDestroy {
       this.orderItemAdded.set(order);
     });
 
-    this.#socket.on(SocketEvents.orderTipUpdated, (payload: { orderId: string, tipAmount: number }) => {
+    this.#socket.on(SocketEvents.orderTipUpdated, (payload: { orderId: string; tipAmount: number }) => {
       this.orderTipUpdated.set(payload);
     });
 
-    this.#socket.on(SocketEvents.orderAdjustmentsUpdated, (payload: { orderId: string, adjustments: OrderAdjustment[] }) => {
-      this.orderAdjustmentsUpdated.set(payload);
-    });
+    this.#socket.on(
+      SocketEvents.orderAdjustmentsUpdated,
+      (payload: { orderId: string; adjustments: OrderAdjustment[] }) => {
+        this.orderAdjustmentsUpdated.set(payload);
+      },
+    );
 
     this.#socket.on(SocketEvents.tableStatusChanged, (table: Partial<Table>) => {
       this.tableStatusChanged.set(table);
@@ -158,26 +198,37 @@ export class Socket implements OnDestroy {
   }
 
   public joinBar(barId: string) {
+    // Remembered so the room is restored on reconnect (and on a connection opened later, once
+    // the session token arrives).
+    this.#currentBarId = barId;
+
     if (this.#socket?.connected) {
       this.#socket.emit(SocketEvents.joinBar, barId);
-    } else {
-      // Retry once connected
-      this.#socket?.once('connect', () => {
-        this.#socket?.emit(SocketEvents.joinBar, barId);
-      });
     }
   }
 
   public leaveBar(barId: string) {
+    if (this.#currentBarId === barId) {
+      this.#currentBarId = null;
+    }
+
     if (this.#socket?.connected) {
       this.#socket.emit(SocketEvents.leaveBar, barId);
     }
   }
 
-  ngOnDestroy() {
-    if (this.#socket) {
-      this.#socket.disconnect();
-      this.#socket = null;
+  #teardown() {
+    if (!this.#socket) {
+      return;
     }
+
+    this.#socket.disconnect();
+    this.#socket = null;
+    this.#currentBarId = null;
+    this.#connected.set(false);
+  }
+
+  ngOnDestroy() {
+    this.#teardown();
   }
 }

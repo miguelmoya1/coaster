@@ -3,6 +3,7 @@ export const SocketEvents = {
   leaveBar: 'leaveBar',
   joined: 'joined',
   left: 'left',
+  unauthorized: 'unauthorized',
   productCreated: 'productCreated',
   productUpdated: 'productUpdated',
   productStockChanged: 'productStockChanged',

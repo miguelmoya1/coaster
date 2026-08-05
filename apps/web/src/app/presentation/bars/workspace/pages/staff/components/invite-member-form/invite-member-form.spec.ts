@@ -1,4 +1,6 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Socket } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InviteMemberForm } from './invite-member-form';
@@ -10,7 +12,13 @@ describe('InviteMemberForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InviteMemberForm],
-      providers: [provideTranslateService()]
+      providers: [
+        provideTranslateService(),
+        {
+          provide: Socket,
+          useValue: { memberRemoved: signal<any>(null), memberInvited: signal<any>(null) },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberForm);

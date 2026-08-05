@@ -15,7 +15,7 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
 
   async execute(command: DeleteCategoryCommand): Promise<void> {
     this.#logger.debug(`Executing deleteCategory...`);
-    await this.repository.delete(command.categoryId);
+    await this.repository.delete(command.barId, command.categoryId);
     this.#logger.debug(`Publishing CategoryDeletedEvent...`);
     this._eventBus.publish(new CategoryDeletedEvent(command.barId, command.categoryId));
   }

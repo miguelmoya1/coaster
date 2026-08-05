@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +14,7 @@ describe('UpdateProductHandler', () => {
   let handler: UpdateProductHandler;
   const repository = {
     checkCategoryBelongsToBar: vi.fn(),
+    checkProductBelongsToBar: vi.fn(),
     update: vi.fn(),
   };
   const eventBus = {
@@ -21,6 +22,8 @@ describe('UpdateProductHandler', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateProductHandler,
@@ -37,7 +40,16 @@ describe('UpdateProductHandler', () => {
   const productId = asProductId('prod-1');
   const dto = { categoryId: asCategoryId('cat-2'), name: 'Refresco Actualizado' };
 
+  it('should refuse to update a product owned by another bar', async () => {
+    repository.checkProductBelongsToBar.mockResolvedValue(false);
+
+    await expect(handler.execute(new UpdateProductCommand(barId, productId, dto))).rejects.toThrow(NotFoundException);
+
+    expect(repository.update).not.toHaveBeenCalled();
+  });
+
   it('should throw ForbiddenException if new category does not belong to bar', async () => {
+    repository.checkProductBelongsToBar.mockResolvedValue(true);
     repository.checkCategoryBelongsToBar.mockResolvedValue(false);
 
     const cmd = new UpdateProductCommand(barId, productId, dto);
@@ -45,6 +57,7 @@ describe('UpdateProductHandler', () => {
   });
 
   it('should update product and publish stock changed event', async () => {
+    repository.checkProductBelongsToBar.mockResolvedValue(true);
     repository.checkCategoryBelongsToBar.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',

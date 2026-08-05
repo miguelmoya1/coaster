@@ -11,6 +11,17 @@ interface RequestWithParams {
   user?: { id: string };
 }
 
+const SUBSCRIPTION_MANAGEMENT_PATH = /\/bars\/[^/]+\/bar-subscription(\/|$)/;
+
+function getPathname(url: string | undefined): string {
+  if (!url) {
+    return '';
+  }
+
+  const queryStart = url.indexOf('?');
+  return queryStart === -1 ? url : url.slice(0, queryStart);
+}
+
 @Injectable()
 export class SubscriptionActiveGuard implements CanActivate {
   constructor(
@@ -36,8 +47,10 @@ export class SubscriptionActiveGuard implements CanActivate {
     }
 
     // Subscription management must stay reachable while locked out, otherwise an expired bar
-    // could never re-subscribe to unlock itself.
-    if (request.url?.includes('/bar-subscription')) {
+    // could never re-subscribe to unlock itself. Match the path only: `request.url` carries the
+    // query string, so a substring test over the whole URL would let `?x=/bar-subscription`
+    // wave any request past the paywall.
+    if (SUBSCRIPTION_MANAGEMENT_PATH.test(getPathname(request.url))) {
       return true;
     }
 

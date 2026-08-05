@@ -1,10 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { BarMember } from '@coaster/common';
 import { BarRole } from '@coaster/common';
-import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { asBarId, asBarMemberId, asUserId, Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MembersStore } from './members.store';
 
@@ -39,7 +39,15 @@ describe('MembersStore', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideZonelessChangeDetection()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideZonelessChangeDetection(),
+        {
+          provide: Socket,
+          useValue: { memberRemoved: signal<any>(null), memberInvited: signal<any>(null) },
+        },
+      ],
     });
 
     store = TestBed.inject(MembersStore);

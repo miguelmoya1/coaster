@@ -25,9 +25,9 @@ export class CategoriesWriteRepository {
     });
   }
 
-  public async delete(categoryId: CategoryId) {
+  public async delete(barId: BarId, categoryId: CategoryId) {
     return this._db.dbCategory.update({
-      where: { id: categoryId },
+      where: { id: categoryId, barId },
       data: { deletedAt: new Date() },
     });
   }

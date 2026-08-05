@@ -35,7 +35,7 @@ describe('DeleteCategoryHandler', () => {
 
     await handler.execute(new DeleteCategoryCommand(barId, catId));
 
-    expect(repository.delete).toHaveBeenCalledWith(catId);
+    expect(repository.delete).toHaveBeenCalledWith(barId, catId);
     expect(eventBus.publish).toHaveBeenCalledWith(new CategoryDeletedEvent(barId, catId));
   });
 });
