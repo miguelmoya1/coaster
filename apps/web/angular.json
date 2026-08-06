@@ -72,7 +72,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "runnerConfig": true
+            "runnerConfig": true,
+            "isolate": true
           }
         },
         "e2e": {

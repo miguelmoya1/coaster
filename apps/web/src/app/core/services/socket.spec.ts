@@ -1,8 +1,10 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from './auth';
 import { Socket } from './socket';
+
+const JOIN_BAR_RETRY_MS = 1000;
 
 const handlers = new Map<string, (payload?: unknown) => void>();
 const socketMock = {
@@ -23,6 +25,7 @@ vi.mock('socket.io-client', () => ({
 
 describe('Socket', () => {
   let service: Socket;
+  let consoleError: ReturnType<typeof vi.spyOn>;
   const idToken = signal<string | null | undefined>(undefined);
 
   const connectSocket = () => {
@@ -32,12 +35,41 @@ describe('Socket', () => {
     TestBed.tick();
   };
 
+  const joinCalls = () => socketMock.emit.mock.calls.filter((call) => call[0] === 'joinBar');
+
+  const rejectLastJoin = () => {
+    const ack = joinCalls().at(-1)?.[2] as ((response: unknown) => void) | undefined;
+    ack?.({ status: 'error', message: 'UNAUTHORIZED' });
+  };
+
+  const spyOnScheduling = () => {
+    const scheduled: { delay: number; run: () => void }[] = [];
+    const realSetTimeout = globalThis.setTimeout;
+
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(((
+      callback: () => void,
+      delay?: number,
+      ...rest: unknown[]
+    ) => {
+      if (delay === JOIN_BAR_RETRY_MS) {
+        scheduled.push({ delay, run: callback });
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      }
+
+      return realSetTimeout(callback, delay, ...rest);
+    }) as typeof setTimeout);
+
+    return scheduled;
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     handlers.clear();
     socketMock.connected = false;
     socketMock.active = false;
+    socketMock.auth = {};
     idToken.set(undefined);
+    consoleError = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), { provide: Auth, useValue: { idToken: idToken.asReadonly() } }],
@@ -45,6 +77,10 @@ describe('Socket', () => {
 
     service = TestBed.inject(Socket);
     TestBed.tick();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should not connect before a session token exists', () => {
@@ -99,53 +135,55 @@ describe('Socket', () => {
     expect(socketMock.emit).toHaveBeenCalledWith('joinBar', 'bar-1', expect.any(Function));
   });
 
-  it('should retry a rejected join instead of silently staying out of the room', async () => {
-    vi.useFakeTimers();
-    const consoleError = vi.spyOn(console, 'error').mockReturnValue(undefined);
-
+  it('should retry a rejected join instead of silently staying out of the room', () => {
     service.joinBar('bar-1');
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
-
-    const joinCalls = () => socketMock.emit.mock.calls.filter((call: unknown[]) => call[0] === 'joinBar');
-    const rejectLastJoin = () => {
-      const ack = joinCalls().at(-1)?.[2] as (response: unknown) => void;
-      ack({ status: 'error', message: 'UNAUTHORIZED' });
-    };
 
     expect(joinCalls()).toHaveLength(1);
 
+    const scheduled = spyOnScheduling();
     rejectLastJoin();
+
     expect(consoleError).toHaveBeenCalled();
+    expect(scheduled).toHaveLength(1);
+    expect(scheduled[0].delay).toBe(JOIN_BAR_RETRY_MS);
 
-    await vi.advanceTimersByTimeAsync(1000);
+    scheduled[0].run();
+
     expect(joinCalls()).toHaveLength(2);
-
-    vi.useRealTimers();
-    consoleError.mockRestore();
   });
 
-  it('should stop retrying a join once the workspace moved to another bar', async () => {
-    vi.useFakeTimers();
-    vi.spyOn(console, 'error').mockReturnValue(undefined);
-
+  it('should stop retrying a join once the workspace moved to another bar', () => {
     service.joinBar('bar-1');
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
 
-    const joinCalls = () => socketMock.emit.mock.calls.filter((call: unknown[]) => call[0] === 'joinBar');
-    const ack = joinCalls().at(-1)?.[2] as (response: unknown) => void;
-
+    const scheduled = spyOnScheduling();
     service.leaveBar('bar-1');
-    ack({ status: 'error', message: 'UNAUTHORIZED' });
+    rejectLastJoin();
 
-    await vi.advanceTimersByTimeAsync(5000);
+    expect(scheduled).toHaveLength(0);
+    expect(joinCalls().filter((call) => call[1] === 'bar-1')).toHaveLength(1);
+  });
 
-    expect(joinCalls().filter((call: unknown[]) => call[1] === 'bar-1')).toHaveLength(1);
+  it('should give up after a few rejected joins rather than retrying forever', () => {
+    service.joinBar('bar-1');
+    idToken.set('token-123');
+    TestBed.tick();
+    connectSocket();
 
-    vi.useRealTimers();
+    const scheduled = spyOnScheduling();
+    rejectLastJoin();
+
+    while (scheduled.length > 0) {
+      scheduled.shift()?.run();
+      rejectLastJoin();
+    }
+
+    expect(joinCalls()).toHaveLength(3);
   });
 
   it('should not open a second connection while the first one is still connecting', () => {

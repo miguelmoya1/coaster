@@ -158,7 +158,7 @@ describe('BarSubscriptionStore', () => {
       store.setBarId(barId);
       TestBed.tick();
 
-      httpMock.expectOne(url).flush(subscription);
+      httpMock.expectOne(url).flush(subscription as string);
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();

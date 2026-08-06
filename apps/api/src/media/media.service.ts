@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { getStorage } from 'firebase-admin/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { MediaFileRequestDto } from './dto/generate-upload-urls.dto';
 import { MediaUploadResponse } from '@coaster/common';
 
@@ -19,7 +19,7 @@ export class MediaService {
 
     for (const fileReq of files) {
       try {
-        const filePath = `bars/${barId}/${entityType}/${uuidv4()}-${fileReq.filename}`;
+        const filePath = `bars/${barId}/${entityType}/${randomUUID()}-${fileReq.filename}`;
         const file = bucket.file(filePath);
 
         const [signedUrl] = await file.getSignedUrl({
