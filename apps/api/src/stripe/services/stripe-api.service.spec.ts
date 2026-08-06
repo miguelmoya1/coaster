@@ -30,7 +30,10 @@ describe('StripeApi', () => {
 
       await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_1');
 
-      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(expect.objectContaining({ customer: 'cus_1' }));
+      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({ customer: 'cus_1' }),
+        undefined,
+      );
     });
 
     it('should omit the customer when none is provided', async () => {
@@ -40,7 +43,30 @@ describe('StripeApi', () => {
 
       expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(
         expect.not.objectContaining({ customer: expect.anything() }),
+        undefined,
       );
+    });
+
+    it('should forward the idempotency key so a repeated purchase reuses the same session', async () => {
+      clientMock.checkout.sessions.create.mockResolvedValue({ id: 'cs_1' });
+
+      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_1', 'checkout:bar-1:PRO:900');
+
+      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(expect.anything(), {
+        idempotencyKey: 'checkout:bar-1:PRO:900',
+      });
+    });
+
+    it('should vary the key on the customer-less retry, since the payload changed', async () => {
+      clientMock.checkout.sessions.create
+        .mockRejectedValueOnce({ code: 'resource_missing', param: 'customer' })
+        .mockResolvedValueOnce({ id: 'cs_retry' });
+
+      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_gone', 'checkout:bar-1:PRO:900');
+
+      expect(clientMock.checkout.sessions.create).toHaveBeenLastCalledWith(expect.anything(), {
+        idempotencyKey: 'checkout:bar-1:PRO:900:no-customer',
+      });
     });
 
     it('should retry without the customer when the stored customer no longer exists', async () => {

@@ -13,11 +13,13 @@ export class StripeApi {
   public async createCheckoutSession(
     params: Checkout.SessionCreateParams,
     customerId?: string | null,
+    idempotencyKey?: string,
   ): Promise<Checkout.Session> {
     const request = customerId ? { ...params, customer: customerId } : params;
+    const options = idempotencyKey ? { idempotencyKey } : undefined;
 
     try {
-      return await this._stripeClient.client.checkout.sessions.create(request);
+      return await this._stripeClient.client.checkout.sessions.create(request, options);
     } catch (error) {
       if (!customerId || !isStripeResourceMissingError(error, 'customer')) {
         this.#logger.error('Stripe checkout session creation failed');
@@ -29,11 +31,33 @@ export class StripeApi {
       delete retryRequest.customer;
 
       try {
-        return await this._stripeClient.client.checkout.sessions.create(retryRequest);
+        // The retry changes the payload, so it cannot reuse the key of the request that just failed.
+        return await this._stripeClient.client.checkout.sessions.create(
+          retryRequest,
+          idempotencyKey ? { idempotencyKey: `${idempotencyKey}:no-customer` } : undefined,
+        );
       } catch {
         this.#logger.error('Stripe checkout session retry failed');
         throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
       }
+    }
+  }
+
+  /**
+   * Ends a subscription right away, used to undo a duplicate that slipped past the checkout guard.
+   * Returns false when Stripe no longer knows about it, which is already the desired end state.
+   */
+  public async cancelSubscription(subscriptionId: string): Promise<boolean> {
+    try {
+      await this._stripeClient.client.subscriptions.cancel(subscriptionId);
+      return true;
+    } catch (error) {
+      if (isStripeResourceMissingError(error, 'subscription')) {
+        return false;
+      }
+
+      this.#logger.error(`Could not cancel Stripe subscription ${subscriptionId}`);
+      throw new InternalServerErrorException(ErrorCodes.STRIPE_SUBSCRIPTION_CANCEL_FAILED);
     }
   }
 

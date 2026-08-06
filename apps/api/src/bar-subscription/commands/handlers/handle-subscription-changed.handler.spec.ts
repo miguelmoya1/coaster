@@ -11,6 +11,7 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
   let writeRepoMock: any;
   let configServiceMock: any;
   let eventBusMock: any;
+  let stripeApiMock: any;
 
   beforeEach(() => {
     readRepoMock = {
@@ -27,7 +28,52 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
       publish: vi.fn(),
     };
 
-    handler = new HandleSubscriptionChangedHandler(readRepoMock, writeRepoMock, configServiceMock, eventBusMock);
+    stripeApiMock = {
+      retrieveSubscription: vi.fn().mockResolvedValue(null),
+      cancelSubscription: vi.fn().mockResolvedValue(true),
+    };
+
+    handler = new HandleSubscriptionChangedHandler(
+      readRepoMock,
+      writeRepoMock,
+      configServiceMock,
+      eventBusMock,
+      stripeApiMock,
+    );
+  });
+
+  it('should ignore events for a subscription this bar does not track', async () => {
+    readRepoMock.findByStripeSubscriptionId.mockResolvedValue(null);
+    readRepoMock.findByStripeCustomerId.mockResolvedValue({ barId: 'bar-1', stripeSubscriptionId: 'sub_live' });
+    stripeApiMock.retrieveSubscription.mockResolvedValue({ id: 'sub_live', status: 'active' });
+
+    const cancelledDuplicate = {
+      id: 'sub_duplicate',
+      customer: 'cus_123',
+      status: 'canceled',
+      items: { data: [] },
+    } as any;
+
+    await handler.execute(new HandleSubscriptionChangedCommand(cancelledDuplicate));
+
+    expect(writeRepoMock.upsert).not.toHaveBeenCalled();
+  });
+
+  it('should process events for a subscription that replaced a dead one', async () => {
+    readRepoMock.findByStripeSubscriptionId.mockResolvedValue(null);
+    readRepoMock.findByStripeCustomerId.mockResolvedValue({ barId: 'bar-1', stripeSubscriptionId: 'sub_old' });
+    stripeApiMock.retrieveSubscription.mockResolvedValue({ id: 'sub_old', status: 'canceled' });
+
+    const replacement = {
+      id: 'sub_new',
+      customer: 'cus_123',
+      status: 'active',
+      items: { data: [{ price: { id: 'price_pro' }, current_period_end: 1800000000 }] },
+    } as any;
+
+    await handler.execute(new HandleSubscriptionChangedCommand(replacement));
+
+    expect(writeRepoMock.upsert).toHaveBeenCalled();
   });
 
   it('should fail if customerId is missing', async () => {

@@ -33,6 +33,14 @@ export function isStripeResourceMissingError(error: unknown, resource: 'customer
   return code === 'resource_missing' && (param.includes(resourceName) || message.includes(`no such ${resourceName}`));
 }
 
+/**
+ * Whether a Stripe subscription is still worth anything: it either grants access or is expected to
+ * once payment clears. Anything else is spent, so it can be safely replaced by a fresh purchase.
+ */
+export function isLiveSubscription(status: Subscription.Status): boolean {
+  return status !== 'canceled' && status !== 'incomplete_expired';
+}
+
 export function toDbPlan(priceId: string | undefined, configService: ConfigService): DbSubscriptionPlan {
   const proPrice = configService.get<string>('STRIPE_PRICE_PRO');
 

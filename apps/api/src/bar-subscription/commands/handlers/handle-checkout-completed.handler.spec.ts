@@ -8,13 +8,83 @@ import { HandleCheckoutCompletedHandler } from './handle-checkout-completed.hand
 describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
   let handler: HandleCheckoutCompletedHandler;
   let writeRepoMock: any;
+  let readRepoMock: any;
+  let stripeApiMock: any;
+  let eventBusMock: any;
 
   beforeEach(() => {
     writeRepoMock = {
       upsert: vi.fn(),
     };
+    readRepoMock = {
+      findByBarId: vi.fn().mockResolvedValue(null),
+    };
+    stripeApiMock = {
+      retrieveSubscription: vi.fn(),
+      cancelSubscription: vi.fn().mockResolvedValue(true),
+    };
+    eventBusMock = {
+      publish: vi.fn(),
+    };
 
-    handler = new HandleCheckoutCompletedHandler(writeRepoMock);
+    handler = new HandleCheckoutCompletedHandler(writeRepoMock, readRepoMock, stripeApiMock, eventBusMock);
+  });
+
+  describe('duplicate subscriptions', () => {
+    const duplicateSession = {
+      id: 'cs_2',
+      mode: 'subscription',
+      customer: 'cus_123',
+      subscription: 'sub_duplicate',
+      metadata: { barId: 'bar-1' },
+    } as unknown as Stripe.Checkout.Session;
+
+    it('should cancel a second subscription instead of overwriting the live one', async () => {
+      readRepoMock.findByBarId.mockResolvedValue({ stripeSubscriptionId: 'sub_original' });
+      stripeApiMock.retrieveSubscription.mockResolvedValue({ id: 'sub_original', status: 'active' });
+
+      await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
+
+      expect(stripeApiMock.cancelSubscription).toHaveBeenCalledWith('sub_duplicate');
+      expect(writeRepoMock.upsert).not.toHaveBeenCalled();
+      expect(eventBusMock.publish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          barId: 'bar-1',
+          keptSubscriptionId: 'sub_original',
+          cancelledSubscriptionId: 'sub_duplicate',
+        }),
+      );
+    });
+
+    it('should accept a repurchase once the tracked subscription is dead in Stripe', async () => {
+      readRepoMock.findByBarId.mockResolvedValue({ stripeSubscriptionId: 'sub_original' });
+      stripeApiMock.retrieveSubscription.mockResolvedValue({ id: 'sub_original', status: 'canceled' });
+
+      await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
+
+      expect(stripeApiMock.cancelSubscription).not.toHaveBeenCalled();
+      expect(writeRepoMock.upsert).toHaveBeenCalled();
+    });
+
+    it('should accept a repurchase when Stripe no longer knows the tracked subscription', async () => {
+      readRepoMock.findByBarId.mockResolvedValue({ stripeSubscriptionId: 'sub_gone' });
+      stripeApiMock.retrieveSubscription.mockResolvedValue(null);
+
+      await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
+
+      expect(stripeApiMock.cancelSubscription).not.toHaveBeenCalled();
+      expect(writeRepoMock.upsert).toHaveBeenCalled();
+    });
+
+    it('should stay idempotent when the same webhook is delivered twice', async () => {
+      readRepoMock.findByBarId.mockResolvedValue({ stripeSubscriptionId: 'sub_duplicate' });
+
+      await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
+
+      expect(stripeApiMock.cancelSubscription).not.toHaveBeenCalled();
+      expect(stripeApiMock.retrieveSubscription).not.toHaveBeenCalled();
+      expect(writeRepoMock.upsert).toHaveBeenCalled();
+    });
   });
 
   it('should ignore checkout sessions that are not for a subscription', async () => {

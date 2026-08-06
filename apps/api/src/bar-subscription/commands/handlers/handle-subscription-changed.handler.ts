@@ -1,7 +1,7 @@
 import type { BarId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
-import { toDbPlan, toDbStatus } from '@coaster/stripe';
+import { isLiveSubscription, StripeApi, toDbPlan, toDbStatus } from '@coaster/stripe';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
@@ -20,6 +20,7 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
     private readonly _writeRepo: BarSubscriptionWriteRepository,
     private readonly _configService: ConfigService,
     private readonly _eventBus: EventBus,
+    private readonly _stripeApi: StripeApi,
   ) {}
 
   async execute(command: HandleSubscriptionChangedCommand): Promise<void> {
@@ -41,6 +42,19 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
     if (!barId) {
       this._logger.error(`Cannot process subscription ${subscription.id}: barId missing`);
       throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING);
+    }
+
+    const trackedSubscriptionId = existing?.stripeSubscriptionId;
+
+    if (trackedSubscriptionId && trackedSubscriptionId !== subscription.id) {
+      const tracked = await this._stripeApi.retrieveSubscription(trackedSubscriptionId);
+
+      if (tracked && isLiveSubscription(tracked.status)) {
+        this._logger.warn(
+          `Ignoring event for untracked subscription ${subscription.id} on barId=${barId}: ${trackedSubscriptionId} is the live one`,
+        );
+        return;
+      }
     }
 
     const firstItem = subscription.items.data[0];

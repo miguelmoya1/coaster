@@ -42,8 +42,41 @@ describe('CreateCheckoutSessionHandler (bar-subscription)', () => {
         line_items: [{ price: 'price_monthly', quantity: 1 }],
       }),
       'cus_existing',
+      expect.stringContaining(`checkout:${barId}:${SubscriptionPlan.PRO}:`),
     );
     expect(result).toEqual({ id: 'cs_123', url: 'https://checkout.stripe.com/pay' });
+  });
+
+  it('should reuse one idempotency key across repeated purchases so Stripe returns the same session', async () => {
+    await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+    await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+
+    const [firstKey, secondKey] = stripeApiMock.createCheckoutSession.mock.calls.map(
+      (call: unknown[]) => call[2] as string,
+    );
+
+    expect(firstKey).toBe(secondKey);
+  });
+
+  it('should key separate bars apart so one never reuses another bar session', async () => {
+    await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+    await handler.execute(new CreateCheckoutSessionCommand('bar_other' as BarId, SubscriptionPlan.PRO));
+
+    const [firstKey, secondKey] = stripeApiMock.createCheckoutSession.mock.calls.map(
+      (call: unknown[]) => call[2] as string,
+    );
+
+    expect(firstKey).not.toBe(secondKey);
+  });
+
+  it('should expire the session well inside the idempotency window', async () => {
+    await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+
+    const { expires_at: expiresAt } = stripeApiMock.createCheckoutSession.mock.calls.at(-1)[0];
+    const secondsFromNow = expiresAt - Math.floor(Date.now() / 1000);
+
+    expect(secondsFromNow).toBeGreaterThan(30 * 60);
+    expect(secondsFromNow).toBeLessThanOrEqual(2 * 60 * 60);
   });
 
   it('should let Stripe create the customer if no stripeCustomerId exists', async () => {
@@ -51,7 +84,7 @@ describe('CreateCheckoutSessionHandler (bar-subscription)', () => {
 
     const result = await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
 
-    expect(stripeApiMock.createCheckoutSession).toHaveBeenCalledWith(expect.any(Object), undefined);
+    expect(stripeApiMock.createCheckoutSession).toHaveBeenCalledWith(expect.any(Object), undefined, expect.any(String));
     expect(result).toEqual({ id: 'cs_123', url: 'https://checkout.stripe.com/pay' });
   });
 
@@ -117,6 +150,6 @@ describe('CreateCheckoutSessionHandler (bar-subscription)', () => {
     const result = await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
 
     expect(result.url).toBe('https://checkout.stripe.com/recovery');
-    expect(stripeApiMock.createCheckoutSession).toHaveBeenCalledWith(expect.any(Object), null);
+    expect(stripeApiMock.createCheckoutSession).toHaveBeenCalledWith(expect.any(Object), null, expect.any(String));
   });
 });

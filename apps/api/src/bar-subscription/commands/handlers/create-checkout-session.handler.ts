@@ -9,6 +9,12 @@ import { BarSubscriptionReadRepository } from '../../data-access/bar-subscriptio
 import { getCheckoutCancelUrl, getCheckoutSuccessUrl } from '../../utils/billing-urls';
 import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.command';
 
+const CHECKOUT_SESSION_TTL_SECONDS = 2 * 60 * 60;
+const IDEMPOTENCY_BUCKET_MS = 30 * 60 * 1000;
+
+const buildCheckoutIdempotencyKey = (barId: string, plan: string): string =>
+  `checkout:${barId}:${plan}:${Math.floor(Date.now() / IDEMPOTENCY_BUCKET_MS)}`;
+
 @Injectable()
 @CommandHandler(CreateCheckoutSessionCommand)
 export class CreateCheckoutSessionHandler implements ICommandHandler<
@@ -68,6 +74,7 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
         cancel_url: getCheckoutCancelUrl(this._configService, barId),
         client_reference_id: barId,
         allow_promotion_codes: true,
+        expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
         line_items: [{ price: priceId, quantity: 1 }],
         integration_identifier: createIntegrationIdentifier(),
         metadata: {
@@ -82,6 +89,7 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
         },
       },
       existing?.stripeCustomerId,
+      buildCheckoutIdempotencyKey(barId, plan),
     );
 
     if (!session.url) {
