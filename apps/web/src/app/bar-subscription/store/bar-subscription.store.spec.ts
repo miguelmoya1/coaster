@@ -152,4 +152,76 @@ describe('BarSubscriptionStore', () => {
       expect(store.isReadOnly()).toBe(true);
     });
   });
+
+  describe('billingAction', () => {
+    const load = async (subscription: unknown) => {
+      store.setBarId(barId);
+      TestBed.tick();
+
+      httpMock.expectOne(url).flush(subscription);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+    };
+
+    it('should offer to manage an active subscription', async () => {
+      await load(activeSubscription);
+
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should still offer to manage a subscription cancelled but inside its paid period', async () => {
+      await load({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        canceledAt: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+      });
+
+      expect(store.isReadOnly()).toBe(false);
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should offer to activate once a cancelled subscription has actually lapsed', async () => {
+      await load({
+        ...activeSubscription,
+        status: SubscriptionStatus.CANCELED,
+        stripeSubscriptionId: null,
+        canceledAt: new Date(Date.now() - 40 * 86_400_000).toISOString(),
+        currentPeriodEnd: new Date(Date.now() - 86_400_000).toISOString(),
+      });
+
+      expect(store.billingAction()).toBe('ACTIVATE');
+    });
+
+    it('should offer to activate when the bar never had a Stripe subscription', async () => {
+      await load({
+        ...activeSubscription,
+        plan: SubscriptionPlan.FREE,
+        status: SubscriptionStatus.INACTIVE,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+      });
+
+      expect(store.billingAction()).toBe('ACTIVATE');
+    });
+
+    it('should offer to manage a Stripe trial so the customer can cancel or change card', async () => {
+      await load({
+        ...activeSubscription,
+        status: SubscriptionStatus.TRIALING,
+        trialEndsAt: new Date(Date.now() + 10 * 86_400_000).toISOString(),
+      });
+
+      expect(store.billingAction()).toBe('MANAGE');
+    });
+
+    it('should keep pushing checkout while the workspace is locked for non-payment', async () => {
+      await load({ ...activeSubscription, status: SubscriptionStatus.PAST_DUE });
+
+      expect(store.isReadOnly()).toBe(true);
+      expect(store.billingAction()).toBe('ACTIVATE');
+    });
+  });
 });

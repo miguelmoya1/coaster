@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import type { BarId } from '@coaster/common';
+import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { barSubscriptionMapper } from '../mappers/bar-subscription.mapper';
 import { BarSubscription } from '../services/bar-subscription';
@@ -97,13 +97,9 @@ export class BarSubscriptionStore {
   });
 
   public readonly billingAction = computed<BillingAction>(() => {
-    if (this.showSubscriptionBanner()) {
-      return BillingAction.ACTIVATE;
-    }
+    const subscription = this.#currentSubscription();
 
-    return this.#currentSubscription()?.status === SubscriptionStatus.ACTIVE
-      ? BillingAction.MANAGE
-      : BillingAction.ACTIVATE;
+    return subscription?.stripeSubscriptionId && !this.isReadOnly() ? BillingAction.MANAGE : BillingAction.ACTIVATE;
   });
 
   public readonly showBillingAction = computed(() => !this.showSubscriptionBanner());

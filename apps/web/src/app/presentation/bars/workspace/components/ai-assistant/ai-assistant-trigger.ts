@@ -38,7 +38,6 @@ export class AiAssistantTrigger {
 
   readonly service = inject(AiVoiceService);
 
-  /** Keeps the assistant visible in the toolbar while it works with the panel closed. */
   protected readonly isBusy = computed(
     () => this.service.status() === 'listening' || this.service.status() === 'processing',
   );
