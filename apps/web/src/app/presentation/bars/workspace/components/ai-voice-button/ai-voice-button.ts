@@ -2,8 +2,8 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import type { BarId } from '@coaster/common';
 import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
+import type { BarId } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AiVoiceService } from './ai-voice.service';
 
@@ -11,223 +11,241 @@ import { AiVoiceService } from './ai-voice.service';
   selector: 'coaster-ai-voice-button',
   imports: [MatButton, MatFabButton, MatIconButton, MatIcon, CdkDrag, TranslatePipe, RequireSubscriptionDirective],
   template: `
-    @if (service.isSupported()) {
-      @if (isOpen()) {
-        <div
-          class="voice-card fixed bottom-28 left-4 right-4 z-9999 md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-96 h-[32rem] max-h-[80vh] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col gap-4 text-white shadow-elevated transition-all duration-300"
-        >
-          <div class="flex items-center justify-between border-b border-white/10 pb-3">
-            <div class="flex flex-col gap-0.5">
-              <span class="text-sm font-semibold tracking-wide text-zinc-200">
-                {{ 'ai_voice.title' | translate }}
-              </span>
-              <div class="flex items-center gap-1.5 mt-0.5">
-                <div class="relative flex h-2 w-2">
-                  @switch (service.status()) {
-                    @case ('listening') {
-                      <span
-                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
-                      ></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    }
-                    @case ('paused') {
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-                    }
-                    @case ('processing') {
-                      <span
-                        class="animate-spin absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"
-                      ></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                    }
-                    @case ('success') {
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    }
-                    @case ('error') {
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                    }
-                    @default {
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-zinc-500"></span>
-                    }
+    @if (isOpen()) {
+      <div
+        class="voice-card fixed bottom-28 left-4 right-4 z-9999 md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-96 h-[32rem] max-h-[80vh] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col gap-4 text-white shadow-elevated transition-all duration-300"
+      >
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-semibold tracking-wide text-zinc-200">
+              {{ 'ai_voice.title' | translate }}
+            </span>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <div class="relative flex h-2 w-2">
+                @switch (service.status()) {
+                  @case ('listening') {
+                    <span
+                      class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+                    ></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   }
-                </div>
-                <span class="text-xs text-zinc-400 font-medium">
-                  {{ 'ai_voice.status.' + service.status() | translate }}
-                </span>
+                  @case ('paused') {
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                  }
+                  @case ('processing') {
+                    <span
+                      class="animate-spin absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"
+                    ></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                  }
+                  @case ('success') {
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  }
+                  @case ('error') {
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  }
+                  @default {
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-zinc-500"></span>
+                  }
+                }
               </div>
-            </div>
-
-            <div class="flex items-center gap-1">
-              <button
-                mat-icon-button
-                (click)="service.resetChat()"
-                [disabled]="service.messages().length === 0"
-                class="!h-8 !w-8 !min-w-8"
-                [title]="'ai_voice.reset_chat' | translate"
-              >
-                <mat-icon class="!text-zinc-400 !text-lg" [class.opacity-40]="service.messages().length === 0"
-                  >delete</mat-icon
-                >
-              </button>
-              <button mat-icon-button (click)="service.toggleMute()" class="!h-8 !w-8 !min-w-8">
-                <mat-icon class="!text-zinc-400 !text-lg">
-                  {{ service.isMuted() ? 'volume_off' : 'volume_up' }}
-                </mat-icon>
-              </button>
-              <button mat-icon-button (click)="closePanel()" class="!h-8 !w-8 !min-w-8">
-                <mat-icon class="!text-zinc-400 !text-lg">close</mat-icon>
-              </button>
+              <span class="text-xs text-zinc-400 font-medium">
+                {{ 'ai_voice.status.' + service.status() | translate }}
+              </span>
             </div>
           </div>
 
-          <div #chatContainer class="flex-1 overflow-y-auto pr-1 scrollbar-thin flex flex-col gap-3 py-1">
-            @if (service.messages().length === 0) {
-              <div class="flex-1 flex flex-col items-center justify-center text-center p-4 text-zinc-500 my-auto">
-                <mat-icon class="!text-4xl !h-10 !w-10 mb-2 opacity-40">chat_bubble_outline</mat-icon>
-                <p class="text-xs">{{ 'ai_voice.empty_chat' | translate }}</p>
-              </div>
-            } @else {
-              @for (msg of service.messages(); track $index) {
+          <div class="flex items-center gap-1">
+            <button
+              mat-icon-button
+              (click)="service.resetChat()"
+              [disabled]="service.messages().length === 0"
+              class="!h-8 !w-8 !min-w-8"
+              [title]="'ai_voice.reset_chat' | translate"
+            >
+              <mat-icon class="!text-zinc-400 !text-lg" [class.opacity-40]="service.messages().length === 0"
+                >delete</mat-icon
+              >
+            </button>
+            <button mat-icon-button (click)="service.toggleMute()" class="!h-8 !w-8 !min-w-8">
+              <mat-icon class="!text-zinc-400 !text-lg">
+                {{ service.isMuted() ? 'volume_off' : 'volume_up' }}
+              </mat-icon>
+            </button>
+            <button mat-icon-button (click)="closePanel()" class="!h-8 !w-8 !min-w-8">
+              <mat-icon class="!text-zinc-400 !text-lg">close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div #chatContainer class="flex-1 overflow-y-auto pr-1 scrollbar-thin flex flex-col gap-3 py-1">
+          @if (service.messages().length === 0) {
+            <div class="flex-1 flex flex-col items-center justify-center text-center p-4 text-zinc-500 my-auto">
+              <mat-icon class="!text-4xl !h-10 !w-10 mb-2 opacity-40">chat_bubble_outline</mat-icon>
+              <p class="text-xs">{{ 'ai_voice.empty_chat' | translate }}</p>
+            </div>
+          } @else {
+            @for (msg of service.messages(); track $index) {
+              <div
+                class="flex flex-col gap-1"
+                [class.items-end]="msg.role === 'user'"
+                [class.items-start]="msg.role === 'assistant'"
+              >
+                <span class="text-[10px] text-zinc-500 px-2 font-medium">
+                  {{ (msg.role === 'user' ? 'ai_voice.user' : 'ai_voice.assistant') | translate }}
+                </span>
                 <div
-                  class="flex flex-col gap-1"
-                  [class.items-end]="msg.role === 'user'"
-                  [class.items-start]="msg.role === 'assistant'"
+                  class="max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed"
+                  [class.bg-primary/20]="msg.role === 'user'"
+                  [class.text-primary]="msg.role === 'user'"
+                  [class.border]="msg.role === 'user'"
+                  [class.border-primary/30]="msg.role === 'user'"
+                  [class.bg-white/5]="msg.role === 'assistant'"
+                  [class.text-zinc-100]="msg.role === 'assistant'"
+                  [class.border]="msg.role === 'assistant'"
+                  [class.border-white/5]="msg.role === 'assistant'"
                 >
-                  <span class="text-[10px] text-zinc-500 px-2 font-medium">
-                    {{ (msg.role === 'user' ? 'ai_voice.user' : 'ai_voice.assistant') | translate }}
-                  </span>
-                  <div
-                    class="max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed"
-                    [class.bg-primary/20]="msg.role === 'user'"
-                    [class.text-primary]="msg.role === 'user'"
-                    [class.border]="msg.role === 'user'"
-                    [class.border-primary/30]="msg.role === 'user'"
-                    [class.bg-white/5]="msg.role === 'assistant'"
-                    [class.text-zinc-100]="msg.role === 'assistant'"
-                    [class.border]="msg.role === 'assistant'"
-                    [class.border-white/5]="msg.role === 'assistant'"
-                  >
-                    <div class="flex justify-between items-start gap-4">
-                      <p class="whitespace-pre-line">{{ msg.content }}</p>
-                      @if (msg.role === 'assistant') {
-                        <button
-                          mat-icon-button
-                          (click)="service.speak(msg.content)"
-                          class="!h-5 !w-5 !min-w-5 !p-0 -mr-1 mt-0.5 opacity-60 hover:opacity-100 transition-opacity"
-                        >
-                          <mat-icon class="!text-zinc-400 !text-sm !h-3.5 !w-3.5">volume_up</mat-icon>
-                        </button>
-                      }
-                    </div>
+                  <div class="flex justify-between items-start gap-4">
+                    <p class="whitespace-pre-line">{{ msg.content }}</p>
+                    @if (msg.role === 'assistant') {
+                      <button
+                        mat-icon-button
+                        (click)="service.speak(msg.content)"
+                        class="!h-5 !w-5 !min-w-5 !p-0 -mr-1 mt-0.5 opacity-60 hover:opacity-100 transition-opacity"
+                      >
+                        <mat-icon class="!text-zinc-400 !text-sm !h-3.5 !w-3.5">volume_up</mat-icon>
+                      </button>
+                    }
                   </div>
                 </div>
+              </div>
+            }
+          }
+        </div>
+
+        @if (service.transcript() || service.status() === 'listening') {
+          <div class="flex flex-col gap-1.5 border-t border-white/5 pt-3">
+            <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              {{ 'ai_voice.transcription' | translate }}
+            </span>
+            <div
+              class="bg-white/5 border border-white/5 rounded-xl p-3 min-h-[4rem] max-h-[5.5rem] overflow-y-auto text-sm text-zinc-100 leading-relaxed scrollbar-thin"
+            >
+              @if (service.transcript()) {
+                {{ service.transcript() }}
+              } @else {
+                <span class="text-zinc-500 italic">
+                  {{ 'ai_voice.placeholder' | translate }}
+                </span>
               }
+            </div>
+
+            @if (service.status() === 'listening') {
+              <div class="flex items-center justify-center gap-1 py-1">
+                <span class="wave-bar bar-1"></span>
+                <span class="wave-bar bar-2"></span>
+                <span class="wave-bar bar-3"></span>
+                <span class="wave-bar bar-4"></span>
+                <span class="wave-bar bar-5"></span>
+              </div>
+            }
+          </div>
+        }
+
+        @if (service.error()) {
+          <div
+            class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-rose-400 flex flex-col gap-1"
+          >
+            <span class="font-semibold text-xs text-rose-400/80 uppercase tracking-wider">
+              {{ 'ai_voice.error' | translate }}
+            </span>
+            <p class="leading-normal text-xs">{{ service.error() }}</p>
+          </div>
+        }
+
+        <form class="flex items-center gap-2 pt-2 border-t border-white/5" (submit)="submitTyped($event)">
+          <input
+            type="text"
+            name="typedPrompt"
+            autocomplete="off"
+            [value]="typedPrompt()"
+            (input)="onTyped($event)"
+            [disabled]="service.status() === 'processing'"
+            [placeholder]="'ai_voice.type_placeholder' | translate"
+            class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-primary/50 disabled:opacity-50"
+          />
+          <button
+            mat-icon-button
+            type="submit"
+            [disabled]="!typedPrompt().trim() || service.status() === 'processing'"
+            [title]="'ai_voice.send' | translate"
+            class="!text-primary disabled:opacity-40"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
+        </form>
+
+        <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
+          <div>
+            @if (!service.isSupported()) {
+              <span class="text-xs text-zinc-500">{{ 'ai_voice.voice_unavailable' | translate }}</span>
+            } @else if (service.status() === 'listening' || service.status() === 'paused') {
+              <button mat-flat-button (click)="closePanel()" class="!bg-zinc-800 !text-zinc-300 !rounded-full !px-4">
+                {{ 'ai_voice.cancel' | translate }}
+              </button>
+            } @else {
+              <button mat-flat-button (click)="restartVoice()" class="!bg-zinc-800 !text-zinc-300 !rounded-full !px-4">
+                {{ 'ai_voice.speak_again' | translate }}
+              </button>
             }
           </div>
 
-          @if (service.transcript() || service.status() === 'listening') {
-            <div class="flex flex-col gap-1.5 border-t border-white/5 pt-3">
-              <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                {{ 'ai_voice.transcription' | translate }}
-              </span>
-              <div
-                class="bg-white/5 border border-white/5 rounded-xl p-3 min-h-[4rem] max-h-[5.5rem] overflow-y-auto text-sm text-zinc-100 leading-relaxed scrollbar-thin"
+          <div class="flex items-center gap-2">
+            @if (service.status() === 'listening') {
+              <button mat-icon-button (click)="service.pause()">
+                <mat-icon class="!text-secondary">pause</mat-icon>
+              </button>
+            } @else if (service.status() === 'paused') {
+              <button mat-icon-button (click)="service.resume()">
+                <mat-icon class="!text-emerald-500">play_arrow</mat-icon>
+              </button>
+            }
+
+            @if (service.status() === 'listening' || service.status() === 'paused') {
+              <button
+                mat-fab
+                extended
+                (click)="sendVoice()"
+                [disabled]="!service.transcript().trim()"
+                class="!bg-primary !text-black !rounded-full !px-4 !h-10 !shadow-lg disabled:opacity-40 disabled:pointer-events-none"
               >
-                @if (service.transcript()) {
-                  {{ service.transcript() }}
-                } @else {
-                  <span class="text-zinc-500 italic">
-                    {{ 'ai_voice.placeholder' | translate }}
-                  </span>
-                }
+                <mat-icon>send</mat-icon>
+                <span>{{ 'ai_voice.send' | translate }}</span>
+              </button>
+            } @else if (service.status() === 'processing') {
+              <div class="flex items-center gap-2 text-zinc-400 text-sm">
+                <span class="animate-spin border-2 border-primary border-t-transparent rounded-full h-4 w-4"></span>
+                <span>{{ 'ai_voice.processing' | translate }}</span>
               </div>
-
-              @if (service.status() === 'listening') {
-                <div class="flex items-center justify-center gap-1 py-1">
-                  <span class="wave-bar bar-1"></span>
-                  <span class="wave-bar bar-2"></span>
-                  <span class="wave-bar bar-3"></span>
-                  <span class="wave-bar bar-4"></span>
-                  <span class="wave-bar bar-5"></span>
-                </div>
-              }
-            </div>
-          }
-
-          @if (service.error()) {
-            <div
-              class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-rose-400 flex flex-col gap-1"
-            >
-              <span class="font-semibold text-xs text-rose-400/80 uppercase tracking-wider">
-                {{ 'ai_voice.error' | translate }}
-              </span>
-              <p class="leading-normal text-xs">{{ service.error() }}</p>
-            </div>
-          }
-
-          <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-            <div>
-              @if (service.status() === 'listening' || service.status() === 'paused') {
-                <button mat-flat-button (click)="closePanel()" class="!bg-zinc-800 !text-zinc-300 !rounded-full !px-4">
-                  {{ 'ai_voice.cancel' | translate }}
-                </button>
-              } @else {
-                <button
-                  mat-flat-button
-                  (click)="restartVoice()"
-                  class="!bg-zinc-800 !text-zinc-300 !rounded-full !px-4"
-                >
-                  {{ 'ai_voice.speak_again' | translate }}
-                </button>
-              }
-            </div>
-
-            <div class="flex items-center gap-2">
-              @if (service.status() === 'listening') {
-                <button mat-icon-button (click)="service.pause()">
-                  <mat-icon class="!text-secondary">pause</mat-icon>
-                </button>
-              } @else if (service.status() === 'paused') {
-                <button mat-icon-button (click)="service.resume()">
-                  <mat-icon class="!text-emerald-500">play_arrow</mat-icon>
-                </button>
-              }
-
-              @if (service.status() === 'listening' || service.status() === 'paused') {
-                <button
-                  mat-fab
-                  extended
-                  (click)="sendVoice()"
-                  [disabled]="!service.transcript().trim()"
-                  class="!bg-primary !text-black !rounded-full !px-4 !h-10 !shadow-lg disabled:opacity-40 disabled:pointer-events-none"
-                >
-                  <mat-icon>send</mat-icon>
-                  <span>{{ 'ai_voice.send' | translate }}</span>
-                </button>
-              } @else if (service.status() === 'processing') {
-                <div class="flex items-center gap-2 text-zinc-400 text-sm">
-                  <span class="animate-spin border-2 border-primary border-t-transparent rounded-full h-4 w-4"></span>
-                  <span>{{ 'ai_voice.processing' | translate }}</span>
-                </div>
-              }
-            </div>
+            }
           </div>
         </div>
-      }
-
-      <button
-        mat-fab
-        cdkDrag
-        coasterRequireSubscription
-        [barId]="barId()"
-        (click)="togglePanel()"
-        [class.listening-pulse]="service.status() === 'listening'"
-        [class.paused-border]="service.status() === 'paused'"
-        style="position: fixed; top: 5rem; right: 1.5rem; z-index: 9999;"
-        [title]="(isOpen() ? 'ai_voice.tooltip_close' : 'ai_voice.tooltip_open') | translate"
-      >
-        <mat-icon>{{ service.status() === 'listening' ? 'hearing' : 'mic' }}</mat-icon>
-      </button>
+      </div>
     }
+
+    <button
+      mat-fab
+      cdkDrag
+      coasterRequireSubscription
+      [barId]="barId()"
+      (click)="togglePanel()"
+      [class.listening-pulse]="service.status() === 'listening'"
+      [class.paused-border]="service.status() === 'paused'"
+      style="position: fixed; top: 5rem; right: 1.5rem; z-index: 9999;"
+      [title]="(isOpen() ? 'ai_voice.tooltip_close' : 'ai_voice.tooltip_open') | translate"
+    >
+      <mat-icon>{{ service.status() === 'listening' ? 'hearing' : 'mic' }}</mat-icon>
+    </button>
   `,
   host: {
     style: 'position: absolute;',
@@ -337,6 +355,8 @@ export class AiVoiceButton {
     });
   }
 
+  protected readonly typedPrompt = signal('');
+
   protected readonly currentLang = computed<string>(() => {
     return this.#translate.currentLang() || 'es';
   });
@@ -351,7 +371,10 @@ export class AiVoiceButton {
 
   public openPanel() {
     this.isOpen.set(true);
-    this.service.start(this.currentLang());
+
+    if (this.service.isSupported()) {
+      this.service.start(this.currentLang());
+    }
   }
 
   public closePanel() {
@@ -372,5 +395,25 @@ export class AiVoiceButton {
     if (activeBarId) {
       this.service.send(activeBarId);
     }
+  }
+
+  protected onTyped(event: Event) {
+    this.typedPrompt.set((event.target as HTMLInputElement).value);
+  }
+
+  protected submitTyped(event: Event) {
+    event.preventDefault();
+
+    const prompt = this.typedPrompt().trim();
+    const activeBarId = this.barId();
+
+    if (!prompt || !activeBarId || this.service.status() === 'processing') {
+      return;
+    }
+
+    this.service.stop();
+    this.service.transcript.set(prompt);
+    this.typedPrompt.set('');
+    this.service.send(activeBarId);
   }
 }

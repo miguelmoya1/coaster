@@ -9,7 +9,7 @@ import { Auth } from './auth';
 export class Socket implements OnDestroy {
   readonly #auth = inject(Auth);
   #socket: SocketClient | null = null;
-  #currentBarId: string | null = null;
+  readonly #currentBarId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
 
@@ -49,6 +49,15 @@ export class Socket implements OnDestroy {
 
       this.connect(token);
     });
+
+    effect(() => {
+      const barId = this.#currentBarId();
+      const isConnected = this.#connected();
+
+      if (barId && isConnected) {
+        this.#socket?.emit(SocketEvents.joinBar, barId);
+      }
+    });
   }
 
   public connect(token: string | null | undefined = this.#auth.idToken()) {
@@ -59,7 +68,7 @@ export class Socket implements OnDestroy {
     if (this.#socket) {
       this.#socket.auth = { token };
 
-      if (!this.#socket.connected) {
+      if (!this.#socket.connected && !this.#socket.active) {
         this.#socket.connect();
       }
 
@@ -75,10 +84,6 @@ export class Socket implements OnDestroy {
 
     this.#socket.on('connect', () => {
       this.#connected.set(true);
-
-      if (this.#currentBarId) {
-        this.#socket?.emit(SocketEvents.joinBar, this.#currentBarId);
-      }
     });
 
     this.#socket.on('disconnect', () => {
@@ -191,16 +196,13 @@ export class Socket implements OnDestroy {
   }
 
   public joinBar(barId: string) {
-    this.#currentBarId = barId;
-
-    if (this.#socket?.connected) {
-      this.#socket.emit(SocketEvents.joinBar, barId);
-    }
+    this.#currentBarId.set(barId);
+    this.connect();
   }
 
   public leaveBar(barId: string) {
-    if (this.#currentBarId === barId) {
-      this.#currentBarId = null;
+    if (this.#currentBarId() === barId) {
+      this.#currentBarId.set(null);
     }
 
     if (this.#socket?.connected) {
@@ -215,11 +217,11 @@ export class Socket implements OnDestroy {
 
     this.#socket.disconnect();
     this.#socket = null;
-    this.#currentBarId = null;
     this.#connected.set(false);
   }
 
   ngOnDestroy() {
+    this.#currentBarId.set(null);
     this.#teardown();
   }
 }

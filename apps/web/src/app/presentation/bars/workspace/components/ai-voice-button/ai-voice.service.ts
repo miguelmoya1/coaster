@@ -1,7 +1,6 @@
 import { effect, inject, resource, Service, signal } from '@angular/core';
-import type { BarId } from '@coaster/common';
+import type { AiMessage, BarId } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
-import type { AiMessage } from '@coaster/common';
 import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
@@ -48,6 +47,7 @@ export class AiVoiceService {
   public readonly isSupported = signal<boolean>(false);
   public readonly isMuted = signal<boolean>(false);
   public readonly messages = signal<AiMessage[]>([]);
+  public readonly streamingText = signal<string>('');
 
   readonly #commandParams = signal<{ barId: BarId; prompt: string; messages: AiMessage[] } | undefined>(undefined);
 
@@ -55,7 +55,12 @@ export class AiVoiceService {
     params: () => this.#commandParams(),
     loader: async ({ params }) => {
       if (!params) return null;
-      return await this.#repository.executeCommand(params.barId, params.prompt, params.messages);
+
+      this.streamingText.set('');
+
+      return await this.#repository.streamCommand(params.barId, params.prompt, params.messages, (delta) => {
+        this.streamingText.update((current) => current + delta);
+      });
     },
   });
 
@@ -79,6 +84,7 @@ export class AiVoiceService {
         if (value) {
           if (value.isError && value.errorKey) {
             const errMsg = this.#translate.instant(value.errorKey);
+            this.streamingText.set('');
             this.error.set(errMsg);
             this.status.set('error');
             this.speak(errMsg);
@@ -90,6 +96,7 @@ export class AiVoiceService {
           }
         }
       } else if (status === 'error') {
+        this.streamingText.set('');
         const error = this.aiResource.error();
         console.error('Resource loader error:', error);
         let errMsg = this.#translate.instant('ai_voice.errors.processing');

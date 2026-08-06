@@ -8,9 +8,11 @@ import { GetProductsByBarIdQuery } from '@coaster/products';
 import { GetTablesByBarIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
-import { generateText, LanguageModel } from 'ai';
+import { generateText, LanguageModel, streamText } from 'ai';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
+
+const MAX_HISTORY_MESSAGES = 10;
 
 @CommandHandler(ExecuteAiCommand)
 export class ExecuteAiHandler implements ICommandHandler<
@@ -19,18 +21,12 @@ export class ExecuteAiHandler implements ICommandHandler<
 > {
   readonly #logger = new Logger(ExecuteAiHandler.name);
   readonly #backupModels: LanguageModel[] = [
-    'google/gemini-3.1-flash-lite',
-    'google/gemini-3-flash',
-
-    'google/gemini-2.5-flash',
-    'google/gemini-2.5-flash-lite',
-
-    'openai/gpt-5-nano',
-
-    'nvidia/nemotron-3-nano-30b-a3b',
+    'openai/gpt-oss-120b',
+    'openai/gpt-oss-20b',
     'nvidia/nemotron-nano-9b-v2',
+    'google/gemini-3.6-flash',
   ];
-  readonly #model: LanguageModel = 'google/gemini-3.5-flash';
+  readonly #model: LanguageModel = 'zai/glm-4.7';
 
   constructor(
     private readonly _commandBus: CommandBus,
@@ -39,7 +35,7 @@ export class ExecuteAiHandler implements ICommandHandler<
   ) {}
 
   async execute(command: ExecuteAiCommand): Promise<{ text: string; isError?: boolean; errorKey?: string }> {
-    const { barId, prompt, user, messages } = command;
+    const { barId, prompt, user, messages, onDelta } = command;
     this.#logger.debug(`Executing AI command for user ${user.id} in bar ${barId}`);
 
     const userRole = await this._securityRepository.getUserRole(user.id);
@@ -56,14 +52,12 @@ export class ExecuteAiHandler implements ICommandHandler<
       userBarRole = asBarRole(membership.role);
     }
 
-    const tables = await this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId));
-    const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(
-      new GetProductsByBarIdQuery(barId),
-    );
-    const openOrders = await this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(
-      new GetOrdersByBarIdQuery(barId, OrderStatus.OPEN),
-    );
-    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
+    const [tables, products, openOrders, categories] = await Promise.all([
+      this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId)),
+      this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(new GetProductsByBarIdQuery(barId)),
+      this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(new GetOrdersByBarIdQuery(barId, OrderStatus.OPEN)),
+      this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId)),
+    ]);
 
     const productsList = products
       .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
@@ -159,17 +153,18 @@ ${ordersList || '(None)'}
       }
     };
 
+    const recentMessages = messages && messages.length > 0 ? messages.slice(-MAX_HISTORY_MESSAGES) : [];
+
     const coreMessages =
-      messages && messages.length > 0
-        ? messages.map((m) => ({
+      recentMessages.length > 0
+        ? recentMessages.map((m) => ({
             role: m.role,
             content: m.content,
           }))
         : [{ role: 'user' as const, content: prompt }];
 
     try {
-      this.#logger.debug(`[AI Gateway] Calling generateText with model="${this.#model}"`);
-      const result = await generateText({
+      const modelOptions = {
         model: this.#model,
         providerOptions: {
           gateway: {
@@ -184,11 +179,27 @@ ${ordersList || '(None)'}
           products,
           categories,
         }),
-      });
+      };
+
+      let result: { text: string; toolResults?: unknown };
+
+      if (onDelta) {
+        this.#logger.debug(`[AI Gateway] Calling streamText with model="${this.#model}"`);
+        const stream = streamText(modelOptions);
+
+        for await (const delta of stream.textStream) {
+          onDelta(delta);
+        }
+
+        result = { text: await stream.text, toolResults: await stream.toolResults };
+      } else {
+        this.#logger.debug(`[AI Gateway] Calling generateText with model="${this.#model}"`);
+        result = await generateText(modelOptions);
+      }
 
       let errorResult: { text: string; isError?: boolean; errorKey?: string } | null = null;
 
-      if (result.toolResults) {
+      if (Array.isArray(result.toolResults)) {
         for (const toolResult of result.toolResults) {
           const actionDesc = toolResult.output as any;
           if (actionDesc && typeof actionDesc === 'object') {

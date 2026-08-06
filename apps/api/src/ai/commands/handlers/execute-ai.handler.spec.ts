@@ -112,5 +112,23 @@ describe('ExecuteAiHandler', () => {
       );
       expect(result).toEqual({ text: 'Segunda respuesta' });
     });
+
+    it('should only send the most recent exchanges so a long shift does not grow the prompt', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      queryBus.execute.mockResolvedValue([]);
+      (generateText as any).mockResolvedValue({ text: 'ok' });
+
+      const longHistory = Array.from({ length: 30 }, (_, index) => ({
+        role: (index % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
+        content: `mensaje ${index}`,
+      }));
+
+      await handler.execute(new ExecuteAiCommand(barId, 'mensaje 29', user, longHistory));
+
+      const sent = (generateText as any).mock.calls.at(-1)[0].messages;
+      expect(sent).toHaveLength(10);
+      expect(sent.at(0).content).toBe('mensaje 20');
+      expect(sent.at(-1).content).toBe('mensaje 29');
+    });
   });
 });

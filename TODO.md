@@ -13,9 +13,16 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-## Fase 2: Usar la nueva Livekit para ia en tiempo real hablada
+## Fase 2: Asistente de voz (descartado LiveKit)
 
-Toda la logica que tenemos de habalr y que realice acciones sobre la app, hay que modificarla y poner la nueva livekit, eso y dejar lo de vercel gateway para el paso de fase 3.
+Se evaluó LiveKit y se descartó: obliga a un agente alojado fuera, un túnel público hacia la API
+en desarrollo y configuración en un panel externo. Demasiada superficie para el valor que aporta
+en un caso de órdenes sueltas detrás de la barra.
+
+El asistente actual se queda con dictado del navegador (Web Speech API) más el endpoint
+`/bars/:barId/ai`, que ya ejecuta las tools con sus permisos. Mejoras aplicadas: respuesta en
+streaming por SSE, campo de texto para escribir cuando hay ruido o el navegador no soporta
+dictado, consultas de contexto en paralelo e historial acotado.
 
 ## Fase 3: Capa de Inteligencia y Valor Añadido
 

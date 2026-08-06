@@ -128,12 +128,13 @@
     "tooltip_open": "AI Voice Assistant",
     "tooltip_close": "Close Voice Assistant",
     "status": {
-      "listening": "Listening...",
+      "listening": "Listening",
       "paused": "Paused",
       "processing": "Processing...",
       "success": "Done",
-      "error": "Error",
-      "idle": "Inactive"
+      "error": "Connection error",
+      "idle": "Disconnected",
+      "connecting": "Connecting…"
     },
     "errors": {
       "processing": "Error processing request.",
@@ -141,9 +142,14 @@
       "mic_denied": "Microphone permission denied. Please enable it in your browser.",
       "network": "Network error during speech recognition.",
       "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later.",
-      "permission_denied": "You do not have permission to perform this action.",
-      "products_not_found": "None of the requested products are available in this bar's menu."
-    }
+      "permission_denied": "You do not have permission for this action",
+      "products_not_found": "None of the requested products are available in this bar's menu.",
+      "connection_failed": "Could not connect to the assistant"
+    },
+    "toggle_mic": "Mute microphone",
+    "hang_up": "Hang up",
+    "type_placeholder": "Or type your command here…",
+    "voice_unavailable": "Dictation unavailable in this browser"
   },
   "auth": {
     "login": {

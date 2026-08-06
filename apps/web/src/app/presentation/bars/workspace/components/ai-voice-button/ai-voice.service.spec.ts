@@ -11,6 +11,10 @@ describe('AiVoiceService', () => {
 
   const repositoryMock = {
     executeCommand: vi.fn().mockResolvedValue({ text: 'Mesa 5 creada con éxito' }),
+    streamCommand: vi.fn().mockImplementation(async (_barId, _prompt, _messages, onDelta: (delta: string) => void) => {
+      onDelta('Mesa 5 creada con éxito');
+      return { text: 'Mesa 5 creada con éxito' };
+    }),
   };
 
   class MockSpeechRecognition {
@@ -116,13 +120,38 @@ describe('AiVoiceService', () => {
       });
 
       expect(service.response()).toBe('Mesa 5 creada con éxito');
-      expect(repositoryMock.executeCommand).toHaveBeenCalledWith(asBarId('bar-1'), 'Crear mesa Mesa 5', [
-        { role: 'user', content: 'Crear mesa Mesa 5' },
-      ]);
+      expect(repositoryMock.streamCommand).toHaveBeenCalledWith(
+        asBarId('bar-1'),
+        'Crear mesa Mesa 5',
+        [{ role: 'user', content: 'Crear mesa Mesa 5' }],
+        expect.any(Function),
+      );
+    });
+
+    it('should surface the answer progressively while it streams', async () => {
+      repositoryMock.streamCommand.mockImplementationOnce(
+        async (_barId: unknown, _prompt: unknown, _messages: unknown, onDelta: (delta: string) => void) => {
+          onDelta('Mesa 5 ');
+          expect(service.streamingText()).toBe('Mesa 5 ');
+          onDelta('creada');
+          return { text: 'Mesa 5 creada' };
+        },
+      );
+
+      service.transcript.set('Crear mesa Mesa 5');
+      await service.send(asBarId('bar-1'));
+      TestBed.flushEffects();
+
+      await vi.waitFor(() => {
+        TestBed.flushEffects();
+        expect(service.status()).toBe('success');
+      });
+
+      expect(service.streamingText()).toBe('Mesa 5 creada');
     });
 
     it('should set error state on send failure', async () => {
-      repositoryMock.executeCommand.mockRejectedValueOnce(new Error('Backend error'));
+      repositoryMock.streamCommand.mockRejectedValueOnce(new Error('Backend error'));
       service.transcript.set('Crear mesa Mesa 5');
 
       service.send(asBarId('bar-1'));

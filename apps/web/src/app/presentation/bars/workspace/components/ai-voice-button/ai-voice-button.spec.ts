@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
-import { asBarId } from '@coaster/core';
-import { CurrentUser } from '@coaster/core';
+import { asBarId, CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiVoiceButton } from './ai-voice-button';
@@ -38,6 +37,7 @@ describe('AiVoiceButton', () => {
     pause: vi.fn(),
     resume: vi.fn(),
     send: vi.fn(),
+    stop: vi.fn(),
     speak: vi.fn(),
     resetChat: vi.fn(),
   };
@@ -76,6 +76,44 @@ describe('AiVoiceButton', () => {
 
       component.togglePanel();
       expect(component.isOpen()).toBe(false);
+    });
+  });
+
+  describe('typed prompt', () => {
+    it('should send what the user typed and clear the field', () => {
+      component['typedPrompt'].set('abre la mesa 4');
+
+      component['submitTyped'](new Event('submit'));
+
+      expect(aiVoiceServiceMock.transcript()).toBe('abre la mesa 4');
+      expect(aiVoiceServiceMock.send).toHaveBeenCalledWith(asBarId('bar-1'));
+      expect(component['typedPrompt']()).toBe('');
+    });
+
+    it('should ignore an empty prompt', () => {
+      component['typedPrompt'].set('   ');
+
+      component['submitTyped'](new Event('submit'));
+
+      expect(aiVoiceServiceMock.send).not.toHaveBeenCalled();
+    });
+
+    it('should ignore a submit while the assistant is processing', () => {
+      aiVoiceServiceMock.status.set('processing');
+      component['typedPrompt'].set('cobra la mesa 2');
+
+      component['submitTyped'](new Event('submit'));
+
+      expect(aiVoiceServiceMock.send).not.toHaveBeenCalled();
+    });
+
+    it('should still offer the panel when dictation is unsupported', () => {
+      aiVoiceServiceMock.isSupported.set(false);
+      component.openPanel();
+      fixture.detectChanges();
+
+      expect(component.isOpen()).toBe(true);
+      expect(aiVoiceServiceMock.start).not.toHaveBeenCalled();
     });
   });
 });

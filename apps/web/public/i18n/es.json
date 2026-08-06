@@ -128,12 +128,13 @@
     "tooltip_open": "Asistente de Voz IA",
     "tooltip_close": "Cerrar Asistente de Voz",
     "status": {
-      "listening": "Escuchando...",
+      "listening": "Escuchando",
       "paused": "Pausado",
       "processing": "Procesando...",
       "success": "Completado",
-      "error": "Error",
-      "idle": "Inactivo"
+      "error": "Error de conexión",
+      "idle": "Desconectado",
+      "connecting": "Conectando…"
     },
     "errors": {
       "processing": "Error al procesar la solicitud.",
@@ -141,9 +142,14 @@
       "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
       "network": "Error de red en el reconocimiento de voz.",
       "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde.",
-      "permission_denied": "No tienes permiso para realizar esta acción.",
-      "products_not_found": "Ninguno de los productos solicitados está disponible en el menú de este bar."
-    }
+      "permission_denied": "No tienes permisos para esta acción",
+      "products_not_found": "Ninguno de los productos solicitados está disponible en el menú de este bar.",
+      "connection_failed": "No se pudo conectar con el asistente"
+    },
+    "toggle_mic": "Silenciar micrófono",
+    "hang_up": "Colgar",
+    "type_placeholder": "O escribe tu orden aquí…",
+    "voice_unavailable": "Dictado no disponible en este navegador"
   },
   "auth": {
     "login": {
