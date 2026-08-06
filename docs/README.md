@@ -5,6 +5,7 @@ Indice de documentacion tecnica del proyecto.
 ## Secciones
 
 - [Roadmap](roadmap.md)
+- [Arquitectura del backend](architecture/backend.md)
 - [Arquitectura del frontend](architecture/frontend.md)
 - [Modelos de dominio](architecture/domain-models.md)
 - [Puente de impresion](architecture/printing-bridge.md)

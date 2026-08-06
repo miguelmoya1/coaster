@@ -1,6 +1,6 @@
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductUpdatedEvent } from '@products/events';
+import { ProductUpdatedEvent } from '@coaster/products';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';

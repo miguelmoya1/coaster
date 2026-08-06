@@ -1,6 +1,6 @@
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TableUpdatedEvent } from '@tables/events';
+import { TableUpdatedEvent } from '@coaster/tables';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asTableId } from '../../../core';
 import { DbTableStatus } from '../../../core/db';

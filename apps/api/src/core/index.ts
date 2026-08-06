@@ -1,6 +1,7 @@
 export * from './mappers/common.mapper';
 export * from './permissions/bar-member.security';
 export * from './security/data-access/security.repository';
+export * from './security/security.module';
 export * from './security/decorators/admin.decorator';
 export * from './security/decorators/bar-permissions.decorator';
 export * from './security/decorators/skip-subscription-check.decorator';

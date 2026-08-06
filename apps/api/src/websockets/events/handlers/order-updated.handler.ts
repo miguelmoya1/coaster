@@ -1,7 +1,7 @@
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { OrderUpdatedEvent } from '@orders/events';
+import { OrderUpdatedEvent } from '@coaster/orders';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(OrderUpdatedEvent)

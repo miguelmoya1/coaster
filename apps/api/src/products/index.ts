@@ -1,0 +1,9 @@
+export { AdjustProductStockCommand } from './commands/impl/adjust-product-stock.command';
+export { UpdateProductStockCommand } from './commands/impl/update-product-stock.command';
+export { UpdateProductCommand } from './commands/impl/update-product.command';
+export { ProductCreatedEvent } from './events/impl/product-created.event';
+export { ProductDeletedEvent } from './events/impl/product-deleted.event';
+export { ProductStockChangedEvent } from './events/impl/product-stock-changed.event';
+export { ProductUpdatedEvent } from './events/impl/product-updated.event';
+export { ProductsModule } from './products.module';
+export { GetProductsByBarIdQuery } from './queries/impl/get-products-by-bar-id.query';

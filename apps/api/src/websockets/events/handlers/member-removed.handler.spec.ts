@@ -1,4 +1,4 @@
-import { MemberRemovedEvent } from '@bar-members/events';
+import { MemberRemovedEvent } from '@coaster/bar-members';
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

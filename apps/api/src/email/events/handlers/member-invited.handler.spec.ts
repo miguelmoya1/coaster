@@ -1,4 +1,4 @@
-import { MemberInvitedEvent } from '@bar-members/events';
+import { MemberInvitedEvent } from '@coaster/bar-members';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId, asBarMemberId } from '../../../core';

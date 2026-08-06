@@ -1,5 +1,5 @@
 import { BarRole } from '@coaster/common';
-import { InviteMemberRequestedEvent } from '@bar-members/events';
+import { InviteMemberRequestedEvent } from '@coaster/bar-members';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';

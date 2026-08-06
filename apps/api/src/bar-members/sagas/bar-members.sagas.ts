@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ofType, Saga } from '@nestjs/cqrs';
-import { UserPreparedForInviteEvent } from '@users/events';
+import { UserPreparedForInviteEvent } from '@coaster/users';
 import { map, Observable } from 'rxjs';
 import { CompleteInviteMemberCommand } from '../commands';
 

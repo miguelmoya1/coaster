@@ -1,6 +1,6 @@
-import { AuthModule } from '@auth/auth.module';
-import { BarMembersModule } from '@bar-members/bar-members.module';
-import { BarSubscriptionModule } from '@bar-subscription/bar-subscription.module';
+import { AuthModule } from '@coaster/auth';
+import { BarMembersModule } from '@coaster/bar-members';
+import { BarSubscriptionModule } from '@coaster/bar-subscription';
 import { StripeModule } from '@coaster/stripe';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';

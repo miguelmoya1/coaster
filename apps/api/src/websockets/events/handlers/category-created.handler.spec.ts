@@ -1,4 +1,4 @@
-import { CategoryCreatedEvent } from '@categories/events';
+import { CategoryCreatedEvent } from '@coaster/categories';
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

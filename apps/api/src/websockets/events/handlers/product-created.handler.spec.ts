@@ -1,7 +1,7 @@
 import type { Product } from '@coaster/common';
 import { SocketEvents } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductCreatedEvent } from '@products/events';
+import { ProductCreatedEvent } from '@coaster/products';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';

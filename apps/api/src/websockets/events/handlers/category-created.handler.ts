@@ -1,4 +1,4 @@
-import { CategoryCreatedEvent } from '@categories/events';
+import { CategoryCreatedEvent } from '@coaster/categories';
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';

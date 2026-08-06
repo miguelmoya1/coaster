@@ -1,7 +1,7 @@
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ShiftDeletedEvent } from '@shifts/events';
+import { ShiftDeletedEvent } from '@coaster/shifts';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(ShiftDeletedEvent)
