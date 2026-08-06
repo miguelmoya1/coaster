@@ -1,12 +1,21 @@
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '@coaster/bar-subscription';
+import {
+  SubscriptionCancelledEvent,
+  SubscriptionPaymentFailedEvent,
+  SubscriptionRenewedEvent,
+} from '@coaster/bar-subscription';
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { BarGateway } from '../../bar.gateway';
 
-type SubscriptionEvent = SubscriptionRenewedEvent | SubscriptionCancelledEvent;
+/**
+ * A failed payment moves the bar to PAST_DUE, which is as much a change of what the workspace may
+ * do as a cancellation is. Leaving it out kept the clients acting as if they were still paid up
+ * until somebody happened to reload.
+ */
+type SubscriptionEvent = SubscriptionRenewedEvent | SubscriptionCancelledEvent | SubscriptionPaymentFailedEvent;
 
-@EventsHandler(SubscriptionRenewedEvent, SubscriptionCancelledEvent)
+@EventsHandler(SubscriptionRenewedEvent, SubscriptionCancelledEvent, SubscriptionPaymentFailedEvent)
 export class SubscriptionUpdatedHandler implements IEventHandler<SubscriptionEvent> {
   readonly #logger = new Logger(SubscriptionUpdatedHandler.name);
 

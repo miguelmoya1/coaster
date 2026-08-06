@@ -3,6 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
 
+const verifyIdToken = vi.fn();
+
+vi.mock('firebase-admin/auth', () => ({
+  getAuth: () => ({ verifyIdToken: (token: string) => verifyIdToken(token) }),
+}));
+
 describe('SubscriptionActiveGuard', () => {
   let guard: SubscriptionActiveGuard;
   let reflector: { getAllAndOverride: ReturnType<typeof vi.fn> };
@@ -12,6 +18,8 @@ describe('SubscriptionActiveGuard', () => {
   };
 
   beforeEach(() => {
+    vi.clearAllMocks();
+
     reflector = {
       getAllAndOverride: vi.fn(),
     };
@@ -37,6 +45,32 @@ describe('SubscriptionActiveGuard', () => {
       getHandler: () => ({}),
       getClass: () => ({}),
     } as any;
+  };
+
+  /**
+   * What the guard actually sees in production: a bearer token and no `user`, because the Firebase
+   * guard is controller-level and Nest runs it after every global guard.
+   */
+  const createRealRequestContext = (token?: string, barId = 'bar-1'): ExecutionContext => {
+    return {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          method: 'POST',
+          url: `/api/v1/bars/${barId}/orders`,
+          headers: token ? { authorization: `Bearer ${token}` } : {},
+          params: { barId },
+        }),
+      }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
+    } as any;
+  };
+
+  const expiredSubscription = {
+    status: DbSubscriptionStatus.TRIALING,
+    stripeSubscriptionId: null,
+    currentPeriodEnd: null,
+    trialEndsAt: new Date(Date.now() - 100000),
   };
 
   it('should allow GET, HEAD, and OPTIONS requests', async () => {
@@ -136,6 +170,60 @@ describe('SubscriptionActiveGuard', () => {
       currentPeriodEnd: new Date(Date.now() - 100000),
     });
     await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+  });
+
+  describe('platform admins, identified without the auth guard having run', () => {
+    it('should let an admin through on a lapsed bar using only the bearer token', async () => {
+      const context = createRealRequestContext('token-admin');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue(expiredSubscription);
+      verifyIdToken.mockResolvedValue({ sub: 'google-admin' });
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.ADMIN });
+
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+      expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
+        where: { googleId: 'google-admin' },
+        select: { role: true },
+      });
+    });
+
+    it('should still block a regular user carrying a valid token', async () => {
+      const context = createRealRequestContext('token-user');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue(expiredSubscription);
+      verifyIdToken.mockResolvedValue({ sub: 'google-user' });
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
+
+    it('should block, not crash, when the token cannot be verified', async () => {
+      const context = createRealRequestContext('rubbish');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue(expiredSubscription);
+      verifyIdToken.mockRejectedValue(new Error('invalid token'));
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
+
+    it('should block when no token travels with the request', async () => {
+      const context = createRealRequestContext();
+      dbService.dbBarSubscription.findUnique.mockResolvedValue(expiredSubscription);
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+      expect(verifyIdToken).not.toHaveBeenCalled();
+    });
+
+    it('should not spend a token verification or a user lookup on a bar that is up to date', async () => {
+      const context = createRealRequestContext('token-admin');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue({
+        status: DbSubscriptionStatus.ACTIVE,
+        stripeSubscriptionId: 'sub_123',
+        currentPeriodEnd: new Date(Date.now() + 100000),
+        trialEndsAt: null,
+      });
+
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+      expect(verifyIdToken).not.toHaveBeenCalled();
+      expect(dbService.dbUser.findUnique).not.toHaveBeenCalled();
+    });
   });
 
   it('should throw HTTP 402 SUBSCRIPTION_EXPIRED when subscription status is INACTIVE or EXPIRED', async () => {

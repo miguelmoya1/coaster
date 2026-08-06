@@ -1,4 +1,8 @@
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '@coaster/bar-subscription';
+import {
+  SubscriptionCancelledEvent,
+  SubscriptionPaymentFailedEvent,
+  SubscriptionRenewedEvent,
+} from '@coaster/bar-subscription';
 import { SocketEvents } from '@coaster/common';
 import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -41,6 +45,14 @@ describe('SubscriptionUpdatedHandler', () => {
 
   it('should emit SUBSCRIPTION_UPDATED event when SubscriptionCancelledEvent is received', () => {
     const event = new SubscriptionCancelledEvent(asBarId('bar-1'), 'sub_123', new Date());
+    handler.handle(event);
+
+    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { barId: 'bar-1' });
+  });
+
+  it('should emit SUBSCRIPTION_UPDATED event when a payment fails, so clients see the bar go past due', () => {
+    const event = new SubscriptionPaymentFailedEvent(asBarId('bar-1'), 'cus_123');
     handler.handle(event);
 
     expect(mockTo).toHaveBeenCalledWith('bar-1');

@@ -114,7 +114,7 @@ describe('BarSubscriptionStore', () => {
       expect(store.isReadOnly()).toBe(false);
     });
 
-    it('should lock the workspace when the subscription cannot be loaded', async () => {
+    it('should not lock the workspace when the subscription cannot be loaded, since the API is the authority', async () => {
       store.setBarId(barId);
       TestBed.tick();
 
@@ -123,7 +123,7 @@ describe('BarSubscriptionStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      expect(store.isReadOnly()).toBe(true);
+      expect(store.isReadOnly()).toBe(false);
     });
 
     it('should not lock the workspace for an active subscription', async () => {

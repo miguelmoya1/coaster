@@ -3,4 +3,8 @@ export * from './impl/subscription-cancelled.event';
 export * from './impl/subscription-payment-failed.event';
 export * from './impl/subscription-renewed.event';
 
-export const EventHandlers = [];
+export * from './handlers/duplicate-subscription-detected.handler';
+
+import { DuplicateSubscriptionDetectedHandler } from './handlers/duplicate-subscription-detected.handler';
+
+export const EventHandlers = [DuplicateSubscriptionDetectedHandler];

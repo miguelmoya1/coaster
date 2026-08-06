@@ -41,12 +41,17 @@ export class BarSubscriptionStore {
   public readonly currentBarId = this.#currentBarId.asReadonly();
   public readonly isOpeningBillingPortal = this.#isOpeningBillingPortal.asReadonly();
 
+  /**
+   * Only a subscription we managed to read can put the workspace in read-only. A request still in
+   * flight, or one that failed, says nothing about whether the bar has paid, and locking on that
+   * turns any blip into an outage for everyone in the bar. The API is the authority here: it
+   * answers 402 and the error interceptor opens the paywall from there.
+   */
   public readonly isReadOnly = computed(() => {
     const sub = this.#currentSubscription();
 
     if (!sub) {
-      const status = this.#subscriptionResource.status();
-      return status !== 'loading' && status !== 'reloading' && status !== 'idle';
+      return false;
     }
 
     if (sub.status === SubscriptionStatus.ACTIVE) {

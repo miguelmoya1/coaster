@@ -9,3 +9,4 @@ export * from './security/guards/admin.guard';
 export * from './security/guards/bar-permissions.guard';
 export * from './security/guards/subscription-active.guard';
 export * from './utils/brands';
+export * from './utils/prisma-errors';
