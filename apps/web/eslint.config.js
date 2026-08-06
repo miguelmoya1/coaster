@@ -39,6 +39,70 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/app/core/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@coaster/bars',
+                '@coaster/categories',
+                '@coaster/exchanges',
+                '@coaster/members',
+                '@coaster/orders',
+                '@coaster/printer',
+                '@coaster/products',
+                '@coaster/roster',
+                '@coaster/shifts',
+                '@coaster/stats',
+                '@coaster/tables',
+                '@coaster/templates',
+                '**/presentation/**',
+              ],
+              message:
+                'core is the base layer: it must not depend on a domain or on presentation. Invert the dependency with an InjectionToken (see PAYWALL_HANDLER) or move the file into the domain that owns it.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      'src/app/bars/**/*.ts',
+      'src/app/categories/**/*.ts',
+      'src/app/exchanges/**/*.ts',
+      'src/app/members/**/*.ts',
+      'src/app/orders/**/*.ts',
+      'src/app/printer/**/*.ts',
+      'src/app/products/**/*.ts',
+      'src/app/roster/**/*.ts',
+      'src/app/shifts/**/*.ts',
+      'src/app/stats/**/*.ts',
+      'src/app/tables/**/*.ts',
+      'src/app/templates/**/*.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/presentation/**'],
+              message: 'A domain must not depend on presentation. Keep the component next to the domain that opens it.',
+            },
+            {
+              group: ['../../*/**'],
+              message: 'Import other layers through their @coaster/* alias, not with a relative path.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {},

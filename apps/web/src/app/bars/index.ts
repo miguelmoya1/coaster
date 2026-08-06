@@ -1,3 +1,6 @@
+export { SelectPlanDialog } from './dialogs/select-plan-dialog/select-plan-dialog';
+export { RequireSubscriptionDirective } from './directives/require-subscription.directive';
+export { permissionGuard } from './guards/permission.guard';
 export { PlanDialogService } from './services/plan-dialog.service';
 export { BarListStore } from './store/bar-list.store';
 export {

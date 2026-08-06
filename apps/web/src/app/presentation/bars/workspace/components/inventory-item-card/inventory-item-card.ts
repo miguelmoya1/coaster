@@ -3,7 +3,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId } from '@coaster/common';
 import { StockStatus } from '@coaster/common';
-import { RequireSubscriptionDirective } from '@coaster/core';
+import { RequireSubscriptionDirective } from '@coaster/bars';
 import { StockStatusPipe } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../pipes/price/price';

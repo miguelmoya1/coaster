@@ -1,9 +1,9 @@
 import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore, RequireSubscriptionDirective } from '@coaster/bars';
 import type { BarId, BarMember } from '@coaster/common';
-import { ActionFeedback, RequireSubscriptionDirective } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';

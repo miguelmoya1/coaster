@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { asBarId } from '@coaster/core';
 import { Auth } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemberRepository } from '../../members/data-access/member-repository';
+import { MemberRepository } from '@coaster/members';
 import { MyMember } from './my-member';
 
 describe('MyMember', () => {

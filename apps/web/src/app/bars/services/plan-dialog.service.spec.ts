@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import type { BarId } from '@coaster/common';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Toast } from '../../core/services/toast';
+import { Toast } from '@coaster/core';
 import { BarSubscriptionStore } from '../store/bar-subscription.store';
 import { PlanDialogService } from './plan-dialog.service';
 

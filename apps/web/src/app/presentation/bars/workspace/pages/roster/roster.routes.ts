@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { BarPermission } from '@coaster/common';
-import { permissionGuard } from '@coaster/core';
+import { permissionGuard } from '@coaster/bars';
 
 const rosterRoutes: Routes = [
   { path: '', loadComponent: () => import('./roster') },

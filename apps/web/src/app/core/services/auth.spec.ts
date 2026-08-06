@@ -11,7 +11,7 @@ vi.mock('firebase/auth', () => {
         return auth.onAuthStateChanged(next);
       }
       next(null);
-      return () => {};
+      return () => undefined;
     }),
     onIdTokenChanged: vi.fn((auth, next) => {
       if (auth && typeof auth.onIdTokenChanged === 'function') {
@@ -21,7 +21,7 @@ vi.mock('firebase/auth', () => {
         getIdToken: async () => 'mock-id-token',
       };
       next(mockUser);
-      return () => {};
+      return () => undefined;
     }),
     signOut: vi.fn((auth) => {
       if (auth && typeof auth.signOut === 'function') {
@@ -41,7 +41,7 @@ vi.mock('@firebase/auth', () => {
         return auth.onAuthStateChanged(next);
       }
       next(null);
-      return () => {};
+      return () => undefined;
     }),
     onIdTokenChanged: vi.fn((auth, next) => {
       if (auth && typeof auth.onIdTokenChanged === 'function') {
@@ -51,7 +51,7 @@ vi.mock('@firebase/auth', () => {
         getIdToken: async () => 'mock-id-token',
       };
       next(mockUser);
-      return () => {};
+      return () => undefined;
     }),
     signOut: vi.fn((auth) => {
       if (auth && typeof auth.signOut === 'function') {
@@ -74,14 +74,14 @@ describe('Auth', () => {
       app: {} as never,
       onAuthStateChanged: (next: (user: User | null) => void) => {
         next(null);
-        return () => {};
+        return () => undefined;
       },
       onIdTokenChanged: (next: (user: User | null) => void) => {
         const mockUser = {
           getIdToken: async () => 'mock-id-token',
         } as unknown as User;
         next(mockUser);
-        return () => {};
+        return () => undefined;
       },
       signOut: vi.fn(),
     } as unknown as FirebaseAuth;

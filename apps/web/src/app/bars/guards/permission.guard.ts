@@ -1,9 +1,11 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
-import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
+
 import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
+import { CurrentBarStore } from '../store/current-bar.store';
+import { MyMemberStore } from '../store/my-member.store';
 import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 
 export const permissionGuard = (permission: BarPermission): CanActivateFn => {

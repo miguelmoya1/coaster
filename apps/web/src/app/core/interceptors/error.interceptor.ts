@@ -1,17 +1,17 @@
 import type { HttpErrorResponse } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { PlanDialogService } from '@coaster/bars';
 import { ErrorCodes } from '@coaster/common';
 import type { BarId } from '@coaster/common';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApiError } from '../errors/api-error';
+import { PAYWALL_HANDLER } from '../tokens/paywall-handler.token';
 import { Toast } from '../services/toast';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toast = inject(Toast);
-  const planDialogService = inject(PlanDialogService);
+  const paywall = inject(PAYWALL_HANDLER, { optional: true });
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -34,7 +34,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         toast.error(ErrorCodes.SUBSCRIPTION_EXPIRED);
         const barIdMatch = /\/bars\/([^/]+)/.exec(req.url);
         if (barIdMatch?.[1]) {
-          planDialogService.open(barIdMatch[1] as BarId);
+          paywall?.open(barIdMatch[1] as BarId);
         }
       } else if (error.status !== 401) {
         toast.error(cleanError.code || ErrorCodes.UNEXPECTED_ERROR);

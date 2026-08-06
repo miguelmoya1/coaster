@@ -3,10 +3,10 @@ import { Component, computed, effect, inject, input, inputBinding, outputBinding
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore, RequireSubscriptionDirective } from '@coaster/bars';
 import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { BarRole } from '@coaster/common';
-import { ActionFeedback, DateFormatterService, RequireSubscriptionDirective } from '@coaster/core';
+import { ActionFeedback, DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/members';
 import { RosterStateService } from '@coaster/roster';

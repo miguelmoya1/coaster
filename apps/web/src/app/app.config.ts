@@ -9,10 +9,12 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
-import { errorInterceptor, idTokenInterceptor, unauthorizedInterceptor, urlInterceptor } from './core';
+import { PlanDialogService } from './bars';
+import { errorInterceptor, idTokenInterceptor, PAYWALL_HANDLER, unauthorizedInterceptor, urlInterceptor } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: PAYWALL_HANDLER, useExisting: PlanDialogService },
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideNativeDateAdapter(),

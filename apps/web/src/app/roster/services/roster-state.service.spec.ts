@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { DateFormatterService } from '../../core/services/date-formatter';
+import { DateFormatterService } from '@coaster/core';
 import { RosterStateService } from './roster-state.service';
 import { describe, expect, it, beforeEach } from 'vitest';
 

@@ -1,6 +1,7 @@
 import { DestroyRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import { PlanDialogService } from '../services/plan-dialog.service';
+import { BarSubscriptionStore } from '../store/bar-subscription.store';
 import type { BarId } from '@coaster/common';
 
 @Directive({

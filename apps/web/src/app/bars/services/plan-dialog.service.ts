@@ -1,9 +1,8 @@
 import { inject, Injectable, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BarId, ErrorCodes, SubscriptionPlan } from '@coaster/common';
-import { ApiError } from '../../core/errors/api-error';
-import { Toast } from '../../core/services/toast';
-import { SelectPlanDialog } from '../../presentation/bars/workspace/components/select-plan-dialog/select-plan-dialog';
+import { ApiError, Toast } from '@coaster/core';
+import { SelectPlanDialog } from '../dialogs/select-plan-dialog/select-plan-dialog';
 import { BarSubscriptionStore } from '../store/bar-subscription.store';
 
 @Injectable({ providedIn: 'root' })

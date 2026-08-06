@@ -1,10 +1,10 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { PlanDialogService } from '@coaster/bars';
 import { ErrorCodes } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Toast } from '../services/toast';
+import { PAYWALL_HANDLER } from '../tokens/paywall-handler.token';
 import { errorInterceptor } from './error.interceptor';
 
 describe('errorInterceptor', () => {
@@ -28,7 +28,7 @@ describe('errorInterceptor', () => {
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
         { provide: Toast, useValue: toastMock },
-        { provide: PlanDialogService, useValue: planDialogServiceMock },
+        { provide: PAYWALL_HANDLER, useValue: planDialogServiceMock },
       ],
     });
 

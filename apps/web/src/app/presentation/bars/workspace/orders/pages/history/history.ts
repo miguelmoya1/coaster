@@ -4,10 +4,10 @@ import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore, RequireSubscriptionDirective } from '@coaster/bars';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
-import { ActionFeedback, asOrderId, RequireSubscriptionDirective } from '@coaster/core';
+import { ActionFeedback, asOrderId } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';

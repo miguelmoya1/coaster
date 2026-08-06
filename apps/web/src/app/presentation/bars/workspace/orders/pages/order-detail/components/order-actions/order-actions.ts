@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId } from '@coaster/common';
-import { RequireSubscriptionDirective } from '@coaster/core';
+import { RequireSubscriptionDirective } from '@coaster/bars';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
