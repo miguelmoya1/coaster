@@ -6,7 +6,7 @@ import { BarSubscriptionControllers } from './controllers';
 import { BarSubscriptionReadRepository, BarSubscriptionWriteRepository } from './data-access';
 import { EventHandlers } from './events';
 import { QueryHandlers } from './queries';
-import { BarSubscriptionSagas } from './sagas';
+import { WebhookConsumers } from './consumers';
 
 @Module({
   imports: [CqrsModule, StripeModule],
@@ -17,7 +17,7 @@ import { BarSubscriptionSagas } from './sagas';
     ...CommandHandlers,
     ...QueryHandlers,
     ...EventHandlers,
-    ...BarSubscriptionSagas,
+    ...WebhookConsumers,
   ],
   exports: [BarSubscriptionReadRepository, BarSubscriptionWriteRepository],
 })

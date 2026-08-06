@@ -26,7 +26,6 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    // If the user is not an OWNER, enforce ownership of the exchange request and pending status
     if (member.role !== DbBarRole.OWNER) {
       if (exchange.requesterId !== command.userId) {
         throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);

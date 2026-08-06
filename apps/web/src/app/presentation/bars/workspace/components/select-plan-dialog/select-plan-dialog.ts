@@ -71,5 +71,4 @@ export class SelectPlanDialog {
 
   readonly selected = output<Exclude<SubscriptionPlan, 'FREE'>>();
   readonly canceled = output<void>();
-
 }

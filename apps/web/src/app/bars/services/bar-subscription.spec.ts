@@ -16,9 +16,7 @@ describe('BarSubscription', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [
-        { provide: BarRepository, useValue: repositoryMock },
-      ],
+      providers: [{ provide: BarRepository, useValue: repositoryMock }],
     });
     service = TestBed.inject(BarSubscription);
   });

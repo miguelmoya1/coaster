@@ -2,7 +2,6 @@
   <coaster-page-header [title]="'admin_dashboard.title' | translate" badge="ADMIN" />
 
   <div class="flex flex-col gap-8">
-    <!-- Templates Link -->
     <section class="bg-surface-container rounded-2xl p-6 border border-outline-variant flex flex-col gap-4">
       <div class="flex items-center gap-3">
         <mat-icon class="text-primary">settings</mat-icon>
@@ -16,7 +15,6 @@
       </button>
     </section>
 
-    <!-- Bar Search -->
     <section class="bg-surface-container rounded-2xl p-6 border border-outline-variant flex flex-col gap-4">
       <div class="flex items-center gap-3">
         <mat-icon class="text-primary">search</mat-icon>
@@ -46,7 +44,6 @@
         </button>
       </form>
 
-      <!-- Results -->
       @if (isSearching()) {
         <div class="mt-4 border border-outline-variant rounded-2xl overflow-hidden">
           <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[150px] bg-surface" />

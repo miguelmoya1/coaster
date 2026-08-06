@@ -14,7 +14,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post('upload-urls')
-  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT) // Assuming uploading media needs update permissions
+  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT)
   @ApiOperation({ summary: 'Generate signed URLs for uploading media directly to cloud storage' })
   @ApiResponse({ status: 201, description: 'Signed URLs generated successfully' })
   async generateUploadUrls(

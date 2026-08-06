@@ -10,13 +10,12 @@ describe('StaffMemberCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StaffMemberCard],
-      providers: [provideTranslateService()]
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StaffMemberCard);
     component = fixture.componentInstance;
 
-    // Set required inputs
     fixture.componentRef.setInput('staffName', 'John Doe');
     fixture.componentRef.setInput('staffImage', 'http://img.com/john.jpg');
     fixture.componentRef.setInput('staffEmail', 'john@test.com');

@@ -23,7 +23,12 @@ import { PricePipe } from '../../../../../pipes/price/price';
           >
             @if (product.imageUrl && !brokenImages().has(product.id)) {
               <div class="w-14 h-14 rounded-lg overflow-hidden shrink-0 mb-1 bg-surface-container-highest">
-                <img [src]="product.imageUrl" alt="product image" class="w-full h-full object-cover" (error)="handleImageError(product.id)" />
+                <img
+                  [src]="product.imageUrl"
+                  alt="product image"
+                  class="w-full h-full object-cover"
+                  (error)="handleImageError(product.id)"
+                />
               </div>
             }
             <span
@@ -62,7 +67,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 export class PosProductsList {
   readonly products = input.required<Product[]>();
   readonly productClicked = output<Product>();
-  
+
   readonly brokenImages = signal<Set<string>>(new Set());
 
   handleImageError(productId: string) {

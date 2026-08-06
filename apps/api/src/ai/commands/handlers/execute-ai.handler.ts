@@ -45,7 +45,7 @@ export class ExecuteAiHandler implements ICommandHandler<
     const userRole = await this._securityRepository.getUserRole(user.id);
     const isAdmin = userRole === DbRole.ADMIN;
 
-    let userBarRole: BarRole = DbBarRole.OWNER; // owner default for admin
+    let userBarRole: BarRole = DbBarRole.OWNER;
     if (!isAdmin) {
       const membership = await this._securityRepository.getBarMemberRole(user.id, barId);
 
@@ -178,7 +178,7 @@ ${ordersList || '(None)'}
         },
         system: systemPrompt,
         messages: coreMessages,
-        temperature: 0.1, // deterministic (do not think, just execute)
+        temperature: 0.1,
         tools: getAiTools({
           barId,
           products,
@@ -188,7 +188,6 @@ ${ordersList || '(None)'}
 
       let errorResult: { text: string; isError?: boolean; errorKey?: string } | null = null;
 
-      // Execute prepared commands
       if (result.toolResults) {
         for (const toolResult of result.toolResults) {
           const actionDesc = toolResult.output as any;

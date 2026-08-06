@@ -30,7 +30,13 @@ import { TranslatePipe } from '@ngx-translate/core';
         <mat-icon>merge</mat-icon>
         {{ 'orders.merge' | translate }}
       </button>
-      <button mat-stroked-button coasterRequireSubscription [barId]="barId()" class="w-full" (click)="cancelOrder.emit()">
+      <button
+        mat-stroked-button
+        coasterRequireSubscription
+        [barId]="barId()"
+        class="w-full"
+        (click)="cancelOrder.emit()"
+      >
         <mat-icon>close</mat-icon>
         {{ 'orders.cancel_order' | translate }}
       </button>

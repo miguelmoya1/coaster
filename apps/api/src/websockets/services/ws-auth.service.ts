@@ -4,11 +4,6 @@ import type { Socket } from 'socket.io';
 import { DbRole, DbService } from '../../core/db';
 import { SecurityRepository } from '../../core/security/data-access/security.repository';
 
-/**
- * Socket.IO connections bypass the HTTP guard chain entirely, so the gateway needs its own
- * authentication. This mirrors what `JwtStrategy` + `BarPermissionsGuard` do for REST: verify the
- * Firebase token, resolve our user, and only then decide which bar rooms that user may enter.
- */
 @Injectable()
 export class WsAuthService {
   private readonly _logger = new Logger(WsAuthService.name);
@@ -18,10 +13,6 @@ export class WsAuthService {
     private readonly _securityRepository: SecurityRepository,
   ) {}
 
-  /**
-   * Reads the Firebase ID token from the handshake. Clients may send it either as
-   * `auth: { token }` (preferred) or as an `Authorization: Bearer` header.
-   */
   public extractToken(client: Socket): string | null {
     const auth = client.handshake?.auth as { token?: unknown } | undefined;
 
@@ -38,7 +29,6 @@ export class WsAuthService {
     return null;
   }
 
-  /** Resolves the local user id for a handshake token, or `null` when the token is not usable. */
   public async authenticate(client: Socket): Promise<string | null> {
     const token = this.extractToken(client);
 
@@ -71,7 +61,6 @@ export class WsAuthService {
     }
   }
 
-  /** A user may only join a bar room if they are a platform admin or an active member of it. */
   public async canAccessBar(userId: string, barId: string): Promise<boolean> {
     const role = await this._securityRepository.getUserRole(userId);
 

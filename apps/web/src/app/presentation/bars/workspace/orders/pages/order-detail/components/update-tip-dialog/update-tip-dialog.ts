@@ -12,9 +12,7 @@ import { NumberInput } from '../../../../../../../components/number-input/number
     <h2 mat-dialog-title>Añadir Propina</h2>
 
     <mat-dialog-content class="flex flex-col gap-4 !pt-2">
-      <p class="text-sm text-on-surface-variant mb-2">
-        Introduce la cantidad de propina a añadir al pedido.
-      </p>
+      <p class="text-sm text-on-surface-variant mb-2">Introduce la cantidad de propina a añadir al pedido.</p>
 
       <div class="flex flex-wrap gap-2 justify-center mb-2">
         <button mat-button class="!rounded-full" (click)="setTipCents(100)">+ 1,00 €</button>
@@ -28,21 +26,18 @@ import { NumberInput } from '../../../../../../../components/number-input/number
           [value]="(tipCents() || 0) / 100"
           (valueChange)="updateFromInput($event)"
           [min]="0"
-          [step]="0.50"
+          [step]="0.5"
           wrapperClass="w-full"
         />
         <span class="text-xl font-bold text-on-surface">€</span>
       </div>
-      
     </mat-dialog-content>
 
     <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
       <button mat-button (click)="canceled.emit()">
         {{ 'common.cancel' | translate }}
       </button>
-      <button mat-flat-button color="primary" (click)="onConfirm()">
-        Guardar
-      </button>
+      <button mat-flat-button color="primary" (click)="onConfirm()">Guardar</button>
     </mat-dialog-actions>
   `,
   host: {
@@ -51,7 +46,7 @@ import { NumberInput } from '../../../../../../../components/number-input/number
 })
 export class UpdateTipDialog implements OnInit {
   public readonly currentTipAmount = input.required<number>();
-  
+
   public readonly tipCents = signal<number>(0);
 
   public readonly confirmed = output<number>();

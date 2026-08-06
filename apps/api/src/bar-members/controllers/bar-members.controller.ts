@@ -7,7 +7,7 @@ import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { GetMemberMeQuery, GetMembersQuery } from '../queries';
-import { BarPermission } from "@coaster/common";
+import { BarPermission } from '@coaster/common';
 
 @Controller('bars/:barId/members')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)

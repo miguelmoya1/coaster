@@ -31,7 +31,6 @@ import { PricePipe } from '../../../../../pipes/price/price';
       tabindex="0"
       role="button"
     >
-      <!-- Selection Checkbox -->
       @if (isOpen()) {
         <button
           type="button"
@@ -57,7 +56,6 @@ import { PricePipe } from '../../../../../pipes/price/price';
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>
         </div>
 
-        <!-- Adjustments -->
         @for (adj of itemAdjustments(); track adj.id) {
           <div class="text-xs text-tertiary flex items-center gap-1 mt-0.5">
             <mat-icon class="text-[12px]! w-[12px]! h-[12px]! leading-[12px]!">local_offer</mat-icon>
@@ -131,12 +129,10 @@ import { PricePipe } from '../../../../../pipes/price/price';
         }
       </div>
 
-      <!-- In-row Compact Adjustment Controls -->
       @if (isOpen()) {
         <div class="flex items-center gap-2 shrink-0">
           @if (isSelected()) {
             <div class="w-28">
-              <!-- Pay adjustment -->
               <coaster-number-input
                 [value]="selectedQty()?.paidQty || 0"
                 (valueChange)="updatePayQty.emit($event)"

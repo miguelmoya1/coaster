@@ -10,7 +10,6 @@
     (viewChanged)="handleSetView($event)"
   />
 
-  <!-- ================= DAY VIEW ================= -->
   @if (viewMode() === 'day') {
     <h2 class="heading-2 my-4 flex items-center gap-2 text-on-surface">
       <mat-icon class="text-primary text-xl">schedule</mat-icon>
@@ -46,7 +45,6 @@
     }
   }
 
-  <!-- ================= WEEK VIEW ================= -->
   @if (viewMode() === 'week') {
     <coaster-roster-weekly-grid
       [weekDays]="weekViewDays()"
@@ -58,7 +56,6 @@
     />
   }
 
-  <!-- ================= MONTH VIEW ================= -->
   @if (viewMode() === 'month') {
     @if (shifts.isLoading()) {
       <coaster-loading />
@@ -70,7 +67,6 @@
     }
   }
 
-  <!-- ================= EXCHANGES MARKETPLACE ================= -->
   @if (pendingExchangesList().length) {
     <h2 class="heading-2 mt-8 mb-4 flex items-center gap-2 text-on-surface">
       <mat-icon class="text-tertiary text-xl">cached</mat-icon>
@@ -102,7 +98,6 @@
     </div>
   }
 
-  <!-- Float Action button for Owners -->
   @if (currentUserRole() === BarRole.OWNER) {
     <coaster-fab coasterRequireSubscription [barId]="barId()" routerLink="new" queryParamsHandling="preserve" />
   }

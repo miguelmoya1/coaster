@@ -24,12 +24,8 @@ describe('BarGateway', () => {
     gateway = module.get<BarGateway>(BarGateway);
     gateway.server = { to: vi.fn().mockReturnThis(), emit: vi.fn() } as any;
 
-    vi.spyOn(Logger.prototype, 'debug').mockImplementation(() => {
-      // do nothing
-    });
-    vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
-      // do nothing
-    });
+    vi.spyOn(Logger.prototype, 'debug').mockReturnValue(undefined);
+    vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
   });
 
   const createSocketMock = (userId?: string) =>
@@ -62,12 +58,6 @@ describe('BarGateway', () => {
       expect(socket.emit).toHaveBeenCalledWith(SocketEvents.unauthorized, { message: ErrorCodes.UNAUTHORIZED });
       expect(socket.disconnect).toHaveBeenCalledWith(true);
       expect(socket.data.userId).toBeUndefined();
-    });
-  });
-
-  describe('handleDisconnect', () => {
-    it('should not fail on disconnect', () => {
-      expect(() => gateway.handleDisconnect(createSocketMock())).not.toThrow();
     });
   });
 

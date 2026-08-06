@@ -31,7 +31,7 @@ describe('NumberInput', () => {
     const inputElement = fixture.nativeElement.querySelector('input');
     inputElement.value = 'abc';
     inputElement.dispatchEvent(new Event('input'));
-    expect(component.value()).toBe(0); // remains default
+    expect(component.value()).toBe(0);
   });
 
   it('should increment value', () => {

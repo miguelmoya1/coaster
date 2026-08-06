@@ -28,7 +28,6 @@ export interface WeeklyDayItem {
   selector: 'coaster-roster-weekly-grid',
   imports: [MatIcon, MatButton, MatIconButton, TranslatePipe, ShiftCard],
   template: `
-    <!-- Owner Quick Replicate Action -->
     @if (currentUserRole() === BarRole.OWNER) {
       <div
         class="mb-6 bg-linear-to-r from-primary/8 via-primary/3 to-transparent border border-primary/15 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"

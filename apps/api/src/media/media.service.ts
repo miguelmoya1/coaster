@@ -25,7 +25,7 @@ export class MediaService {
         const [signedUrl] = await file.getSignedUrl({
           version: 'v4',
           action: 'write',
-          expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          expires: Date.now() + 15 * 60 * 1000,
           contentType: fileReq.contentType,
         });
 

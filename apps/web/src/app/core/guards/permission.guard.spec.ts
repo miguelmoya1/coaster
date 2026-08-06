@@ -107,10 +107,8 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    // It should have called setBarId to switch the bar
     expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
 
-    // Await the promise to resolve so there is no unhandled EmptyError rejection
     const result = await guardPromise;
     expect(result).toBe(true);
   });
@@ -124,7 +122,6 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    // Simulate load completion
     isLoading.set(false);
 
     const result = await guardPromise;
@@ -134,7 +131,6 @@ describe('permissionGuard', () => {
   it('should find barId in parent route snapshot if not present in child', async () => {
     const route = getMockRoute(null, 'bar-parent');
 
-    // For this test, set currentId to something else so we can see it set the parent's barId
     currentId.set('bar-other');
 
     const result = await TestBed.runInInjectionContext(() => {

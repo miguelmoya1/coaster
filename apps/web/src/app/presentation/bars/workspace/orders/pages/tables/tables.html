@@ -45,9 +45,7 @@
   <coaster-loading />
 }
 
-<!-- ─── Tables grid ─── -->
 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-  <!-- Bar order card (special) -->
   <mat-card
     class="relative cursor-pointer active:scale-[0.97] transition-all duration-200 p-0! overflow-hidden flex! flex-col! items-center! min-h-50"
     (click)="onBarOrder()"
@@ -88,7 +86,6 @@
   }
 </div>
 
-<!-- ─── Bar orders list ─── -->
 @if (barOrdersViewModel().length > 0) {
   <h2 class="heading-2">{{ 'orders.bar_orders' | translate }}</h2>
 

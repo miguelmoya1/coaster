@@ -71,11 +71,9 @@ describe('AiVoiceButton', () => {
     it('should toggle isOpen signal and call service methods', () => {
       expect(component.isOpen()).toBe(false);
 
-      // Open
       component.togglePanel();
       expect(component.isOpen()).toBe(true);
 
-      // Close
       component.togglePanel();
       expect(component.isOpen()).toBe(false);
     });

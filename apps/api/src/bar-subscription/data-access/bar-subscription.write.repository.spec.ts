@@ -27,15 +27,11 @@ describe('BarSubscriptionWriteRepository', () => {
         upsert: vi.fn(),
         updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       },
-      // The repository runs the upsert inside a transaction; the mock just hands the same
-      // client back as the transactional one.
       $transaction: vi.fn().mockImplementation((cb: (tx: unknown) => unknown) => cb(dbMock)),
     };
     repository = new BarSubscriptionWriteRepository(dbMock as unknown as DbService);
 
-    vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
-      // silence expected warnings
-    });
+    vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
   });
 
   it('should create subscription data with barId', async () => {

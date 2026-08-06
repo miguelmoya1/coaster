@@ -10,20 +10,12 @@ export const StripeWebhookProcessingStatus = {
   FAILED: 'FAILED',
 } as const;
 
-/**
- * Persists the processing state of every Stripe webhook delivery so the same event is never
- * applied twice, and so a delivery that failed (or died mid-flight) can be safely retried.
- */
 @Injectable()
 export class StripeWebhookWriteRepository {
   private readonly _logger = new Logger(StripeWebhookWriteRepository.name);
 
   constructor(private readonly _db: DbService) {}
 
-  /**
-   * Marks the event as being processed by this request. Returns `false` when another
-   * delivery already processed it (or is still processing it), meaning it must be skipped.
-   */
   public async claim(event: Stripe.Event): Promise<boolean> {
     const now = new Date();
     let existing = await this._db.dbStripeWebhookEvent.findUnique({

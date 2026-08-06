@@ -40,8 +40,11 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
         if (myMemberStore.hasPermission(permission)) {
           return true;
         }
-        
-        if (permission !== BarPermission.BAR_VIEW_ORDERS && myMemberStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)) {
+
+        if (
+          permission !== BarPermission.BAR_VIEW_ORDERS &&
+          myMemberStore.hasPermission(BarPermission.BAR_VIEW_ORDERS)
+        ) {
           return router.createUrlTree(['/bars', cleanBarId, 'orders']);
         }
 

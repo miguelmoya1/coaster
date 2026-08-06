@@ -10,14 +10,20 @@ const logger = new Logger('ProductTools');
 export const createProductTools = (data: AiToolsData) => ({
   updateProductStock: tool({
     description: 'Update the current stock quantity of a product in the bar.',
-    inputSchema: zodSchema(z.object({
-      productId: z.string().describe('The UUID of the product to update stock for.'),
-      currentStock: z.number().int().min(0).describe('The new current stock quantity.'),
-    })),
-    execute: async ({ productId, currentStock }: { productId: string, currentStock: number }): Promise<PreparedAction> => {
-      logger.debug(
-        `[AI Tool] 'updateProductStock' called with productId="${productId}", currentStock=${currentStock}`,
-      );
+    inputSchema: zodSchema(
+      z.object({
+        productId: z.string().describe('The UUID of the product to update stock for.'),
+        currentStock: z.number().int().min(0).describe('The new current stock quantity.'),
+      }),
+    ),
+    execute: async ({
+      productId,
+      currentStock,
+    }: {
+      productId: string;
+      currentStock: number;
+    }): Promise<PreparedAction> => {
+      logger.debug(`[AI Tool] 'updateProductStock' called with productId="${productId}", currentStock=${currentStock}`);
       return {
         permission: 'bar:update-product-stock',
         command: new UpdateProductStockCommand(data.barId, asProductId(productId), { currentStock }),
@@ -26,15 +32,30 @@ export const createProductTools = (data: AiToolsData) => ({
   }),
 
   updateProduct: tool({
-    description: 'Update details of an existing product in the bar, such as name, categoryId, price (in Euros, e.g. 2.50), or minStockAlert.',
-    inputSchema: zodSchema(z.object({
-      productId: z.string().describe('The UUID of the product to update.'),
-      name: z.string().optional().describe('New name of the product.'),
-      categoryId: z.string().optional().describe('New Category UUID of the product.'),
-      price: z.number().optional().describe('New price of the product in Euros (e.g. 2.50).'),
-      minStockAlert: z.number().int().min(0).optional().describe('Minimum stock level to trigger an alert.'),
-    })),
-    execute: async ({ productId, name, categoryId, price, minStockAlert }: { productId: string, name?: string, categoryId?: string, price?: number, minStockAlert?: number }): Promise<PreparedAction> => {
+    description:
+      'Update details of an existing product in the bar, such as name, categoryId, price (in Euros, e.g. 2.50), or minStockAlert.',
+    inputSchema: zodSchema(
+      z.object({
+        productId: z.string().describe('The UUID of the product to update.'),
+        name: z.string().optional().describe('New name of the product.'),
+        categoryId: z.string().optional().describe('New Category UUID of the product.'),
+        price: z.number().optional().describe('New price of the product in Euros (e.g. 2.50).'),
+        minStockAlert: z.number().int().min(0).optional().describe('Minimum stock level to trigger an alert.'),
+      }),
+    ),
+    execute: async ({
+      productId,
+      name,
+      categoryId,
+      price,
+      minStockAlert,
+    }: {
+      productId: string;
+      name?: string;
+      categoryId?: string;
+      price?: number;
+      minStockAlert?: number;
+    }): Promise<PreparedAction> => {
       logger.debug(
         `[AI Tool] 'updateProduct' called with productId="${productId}", name="${name}", categoryId="${categoryId}", price=${price}, minStockAlert=${minStockAlert}`,
       );

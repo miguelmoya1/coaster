@@ -4,22 +4,12 @@ import type { Checkout, Subscription } from 'stripe';
 import { StripeClient } from '../utils/stripe-client.provider';
 import { isStripeResourceMissingError } from '../utils/stripe.utils';
 
-/**
- * Thin adapter over the Stripe SDK: it is the only place in the codebase that talks to
- * `stripe.*` directly. It knows nothing about bars or subscriptions, so callers own the
- * business rules and this service only normalizes Stripe transport/resource errors.
- */
 @Injectable()
 export class StripeApi {
   readonly #logger = new Logger(StripeApi.name);
 
   constructor(private readonly _stripeClient: StripeClient) {}
 
-  /**
-   * Creates a Checkout Session. When `customerId` points to a customer that no longer
-   * exists in Stripe, the session is retried without it so a stale local reference cannot
-   * block a new checkout.
-   */
   public async createCheckoutSession(
     params: Checkout.SessionCreateParams,
     customerId?: string | null,
@@ -47,7 +37,6 @@ export class StripeApi {
     }
   }
 
-  /** Returns `null` when the customer no longer exists in Stripe. */
   public async createBillingPortalSession(customerId: string, returnUrl: string): Promise<{ url: string } | null> {
     try {
       const session = await this._stripeClient.client.billingPortal.sessions.create({
@@ -66,7 +55,6 @@ export class StripeApi {
     }
   }
 
-  /** Returns `null` when the subscription no longer exists in Stripe. */
   public async retrieveSubscription(subscriptionId: string): Promise<Subscription | null> {
     try {
       return await this._stripeClient.client.subscriptions.retrieve(subscriptionId);
@@ -80,7 +68,6 @@ export class StripeApi {
     }
   }
 
-  /** Resolves the customer currently attached to a subscription in Stripe. */
   public async findSubscriptionCustomerId(subscriptionId: string): Promise<string | null> {
     const subscription = await this.retrieveSubscription(subscriptionId);
 

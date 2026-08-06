@@ -12,9 +12,8 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
   async execute(query: GetBarStatsQuery): Promise<BarStats> {
     const now = new Date();
     const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-11
+    const currentMonth = now.getMonth();
 
-    // Previous Year Start (to calculate previous month if current month is January)
     const startOfPrevYear = new Date(currentYear - 1, 0, 1);
 
     const closedOrders = await this.readRepo.findClosedOrdersForStats(query.barId, startOfPrevYear);
@@ -32,7 +31,6 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
     yesterday.setDate(now.getDate() - 1);
     const yesterdayStr = formatDate(yesterday);
 
-    // Current Week start (Monday)
     const currentDay = now.getDay();
     const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
     const startOfWeek = new Date(now);
@@ -43,7 +41,6 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
     let yesterdayRevenue = 0;
     let weeklyRevenue = 0;
 
-    // Last 7 days breakdown for the weekly SVG chart
     const dailyRevenues: DailyRevenue[] = [];
     const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
     for (let i = 0; i < 7; i++) {
@@ -56,7 +53,6 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
       });
     }
 
-    // Monthly & Yearly metrics
     let currentMonthRevenue = 0;
     let previousMonthRevenue = 0;
     let yearlyRevenue = 0;
@@ -82,7 +78,6 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
       const orderDate = new Date(order.createdAt);
       const orderDateStr = formatDate(orderDate);
 
-      // Financials (today, yesterday, weekly, daily series)
       if (orderDateStr === todayStr) {
         todayRevenue += order.totalAmount;
       }
@@ -101,7 +96,6 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
       const orderYear = orderDate.getFullYear();
       const orderMonth = orderDate.getMonth();
 
-      // Current Year Accumulation
       if (orderYear === currentYear) {
         yearlyRevenue += order.totalAmount;
         monthlyBreakdown[orderMonth].amount += order.totalAmount;
@@ -111,13 +105,11 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
         }
       }
 
-      // Previous Month Accumulation
       if (orderYear === prevMonthYear && orderMonth === prevMonth) {
         previousMonthRevenue += order.totalAmount;
       }
     });
 
-    // Calculate Trend
     let percentageChange = 0;
     let isPositiveChange = true;
     if (previousMonthRevenue > 0) {

@@ -45,8 +45,6 @@ export class HandleCheckoutCompletedHandler implements ICommandHandler<HandleChe
       `Linking Stripe references for barId=${barId}: customerId=${stripeCustomerId}, subscriptionId=${stripeSubscriptionId}`,
     );
 
-    // The actual plan/status/dates are set by HandleSubscriptionChangedHandler once the
-    // accompanying customer.subscription.created webhook arrives; this only links the ids.
     await this._writeRepo.upsert(
       barId,
       {

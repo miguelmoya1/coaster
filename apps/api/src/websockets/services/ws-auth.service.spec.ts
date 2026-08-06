@@ -16,8 +16,7 @@ describe('WsAuthService', () => {
   let dbMock: any;
   let securityRepoMock: any;
 
-  const createSocket = (handshake: Record<string, unknown>) =>
-    ({ id: 'socket-1', handshake }) as unknown as Socket;
+  const createSocket = (handshake: Record<string, unknown>) => ({ id: 'socket-1', handshake }) as unknown as Socket;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,9 +26,7 @@ describe('WsAuthService', () => {
 
     service = new WsAuthService(dbMock as unknown as DbService, securityRepoMock as unknown as SecurityRepository);
 
-    vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
-      // silence expected warnings
-    });
+    vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
   });
 
   describe('extractToken', () => {

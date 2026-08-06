@@ -17,11 +17,6 @@ export class ProductsReadRepository {
     return category.barId === barId;
   }
 
-  /**
-   * Products are owned by a bar through their category, so a productId coming from the route is
-   * not trustworthy on its own: without this check any member of one bar could mutate another
-   * bar's catalogue by passing a foreign productId.
-   */
   public async checkProductBelongsToBar(productId: ProductId, barId: BarId) {
     const product = await this._db.dbProduct.findFirst({
       where: { id: productId, deletedAt: null, category: { barId } },

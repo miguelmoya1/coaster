@@ -47,7 +47,6 @@ export class ActiveOrdersStore {
   public readonly totalOpen = computed(() => this.openOrders().length);
 
   constructor() {
-    // Shared helper for upserting an order on socket events
     const upsertOrder = (order: Order) => {
       this.#ordersResource.update((orders) => {
         if (!orders) return [order];
@@ -56,7 +55,6 @@ export class ActiveOrdersStore {
       });
     };
 
-    // Order created
     effect(() => {
       const created = this.#socketService.orderCreated();
       if (created && this.#currentBarId() === created.barId) {
@@ -64,7 +62,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order updated
     effect(() => {
       const updated = this.#socketService.orderUpdated();
       if (updated && this.#currentBarId() === updated.barId) {
@@ -72,7 +69,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order closed
     effect(() => {
       const closed = this.#socketService.orderClosed();
       if (closed && this.#currentBarId() === closed.barId) {
@@ -80,7 +76,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order cancelled
     effect(() => {
       const cancelled = this.#socketService.orderCancelled();
       if (cancelled) {
@@ -91,7 +86,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order item added
     effect(() => {
       const itemAdded = this.#socketService.orderItemAdded();
       if (itemAdded && this.#currentBarId() === itemAdded.barId) {
@@ -99,7 +93,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order tip updated
     effect(() => {
       const tipUpdated = this.#socketService.orderTipUpdated();
       if (tipUpdated) {
@@ -120,15 +113,9 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order adjustments updated
     effect(() => {
       const adjUpdated = this.#socketService.orderAdjustmentsUpdated();
       if (adjUpdated) {
-        // Since adjustments recalculate total, we actually want to fetch the updated order from the backend.
-        // Let's reload the whole store or a specific order. The easiest is calling getOrder and upserting.
-        // But since we are in an effect and we can't await cleanly without messy code, let's just trigger a reload of all orders,
-        // OR better yet, recalculate optimistically.
-        // Even better, trigger a fetch for the specific order.
         const orderId = adjUpdated.orderId as OrderId;
         const currentBarId = this.#currentBarId();
         if (currentBarId) {
@@ -139,7 +126,6 @@ export class ActiveOrdersStore {
       }
     });
 
-    // Order deleted
     effect(() => {
       const deleted = this.#socketService.orderDeleted();
       if (deleted) {
@@ -182,8 +168,6 @@ export class ActiveOrdersStore {
     });
   }
 
-  // --- Actions ---
-
   public async create(barId: BarId, dto: CreateOrderDto) {
     await this.#createOrder.execute(barId, dto);
   }
@@ -224,9 +208,7 @@ export class ActiveOrdersStore {
     await this.#deleteOrder.execute(barId, orderId);
   }
 
-
   public async updateTip(barId: BarId, orderId: OrderId, tipAmount: number): Promise<void> {
-    // Optimistic update
     const original = this.optimisticUpdate(orderId, (o) => ({
       ...o,
       tipAmount,

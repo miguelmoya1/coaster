@@ -12,12 +12,10 @@ import { AiVoiceService } from './ai-voice.service';
   imports: [MatButton, MatFabButton, MatIconButton, MatIcon, CdkDrag, TranslatePipe, RequireSubscriptionDirective],
   template: `
     @if (service.isSupported()) {
-      <!-- Voice Overlay Card -->
       @if (isOpen()) {
         <div
           class="voice-card fixed bottom-28 left-4 right-4 z-9999 md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-96 h-[32rem] max-h-[80vh] rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col gap-4 text-white shadow-elevated transition-all duration-300"
         >
-          <!-- Card Header -->
           <div class="flex items-center justify-between border-b border-white/10 pb-3">
             <div class="flex flex-col gap-0.5">
               <span class="text-sm font-semibold tracking-wide text-zinc-200">
@@ -81,7 +79,6 @@ import { AiVoiceService } from './ai-voice.service';
             </div>
           </div>
 
-          <!-- Messages List / Chat History -->
           <div #chatContainer class="flex-1 overflow-y-auto pr-1 scrollbar-thin flex flex-col gap-3 py-1">
             @if (service.messages().length === 0) {
               <div class="flex-1 flex flex-col items-center justify-center text-center p-4 text-zinc-500 my-auto">
@@ -127,7 +124,6 @@ import { AiVoiceService } from './ai-voice.service';
             }
           </div>
 
-          <!-- Current Transcript / Listening Feedback -->
           @if (service.transcript() || service.status() === 'listening') {
             <div class="flex flex-col gap-1.5 border-t border-white/5 pt-3">
               <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
@@ -145,7 +141,6 @@ import { AiVoiceService } from './ai-voice.service';
                 }
               </div>
 
-              <!-- Soundwave Visualizer (Only visible when listening) -->
               @if (service.status() === 'listening') {
                 <div class="flex items-center justify-center gap-1 py-1">
                   <span class="wave-bar bar-1"></span>
@@ -158,7 +153,6 @@ import { AiVoiceService } from './ai-voice.service';
             </div>
           }
 
-          <!-- Error Feedback -->
           @if (service.error()) {
             <div
               class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-rose-400 flex flex-col gap-1"
@@ -170,7 +164,6 @@ import { AiVoiceService } from './ai-voice.service';
             </div>
           }
 
-          <!-- Footer Actions -->
           <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
             <div>
               @if (service.status() === 'listening' || service.status() === 'paused') {
@@ -221,7 +214,6 @@ import { AiVoiceService } from './ai-voice.service';
         </div>
       }
 
-      <!-- Floating Button -->
       <button
         mat-fab
         cdkDrag

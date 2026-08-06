@@ -29,7 +29,6 @@ export class ShiftsStore {
   readonly shifts = this.#shiftsResource.asReadonly();
 
   constructor() {
-    // Shift created
     effect(() => {
       const created = this.#socketService.shiftCreated();
       if (created) {
@@ -37,7 +36,6 @@ export class ShiftsStore {
       }
     });
 
-    // Shift deleted
     effect(() => {
       const deleted = this.#socketService.shiftDeleted();
       if (deleted) {

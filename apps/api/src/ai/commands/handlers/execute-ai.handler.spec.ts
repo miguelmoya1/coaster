@@ -10,7 +10,6 @@ import { DbRole } from '../../../core/db';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 import { ExecuteAiHandler } from './execute-ai.handler';
 
-// Mock Vercel AI SDK
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();
   return {
@@ -65,13 +64,13 @@ describe('ExecuteAiHandler', () => {
 
     it('should execute successfully for an admin', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
-      queryBus.execute.mockResolvedValue([]); // Mock all queries returning empty arrays
+      queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'Mesa creada correctamente.' });
 
       const result = await handler.execute(command);
 
       expect(securityRepository.getUserRole).toHaveBeenCalledWith(user.id);
-      expect(queryBus.execute).toHaveBeenCalledTimes(4); // tables, products, open orders, categories
+      expect(queryBus.execute).toHaveBeenCalledTimes(4);
       expect(generateText).toHaveBeenCalled();
       expect(result).toEqual({ text: 'Mesa creada correctamente.' });
     });

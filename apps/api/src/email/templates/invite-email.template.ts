@@ -9,7 +9,8 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     body1_mid: ' has invited you to join the team at ',
     body1_bar: '{{barName}}',
     body1_end: ' on our platform.',
-    body2: 'With Coaster you can see your shifts, manage the pantry and communicate with your team directly from your mobile phone, without needing complicated passwords.',
+    body2:
+      'With Coaster you can see your shifts, manage the pantry and communicate with your team directly from your mobile phone, without needing complicated passwords.',
     buttonText: 'Enter Coaster',
     ignoreText: 'If you were not expecting this invitation, you can safely ignore this email.',
     footerText: '© 2026 Coaster App. All rights reserved.',
@@ -24,7 +25,8 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     body1_mid: ' te ha invitado a unirte al equipo de ',
     body1_bar: '{{barName}}',
     body1_end: ' en nuestra plataforma.',
-    body2: 'Con Coaster podrás ver tus turnos, gestionar la despensa y comunicarte con tu equipo directamente desde tu móvil, sin necesidad de contraseñas complicadas.',
+    body2:
+      'Con Coaster podrás ver tus turnos, gestionar la despensa y comunicarte con tu equipo directamente desde tu móvil, sin necesidad de contraseñas complicadas.',
     buttonText: 'Entrar a Coaster',
     ignoreText: 'Si no esperabas esta invitación, puedes ignorar este correo tranquilamente.',
     footerText: '© 2026 Coaster App. Todos los derechos reservados.',

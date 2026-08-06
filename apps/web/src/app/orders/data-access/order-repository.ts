@@ -38,7 +38,8 @@ export class OrderRepository {
       `/bars/${barId}/orders/${orderId}/items/${itemId}`,
     updateTip: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/tip`,
     addAdjustment: (barId: BarId, orderId: OrderId) => `/bars/${barId}/orders/${orderId}/adjustments`,
-    removeAdjustment: (barId: BarId, orderId: OrderId, adjustmentId: string) => `/bars/${barId}/orders/${orderId}/adjustments/${adjustmentId}`,
+    removeAdjustment: (barId: BarId, orderId: OrderId, adjustmentId: string) =>
+      `/bars/${barId}/orders/${orderId}/adjustments/${adjustmentId}`,
   };
 
   public async getOrder(barId: BarId, orderId: OrderId) {

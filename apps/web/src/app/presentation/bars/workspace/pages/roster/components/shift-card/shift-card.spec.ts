@@ -17,7 +17,6 @@ describe('ShiftCard', () => {
     fixture = TestBed.createComponent(ShiftCard);
     component = fixture.componentInstance;
 
-    // Set required inputs
     fixture.componentRef.setInput('staffName', 'John Doe');
     fixture.componentRef.setInput('staffImage', 'https://photo.url/john.jpg');
     fixture.componentRef.setInput('timeRange', '08:00 - 16:00');

@@ -13,7 +13,6 @@ export class Socket implements OnDestroy {
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
 
-  // Expose signals for different events
   readonly orderCreated = signal<Order | null>(null);
   readonly orderUpdated = signal<Order | null>(null);
   readonly orderClosed = signal<Order | null>(null);
@@ -40,8 +39,6 @@ export class Socket implements OnDestroy {
   readonly subscriptionUpdated = signal<{ barId: string } | null>(null);
 
   constructor() {
-    // The gateway authenticates the handshake, so the connection has to follow the session:
-    // open it once we hold a token, and tear it down on logout.
     effect(() => {
       const token = this.#auth.idToken();
 
@@ -60,7 +57,6 @@ export class Socket implements OnDestroy {
     }
 
     if (this.#socket) {
-      // Keep the credentials fresh for the next handshake without dropping a healthy connection.
       this.#socket.auth = { token };
 
       if (!this.#socket.connected) {
@@ -80,7 +76,6 @@ export class Socket implements OnDestroy {
     this.#socket.on('connect', () => {
       this.#connected.set(true);
 
-      // Rooms do not survive a reconnect, so the membership has to be re-declared each time.
       if (this.#currentBarId) {
         this.#socket?.emit(SocketEvents.joinBar, this.#currentBarId);
       }
@@ -91,12 +86,10 @@ export class Socket implements OnDestroy {
     });
 
     this.#socket.on(SocketEvents.unauthorized, () => {
-      // The server rejected our token: stop retrying and wait for a fresh one.
       this.#connected.set(false);
       this.#socket?.disconnect();
     });
 
-    // Listen to business events
     this.#socket.on(SocketEvents.orderCreated, (order: Order) => {
       this.orderCreated.set(order);
     });
@@ -198,8 +191,6 @@ export class Socket implements OnDestroy {
   }
 
   public joinBar(barId: string) {
-    // Remembered so the room is restored on reconnect (and on a connection opened later, once
-    // the session token arrives).
     this.#currentBarId = barId;
 
     if (this.#socket?.connected) {

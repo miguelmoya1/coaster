@@ -30,9 +30,7 @@ describe('StripeApi', () => {
 
       await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_1');
 
-      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(
-        expect.objectContaining({ customer: 'cus_1' }),
-      );
+      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(expect.objectContaining({ customer: 'cus_1' }));
     });
 
     it('should omit the customer when none is provided', async () => {

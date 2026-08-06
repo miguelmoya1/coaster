@@ -38,7 +38,11 @@
           @if (canManageBilling() && showBillingAction()) {
             <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
               @if (billingAction() === BillingAction.MANAGE) {
-                <button mat-button (click)="manageBilling()" class="!rounded-xl font-bold border border-outline-variant/30">
+                <button
+                  mat-button
+                  (click)="manageBilling()"
+                  class="!rounded-xl font-bold border border-outline-variant/30"
+                >
                   <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
                   {{ 'billing.manage_billing' | translate }}
                 </button>

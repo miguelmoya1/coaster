@@ -65,15 +65,12 @@ describe('PrinterRepository', () => {
     it('should fetch connection details and send print request', async () => {
       const responsePromise = service.printText('bar-1', 'Order details content');
 
-      // 1. Connection detail GET request
       const connReq = httpMock.expectOne('/bars/bar-1/printer/connection');
       expect(connReq.request.method).toBe('GET');
       connReq.flush({ ipAddress: '192.168.1.50', token: 'mock-token-abc' });
 
-      // Let macrotasks/microtasks run so that the connection response is processed and the print request is fired
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // 2. Local print bridge POST request
       const printReq = httpMock.expectOne('http://192.168.1.50:8080/print');
       expect(printReq.request.method).toBe('POST');
       expect(printReq.request.headers.get('Authorization')).toBe('Bearer mock-token-abc');

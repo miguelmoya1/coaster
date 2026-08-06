@@ -10,4 +10,10 @@ export { DeleteProductCommand } from './impl/delete-product.command';
 export { UpdateProductCommand } from './impl/update-product.command';
 export { UpdateProductStockCommand } from './impl/update-product-stock.command';
 
-export const CommandHandlers = [AdjustProductStockHandler, CreateProductHandler, DeleteProductHandler, UpdateProductHandler, UpdateProductStockHandler];
+export const CommandHandlers = [
+  AdjustProductStockHandler,
+  CreateProductHandler,
+  DeleteProductHandler,
+  UpdateProductHandler,
+  UpdateProductStockHandler,
+];

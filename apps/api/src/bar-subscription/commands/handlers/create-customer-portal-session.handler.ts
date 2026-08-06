@@ -41,8 +41,6 @@ export class CreateCustomerPortalSessionHandler implements ICommandHandler<
       return session;
     }
 
-    // The stored customer no longer exists in Stripe: fall back to whichever customer the
-    // subscription is currently attached to before giving up.
     const remoteCustomerId = subscription.stripeSubscriptionId
       ? await this._stripeApi.findSubscriptionCustomerId(subscription.stripeSubscriptionId)
       : null;

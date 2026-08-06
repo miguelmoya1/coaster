@@ -39,11 +39,7 @@ export class BarSubscriptionStore {
     const sub = this.subscription.value();
     if (!sub) return false;
     if (sub.status === SubscriptionStatus.ACTIVE) {
-      return !(
-        sub.stripeSubscriptionId &&
-        sub.currentPeriodEnd &&
-        new Date() <= new Date(sub.currentPeriodEnd)
-      );
+      return !(sub.stripeSubscriptionId && sub.currentPeriodEnd && new Date() <= new Date(sub.currentPeriodEnd));
     }
     if (sub.status === SubscriptionStatus.CANCELED) {
       if (!sub.currentPeriodEnd) return true;

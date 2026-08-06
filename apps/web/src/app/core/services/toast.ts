@@ -10,8 +10,6 @@ export class Toast {
   readonly #injector = inject(Injector);
 
   public show(message: string, type: ToastType = 'info', duration = 3000) {
-    // Lazy inject to avoid circular dependency:
-    // TranslateHttpLoader → HttpClient → errorInterceptor → Toast → TranslateService
     const translate = this.#injector.get(TranslateService);
     const translatedMessage = translate.instant(message);
 

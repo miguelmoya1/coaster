@@ -8,9 +8,7 @@ import { MatIcon } from '@angular/material/icon';
   selector: 'coaster-staff-member-card',
   imports: [TranslatePipe, MatButton, MatIconButton, MatIcon],
   template: `
-    <!-- Main Content Area (Row) -->
     <div class="flex items-center w-full min-w-0">
-      <!-- Avatar Badge -->
       <div
         class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-surface-container-highest"
       >
@@ -25,7 +23,6 @@ import { MatIcon } from '@angular/material/icon';
         }
       </div>
 
-      <!-- Info Column -->
       <div class="grow min-w-0 ml-3 sm:ml-4 flex flex-col gap-0.5">
         <h3 class="heading-3 truncate text-base font-bold text-on-surface">
           {{ staffName() }}
@@ -36,7 +33,6 @@ import { MatIcon } from '@angular/material/icon';
       </div>
     </div>
 
-    <!-- Actions Column / Row -->
     @if (showActions()) {
       <div
         class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 justify-end w-full sm:w-auto pt-3 sm:pt-0 border-t border-outline-variant/10 sm:border-t-0 shrink-0"
@@ -98,7 +94,7 @@ export class StaffMemberCard {
   readonly deleteClicked = output<void>();
 
   readonly imageFailed = linkedSignal(() => {
-    this.staffImage(); // establish dependency to reset on change
+    this.staffImage();
     return false;
   });
 

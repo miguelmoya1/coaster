@@ -1,6 +1,12 @@
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
-import { ErrorCodes, type BarId, type CategoryId, type CreateCategoryDto, type UpdateCategoryDto } from '@coaster/common';
+import {
+  ErrorCodes,
+  type BarId,
+  type CategoryId,
+  type CreateCategoryDto,
+  type UpdateCategoryDto,
+} from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
 import { BarCategories } from '../services/bar-categories';
@@ -38,7 +44,6 @@ export class CategoriesStore {
       }
     });
 
-    // Category created
     effect(() => {
       const created = this.#socketService.categoryCreated();
       if (created) {
@@ -53,7 +58,6 @@ export class CategoriesStore {
       }
     });
 
-    // Category updated
     effect(() => {
       const updated = this.#socketService.categoryUpdated();
       if (updated) {

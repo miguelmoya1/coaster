@@ -17,4 +17,13 @@ export { ImportTemplatesToBarCommand } from './impl/import-templates-to-bar.comm
 export { UpdateCategoryTemplateCommand } from './impl/update-category-template.command';
 export { UpdateProductTemplateCommand } from './impl/update-product-template.command';
 
-export const CommandHandlers = [BulkUpsertTemplatesHandler, CreateCategoryTemplateHandler, CreateProductTemplateHandler, DeleteCategoryTemplateHandler, DeleteProductTemplateHandler, ImportTemplatesToBarHandler, UpdateCategoryTemplateHandler, UpdateProductTemplateHandler];
+export const CommandHandlers = [
+  BulkUpsertTemplatesHandler,
+  CreateCategoryTemplateHandler,
+  CreateProductTemplateHandler,
+  DeleteCategoryTemplateHandler,
+  DeleteProductTemplateHandler,
+  ImportTemplatesToBarHandler,
+  UpdateCategoryTemplateHandler,
+  UpdateProductTemplateHandler,
+];

@@ -25,11 +25,6 @@ export class BarGateway implements OnGatewayConnection {
 
   constructor(private readonly _wsAuth: WsAuthService) {}
 
-  /**
-   * Every bar room carries live operational data (orders, amounts, stock), so a connection is
-   * only useful once we know who is behind it. Unauthenticated sockets are dropped here rather
-   * than at join time, so an anonymous client never holds an open connection.
-   */
   async handleConnection(client: AuthenticatedSocket) {
     const userId = await this._wsAuth.authenticate(client);
 
@@ -41,10 +36,6 @@ export class BarGateway implements OnGatewayConnection {
 
     client.data.userId = userId;
     this._logger.debug(`Cliente ${client.id} autenticado como usuario ${userId}`);
-  }
-
-  handleDisconnect(_client: Socket) {
-    // this._logger.debug(`Cliente desconectado: ${client.id}`);
   }
 
   @SubscribeMessage(SocketEvents.joinBar)

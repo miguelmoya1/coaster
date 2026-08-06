@@ -17,32 +17,40 @@ const logger = new Logger('OrderTools');
 export const createOrderTools = (data: AiToolsData) => ({
   createOrder: tool({
     description: 'Create a new open order for a specific table in the bar.',
-    inputSchema: zodSchema(z.object({
-      tableId: z
-        .string()
-        .describe(
-          'The UUID of the table where this new order is placed. Look up the user-specified table name (e.g. "Mesa 2") in the list of available tables to find its UUID.',
-        ),
-      items: z
-        .array(
-          z.object({
-            productId: z
-              .string()
-              .describe(
-                'The UUID of the product. Match the food/drink name requested (e.g. "cerveza", "café", "bocadillo") against the available products list to get its UUID.',
-              ),
-            quantity: z
-              .number()
-              .int()
-              .min(1)
-              .describe(
-                'The quantity of the item. Match natural numbers or word numbers, e.g. "tres cañas" -> 3. Defaults to 1 if not specified.',
-              ),
-          }),
-        )
-        .describe('List of exact product UUIDs and their quantities.'),
-    })),
-    execute: async ({ tableId, items }: { tableId: string; items: { productId: string; quantity: number }[] }): Promise<PreparedAction | string> => {
+    inputSchema: zodSchema(
+      z.object({
+        tableId: z
+          .string()
+          .describe(
+            'The UUID of the table where this new order is placed. Look up the user-specified table name (e.g. "Mesa 2") in the list of available tables to find its UUID.',
+          ),
+        items: z
+          .array(
+            z.object({
+              productId: z
+                .string()
+                .describe(
+                  'The UUID of the product. Match the food/drink name requested (e.g. "cerveza", "café", "bocadillo") against the available products list to get its UUID.',
+                ),
+              quantity: z
+                .number()
+                .int()
+                .min(1)
+                .describe(
+                  'The quantity of the item. Match natural numbers or word numbers, e.g. "tres cañas" -> 3. Defaults to 1 if not specified.',
+                ),
+            }),
+          )
+          .describe('List of exact product UUIDs and their quantities.'),
+      }),
+    ),
+    execute: async ({
+      tableId,
+      items,
+    }: {
+      tableId: string;
+      items: { productId: string; quantity: number }[];
+    }): Promise<PreparedAction | string> => {
       logger.debug(`[AI Tool] 'createOrder' called with tableId="${tableId}", items=${JSON.stringify(items)}`);
       const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
@@ -62,32 +70,40 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   addOrderItems: tool({
     description: 'Add more items to an existing open order.',
-    inputSchema: zodSchema(z.object({
-      orderId: z
-        .string()
-        .describe(
-          'The UUID of the existing open order to add items to. Look up the active open orders list to find the order UUID matching the requested table or order details.',
-        ),
-      items: z
-        .array(
-          z.object({
-            productId: z
-              .string()
-              .describe(
-                'The UUID of the product. Match the food/drink name requested (e.g. "cerveza", "café", "bocadillo") against the available products list to get its UUID.',
-              ),
-            quantity: z
-              .number()
-              .int()
-              .min(1)
-              .describe(
-                'The quantity of the item to add. Match natural numbers or word numbers, e.g. "tres cañas" -> 3. Defaults to 1 if not specified.',
-              ),
-          }),
-        )
-        .describe('List of product UUIDs and their quantities.'),
-    })),
-    execute: async ({ orderId, items }: { orderId: string; items: { productId: string; quantity: number }[] }): Promise<PreparedAction | string> => {
+    inputSchema: zodSchema(
+      z.object({
+        orderId: z
+          .string()
+          .describe(
+            'The UUID of the existing open order to add items to. Look up the active open orders list to find the order UUID matching the requested table or order details.',
+          ),
+        items: z
+          .array(
+            z.object({
+              productId: z
+                .string()
+                .describe(
+                  'The UUID of the product. Match the food/drink name requested (e.g. "cerveza", "café", "bocadillo") against the available products list to get its UUID.',
+                ),
+              quantity: z
+                .number()
+                .int()
+                .min(1)
+                .describe(
+                  'The quantity of the item to add. Match natural numbers or word numbers, e.g. "tres cañas" -> 3. Defaults to 1 if not specified.',
+                ),
+            }),
+          )
+          .describe('List of product UUIDs and their quantities.'),
+      }),
+    ),
+    execute: async ({
+      orderId,
+      items,
+    }: {
+      orderId: string;
+      items: { productId: string; quantity: number }[];
+    }): Promise<PreparedAction | string> => {
       logger.debug(`[AI Tool] 'addOrderItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`);
       const validItems = items.filter((item) => data.products.some((p) => p.id === item.productId));
       logger.debug(`[AI Tool] Filtered valid items: ${JSON.stringify(validItems)}`);
@@ -106,19 +122,27 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   checkoutOrder: tool({
     description: 'Collect payment and close an open order.',
-    inputSchema: zodSchema(z.object({
-      orderId: z
-        .string()
-        .describe(
-          'The UUID of the open order to check out. Look up the active open orders list to find the order UUID matching the table or order details.',
-        ),
-      paymentMethod: z
-        .enum([PaymentMethod.CASH, PaymentMethod.CARD])
-        .describe(
-          'Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified.',
-        ),
-    })),
-    execute: async ({ orderId, paymentMethod }: { orderId: string; paymentMethod: PaymentMethod }): Promise<PreparedAction> => {
+    inputSchema: zodSchema(
+      z.object({
+        orderId: z
+          .string()
+          .describe(
+            'The UUID of the open order to check out. Look up the active open orders list to find the order UUID matching the table or order details.',
+          ),
+        paymentMethod: z
+          .enum([PaymentMethod.CASH, PaymentMethod.CARD])
+          .describe(
+            'Payment method: CASH (efectivo, caja) or CARD (tarjeta, datáfono). Defaults to CASH if not specified.',
+          ),
+      }),
+    ),
+    execute: async ({
+      orderId,
+      paymentMethod,
+    }: {
+      orderId: string;
+      paymentMethod: PaymentMethod;
+    }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'checkoutOrder' called with orderId="${orderId}", paymentMethod="${paymentMethod}"`);
       return {
         permission: 'bar:checkout-order',
@@ -129,39 +153,47 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   serveOrPayItems: tool({
     description: 'Update the preparation (served) or payment status of items in an open order.',
-    inputSchema: zodSchema(z.object({
-      orderId: z.string().describe('The UUID of the order to update.'),
-      items: z
-        .array(
-          z.object({
-            itemId: z
-              .string()
-              .describe(
-                'The UUID of the order item to update (OrderItemId). Find this item ID inside the items list of the specified order in the active open orders list.',
-              ),
-            servedQuantity: z
-              .number()
-              .int()
-              .min(0)
-              .optional()
-              .describe(
-                'The new total quantity of this item that has been prepared/served. Use this when the user says "saca X cañas" or "sirve la mesa".',
-              ),
-            paidQuantity: z
-              .number()
-              .int()
-              .min(0)
-              .optional()
-              .describe('The new total quantity of this item that has been paid.'),
-            paymentMethod: z
-              .enum([PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.NONE])
-              .optional()
-              .describe('Payment method used if paying.'),
-          }),
-        )
-        .describe('List of order items to update.'),
-    })),
-    execute: async ({ orderId, items }: { orderId: string; items: { itemId: string; servedQuantity?: number; paidQuantity?: number; paymentMethod?: PaymentMethod }[] }): Promise<PreparedAction> => {
+    inputSchema: zodSchema(
+      z.object({
+        orderId: z.string().describe('The UUID of the order to update.'),
+        items: z
+          .array(
+            z.object({
+              itemId: z
+                .string()
+                .describe(
+                  'The UUID of the order item to update (OrderItemId). Find this item ID inside the items list of the specified order in the active open orders list.',
+                ),
+              servedQuantity: z
+                .number()
+                .int()
+                .min(0)
+                .optional()
+                .describe(
+                  'The new total quantity of this item that has been prepared/served. Use this when the user says "saca X cañas" or "sirve la mesa".',
+                ),
+              paidQuantity: z
+                .number()
+                .int()
+                .min(0)
+                .optional()
+                .describe('The new total quantity of this item that has been paid.'),
+              paymentMethod: z
+                .enum([PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.NONE])
+                .optional()
+                .describe('Payment method used if paying.'),
+            }),
+          )
+          .describe('List of order items to update.'),
+      }),
+    ),
+    execute: async ({
+      orderId,
+      items,
+    }: {
+      orderId: string;
+      items: { itemId: string; servedQuantity?: number; paidQuantity?: number; paymentMethod?: PaymentMethod }[];
+    }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'serveOrPayItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`);
       return {
         permission: 'bar:update-order',
@@ -179,11 +211,13 @@ export const createOrderTools = (data: AiToolsData) => ({
 
   cancelOrder: tool({
     description: 'Cancel an open order.',
-    inputSchema: zodSchema(z.object({
-      orderId: z
-        .string()
-        .describe('The UUID of the order to cancel. Find the order UUID in the active open orders list.'),
-    })),
+    inputSchema: zodSchema(
+      z.object({
+        orderId: z
+          .string()
+          .describe('The UUID of the order to cancel. Find the order UUID in the active open orders list.'),
+      }),
+    ),
     execute: async ({ orderId }: { orderId: string }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'cancelOrder' called with orderId="${orderId}"`);
       return {

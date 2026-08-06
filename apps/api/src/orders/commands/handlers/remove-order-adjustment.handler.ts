@@ -25,7 +25,7 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
-    const adjustmentExists = orderDb.adjustments.some(a => a.id === command.adjustmentId);
+    const adjustmentExists = orderDb.adjustments.some((a) => a.id === command.adjustmentId);
     if (!adjustmentExists) {
       throw new NotFoundException('Adjustment not found');
     }
@@ -34,6 +34,8 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
     const updatedOrderDomain = OrdersMapper.toDomain(updatedOrderDb as OrderWithRelations);
 
     this.#logger.debug(`Publishing OrderAdjustmentsUpdatedEvent...`);
-    this._eventBus.publish(new OrderAdjustmentsUpdatedEvent(command.barId, command.orderId, updatedOrderDomain.adjustments));
+    this._eventBus.publish(
+      new OrderAdjustmentsUpdatedEvent(command.barId, command.orderId, updatedOrderDomain.adjustments),
+    );
   }
 }

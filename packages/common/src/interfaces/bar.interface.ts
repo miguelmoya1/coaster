@@ -14,4 +14,3 @@ export interface Bar {
 export interface CreateBarDto {
   name: string;
 }
-

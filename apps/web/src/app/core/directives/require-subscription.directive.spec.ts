@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RequireSubscriptionDirective } from './require-subscription.directive';
 
@@ -30,6 +31,7 @@ describe('RequireSubscriptionDirective', () => {
     TestBed.configureTestingModule({
       imports: [TestComponent],
       providers: [
+        provideTranslateService(),
         {
           provide: BarSubscriptionStore,
           useValue: {

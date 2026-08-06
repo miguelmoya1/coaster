@@ -57,7 +57,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
         <mat-icon>more_vert</mat-icon>
       </button>
 
-        <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
+      <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
         <a mat-menu-item routerLink="/bars/select">
           <mat-icon>swap_horiz</mat-icon>
           <span>{{ 'common.change_bar' | translate }}</span>

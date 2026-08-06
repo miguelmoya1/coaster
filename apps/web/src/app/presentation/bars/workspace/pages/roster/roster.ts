@@ -439,12 +439,10 @@ export default class Roster {
       const startIso = startLocal.toISOString();
       const endIso = endLocal.toISOString();
 
-      // Fetch previous week's shifts directly
       const url = `/bars/${this.barId()}/shifts?startDate=${startIso}&endDate=${endIso}`;
       const rawShifts = await firstValueFrom(this.#http.get<Shift[]>(url));
 
       if (rawShifts && rawShifts.length > 0) {
-        // Replicate each shift by adding exactly 7 days
         for (const shift of rawShifts) {
           const newStart = addDays(new Date(shift.startTime), 7).toISOString();
           const newEnd = addDays(new Date(shift.endTime), 7).toISOString();

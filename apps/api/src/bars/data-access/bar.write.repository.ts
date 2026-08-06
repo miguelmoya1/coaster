@@ -18,7 +18,7 @@ export class BarWriteRepository {
   constructor(private readonly _db: DbService) {}
 
   public async create(userId: UserId, createBarDto: CreateBarDto) {
-    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days trial
+    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
     return this._db.dbBar.create({
       data: {

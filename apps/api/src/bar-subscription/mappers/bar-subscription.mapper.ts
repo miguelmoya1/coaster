@@ -20,11 +20,6 @@ export class BarSubscriptionMapper {
     };
   }
 
-  /**
-   * A bar with no persisted subscription is not an error: it is simply on the free tier with
-   * nothing activated. Callers always get a subscription so the client never has to special-case
-   * a missing one (an absent subscription must read as locked, not as unrestricted).
-   */
   static toFreeDefault(barId: BarId): BarSubscription {
     const now = new Date().toISOString();
 
@@ -44,11 +39,6 @@ export class BarSubscriptionMapper {
     };
   }
 
-  /**
-   * The stored status is whatever Stripe last told us; it does not age on its own. This derives
-   * the status as of *now*, so a lapsed period or a finished trial reads as EXPIRED without
-   * waiting for a webhook.
-   */
   private static resolveEffectiveStatus(dbSub: DbBarSubscription): SubscriptionStatus {
     const status = dbSub.status as SubscriptionStatus;
     const now = new Date();

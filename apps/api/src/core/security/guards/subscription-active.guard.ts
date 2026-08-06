@@ -46,10 +46,6 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    // Subscription management must stay reachable while locked out, otherwise an expired bar
-    // could never re-subscribe to unlock itself. Match the path only: `request.url` carries the
-    // query string, so a substring test over the whole URL would let `?x=/bar-subscription`
-    // wave any request past the paywall.
     if (SUBSCRIPTION_MANAGEMENT_PATH.test(getPathname(request.url))) {
       return true;
     }

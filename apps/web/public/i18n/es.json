@@ -629,7 +629,8 @@
     "cancels_on": "Se cancelará el {{date}}",
     "trial_ends_on": "La prueba finaliza el {{date}}",
     "trial_days_remaining": "{{days}} días de prueba restantes",
-    "past_due_warning": "El último intento de cobro ha fallado. Actualiza tu método de pago para evitar la interrupción del servicio."
+    "past_due_warning": "El último intento de cobro ha fallado. Actualiza tu método de pago para evitar la interrupción del servicio.",
+    "action_unavailable": "Acción no disponible: suscripción o prueba finalizada"
   },
   "landing": {
     "nav": {

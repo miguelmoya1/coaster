@@ -39,14 +39,12 @@ describe('OrdersMergedHandler', () => {
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, primaryOrder);
 
-    // Check first source order cancellation and table freeing
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, { id: 'order-s1' });
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: 'table-1',
       status: TableStatus.FREE,
     });
 
-    // Check second source order cancellation (no table)
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, { id: 'order-s2' });
   });
 });

@@ -31,9 +31,7 @@ describe('PrinterRepository', () => {
     });
 
     it('should build correct print route', () => {
-      expect(service.routes.print('192.168.1.100', 8080)).toBe(
-        'http://192.168.1.100:8080/print',
-      );
+      expect(service.routes.print('192.168.1.100', 8080)).toBe('http://192.168.1.100:8080/print');
     });
   });
 

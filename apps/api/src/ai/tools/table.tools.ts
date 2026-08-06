@@ -10,9 +10,15 @@ const logger = new Logger('TableTools');
 export const createTableTools = (data: AiToolsData) => ({
   createTable: tool({
     description: 'Create a new table in the bar.',
-    inputSchema: zodSchema(z.object({
-      name: z.string().describe("Table name or designation to create, e.g. 'Mesa 4', 'Terraza 1'. Use the exact name mentioned by the user."),
-    })),
+    inputSchema: zodSchema(
+      z.object({
+        name: z
+          .string()
+          .describe(
+            "Table name or designation to create, e.g. 'Mesa 4', 'Terraza 1'. Use the exact name mentioned by the user.",
+          ),
+      }),
+    ),
     execute: async ({ name }: { name: string }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'createTable' called with name="${name}"`);
       return {
@@ -24,10 +30,12 @@ export const createTableTools = (data: AiToolsData) => ({
 
   updateTable: tool({
     description: 'Update details of an existing table in the bar, such as its name.',
-    inputSchema: zodSchema(z.object({
-      tableId: z.string().describe('The UUID of the table to update.'),
-      name: z.string().describe('New name of the table.'),
-    })),
+    inputSchema: zodSchema(
+      z.object({
+        tableId: z.string().describe('The UUID of the table to update.'),
+        name: z.string().describe('New name of the table.'),
+      }),
+    ),
     execute: async ({ tableId, name }: { tableId: string; name: string }): Promise<PreparedAction> => {
       logger.debug(`[AI Tool] 'updateTable' called with tableId="${tableId}", name="${name}"`);
       return {

@@ -91,7 +91,6 @@ describe('StatsStore', () => {
 
       expect(store.stats.value()?.todayRevenue).toBe(100);
 
-      // Emit socket event for the same barId
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-1'),
@@ -110,7 +109,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Expect a new reload request
       const reloadReq = httpMock.expectOne(`/bars/${barId}/stats`);
       expect(reloadReq.request.method).toBe('GET');
       reloadReq.flush({ ...mockStats, todayRevenue: 180 });
@@ -132,7 +130,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Emit socket event for a DIFFERENT barId
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-2'),
@@ -151,7 +148,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Verify no other requests were made
       httpMock.expectNone(`/bars/${barId}/stats`);
     });
 
@@ -166,7 +162,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Emit cancelled event
       mockSocket.orderCancelled.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-1'),

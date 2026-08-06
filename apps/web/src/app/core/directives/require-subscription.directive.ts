@@ -1,4 +1,5 @@
 import { DestroyRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 
@@ -11,6 +12,7 @@ export class RequireSubscriptionDirective {
   readonly #planDialogService = inject(PlanDialogService, { optional: true });
   readonly #elementRef = inject(ElementRef<HTMLElement>);
   readonly #destroyRef = inject(DestroyRef);
+  readonly #translate = inject(TranslateService);
   readonly barId = input.required<BarId>();
 
   constructor() {
@@ -48,7 +50,7 @@ export class RequireSubscriptionDirective {
       if (isReadOnly) {
         el.style.pointerEvents = 'auto';
         el.setAttribute('aria-disabled', 'true');
-        el.setAttribute('title', 'Acción no disponible: Suscripción o prueba finalizada');
+        el.setAttribute('title', this.#translate.instant('billing.action_unavailable'));
         el.classList.add('opacity-60', 'cursor-not-allowed');
       } else {
         el.style.pointerEvents = '';

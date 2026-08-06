@@ -13,7 +13,6 @@ describe('GetBarStatsHandler', () => {
   };
 
   beforeEach(async () => {
-    // Freeze clock to Wednesday, June 17, 2026 (same week, same month)
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-17T12:00:00Z'));
 
@@ -63,11 +62,9 @@ describe('GetBarStatsHandler', () => {
     expect(result.yesterdayRevenue).toBe(50);
     expect(result.weeklyRevenue).toBe(150);
 
-    // Monthly aggregates
     expect(result.currentMonthRevenue).toBe(150);
     expect(result.previousMonthRevenue).toBe(200);
 
-    // Trend calculations: (150 - 200) / 200 = -25%
     expect(result.percentageChange).toBe(25);
     expect(result.isPositiveChange).toBe(false);
   });

@@ -84,4 +84,3 @@ describe('JwtStrategy', () => {
     await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
   });
 });
-

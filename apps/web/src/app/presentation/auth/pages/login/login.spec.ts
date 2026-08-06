@@ -83,9 +83,7 @@ describe('Login', () => {
 
       try {
         await component.signIn();
-      } catch {
-        // expected
-      }
+      } catch {}
 
       expect(component['isLoading']()).toBe(false);
     });

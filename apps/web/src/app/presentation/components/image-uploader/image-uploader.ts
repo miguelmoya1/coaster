@@ -123,7 +123,6 @@ export class ImageUploader {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.handleFile(input.files[0]);
-      // Reset input so the same file can be selected again if needed
       input.value = '';
     }
   }
@@ -143,7 +142,6 @@ export class ImageUploader {
     this.uploading.set(true);
 
     try {
-      // 1. Get signed URL
       const response = await this.mediaRepo.generateUploadUrls(this.barId(), {
         entityType: this.entityType(),
         files: [{ filename: file.name, contentType: file.type }],

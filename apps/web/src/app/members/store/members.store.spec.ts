@@ -93,10 +93,8 @@ describe('MembersStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // We have one OWNER (Jane Doe)
       expect(store.isOnlyOwner()).toBe(true);
 
-      // Add another owner
       const twoOwners = [
         ...mockMembers,
         {
@@ -174,7 +172,6 @@ describe('MembersStore', () => {
       await invitePromise;
       TestBed.tick();
 
-      // invite calls reload(), which triggers a new GET
       const reloadReq = httpMock.expectOne(`/bars/${barId}/members`);
       expect(reloadReq.request.method).toBe('GET');
       reloadReq.flush([newMember]);

@@ -29,15 +29,15 @@ export type OrderWithRelations = OrderDb & {
 export const OrdersMapper = {
   toDomain(dbOrder: OrderWithRelations): Order {
     const adjustments = dbOrder.adjustments ? dbOrder.adjustments.map((a) => OrdersMapper.adjustmentToDomain(a)) : [];
-    
+
     const pricing = OrderPricingEngine.calculate({
-      items: dbOrder.items.map(i => ({
+      items: dbOrder.items.map((i) => ({
         id: i.id,
         priceAtPurchase: i.priceAtPurchase,
         quantity: i.quantity,
         paidQuantity: i.paidQuantity,
       })),
-      adjustments: adjustments.map(a => ({
+      adjustments: adjustments.map((a) => ({
         id: a.id,
         target: a.target,
         type: a.type,
@@ -55,7 +55,7 @@ export const OrdersMapper = {
       tableId: dbOrder.tableId ? asTableId(dbOrder.tableId) : undefined,
       tableName: dbOrder.tableName ?? dbOrder.table?.name,
       status: asOrderStatus(dbOrder.status),
-      totalAmount: dbOrder.totalAmount, // Base sum of items
+      totalAmount: dbOrder.totalAmount,
       amountPaidCash: dbOrder.amountPaidCash,
       amountPaidCard: dbOrder.amountPaidCard,
       items: dbOrder.items.map((item) => OrdersMapper.itemToDomain(item)),

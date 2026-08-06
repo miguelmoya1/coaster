@@ -24,7 +24,6 @@ export interface MonthlyDayItem {
   imports: [TranslatePipe, SlicePipe],
   template: `
     <div class="border border-outline-variant/10 bg-surface-container-low rounded-3xl p-4 flex flex-col gap-4">
-      <!-- Weekday Headers -->
       <div class="grid grid-cols-7 text-center border-b border-outline-variant/10 pb-2">
         <span class="text-xxs font-black text-on-surface-variant uppercase">{{ 'roster.days.lun' | translate }}</span>
         <span class="text-xxs font-black text-on-surface-variant uppercase">{{ 'roster.days.mar' | translate }}</span>
@@ -35,7 +34,6 @@ export interface MonthlyDayItem {
         <span class="text-xxs font-black text-on-surface-variant uppercase">{{ 'roster.days.dom' | translate }}</span>
       </div>
 
-      <!-- Days Grid -->
       <div class="grid grid-cols-7 gap-1 sm:gap-2">
         @for (day of calendarDays(); track day.id) {
           <div
@@ -55,7 +53,6 @@ export interface MonthlyDayItem {
             [class.hover:border-outline-variant/35]="!day.isActive && day.isCurrentMonth"
             [class.hover:scale-102]="day.isCurrentMonth"
           >
-            <!-- Day Number -->
             <span
               class="text-xs font-black self-end rounded-full h-5 w-5 flex items-center justify-center transition-colors"
               [class.bg-primary]="day.isActive"
@@ -66,9 +63,7 @@ export interface MonthlyDayItem {
               {{ day.dayNumber }}
             </span>
 
-            <!-- Compact Shift Indicators -->
             <div class="flex-1 flex flex-col gap-0.5 overflow-hidden justify-end">
-              <!-- Desktop / Tablet list -->
               <div class="hidden sm:flex flex-col gap-1">
                 @for (shift of day.shifts.slice(0, 3); track shift.id) {
                   <div
@@ -97,7 +92,6 @@ export interface MonthlyDayItem {
                 }
               </div>
 
-              <!-- Mobile dots -->
               <div class="flex sm:hidden gap-0.5 justify-center flex-wrap mt-auto">
                 @for (shift of day.shifts; track shift.id) {
                   <span

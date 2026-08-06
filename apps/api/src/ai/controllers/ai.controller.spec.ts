@@ -20,9 +20,7 @@ describe('AiController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AiController],
-      providers: [
-        { provide: CommandBus, useValue: mockCommandBus },
-      ],
+      providers: [{ provide: CommandBus, useValue: mockCommandBus }],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)

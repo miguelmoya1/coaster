@@ -48,13 +48,15 @@ import { PricePipe } from '../../../../../pipes/price/price';
             }
           </div>
           @if (order().notes) {
-            <div class="flex items-start gap-1 mt-2 text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg">
+            <div
+              class="flex items-start gap-1 mt-2 text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg"
+            >
               <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0! shrink-0">notes</mat-icon>
               <span class="leading-tight break-all">{{ order().notes }}</span>
             </div>
           }
         </div>
-        
+
         <div class="flex flex-col items-end gap-1">
           <div class="text-sm text-on-surface-variant flex items-center gap-2">
             <span>Subtotal</span>
@@ -68,20 +70,28 @@ import { PricePipe } from '../../../../../pipes/price/price';
                   <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]!">close</mat-icon>
                 </button>
               }
-              <span>{{ adj.reason || 'Descuento' }} ({{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span>
+              <span
+                >{{ adj.reason || 'Descuento' }} ({{
+                  adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price)
+                }})</span
+              >
             </div>
           }
 
           <div class="text-sm text-on-surface-variant flex items-center gap-2 group">
             @if (order().status === OrderStatus.OPEN) {
-              <button mat-icon-button class="w-6! h-6! p-0! opacity-0 group-hover:opacity-100 transition-opacity" (click)="updateTip.emit(order().tipAmount || 0)">
+              <button
+                mat-icon-button
+                class="w-6! h-6! p-0! opacity-0 group-hover:opacity-100 transition-opacity"
+                (click)="updateTip.emit(order().tipAmount || 0)"
+              >
                 <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]!">edit</mat-icon>
               </button>
             }
             <span>Propina</span>
             <span class="font-semibold">{{ order().tipAmount || 0 | price }}</span>
           </div>
-          
+
           @if (order().status === OrderStatus.OPEN) {
             <div class="mt-1 flex gap-2">
               <button mat-button class="text-xs" (click)="addAdjustment.emit()">+ Descuento</button>
@@ -90,7 +100,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           }
         </div>
       </div>
-      
+
       <div class="flex justify-between items-center border-t border-outline-variant pt-3 mt-1">
         <span class="text-lg font-bold">Total a Pagar</span>
         <span class="text-2xl font-black" [class.text-primary]="order().status === OrderStatus.OPEN">
@@ -103,7 +113,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
 export class OrderSummaryCard {
   protected readonly OrderStatus = OrderStatus;
   protected readonly AdjustmentType = AdjustmentType;
-  
+
   public readonly order = input.required<Order>();
 
   public readonly updateTip = output<number>();
@@ -111,6 +121,6 @@ export class OrderSummaryCard {
   public readonly removeAdjustment = output<string>();
 
   globalAdjustments() {
-    return this.order().adjustments?.filter(a => a.target === AdjustmentTarget.ORDER) || [];
+    return this.order().adjustments?.filter((a) => a.target === AdjustmentTarget.ORDER) || [];
   }
 }

@@ -26,11 +26,11 @@ describe('SubscriptionBanner', () => {
         {
           provide: BarSubscriptionStore,
           useValue: {
-          isReadOnly: isReadOnlySignal,
-          isTrialExpiringSoon: isTrialExpiringSoonSignal,
-          trialDaysRemaining: trialDaysRemainingSignal,
-          showSubscriptionBanner: computed(() => isReadOnlySignal() || isTrialExpiringSoonSignal()),
-          billingAction: signal('ACTIVATE'),
+            isReadOnly: isReadOnlySignal,
+            isTrialExpiringSoon: isTrialExpiringSoonSignal,
+            trialDaysRemaining: trialDaysRemainingSignal,
+            showSubscriptionBanner: computed(() => isReadOnlySignal() || isTrialExpiringSoonSignal()),
+            billingAction: signal('ACTIVATE'),
           },
         },
         {

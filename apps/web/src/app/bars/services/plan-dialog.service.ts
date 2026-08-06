@@ -1,5 +1,5 @@
 import { inject, Injectable, inputBinding, outputBinding, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BarId, ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { ApiError } from '../../core/errors/api-error';
 import { Toast } from '../../core/services/toast';
@@ -11,8 +11,13 @@ export class PlanDialogService {
   readonly #dialog = inject(MatDialog);
   readonly #barSubscriptionStore = inject(BarSubscriptionStore);
   readonly #toast = inject(Toast);
+  #openDialogRef: MatDialogRef<SelectPlanDialog> | null = null;
 
   public open(barId: BarId): void {
+    if (this.#openDialogRef) {
+      return;
+    }
+
     const loading = signal(false);
     const dialogRef = this.#dialog.open(SelectPlanDialog, {
       width: '520px',
@@ -42,6 +47,11 @@ export class PlanDialogService {
           dialogRef.close();
         }),
       ],
+    });
+
+    this.#openDialogRef = dialogRef;
+    dialogRef.afterClosed().subscribe(() => {
+      this.#openDialogRef = null;
     });
   }
 }

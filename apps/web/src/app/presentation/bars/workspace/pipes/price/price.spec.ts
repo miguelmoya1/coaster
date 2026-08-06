@@ -6,7 +6,6 @@ describe('PricePipe', () => {
 
   it('should format cents using browser locale', () => {
     const result = pipe.transform(1500);
-    // Just verify it produces a non-empty string with a number
     expect(result).toBeTruthy();
     expect(result.length).toBeGreaterThan(0);
   });

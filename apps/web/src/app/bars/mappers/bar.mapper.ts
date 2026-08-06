@@ -21,7 +21,13 @@ export const barArrayMapper = (bars: unknown): Bar[] => {
 };
 
 export const checkIsBarSubscription = (subscription: unknown): subscription is BarSubscription => {
-  return typeof subscription === 'object' && subscription !== null && 'barId' in subscription && 'plan' in subscription && 'status' in subscription;
+  return (
+    typeof subscription === 'object' &&
+    subscription !== null &&
+    'barId' in subscription &&
+    'plan' in subscription &&
+    'status' in subscription
+  );
 };
 
 export const barSubscriptionMapper = (subscription: unknown): BarSubscription => {

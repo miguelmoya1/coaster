@@ -13,7 +13,6 @@ type UpdateBarSubscriptionDto = Omit<
   'id' | 'createdAt' | 'updatedAt' | 'barId' | 'createdAt' | 'updatedAt'
 >;
 
-/** Prisma accepts either a bare value or an update-operation object; only bare ids concern us. */
 function readId(value: unknown): string | null {
   return typeof value === 'string' && value.length > 0 ? value : null;
 }
@@ -35,12 +34,6 @@ export class BarSubscriptionWriteRepository {
     });
   }
 
-  /**
-   * `stripeCustomerId` and `stripeSubscriptionId` are globally unique, so a Stripe id that moved
-   * to another bar would make this write fail with P2002 — and since webhooks retry, it would
-   * fail forever. Stripe is the source of truth for who owns an id, so any stale reference on a
-   * different bar is released first and the whole thing runs in one transaction.
-   */
   public upsert(barId: BarId, create: CreateBarSubscriptionDto, update: UpdateBarSubscriptionDto) {
     return this._db.$transaction(async (tx) => {
       const stripeCustomerId = readId(create.stripeCustomerId ?? update.stripeCustomerId);

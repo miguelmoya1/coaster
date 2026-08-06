@@ -592,7 +592,7 @@
     "activate_pro_title": "Activate Pro plan",
     "activate_pro_subtitle": "Get full access to all advanced Coaster Pro features",
     "manage_billing": "Manage subscription and invoices",
-      "monthly_title": "Coaster Pro Plan",
+    "monthly_title": "Coaster Pro Plan",
     "monthly_subtitle": "Full access to all features without limits",
     "monthly_feat_1": "Full access to Pro features",
     "monthly_feat_2": "Order and inventory management",
@@ -629,7 +629,8 @@
     "cancels_on": "Cancels on {{date}}",
     "trial_ends_on": "Trial ends on {{date}}",
     "trial_days_remaining": "{{days}} trial days remaining",
-    "past_due_warning": "Your last payment failed. Please update your payment method to prevent service interruption."
+    "past_due_warning": "Your last payment failed. Please update your payment method to prevent service interruption.",
+    "action_unavailable": "Action unavailable: subscription or trial has ended"
   },
   "landing": {
     "nav": {

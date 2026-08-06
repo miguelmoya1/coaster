@@ -160,14 +160,13 @@ describe('Pantry', () => {
       productsStoreMock.list.value.mockReturnValue(mockProducts);
       productsStoreMock.list.hasValue.mockReturnValue(true);
 
-      // Trigger re-evaluation of the computed signal by changing its state
       component.selectedCategoryId.set('TEMP_VAL');
       component.selectedCategoryId.set('ALL');
 
       const filtered = component.filteredProducts();
-      expect(filtered[0].id).toBe('p-2'); // Absolut Vodka
-      expect(filtered[1].id).toBe('p-1'); // Vodka
-      expect(filtered[2].id).toBe('p-3'); // Zinebra
+      expect(filtered[0].id).toBe('p-2');
+      expect(filtered[1].id).toBe('p-1');
+      expect(filtered[2].id).toBe('p-3');
     });
   });
 

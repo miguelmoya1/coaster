@@ -76,9 +76,9 @@ services:
       - -c
       - >-
         exec stripe listen --api-key "$${STRIPE_SECRET_KEY}"
-        --forward-to http://localhost:4200/api/v1/stripe/webhook
+        --forward-to http://api:3000/api/v1/stripe/webhook
     depends_on:
-      web:
+      api:
         condition: service_started
 
 volumes:

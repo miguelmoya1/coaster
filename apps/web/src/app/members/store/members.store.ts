@@ -43,7 +43,6 @@ export class MembersStore {
       }
     });
 
-    // Member invited
     effect(() => {
       const invited = this.#socketService.memberInvited();
       if (invited) {

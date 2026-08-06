@@ -15,7 +15,6 @@ interface FaqKeyItem {
     class: 'block min-h-svh bg-surface text-white selection:bg-primary/30 selection:text-primary font-sans antialiased',
   },
   template: `
-    <!-- Background Aura Accents -->
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <div
         class="absolute -top-40 -left-40 w-96 h-96 sm:w-lg sm:h-lg bg-radial from-primary/15 via-secondary/5 to-transparent rounded-full blur-3xl"
@@ -28,12 +27,10 @@ interface FaqKeyItem {
       ></div>
     </div>
 
-    <!-- Sticky Navigation Header -->
     <header
       class="sticky top-0 z-50 backdrop-blur-xl bg-surface/80 border-b border-white/10 transition-all duration-300"
     >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-        <!-- Logo -->
         <a
           routerLink="/"
           class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-primary rounded-xl p-1"
@@ -46,7 +43,6 @@ interface FaqKeyItem {
           <span class="font-black tracking-tight text-2xl text-white">Coaster</span>
         </a>
 
-        <!-- Desktop Navigation Menu -->
         <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
           <a href="#que-hace" class="hover:text-primary transition-colors">{{
             'landing.nav.what_it_does' | translate
@@ -58,7 +54,6 @@ interface FaqKeyItem {
           <a href="#faq" class="hover:text-primary transition-colors">{{ 'landing.nav.faq' | translate }}</a>
         </nav>
 
-        <!-- Header Action -->
         <div class="flex items-center gap-3">
           <a
             mat-flat-button
@@ -72,7 +67,6 @@ interface FaqKeyItem {
     </header>
 
     <main class="relative z-10">
-      <!-- HERO SECTION -->
       <section class="relative pt-16 pb-20 lg:pt-28 lg:pb-32 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-4xl mx-auto reveal-on-scroll">
           <div
@@ -93,7 +87,6 @@ interface FaqKeyItem {
             {{ 'landing.hero.subtitle' | translate }}
           </p>
 
-          <!-- CTAs -->
           <div class="mt-10 flex items-center justify-center gap-4">
             <a
               mat-flat-button
@@ -107,7 +100,6 @@ interface FaqKeyItem {
             </a>
           </div>
 
-          <!-- Trust Badges -->
           <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-emerald-400 text-base">check_circle</span>
@@ -125,7 +117,6 @@ interface FaqKeyItem {
         </div>
       </section>
 
-      <!-- SECTION 1: ¿QUÉ HACE LA APLICACIÓN? (FEATURES GRID) -->
       <section id="que-hace" class="py-24 border-t border-white/10 bg-surface-container-low relative">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="text-center max-w-3xl mx-auto reveal-on-scroll">
@@ -141,7 +132,6 @@ interface FaqKeyItem {
           </div>
 
           <div class="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -156,7 +146,6 @@ interface FaqKeyItem {
               </p>
             </div>
 
-            <!-- Feature 2 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -171,7 +160,6 @@ interface FaqKeyItem {
               </p>
             </div>
 
-            <!-- Feature 3 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -186,7 +174,6 @@ interface FaqKeyItem {
               </p>
             </div>
 
-            <!-- Feature 4 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -201,7 +188,6 @@ interface FaqKeyItem {
               </p>
             </div>
 
-            <!-- Feature 5 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -216,7 +202,6 @@ interface FaqKeyItem {
               </p>
             </div>
 
-            <!-- Feature 6 -->
             <div
               class="p-8 rounded-3xl bg-surface-container border border-white/10 hover:border-primary/40 transition-all duration-300 group reveal-on-scroll"
             >
@@ -234,7 +219,6 @@ interface FaqKeyItem {
         </div>
       </section>
 
-      <!-- SECTION 2: ¿PARA QUÉ SIRVE? (BEFORE VS AFTER & USE CASES) -->
       <section id="para-que-sirve" class="py-24 relative">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="text-center max-w-3xl mx-auto reveal-on-scroll">
@@ -249,9 +233,7 @@ interface FaqKeyItem {
             </p>
           </div>
 
-          <!-- Side-by-side comparison -->
           <div class="mt-16 grid lg:grid-cols-2 gap-8 reveal-on-scroll">
-            <!-- Traditional Method -->
             <div class="p-8 sm:p-10 rounded-3xl bg-red-500/5 border border-red-500/20 relative overflow-hidden">
               <div class="flex items-center gap-3 text-red-400 font-bold text-lg mb-6">
                 <span class="material-symbols-outlined text-2xl">cancel</span>
@@ -277,7 +259,6 @@ interface FaqKeyItem {
               </ul>
             </div>
 
-            <!-- With Coaster -->
             <div
               class="p-8 sm:p-10 rounded-3xl bg-emerald-500/5 border border-emerald-500/30 relative overflow-hidden shadow-lg"
             >
@@ -306,7 +287,6 @@ interface FaqKeyItem {
             </div>
           </div>
 
-          <!-- Business Profiles Grid -->
           <div class="mt-16 grid md:grid-cols-3 gap-6">
             <div class="p-6 rounded-2xl bg-surface-container border border-white/10 reveal-on-scroll">
               <div class="text-3xl mb-4">🍷</div>
@@ -335,7 +315,6 @@ interface FaqKeyItem {
         </div>
       </section>
 
-      <!-- SECTION 3: PLANES DE PAGO Y VERSIÓN FREE (PRICING & PLANS) -->
       <section id="precios" class="py-24 border-t border-white/10 bg-surface-container-low relative">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="text-center max-w-3xl mx-auto reveal-on-scroll">
@@ -349,14 +328,14 @@ interface FaqKeyItem {
               {{ 'landing.pricing.subtitle' | translate }}
             </p>
 
-            <div class="mt-10 inline-flex items-center rounded-2xl bg-surface-container border border-white/10 px-6 py-3">
+            <div
+              class="mt-10 inline-flex items-center rounded-2xl bg-surface-container border border-white/10 px-6 py-3"
+            >
               <span class="text-primary font-bold">{{ 'landing.pricing.monthly' | translate }}</span>
             </div>
           </div>
 
-          <!-- Pricing Cards Container (2 Plans: FREE vs PRO) -->
           <div class="mt-16 grid md:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto">
-            <!-- PLAN FREE -->
             <div
               class="p-8 sm:p-10 rounded-3xl bg-surface-container border border-white/10 flex flex-col justify-between hover:border-white/20 transition-all reveal-on-scroll"
             >
@@ -416,7 +395,6 @@ interface FaqKeyItem {
               </div>
             </div>
 
-            <!-- PLAN PRO (FEATURED) -->
             <div
               class="p-8 sm:p-10 rounded-3xl bg-surface-container border-2 border-primary flex flex-col justify-between relative shadow-xl reveal-on-scroll"
             >
@@ -491,7 +469,6 @@ interface FaqKeyItem {
             </div>
           </div>
 
-          <!-- COMPARISON TABLE BREAKDOWN -->
           <div
             class="mt-20 overflow-x-auto rounded-2xl border border-white/10 bg-surface-container max-w-4xl mx-auto reveal-on-scroll"
           >
@@ -547,7 +524,6 @@ interface FaqKeyItem {
         </div>
       </section>
 
-      <!-- SECTION 4: PREGUNTAS FRECUENTES (FAQ ACCORDION) -->
       <section id="faq" class="py-24 border-t border-white/10 bg-surface-container-low relative">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div class="text-center reveal-on-scroll">
@@ -586,7 +562,6 @@ interface FaqKeyItem {
         </div>
       </section>
 
-      <!-- SECTION 5: FINAL CTA BANNER -->
       <section class="py-20 relative overflow-hidden">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div
@@ -613,7 +588,6 @@ interface FaqKeyItem {
       </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="border-t border-white/10 bg-surface-container-lowest py-16 text-slate-400 text-sm">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">

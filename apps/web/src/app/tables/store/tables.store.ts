@@ -61,7 +61,6 @@ export class TablesStore {
       }
     });
 
-    // Table created
     effect(() => {
       const created = this.#socketService.tableCreated();
       if (created && this.#currentBarId() === created.barId) {
@@ -75,7 +74,6 @@ export class TablesStore {
       }
     });
 
-    // Table updated
     effect(() => {
       const updated = this.#socketService.tableUpdated();
       if (updated && this.#currentBarId() === updated.barId) {
@@ -88,7 +86,6 @@ export class TablesStore {
       }
     });
 
-    // Table deleted
     effect(() => {
       const deleted = this.#socketService.tableDeleted();
       if (deleted) {
