@@ -38,22 +38,68 @@ describe('BarGateway', () => {
       disconnect: vi.fn(),
     }) as unknown as Socket & { data: { userId?: string } };
 
-  describe('handleConnection', () => {
-    it('should attach the resolved userId to the socket', async () => {
+  const runHandshake = async (socket: Socket) => {
+    const server = { use: vi.fn() } as any;
+    gateway.afterInit(server);
+
+    const middleware = server.use.mock.calls[0][0];
+    await new Promise<void>((resolve) => middleware(socket, () => resolve()));
+  };
+
+  describe('afterInit', () => {
+    it('should settle the identity during the handshake, before any message is dispatched', async () => {
       const socket = createSocketMock();
       wsAuth.authenticate.mockResolvedValue('user-1');
 
-      await gateway.handleConnection(socket);
+      await runHandshake(socket);
+
+      expect(socket.data.userId).toBe('user-1');
+    });
+
+    it('should let an unauthenticated handshake through so the connection can reject it properly', async () => {
+      const socket = createSocketMock();
+      wsAuth.authenticate.mockResolvedValue(null);
+
+      await runHandshake(socket);
+
+      expect(socket.data.userId).toBeUndefined();
+    });
+
+    it('should not wedge the handshake when authentication blows up', async () => {
+      const socket = createSocketMock();
+      wsAuth.authenticate.mockRejectedValue(new Error('firebase down'));
+
+      await expect(runHandshake(socket)).resolves.toBeUndefined();
+      expect(socket.data.userId).toBeUndefined();
+    });
+
+    it('should let a join issued the instant the socket connects succeed', async () => {
+      const socket = createSocketMock();
+      wsAuth.authenticate.mockResolvedValue('user-1');
+      wsAuth.canAccessBar.mockResolvedValue(true);
+
+      await runHandshake(socket);
+      const result = await gateway.handleJoinBar(socket as any, 'bar-1' as BarId);
+
+      expect(socket.join).toHaveBeenCalledWith('bar-1');
+      expect(result).toEqual({ event: SocketEvents.joined, data: 'bar-1' });
+    });
+  });
+
+  describe('handleConnection', () => {
+    it('should keep a socket whose identity the handshake resolved', () => {
+      const socket = createSocketMock('user-1');
+
+      gateway.handleConnection(socket);
 
       expect(socket.data.userId).toBe('user-1');
       expect(socket.disconnect).not.toHaveBeenCalled();
     });
 
-    it('should drop the connection when the handshake cannot be authenticated', async () => {
+    it('should drop the connection when the handshake cannot be authenticated', () => {
       const socket = createSocketMock();
-      wsAuth.authenticate.mockResolvedValue(null);
 
-      await gateway.handleConnection(socket);
+      gateway.handleConnection(socket);
 
       expect(socket.emit).toHaveBeenCalledWith(SocketEvents.unauthorized, { message: ErrorCodes.UNAUTHORIZED });
       expect(socket.disconnect).toHaveBeenCalledWith(true);

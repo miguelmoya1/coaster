@@ -5,6 +5,9 @@ import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 import { Auth } from './auth';
 
+const JOIN_BAR_MAX_ATTEMPTS = 3;
+const JOIN_BAR_RETRY_MS = 1000;
+
 @Service()
 export class Socket implements OnDestroy {
   readonly #auth = inject(Auth);
@@ -55,7 +58,7 @@ export class Socket implements OnDestroy {
       const isConnected = this.#connected();
 
       if (barId && isConnected) {
-        this.#socket?.emit(SocketEvents.joinBar, barId);
+        this.#joinBar(barId);
       }
     });
   }
@@ -198,6 +201,20 @@ export class Socket implements OnDestroy {
   public joinBar(barId: string) {
     this.#currentBarId.set(barId);
     this.connect();
+  }
+
+  #joinBar(barId: string, attempt = 1) {
+    this.#socket?.emit(SocketEvents.joinBar, barId, (ack?: { status?: string; message?: string }) => {
+      if (ack?.status !== 'error') {
+        return;
+      }
+
+      console.error(`Could not join the realtime room for bar ${barId}: ${ack.message ?? 'unknown error'}`);
+
+      if (attempt < JOIN_BAR_MAX_ATTEMPTS && this.#currentBarId() === barId) {
+        setTimeout(() => this.#joinBar(barId, attempt + 1), JOIN_BAR_RETRY_MS);
+      }
+    });
   }
 
   public leaveBar(barId: string) {

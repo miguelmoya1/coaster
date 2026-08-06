@@ -4,6 +4,7 @@ import {
   ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -17,7 +18,7 @@ interface AuthenticatedSocket extends Socket {
 }
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class BarGateway implements OnGatewayConnection {
+export class BarGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   declare server: Server;
 
@@ -25,8 +26,20 @@ export class BarGateway implements OnGatewayConnection {
 
   constructor(private readonly _wsAuth: WsAuthService) {}
 
-  async handleConnection(client: AuthenticatedSocket) {
-    const userId = await this._wsAuth.authenticate(client);
+  afterInit(server: Server) {
+    server.use((socket, next) => {
+      void this._wsAuth
+        .authenticate(socket)
+        .then((userId) => {
+          (socket as AuthenticatedSocket).data.userId = userId ?? undefined;
+          next();
+        })
+        .catch(() => next());
+    });
+  }
+
+  handleConnection(client: AuthenticatedSocket) {
+    const userId = client.data.userId;
 
     if (!userId) {
       client.emit(SocketEvents.unauthorized, { message: ErrorCodes.UNAUTHORIZED });
@@ -34,7 +47,6 @@ export class BarGateway implements OnGatewayConnection {
       return;
     }
 
-    client.data.userId = userId;
     this._logger.debug(`Cliente ${client.id} autenticado como usuario ${userId}`);
   }
 
