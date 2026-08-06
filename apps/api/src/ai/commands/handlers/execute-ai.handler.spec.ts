@@ -1,12 +1,12 @@
 import type { User } from '@coaster/common';
 import { BarRole } from '@coaster/common';
+import { asBarId, asUserId, SecurityRepository } from '@coaster/core';
+import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { generateText } from 'ai';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { asBarId, asUserId, SecurityRepository } from '../../../core';
-import { DbRole } from '../../../core/db';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 import { ExecuteAiHandler } from './execute-ai.handler';
 

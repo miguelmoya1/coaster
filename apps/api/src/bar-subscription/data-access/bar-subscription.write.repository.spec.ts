@@ -1,8 +1,8 @@
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { asBarId } from '@coaster/core';
+import type { DbService } from '@coaster/core/db';
 import { Logger } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../core';
-import type { DbService } from '../../core/db';
 import { BarSubscriptionWriteRepository } from './bar-subscription.write.repository';
 
 describe('BarSubscriptionWriteRepository', () => {

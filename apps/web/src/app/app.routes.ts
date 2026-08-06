@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard } from './core';
-import { adminGuard } from './admin';
+import { adminGuard } from '@coaster/admin';
+import { authGuard, noAuthGuard } from '@coaster/core';
 
 export const appRoutes: Routes = [
   {

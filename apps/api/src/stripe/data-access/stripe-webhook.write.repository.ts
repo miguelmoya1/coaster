@@ -1,6 +1,6 @@
+import { DbService } from '@coaster/core/db';
 import { Injectable, Logger } from '@nestjs/common';
 import type Stripe from 'stripe';
-import { DbService } from '../../core/db';
 
 const WEBHOOK_PROCESSING_TIMEOUT_MS = 5 * 60 * 1000;
 

@@ -1,7 +1,7 @@
 import type { BarId } from '@coaster/common';
+import { DbSubscriptionStatus } from '@coaster/core/db';
 import { Injectable, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { DbSubscriptionStatus } from '../../../core/db';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
 import { SubscriptionRenewedEvent } from '../../events';

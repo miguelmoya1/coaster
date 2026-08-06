@@ -1,6 +1,6 @@
 import type { BarId } from '@coaster/common';
+import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { DbOrderStatus, DbService } from '../../core/db';
 
 @Injectable()
 export class StatsReadRepository {

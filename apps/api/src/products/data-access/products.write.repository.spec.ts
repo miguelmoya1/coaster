@@ -1,7 +1,7 @@
+import { asCategoryId, asProductId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asCategoryId, asProductId } from '../../core';
-import { DbService } from '../../core/db';
 import { ProductsWriteRepository } from './products.write.repository';
 
 describe('ProductsWriteRepository', () => {

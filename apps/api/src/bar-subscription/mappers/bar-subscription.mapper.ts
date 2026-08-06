@@ -1,6 +1,6 @@
 import type { BarId, BarSubscription, BarSubscriptionId } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import type { DbBarSubscription } from '../../core/db';
+import type { DbBarSubscription } from '@coaster/core/db';
 
 export class BarSubscriptionMapper {
   static toDomain(dbSub: DbBarSubscription): BarSubscription {

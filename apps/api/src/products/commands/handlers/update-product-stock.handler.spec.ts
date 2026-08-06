@@ -1,9 +1,9 @@
 import type { Product } from '@coaster/common';
+import { asBarId, asProductId } from '@coaster/core';
+import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotFoundException } from '@nestjs/common';
-import { asBarId, asProductId } from '../../../core';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductStockChangedEvent } from '../../events';

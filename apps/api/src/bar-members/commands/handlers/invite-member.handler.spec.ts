@@ -1,9 +1,9 @@
 import { BarRole } from '@coaster/common';
+import { asBarId, asRole, asUserId } from '@coaster/core';
 import { ConflictException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asRole, asUserId } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { InviteMemberRequestedEvent } from '../../events';
 import { InviteMemberCommand } from '../impl/invite-member.command';

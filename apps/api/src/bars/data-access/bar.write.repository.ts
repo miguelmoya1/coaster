@@ -1,12 +1,12 @@
 import type { UserId } from '@coaster/common';
-import { Injectable } from '@nestjs/common';
 import {
   DbBarRole,
   DbBarUncheckedCreateInput,
   DbService,
   DbSubscriptionPlan,
   DbSubscriptionStatus,
-} from '../../core/db';
+} from '@coaster/core/db';
+import { Injectable } from '@nestjs/common';
 
 type CreateBarDto = Omit<
   DbBarUncheckedCreateInput,

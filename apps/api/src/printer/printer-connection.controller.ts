@@ -1,3 +1,4 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import type {
   BarId,
   GenerateDeviceKeyResponseDto,
@@ -5,11 +6,10 @@ import type {
   PrinterStatusDto,
 } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { FirebaseAuthGuard } from '../auth';
-import { BarPermissions, BarPermissionsGuard } from '../core';
 import { GenerateDeviceKeyCommand } from './commands';
 import { GetPrinterConnectionQuery, GetPrinterStatusQuery } from './queries';
 

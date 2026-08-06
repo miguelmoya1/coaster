@@ -1,13 +1,13 @@
+import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
 import type { BarId, BarMember, BarMemberId, User } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard } from '../../auth';
-import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { GetMemberMeQuery, GetMembersQuery } from '../queries';
-import { BarPermission } from '@coaster/common';
 
 @Controller('bars/:barId/members')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)

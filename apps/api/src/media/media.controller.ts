@@ -1,10 +1,10 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { BarPermission, MediaUploadResponse } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MediaService } from './media.service';
 import { GenerateUploadUrlsDto } from './dto/generate-upload-urls.dto';
-import { FirebaseAuthGuard } from '../auth';
-import { BarPermissions, BarPermissionsGuard } from '../core';
-import { BarPermission, MediaUploadResponse } from '@coaster/common';
+import { MediaService } from './media.service';
 
 @ApiTags('Media')
 @Controller('bars/:barId/media')

@@ -1,8 +1,8 @@
 import type { BarId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
+import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../../core/db';
 import { BarSubscriptionWriteRepository } from '../../data-access/bar-subscription.write.repository';
 import { HandleCheckoutCompletedCommand } from '../impl/handle-checkout-completed.command';
 

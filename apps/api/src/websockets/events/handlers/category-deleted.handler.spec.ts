@@ -1,8 +1,8 @@
 import { CategoryDeletedEvent } from '@coaster/categories';
 import { SocketEvents } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asCategoryId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { CategoryDeletedHandler } from './category-deleted.handler';
 

@@ -1,8 +1,8 @@
 import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
+import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 import { getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
 
 describe('stripe.utils', () => {

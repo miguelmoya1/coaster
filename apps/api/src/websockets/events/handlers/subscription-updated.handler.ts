@@ -1,7 +1,7 @@
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '@coaster/bar-subscription';
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../bar-subscription/events';
 import { BarGateway } from '../../bar.gateway';
 
 type SubscriptionEvent = SubscriptionRenewedEvent | SubscriptionCancelledEvent;

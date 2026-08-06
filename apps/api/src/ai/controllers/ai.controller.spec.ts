@@ -1,13 +1,12 @@
-import { asBarId, asUserId } from '../../core';
+import { FirebaseAuthGuard } from '@coaster/auth';
+import type { User } from '@coaster/common';
+import { asBarId, asUserId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { BarPermissionsGuard } from '../../core';
-import { FirebaseAuthGuard } from '../../auth';
-import { AiController } from './ai.controller';
 import { ExecuteAiCommand } from '../commands';
-import type { User } from '@coaster/common';
+import { AiController } from './ai.controller';
 
 describe('AiController', () => {
   let controller: AiController;

@@ -1,14 +1,14 @@
+import { GetCategoriesQuery } from '@coaster/categories';
 import type { Category, Order, Product, Table } from '@coaster/common';
 import { BarPermission, BarRole, ErrorCodes, OrderStatus } from '@coaster/common';
+import { asBarRole, hasPermission, SecurityRepository } from '@coaster/core';
+import { DbBarRole, DbRole } from '@coaster/core/db';
+import { GetOrdersByBarIdQuery } from '@coaster/orders';
+import { GetProductsByBarIdQuery } from '@coaster/products';
+import { GetTablesByBarIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel } from 'ai';
-import { GetCategoriesQuery } from '../../../categories/queries';
-import { asBarRole, hasPermission, SecurityRepository } from '../../../core';
-import { DbBarRole, DbRole } from '../../../core/db';
-import { GetOrdersByBarIdQuery } from '../../../orders/queries';
-import { GetProductsByBarIdQuery } from '../../../products/queries';
-import { GetTablesByBarIdQuery } from '../../../tables/queries';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 

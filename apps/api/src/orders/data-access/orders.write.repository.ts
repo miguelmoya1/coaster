@@ -9,7 +9,6 @@ import type {
   TableId,
 } from '@coaster/common';
 import { AddOrderAdjustmentDto, OrderPricingEngine, PaymentMethod } from '@coaster/common';
-import { Injectable } from '@nestjs/common';
 import {
   DbDeliveryStatus,
   DbOrderStatus,
@@ -17,7 +16,8 @@ import {
   DbPaymentStatus,
   DbService,
   DbTableStatus,
-} from '../../core/db';
+} from '@coaster/core/db';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class OrdersWriteRepository {

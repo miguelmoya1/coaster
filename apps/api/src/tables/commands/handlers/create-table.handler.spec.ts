@@ -1,9 +1,9 @@
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { TableCreatedEvent } from '../../events';
 import { CreateTableCommand } from '../impl/create-table.command';

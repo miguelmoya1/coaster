@@ -1,10 +1,10 @@
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import 'reflect-metadata';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { StatsReadRepository } from '../../data-access/stats.read.repository';
-import { GetBarStatsHandler } from './get-bar-stats.handler';
 import { GetBarStatsQuery } from '../impl/get-bar-stats.query';
+import { GetBarStatsHandler } from './get-bar-stats.handler';
 
 describe('GetBarStatsHandler', () => {
   let handler: GetBarStatsHandler;

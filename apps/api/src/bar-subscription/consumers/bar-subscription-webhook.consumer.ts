@@ -1,5 +1,3 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
 import {
   StripeCheckoutCompletedEvent,
   StripeInvoicePaidEvent,
@@ -8,7 +6,9 @@ import {
   StripeWebhookDispatcher,
   type StripeWebhookConsumer,
   type StripeWebhookEvent,
-} from '../../stripe';
+} from '@coaster/stripe';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import {
   HandleCheckoutCompletedCommand,
   HandleInvoicePaidCommand,

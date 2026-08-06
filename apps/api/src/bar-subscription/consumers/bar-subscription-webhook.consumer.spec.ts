@@ -1,13 +1,13 @@
-import { Logger } from '@nestjs/common';
-import type { CommandBus } from '@nestjs/cqrs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   StripeCheckoutCompletedEvent,
   StripeInvoicePaidEvent,
   StripeInvoicePaymentFailedEvent,
   StripeSubscriptionChangedEvent,
   type StripeWebhookDispatcher,
-} from '../../stripe';
+} from '@coaster/stripe';
+import { Logger } from '@nestjs/common';
+import type { CommandBus } from '@nestjs/cqrs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   HandleCheckoutCompletedCommand,
   HandleInvoicePaidCommand,

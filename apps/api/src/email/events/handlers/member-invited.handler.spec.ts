@@ -1,7 +1,7 @@
 import { MemberInvitedEvent } from '@coaster/bar-members';
+import { asBarId, asBarMemberId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId } from '../../../core';
 import { EmailService } from '../../email.service';
 import { MemberInvitedHandler } from './member-invited.handler';
 

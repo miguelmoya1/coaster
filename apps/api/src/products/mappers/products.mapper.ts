@@ -1,6 +1,6 @@
 import type { Product } from '@coaster/common';
-import { asCategoryId, asProductId } from '../../core';
-import { DbProduct as ProductDb } from '../../core/db';
+import { asCategoryId, asProductId } from '@coaster/core';
+import { DbProduct as ProductDb } from '@coaster/core/db';
 
 export const ProductsMapper = {
   toDomain(dbProduct: ProductDb): Product {

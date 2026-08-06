@@ -103,3 +103,13 @@ npx tsc --noEmit -p tsconfig.spec.json
 Los alias `@coaster/*` se declaran **solo** en `tsconfig.json`. `vitest.config.ts` los lee de ahi
 en tiempo de arranque, asi que no hay que mantener dos listas: al anadir un dominio basta con
 declarar su path y crear su `index.ts`.
+
+Dos ausencias son deliberadas:
+
+- **`presentation` no tiene alias.** Es la capa mas alta: nadie debe importar de ella. No darle
+  alias es la forma mas simple de que no ocurra.
+- **`@coaster/env`** apunta a `src/environments/environment.ts`, no a un `index.ts`, porque no es
+  un dominio sino la configuracion que el build sustituye por entorno.
+
+Las reglas de lint se generan leyendo las carpetas de `src/app`, asi que un dominio nuevo queda
+cubierto sin tocar `eslint.config.js`.

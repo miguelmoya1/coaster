@@ -1,6 +1,6 @@
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DbService } from '../../core/db';
 import { TemplatesWriteRepository } from './templates.write.repository';
 
 describe('TemplatesWriteRepository', () => {

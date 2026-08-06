@@ -1,7 +1,7 @@
 import { ErrorCodes, ShiftExchangeStatus } from '@coaster/common';
+import { DbBarRole } from '@coaster/core/db';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DbBarRole } from '../../../core/db';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { DeleteExchangeCommand } from '../impl/delete-exchange.command';

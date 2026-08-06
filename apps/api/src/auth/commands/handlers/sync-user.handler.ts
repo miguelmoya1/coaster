@@ -1,8 +1,8 @@
 import { ErrorCodes } from '@coaster/common';
+import { DbService, DbUser } from '@coaster/core/db';
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { getAuth } from 'firebase-admin/auth';
-import { DbUser, DbService } from '../../../core/db';
 import { SyncUserCommand } from '../impl/sync-user.command';
 
 @CommandHandler(SyncUserCommand)

@@ -1,8 +1,8 @@
+import type { SecurityRepository } from '@coaster/core';
+import { DbRole, type DbService } from '@coaster/core/db';
 import { Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DbRole, type DbService } from '../../core/db';
-import type { SecurityRepository } from '../../core/security/data-access/security.repository';
 import { WsAuthService } from './ws-auth.service';
 
 const verifyIdToken = vi.fn();

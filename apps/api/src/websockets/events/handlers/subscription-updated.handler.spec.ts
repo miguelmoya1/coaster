@@ -1,8 +1,8 @@
+import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '@coaster/bar-subscription';
 import { SocketEvents } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SubscriptionCancelledEvent, SubscriptionRenewedEvent } from '../../../bar-subscription/events';
-import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { SubscriptionUpdatedHandler } from './subscription-updated.handler';
 

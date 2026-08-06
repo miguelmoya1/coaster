@@ -1,9 +1,9 @@
 import type { CreateCustomerPortalSessionResponse } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
+import { StripeApi } from '@coaster/stripe';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { StripeApi } from '../../../stripe/services';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { getBillingDashboardUrl } from '../../utils/billing-urls';
 import { CreateCustomerPortalSessionCommand } from '../impl/create-customer-portal-session.command';

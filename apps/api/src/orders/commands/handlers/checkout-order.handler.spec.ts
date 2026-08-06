@@ -1,9 +1,9 @@
 import type { Order, TableId } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
+import { asBarId, asOrderId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderClosedEvent } from '../../events';

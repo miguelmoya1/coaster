@@ -1,15 +1,15 @@
 import { PaymentMethod } from '@coaster/common';
-import { Logger } from '@nestjs/common';
-import { tool, zodSchema } from 'ai';
-import { z } from 'zod';
-import { asOrderId, asOrderItemId, asProductId, asTableId } from '../../core';
+import { asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
 import {
   AddOrderItemsCommand,
   BulkUpdateOrderCommand,
   CancelOrderCommand,
   CheckoutOrderCommand,
   CreateOrderCommand,
-} from '../../orders/commands';
+} from '@coaster/orders';
+import { Logger } from '@nestjs/common';
+import { tool, zodSchema } from 'ai';
+import { z } from 'zod';
 import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('OrderTools');

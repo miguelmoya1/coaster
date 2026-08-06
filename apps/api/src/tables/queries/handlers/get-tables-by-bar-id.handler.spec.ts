@@ -1,8 +1,8 @@
 import { TableStatus } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
+import { DbTableStatus } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId } from '../../../core';
-import { DbTableStatus } from '../../../core/db';
 import { TablesReadRepository } from '../../data-access/tables.read.repository';
 import { GetTablesByBarIdQuery } from '../impl/get-tables-by-bar-id.query';
 import { GetTablesByBarIdHandler } from './get-tables-by-bar-id.handler';

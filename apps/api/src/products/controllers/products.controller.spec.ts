@@ -1,19 +1,18 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import type { CreateProductDto } from '@coaster/common';
-import { asBarId, asProductId } from '../../core';
+import { asBarId, asProductId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { BarPermissionsGuard } from '../../core';
-import { FirebaseAuthGuard } from '../../auth';
 import {
   CreateProductCommand,
-  UpdateProductStockCommand,
-  UpdateProductCommand,
   DeleteProductCommand,
+  UpdateProductCommand,
+  UpdateProductStockCommand,
 } from '../commands';
-import { ProductsController } from './products.controller';
 import { GetProductsByBarIdQuery } from '../queries';
+import { ProductsController } from './products.controller';
 
 describe('ProductsController', () => {
   let controller: ProductsController;

@@ -1,9 +1,9 @@
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { CategoriesReadRepository } from '../../data-access/categories.read.repository';
-import { GetCategoriesHandler } from './get-categories.handler';
 import { GetCategoriesQuery } from '../impl/get-categories.query';
+import { GetCategoriesHandler } from './get-categories.handler';
 
 describe('GetCategoriesHandler', () => {
   let handler: GetCategoriesHandler;

@@ -1,11 +1,11 @@
 import type { Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId, asProductId } from '@coaster/core';
+import { AdjustProductStockCommand } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';
 import { toArray } from 'rxjs/operators';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { asBarId, asOrderId, asProductId } from '../../core';
-import { AdjustProductStockCommand } from '../../products/commands/impl/adjust-product-stock.command';
 import { OrderCancelledEvent, OrderCreatedEvent, OrderItemRemovedEvent, OrderItemsAddedEvent } from '../events';
 import { OrdersSagas } from './orders.sagas';
 

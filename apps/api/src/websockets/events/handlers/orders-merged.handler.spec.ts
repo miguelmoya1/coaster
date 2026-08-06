@@ -1,9 +1,9 @@
 import type { Order } from '@coaster/common';
 import { SocketEvents, TableStatus } from '@coaster/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { asBarId, asOrderId, asTableId } from '@coaster/core';
 import { OrdersMergedEvent } from '@coaster/orders';
+import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asTableId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrdersMergedHandler } from './orders-merged.handler';
 

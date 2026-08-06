@@ -12,7 +12,7 @@ const crossModuleRelativeImports = modules.map((owner) => ({
   files: [`src/${owner}/**/*.ts`],
   rules: {
     'no-restricted-imports': [
-      'warn',
+      'error',
       {
         patterns: [
           {

@@ -1,7 +1,7 @@
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../core';
 import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
 import { CreateCheckoutSessionDto, CreateCustomerPortalSessionDto } from '../dto';
 import { FindBarSubscriptionQuery } from '../queries';

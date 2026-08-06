@@ -1,11 +1,10 @@
-import { asBarId, asCategoryId } from '../../core';
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { asBarId, asCategoryId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { BarPermissionsGuard } from '../../core';
-import { FirebaseAuthGuard } from '../../auth';
-import { CreateCategoryCommand, UpdateCategoryCommand, DeleteCategoryCommand } from '../commands';
+import { CreateCategoryCommand, DeleteCategoryCommand, UpdateCategoryCommand } from '../commands';
 import { GetCategoriesQuery } from '../queries';
 import { CategoriesController } from './categories.controller';
 

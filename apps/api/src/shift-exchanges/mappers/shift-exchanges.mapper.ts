@@ -1,6 +1,6 @@
 import type { ShiftExchange as IShiftExchange } from '@coaster/common';
 import { ShiftExchangeStatus } from '@coaster/common';
-import { asShiftExchangeId, asShiftId, asUserId } from '../../core';
+import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
 
 export interface ExchangeWithRelations {
   id: string;

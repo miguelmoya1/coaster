@@ -1,8 +1,8 @@
+import { asTableId } from '@coaster/core';
+import { CreateTableCommand, UpdateTableCommand } from '@coaster/tables';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
-import { CreateTableCommand, UpdateTableCommand } from '../../tables/commands';
-import { asTableId } from '../../core';
 import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('TableTools');

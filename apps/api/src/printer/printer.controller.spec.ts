@@ -1,3 +1,5 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { BarPermissionsGuard } from '@coaster/core';
 import {
   CanActivate,
   ConflictException,
@@ -8,8 +10,6 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FirebaseAuthGuard } from '../auth';
-import { BarPermissionsGuard } from '../core';
 import { RegisterPrinterIpCommand } from './commands';
 import { PrinterConnectionController } from './printer-connection.controller';
 import { PrinterController } from './printer.controller';

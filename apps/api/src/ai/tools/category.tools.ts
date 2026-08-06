@@ -1,8 +1,8 @@
+import { UpdateCategoryCommand } from '@coaster/categories';
+import { asCategoryId } from '@coaster/core';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
-import { UpdateCategoryCommand } from '../../categories/commands';
-import { asCategoryId } from '../../core';
 import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('CategoryTools');

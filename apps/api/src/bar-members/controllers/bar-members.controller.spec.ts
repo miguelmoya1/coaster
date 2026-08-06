@@ -1,10 +1,10 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import { BarRole, Role } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard } from '../../auth';
-import { asBarId, asBarMemberId, asUserId, BarPermissionsGuard } from '../../core';
 import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
 import { GetMembersQuery } from '../queries';
 import { BarMembersController } from './bar-members.controller';

@@ -1,7 +1,7 @@
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { asBarId } from '@coaster/core';
+import type { DbBarSubscription } from '@coaster/core/db';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../core';
-import type { DbBarSubscription } from '../../core/db';
 import { BarSubscriptionMapper } from './bar-subscription.mapper';
 
 const NOW = new Date('2026-01-15T00:00:00.000Z');

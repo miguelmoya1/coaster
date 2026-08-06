@@ -1,9 +1,9 @@
 import { ErrorCodes } from '@coaster/common';
+import { DbService } from '@coaster/core/db';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { getAuth } from 'firebase-admin/auth';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
-import { DbService } from '../../core/db';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {

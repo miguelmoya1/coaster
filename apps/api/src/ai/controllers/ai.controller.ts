@@ -1,8 +1,8 @@
+import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
 import type { BarId, User } from '@coaster/common';
+import { BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CurrentUser, FirebaseAuthGuard } from '../../auth';
-import { BarPermissionsGuard } from '../../core';
 import { ExecuteAiCommand } from '../commands';
 
 @Controller('bars/:barId/ai')

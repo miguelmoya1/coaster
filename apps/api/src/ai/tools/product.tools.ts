@@ -1,8 +1,8 @@
+import { asCategoryId, asProductId } from '@coaster/core';
+import { UpdateProductCommand, UpdateProductStockCommand } from '@coaster/products';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
-import { UpdateProductStockCommand, UpdateProductCommand } from '../../products/commands';
-import { asProductId, asCategoryId } from '../../core';
 import type { AiToolsData, PreparedAction } from './context';
 
 const logger = new Logger('ProductTools');

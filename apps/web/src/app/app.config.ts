@@ -1,16 +1,22 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import { FIREBASE_AUTH } from './core';
 import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
+import { PlanDialogService } from '@coaster/bar-subscription';
+import {
+  errorInterceptor,
+  FIREBASE_AUTH,
+  idTokenInterceptor,
+  PAYWALL_HANDLER,
+  unauthorizedInterceptor,
+  urlInterceptor,
+} from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { initializeApp } from 'firebase/app';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
-import { PlanDialogService } from './bar-subscription';
-import { errorInterceptor, idTokenInterceptor, PAYWALL_HANDLER, unauthorizedInterceptor, urlInterceptor } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [

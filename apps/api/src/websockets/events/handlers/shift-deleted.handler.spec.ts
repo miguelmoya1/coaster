@@ -1,8 +1,8 @@
 import { SocketEvents } from '@coaster/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { asBarId, asShiftId } from '@coaster/core';
 import { ShiftDeletedEvent } from '@coaster/shifts';
+import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { ShiftDeletedHandler } from './shift-deleted.handler';
 

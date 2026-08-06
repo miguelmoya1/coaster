@@ -1,9 +1,9 @@
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
-import { GetOrdersByBarIdHandler } from './get-orders-by-bar-id.handler';
 import { GetOrdersByBarIdQuery } from '../impl/get-orders-by-bar-id.query';
+import { GetOrdersByBarIdHandler } from './get-orders-by-bar-id.handler';
 
 describe('GetOrdersByBarIdHandler', () => {
   let handler: GetOrdersByBarIdHandler;

@@ -1,8 +1,8 @@
+import { SecurityRepository } from '@coaster/core';
+import { DbRole, DbService } from '@coaster/core/db';
 import { Injectable, Logger } from '@nestjs/common';
 import { getAuth } from 'firebase-admin/auth';
 import type { Socket } from 'socket.io';
-import { DbRole, DbService } from '../../core/db';
-import { SecurityRepository } from '../../core/security/data-access/security.repository';
 
 @Injectable()
 export class WsAuthService {

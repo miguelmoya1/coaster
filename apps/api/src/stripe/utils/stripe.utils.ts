@@ -1,9 +1,9 @@
 import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
+import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import type { Subscription } from 'stripe';
-import { DbSubscriptionPlan, DbSubscriptionStatus } from '../../core/db';
 
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
   if (plan !== SubscriptionPlan.PRO) {

@@ -1,3 +1,4 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import type {
   BarId,
   BarSubscription,
@@ -5,10 +6,9 @@ import type {
   CreateCustomerPortalSessionResponse,
 } from '@coaster/common';
 import { BarPermission, SubscriptionPlan } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Get, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard } from '../../auth';
-import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
 import { CreateCheckoutSessionDto, CreateCustomerPortalSessionDto } from '../dto';
 import { FindBarSubscriptionQuery } from '../queries';

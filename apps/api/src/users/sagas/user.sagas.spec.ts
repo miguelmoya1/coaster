@@ -1,9 +1,9 @@
-import { BarRole } from '@coaster/common';
 import { InviteMemberRequestedEvent } from '@coaster/bar-members';
+import { BarRole } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { asBarId } from '../../core';
 import { PrepareUserForInviteCommand } from '../commands';
 import { UserSagas } from './user.sagas';
 

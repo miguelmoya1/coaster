@@ -1,11 +1,10 @@
 import type { CreateCheckoutSessionResponse } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
+import { DbSubscriptionStatus } from '@coaster/core/db';
+import { createIntegrationIdentifier, getPriceId, StripeApi } from '@coaster/stripe';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DbSubscriptionStatus } from '../../../core/db';
-import { StripeApi } from '../../../stripe/services';
-import { createIntegrationIdentifier, getPriceId } from '../../../stripe/utils/stripe.utils';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
 import { getCheckoutCancelUrl, getCheckoutSuccessUrl } from '../../utils/billing-urls';
 import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.command';

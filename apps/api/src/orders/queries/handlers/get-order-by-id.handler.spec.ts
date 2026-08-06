@@ -1,8 +1,8 @@
 import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId } from '@coaster/core';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { GetOrderByIdQuery } from '../impl/get-order-by-id.query';
 import { GetOrderByIdHandler } from './get-order-by-id.handler';
