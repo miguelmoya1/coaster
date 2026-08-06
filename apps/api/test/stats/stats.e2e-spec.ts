@@ -1,4 +1,4 @@
-import { BarRole, OrderStatus, PaymentMethod } from '@coaster/common';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -14,7 +14,6 @@ describe('StatsController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -25,18 +24,7 @@ describe('StatsController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -46,7 +34,6 @@ describe('StatsController (e2e)', () => {
 
   describe('GET /api/bars/:barId/stats', () => {
     it('should return bar stats', async () => {
-      // Create some orders to generate stats
       await testSetup.prisma.dbOrder.create({
         data: {
           barId,

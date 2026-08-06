@@ -15,7 +15,6 @@ describe('ShiftExchangesController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -26,21 +25,9 @@ describe('ShiftExchangesController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
 
-    // Seed a shift
     const shift = await testSetup.prisma.dbShift.create({
       data: {
         userId: mockUser.id,
@@ -58,14 +45,13 @@ describe('ShiftExchangesController (e2e)', () => {
 
   describe('POST /api/bars/:barId/shifts/:shiftId/exchanges', () => {
     it('should request a shift exchange', async () => {
-      const dto = {}; // Dto might have optional targetId
+      const dto = {};
 
       await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/shifts/${shiftId}/exchanges`)
         .send(dto)
         .expect(201);
 
-      // Verify in database
       const exchanges = await testSetup.prisma.dbShiftExchange.findMany({
         where: { shift: { barId } },
       });
@@ -96,7 +82,6 @@ describe('ShiftExchangesController (e2e)', () => {
 
   describe('PATCH /api/bars/:barId/exchanges/:exchangeId/accept', () => {
     it('should accept a shift exchange', async () => {
-      // Need a second user to accept
       const otherUser = await testSetup.prisma.dbUser.create({
         data: {
           email: 'other@example.com',

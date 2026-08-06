@@ -1,3 +1,4 @@
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { Routes } from '@angular/router';
 
 const ordersRoutes: Routes = [
@@ -15,6 +16,7 @@ const ordersRoutes: Routes = [
       },
       {
         path: 'history',
+        providers: [provideNativeDateAdapter()],
         loadComponent: () => import('./pages/history/history'),
       },
       {

@@ -56,7 +56,10 @@ sin `tsconfig-paths` ni ningun cargador extra.
 `vitest.config.ts` y `vitest.config.e2e.ts` leen los `paths` de `tsconfig.json` y construyen sus
 alias a partir de ahi. No hay ninguna lista que mantener sincronizada.
 
-Los e2e (`npm run test:e2e -w @coaster/api`) estan **desactivados en CI** y hoy fallan: el setup
-crea bares sin suscripcion y `SubscriptionActiveGuard` responde 402 a toda escritura sobre un bar.
-Para arreglarlos hay que crear una suscripcion activa en el setup, o marcar las rutas de prueba
-con `@SkipSubscriptionCheck`.
+Los e2e (`npm run test:e2e -w @coaster/api`) corren en CI. Los bares de prueba se crean con
+`E2eTestSetup.createBar()`, que replica lo que hace `BarWriteRepository.create`: bar, membresia
+del owner y suscripcion en prueba de 14 dias. Crear bares con `prisma.dbBar.create` a pelo deja el
+bar sin suscripcion y `SubscriptionActiveGuard` responde 402 a toda escritura.
+
+El gateway de WebSockets se prueba con `MockWsAuthService`, que exige token en el handshake pero no
+llama a Firebase.

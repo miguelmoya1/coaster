@@ -33,11 +33,20 @@ export class BarSubscriptionStore {
   );
 
   public readonly subscription = this.#subscriptionResource.asReadonly();
+
+  readonly #currentSubscription = computed(() =>
+    this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
+  );
   public readonly currentBarId = this.#currentBarId.asReadonly();
 
   public readonly isReadOnly = computed(() => {
-    const sub = this.subscription.value();
-    if (!sub) return false;
+    const sub = this.#currentSubscription();
+
+    if (!sub) {
+      const status = this.#subscriptionResource.status();
+      return status !== 'loading' && status !== 'reloading' && status !== 'idle';
+    }
+
     if (sub.status === SubscriptionStatus.ACTIVE) {
       return !(sub.stripeSubscriptionId && sub.currentPeriodEnd && new Date() <= new Date(sub.currentPeriodEnd));
     }
@@ -60,7 +69,7 @@ export class BarSubscriptionStore {
   });
 
   public readonly trialDaysRemaining = computed(() => {
-    const sub = this.subscription.value();
+    const sub = this.#currentSubscription();
     if (!sub || sub.status !== SubscriptionStatus.TRIALING || !sub.trialEndsAt) {
       return 0;
     }
@@ -70,7 +79,7 @@ export class BarSubscriptionStore {
   });
 
   public readonly isTrialActive = computed(() => {
-    const sub = this.subscription.value();
+    const sub = this.#currentSubscription();
     if (!sub) return false;
     if (sub.status !== SubscriptionStatus.TRIALING) return false;
     if (!sub.trialEndsAt) return true;
@@ -90,7 +99,7 @@ export class BarSubscriptionStore {
       return BillingAction.ACTIVATE;
     }
 
-    return this.subscription.value()?.status === SubscriptionStatus.ACTIVE
+    return this.#currentSubscription()?.status === SubscriptionStatus.ACTIVE
       ? BillingAction.MANAGE
       : BillingAction.ACTIVATE;
   });

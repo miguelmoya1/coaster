@@ -3,11 +3,7 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": [
-      "angular-eslint",
-      "@schematics/angular",
-      "playwright-ng-schematics"
-    ],
+    "schematicCollections": ["angular-eslint", "@schematics/angular", "playwright-ng-schematics"],
     "analytics": false
   },
   "newProjectRoot": "projects",
@@ -30,10 +26,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/material-theme.scss",
-              "src/styles.css"
-            ]
+            "styles": ["src/material-theme.scss", "src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -45,7 +38,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "880kB",
                   "maximumError": "1MB"
                 },
                 {

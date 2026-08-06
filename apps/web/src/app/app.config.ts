@@ -1,8 +1,13 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import {
+  ApplicationConfig,
+  Injector,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
-import { PlanDialogService } from '@coaster/bar-subscription';
+import type { BarId } from '@coaster/common';
+import type { PaywallHandler } from '@coaster/core';
 import {
   errorInterceptor,
   FIREBASE_AUTH,
@@ -20,10 +25,19 @@ import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    { provide: PAYWALL_HANDLER, useExisting: PlanDialogService },
+    {
+      provide: PAYWALL_HANDLER,
+      useFactory: (injector: Injector): PaywallHandler => ({
+        open: (barId: BarId) => {
+          void import('@coaster/bar-subscription').then(({ PlanDialogService }) =>
+            injector.get(PlanDialogService).open(barId),
+          );
+        },
+      }),
+      deps: [Injector],
+    },
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideNativeDateAdapter(),
     provideHttpClient(
       withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
     ),

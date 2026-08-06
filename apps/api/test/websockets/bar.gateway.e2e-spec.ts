@@ -6,15 +6,17 @@ describe('BarGateway (e2e)', () => {
   const testSetup = new E2eTestSetup();
   let socket: Socket;
 
+  let serverUrl: string;
+
   beforeAll(async () => {
     await testSetup.setup();
     await testSetup.app.listen(0);
 
     const address = testSetup.app.getHttpServer().address();
     const port = address && typeof address !== 'string' ? address.port : 0;
-    const serverUrl = `http://localhost:${port}`;
+    serverUrl = `http://localhost:${port}`;
 
-    socket = io(serverUrl, { transports: ['websocket'] });
+    socket = io(serverUrl, { transports: ['websocket'], auth: { token: 'e2e-token' } });
 
     await new Promise<void>((resolve) => {
       socket.on('connect', () => {
@@ -34,18 +36,26 @@ describe('BarGateway (e2e)', () => {
     expect(socket.connected).toBe(true);
   });
 
+  it('should reject a connection that carries no token', async () => {
+    const anonymous = io(serverUrl, { transports: ['websocket'], reconnection: false });
+
+    const outcome = await new Promise<string>((resolve) => {
+      anonymous.on('unauthorized', () => resolve('unauthorized'));
+      anonymous.on('disconnect', () => resolve('disconnected'));
+      setTimeout(() => resolve('still-connected'), 2000);
+    });
+
+    expect(['unauthorized', 'disconnected']).toContain(outcome);
+    anonymous.disconnect();
+  });
+
   it('should join a bar room via joinBar event', async () => {
     const barId = 'test-bar-123';
 
     socket.emit('joinBar', barId);
 
-    // Currently the server responds with a message when joined, let's wait for any ack if present
-    // The Gateway handler returns { event: 'joined', data: barId } but socket.io doesn't auto-send it to the client
-    // unless using emit or WsResponse
-    // Wait, let's just listen for 'joined' event
     const response = await new Promise<any>((resolve) => {
       socket.on('joined', (data) => resolve(data));
-      // Give it a timeout so it doesn't hang forever
       setTimeout(() => resolve('timeout'), 1000);
     });
 

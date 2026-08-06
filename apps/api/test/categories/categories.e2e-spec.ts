@@ -1,4 +1,3 @@
-import { BarRole } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -14,7 +13,6 @@ describe('CategoriesController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -25,18 +23,7 @@ describe('CategoriesController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -53,7 +40,6 @@ describe('CategoriesController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/categories`).send(dto).expect(201);
 
-      // Verify in database
       const categories = await testSetup.prisma.dbCategory.findMany({
         where: { barId },
       });
@@ -64,16 +50,12 @@ describe('CategoriesController (e2e)', () => {
     });
 
     it('should reject invalid payloads', async () => {
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/categories`)
-        .send({ name: '' }) // name cannot be empty
-        .expect(400);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/categories`).send({ name: '' }).expect(400);
     });
   });
 
   describe('GET /api/bars/:barId/categories', () => {
     it('should return a list of categories', async () => {
-      // Seed a category
       const category = await testSetup.prisma.dbCategory.create({
         data: {
           name: 'Food',
@@ -103,7 +85,6 @@ describe('CategoriesController (e2e)', () => {
         .send({ name: 'New Name' })
         .expect(200);
 
-      // Verify in database
       const updated = await testSetup.prisma.dbCategory.findUnique({
         where: { id: category.id },
       });
@@ -122,7 +103,6 @@ describe('CategoriesController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/categories/${category.id}`).expect(200);
 
-      // Verify in database
       const deleted = await testSetup.prisma.dbCategory.findUnique({
         where: { id: category.id },
       });

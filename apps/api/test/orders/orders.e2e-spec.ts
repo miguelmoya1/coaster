@@ -1,4 +1,4 @@
-import { BarRole, OrderStatus, PaymentMethod } from '@coaster/common';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -18,7 +18,6 @@ describe('OrdersController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -29,21 +28,9 @@ describe('OrdersController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
 
-    // Seed a table
     const table = await testSetup.prisma.dbTable.create({
       data: {
         name: 'Table 1',
@@ -52,7 +39,6 @@ describe('OrdersController (e2e)', () => {
     });
     tableId = table.id;
 
-    // Seed a category and products
     const category = await testSetup.prisma.dbCategory.create({
       data: {
         name: 'Drinks',
@@ -96,7 +82,6 @@ describe('OrdersController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send(dto).expect(201);
 
-      // Verify in database
       const orders = await testSetup.prisma.dbOrder.findMany({
         where: { barId },
         include: { items: true },
@@ -106,14 +91,11 @@ describe('OrdersController (e2e)', () => {
       expect(orders[0].tableId).toBe(tableId);
       expect(orders[0].status).toBe(OrderStatus.OPEN);
       expect(orders[0].items).toHaveLength(2);
-      expect(orders[0].totalAmount).toBe(13); // 2 * 5 + 1 * 3
+      expect(orders[0].totalAmount).toBe(13);
     });
 
     it('should reject invalid payloads', async () => {
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
-        .send({ items: [] }) // Empty items array is invalid
-        .expect(400);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send({ items: [] }).expect(400);
     });
   });
 

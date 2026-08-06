@@ -50,9 +50,9 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
-      #      - name: 🧪 Backend E2E Tests
-      #        run: npm run test:e2e -w @coaster/api
-      #
+      - name: 🧪 Backend E2E Tests
+        run: npm run test:e2e -w @coaster/api
+
       #      - name: 🌐 Install Playwright Browsers
       #        run: npx playwright install --with-deps
       #        working-directory: apps/web

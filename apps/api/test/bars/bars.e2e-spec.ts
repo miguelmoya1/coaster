@@ -13,7 +13,6 @@ describe('BarsController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user for tests
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -33,9 +32,8 @@ describe('BarsController (e2e)', () => {
     it('should create a bar and assign the user as OWNER', async () => {
       const createBarDto = { name: 'My New Bar' };
 
-      await request(testSetup.app.getHttpServer()).post('/api/bars').send(createBarDto).expect(201); // Created
+      await request(testSetup.app.getHttpServer()).post('/api/bars').send(createBarDto).expect(201);
 
-      // Verify in database
       const bars = await testSetup.prisma.dbBar.findMany({
         include: { members: true },
       });
@@ -48,25 +46,13 @@ describe('BarsController (e2e)', () => {
     });
 
     it('should reject invalid payloads', async () => {
-      // Name too short
       await request(testSetup.app.getHttpServer()).post('/api/bars').send({ name: 'A' }).expect(400);
     });
   });
 
   describe('GET /api/bars', () => {
     it('should return a list of bars the user is a member of', async () => {
-      // Seed a bar and membership
-      const bar = await testSetup.prisma.dbBar.create({
-        data: {
-          name: 'Seeded Bar',
-          members: {
-            create: {
-              userId: mockUser.id,
-              role: BarRole.STAFF,
-            },
-          },
-        },
-      });
+      const bar = await testSetup.createBar('Seeded Bar', { role: BarRole.STAFF });
 
       const response = await request(testSetup.app.getHttpServer()).get('/api/bars').expect(200);
 
@@ -78,17 +64,7 @@ describe('BarsController (e2e)', () => {
 
   describe('GET /api/bars/:barId', () => {
     it('should return a specific bar if the user is a member', async () => {
-      const bar = await testSetup.prisma.dbBar.create({
-        data: {
-          name: 'My Bar',
-          members: {
-            create: {
-              userId: mockUser.id,
-              role: BarRole.MANAGER,
-            },
-          },
-        },
-      });
+      const bar = await testSetup.createBar('My Bar', { role: BarRole.MANAGER });
 
       const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${bar.id}`).expect(200);
 
@@ -97,9 +73,7 @@ describe('BarsController (e2e)', () => {
     });
 
     it('should return 403 Forbidden if the user is not a member', async () => {
-      const bar = await testSetup.prisma.dbBar.create({
-        data: { name: 'Other Bar' },
-      });
+      const bar = await testSetup.createBar('Other Bar', { ownerId: null });
 
       await request(testSetup.app.getHttpServer()).get(`/api/bars/${bar.id}`).expect(403);
     });

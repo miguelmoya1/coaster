@@ -15,7 +15,6 @@ describe('BarMembersController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -26,7 +25,6 @@ describe('BarMembersController (e2e)', () => {
       },
     });
 
-    // Seed another user
     const otherUser = await testSetup.prisma.dbUser.create({
       data: {
         id: 'other-user-id',
@@ -38,18 +36,7 @@ describe('BarMembersController (e2e)', () => {
     });
     otherUserId = otherUser.id;
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -76,9 +63,7 @@ describe('BarMembersController (e2e)', () => {
     });
 
     it('should return 403 if user lacks permission', async () => {
-      const otherBar = await testSetup.prisma.dbBar.create({
-        data: { name: 'Unauthorized Bar' },
-      });
+      const otherBar = await testSetup.createBar('Unauthorized Bar', { ownerId: null });
 
       await request(testSetup.app.getHttpServer()).get(`/api/bars/${otherBar.id}/members`).expect(403);
     });
@@ -91,7 +76,6 @@ describe('BarMembersController (e2e)', () => {
         .send({ email: 'other@example.com', role: BarRole.STAFF })
         .expect(201);
 
-      // Verify in DB
       const members = await testSetup.prisma.dbBarMember.findMany({
         where: { barId },
       });
@@ -109,7 +93,6 @@ describe('BarMembersController (e2e)', () => {
 
   describe('DELETE /api/bars/:barId/members/:memberId', () => {
     it('should remove a member if user has permission', async () => {
-      // First, add another member
       const newMember = await testSetup.prisma.dbBarMember.create({
         data: {
           barId,
@@ -120,7 +103,6 @@ describe('BarMembersController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/members/${newMember.id}`).expect(200);
 
-      // Verify in DB
       const deletedMember = await testSetup.prisma.dbBarMember.findUnique({
         where: { id: newMember.id },
       });

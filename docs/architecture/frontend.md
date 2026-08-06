@@ -31,12 +31,12 @@ aplica, `guards/`, `directives/` y `dialogs/`.
 
 El reparto alrededor de un bar es:
 
-| Dominio             | Contiene                                                                  |
-| ------------------- | ------------------------------------------------------------------------- |
-| `bars`              | alta y listado de bares, bar actual                                        |
-| `bar-members`       | miembros, invitaciones, mi pertenencia y `permissionGuard`                 |
-| `bar-subscription`  | suscripcion, checkout, portal de cliente, dialogo de planes y su directiva |
-| `admin`             | busqueda de bares de plataforma y `adminGuard`                             |
+| Dominio            | Contiene                                                                   |
+| ------------------ | -------------------------------------------------------------------------- |
+| `bars`             | alta y listado de bares, bar actual                                        |
+| `bar-members`      | miembros, invitaciones, mi pertenencia y `permissionGuard`                 |
+| `bar-subscription` | suscripcion, checkout, portal de cliente, dialogo de planes y su directiva |
+| `admin`            | busqueda de bares de plataforma y `adminGuard`                             |
 
 `permissionGuard` vive en `bar-members` (no en `bars`) porque depende de `MyMemberStore`; si
 estuviera en `bars` se formaria un ciclo `bars -> bar-members -> bars`.
@@ -90,7 +90,7 @@ enteros. Al cortar esa dependencia, los alias funcionan en todas partes y el gra
 
 ## Typecheck
 
-`apps/web/tsconfig.json` es un *solution config*: tiene `"files": []` y solo referencias. Por
+`apps/web/tsconfig.json` es un _solution config_: tiene `"files": []` y solo referencias. Por
 eso `tsc -p tsconfig.json` **no comprueba nada**. Para validar tipos de verdad:
 
 ```bash
@@ -113,3 +113,21 @@ Dos ausencias son deliberadas:
 
 Las reglas de lint se generan leyendo las carpetas de `src/app`, asi que un dominio nuevo queda
 cubierto sin tocar `eslint.config.js`.
+
+## Bundle
+
+El presupuesto de `initial` esta en 880 kB de aviso y 1 MB de error, no en los 500 kB por defecto
+de Angular. El suelo del framework ya son ~600 kB (Angular core y router, CDK y Material, Firebase
+Auth) y el codigo propio son ~27 kB. El valor esta puesto para que una regresion real salte, no
+para silenciar el aviso.
+
+Dos cosas se cargan de forma diferida a proposito:
+
+- `provideNativeDateAdapter()` se declara en las rutas que usan datepicker (historial y cuadrante),
+  no en `app.config.ts`.
+- `PAYWALL_HANDLER` resuelve `PlanDialogService` con un `import()` dinamico, para que el dialogo de
+  planes y `MatDialog` no entren en el bundle inicial.
+
+`@coaster/common` se publica en doble formato (CommonJS para la API, ESM para el bundler) mediante
+el mapa `exports` de su `package.json`. Si solo emitiera CommonJS, Angular avisa de que no puede
+optimizar el modulo.

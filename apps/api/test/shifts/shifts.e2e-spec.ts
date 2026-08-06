@@ -1,4 +1,3 @@
-import { BarRole } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -15,7 +14,6 @@ describe('ShiftsController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     const user = await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -27,18 +25,7 @@ describe('ShiftsController (e2e)', () => {
     });
     userId = user.id;
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -62,7 +49,6 @@ describe('ShiftsController (e2e)', () => {
 
       expect(response.status).toBe(201);
 
-      // Verify in database
       const shifts = await testSetup.prisma.dbShift.findMany({
         where: { barId },
       });

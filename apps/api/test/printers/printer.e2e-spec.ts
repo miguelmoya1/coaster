@@ -1,4 +1,3 @@
-import { BarRole } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -8,11 +7,9 @@ describe('PrintersController (e2e)', () => {
   let barId: string;
 
   beforeAll(async () => {
-    // Temporary make mock user an ADMIN to bypass AdminGuard if needed, but here we just need a bar
     await testSetup.setup();
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -23,18 +20,7 @@ describe('PrintersController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -44,8 +30,6 @@ describe('PrintersController (e2e)', () => {
 
   describe('Print Order', () => {
     it('should be guarded by authentication and bar permissions', async () => {
-      // Mock order print request.
-      // The API endpoint should exist and return a validation error or 404 (if order doesn't exist)
       const response = await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/printers/print-order`)
         .send({ orderId: 'non-existing-order-id' });
