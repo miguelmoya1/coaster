@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { CurrentBarStore } from '@coaster/bars';
 import { MyMemberStore } from '@coaster/bar-members';
 import { BarPermission } from '@coaster/common';
 import { firstValueFrom, Observable } from 'rxjs';
@@ -13,15 +12,14 @@ describe('permissionGuard', () => {
   const currentId = signal<string | undefined>('bar-1');
   const hasPermissionMock = vi.fn(() => true);
 
-  const currentBarStoreMock = {
-    currentId: currentId.asReadonly(),
-    setBarId: vi.fn((id: string | undefined) => currentId.set(id)),
-  };
+  const setBarIdMock = vi.fn((id: string | undefined) => currentId.set(id));
 
   const myMemberStoreMock = {
     myMember: {
       isLoading: isLoading.asReadonly(),
     },
+    currentBarId: currentId.asReadonly(),
+    setBarId: setBarIdMock,
     hasPermission: hasPermissionMock,
   };
 
@@ -55,7 +53,6 @@ describe('permissionGuard', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -99,7 +96,7 @@ describe('permissionGuard', () => {
     expect((result as unknown as { path: string[] }).path).toEqual(['/bars/select']);
   });
 
-  it('should set bar ID in store if it does not match current route bar ID', async () => {
+  it('should set the bar ID on its own store if it does not match the route bar ID', async () => {
     currentId.set('bar-2');
     const route = getMockRoute('bar-1');
 
@@ -108,7 +105,7 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+    expect(setBarIdMock).toHaveBeenCalledWith('bar-1');
 
     const result = await guardPromise;
     expect(result).toBe(true);
@@ -139,7 +136,7 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-parent');
+    expect(setBarIdMock).toHaveBeenCalledWith('bar-parent');
     expect(result).toBe(true);
   });
 

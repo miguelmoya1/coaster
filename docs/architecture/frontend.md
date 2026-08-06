@@ -48,6 +48,26 @@ en el propio dominio (ver `bar-subscription/dialogs/select-plan-dialog/`).
 Cada dominio expone su API publica en su `index.ts` y se consume por alias (`@coaster/bars`),
 nunca con rutas relativas que crucen carpetas.
 
+#### Stores
+
+Un store **nunca inyecta otro store**. Los que dependen de un bar guardan la id en un signal
+propio y la exponen con `setBarId()`:
+
+```ts
+readonly #currentBarId = signal<BarId | undefined>(undefined);
+readonly #resource = httpResource(() => this.#service.execute(this.#currentBarId()), { parse });
+public readonly currentBarId = this.#currentBarId.asReadonly();
+public setBarId(barId: BarId | undefined) { this.#currentBarId.set(barId); }
+```
+
+Quien decide cual es el bar activo es la capa de presentacion:
+`presentation/bars/workspace/layouts/workspace-layout.ts` tiene un `effect` que reparte la id a
+todos los stores del workspace y la limpia en el `cleanup`. `permissionGuard` hace lo propio con
+`MyMemberStore` antes de que exista el layout.
+
+Encadenar stores creaba acoplamiento invisible (un store dejaba de cargar si otro no se habia
+inicializado) y ciclos entre dominios.
+
 ### `presentation/` — capa de pantallas
 
 Componentes, paginas, layouts y ficheros de rutas. Puede importar de todo lo anterior. Nadie

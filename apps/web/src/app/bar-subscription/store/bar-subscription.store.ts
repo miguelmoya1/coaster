@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, effect, inject, Service } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import type { BarId } from '@coaster/common';
 import { Socket } from '@coaster/core';
@@ -7,7 +7,6 @@ import { barSubscriptionMapper } from '../mappers/bar-subscription.mapper';
 import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
-import { CurrentBarStore } from '@coaster/bars';
 
 export const BillingAction = {
   ACTIVATE: 'ACTIVATE',
@@ -18,7 +17,7 @@ export type BillingAction = (typeof BillingAction)[keyof typeof BillingAction];
 
 @Service()
 export class BarSubscriptionStore {
-  readonly #currentBarStore = inject(CurrentBarStore);
+  readonly #currentBarId = signal<BarId | undefined>(undefined);
   readonly #barSubscription = inject(BarSubscription);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
@@ -26,7 +25,7 @@ export class BarSubscriptionStore {
 
   readonly #subscriptionResource = httpResource(
     () => {
-      return this.#barSubscription.execute(this.#currentBarStore.currentId());
+      return this.#barSubscription.execute(this.#currentBarId());
     },
     {
       parse: (subscription) => barSubscriptionMapper(subscription),
@@ -34,6 +33,7 @@ export class BarSubscriptionStore {
   );
 
   public readonly subscription = this.#subscriptionResource.asReadonly();
+  public readonly currentBarId = this.#currentBarId.asReadonly();
 
   public readonly isReadOnly = computed(() => {
     const sub = this.subscription.value();
@@ -100,11 +100,15 @@ export class BarSubscriptionStore {
   constructor() {
     effect(() => {
       const event = this.#socketService.subscriptionUpdated();
-      const currentBarId = this.#currentBarStore.currentId();
+      const currentBarId = this.#currentBarId();
       if (event && (!event.barId || event.barId === currentBarId)) {
         this.reloadSubscription();
       }
     });
+  }
+
+  public setBarId(barId: BarId | undefined) {
+    this.#currentBarId.set(barId);
   }
 
   public reloadSubscription() {
@@ -112,7 +116,7 @@ export class BarSubscriptionStore {
   }
 
   public async createCustomerPortalSession(): Promise<string | undefined> {
-    return this.#createCustomerPortalSession.execute(this.#currentBarStore.currentId());
+    return this.#createCustomerPortalSession.execute(this.#currentBarId());
   }
 
   public async createCheckoutSession(

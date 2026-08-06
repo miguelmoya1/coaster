@@ -1,10 +1,10 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CurrentBarStore } from '@coaster/bars';
-import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore } from '@coaster/bar-subscription';
 import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
-import { MembersStore } from '@coaster/bar-members';
+import { MembersStore, MyMemberStore } from '@coaster/bar-members';
 import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { SubscriptionBanner } from '../components/subscription-banner/subscription-banner';
@@ -38,6 +38,7 @@ export default class WorkspaceLayout {
   readonly #currentBarStore = inject(CurrentBarStore);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #membersStore = inject(MembersStore);
+  readonly #barSubscriptionStore = inject(BarSubscriptionStore);
   readonly #socketService = inject(Socket);
 
   protected readonly currentUser = this.#currentUser.current;
@@ -67,11 +68,15 @@ export default class WorkspaceLayout {
       this.#currentBarStore.setBarId(barId);
       this.#socketService.joinBar(barId);
       this.#membersStore.setBarId(barId);
+      this.#myMemberStore.setBarId(barId);
+      this.#barSubscriptionStore.setBarId(barId);
 
       cleanup(() => {
         this.#currentBarStore.setBarId(undefined);
         this.#socketService.leaveBar(barId);
         this.#membersStore.setBarId(undefined);
+        this.#myMemberStore.setBarId(undefined);
+        this.#barSubscriptionStore.setBarId(undefined);
       });
     });
   }

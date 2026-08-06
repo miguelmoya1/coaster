@@ -33,6 +33,7 @@ describe('WorkspaceLayout', () => {
   const myMemberStoreMock = {
     isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(true),
+    setBarId: vi.fn(),
   };
 
   const membersStoreMock = {
@@ -55,6 +56,7 @@ describe('WorkspaceLayout', () => {
   };
 
   const barSubscriptionStoreMock = {
+    setBarId: vi.fn(),
     isReadOnly: signal(false),
     isTrialExpiringSoon: signal(false),
     showSubscriptionBanner: signal(false),
@@ -99,6 +101,22 @@ describe('WorkspaceLayout', () => {
   describe('barId input', () => {
     it('should expose barId with provided value', () => {
       expect(component.barId()).toBe('bar-1');
+    });
+
+    it('should feed the bar id to every bar-scoped store', () => {
+      expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(membersStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(myMemberStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(barSubscriptionStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+    });
+
+    it('should clear the bar id on every bar-scoped store when destroyed', () => {
+      fixture.destroy();
+
+      expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(membersStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(myMemberStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(barSubscriptionStoreMock.setBarId).toHaveBeenCalledWith(undefined);
     });
   });
 

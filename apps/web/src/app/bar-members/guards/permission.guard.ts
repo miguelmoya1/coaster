@@ -1,16 +1,13 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
-
 import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
-import { CurrentBarStore } from '@coaster/bars';
-import { MyMemberStore } from '../store/my-member.store';
 import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
+import { MyMemberStore } from '../store/my-member.store';
 
 export const permissionGuard = (permission: BarPermission): CanActivateFn => {
   return (route) => {
-    const currentBarStore = inject(CurrentBarStore);
     const myMemberStore = inject(MyMemberStore);
     const router = inject(Router);
 
@@ -27,16 +24,16 @@ export const permissionGuard = (permission: BarPermission): CanActivateFn => {
 
     const cleanBarId = asBarId(barId);
 
-    if (currentBarStore.currentId() !== cleanBarId) {
-      currentBarStore.setBarId(cleanBarId);
+    if (myMemberStore.currentBarId() !== cleanBarId) {
+      myMemberStore.setBarId(cleanBarId);
     }
 
     const isLoading$ = toObservable(myMemberStore.myMember.isLoading);
-    const currentId$ = toObservable(currentBarStore.currentId);
+    const currentBarId$ = toObservable(myMemberStore.currentBarId);
 
     return timer(0).pipe(
-      switchMap(() => combineLatest([isLoading$, currentId$])),
-      filter(([isLoading, currentId]) => !isLoading && currentId === cleanBarId),
+      switchMap(() => combineLatest([isLoading$, currentBarId$])),
+      filter(([isLoading, currentBarId]) => !isLoading && currentBarId === cleanBarId),
       take(1),
       map(() => {
         if (myMemberStore.hasPermission(permission)) {
