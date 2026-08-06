@@ -61,6 +61,7 @@ describe('WorkspaceLayout', () => {
     isTrialExpiringSoon: signal(false),
     showSubscriptionBanner: signal(false),
     billingAction: signal('ACTIVATE'),
+    isOpeningBillingPortal: signal(false),
     showBillingAction: signal(true),
     trialDaysRemaining: signal(14),
     subscription: {

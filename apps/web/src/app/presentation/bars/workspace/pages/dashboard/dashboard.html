@@ -40,10 +40,16 @@
               @if (billingAction() === BillingAction.MANAGE) {
                 <button
                   mat-button
+                  [disabled]="isOpeningBillingPortal()"
+                  [attr.aria-busy]="isOpeningBillingPortal()"
                   (click)="manageBilling()"
                   class="!rounded-xl font-bold border border-outline-variant/30"
                 >
-                  <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
+                  @if (isOpeningBillingPortal()) {
+                    <mat-spinner diameter="18" class="mr-1" />
+                  } @else {
+                    <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
+                  }
                   {{ 'billing.manage_billing' | translate }}
                 </button>
               } @else {

@@ -3,6 +3,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/bar-members';
@@ -26,6 +27,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
     MatToolbar,
     MatMenuModule,
     MatDivider,
+    MatProgressSpinner,
   ],
   host: {
     class: 'block w-full z-50 shrink-0',
@@ -66,8 +68,17 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
         @if (canManageBilling() && showBillingAction()) {
           @if (billingAction() === BillingAction.MANAGE) {
-            <button mat-menu-item (click)="manageBilling(); menuTrigger.closeMenu()">
-              <mat-icon>receipt_long</mat-icon>
+            <button
+              mat-menu-item
+              [disabled]="isOpeningBillingPortal()"
+              [attr.aria-busy]="isOpeningBillingPortal()"
+              (click)="manageBilling(); menuTrigger.closeMenu()"
+            >
+              @if (isOpeningBillingPortal()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>receipt_long</mat-icon>
+              }
               <span>{{ 'billing.manage_billing' | translate }}</span>
             </button>
           } @else {
@@ -159,6 +170,7 @@ export class TopAppBar {
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
   readonly billingAction = this.#barSubscriptionStore.billingAction;
+  readonly isOpeningBillingPortal = this.#barSubscriptionStore.isOpeningBillingPortal;
   readonly showBillingAction = this.#barSubscriptionStore.showBillingAction;
   readonly BillingAction = BillingAction;
 
@@ -246,6 +258,10 @@ export class TopAppBar {
   }
 
   async manageBilling(): Promise<void> {
+    if (this.isOpeningBillingPortal()) {
+      return;
+    }
+
     try {
       const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession();
 

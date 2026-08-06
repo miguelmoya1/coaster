@@ -41,6 +41,7 @@ describe('TopAppBar', () => {
     },
     billingAction: computed(() => (subscriptionSignal()?.status === 'ACTIVE' ? 'MANAGE' : 'ACTIVATE')),
     showBillingAction: signal(true).asReadonly(),
+    isOpeningBillingPortal: signal(false).asReadonly(),
     createCheckoutSession: vi.fn().mockResolvedValue('https://checkout.example.com'),
     createCustomerPortalSession: vi.fn().mockResolvedValue('https://billing.example.com'),
   };

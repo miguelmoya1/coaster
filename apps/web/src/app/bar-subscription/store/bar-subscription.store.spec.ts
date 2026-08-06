@@ -61,6 +61,45 @@ describe('BarSubscriptionStore', () => {
     httpMock.verify();
   });
 
+  describe('createCustomerPortalSession', () => {
+    it('should ignore a second call while the first is still in flight', async () => {
+      const portal = TestBed.inject(CreateCustomerPortalSession) as unknown as { execute: ReturnType<typeof vi.fn> };
+      let release: (url: string) => void = () => undefined;
+      portal.execute.mockReturnValue(new Promise<string>((resolve) => (release = resolve)));
+
+      store.setBarId(barId);
+      const first = store.createCustomerPortalSession();
+
+      expect(store.isOpeningBillingPortal()).toBe(true);
+
+      await expect(store.createCustomerPortalSession()).resolves.toBeUndefined();
+      expect(portal.execute).toHaveBeenCalledTimes(1);
+
+      release('https://portal.stripe.com');
+      await expect(first).resolves.toBe('https://portal.stripe.com');
+    });
+
+    it('should stay busy after success so the button cannot be clicked while navigating', async () => {
+      const portal = TestBed.inject(CreateCustomerPortalSession) as unknown as { execute: ReturnType<typeof vi.fn> };
+      portal.execute.mockResolvedValue('https://portal.stripe.com');
+
+      store.setBarId(barId);
+      await store.createCustomerPortalSession();
+
+      expect(store.isOpeningBillingPortal()).toBe(true);
+    });
+
+    it('should release the busy flag when the portal cannot be opened', async () => {
+      const portal = TestBed.inject(CreateCustomerPortalSession) as unknown as { execute: ReturnType<typeof vi.fn> };
+      portal.execute.mockRejectedValue(new Error('stripe down'));
+
+      store.setBarId(barId);
+      await expect(store.createCustomerPortalSession()).rejects.toThrow('stripe down');
+
+      expect(store.isOpeningBillingPortal()).toBe(false);
+    });
+  });
+
   describe('isReadOnly', () => {
     it('should not lock the workspace before a bar is selected', () => {
       expect(store.isReadOnly()).toBe(false);

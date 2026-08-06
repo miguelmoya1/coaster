@@ -13,7 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { WsAuthService } from './services';
 
 interface AuthenticatedSocket extends Socket {
-  data: Socket['data'] & { userId?: string };
+  data: { userId?: string };
 }
 
 @WebSocketGateway({ cors: { origin: '*' } })

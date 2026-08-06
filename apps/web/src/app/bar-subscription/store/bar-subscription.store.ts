@@ -18,6 +18,7 @@ export type BillingAction = (typeof BillingAction)[keyof typeof BillingAction];
 @Service()
 export class BarSubscriptionStore {
   readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #isOpeningBillingPortal = signal(false);
   readonly #barSubscription = inject(BarSubscription);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
@@ -38,6 +39,7 @@ export class BarSubscriptionStore {
     this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
   );
   public readonly currentBarId = this.#currentBarId.asReadonly();
+  public readonly isOpeningBillingPortal = this.#isOpeningBillingPortal.asReadonly();
 
   public readonly isReadOnly = computed(() => {
     const sub = this.#currentSubscription();
@@ -125,7 +127,24 @@ export class BarSubscriptionStore {
   }
 
   public async createCustomerPortalSession(): Promise<string | undefined> {
-    return this.#createCustomerPortalSession.execute(this.#currentBarId());
+    if (this.#isOpeningBillingPortal()) {
+      return undefined;
+    }
+
+    this.#isOpeningBillingPortal.set(true);
+
+    try {
+      const portalUrl = await this.#createCustomerPortalSession.execute(this.#currentBarId());
+
+      if (!portalUrl) {
+        this.#isOpeningBillingPortal.set(false);
+      }
+
+      return portalUrl;
+    } catch (error) {
+      this.#isOpeningBillingPortal.set(false);
+      throw error;
+    }
   }
 
   public async createCheckoutSession(

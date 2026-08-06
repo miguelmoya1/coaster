@@ -31,6 +31,7 @@ describe('SubscriptionBanner', () => {
             trialDaysRemaining: trialDaysRemainingSignal,
             showSubscriptionBanner: computed(() => isReadOnlySignal() || isTrialExpiringSoonSignal()),
             billingAction: signal('ACTIVATE'),
+            isOpeningBillingPortal: signal(false),
           },
         },
         {

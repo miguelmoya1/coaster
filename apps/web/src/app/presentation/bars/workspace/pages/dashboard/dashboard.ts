@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/bar-members';
 import { BarSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/bar-subscription';
@@ -39,6 +40,7 @@ import { PageHeader } from '../../../../components/page-header/page-header';
     MatCardSubtitle,
     PageContainer,
     PageHeader,
+    MatProgressSpinner,
   ],
   host: {
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
@@ -62,6 +64,7 @@ export class Dashboard {
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
   readonly billingAction = this.#barSubscriptionStore.billingAction;
+  readonly isOpeningBillingPortal = this.#barSubscriptionStore.isOpeningBillingPortal;
   readonly showBillingAction = this.#barSubscriptionStore.showBillingAction;
   readonly BillingAction = BillingAction;
   readonly trialDaysRemaining = computed(() => this.#barSubscriptionStore.trialDaysRemaining());
@@ -194,6 +197,10 @@ export class Dashboard {
   }
 
   async manageBilling(): Promise<void> {
+    if (this.isOpeningBillingPortal()) {
+      return;
+    }
+
     try {
       const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession();
       if (portalUrl) {
