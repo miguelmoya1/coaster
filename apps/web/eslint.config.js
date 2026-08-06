@@ -11,6 +11,7 @@ const domains = readdirSync(new URL('./src/app', import.meta.url), { withFileTyp
 
 const domainAliases = domains.map((domain) => `@coaster/${domain}`);
 
+/** @type {import('eslint').Linter.Config[]} */
 const crossLayerRelativeImports = [...domains, 'core'].map((owner) => ({
   files: [`src/app/${owner}/**/*.ts`],
   rules: {

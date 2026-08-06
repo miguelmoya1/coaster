@@ -53,5 +53,10 @@ sin `tsconfig-paths` ni ningun cargador extra.
 
 ## Tests
 
-`vitest.config.ts` lee los `paths` de `tsconfig.json` y construye sus alias a partir de ahi. No
-hay una segunda lista que mantener sincronizada.
+`vitest.config.ts` y `vitest.config.e2e.ts` leen los `paths` de `tsconfig.json` y construyen sus
+alias a partir de ahi. No hay ninguna lista que mantener sincronizada.
+
+Los e2e (`npm run test:e2e -w @coaster/api`) estan **desactivados en CI** y hoy fallan: el setup
+crea bares sin suscripcion y `SubscriptionActiveGuard` responde 402 a toda escritura sobre un bar.
+Para arreglarlos hay que crear una suscripcion activa en el setup, o marcar las rutas de prueba
+con `@SkipSubscriptionCheck`.

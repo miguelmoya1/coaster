@@ -8,6 +8,7 @@ const modules = readdirSync(new URL('./src', import.meta.url), { withFileTypes: 
   .filter((entry) => entry.isDirectory() && entry.name !== '__mocks__')
   .map((entry) => entry.name);
 
+/** @type {import('eslint').Linter.Config[]} */
 const crossModuleRelativeImports = modules.map((owner) => ({
   files: [`src/${owner}/**/*.ts`],
   rules: {
