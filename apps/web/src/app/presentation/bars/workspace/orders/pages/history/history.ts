@@ -4,7 +4,8 @@ import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { MyMemberStore, RequireSubscriptionDirective } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
 import { ActionFeedback, asOrderId } from '@coaster/core';

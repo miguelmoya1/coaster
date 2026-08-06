@@ -3,7 +3,7 @@ import { Component, ElementRef, computed, effect, inject, input, signal, viewChi
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId } from '@coaster/common';
-import { RequireSubscriptionDirective } from '@coaster/bars';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AiVoiceService } from './ai-voice.service';
 

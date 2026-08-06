@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import type { BarId } from '@coaster/common';
 import { SubscriptionPlan } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarRepository } from '../data-access/bar-repository';
+import { BarSubscriptionRepository } from '../data-access/bar-subscription-repository';
 import { CreateCheckoutSession } from './create-checkout-session';
 
 describe('CreateCheckoutSession', () => {
@@ -15,7 +15,7 @@ describe('CreateCheckoutSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [{ provide: BarRepository, useValue: repositoryMock }],
+      providers: [{ provide: BarSubscriptionRepository, useValue: repositoryMock }],
     });
     service = TestBed.inject(CreateCheckoutSession);
 

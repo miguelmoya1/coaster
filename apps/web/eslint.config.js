@@ -47,6 +47,9 @@ export default defineConfig([
           patterns: [
             {
               group: [
+                '@coaster/admin',
+                '@coaster/bar-members',
+                '@coaster/bar-subscription',
                 '@coaster/bars',
                 '@coaster/categories',
                 '@coaster/exchanges',
@@ -71,10 +74,12 @@ export default defineConfig([
   },
   {
     files: [
+      'src/app/admin/**/*.ts',
+      'src/app/bar-members/**/*.ts',
+      'src/app/bar-subscription/**/*.ts',
       'src/app/bars/**/*.ts',
       'src/app/categories/**/*.ts',
       'src/app/exchanges/**/*.ts',
-      'src/app/members/**/*.ts',
       'src/app/orders/**/*.ts',
       'src/app/printer/**/*.ts',
       'src/app/products/**/*.ts',

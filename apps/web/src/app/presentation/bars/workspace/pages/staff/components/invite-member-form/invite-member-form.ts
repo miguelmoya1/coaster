@@ -5,7 +5,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import type { InviteBarMemberDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

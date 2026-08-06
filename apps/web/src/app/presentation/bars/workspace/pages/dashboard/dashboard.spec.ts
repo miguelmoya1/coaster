@@ -1,9 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarSubscriptionStore, CurrentBarStore, MyMemberStore, PlanDialogService } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
 import { BarId, BarPermission } from '@coaster/common';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';

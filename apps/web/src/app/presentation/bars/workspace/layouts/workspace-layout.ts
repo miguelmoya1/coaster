@@ -1,9 +1,10 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { SubscriptionBanner } from '../components/subscription-banner/subscription-banner';

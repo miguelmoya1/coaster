@@ -22,14 +22,28 @@ Cuando `core` necesita comportamiento que vive mas arriba, se invierte la depend
 pero no conoce `PlanDialogService`; depende de `PAYWALL_HANDLER`, que `app.config.ts` resuelve
 con `useExisting: PlanDialogService`.
 
-### Dominios — `bars/`, `orders/`, `products/`, `tables/`, ...
+### Dominios — `bars/`, `bar-members/`, `bar-subscription/`, `admin/`, `orders/`, ...
 
-Cada dominio agrupa todo lo suyo: `data-access/` (repositorios HTTP), `store/` (estado con
-signals), `services/`, `mappers/` y, si aplica, `guards/`, `directives/` y `dialogs/`.
+Los dominios espejan los modulos del backend (`apps/api/src`), de forma que un `bar-subscription`
+del front se corresponde con el `bar-subscription` de la API. Cada dominio agrupa todo lo suyo:
+`data-access/` (repositorios HTTP), `store/` (estado con signals), `services/`, `mappers/` y, si
+aplica, `guards/`, `directives/` y `dialogs/`.
+
+El reparto alrededor de un bar es:
+
+| Dominio             | Contiene                                                                  |
+| ------------------- | ------------------------------------------------------------------------- |
+| `bars`              | alta y listado de bares, bar actual                                        |
+| `bar-members`       | miembros, invitaciones, mi pertenencia y `permissionGuard`                 |
+| `bar-subscription`  | suscripcion, checkout, portal de cliente, dialogo de planes y su directiva |
+| `admin`             | busqueda de bares de plataforma y `adminGuard`                             |
+
+`permissionGuard` vive en `bar-members` (no en `bars`) porque depende de `MyMemberStore`; si
+estuviera en `bars` se formaria un ciclo `bars -> bar-members -> bars`.
 
 Un dominio puede importar `@coaster/core` y otros dominios por su alias. **No puede importar de
 `presentation/`**: si un servicio de dominio abre un dialogo, el componente de ese dialogo vive
-en el propio dominio (ver `bars/dialogs/select-plan-dialog/`).
+en el propio dominio (ver `bar-subscription/dialogs/select-plan-dialog/`).
 
 Cada dominio expone su API publica en su `index.ts` y se consume por alias (`@coaster/bars`),
 nunca con rutas relativas que crucen carpetas.
@@ -63,3 +77,9 @@ eso `tsc -p tsconfig.json` **no comprueba nada**. Para validar tipos de verdad:
 npx tsc --noEmit -p tsconfig.app.json
 npx tsc --noEmit -p tsconfig.spec.json
 ```
+
+## Alias
+
+Los alias `@coaster/*` se declaran **solo** en `tsconfig.json`. `vitest.config.ts` los lee de ahi
+en tiempo de arranque, asi que no hay que mantener dos listas: al anadir un dominio basta con
+declarar su path y crear su `index.ts`.

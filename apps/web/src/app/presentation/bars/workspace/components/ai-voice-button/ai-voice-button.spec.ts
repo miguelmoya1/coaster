@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BarSubscriptionStore, PlanDialogService } from '@coaster/bars';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
 import { asBarId } from '@coaster/core';
 import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';

@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { CurrentBarStore, MyMemberStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { BarPermission } from '@coaster/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

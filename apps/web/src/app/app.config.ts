@@ -9,7 +9,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
-import { PlanDialogService } from './bars';
+import { PlanDialogService } from './bar-subscription';
 import { errorInterceptor, idTokenInterceptor, PAYWALL_HANDLER, unauthorizedInterceptor, urlInterceptor } from './core';
 
 export const appConfig: ApplicationConfig = {

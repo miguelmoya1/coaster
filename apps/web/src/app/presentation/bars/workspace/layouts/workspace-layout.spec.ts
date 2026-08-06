@@ -1,9 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarSubscriptionStore, CurrentBarStore, MyMemberStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore } from '@coaster/bar-subscription';
 import { Auth, CurrentUser, Socket } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceLayout from './workspace-layout';

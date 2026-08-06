@@ -1,9 +1,9 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { BarRole } from '@coaster/common';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';

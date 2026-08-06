@@ -4,7 +4,7 @@ import { MatFormField, MatLabel, MatPrefix } from '@angular/material/form-field'
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { TableStatus, type BarId, type Table } from '@coaster/common';
-import { RequireSubscriptionDirective } from '@coaster/bars';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
 

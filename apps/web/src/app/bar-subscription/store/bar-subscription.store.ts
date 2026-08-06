@@ -3,11 +3,11 @@ import { computed, effect, inject, Service } from '@angular/core';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import type { BarId } from '@coaster/common';
 import { Socket } from '@coaster/core';
-import { barSubscriptionMapper } from '../mappers/bar.mapper';
+import { barSubscriptionMapper } from '../mappers/bar-subscription.mapper';
 import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
-import { CurrentBarStore } from './current-bar.store';
+import { CurrentBarStore } from '@coaster/bars';
 
 export const BillingAction = {
   ACTIVATE: 'ACTIVATE',

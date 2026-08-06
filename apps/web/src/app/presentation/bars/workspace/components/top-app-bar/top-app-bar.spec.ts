@@ -1,7 +1,8 @@
 import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarSubscriptionStore, MyMemberStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore } from '@coaster/bar-subscription';
 import { BarPermission } from '@coaster/common';
 import type { BarId } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';

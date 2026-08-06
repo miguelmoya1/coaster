@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { Auth } from '@coaster/core';
-import { MemberRepository } from '@coaster/members';
+import { MemberRepository } from '../data-access/member-repository';
 
 @Service()
 export class MyMember {

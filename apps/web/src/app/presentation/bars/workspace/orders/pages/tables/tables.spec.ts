@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';

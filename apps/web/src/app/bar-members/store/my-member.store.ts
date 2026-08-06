@@ -2,9 +2,9 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Service } from '@angular/core';
 import { BarPermission, BarRole } from '@coaster/common';
 import { hasPermission } from '@coaster/core';
-import { memberMapper } from '@coaster/members';
+import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
-import { CurrentBarStore } from './current-bar.store';
+import { CurrentBarStore } from '@coaster/bars';
 
 @Service()
 export class MyMemberStore {

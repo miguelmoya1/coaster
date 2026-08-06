@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BottomNav } from './bottom-nav';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 
 describe('BottomNav', () => {
   let component: BottomNav;

@@ -3,8 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
 import { Role } from '@coaster/common';
 import { filter, map, switchMap, take } from 'rxjs';
-import { Auth } from '../services/auth';
-import { CurrentUser } from '../services/current-user';
+import { Auth, CurrentUser } from '@coaster/core';
 
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(Auth);

@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 
 import { BarPermission } from '@coaster/common';
 import { asBarId } from '@coaster/core';
-import { CurrentBarStore } from '../store/current-bar.store';
+import { CurrentBarStore } from '@coaster/bars';
 import { MyMemberStore } from '../store/my-member.store';
 import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 

@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { BarSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/bars';
+import { BarSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/bar-subscription';
 import type { BarId } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 

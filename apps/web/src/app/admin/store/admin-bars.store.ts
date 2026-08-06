@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, debounced, inject, Service, signal } from '@angular/core';
-import { barArrayMapper } from '../mappers/bar.mapper';
+import { barArrayMapper } from '@coaster/bars';
 import { AdminSearchBars } from '../services/admin-search-bars';
 
 @Service()

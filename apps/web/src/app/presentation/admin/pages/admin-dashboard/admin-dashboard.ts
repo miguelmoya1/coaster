@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AdminBarsStore } from '../../../../bars/store/admin-bars.store';
+import { AdminBarsStore } from '@coaster/admin';
 import { BarCard } from '../../../bars/pages/select-bar/components/bar-card/bar-card';
 import { Loading } from '../../../components/loading/loading';
 import { PageContainer } from '../../../components/page-container/page-container';

@@ -6,7 +6,7 @@ import { BarSubscription } from '../services/bar-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 import { BarSubscriptionStore } from './bar-subscription.store';
-import { CurrentBarStore } from './current-bar.store';
+import { CurrentBarStore } from '@coaster/bars';
 
 describe('BarSubscriptionStore', () => {
   let store: BarSubscriptionStore;

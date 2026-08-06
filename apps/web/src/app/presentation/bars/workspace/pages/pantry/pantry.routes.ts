@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { BarPermission } from '@coaster/common';
-import { permissionGuard } from '@coaster/bars';
+import { permissionGuard } from '@coaster/bar-members';
 
 const pantryRoutes: Routes = [
   { path: '', loadComponent: () => import('./pantry') },

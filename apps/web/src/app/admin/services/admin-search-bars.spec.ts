@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarRepository } from '../data-access/bar-repository';
+import { AdminRepository } from '../data-access/admin-repository';
 import { AdminSearchBars } from './admin-search-bars';
 
 describe('AdminSearchBars', () => {
@@ -8,14 +8,14 @@ describe('AdminSearchBars', () => {
 
   const repositoryMock = {
     routes: {
-      adminSearch: vi.fn((q: string) => `/bars/admin/search?q=${q}`),
+      searchBars: vi.fn((q: string) => `/bars/admin/search?q=${q}`),
     },
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
-      providers: [{ provide: BarRepository, useValue: repositoryMock }],
+      providers: [{ provide: AdminRepository, useValue: repositoryMock }],
     });
     service = TestBed.inject(AdminSearchBars);
   });

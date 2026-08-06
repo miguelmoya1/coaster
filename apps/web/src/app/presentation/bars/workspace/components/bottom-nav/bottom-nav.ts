@@ -2,7 +2,7 @@ import { Toolbar, ToolbarWidget } from '@angular/aria/toolbar';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MyMemberStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { BarPermission, BarPermissionType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 

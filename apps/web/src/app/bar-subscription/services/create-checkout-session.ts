@@ -1,11 +1,11 @@
 import { inject, Service } from '@angular/core';
 import type { BarId } from '@coaster/common';
 import { SubscriptionPlan } from '@coaster/common';
-import { BarRepository } from '../data-access/bar-repository';
+import { BarSubscriptionRepository } from '../data-access/bar-subscription-repository';
 
 @Service()
 export class CreateCheckoutSession {
-  readonly #barRepository = inject(BarRepository);
+  readonly #subscriptionRepository = inject(BarSubscriptionRepository);
 
   public async execute(
     barId: BarId | undefined,
@@ -15,7 +15,7 @@ export class CreateCheckoutSession {
       return undefined;
     }
 
-    const { url } = await this.#barRepository.createCheckoutSession(barId, {
+    const { url } = await this.#subscriptionRepository.createCheckoutSession(barId, {
       plan: plan === SubscriptionPlan.PRO ? plan : SubscriptionPlan.PRO,
     });
     return url;
