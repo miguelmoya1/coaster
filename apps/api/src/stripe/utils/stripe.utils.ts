@@ -2,7 +2,7 @@ import { ErrorCodes, SubscriptionPlan } from '@coaster/common';
 import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import type { Subscription } from 'stripe';
 
 export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configService: ConfigService): string {
@@ -70,9 +70,9 @@ export function toDbStatus(status: Subscription.Status): DbSubscriptionStatus {
   }
 }
 
-export function createIntegrationIdentifier(): string {
+export function createIntegrationIdentifier(seed?: string): string {
   const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-  const bytes = randomBytes(8);
+  const bytes = seed ? createHash('sha256').update(seed).digest().subarray(0, 8) : randomBytes(8);
   const suffix = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
   return `coaster_subscription_${suffix}`;
 }

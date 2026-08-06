@@ -12,8 +12,22 @@ import { CreateCheckoutSessionCommand } from '../impl/create-checkout-session.co
 const CHECKOUT_SESSION_TTL_SECONDS = 2 * 60 * 60;
 const IDEMPOTENCY_BUCKET_MS = 30 * 60 * 1000;
 
-const buildCheckoutIdempotencyKey = (barId: string, plan: string): string =>
-  `checkout:${barId}:${plan}:${Math.floor(Date.now() / IDEMPOTENCY_BUCKET_MS)}`;
+/**
+ * Reusing the key is what hands a user who clicks "subscribe" twice the session they already have.
+ * Stripe only honours that when the payload is byte for byte the one it saw first, so every value
+ * the request carries has to derive from the bucket, never from the instant of the click.
+ */
+const currentIdempotencyBucket = (): number => Math.floor(Date.now() / IDEMPOTENCY_BUCKET_MS);
+
+const buildCheckoutIdempotencyKey = (barId: string, plan: string, bucket: number): string =>
+  `checkout:${barId}:${plan}:${bucket}`;
+
+/**
+ * Anchored to the start of the bucket rather than to now, which leaves the session alive for
+ * between 90 and 120 minutes: comfortably past the 30-minute minimum Stripe accepts.
+ */
+const bucketExpiresAt = (bucket: number): number =>
+  Math.floor((bucket * IDEMPOTENCY_BUCKET_MS) / 1000) + CHECKOUT_SESSION_TTL_SECONDS;
 
 @Injectable()
 @CommandHandler(CreateCheckoutSessionCommand)
@@ -66,6 +80,8 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
     }
 
     const priceId = getPriceId(plan, this._configService);
+    const bucket = currentIdempotencyBucket();
+    const idempotencyKey = buildCheckoutIdempotencyKey(barId, plan, bucket);
 
     const session = await this._stripeApi.createCheckoutSession(
       {
@@ -74,9 +90,9 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
         cancel_url: getCheckoutCancelUrl(this._configService, barId),
         client_reference_id: barId,
         allow_promotion_codes: true,
-        expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
+        expires_at: bucketExpiresAt(bucket),
         line_items: [{ price: priceId, quantity: 1 }],
-        integration_identifier: createIntegrationIdentifier(),
+        integration_identifier: createIntegrationIdentifier(idempotencyKey),
         metadata: {
           barId,
           plan,
@@ -89,7 +105,7 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<
         },
       },
       existing?.stripeCustomerId,
-      buildCheckoutIdempotencyKey(barId, plan),
+      idempotencyKey,
     );
 
     if (!session.url) {

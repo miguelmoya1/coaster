@@ -3,7 +3,7 @@ import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
+import { createIntegrationIdentifier, getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
 
 describe('stripe.utils', () => {
   let configServiceMock: any;
@@ -42,6 +42,29 @@ describe('stripe.utils', () => {
     it('should return FREE when price does not match any configured plan', () => {
       expect(toDbPlan('unknown_price', configServiceMock)).toBe(DbSubscriptionPlan.FREE);
       expect(toDbPlan(undefined, configServiceMock)).toBe(DbSubscriptionPlan.FREE);
+    });
+  });
+
+  describe('createIntegrationIdentifier', () => {
+    it('should derive the same identifier from the same seed, so a retried request keeps its payload', () => {
+      expect(createIntegrationIdentifier('checkout:bar-1:PRO:42')).toBe(
+        createIntegrationIdentifier('checkout:bar-1:PRO:42'),
+      );
+    });
+
+    it('should tell different seeds apart', () => {
+      expect(createIntegrationIdentifier('checkout:bar-1:PRO:42')).not.toBe(
+        createIntegrationIdentifier('checkout:bar-1:PRO:43'),
+      );
+    });
+
+    it('should stay random when no seed is given', () => {
+      expect(createIntegrationIdentifier()).not.toBe(createIntegrationIdentifier());
+    });
+
+    it('should keep the coaster_subscription_ shape', () => {
+      expect(createIntegrationIdentifier('seed')).toMatch(/^coaster_subscription_[a-z]{8}$/);
+      expect(createIntegrationIdentifier()).toMatch(/^coaster_subscription_[a-z]{8}$/);
     });
   });
 

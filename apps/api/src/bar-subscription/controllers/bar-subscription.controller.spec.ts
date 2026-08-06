@@ -1,5 +1,5 @@
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { BarPermission, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { asBarId, BAR_PERMISSIONS_KEY } from '@coaster/core';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
@@ -59,6 +59,24 @@ describe('BarSubscriptionController', () => {
 
     expect(commandBusMock.execute).toHaveBeenCalledWith(new CreateCheckoutSessionCommand(barId, dto.plan));
     expect(result).toEqual(expectedResponse);
+  });
+
+  describe('required permissions', () => {
+    const permissionsOf = (handler: (...args: never[]) => unknown): BarPermission[] | undefined =>
+      Reflect.getMetadata(BAR_PERMISSIONS_KEY, handler);
+
+    it('should let any member of the bar read the subscription, since the whole UI depends on it', () => {
+      expect(permissionsOf(BarSubscriptionController.prototype.getBarSubscription)).toBeUndefined();
+    });
+
+    it('should keep the billing actions behind BAR_MANAGE_BILLING', () => {
+      expect(permissionsOf(BarSubscriptionController.prototype.createCheckoutSession)).toEqual([
+        BarPermission.BAR_MANAGE_BILLING,
+      ]);
+      expect(permissionsOf(BarSubscriptionController.prototype.createCustomerPortalSession)).toEqual([
+        BarPermission.BAR_MANAGE_BILLING,
+      ]);
+    });
   });
 
   it('should execute CreateCustomerPortalSessionCommand on createCustomerPortalSession', async () => {

@@ -58,6 +58,26 @@ describe('CreateCheckoutSessionHandler (bar-subscription)', () => {
     expect(firstKey).toBe(secondKey);
   });
 
+  it('should send an identical payload with the reused key, since Stripe rejects a key whose request changed', async () => {
+    vi.useFakeTimers();
+
+    try {
+      // Start of a 30-minute bucket, then a click a few minutes later inside that same bucket.
+      vi.setSystemTime(new Date('2026-08-06T10:00:00.000Z'));
+      await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+
+      vi.advanceTimersByTime(7 * 60 * 1000);
+      await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const [first, second] = stripeApiMock.createCheckoutSession.mock.calls;
+
+    expect(second[2]).toBe(first[2]);
+    expect(second[0]).toEqual(first[0]);
+  });
+
   it('should key separate bars apart so one never reuses another bar session', async () => {
     await handler.execute(new CreateCheckoutSessionCommand(barId, SubscriptionPlan.PRO));
     await handler.execute(new CreateCheckoutSessionCommand('bar_other' as BarId, SubscriptionPlan.PRO));
