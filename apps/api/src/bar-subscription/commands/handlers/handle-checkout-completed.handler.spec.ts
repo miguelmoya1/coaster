@@ -11,6 +11,7 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
   let readRepoMock: any;
   let stripeApiMock: any;
   let eventBusMock: any;
+  let configServiceMock: any;
 
   beforeEach(() => {
     writeRepoMock = {
@@ -27,7 +28,17 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
       publish: vi.fn(),
     };
 
-    handler = new HandleCheckoutCompletedHandler(writeRepoMock, readRepoMock, stripeApiMock, eventBusMock);
+    configServiceMock = {
+      get: vi.fn().mockImplementation((key: string) => (key === 'STRIPE_PRICE_PRO' ? 'price_pro' : undefined)),
+    };
+
+    handler = new HandleCheckoutCompletedHandler(
+      writeRepoMock,
+      readRepoMock,
+      stripeApiMock,
+      eventBusMock,
+      configServiceMock,
+    );
   });
 
   describe('duplicate subscriptions', () => {
@@ -78,12 +89,19 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
 
     it('should stay idempotent when the same webhook is delivered twice', async () => {
       readRepoMock.findByBarId.mockResolvedValue({ stripeSubscriptionId: 'sub_duplicate' });
+      stripeApiMock.retrieveSubscription.mockResolvedValue({
+        id: 'sub_duplicate',
+        status: 'active',
+        items: { data: [{ price: { id: 'price_pro' } }] },
+      });
 
       await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
+      await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
 
+      // The bar keeps the subscription it already tracks; a redelivery just rewrites the same state.
       expect(stripeApiMock.cancelSubscription).not.toHaveBeenCalled();
-      expect(stripeApiMock.retrieveSubscription).not.toHaveBeenCalled();
-      expect(writeRepoMock.upsert).toHaveBeenCalled();
+      expect(writeRepoMock.upsert).toHaveBeenCalledTimes(2);
+      expect(writeRepoMock.upsert.mock.calls[0]).toEqual(writeRepoMock.upsert.mock.calls[1]);
     });
   });
 
@@ -140,7 +158,7 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
     expect(writeRepoMock.upsert).not.toHaveBeenCalled();
   });
 
-  it('should link Stripe references for the resolved barId', async () => {
+  it('should link the references as inactive while Stripe still does not know the subscription', async () => {
     const session = {
       id: 'cs_1',
       mode: 'subscription',
@@ -148,6 +166,7 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
       customer: 'cus_123',
       subscription: 'sub_123',
     } as unknown as Stripe.Checkout.Session;
+    stripeApiMock.retrieveSubscription.mockResolvedValue(null);
 
     await handler.execute(new HandleCheckoutCompletedCommand(session));
 
@@ -158,8 +177,37 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
         stripeCustomerId: 'cus_123',
         stripeSubscriptionId: 'sub_123',
       }),
-      { stripeCustomerId: 'cus_123', stripeSubscriptionId: 'sub_123' },
+      expect.objectContaining({ status: 'INACTIVE', stripeSubscriptionId: 'sub_123' }),
     );
+  });
+
+  it('should write the state read back from Stripe instead of waiting for customer.subscription.*', async () => {
+    const session = {
+      id: 'cs_1',
+      mode: 'subscription',
+      metadata: { barId: 'bar_123' },
+      customer: 'cus_123',
+      subscription: 'sub_123',
+    } as unknown as Stripe.Checkout.Session;
+    const periodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    stripeApiMock.retrieveSubscription.mockResolvedValue({
+      id: 'sub_123',
+      status: 'active',
+      items: { data: [{ price: { id: 'price_pro' }, current_period_end: periodEnd }] },
+    });
+
+    await handler.execute(new HandleCheckoutCompletedCommand(session));
+
+    const [, create, update] = writeRepoMock.upsert.mock.calls.at(-1);
+
+    expect(create).toMatchObject({
+      plan: 'PRO',
+      status: 'ACTIVE',
+      stripeCustomerId: 'cus_123',
+      stripeSubscriptionId: 'sub_123',
+      currentPeriodEnd: new Date(periodEnd * 1000),
+    });
+    expect(update).toEqual(create);
   });
 
   it('should fall back to client_reference_id when metadata.barId is absent', async () => {
@@ -170,13 +218,14 @@ describe('HandleCheckoutCompletedHandler (bar-subscription)', () => {
       customer: { id: 'cus_123' },
       subscription: { id: 'sub_123' },
     } as unknown as Stripe.Checkout.Session;
+    stripeApiMock.retrieveSubscription.mockResolvedValue(null);
 
     await handler.execute(new HandleCheckoutCompletedCommand(session));
 
     expect(writeRepoMock.upsert).toHaveBeenCalledWith(
       'bar_456',
       expect.objectContaining({ stripeCustomerId: 'cus_123', stripeSubscriptionId: 'sub_123' }),
-      { stripeCustomerId: 'cus_123', stripeSubscriptionId: 'sub_123' },
+      expect.objectContaining({ stripeCustomerId: 'cus_123', stripeSubscriptionId: 'sub_123' }),
     );
   });
 });

@@ -75,6 +75,36 @@ estado local del bar, y moverlas alli crearia una dependencia circular entre amb
 
 ## Eventos internos emitidos
 
-- SubscriptionRenewedEvent
-- SubscriptionCancelledEvent
-- SubscriptionPaymentFailedEvent
+| Evento                              | Lo consume                                                              |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| SubscriptionRenewedEvent            | `SubscriptionUpdatedHandler` -> socket `subscriptionUpdated`             |
+| SubscriptionCancelledEvent          | `SubscriptionUpdatedHandler` -> socket `subscriptionUpdated`             |
+| SubscriptionPaymentFailedEvent      | `SubscriptionUpdatedHandler` -> socket `subscriptionUpdated`             |
+| DuplicateSubscriptionDetectedEvent  | `DuplicateSubscriptionDetectedHandler` -> log de incidente de facturacion |
+
+El evento de duplicado se emite cuando un segundo checkout completa sobre un bar que ya tenia una
+suscripcion viva. La duplicada se cancela sola, pero el cliente puede haber sido cobrado y no hay
+devolucion automatica: hoy solo queda registrado en el log, y ese handler es el sitio donde colgar
+un aviso real (email, Slack) cuando se decida el destinatario.
+
+## Desarrollo local
+
+`docker compose up` levanta un servicio `stripe` que reenvia los eventos a la API. Para hacerlo a
+mano:
+
+```sh
+stripe listen --forward-to localhost:3000/api/v1/stripe/webhook
+```
+
+El `whsec_...` que imprime es el `STRIPE_WEBHOOK_SECRET` de `apps/api/.env`.
+
+## Estado de la suscripcion
+
+`checkout.session.completed` no espera a `customer.subscription.*`: relee la suscripcion de Stripe
+y escribe plan, estado y periodos en el momento. Una lectura en vivo siempre es igual o mas fresca
+que cualquier webhook ya procesado, asi que no puede pisar datos mas nuevos. Si Stripe todavia no
+conoce la suscripcion, se enlazan las referencias como INACTIVE y el evento posterior la corrige.
+
+`SubscriptionActiveGuard` (global, solo escrituras) es quien corta el acceso. Un bar sin fila en
+`BarSubscription` se considera sin suscripcion, de ahi que crear un bar cree tambien su trial y que
+exista una migracion de backfill para los bares anteriores al modulo de facturacion.

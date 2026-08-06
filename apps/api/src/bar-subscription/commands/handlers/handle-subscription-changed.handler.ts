@@ -1,7 +1,6 @@
 import type { BarId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
-import { isLiveSubscription, StripeApi, toDbPlan, toDbStatus } from '@coaster/stripe';
+import { isLiveSubscription, StripeApi, toSubscriptionSnapshot } from '@coaster/stripe';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
@@ -57,37 +56,14 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
       }
     }
 
-    const firstItem = subscription.items.data[0];
-    const isTerminalCancellation = subscription.status === 'canceled';
-    const isScheduledCancellation = Boolean(subscription.cancel_at_period_end || subscription.cancel_at);
-    const isCancellation = isTerminalCancellation || isScheduledCancellation;
-
-    const plan = isTerminalCancellation ? DbSubscriptionPlan.FREE : toDbPlan(firstItem?.price?.id, this._configService);
-    const status = isCancellation ? DbSubscriptionStatus.CANCELED : toDbStatus(subscription.status);
-
-    const currentPeriodStart = firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null;
-    const currentPeriodEnd = subscription.cancel_at
-      ? new Date(subscription.cancel_at * 1000)
-      : firstItem?.current_period_end
-        ? new Date(firstItem.current_period_end * 1000)
-        : null;
-    const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
-    const canceledAt = subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null;
+    const { isCancellation, ...snapshot } = toSubscriptionSnapshot(subscription, this._configService);
+    const { currentPeriodEnd, canceledAt } = snapshot;
 
     this._logger.debug(
-      `Updating subscription for barId=${barId}: subscriptionId=${subscription.id}, plan=${plan}, status=${status}`,
+      `Updating subscription for barId=${barId}: subscriptionId=${subscription.id}, plan=${snapshot.plan}, status=${snapshot.status}`,
     );
 
-    const data = {
-      stripeCustomerId,
-      stripeSubscriptionId: isTerminalCancellation ? null : subscription.id,
-      plan,
-      status,
-      currentPeriodStart,
-      currentPeriodEnd,
-      trialEndsAt,
-      canceledAt,
-    };
+    const data = { ...snapshot, stripeCustomerId };
 
     await this._writeRepo.upsert(barId, data, data);
 

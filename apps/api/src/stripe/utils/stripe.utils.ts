@@ -70,6 +70,51 @@ export function toDbStatus(status: Subscription.Status): DbSubscriptionStatus {
   }
 }
 
+export interface StripeSubscriptionSnapshot {
+  plan: DbSubscriptionPlan;
+  status: DbSubscriptionStatus;
+  stripeSubscriptionId: string | null;
+  currentPeriodStart: Date | null;
+  currentPeriodEnd: Date | null;
+  trialEndsAt: Date | null;
+  canceledAt: Date | null;
+  /** Not a column: the caller decides which domain event the change deserves. */
+  isCancellation: boolean;
+}
+
+/**
+ * The single reading of what a Stripe subscription means for a bar. Both the checkout webhook and
+ * the subscription webhook write the same row, so they have to agree on this or whichever arrives
+ * last quietly overwrites the other with a different opinion.
+ */
+export function toSubscriptionSnapshot(
+  subscription: Subscription,
+  configService: ConfigService,
+): StripeSubscriptionSnapshot {
+  // A subscription without items should not be possible, but a webhook is a bad place to find out.
+  const firstItem = subscription.items?.data?.[0];
+  const isTerminalCancellation = subscription.status === 'canceled';
+  const isScheduledCancellation = Boolean(subscription.cancel_at_period_end || subscription.cancel_at);
+
+  return {
+    plan: isTerminalCancellation ? DbSubscriptionPlan.FREE : toDbPlan(firstItem?.price?.id, configService),
+    status:
+      isTerminalCancellation || isScheduledCancellation
+        ? DbSubscriptionStatus.CANCELED
+        : toDbStatus(subscription.status),
+    stripeSubscriptionId: isTerminalCancellation ? null : subscription.id,
+    currentPeriodStart: firstItem?.current_period_start ? new Date(firstItem.current_period_start * 1000) : null,
+    currentPeriodEnd: subscription.cancel_at
+      ? new Date(subscription.cancel_at * 1000)
+      : firstItem?.current_period_end
+        ? new Date(firstItem.current_period_end * 1000)
+        : null,
+    trialEndsAt: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+    canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+    isCancellation: isTerminalCancellation || isScheduledCancellation,
+  };
+}
+
 export function createIntegrationIdentifier(seed?: string): string {
   const alphabet = 'abcdefghijklmnopqrstuvwxyz';
   const bytes = seed ? createHash('sha256').update(seed).digest().subarray(0, 8) : randomBytes(8);

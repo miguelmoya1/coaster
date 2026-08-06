@@ -1,4 +1,5 @@
 import { asBarId, asCategoryId } from '@coaster/core';
+import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,5 +38,24 @@ describe('DeleteCategoryHandler', () => {
 
     expect(repository.delete).toHaveBeenCalledWith(barId, catId);
     expect(eventBus.publish).toHaveBeenCalledWith(new CategoryDeletedEvent(barId, catId));
+  });
+
+  it('should answer 404 when the category belongs to another bar, not blow up with a 500', async () => {
+    vi.clearAllMocks();
+    repository.delete.mockRejectedValue(Object.assign(new Error('Record to update not found'), { code: 'P2025' }));
+
+    await expect(
+      handler.execute(new DeleteCategoryCommand(asBarId('bar-1'), asCategoryId('cat-of-another-bar'))),
+    ).rejects.toThrow(NotFoundException);
+    expect(eventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('should let an unexpected database failure through untouched', async () => {
+    vi.clearAllMocks();
+    repository.delete.mockRejectedValue(Object.assign(new Error('connection lost'), { code: 'P1001' }));
+
+    await expect(handler.execute(new DeleteCategoryCommand(asBarId('bar-1'), asCategoryId('cat-1')))).rejects.toThrow(
+      'connection lost',
+    );
   });
 });

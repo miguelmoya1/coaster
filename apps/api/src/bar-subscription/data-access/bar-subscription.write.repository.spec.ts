@@ -13,6 +13,7 @@ describe('BarSubscriptionWriteRepository', () => {
       update: ReturnType<typeof vi.fn>;
       upsert: ReturnType<typeof vi.fn>;
       updateMany: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
     };
     $transaction: ReturnType<typeof vi.fn>;
   };
@@ -26,12 +27,14 @@ describe('BarSubscriptionWriteRepository', () => {
         update: vi.fn(),
         upsert: vi.fn(),
         updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+        findMany: vi.fn().mockResolvedValue([]),
       },
       $transaction: vi.fn().mockImplementation((cb: (tx: unknown) => unknown) => cb(dbMock)),
     };
     repository = new BarSubscriptionWriteRepository(dbMock as unknown as DbService);
 
     vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
+    vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
   });
 
   it('should create subscription data with barId', async () => {
@@ -108,6 +111,7 @@ describe('BarSubscriptionWriteRepository', () => {
 
     it('should release a Stripe customer still linked to another bar before writing', async () => {
       const barId = asBarId('bar-123');
+      dbMock.dbBarSubscription.findMany.mockResolvedValue([{ barId: 'bar-other' }]);
       dbMock.dbBarSubscription.updateMany.mockResolvedValue({ count: 1 });
       dbMock.dbBarSubscription.upsert.mockResolvedValue({ id: 'sub-1', barId });
 
@@ -126,8 +130,35 @@ describe('BarSubscriptionWriteRepository', () => {
       expect(dbMock.dbBarSubscription.upsert).toHaveBeenCalled();
     });
 
+    it('should name the bar that lost its billing link so the incident is traceable', async () => {
+      const barId = asBarId('bar-123');
+      const error = vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
+      dbMock.dbBarSubscription.findMany.mockResolvedValue([{ barId: 'bar-other' }]);
+      dbMock.dbBarSubscription.updateMany.mockResolvedValue({ count: 1 });
+      dbMock.dbBarSubscription.upsert.mockResolvedValue({ id: 'sub-1', barId });
+
+      await repository.upsert(barId, { stripeCustomerId: 'cus_shared' } as any, {} as any);
+
+      const message = error.mock.calls.at(-1)?.[0] as string;
+      expect(message).toContain('cus_shared');
+      expect(message).toContain('bar-other');
+      expect(message).toContain('bar-123');
+    });
+
+    it('should leave other rows alone when nobody else holds the id', async () => {
+      const barId = asBarId('bar-123');
+      dbMock.dbBarSubscription.findMany.mockResolvedValue([]);
+      dbMock.dbBarSubscription.upsert.mockResolvedValue({ id: 'sub-1', barId });
+
+      await repository.upsert(barId, { stripeCustomerId: 'cus_free' } as any, {} as any);
+
+      expect(dbMock.dbBarSubscription.updateMany).not.toHaveBeenCalled();
+      expect(dbMock.dbBarSubscription.upsert).toHaveBeenCalled();
+    });
+
     it('should release a Stripe subscription still linked to another bar before writing', async () => {
       const barId = asBarId('bar-123');
+      dbMock.dbBarSubscription.findMany.mockResolvedValue([{ barId: 'bar-other' }]);
       dbMock.dbBarSubscription.updateMany.mockResolvedValue({ count: 1 });
       dbMock.dbBarSubscription.upsert.mockResolvedValue({ id: 'sub-1', barId });
 

@@ -65,6 +65,14 @@ npm run dev:api
 npm run dev:web
 ```
 
+> **Upgrading an existing checkout:** the `db` service moved from `postgres:16-alpine` to
+> `postgres:18-alpine`. A `postgres_data` volume created by 16 will not start under 18, so drop it
+> once (`docker compose down -v db`) and let the migrations rebuild your local database.
+
+To exercise Stripe locally you also need its CLI forwarding events to the API. `docker compose up`
+starts a `stripe` service that does it, or run it yourself — see
+[Stripe integration](docs/saas/stripe-integration.md).
+
 ### Build for Production
 
 To create a production bundle:
@@ -85,5 +93,3 @@ npm run build
 
 - [Learn more about Nx Workspaces](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial)
 - [Nx Console for your IDE](https://nx.dev/getting-started/editor-setup)
-
-stripe listen --forward-to localhost:3000/api/v1/stripe/webhook

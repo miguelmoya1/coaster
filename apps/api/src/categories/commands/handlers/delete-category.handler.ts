@@ -1,4 +1,6 @@
-import { Logger } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { isRecordNotFoundError } from '@coaster/core';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { CategoryDeletedEvent } from '../../events';
@@ -15,7 +17,17 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
 
   async execute(command: DeleteCategoryCommand): Promise<void> {
     this.#logger.debug(`Executing deleteCategory...`);
-    await this.repository.delete(command.barId, command.categoryId);
+
+    try {
+      await this.repository.delete(command.barId, command.categoryId);
+    } catch (error) {
+      if (isRecordNotFoundError(error)) {
+        throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
+      }
+
+      throw error;
+    }
+
     this.#logger.debug(`Publishing CategoryDeletedEvent...`);
     this._eventBus.publish(new CategoryDeletedEvent(command.barId, command.categoryId));
   }
