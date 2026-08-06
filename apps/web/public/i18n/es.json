@@ -148,8 +148,18 @@
     },
     "toggle_mic": "Silenciar micrófono",
     "hang_up": "Colgar",
-    "type_placeholder": "O escribe tu orden aquí…",
-    "voice_unavailable": "Dictado no disponible en este navegador"
+    "type_placeholder": "Escribe o dicta tu orden…",
+    "placeholder_listening": "Te escucho…",
+    "stop_listening": "Dejar de escuchar",
+    "resize": "Ajustar altura del asistente",
+    "speak_message": "Escuchar respuesta",
+    "voice_unavailable": "Dictado no disponible en este navegador",
+    "suggestions": {
+      "takings": "¿Cuánto llevamos hoy?",
+      "low_stock": "¿Qué productos están bajo mínimos?",
+      "rota": "¿Quién trabaja mañana?",
+      "order": "Ponme dos cañas en la mesa 1"
+    }
   },
   "auth": {
     "login": {

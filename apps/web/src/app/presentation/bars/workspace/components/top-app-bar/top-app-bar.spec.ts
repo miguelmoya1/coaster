@@ -8,6 +8,7 @@ import type { BarId } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AiVoiceService } from '../ai-assistant/ai-voice.service';
 import { TopAppBar } from './top-app-bar';
 
 describe('TopAppBar', () => {
@@ -34,8 +35,15 @@ describe('TopAppBar', () => {
     hasPermission: vi.fn().mockImplementation((perm: BarPermission) => perm === BarPermission.BAR_MANAGE_BILLING),
   };
 
+  const aiVoiceServiceMock = {
+    isOpen: signal(false),
+    status: signal('idle'),
+    toggle: vi.fn(),
+  };
+
   const subscriptionSignal = signal<{ status: string; currentPeriodEnd?: string } | null>({ status: 'INACTIVE' });
   const barSubscriptionStoreMock = {
+    isReadOnly: signal(false).asReadonly(),
     subscription: {
       value: subscriptionSignal,
     },
@@ -56,6 +64,7 @@ describe('TopAppBar', () => {
         { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
         { provide: Auth, useValue: authMock },
         { provide: CurrentUser, useValue: currentUserMock },
+        { provide: AiVoiceService, useValue: aiVoiceServiceMock },
       ],
     }).compileComponents();
 
@@ -89,6 +98,14 @@ describe('TopAppBar', () => {
       const avatar = fixture.nativeElement.querySelector('coaster-avatar-badge');
       expect(avatar).toBeTruthy();
       expect(component.image()).toBe('https://photo.url/user.jpg');
+    });
+
+    it('should offer the AI assistant next to the overflow menu', () => {
+      const trigger = fixture.nativeElement.querySelector('coaster-ai-assistant-trigger');
+      expect(trigger).toBeTruthy();
+
+      trigger.querySelector('button').click();
+      expect(aiVoiceServiceMock.toggle).toHaveBeenCalled();
     });
   });
 

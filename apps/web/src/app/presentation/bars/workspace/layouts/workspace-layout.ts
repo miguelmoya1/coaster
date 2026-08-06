@@ -5,30 +5,46 @@ import { BarSubscriptionStore } from '@coaster/bar-subscription';
 import type { BarId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore, MyMemberStore } from '@coaster/bar-members';
-import { AiVoiceButton } from '../components/ai-voice-button/ai-voice-button';
+import { AiAssistantPanel } from '../components/ai-assistant/ai-assistant-panel';
+import { AiVoiceService } from '../components/ai-assistant/ai-voice.service';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
 import { SubscriptionBanner } from '../components/subscription-banner/subscription-banner';
 import { TopAppBar } from '../components/top-app-bar/top-app-bar';
 
 @Component({
   selector: 'coaster-main',
-  imports: [RouterOutlet, TopAppBar, BottomNav, AiVoiceButton, SubscriptionBanner],
+  imports: [RouterOutlet, TopAppBar, BottomNav, AiAssistantPanel, SubscriptionBanner],
   template: `
-    @if (currentUser.hasValue()) {
-      <coaster-top-app-bar [barId]="barId()" [label]="titleToShow()" [image]="photoUrlToShow()" />
-    }
+    <div class="content-column relative flex min-w-0 flex-1 flex-col overflow-hidden">
+      @if (currentUser.hasValue()) {
+        <coaster-top-app-bar [barId]="barId()" [label]="titleToShow()" [image]="photoUrlToShow()" />
+      }
 
-    <coaster-subscription-banner [barId]="barId()" />
+      <coaster-subscription-banner [barId]="barId()" />
 
-    <main class="w-full flex-1 min-h-0 overflow-y-auto pb-28 hide-scrollbar flex flex-col">
-      <router-outlet />
-    </main>
+      <main class="w-full flex-1 min-h-0 overflow-y-auto hide-scrollbar flex flex-col" [class]="mainPaddingClass()">
+        <router-outlet />
+      </main>
 
-    <coaster-bottom-nav [barId]="barId()" />
-    <coaster-ai-voice-button [barId]="barId()" />
+      <coaster-bottom-nav [barId]="barId()" />
+    </div>
+
+    <coaster-ai-assistant-panel [barId]="barId()" />
   `,
+  styles: [
+    `
+      /*
+       * Layout containment makes this element the containing block for its fixed-position
+       * descendants, so the bottom nav, the FAB and the order bulk actions re-centre inside the
+       * content column instead of the viewport once the assistant rail claims its width.
+       */
+      .content-column {
+        contain: layout;
+      }
+    `,
+  ],
   host: {
-    class: 'h-svh w-full flex flex-col overflow-hidden relative bg-background',
+    class: 'h-svh w-full flex overflow-hidden relative bg-background',
   },
 })
 export default class WorkspaceLayout {
@@ -40,11 +56,20 @@ export default class WorkspaceLayout {
   readonly #membersStore = inject(MembersStore);
   readonly #barSubscriptionStore = inject(BarSubscriptionStore);
   readonly #socketService = inject(Socket);
+  readonly #aiVoiceService = inject(AiVoiceService);
 
   protected readonly currentUser = this.#currentUser.current;
   protected readonly currentBar = this.#currentBarStore.current;
 
   protected readonly isOwner = this.#myMemberStore.isOwner;
+
+  /**
+   * The mobile sheet rests above the bottom nav, so the content needs to clear both of them or the
+   * last row of cards hides behind the composer.
+   */
+  protected readonly mainPaddingClass = computed(() =>
+    this.#aiVoiceService.isOpen() && this.#aiVoiceService.snap() === 'peek' ? 'pb-[13rem] lg:pb-28' : 'pb-28',
+  );
 
   protected readonly titleToShow = computed(() => {
     if (!this.currentBar.hasValue() || !this.currentUser.hasValue()) {

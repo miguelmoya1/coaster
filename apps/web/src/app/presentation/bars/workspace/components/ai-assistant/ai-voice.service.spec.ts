@@ -4,7 +4,28 @@ import { asBarId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiVoiceRepository } from './ai-voice-repository';
-import { AiVoiceService } from './ai-voice.service';
+import { AiVoiceService, toSpokenText } from './ai-voice.service';
+
+describe('toSpokenText', () => {
+  it('should drop emphasis markers so they are not read out loud', () => {
+    expect(toSpokenText('Hoy llevas **340 €**, un *12%* más.')).toBe('Hoy llevas 340 €, un 12% más.');
+  });
+
+  it('should turn a bullet list into sentences the synthesiser can pause between', () => {
+    expect(toSpokenText('Bajo mínimos:\n\n- Cerveza: 3\n- Vino: 1')).toBe('Bajo mínimos: Cerveza: 3. Vino: 1.');
+  });
+
+  it('should strip headings, links and code', () => {
+    expect(toSpokenText('## Resumen\nMira el [panel](https://x.test) y usa `npm run dev`')).toBe(
+      'Resumen. Mira el panel y usa npm run dev.',
+    );
+  });
+
+  it('should keep the words of a plain answer, closing it so it does not trail off', () => {
+    expect(toSpokenText('Mesa 5 creada con éxito')).toBe('Mesa 5 creada con éxito.');
+    expect(toSpokenText('¿Confirmas que la borro?')).toBe('¿Confirmas que la borro?');
+  });
+});
 
 describe('AiVoiceService', () => {
   let service: AiVoiceService;
@@ -148,6 +169,28 @@ describe('AiVoiceService', () => {
       });
 
       expect(service.streamingText()).toBe('Mesa 5 creada');
+    });
+
+    it('should not replay the answer into the transcript when the user toggles mute', async () => {
+      service.transcript.set('Crear mesa Mesa 5');
+
+      service.send(asBarId('bar-1'));
+      TestBed.flushEffects();
+
+      await vi.waitFor(() => {
+        TestBed.flushEffects();
+        expect(service.status()).toBe('success');
+      });
+
+      expect(service.messages().filter((message) => message.role === 'assistant')).toHaveLength(1);
+
+      service.toggleMute();
+      TestBed.flushEffects();
+      service.toggleMute();
+      TestBed.flushEffects();
+
+      expect(service.messages().filter((message) => message.role === 'assistant')).toHaveLength(1);
+      expect(service.messages()).toHaveLength(2);
     });
 
     it('should set error state on send failure', async () => {

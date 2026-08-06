@@ -1,4 +1,5 @@
 export { CreateTableCommand } from './commands/impl/create-table.command';
+export { DeleteTableCommand } from './commands/impl/delete-table.command';
 export { UpdateTableCommand } from './commands/impl/update-table.command';
 export { TableCreatedEvent } from './events/impl/table-created.event';
 export { TableDeletedEvent } from './events/impl/table-deleted.event';

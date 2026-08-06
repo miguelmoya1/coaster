@@ -1,9 +1,42 @@
-import { effect, inject, resource, Service, signal } from '@angular/core';
+import { effect, inject, resource, Service, signal, untracked } from '@angular/core';
 import type { AiMessage, BarId } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
 import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
+
+/** How much of the screen the mobile sheet takes. Ignored by the desktop rail, which is always full height. */
+export type AiSheetSnap = 'peek' | 'half' | 'full';
+
+export const AI_SHEET_SNAPS: AiSheetSnap[] = ['peek', 'half', 'full'];
+
+/**
+ * The assistant answers in markdown so the panel can render it, but speech synthesis would read the
+ * syntax out loud ("asterisco asterisco"). This strips the markup and keeps the words.
+ */
+export const toSpokenText = (markdown: string): string =>
+  markdown
+    .replace(/```[\s\S]*?```/g, '\n')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, '')
+    .replace(/^[ \t]{0,3}>[ \t]?/gm, '')
+    .replace(/^[ \t]*([-*+]|\d+\.)[ \t]+/gm, '')
+    .replace(/^[ \t]*([-*_][ \t]*){3,}$/gm, '')
+    .replace(/(\*\*\*|___)(.+?)\1/g, '$2')
+    .replace(/(\*\*|__)(.+?)\1/g, '$2')
+    .replace(/(\*|_)(.+?)\1/g, '$2')
+    .replace(/~~(.+?)~~/g, '$1')
+    .replace(/\|/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    // Each markdown line was its own visual block, so it earns a pause instead of running on.
+    .map((line) => (/[.!?:,;]$/.test(line) ? line : `${line}.`))
+    .join(' ')
+    .trim();
 
 interface SpeechRecognitionResult {
   isFinal: boolean;
@@ -40,6 +73,8 @@ export class AiVoiceService {
   readonly #repository = inject(AiVoiceRepository);
   readonly #translate = inject(TranslateService);
 
+  public readonly isOpen = signal<boolean>(false);
+  public readonly snap = signal<AiSheetSnap>('peek');
   public readonly status = signal<AiVoiceStatus>('idle');
   public readonly transcript = signal<string>('');
   public readonly error = signal<string | null>(null);
@@ -69,6 +104,8 @@ export class AiVoiceService {
   #sessionTranscript = '';
   #lang = 'es';
 
+  readonly #currentLang = () => this.#translate.currentLang() || 'es';
+
   constructor() {
     const windowObj = window as Window & {
       SpeechRecognition?: new () => ISpeechRecognition;
@@ -79,40 +116,48 @@ export class AiVoiceService {
     effect(() => {
       const status = this.aiResource.status();
 
-      if (status === 'resolved') {
-        const value = this.aiResource.value();
-        if (value) {
-          if (value.isError && value.errorKey) {
-            const errMsg = this.#translate.instant(value.errorKey);
-            this.streamingText.set('');
-            this.error.set(errMsg);
-            this.status.set('error');
-            this.speak(errMsg);
-          } else {
-            this.messages.update((msgs) => [...msgs, { role: 'assistant', content: value.text }]);
-            this.response.set(value.text);
-            this.status.set('success');
-            this.speak(value.text);
+      /*
+       * Only the resource status drives this effect. The work below reads unrelated signals
+       * (isMuted through speak(), the active language through the translations), and tracking
+       * those would replay the whole branch on, say, a mute toggle, appending the same answer to
+       * the transcript a second time.
+       */
+      untracked(() => {
+        if (status === 'resolved') {
+          const value = this.aiResource.value();
+          if (value) {
+            if (value.isError && value.errorKey) {
+              const errMsg = this.#translate.instant(value.errorKey);
+              this.streamingText.set('');
+              this.error.set(errMsg);
+              this.status.set('error');
+              this.speak(errMsg);
+            } else {
+              this.messages.update((msgs) => [...msgs, { role: 'assistant', content: value.text }]);
+              this.response.set(value.text);
+              this.status.set('success');
+              this.speak(value.text);
+            }
           }
+        } else if (status === 'error') {
+          this.streamingText.set('');
+          const error = this.aiResource.error();
+          console.error('Resource loader error:', error);
+          let errMsg = this.#translate.instant('ai_voice.errors.processing');
+          if (error instanceof Error) {
+            errMsg = error.message;
+          } else if (error && typeof error === 'object') {
+            const errObj = error as Record<string, unknown>;
+            const innerError = errObj['error'] as Record<string, unknown> | undefined;
+            errMsg = String(innerError?.['message'] || errObj['message'] || errMsg);
+          }
+          this.error.set(errMsg);
+          this.status.set('error');
+          this.speak(errMsg);
+        } else if (status === 'loading') {
+          this.status.set('processing');
         }
-      } else if (status === 'error') {
-        this.streamingText.set('');
-        const error = this.aiResource.error();
-        console.error('Resource loader error:', error);
-        let errMsg = this.#translate.instant('ai_voice.errors.processing');
-        if (error instanceof Error) {
-          errMsg = error.message;
-        } else if (error && typeof error === 'object') {
-          const errObj = error as Record<string, unknown>;
-          const innerError = errObj['error'] as Record<string, unknown> | undefined;
-          errMsg = String(innerError?.['message'] || errObj['message'] || errMsg);
-        }
-        this.error.set(errMsg);
-        this.status.set('error');
-        this.speak(errMsg);
-      } else if (status === 'loading') {
-        this.status.set('processing');
-      }
+      });
     });
   }
 
@@ -183,7 +228,41 @@ export class AiVoiceService {
     };
   }
 
-  public start(lang = 'es') {
+  /** The panel lives in the workspace layout but is driven from the top bar, so ownership sits here. */
+  public open() {
+    this.isOpen.set(true);
+    this.snap.set('peek');
+
+    if (this.isSupported()) {
+      this.start(this.#currentLang());
+    }
+  }
+
+  public close() {
+    this.isOpen.set(false);
+    this.snap.set('peek');
+    this.cancel();
+  }
+
+  public toggle() {
+    if (this.isOpen()) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+
+  public setSnap(snap: AiSheetSnap) {
+    this.snap.set(snap);
+  }
+
+  /** Tapping the handle walks up the snaps and wraps back to the resting position. */
+  public cycleSnap() {
+    const next = AI_SHEET_SNAPS[(AI_SHEET_SNAPS.indexOf(this.snap()) + 1) % AI_SHEET_SNAPS.length];
+    this.snap.set(next);
+  }
+
+  public start(lang = this.#currentLang()) {
     if (!this.isSupported()) return;
     this.#lang = lang;
     this.stopSpeaking();
@@ -281,6 +360,11 @@ export class AiVoiceService {
     this.messages.set(updatedMessages);
     this.transcript.set('');
 
+    // Resting on the composer is fine until there is a conversation worth reading.
+    if (this.snap() === 'peek') {
+      this.snap.set('half');
+    }
+
     this.#commandParams.set({ barId, prompt: textToSend, messages: updatedMessages });
   }
 
@@ -288,7 +372,7 @@ export class AiVoiceService {
     if (this.isMuted()) return;
     this.stopSpeaking();
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(toSpokenText(text));
       utterance.lang = this.#lang;
       window.speechSynthesis.speak(utterance);
     }

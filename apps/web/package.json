@@ -20,6 +20,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.4.0",
     "firebase": "^12.16.0",
+    "marked": "^18.0.9",
     "rxjs": "~7.8.2",
     "socket.io-client": "^4.8.3",
     "tslib": "^2.8.1"

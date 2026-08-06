@@ -148,8 +148,18 @@
     },
     "toggle_mic": "Mute microphone",
     "hang_up": "Hang up",
-    "type_placeholder": "Or type your command here…",
-    "voice_unavailable": "Dictation unavailable in this browser"
+    "type_placeholder": "Type or dictate your command…",
+    "placeholder_listening": "I'm listening…",
+    "stop_listening": "Stop listening",
+    "resize": "Resize the assistant",
+    "speak_message": "Play response",
+    "voice_unavailable": "Dictation unavailable in this browser",
+    "suggestions": {
+      "takings": "How much have we taken today?",
+      "low_stock": "Which products are running low?",
+      "rota": "Who is working tomorrow?",
+      "order": "Two beers for table 1"
+    }
   },
   "auth": {
     "login": {

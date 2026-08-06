@@ -1,4 +1,6 @@
 export { AdjustProductStockCommand } from './commands/impl/adjust-product-stock.command';
+export { CreateProductCommand } from './commands/impl/create-product.command';
+export { DeleteProductCommand } from './commands/impl/delete-product.command';
 export { UpdateProductStockCommand } from './commands/impl/update-product-stock.command';
 export { UpdateProductCommand } from './commands/impl/update-product.command';
 export { ProductCreatedEvent } from './events/impl/product-created.event';

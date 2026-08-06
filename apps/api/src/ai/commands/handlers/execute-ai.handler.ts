@@ -1,24 +1,27 @@
 import { GetCategoriesQuery } from '@coaster/categories';
-import type { Category, Order, Product, Table } from '@coaster/common';
-import { BarPermission, BarRole, ErrorCodes, OrderStatus } from '@coaster/common';
-import { asBarRole, hasPermission, SecurityRepository } from '@coaster/core';
+import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
+import { BarRole, ErrorCodes, OrderStatus } from '@coaster/common';
+import { asBarRole, getRolePermissions, SecurityRepository } from '@coaster/core';
 import { DbBarRole, DbRole } from '@coaster/core/db';
 import { GetOrdersByBarIdQuery } from '@coaster/orders';
 import { GetProductsByBarIdQuery } from '@coaster/products';
 import { GetTablesByBarIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
-import { generateText, LanguageModel, streamText } from 'ai';
+import { generateText, LanguageModel, stepCountIs, streamText } from 'ai';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 
 const MAX_HISTORY_MESSAGES = 10;
 
+/**
+ * The assistant may chain tool calls (look something up, then act on it), so it needs more than one
+ * step. The cap keeps a confused model from looping through the whole bar's data on a single prompt.
+ */
+const MAX_TOOL_STEPS = 8;
+
 @CommandHandler(ExecuteAiCommand)
-export class ExecuteAiHandler implements ICommandHandler<
-  ExecuteAiCommand,
-  { text: string; isError?: boolean; errorKey?: string }
-> {
+export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiResponse> {
   readonly #logger = new Logger(ExecuteAiHandler.name);
   readonly #backupModels: LanguageModel[] = [
     'openai/gpt-oss-120b',
@@ -34,7 +37,7 @@ export class ExecuteAiHandler implements ICommandHandler<
     private readonly _securityRepository: SecurityRepository,
   ) {}
 
-  async execute(command: ExecuteAiCommand): Promise<{ text: string; isError?: boolean; errorKey?: string }> {
+  async execute(command: ExecuteAiCommand): Promise<AiResponse> {
     const { barId, prompt, user, messages, onDelta } = command;
     this.#logger.debug(`Executing AI command for user ${user.id} in bar ${barId}`);
 
@@ -59,6 +62,103 @@ export class ExecuteAiHandler implements ICommandHandler<
       this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId)),
     ]);
 
+    const userLang = user.language || 'es';
+    const systemPrompt = this.#buildSystemPrompt({
+      barId,
+      user,
+      isAdmin,
+      userBarRole,
+      userLang,
+      tables,
+      products,
+      categories,
+      openOrders,
+    });
+
+    const recentMessages = messages && messages.length > 0 ? messages.slice(-MAX_HISTORY_MESSAGES) : [];
+
+    const coreMessages =
+      recentMessages.length > 0
+        ? recentMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          }))
+        : [{ role: 'user' as const, content: prompt }];
+
+    try {
+      const modelOptions = {
+        model: this.#model,
+        providerOptions: {
+          gateway: {
+            models: this.#backupModels as unknown as [],
+          },
+        },
+        system: systemPrompt,
+        messages: coreMessages,
+        temperature: 0.1,
+        stopWhen: stepCountIs(MAX_TOOL_STEPS),
+        tools: getAiTools({
+          barId,
+          user,
+          isAdmin,
+          barRole: userBarRole,
+          commandBus: this._commandBus,
+          queryBus: this._queryBus,
+          products,
+          categories,
+          tables,
+          openOrders,
+        }),
+      };
+
+      if (onDelta) {
+        this.#logger.debug(`[AI Gateway] Calling streamText with model="${this.#model}"`);
+        const stream = streamText(modelOptions);
+
+        let streamed = '';
+        for await (const delta of stream.textStream) {
+          streamed += delta;
+          onDelta(delta);
+        }
+
+        // With multiple steps `stream.text` only holds the final step, while the user already saw
+        // everything that was streamed. Keep the transcript and what was spoken in sync.
+        const text = streamed.trim() || (await stream.text);
+        return { text: text || this.#fallbackText(userLang) };
+      }
+
+      this.#logger.debug(`[AI Gateway] Calling generateText with model="${this.#model}"`);
+      const result = await generateText(modelOptions);
+
+      this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
+      return { text: result.text || this.#fallbackText(userLang) };
+    } catch (error: any) {
+      this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
+      return {
+        text: 'ai_voice.errors.ai_gateway_failed',
+        isError: true,
+        errorKey: 'ai_voice.errors.ai_gateway_failed',
+      };
+    }
+  }
+
+  #fallbackText(userLang: string): string {
+    return userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.';
+  }
+
+  #buildSystemPrompt(input: {
+    barId: string;
+    user: { id: string; name: string };
+    isAdmin: boolean;
+    userBarRole: BarRole;
+    userLang: string;
+    tables: Table[];
+    products: Product[];
+    categories: Category[];
+    openOrders: Order[];
+  }): string {
+    const { barId, user, isAdmin, userBarRole, userLang, tables, products, categories, openOrders } = input;
+
     const productsList = products
       .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
       .join('\n');
@@ -82,12 +182,17 @@ export class ExecuteAiHandler implements ICommandHandler<
       })
       .join('\n');
 
-    const userLang = user.language || 'es';
+    const permissionsList = isAdmin
+      ? '(ADMIN: every permission)'
+      : getRolePermissions(userBarRole)
+          .map((permission) => `- ${permission}`)
+          .join('\n');
 
-    const systemPrompt = `
+    return `
 You are the Coaster Voice Assistant, a professional real-time management system for bars and restaurants.
 Current Bar ID: "${barId}".
 Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : userBarRole}".
+Current date and time (UTC): ${new Date().toISOString()}.
 
 === AVAILABLE DATA ===
 Below is the list of products available in this bar (with their UUIDs, prices, and current stock):
@@ -102,6 +207,14 @@ ${categoriesList || '(None)'}
 Below is the list of active open orders (with their UUIDs, table names, and corresponding item IDs):
 ${ordersList || '(None)'}
 
+This snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,
+shifts, staff, stock alerts) must be fetched with a read tool instead of guessed.
+
+=== THIS USER'S PERMISSIONS ===
+${permissionsList}
+Tools outside this list will be rejected by the server. If the user asks for one of them, say plainly
+that their role does not allow it instead of calling the tool.
+
 === BEHAVIOR RULES ===
 1. [CRITICAL] It is strictly forbidden to respond with plain text if the user requests any action or command and you have all necessary information. You must invoke one of the available tools instead of replying with conversational text.
 2. Carefully match the products, tables, or orders mentioned in the user's request with the UUIDs listed in the lists above:
@@ -109,140 +222,21 @@ ${ordersList || '(None)'}
    - For tables: Match names like "Mesa 1", "Mesa 5", "Terraza" to their corresponding Table UUID in the available tables list.
    - For categories: Match names like "bebidas", "comidas", "postres" to their corresponding Category UUID in the available categories list.
    - For orders: Match the requested table name or table/order ID to find the correct active order UUID.
-3. If the action requires specific permissions, the tool will check them. If the user lacks permissions, report the error message back to the user.
-4. Once the action is successfully executed, confirm what you have done in detail.
-5. Important: Always respond to the user in their preferred language. Currently, the user's language is: "${userLang}" (e.g. "es" for Spanish, "en" for English). Return your final response in this language.
-6. [CONTEXT & MULTI-TURN CHAT] Use the conversation history (previous messages) to resolve context, pronouns, and parameters (like product type, quantity, table, or order). Even if the user's latest message is just a simple response to your clarifying question (e.g., "una Heineken", "a la mesa tres", "dos"), you must combine it with the previous messages. If the combined intent describes a complete action/command, you must execute the corresponding tool immediately instead of asking more questions or responding with conversational text. Do not ask for information that the user has already provided in previous turns.
-   If all required information to call a tool is present, DO NOT RESPOND WITH CONVERSATIONAL TEXT, JUST CALL THE TOOL. If information is missing, ask a brief clarifying question in the user's language.
+3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getBarStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.
+4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.
+5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a "confirmed" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.
+6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.
+7. Tool results come back as JSON with a "status" field. On "denied" tell the user they lack permission. On "error" explain what failed in plain words. On "confirmation_required" ask the confirmation question. Never show raw JSON or UUIDs to the user; refer to things by their names.
+7b. [FORMATTING] Your answer is rendered as markdown inside a narrow panel (about 26rem wide) and is also read out loud, so keep it short and scannable:
+   - Default to one or two plain sentences. Only reach for structure when you are actually listing things.
+   - Use "-" bullet lists for several items, one short line each. Put the name first, then the figure.
+   - Use **bold** for the numbers that matter (amounts, quantities, product names being changed). Do not bold whole sentences.
+   - Never use headings, tables, horizontal rules, code blocks or images: they look broken at this width.
+   - No emoji unless the user uses them first.
+8. Once the action is successfully executed, confirm what you have done in detail.
+9. Important: Always respond to the user in their preferred language. Currently, the user's language is: "${userLang}" (e.g. "es" for Spanish, "en" for English). Return your final response in this language.
+10. [CONTEXT & MULTI-TURN CHAT] Use the conversation history (previous messages) to resolve context, pronouns, and parameters (like product type, quantity, table, or order). Even if the user's latest message is just a simple response to your clarifying question (e.g., "una Heineken", "a la mesa tres", "dos", "sí"), you must combine it with the previous messages. If the combined intent describes a complete action/command, you must execute the corresponding tool immediately instead of asking more questions or responding with conversational text. Do not ask for information that the user has already provided in previous turns.
+    If all required information to call a tool is present, DO NOT RESPOND WITH CONVERSATIONAL TEXT, JUST CALL THE TOOL. If information is missing, ask a brief clarifying question in the user's language.
 `.trim();
-
-    const runAction = async (
-      perm: BarPermission,
-      action: () => Promise<any>,
-    ): Promise<{ success: boolean; text: string; errorKey?: string }> => {
-      if (!isAdmin && (!userBarRole || !hasPermission(userBarRole, perm))) {
-        this.#logger.warn(`User ${user.id} denied permission "${perm}" in bar "${barId}"`);
-        return {
-          success: false,
-          text: `Error: You do not have permission to perform this action (requires '${perm}').`,
-          errorKey: 'ai_voice.errors.permission_denied',
-        };
-      }
-      try {
-        this.#logger.debug(`[AI Tool Action] Running command for permission "${perm}"...`);
-        const result = await action();
-        this.#logger.debug(
-          `[AI Tool Action] Success: Command for permission "${perm}" completed. Result: ${JSON.stringify(result)}`,
-        );
-        return {
-          success: true,
-          text: `Success: Action completed.${result ? ` Details: ${JSON.stringify(result)}` : ''}`,
-        };
-      } catch (error: any) {
-        this.#logger.error(
-          `[AI Tool Action] Error: Command for permission "${perm}" failed: ${error.message || error}`,
-          error.stack,
-        );
-        const errMsg = error.message || String(error);
-        const errorKey = Object.values(ErrorCodes).some((v) => v === errMsg) ? errMsg : undefined;
-        return {
-          success: false,
-          text: `Error: ${errMsg}`,
-          errorKey,
-        };
-      }
-    };
-
-    const recentMessages = messages && messages.length > 0 ? messages.slice(-MAX_HISTORY_MESSAGES) : [];
-
-    const coreMessages =
-      recentMessages.length > 0
-        ? recentMessages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          }))
-        : [{ role: 'user' as const, content: prompt }];
-
-    try {
-      const modelOptions = {
-        model: this.#model,
-        providerOptions: {
-          gateway: {
-            models: this.#backupModels as unknown as [],
-          },
-        },
-        system: systemPrompt,
-        messages: coreMessages,
-        temperature: 0.1,
-        tools: getAiTools({
-          barId,
-          products,
-          categories,
-        }),
-      };
-
-      let result: { text: string; toolResults?: unknown };
-
-      if (onDelta) {
-        this.#logger.debug(`[AI Gateway] Calling streamText with model="${this.#model}"`);
-        const stream = streamText(modelOptions);
-
-        for await (const delta of stream.textStream) {
-          onDelta(delta);
-        }
-
-        result = { text: await stream.text, toolResults: await stream.toolResults };
-      } else {
-        this.#logger.debug(`[AI Gateway] Calling generateText with model="${this.#model}"`);
-        result = await generateText(modelOptions);
-      }
-
-      let errorResult: { text: string; isError?: boolean; errorKey?: string } | null = null;
-
-      if (Array.isArray(result.toolResults)) {
-        for (const toolResult of result.toolResults) {
-          const actionDesc = toolResult.output as any;
-          if (actionDesc && typeof actionDesc === 'object') {
-            if (actionDesc.isError) {
-              errorResult = {
-                text: actionDesc.text || 'Error occurred in tool execution',
-                isError: true,
-                errorKey: actionDesc.errorKey,
-              };
-              break;
-            }
-            if ('command' in actionDesc && 'permission' in actionDesc) {
-              const runResult = await runAction(actionDesc.permission as BarPermission, () =>
-                this._commandBus.execute(actionDesc.command),
-              );
-              if (!runResult.success) {
-                errorResult = {
-                  text: runResult.text,
-                  isError: true,
-                  errorKey: runResult.errorKey,
-                };
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      if (errorResult) {
-        return errorResult;
-      }
-
-      this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
-      return {
-        text: result.text || (userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.'),
-      };
-    } catch (error: any) {
-      this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
-      return {
-        text: 'ai_voice.errors.ai_gateway_failed',
-        isError: true,
-        errorKey: 'ai_voice.errors.ai_gateway_failed',
-      };
-    }
   }
 }

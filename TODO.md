@@ -24,6 +24,14 @@ El asistente actual se queda con dictado del navegador (Web Speech API) más el 
 streaming por SSE, campo de texto para escribir cuando hay ruido o el navegador no soporta
 dictado, consultas de contexto en paralelo e historial acotado.
 
+Segunda iteración: las tools se ejecutan dentro del bucle del modelo (`stopWhen`), así que puede
+consultar antes de actuar y encadenar varias llamadas en un turno. Cubre pedidos (mover, unir,
+descuentos, propina), productos, categorías, mesas, turnos, cambios de turno, personal y
+estadísticas. Cada tool pasa por `createToolRunner`, que comprueba el permiso del rol antes de
+tocar el bus y exige confirmación explícita del usuario en las acciones destructivas. En el front
+el asistente vive en la barra superior (junto al menú de tres puntos) y abre un panel lateral a la
+derecha en escritorio / hoja inferior en móvil.
+
 ## Fase 3: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)

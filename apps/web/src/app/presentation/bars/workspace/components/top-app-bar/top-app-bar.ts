@@ -13,11 +13,13 @@ import { BarPermission, ErrorCodes } from '@coaster/common';
 import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
 @Component({
   selector: 'coaster-top-app-bar',
   imports: [
+    AiAssistantTrigger,
     AvatarBadge,
     RouterLink,
     MatButton,
@@ -56,9 +58,13 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
         </div>
       </div>
 
-      <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
+      <div class="flex items-center shrink-0">
+        <coaster-ai-assistant-trigger [barId]="barId()" />
+
+        <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
 
       <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
         <a mat-menu-item routerLink="/bars/select">
