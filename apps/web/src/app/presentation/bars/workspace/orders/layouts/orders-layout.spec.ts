@@ -1,6 +1,6 @@
+import { asBarId } from '@coaster/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { asBarId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { describe, beforeEach, it, expect } from 'vitest';
 

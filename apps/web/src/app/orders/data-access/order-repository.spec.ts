@@ -1,7 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
+import { PaymentMethod, asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { OrderRepository } from './order-repository';
 

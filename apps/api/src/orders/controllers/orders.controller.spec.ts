@@ -1,7 +1,8 @@
+import { asBarId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asTableId, BarPermissionsGuard } from '@coaster/core';
+import { BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

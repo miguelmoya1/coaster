@@ -1,3 +1,4 @@
+import { asUserId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
@@ -6,7 +7,7 @@ import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular/material/timepicker';
 import type { BarMember } from '@coaster/common';
-import { DateFormatterService, asUserId, handleErrorFormField } from '@coaster/core';
+import { DateFormatterService, handleErrorFormField } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe } from '@ngx-translate/core';

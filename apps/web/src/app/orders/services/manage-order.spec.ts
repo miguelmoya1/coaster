@@ -1,7 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
+import { PaymentMethod, asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
 import { ManageOrder } from './manage-order';

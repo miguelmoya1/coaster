@@ -1,9 +1,10 @@
+import { asBarId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { describe, beforeEach, it, expect, afterEach } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
-import { asBarId, Socket } from '@coaster/core';
+import { Socket } from '@coaster/core';
 
 import { ShiftsStore } from './shifts.store';
 

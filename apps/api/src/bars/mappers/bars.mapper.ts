@@ -1,5 +1,5 @@
 import type { Bar } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { asBarId } from '@coaster/common';
 import { DbBar as BarDb } from '@coaster/core/db';
 
 export const BarsMapper = {

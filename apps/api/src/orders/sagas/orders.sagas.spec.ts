@@ -1,6 +1,5 @@
 import type { Order } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { asBarId, asOrderId, asProductId } from '@coaster/core';
+import { asBarId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
 import { AdjustProductStockCommand } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';

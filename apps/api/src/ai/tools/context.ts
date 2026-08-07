@@ -1,6 +1,5 @@
 import type { BarId, BarPermission, BarRole, Category, Order, Product, Table, User } from '@coaster/common';
-import { ErrorCodes } from '@coaster/common';
-import { hasPermission } from '@coaster/core';
+import { ErrorCodes, hasPermission } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import type { CommandBus, ICommand, IQuery, QueryBus } from '@nestjs/cqrs';
 

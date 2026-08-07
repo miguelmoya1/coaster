@@ -1,6 +1,5 @@
 import type { BarMember } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { checkIsMember, memberArrayMapper, memberMapper } from './member.mapper';
 

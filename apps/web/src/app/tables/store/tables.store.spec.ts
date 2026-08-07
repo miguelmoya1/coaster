@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, Socket } from '@coaster/core';
+import { Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { TableStatus } from '@coaster/common';
+import { TableStatus, asBarId } from '@coaster/common';
 import { TablesStore } from './tables.store';
 
 describe('TablesStore', () => {

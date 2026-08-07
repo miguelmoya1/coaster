@@ -1,5 +1,4 @@
-import { OrderStatus } from '@coaster/common';
-import { asBarId, asOrderId } from '@coaster/core';
+import { OrderStatus, asBarId, asOrderId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

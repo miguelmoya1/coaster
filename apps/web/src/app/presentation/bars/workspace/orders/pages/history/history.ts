@@ -1,3 +1,4 @@
+import { asOrderId } from '@coaster/common';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
@@ -8,7 +9,7 @@ import { MyMemberStore } from '@coaster/bar-members';
 import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
-import { ActionFeedback, asOrderId } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';

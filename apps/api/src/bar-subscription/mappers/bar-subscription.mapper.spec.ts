@@ -1,5 +1,4 @@
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { SubscriptionPlan, SubscriptionStatus, asBarId } from '@coaster/common';
 import type { DbBarSubscription } from '@coaster/core/db';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarSubscriptionMapper } from './bar-subscription.mapper';

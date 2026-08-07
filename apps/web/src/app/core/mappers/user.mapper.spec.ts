@@ -1,6 +1,5 @@
 import type { User } from '@coaster/common';
-import { Role } from '@coaster/common';
-import { asUserId } from '@coaster/core';
+import { asUserId, Role } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { checkIsUser, userMapper } from './user.mapper';
 

@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/core';
+import { asBarId } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DuplicateSubscriptionDetectedEvent } from '../impl/duplicate-subscription-detected.event';

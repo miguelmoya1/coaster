@@ -1,5 +1,5 @@
 import type { Table } from '@coaster/common';
-import { asTableId } from '@coaster/core';
+import { asTableId } from '@coaster/common';
 import { CreateTableCommand, DeleteTableCommand, GetTablesByBarIdQuery, UpdateTableCommand } from '@coaster/tables';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';

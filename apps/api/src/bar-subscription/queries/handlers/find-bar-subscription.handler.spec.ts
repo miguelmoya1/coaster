@@ -1,5 +1,4 @@
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { SubscriptionPlan, SubscriptionStatus, asBarId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';

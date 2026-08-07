@@ -1,5 +1,4 @@
-import { ErrorCodes, OrderStatus } from '@coaster/common';
-import { asProductId, asTableId } from '@coaster/core';
+import { ErrorCodes, OrderStatus, asProductId, asTableId } from '@coaster/common';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';

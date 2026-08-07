@@ -1,5 +1,4 @@
-import { TableStatus } from '@coaster/common';
-import { asBarId, asTableId } from '@coaster/core';
+import { TableStatus, asBarId, asTableId } from '@coaster/common';
 import { DbTableStatus } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,5 +1,4 @@
-import { AdminAuditAction, BarRole, ErrorCodes } from '@coaster/common';
-import { asBarId, asUserId } from '@coaster/core';
+import { AdminAuditAction, BarRole, ErrorCodes, asBarId, asUserId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateBarMemberRoleCommand } from '../impl/update-bar-member-role.command';
@@ -41,9 +40,7 @@ describe('UpdateBarMemberRoleHandler', () => {
   });
 
   it('should change the role and record who moved whom', async () => {
-    await handler.execute(
-      new UpdateBarMemberRoleCommand(asBarId('bar-1'), asUserId('user-2'), BarRole.MANAGER, actor),
-    );
+    await handler.execute(new UpdateBarMemberRoleCommand(asBarId('bar-1'), asUserId('user-2'), BarRole.MANAGER, actor));
 
     expect(writeRepo.updateBarMemberRole).toHaveBeenCalledWith('bar-1', 'user-2', BarRole.MANAGER);
     expect(auditRepo.record).toHaveBeenCalledWith(

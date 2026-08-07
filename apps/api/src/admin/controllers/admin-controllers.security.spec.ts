@@ -15,7 +15,10 @@ const isAdminRequired = (target: object): boolean => Reflect.getMetadata(ADMIN_K
 const handlersOf = (controller: Ctor): [string, (...args: never[]) => unknown][] =>
   Object.getOwnPropertyNames(controller.prototype)
     .filter((name) => name !== 'constructor')
-    .map((name) => [name, (controller.prototype as Record<string, (...args: never[]) => unknown>)[name]])
+    .map((name): [string, (...args: never[]) => unknown] => [
+      name,
+      (controller.prototype as Record<string, (...args: never[]) => unknown>)[name],
+    ])
     .filter(([, fn]) => typeof fn === 'function');
 
 describe('admin controllers are locked down', () => {

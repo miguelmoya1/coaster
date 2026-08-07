@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { asBarId, Socket } from '@coaster/core';
+import { Socket } from '@coaster/core';
 import { OrderHistoryStore } from './order-history.store';
 import { BarOrderHistory } from '../services/bar-order-history';
-import { OrderStatus } from '@coaster/common';
+import { OrderStatus, asBarId } from '@coaster/common';
 import type { Order } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 

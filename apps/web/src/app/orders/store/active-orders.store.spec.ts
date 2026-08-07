@@ -1,8 +1,9 @@
+import { asBarId, asOrderId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, Socket, Toast } from '@coaster/core';
+import { Socket, Toast } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarOrders } from '../services/bar-orders';
 import { CreateOrder } from '../services/create-order';

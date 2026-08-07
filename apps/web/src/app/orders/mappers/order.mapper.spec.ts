@@ -1,6 +1,6 @@
+import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
 import type { Order } from '@coaster/common';
 import { DeliveryStatus, OrderStatus, PaymentMethod, PaymentStatus } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { checkIsOrder, orderArrayMapper, orderMapper } from './order.mapper';
 

@@ -1,9 +1,7 @@
-import { BarPermission, ErrorCodes } from '@coaster/common';
+import { BarPermission, ErrorCodes, asBarRole, hasPermission } from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { DbRole } from '../../db';
-import { hasPermission } from '../../permissions/bar-member.security';
-import { asBarRole } from '../../utils/brands';
 import { SecurityRepository } from '../data-access/security.repository';
 import { BAR_PERMISSIONS_KEY } from '../decorators/bar-permissions.decorator';
 

@@ -1,4 +1,5 @@
-import { BarPermission, BarRole } from '@coaster/common';
+import { BarPermission } from '../../constants/bar-permissions.type';
+import { BarRole } from '../../constants/bar-role.type';
 
 const STAFF_PERMISSIONS: BarPermission[] = [
   'bar:view-members',

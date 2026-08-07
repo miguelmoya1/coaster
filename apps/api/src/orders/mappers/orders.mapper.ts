@@ -1,5 +1,4 @@
 import type { Order, OrderAdjustment, OrderItem } from '@coaster/common';
-import { OrderPricingEngine } from '@coaster/common';
 import {
   asAdjustmentTarget,
   asAdjustmentType,
@@ -13,7 +12,8 @@ import {
   asPaymentStatus,
   asProductId,
   asTableId,
-} from '@coaster/core';
+  OrderPricingEngine,
+} from '@coaster/common';
 import {
   DbOrderAdjustment as OrderAdjustmentDb,
   DbOrder as OrderDb,

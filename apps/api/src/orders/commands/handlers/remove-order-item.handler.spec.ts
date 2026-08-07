@@ -1,6 +1,5 @@
 import type { Order } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId } from '@coaster/core';
+import { asBarId, asOrderId, asOrderItemId, OrderStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

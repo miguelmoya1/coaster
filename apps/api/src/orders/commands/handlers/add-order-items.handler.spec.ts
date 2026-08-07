@@ -1,6 +1,5 @@
 import type { AddOrderItemsDto } from '@coaster/common';
-import { OrderStatus } from '@coaster/common';
-import { asBarId, asOrderId, asProductId } from '@coaster/core';
+import { asBarId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

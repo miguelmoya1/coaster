@@ -1,8 +1,9 @@
+import { asShiftId } from '@coaster/common';
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateShiftDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { asShiftId, Socket } from '@coaster/core';
+import { Socket } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { BarShifts } from '../services/bar-shifts';
 import { CreateShift } from '../services/create-shift';

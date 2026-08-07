@@ -1,5 +1,4 @@
-import { ErrorCodes } from '@coaster/common';
-import { asBarId, asShiftId } from '@coaster/core';
+import { ErrorCodes, asBarId, asShiftId } from '@coaster/common';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';

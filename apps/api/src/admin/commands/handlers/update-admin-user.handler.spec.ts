@@ -1,5 +1,4 @@
-import { AdminAuditAction, ErrorCodes, Role } from '@coaster/common';
-import { asUserId } from '@coaster/core';
+import { AdminAuditAction, ErrorCodes, Role, asUserId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateAdminUserCommand } from '../impl/update-admin-user.command';

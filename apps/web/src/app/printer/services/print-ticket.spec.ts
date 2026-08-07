@@ -1,7 +1,7 @@
+import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { Order, PrintTicketPayloadDto } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrinterRepository } from '../data-access/printer.repository';
 import { PrintTicket } from './print-ticket';

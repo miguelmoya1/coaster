@@ -1,5 +1,5 @@
 import type { Shift, ShiftExchange } from '@coaster/common';
-import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
+import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import {
   AcceptExchangeCommand,
   DeleteExchangeCommand,
