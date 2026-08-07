@@ -28,11 +28,3 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 ## SISTEMA DE RESERVA DE MESAS (PLANTEAR).
 
 ## visualizar la carta de forma publica.
-
-Lo que tienes que poner en Cloud Run
-Además de PUBLIC_URL=https://api.coaster.business, las de Stripe que dices que aún no has puesto: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET y STRIPE_PRICE_PRO. Y comprueba que PRINTER_JWT_SECRET ya está, porque sin ella la API no arranca — si el servicio está vivo ahora mismo, es que la tienes.
-
-Dos avisos sobre esas variables:
-
-El STRIPE_WEBHOOK_SECRET de producción no es el que te da stripe listen en local. Sale del endpoint que registres en el dashboard de Stripe apuntando a https://api.coaster.business/api/v1/stripe/webhook.
-Añade también FRONTEND_URL=https://coaster.business, o al volver de pagar Stripe redirigirá a localhost:4200.

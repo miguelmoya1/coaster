@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "prebuild": "npm i -g typescript",
     "build": "tsc && tsc -p tsconfig.esm.json && node ./scripts/write-esm-marker.mjs"
   },
   "module": "./dist/esm/index.js",
