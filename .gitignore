@@ -25,6 +25,11 @@ node_modules
 !.vscode/extensions.json
 !.vscode/mcp.json
 
+# the monorepo uses npm workspaces; a stray pnpm/yarn lockfile makes Vercel
+# switch package manager and skip the workspace install
+pnpm-lock.yaml
+yarn.lock
+
 # misc
 /.sass-cache
 /connect.lock
