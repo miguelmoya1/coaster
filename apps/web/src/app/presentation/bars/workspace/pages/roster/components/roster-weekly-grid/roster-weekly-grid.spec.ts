@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BarRole } from '@coaster/common';
-import { asBarId, asShiftId, asUserId } from '@coaster/core';
+import { BarRole, asBarId, asShiftId, asUserId } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { RosterWeeklyGrid, WeeklyDayItem, WeeklyShiftItem } from './roster-weekly-grid';

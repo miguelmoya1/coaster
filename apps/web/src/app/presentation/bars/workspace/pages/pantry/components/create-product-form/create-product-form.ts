@@ -1,3 +1,4 @@
+import { asCategoryId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
@@ -5,7 +6,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, CreateProductDto } from '@coaster/common';
-import { asCategoryId, handleErrorFormField } from '@coaster/core';
+import { handleErrorFormField } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';

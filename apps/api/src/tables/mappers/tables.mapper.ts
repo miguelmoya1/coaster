@@ -1,5 +1,5 @@
 import type { Table } from '@coaster/common';
-import { asBarId, asTableId, asTableStatus } from '@coaster/core';
+import { asBarId, asTableId, asTableStatus } from '@coaster/common';
 import { DbTable as TableDb } from '@coaster/core/db';
 
 export const TablesMapper = {

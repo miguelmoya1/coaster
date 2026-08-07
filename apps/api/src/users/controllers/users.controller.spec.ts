@@ -1,5 +1,5 @@
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '@coaster/auth';
-import { asUserId } from '@coaster/core';
+import { asUserId } from '@coaster/common';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

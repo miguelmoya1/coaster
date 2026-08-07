@@ -1,8 +1,8 @@
+import { asBarId } from '@coaster/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Bar } from '@coaster/common';
-import { asBarId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BarCard } from './bar-card';
 

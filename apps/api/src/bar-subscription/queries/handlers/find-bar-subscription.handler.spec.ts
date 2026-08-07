@@ -1,5 +1,4 @@
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { SubscriptionPlan, SubscriptionStatus, asBarId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarSubscriptionReadRepository } from '../../data-access/bar-subscription.read.repository';
@@ -58,6 +57,7 @@ describe('FindBarSubscriptionHandler', () => {
       currentPeriodEnd: new Date('2026-02-01').toISOString(),
       trialEndsAt: null,
       canceledAt: null,
+      manualGrant: null,
       createdAt: new Date('2026-01-01').toISOString(),
       updatedAt: new Date('2026-01-01').toISOString(),
     });

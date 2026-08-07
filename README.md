@@ -2,53 +2,87 @@
 
 ## 📖 What is Coaster?
 
-Coaster is an internal operational tool tailored for small service businesses like hospitality venues (bars, restaurants, cafes), workshops, and clinics.
+Coaster is an operational tool for small hospitality businesses — bars, restaurants and cafes. It
+covers the floor (tables, orders, payments) and the back office (staff, rota, stock), so a venue can
+run its day without WhatsApp groups and paper.
 
-**Main Goal:** To eliminate the chaos of WhatsApp groups and paper-based tracking in Human Resources and Inventory Management.
-
-**Philosophy:** _"No Billing"_. Coaster does not handle billing, payments, or final customers. It is strictly designed for internal operational management and team coordination.
+It is sold as a SaaS: each venue subscribes to a plan, and the platform is operated from an internal
+admin backoffice.
 
 ## ✨ What Can Coaster Do?
 
+### 🍸 Floor Module (Orders & Tables)
+
+- **Tables:** open, occupy and free tables; move an order between tables; merge orders.
+- **Orders:** add items, track what has been served and what has been paid, line by line.
+- **Payments:** cash, card or split; partial payments, tips and per-order or per-item adjustments.
+- **Receipts:** print to a local thermal printer through the printer bridge.
+
 ### 📅 HR Module (The Roster)
 
-Manages who works and when, keeping the entire team on the same page.
-
-- **Multi-view Calendar:** Users can seamlessly toggle between Daily, Weekly, and Monthly shift views.
-- **Shift Assignment:** Admins/Owners can create shifts and assign them to staff members.
-- **Shift Marketplace:** Staff members can "drop" a shift for someone else to "pick up" via the shift exchange system.
-- **Staff Management:** Role-based access control (`OWNER` vs `STAFF`) to manage operations securely.
-- **Time Tracking (Upcoming):** Geolocation-based clock-in and clock-out functionality.
+- **Multi-view Calendar:** daily, weekly and monthly shift views.
+- **Shift Assignment:** owners and managers create shifts and assign them to staff.
+- **Shift Marketplace:** staff can drop a shift for someone else to pick up.
+- **Staff Management:** three roles per venue — `OWNER`, `MANAGER` and `STAFF`.
 
 ### 📦 Logistics & Inventory Module (The Pantry)
 
-Tracks what items are missing and swiftly generates supply orders.
+- **Visual Catalog:** large icons for fast use on touch screens.
+- **Traffic Light System:** stock state at a glance — OK, low, or out.
+- **Smart Ordering:** groups missing items into a message ready to send to a supplier.
 
-- **Visual Catalog:** Designed with large icons/visuals to facilitate rapid use on touch screens.
-- **Traffic Light System:** Instant visual recognition of stock state — "OK" (Green), "Low Stock" (Yellow), or "Out of Stock" (Red).
-- **Smart Ordering:** Automatically groups missing items and generates a pre-formatted text message ready to be forwarded to suppliers via WhatsApp.
+### 🤖 Voice Assistant
 
-### 🔔 Mobile-First & Real-Time Alerts
+An in-app assistant that reads the venue's live state and executes actions on it, bounded by the
+caller's own permissions.
 
-- **Push Notifications:** Deep integration with Firebase Cloud Messaging (FCM) to deliver mobile push notifications to staff for important occurrences (e.g., requested shift changes, newly assigned shifts).
+### 🛡️ Admin Backoffice
+
+Platform operations at `/admin`, for users with the `ADMIN` role: metrics, venue and user
+management, granting PRO by hand without Stripe, and an audit log of every action taken.
+
+See [backoffice](docs/admin/backoffice.md).
+
+### 🔔 Real-Time
+
+Live updates over WebSockets (socket.io): orders, tables, stock, members and subscription changes
+propagate to everyone connected to the venue.
+
+---
+
+## 🔐 Access Model
+
+Three independent axes, all of which a request must pass:
+
+| Axis             | Values                      |
+| ---------------- | --------------------------- |
+| Platform role    | `USER`, `ADMIN`             |
+| Venue role       | `OWNER`, `MANAGER`, `STAFF` |
+| Subscription     | Stripe, manual grant, none  |
+
+An unpaid venue keeps **read** access to its history — it only loses writes. Full detail in
+[Access model](docs/architecture/permissions.md).
 
 ---
 
 ## 🛠️ The Golden Stack (Architecture)
 
-Coaster is built using a modern, scalable, and robust technological stack:
-
 - **Monorepo Strategy:** npm workspaces.
-- **Backend:** NestJS + Prisma ORM + PostgreSQL.
+- **Backend:** NestJS (CQRS) + Prisma ORM + PostgreSQL.
 - **Frontend:** Angular 22 + Tailwind CSS v4 + Signals.
-- **Testing:** Vitest (Unit Tests) + Supertest/Playwright (E2E).
-- **Infrastructure:** Docker (Local Development) / Google Cloud Run + Neon (Production Environment).
+- **Billing:** Stripe Checkout, Customer Portal and webhooks.
+- **Printer bridge:** Go service polling a job queue.
+- **Testing:** Vitest (unit) + Supertest/Playwright (E2E).
+- **Infrastructure:** Docker (local) / Google Cloud Run + Neon (production).
+
+Architecture notes live in [`docs/`](docs/README.md).
 
 ---
 
 ## 🚀 Getting Started & Running Tasks
 
-The repository is an npm workspace containing the API, web application, shared TypeScript package, Firebase emulator, and printer service.
+The repository is an npm workspace containing the API, web application, shared TypeScript package,
+Firebase emulator, and printer service.
 
 ### Run the Dev Servers
 
@@ -69,6 +103,9 @@ npm run dev:web
 > `postgres:18-alpine`. A `postgres_data` volume created by 16 will not start under 18, so drop it
 > once (`docker compose down -v db`) and let the migrations rebuild your local database.
 
+> **Deleting a file breaks the web watcher.** The containerised `ng serve` keeps stale contents in
+> memory and every rebuild fails afterwards. Run `docker compose restart web`.
+
 To exercise Stripe locally you also need its CLI forwarding events to the API. `docker compose up`
 starts a `stripe` service that does it, or run it yourself — see
 [Stripe integration](docs/saas/stripe-integration.md).
@@ -88,8 +125,12 @@ npm run build
 - Run Web E2E Tests: `cd apps/web && npx playwright test`
 - Run Printer Tests: `cd apps/printer-service && go test ./...`
 - Generate Prisma Client: `npm run db:generate`
+- Apply Migrations: `npm run db:migrate`
 
-## 🤝 Support & Nx Resources
+## 📚 Documentation
 
-- [Learn more about Nx Workspaces](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial)
-- [Nx Console for your IDE](https://nx.dev/getting-started/editor-setup)
+- [Access model](docs/architecture/permissions.md) — roles, guards and plan grants
+- [Backend architecture](docs/architecture/backend.md)
+- [Frontend architecture](docs/architecture/frontend.md)
+- [Admin backoffice](docs/admin/backoffice.md)
+- [Roadmap](docs/roadmap.md)

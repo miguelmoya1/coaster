@@ -1,5 +1,4 @@
-import { ErrorCodes } from '@coaster/common';
-import { asBarId, asShiftId } from '@coaster/core';
+import { ErrorCodes, asBarId, asShiftId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

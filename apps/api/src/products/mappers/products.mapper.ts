@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asCategoryId, asProductId } from '@coaster/core';
+import { asCategoryId, asProductId } from '@coaster/common';
 import { DbProduct as ProductDb } from '@coaster/core/db';
 
 export const ProductsMapper = {

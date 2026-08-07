@@ -1,6 +1,5 @@
 import type { User } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { asBarId, asUserId } from '@coaster/core';
+import { asBarId, asUserId, BarRole } from '@coaster/common';
 import type { CommandBus, QueryBus } from '@nestjs/cqrs';
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

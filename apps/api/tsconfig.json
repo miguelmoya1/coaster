@@ -23,6 +23,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@coaster/admin": ["./src/admin/index.ts"],
       "@coaster/ai": ["./src/ai/index.ts"],
       "@coaster/auth": ["./src/auth/index.ts"],
       "@coaster/bar-members": ["./src/bar-members/index.ts"],

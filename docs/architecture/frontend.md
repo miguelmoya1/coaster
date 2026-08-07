@@ -36,7 +36,7 @@ El reparto alrededor de un bar es:
 | `bars`             | alta y listado de bares, bar actual                                        |
 | `bar-members`      | miembros, invitaciones, mi pertenencia y `permissionGuard`                 |
 | `bar-subscription` | suscripcion, checkout, portal de cliente, dialogo de planes y su directiva |
-| `admin`            | busqueda de bares de plataforma y `adminGuard`                             |
+| `admin`            | backoffice de plataforma (bares, usuarios, metricas, auditoria) y `adminGuard` |
 
 `permissionGuard` vive en `bar-members` (no en `bars`) porque depende de `MyMemberStore`; si
 estuviera en `bars` se formaria un ciclo `bars -> bar-members -> bars`.

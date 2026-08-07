@@ -1,9 +1,10 @@
+import { asBarId, asBarMemberId, asUserId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import type { BarMember } from '@coaster/common';
 import { BarRole } from '@coaster/common';
-import { asBarId, asBarMemberId, asUserId, DateFormatterService } from '@coaster/core';
+import { DateFormatterService } from '@coaster/core';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';

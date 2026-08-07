@@ -1,9 +1,9 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/core';
+import { MemberRepository } from '@coaster/bar-members';
+import { asBarId } from '@coaster/common';
 import { Auth } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemberRepository } from '@coaster/bar-members';
 import { MyMember } from './my-member';
 
 describe('MyMember', () => {

@@ -1,8 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import type { BarId } from '@coaster/common';
-import { BarPermission, BarRole } from '@coaster/common';
-import { hasPermission } from '@coaster/core';
+import { BarPermission, BarRole, hasPermission } from '@coaster/common';
 import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
 

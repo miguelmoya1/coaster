@@ -1,3 +1,4 @@
+import { AdminModule } from '@coaster/admin';
 import { AiModule } from '@coaster/ai';
 import { AuthModule } from '@coaster/auth';
 import { BarMembersModule } from '@coaster/bar-members';
@@ -48,6 +49,7 @@ import { ConfigModule } from '@nestjs/config';
     SecurityModule,
     AiModule,
     MediaModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

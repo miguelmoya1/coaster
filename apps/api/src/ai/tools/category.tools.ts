@@ -5,7 +5,7 @@ import {
   UpdateCategoryCommand,
 } from '@coaster/categories';
 import type { Category } from '@coaster/common';
-import { asCategoryId } from '@coaster/core';
+import { asCategoryId } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';

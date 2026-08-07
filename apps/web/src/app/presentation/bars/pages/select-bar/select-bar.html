@@ -1,9 +1,18 @@
 <coaster-page-container size="sm">
   <coaster-page-header [title]="'bars.select.title' | translate" [subtitle]="'bars.select.subtitle' | translate">
-    <button actions mat-flat-button data-testid="create-bar-btn" (click)="navigateToCreate()">
-      <mat-icon>add_circle</mat-icon>
-      <span>{{ 'common.create' | translate }}</span>
-    </button>
+    <ng-container actions>
+      @if (isAdmin()) {
+        <a mat-stroked-button routerLink="/admin/overview" data-testid="admin-panel-btn">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>{{ 'admin.nav.open_panel' | translate }}</span>
+        </a>
+      }
+
+      <button mat-flat-button data-testid="create-bar-btn" (click)="navigateToCreate()">
+        <mat-icon>add_circle</mat-icon>
+        <span>{{ 'common.create' | translate }}</span>
+      </button>
+    </ng-container>
   </coaster-page-header>
 
   @if (bars.isLoading()) {

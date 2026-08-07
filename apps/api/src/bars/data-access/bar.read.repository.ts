@@ -20,12 +20,4 @@ export class BarReadRepository {
     return this._db.dbBar.findUnique({ where: { id: barId } });
   }
 
-  public async searchBarsAsAdmin(query: string) {
-    return this._db.dbBar.findMany({
-      where: {
-        OR: [{ id: { equals: query } }, { name: { contains: query, mode: 'insensitive' } }],
-      },
-      take: 20,
-    });
-  }
 }

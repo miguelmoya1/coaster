@@ -1,8 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { BarMember } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { asBarId, asBarMemberId, asUserId, BarRole } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MemberRepository } from './member-repository';
 

@@ -1,7 +1,7 @@
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { CreateProductDto, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
-import { asBarId, asCategoryId, asProductId } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from './product-repository';
 

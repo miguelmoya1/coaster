@@ -1,0 +1,119 @@
+<coaster-page-header [title]="'admin.bars.title' | translate" [subtitle]="'admin.bars.subtitle' | translate" />
+
+<div class="flex flex-col gap-4">
+  <section class="flex flex-col sm:flex-row sm:items-center gap-3">
+    <mat-form-field appearance="outline" class="flex-1 -mb-[1.25em]">
+      <mat-label>{{ 'admin.bars.search_placeholder' | translate }}</mat-label>
+      <input matInput [value]="searchQuery()" (input)="onSearch($event)" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button mat-stroked-button type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ 'admin.bars.clear_filters' | translate }}
+      </button>
+    }
+  </section>
+
+  <section class="flex flex-wrap gap-2">
+    @for (source of billingFilters; track source ?? 'all') {
+      <button
+        type="button"
+        class="px-3 py-1.5 rounded-full text-sm border transition-colors"
+        [class]="
+          billingSource() === source
+            ? 'border-primary bg-primary/10 text-primary font-semibold'
+            : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+        "
+        [attr.aria-pressed]="billingSource() === source"
+        (click)="selectBillingSource(source)"
+      >
+        {{ filterLabel(source) | translate }}
+      </button>
+    }
+  </section>
+
+  @if (isLoading() && !hasLoaded()) {
+    <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[300px]" />
+  } @else {
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface/50 text-on-surface-variant">
+            <tr class="text-left">
+              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.bars.col_bar' | translate }}</th>
+              <th scope="col" class="px-4 py-3 font-medium hidden md:table-cell">
+                {{ 'admin.bars.col_owner' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.bars.col_access' | translate }}</th>
+              <th scope="col" class="px-4 py-3 font-medium hidden sm:table-cell">
+                {{ 'admin.bars.col_members' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium text-right">
+                <span class="sr-only">{{ 'admin.bars.col_actions' | translate }}</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-outline-variant/30">
+            @for (bar of bars(); track bar.id) {
+              <tr class="hover:bg-surface/60 transition-colors cursor-pointer" (click)="openBar(bar.id)">
+                <td class="px-4 py-3">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-on-surface">{{ bar.name }}</span>
+                    <span class="text-xs text-on-surface-variant font-mono">{{ bar.id }}</span>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 hidden md:table-cell">
+                  @if (bar.ownerEmail) {
+                    <div class="flex flex-col">
+                      <span class="text-on-surface">{{ bar.ownerName }}</span>
+                      <span class="text-xs text-on-surface-variant">{{ bar.ownerEmail }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-on-surface-variant">—</span>
+                  }
+                </td>
+
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <coaster-billing-badge [source]="bar.billingSource" />
+                    <coaster-status-chip [status]="bar.status" />
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 hidden sm:table-cell tabular-nums text-on-surface-variant">
+                  {{ bar.memberCount }}
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                  <mat-icon class="text-on-surface-variant">chevron_right</mat-icon>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="px-4 py-10 text-center text-on-surface-variant">
+                  {{ 'admin.bars.empty' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (total() > pageSize) {
+        <div class="px-4 pb-4">
+          <coaster-admin-pagination
+            [page]="page()"
+            [pageSize]="pageSize"
+            [total]="total()"
+            [totalPages]="totalPages()"
+            (pageChange)="goToPage($event)"
+          />
+        </div>
+      }
+    </section>
+  }
+</div>

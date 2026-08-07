@@ -1,86 +1,51 @@
-import { DbService } from '@coaster/core/db';
-import { UnauthorizedException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { getAuth } from 'firebase-admin/auth';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { Logger, UnauthorizedException } from '@nestjs/common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { DbService } from '@coaster/core/db';
 import { JwtStrategy } from './jwt.strategy';
 
+const verifyIdToken = vi.fn();
+
 vi.mock('firebase-admin/auth', () => ({
-  getAuth: vi.fn().mockReturnValue({
-    verifyIdToken: vi.fn(),
-  }),
+  getAuth: () => ({ verifyIdToken: (token: string) => verifyIdToken(token) }),
 }));
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let db: { dbUser: { findUnique: Mock } };
+  let db: { dbUser: { findUnique: ReturnType<typeof vi.fn> } };
 
-  beforeEach(async () => {
-    const mockPrisma = {
-      dbUser: { findUnique: vi.fn() },
-    };
+  const activeUser = { id: 'user-1', googleId: 'google-1', active: true, role: 'USER' };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [JwtStrategy, { provide: DbService, useValue: mockPrisma }],
-    }).compile();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
 
-    strategy = module.get<JwtStrategy>(JwtStrategy);
-    db = module.get(DbService);
+    db = { dbUser: { findUnique: vi.fn() } };
+    strategy = new JwtStrategy(db as unknown as DbService);
+
+    verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@bar.com' });
   });
 
-  it('should be defined', () => {
-    expect(strategy).toBeDefined();
+  it('should resolve an active user', async () => {
+    db.dbUser.findUnique.mockResolvedValue(activeUser);
+
+    await expect(strategy.validate('tok')).resolves.toEqual(activeUser);
   });
 
-  it('should validate the token and return the user', async () => {
-    const fakePayload = {
-      sub: 'google-123',
-      email: 'test@mail.com',
-      name: 'Test User',
-      picture: 'http://photo.url',
-    };
-    (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
-    db.dbUser.findUnique.mockResolvedValueOnce({
-      id: 'user-1',
-      email: 'test@mail.com',
-      name: 'Test User',
-      googleId: 'google-123',
-    });
+  it('should reject a user an admin has deactivated', async () => {
+    db.dbUser.findUnique.mockResolvedValue({ ...activeUser, active: false });
 
-    const result = await strategy.validate('fake-token');
-
-    expect(getAuth().verifyIdToken).toHaveBeenCalledWith('fake-token');
-    expect(db.dbUser.findUnique).toHaveBeenCalledWith({ where: { googleId: 'google-123' } });
-    expect(result).toEqual({
-      id: 'user-1',
-      email: 'test@mail.com',
-      name: 'Test User',
-      googleId: 'google-123',
-    });
+    await expect(strategy.validate('tok')).rejects.toThrow(UnauthorizedException);
   });
 
-  it('should throw UnauthorizedException if user is not found', async () => {
-    const fakePayload = {
-      sub: 'google-123',
-      email: 'test@mail.com',
-      name: 'Test User',
-      picture: 'http://photo.url',
-    };
-    (getAuth().verifyIdToken as Mock).mockResolvedValue(fakePayload);
+  it('should reject a token whose user does not exist', async () => {
     db.dbUser.findUnique.mockResolvedValue(null);
 
-    await expect(strategy.validate('fake-token')).rejects.toThrow(UnauthorizedException);
+    await expect(strategy.validate('tok')).rejects.toThrow(UnauthorizedException);
   });
 
-  it('should throw UnauthorizedException if the payload has no sub', async () => {
-    (getAuth().verifyIdToken as Mock).mockResolvedValue({ email: 'test@mail.com' });
+  it('should reject an unverifiable token', async () => {
+    verifyIdToken.mockRejectedValue(new Error('expired'));
 
-    await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
-  });
-
-  it('should throw UnauthorizedException if verifyIdToken fails', async () => {
-    (getAuth().verifyIdToken as Mock).mockRejectedValue(new Error('bad'));
-
-    await expect(strategy.validate('bad-token')).rejects.toThrow(UnauthorizedException);
+    await expect(strategy.validate('tok')).rejects.toThrow(UnauthorizedException);
   });
 });

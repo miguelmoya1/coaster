@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asProductId } from '@coaster/core';
+import { asBarId, asProductId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

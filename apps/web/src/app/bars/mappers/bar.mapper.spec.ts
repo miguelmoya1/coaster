@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
 import type { Bar } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { asBarId } from '@coaster/common';
+import { describe, expect, it } from 'vitest';
 import { barArrayMapper, barMapper, checkIsBar } from './bar.mapper';
 
 describe('Bar Mapper', () => {

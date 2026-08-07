@@ -19,6 +19,7 @@ describe('WorkspaceLayout', () => {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ id: 'u-1', name: 'Test User', photoUrl: '' }),
     },
+    isAdmin: signal(false),
   };
 
   const currentBarStoreMock = {

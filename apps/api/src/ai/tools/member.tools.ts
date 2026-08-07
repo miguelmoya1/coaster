@@ -1,7 +1,6 @@
 import { GetMembersQuery, InviteMemberCommand, RemoveMemberCommand } from '@coaster/bar-members';
 import type { BarMember } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { asBarMemberId } from '@coaster/core';
+import { asBarMemberId, BarRole } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';

@@ -1,6 +1,6 @@
 import type { User } from '@coaster/common';
-import { BarRole } from '@coaster/common';
-import { asBarId, asUserId, SecurityRepository } from '@coaster/core';
+import { asBarId, asUserId, BarRole } from '@coaster/common';
+import { SecurityRepository } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';

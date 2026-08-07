@@ -1,0 +1,117 @@
+<coaster-page-header [title]="'admin.overview.title' | translate" [subtitle]="'admin.overview.subtitle' | translate">
+  <button actions mat-stroked-button type="button" [disabled]="isLoading()" (click)="reload()">
+    <mat-icon>refresh</mat-icon>
+    {{ 'common.refresh' | translate }}
+  </button>
+</coaster-page-header>
+
+@if (isLoading() && !metrics()) {
+  <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[300px]" />
+} @else if (metrics(); as m) {
+  <div class="flex flex-col gap-6">
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4 flex flex-col gap-1">
+        <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
+          {{ 'admin.overview.total_bars' | translate }}
+        </span>
+        <span class="text-3xl font-bold tabular-nums">{{ m.bars.total }}</span>
+        <span class="text-xs text-on-surface-variant">
+          {{ 'admin.overview.new_last_7' | translate: { count: m.bars.createdLast7Days } }}
+        </span>
+      </article>
+
+      <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4 flex flex-col gap-1">
+        <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
+          {{ 'admin.overview.with_access' | translate }}
+        </span>
+        <span class="text-3xl font-bold tabular-nums text-primary">{{ m.subscriptions.withAccess }}</span>
+        <span class="text-xs text-on-surface-variant">
+          {{ 'admin.overview.without_access' | translate: { count: withoutAccess() } }}
+        </span>
+      </article>
+
+      <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4 flex flex-col gap-1">
+        <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
+          {{ 'admin.overview.users' | translate }}
+        </span>
+        <span class="text-3xl font-bold tabular-nums">{{ m.users.total }}</span>
+        <span class="text-xs text-on-surface-variant">
+          {{ 'admin.overview.active_users' | translate: { count: m.users.active } }}
+        </span>
+      </article>
+
+      <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4 flex flex-col gap-1">
+        <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
+          {{ 'admin.overview.revenue_30' | translate }}
+        </span>
+        <span class="text-3xl font-bold tabular-nums">{{ m.activity.revenueLast30Days | price }}</span>
+        <span class="text-xs text-on-surface-variant">
+          {{ 'admin.overview.orders_30' | translate: { count: m.activity.ordersLast30Days } }}
+        </span>
+      </article>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-4">
+        <header class="flex items-center gap-2">
+          <mat-icon class="text-primary">payments</mat-icon>
+          <h2 class="font-semibold text-base">{{ 'admin.overview.billing_title' | translate }}</h2>
+        </header>
+
+        <div class="grid grid-cols-2 gap-3">
+          <a
+            routerLink="/admin/bars"
+            [queryParams]="{ billingSource: 'STRIPE' }"
+            class="rounded-xl border border-outline-variant/50 p-3 hover:bg-surface transition-colors"
+          >
+            <span class="block text-xs text-on-surface-variant">{{ 'admin.billing_source.stripe' | translate }}</span>
+            <span class="block text-2xl font-bold tabular-nums text-primary">{{ m.subscriptions.stripe }}</span>
+          </a>
+
+          <a
+            routerLink="/admin/bars"
+            [queryParams]="{ billingSource: 'MANUAL' }"
+            class="rounded-xl border border-outline-variant/50 p-3 hover:bg-surface transition-colors"
+          >
+            <span class="block text-xs text-on-surface-variant">{{ 'admin.billing_source.manual' | translate }}</span>
+            <span class="block text-2xl font-bold tabular-nums text-tertiary">{{ m.subscriptions.manual }}</span>
+          </a>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
+            {{ 'admin.overview.by_status' | translate }}
+          </span>
+
+          @for (entry of statusBreakdown(); track entry.status) {
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-on-surface-variant">
+                {{ 'admin.subscription_status.' + entry.status.toLowerCase() | translate }}
+              </span>
+              <span class="font-semibold tabular-nums">{{ entry.count }}</span>
+            </div>
+          } @empty {
+            <p class="text-sm text-on-surface-variant">{{ 'admin.overview.no_subscriptions' | translate }}</p>
+          }
+        </div>
+      </section>
+
+      <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-3">
+        <header class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <mat-icon class="text-primary">history</mat-icon>
+            <h2 class="font-semibold text-base">{{ 'admin.overview.recent_activity' | translate }}</h2>
+          </div>
+
+          <a mat-button routerLink="/admin/audit">{{ 'admin.overview.see_all' | translate }}</a>
+        </header>
+
+        <coaster-audit-list [entries]="recentActivity()" />
+      </section>
+    </div>
+  </div>
+} @else {
+  <div class="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-2xl">
+    {{ 'admin.overview.load_error' | translate }}
+  </div>
+}

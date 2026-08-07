@@ -1,7 +1,7 @@
+import { asBarId, asCategoryId, asProductId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
-import { asBarId, asCategoryId, asProductId } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

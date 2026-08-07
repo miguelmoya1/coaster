@@ -1,8 +1,8 @@
+import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { CreateShiftExchangeDto } from '@coaster/common';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
 import { ExchangeRepository } from './exchange-repository';
 
 describe('ExchangeRepository', () => {

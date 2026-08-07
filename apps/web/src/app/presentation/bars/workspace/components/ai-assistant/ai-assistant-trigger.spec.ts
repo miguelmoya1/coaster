@@ -1,7 +1,7 @@
+import { asBarId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
-import { asBarId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiAssistantTrigger } from './ai-assistant-trigger';

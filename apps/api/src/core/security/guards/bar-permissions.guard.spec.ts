@@ -1,14 +1,16 @@
-import { BarRole, ErrorCodes } from '@coaster/common';
+import { BarRole, ErrorCodes, hasPermission } from '@coaster/common';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { DbRole } from '../../db';
-import { hasPermission } from '../../permissions/bar-member.security';
 import { SecurityRepository } from '../data-access/security.repository';
 import { BarPermissionsGuard } from './bar-permissions.guard';
 
-vi.mock('../../permissions/bar-member.security');
+vi.mock('@coaster/common', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@coaster/common')>()),
+  hasPermission: vi.fn(),
+}));
 
 describe('BarPermissionsGuard', () => {
   let guard: BarPermissionsGuard;

@@ -1,5 +1,4 @@
-import { BarRole } from '@coaster/common';
-import { asBarId, asUserId } from '@coaster/core';
+import { BarRole, asBarId, asUserId } from '@coaster/common';
 import { UserPreparedForInviteEvent } from '@coaster/users';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';

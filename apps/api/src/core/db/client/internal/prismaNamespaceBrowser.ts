@@ -67,6 +67,7 @@ export const ModelName = {
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
+  DbAdminAuditLog: 'DbAdminAuditLog',
   DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
 
@@ -309,11 +310,31 @@ export const DbBarSubscriptionScalarFieldEnum = {
   currentPeriodEnd: 'currentPeriodEnd',
   trialEndsAt: 'trialEndsAt',
   canceledAt: 'canceledAt',
+  manualPlan: 'manualPlan',
+  manualGrantExpiresAt: 'manualGrantExpiresAt',
+  manualGrantReason: 'manualGrantReason',
+  manualGrantedById: 'manualGrantedById',
+  manualGrantedAt: 'manualGrantedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+
+
+export const DbAdminAuditLogScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  targetLabel: 'targetLabel',
+  reason: 'reason',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
 
 
 export const DbStripeWebhookEventScalarFieldEnum = {
@@ -345,6 +366,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

@@ -1,8 +1,9 @@
+import { asOrderId, asOrderItemId } from '@coaster/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
-import { ActionFeedback, asOrderId, asOrderItemId } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../components/loading/loading';

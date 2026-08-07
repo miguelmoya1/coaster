@@ -1,10 +1,11 @@
+import { asOrderId, asProductId, asTableId } from '@coaster/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
-import { ActionFeedback, asOrderId, asProductId, asTableId } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';

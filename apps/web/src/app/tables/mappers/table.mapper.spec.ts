@@ -1,6 +1,6 @@
+import { asBarId, asTableId } from '@coaster/common';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/common';
-import { asBarId, asTableId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { checkIsTable, tableArrayMapper, tableMapper } from './table.mapper';
 

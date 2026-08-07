@@ -1,5 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { AdminGuard, asCategoryId, BarPermissionsGuard } from '@coaster/core';
+import { asCategoryId } from '@coaster/common';
+import { AdminGuard, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

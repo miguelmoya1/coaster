@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/core';
+import { asBarId } from '@coaster/common';
 import type { DbService } from '@coaster/core/db';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BarSubscriptionReadRepository } from './bar-subscription.read.repository';

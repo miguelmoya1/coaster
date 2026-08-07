@@ -28,6 +28,7 @@ describe('TopAppBar', () => {
       translateService.use(lang);
       return Promise.resolve();
     }),
+    isAdmin: signal(false),
   };
 
   const myMemberStoreMock = {
@@ -153,6 +154,23 @@ describe('TopAppBar', () => {
       await component.logout();
       expect(authMock.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    });
+  });
+
+  describe('admin shortcut', () => {
+    const adminLink = () => fixture.nativeElement.querySelector('a[href="/admin/overview"]');
+
+    it('should not offer the admin panel to a regular user', () => {
+      expect(adminLink()).toBeNull();
+    });
+
+    it('should link an admin straight to the panel, beside the AI trigger', () => {
+      currentUserMock.isAdmin.set(true);
+      fixture.detectChanges();
+
+      const link = adminLink();
+      expect(link).toBeTruthy();
+      expect(link.nextElementSibling?.tagName.toLowerCase()).toBe('coaster-ai-assistant-trigger');
     });
   });
 });

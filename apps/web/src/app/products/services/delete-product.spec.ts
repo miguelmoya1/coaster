@@ -1,5 +1,5 @@
+import { asBarId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
-import { asBarId, asProductId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
 import { DeleteProduct } from './delete-product';

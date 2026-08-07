@@ -1,4 +1,4 @@
-import { asUserId } from '@coaster/core';
+import { asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserReadRepository } from '../../data-access/user.read.repository';

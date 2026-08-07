@@ -1,5 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { AdminGuard, asBarId, asUserId, BarPermissionsGuard } from '@coaster/core';
+import { asBarId, asUserId } from '@coaster/common';
+import { BarPermissionsGuard } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -30,8 +31,6 @@ describe('BarsController', () => {
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
       .overrideGuard(BarPermissionsGuard)
-      .useValue(mockGuard)
-      .overrideGuard(AdminGuard)
       .useValue(mockGuard)
       .compile();
 

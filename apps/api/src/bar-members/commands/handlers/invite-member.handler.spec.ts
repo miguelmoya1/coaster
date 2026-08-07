@@ -1,5 +1,4 @@
-import { BarRole } from '@coaster/common';
-import { asBarId, asRole, asUserId } from '@coaster/core';
+import { BarRole, asBarId, asRole, asUserId } from '@coaster/common';
 import { ConflictException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';

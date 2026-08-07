@@ -1,4 +1,4 @@
-import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { asBarId, asBarMemberId, asUserId } from '@coaster/common';
 import { DbBarRole, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

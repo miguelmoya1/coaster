@@ -1,5 +1,4 @@
-import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { asBarId } from '@coaster/core';
+import { SubscriptionPlan, SubscriptionStatus, asBarId } from '@coaster/common';
 import type { DbService } from '@coaster/core/db';
 import { Logger } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

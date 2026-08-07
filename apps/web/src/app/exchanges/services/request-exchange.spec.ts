@@ -1,6 +1,6 @@
+import { asBarId, asShiftId, asUserId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { CreateShiftExchangeDto } from '@coaster/common';
-import { asBarId, asShiftId, asUserId } from '@coaster/core';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { RequestExchange } from './request-exchange';

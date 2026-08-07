@@ -1,6 +1,6 @@
+import { asBarId } from '@coaster/common';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { TemplatesStore } from './templates.store';
 

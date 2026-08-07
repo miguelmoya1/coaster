@@ -1,7 +1,7 @@
 import { GetCategoriesQuery } from '@coaster/categories';
 import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
-import { BarRole, ErrorCodes, OrderStatus } from '@coaster/common';
-import { asBarRole, getRolePermissions, SecurityRepository } from '@coaster/core';
+import { asBarRole, BarRole, ErrorCodes, getRolePermissions, OrderStatus } from '@coaster/common';
+import { SecurityRepository } from '@coaster/core';
 import { DbBarRole, DbRole } from '@coaster/core/db';
 import { GetOrdersByBarIdQuery } from '@coaster/orders';
 import { GetProductsByBarIdQuery } from '@coaster/products';

@@ -1,5 +1,5 @@
+import { asBarId, asShiftId, asUserId } from '@coaster/common';
 import type { Shift } from '@coaster/common';
-import { asBarId, asShiftId, asUserId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
 

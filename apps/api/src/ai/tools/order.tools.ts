@@ -1,6 +1,15 @@
 import type { Order } from '@coaster/common';
-import { AdjustmentTarget, AdjustmentType, OrderStatus, PaymentMethod } from '@coaster/common';
-import { asOrderAdjustmentId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/core';
+import {
+  AdjustmentTarget,
+  AdjustmentType,
+  asOrderAdjustmentId,
+  asOrderId,
+  asOrderItemId,
+  asProductId,
+  asTableId,
+  OrderStatus,
+  PaymentMethod,
+} from '@coaster/common';
 import {
   AddOrderAdjustmentCommand,
   AddOrderItemsCommand,

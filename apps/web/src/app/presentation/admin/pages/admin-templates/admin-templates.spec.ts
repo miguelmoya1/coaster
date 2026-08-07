@@ -64,7 +64,7 @@ describe('AdminTemplates', () => {
 
   it('should navigate back', () => {
     component.goBack();
-    expect(router.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/overview']);
   });
 
   describe('validation', () => {

@@ -221,7 +221,8 @@
     },
     "save": "Save",
     "update": "Update",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "refresh": "Refresh"
   },
   "dashboard": {
     "overview": {
@@ -778,5 +779,162 @@
       "copyright": "Coaster Inc. All rights reserved.",
       "status_ok": "All systems operational"
     }
-  }
+  },
+  "admin": {
+    "nav": {
+      "overview": "Overview",
+      "bars": "Bars",
+      "users": "Users",
+      "audit": "Audit log",
+      "templates": "Templates",
+      "open_panel": "Admin panel"
+    },
+    "billing_source": {
+      "manual": "Manual",
+      "stripe": "Stripe",
+      "none": "No access"
+    },
+    "subscription_status": {
+      "inactive": "Inactive",
+      "trialing": "Trialing",
+      "active": "Active",
+      "past_due": "Past due",
+      "canceled": "Canceled",
+      "unpaid": "Unpaid",
+      "expired": "Expired"
+    },
+    "user_role": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "audit_action": {
+      "bar_plan_granted": "Plan granted",
+      "bar_plan_revoked": "Plan revoked",
+      "bar_renamed": "Bar renamed",
+      "bar_member_role_changed": "Member role changed",
+      "user_role_changed": "User role changed",
+      "user_activation_changed": "User activation changed"
+    },
+    "pagination": {
+      "range": "{{ from }}–{{ to }} of {{ total }}",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "overview": {
+      "title": "Platform overview",
+      "subtitle": "How bars, users and subscriptions are doing.",
+      "total_bars": "Bars",
+      "new_last_7": "{{ count }} new in 7 days",
+      "with_access": "With access",
+      "without_access": "{{ count }} without access",
+      "users": "Users",
+      "active_users": "{{ count }} active",
+      "revenue_30": "Revenue (30d)",
+      "orders_30": "{{ count }} orders",
+      "billing_title": "Billing",
+      "by_status": "By status",
+      "no_subscriptions": "No subscriptions yet.",
+      "recent_activity": "Recent activity",
+      "see_all": "See all",
+      "load_error": "Could not load the metrics."
+    },
+    "bars": {
+      "title": "Bars",
+      "subtitle": "Search by name, ID or owner email and manage their plan.",
+      "search_placeholder": "Name, ID or owner email...",
+      "clear_filters": "Clear filters",
+      "filter_all": "All",
+      "col_bar": "Bar",
+      "col_owner": "Owner",
+      "col_access": "Access",
+      "col_members": "Members",
+      "col_actions": "Actions",
+      "empty": "No bars match this search."
+    },
+    "bar_detail": {
+      "not_found": "Bar not found.",
+      "rename": "Rename",
+      "rename_label": "Bar name",
+      "rename_success": "Bar renamed",
+      "rename_too_short": "The name must be at least 3 characters long.",
+      "enter": "Open workspace",
+      "subscription_title": "Subscription",
+      "grant_active": "{{ plan }} plan granted by hand",
+      "grant_until": "In force until {{ date }}",
+      "grant_forever": "No expiry date",
+      "grant_by": "Granted by {{ name }} on {{ date }}",
+      "no_grant": "This bar has no hand-granted plan. Its access depends on Stripe.",
+      "plan": "Plan",
+      "period_end": "Period end",
+      "trial_ends": "Trial ends",
+      "stripe_id": "Stripe subscription",
+      "grant_pro": "Grant PRO",
+      "extend_pro": "Change grant",
+      "revoke_pro": "Revoke PRO",
+      "grant_success": "Plan granted",
+      "revoke_title": "Revoke the granted PRO",
+      "revoke_text": "The hand-granted plan on \"{{ bar }}\" will be withdrawn. Without a live Stripe subscription the bar becomes read-only.",
+      "revoke_confirm": "Revoke PRO",
+      "revoke_success": "Plan revoked",
+      "products": "Products",
+      "categories": "{{ count }} categories",
+      "tables": "Tables",
+      "orders_30": "Orders (30d)",
+      "orders_total": "{{ count }} in total",
+      "revenue_30": "Revenue (30d)",
+      "members_title": "Members ({{ count }})",
+      "member_inactive": "Inactive",
+      "change_role": "Change role",
+      "member_role_success": "Role updated",
+      "no_members": "This bar has no members.",
+      "activity_title": "Admin activity"
+    },
+    "grant_dialog": {
+      "title": "Grant {{ plan }}",
+      "subtitle": "The plan will be switched on for \"{{ bar }}\" without going through Stripe.",
+      "duration_label": "Duration",
+      "duration_7": "7 days",
+      "duration_30": "30 days",
+      "duration_90": "90 days",
+      "duration_365": "1 year",
+      "duration_forever": "Open-ended",
+      "reason_label": "Reason (optional)",
+      "confirm": "Grant"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Find people, see their bars and manage their access.",
+      "search_placeholder": "Name, email or ID...",
+      "filter_all": "All",
+      "col_user": "User",
+      "col_role": "Role",
+      "col_bars": "Bars",
+      "empty": "No users match this search.",
+      "inactive": "Inactive",
+      "actions": "Actions",
+      "promote": "Make admin",
+      "demote": "Remove admin",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "update_success": "User updated",
+      "promote_title": "Make admin",
+      "promote_text": "{{ name }} ({{ email }}) will get full access to the admin panel and to every bar.",
+      "promote_confirm": "Make admin",
+      "demote_title": "Remove admin",
+      "demote_text": "{{ name }} ({{ email }}) will lose access to the admin panel.",
+      "demote_confirm": "Remove admin",
+      "state_all": "Any state",
+      "state_active": "Active",
+      "state_inactive": "Inactive"
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Everything that has been done from the admin panel.",
+      "filter_all": "All",
+      "empty": "No activity recorded yet."
+    }
+  },
+  "NO_MANUAL_GRANT": "This bar has no hand-granted plan.",
+  "CANNOT_DEMOTE_LAST_ADMIN": "You cannot remove the platform's last admin.",
+  "CANNOT_EDIT_OWN_ADMIN_ACCOUNT": "You cannot change your own admin account."
 }

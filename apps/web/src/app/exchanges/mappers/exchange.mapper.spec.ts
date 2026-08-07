@@ -1,6 +1,6 @@
+import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import type { ShiftExchange } from '@coaster/common';
 import { ShiftExchangeStatus } from '@coaster/common';
-import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
 import { describe, expect, it } from 'vitest';
 import { checkIsExchange, exchangeArrayMapper, exchangeMapper } from './exchange.mapper';
 

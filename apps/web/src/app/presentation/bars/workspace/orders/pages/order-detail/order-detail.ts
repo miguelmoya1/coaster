@@ -1,3 +1,4 @@
+import { asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -5,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
 import { AdjustmentTarget, OrderStatus, PaymentMethod } from '@coaster/common';
-import { ActionFeedback, asOrderId, asOrderItemId, asTableId } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
 import { PrintTicket } from '@coaster/printer';
 import { TablesStore } from '@coaster/tables';

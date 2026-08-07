@@ -1,5 +1,5 @@
 import type { Shift as IShift } from '@coaster/common';
-import { asBarId, asShiftId, asUserId } from '@coaster/core';
+import { asBarId, asShiftId, asUserId } from '@coaster/common';
 import { DbShift as ShiftDb } from '@coaster/core/db';
 
 export type ShiftWithUser = ShiftDb & { user: { id: string; name: string; photoUrl: string | null } | null };

@@ -1,5 +1,4 @@
-import { SocketEvents } from '@coaster/common';
-import { asBarId, asShiftId } from '@coaster/core';
+import { SocketEvents, asBarId, asShiftId } from '@coaster/common';
 import { ShiftDeletedEvent } from '@coaster/shifts';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,8 +1,9 @@
+import { asBarId } from '@coaster/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
-import { asBarId, CurrentUser } from '@coaster/core';
+import { CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
