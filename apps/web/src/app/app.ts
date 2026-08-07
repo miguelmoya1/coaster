@@ -1,29 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
-import { CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { inject as injectAnalytics } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
-import { AdminFloatingButton } from './presentation/admin/components/admin-floating-button/admin-floating-button';
 
 @Component({
   selector: 'coaster-root',
-  imports: [RouterOutlet, AdminFloatingButton],
-  template: `
-    <router-outlet />
-
-    @if (isAdmin()) {
-      <coaster-admin-floating-button />
-    }
-  `,
+  imports: [RouterOutlet],
+  template: ` <router-outlet /> `,
 })
 export class App {
   protected title = 'coaster';
   readonly #iconRegistry = inject(MatIconRegistry);
-  readonly #currentUser = inject(CurrentUser);
-
-  readonly isAdmin = this.#currentUser.isAdmin;
 
   constructor() {
     this.#iconRegistry.setDefaultFontSetClass('material-symbols-outlined');

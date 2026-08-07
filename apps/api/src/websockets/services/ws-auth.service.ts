@@ -46,11 +46,16 @@ export class WsAuthService {
 
       const user = await this._db.dbUser.findUnique({
         where: { googleId: decodedToken.sub },
-        select: { id: true },
+        select: { id: true, active: true },
       });
 
       if (!user) {
         this._logger.warn(`Socket ${client.id} presented a token for an unknown user`);
+        return null;
+      }
+
+      if (!user.active) {
+        this._logger.warn(`Socket ${client.id} presented a token for a deactivated user`);
         return null;
       }
 

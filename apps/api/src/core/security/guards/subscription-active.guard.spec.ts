@@ -235,4 +235,48 @@ describe('SubscriptionActiveGuard', () => {
 
     await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
   });
+
+  describe('admin-granted plans', () => {
+    const lapsedStripe = {
+      status: DbSubscriptionStatus.INACTIVE,
+      stripeSubscriptionId: null,
+      currentPeriodEnd: null,
+      trialEndsAt: null,
+    };
+
+    it('should grant access on an open-ended grant even with nothing paid to Stripe', async () => {
+      const context = createMockContext('POST', '/bars/bar-1/orders', 'bar-1', 'user-1');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue({
+        ...lapsedStripe,
+        manualPlan: 'PRO',
+        manualGrantExpiresAt: null,
+      });
+
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+      expect(dbService.dbUser.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('should grant access while a dated grant is still running', async () => {
+      const context = createMockContext('POST', '/bars/bar-1/orders', 'bar-1', 'user-1');
+      dbService.dbBarSubscription.findUnique.mockResolvedValue({
+        ...lapsedStripe,
+        manualPlan: 'PRO',
+        manualGrantExpiresAt: new Date(Date.now() + 100000),
+      });
+
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+    });
+
+    it('should refuse a non-admin once the grant has run out', async () => {
+      const context = createMockContext('POST', '/bars/bar-1/orders', 'bar-1', 'user-1');
+      dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
+      dbService.dbBarSubscription.findUnique.mockResolvedValue({
+        ...lapsedStripe,
+        manualPlan: 'PRO',
+        manualGrantExpiresAt: new Date(Date.now() - 100000),
+      });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
+    });
+  });
 });

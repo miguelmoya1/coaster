@@ -2,7 +2,8 @@ import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { getAuth } from 'firebase-admin/auth';
-import { DbRole, DbService, DbSubscriptionStatus } from '../../db';
+import { DbRole, DbService, DbSubscriptionPlan, DbSubscriptionStatus } from '../../db';
+import { isManualGrantActive } from '../../permissions/manual-grant';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
 
 interface RequestWithParams {
@@ -18,6 +19,8 @@ interface SubscriptionState {
   stripeSubscriptionId: string | null;
   currentPeriodEnd: Date | null;
   trialEndsAt: Date | null;
+  manualPlan: DbSubscriptionPlan | null;
+  manualGrantExpiresAt: Date | null;
 }
 
 const SUBSCRIPTION_MANAGEMENT_PATH = /\/bars\/[^/]+\/bar-subscription(\/|$)/;
@@ -66,12 +69,16 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    // One indexed lookup per write, reading only what the decision needs. Deliberately not cached:
-    // a stale entry here either sells access the bar stopped paying for or locks out one that just
-    // paid, and a primary-key read is not the thing to trade that against.
     const subscription = await this._db.dbBarSubscription.findUnique({
       where: { barId },
-      select: { status: true, stripeSubscriptionId: true, currentPeriodEnd: true, trialEndsAt: true },
+      select: {
+        status: true,
+        stripeSubscriptionId: true,
+        currentPeriodEnd: true,
+        trialEndsAt: true,
+        manualPlan: true,
+        manualGrantExpiresAt: true,
+      },
     });
 
     if (this.#grantsAccess(subscription)) {
@@ -101,6 +108,10 @@ export class SubscriptionActiveGuard implements CanActivate {
 
     const now = new Date();
 
+    if (isManualGrantActive(subscription, now)) {
+      return true;
+    }
+
     if (
       subscription.status === DbSubscriptionStatus.ACTIVE &&
       subscription.stripeSubscriptionId &&
@@ -118,7 +129,6 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    // A cancellation scheduled for the end of the period still grants access until that date.
     return (
       subscription.status === DbSubscriptionStatus.CANCELED &&
       Boolean(subscription.currentPeriodEnd) &&
@@ -126,12 +136,6 @@ export class SubscriptionActiveGuard implements CanActivate {
     );
   }
 
-  /**
-   * Nest runs global guards ahead of the controller-level ones, so FirebaseAuthGuard has not put
-   * the user on the request yet and the bearer token is the only identity reachable from here.
-   * Resolved only once the subscription has already been rejected, so the ordinary request pays
-   * nothing for it.
-   */
   async #isPlatformAdmin(request: RequestWithParams): Promise<boolean> {
     if (request.user?.id) {
       const user = await this._db.dbUser.findUnique({ where: { id: request.user.id }, select: { role: true } });
@@ -158,7 +162,6 @@ export class SubscriptionActiveGuard implements CanActivate {
 
       return user?.role === DbRole.ADMIN;
     } catch {
-      // A token this guard cannot read is the auth guard's business, and it runs right after.
       return false;
     }
   }

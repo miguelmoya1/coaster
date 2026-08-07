@@ -1,0 +1,157 @@
+<coaster-page-header [title]="'admin.users.title' | translate" [subtitle]="'admin.users.subtitle' | translate" />
+
+<div class="flex flex-col gap-4">
+  <section class="flex flex-col sm:flex-row sm:items-center gap-3">
+    <mat-form-field appearance="outline" class="flex-1 -mb-[1.25em]">
+      <mat-label>{{ 'admin.users.search_placeholder' | translate }}</mat-label>
+      <input matInput [value]="searchQuery()" (input)="onSearch($event)" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button mat-stroked-button type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ 'admin.bars.clear_filters' | translate }}
+      </button>
+    }
+  </section>
+
+  <section class="flex flex-wrap gap-2">
+    @for (roleFilter of roleFilters; track roleFilter ?? 'all') {
+      <button
+        type="button"
+        class="px-3 py-1.5 rounded-full text-sm border transition-colors"
+        [class]="
+          role() === roleFilter
+            ? 'border-primary bg-primary/10 text-primary font-semibold'
+            : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+        "
+        [attr.aria-pressed]="role() === roleFilter"
+        (click)="selectRole(roleFilter)"
+      >
+        {{ filterLabel(roleFilter) | translate }}
+      </button>
+    }
+
+    <span class="w-px self-stretch bg-outline-variant mx-1"></span>
+
+    @for (stateFilter of activeFilters; track stateFilter.labelKey) {
+      <button
+        type="button"
+        class="px-3 py-1.5 rounded-full text-sm border transition-colors"
+        [class]="
+          active() === stateFilter.value
+            ? 'border-primary bg-primary/10 text-primary font-semibold'
+            : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+        "
+        [attr.aria-pressed]="active() === stateFilter.value"
+        (click)="selectActive(stateFilter.value)"
+      >
+        {{ stateFilter.labelKey | translate }}
+      </button>
+    }
+  </section>
+
+  @if (isLoading() && !hasLoaded()) {
+    <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[300px]" />
+  } @else {
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface/50 text-on-surface-variant">
+            <tr class="text-left">
+              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_user' | translate }}</th>
+              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_role' | translate }}</th>
+              <th scope="col" class="px-4 py-3 font-medium hidden sm:table-cell">
+                {{ 'admin.users.col_bars' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 font-medium text-right">
+                <span class="sr-only">{{ 'admin.bars.col_actions' | translate }}</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-outline-variant/30">
+            @for (user of users(); track user.id) {
+              <tr class="hover:bg-surface/60 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-on-surface">{{ user.name }}</span>
+                    <span class="text-xs text-on-surface-variant">{{ user.email }}</span>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+                      [class]="
+                        user.role === adminRole ? 'bg-tertiary/15 text-tertiary' : 'bg-on-surface/10 text-on-surface-variant'
+                      "
+                    >
+                      {{ 'admin.user_role.' + user.role.toLowerCase() | translate }}
+                    </span>
+
+                    @if (!user.active) {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-error/10 text-error">
+                        {{ 'admin.users.inactive' | translate }}
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 hidden sm:table-cell tabular-nums text-on-surface-variant">
+                  {{ user.barCount }}
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [matMenuTriggerFor]="userMenu"
+                    [disabled]="isSaving()"
+                    [attr.aria-label]="'admin.users.actions' | translate"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+
+                  <mat-menu #userMenu="matMenu">
+                    <button mat-menu-item type="button" (click)="toggleAdmin(user)">
+                      <mat-icon>{{ user.role === adminRole ? 'remove_moderator' : 'shield_person' }}</mat-icon>
+                      <span>
+                        {{ (user.role === adminRole ? 'admin.users.demote' : 'admin.users.promote') | translate }}
+                      </span>
+                    </button>
+
+                    <button mat-menu-item type="button" (click)="toggleActive(user)">
+                      <mat-icon>{{ user.active ? 'block' : 'check_circle' }}</mat-icon>
+                      <span>{{ (user.active ? 'admin.users.deactivate' : 'admin.users.activate') | translate }}</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-4 py-10 text-center text-on-surface-variant">
+                  {{ 'admin.users.empty' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (total() > pageSize) {
+        <div class="px-4 pb-4">
+          <coaster-admin-pagination
+            [page]="page()"
+            [pageSize]="pageSize"
+            [total]="total()"
+            [totalPages]="totalPages()"
+            (pageChange)="goToPage($event)"
+          />
+        </div>
+      }
+    </section>
+  }
+</div>

@@ -131,6 +131,7 @@ model DbUser {
   shifts         DbShift[]
   shiftRequests  DbShiftExchange[] @relation("Requester")
   shiftApprovals DbShiftExchange[] @relation("Target")
+  auditLogs      DbAdminAuditLog[] @relation("AdminAuditActor")
 
   @@map("User")
 }
@@ -361,11 +362,38 @@ model DbBarSubscription {
   currentPeriodEnd     DateTime?
   trialEndsAt          DateTime?
   canceledAt           DateTime?
+
+  // Access an admin handed out without Stripe. Kept apart from the Stripe columns above so a
+  // webhook arriving later overwrites the billing state without touching the grant.
+  manualPlan           DbSubscriptionPlan?
+  manualGrantExpiresAt DateTime?
+  manualGrantReason    String?
+  manualGrantedById    String?
+  manualGrantedAt      DateTime?
+
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
 
   @@index([status])
+  @@index([manualPlan])
   @@map("BarSubscription")
+}
+
+model DbAdminAuditLog {
+  id          String   @id @default(uuid())
+  actorId     String
+  actor       DbUser   @relation("AdminAuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  action      String
+  targetType  String
+  targetId    String
+  targetLabel String?
+  reason      String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@map("AdminAuditLog")
 }
 
 model DbStripeWebhookEvent {

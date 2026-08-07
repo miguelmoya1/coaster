@@ -35,6 +35,11 @@ export type DbBarSubscriptionMinAggregateOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  manualPlan: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt: Date | null
+  manualGrantReason: string | null
+  manualGrantedById: string | null
+  manualGrantedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +55,11 @@ export type DbBarSubscriptionMaxAggregateOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  manualPlan: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt: Date | null
+  manualGrantReason: string | null
+  manualGrantedById: string | null
+  manualGrantedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,6 +75,11 @@ export type DbBarSubscriptionCountAggregateOutputType = {
   currentPeriodEnd: number
   trialEndsAt: number
   canceledAt: number
+  manualPlan: number
+  manualGrantExpiresAt: number
+  manualGrantReason: number
+  manualGrantedById: number
+  manualGrantedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -82,6 +97,11 @@ export type DbBarSubscriptionMinAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  manualPlan?: true
+  manualGrantExpiresAt?: true
+  manualGrantReason?: true
+  manualGrantedById?: true
+  manualGrantedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -97,6 +117,11 @@ export type DbBarSubscriptionMaxAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  manualPlan?: true
+  manualGrantExpiresAt?: true
+  manualGrantReason?: true
+  manualGrantedById?: true
+  manualGrantedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +137,11 @@ export type DbBarSubscriptionCountAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  manualPlan?: true
+  manualGrantExpiresAt?: true
+  manualGrantReason?: true
+  manualGrantedById?: true
+  manualGrantedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -200,6 +230,11 @@ export type DbBarSubscriptionGroupByOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  manualPlan: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt: Date | null
+  manualGrantReason: string | null
+  manualGrantedById: string | null
+  manualGrantedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: DbBarSubscriptionCountAggregateOutputType | null
@@ -236,6 +271,11 @@ export type DbBarSubscriptionWhereInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  manualPlan?: Prisma.EnumDbSubscriptionPlanNullableFilter<"DbBarSubscription"> | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  manualGrantReason?: Prisma.StringNullableFilter<"DbBarSubscription"> | string | null
+  manualGrantedById?: Prisma.StringNullableFilter<"DbBarSubscription"> | string | null
+  manualGrantedAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
@@ -252,6 +292,11 @@ export type DbBarSubscriptionOrderByWithRelationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualPlan?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   bar?: Prisma.DbBarOrderByWithRelationInput
@@ -271,6 +316,11 @@ export type DbBarSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  manualPlan?: Prisma.EnumDbSubscriptionPlanNullableFilter<"DbBarSubscription"> | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
+  manualGrantReason?: Prisma.StringNullableFilter<"DbBarSubscription"> | string | null
+  manualGrantedById?: Prisma.StringNullableFilter<"DbBarSubscription"> | string | null
+  manualGrantedAt?: Prisma.DateTimeNullableFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbBarSubscription"> | Date | string
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
@@ -287,6 +337,11 @@ export type DbBarSubscriptionOrderByWithAggregationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualPlan?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  manualGrantedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbBarSubscriptionCountOrderByAggregateInput
@@ -308,6 +363,11 @@ export type DbBarSubscriptionScalarWhereWithAggregatesInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
+  manualPlan?: Prisma.EnumDbSubscriptionPlanNullableWithAggregatesFilter<"DbBarSubscription"> | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
+  manualGrantReason?: Prisma.StringNullableWithAggregatesFilter<"DbBarSubscription"> | string | null
+  manualGrantedById?: Prisma.StringNullableWithAggregatesFilter<"DbBarSubscription"> | string | null
+  manualGrantedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbBarSubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbBarSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbBarSubscription"> | Date | string
 }
@@ -322,6 +382,11 @@ export type DbBarSubscriptionCreateInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  manualPlan?: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Date | string | null
+  manualGrantReason?: string | null
+  manualGrantedById?: string | null
+  manualGrantedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bar: Prisma.DbBarCreateNestedOneWithoutBillingInput
@@ -338,6 +403,11 @@ export type DbBarSubscriptionUncheckedCreateInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  manualPlan?: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Date | string | null
+  manualGrantReason?: string | null
+  manualGrantedById?: string | null
+  manualGrantedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -352,6 +422,11 @@ export type DbBarSubscriptionUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bar?: Prisma.DbBarUpdateOneRequiredWithoutBillingNestedInput
@@ -368,6 +443,11 @@ export type DbBarSubscriptionUncheckedUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -383,6 +463,11 @@ export type DbBarSubscriptionCreateManyInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  manualPlan?: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Date | string | null
+  manualGrantReason?: string | null
+  manualGrantedById?: string | null
+  manualGrantedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -397,6 +482,11 @@ export type DbBarSubscriptionUpdateManyMutationInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -412,6 +502,11 @@ export type DbBarSubscriptionUncheckedUpdateManyInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -432,6 +527,11 @@ export type DbBarSubscriptionCountOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  manualPlan?: Prisma.SortOrder
+  manualGrantExpiresAt?: Prisma.SortOrder
+  manualGrantReason?: Prisma.SortOrder
+  manualGrantedById?: Prisma.SortOrder
+  manualGrantedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -447,6 +547,11 @@ export type DbBarSubscriptionMaxOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  manualPlan?: Prisma.SortOrder
+  manualGrantExpiresAt?: Prisma.SortOrder
+  manualGrantReason?: Prisma.SortOrder
+  manualGrantedById?: Prisma.SortOrder
+  manualGrantedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -462,6 +567,11 @@ export type DbBarSubscriptionMinOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  manualPlan?: Prisma.SortOrder
+  manualGrantExpiresAt?: Prisma.SortOrder
+  manualGrantReason?: Prisma.SortOrder
+  manualGrantedById?: Prisma.SortOrder
+  manualGrantedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -506,6 +616,10 @@ export type EnumDbSubscriptionStatusFieldUpdateOperationsInput = {
   set?: $Enums.DbSubscriptionStatus
 }
 
+export type NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput = {
+  set?: $Enums.DbSubscriptionPlan | null
+}
+
 export type DbBarSubscriptionCreateWithoutBarInput = {
   id?: string
   plan?: $Enums.DbSubscriptionPlan
@@ -516,6 +630,11 @@ export type DbBarSubscriptionCreateWithoutBarInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  manualPlan?: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Date | string | null
+  manualGrantReason?: string | null
+  manualGrantedById?: string | null
+  manualGrantedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -530,6 +649,11 @@ export type DbBarSubscriptionUncheckedCreateWithoutBarInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  manualPlan?: $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Date | string | null
+  manualGrantReason?: string | null
+  manualGrantedById?: string | null
+  manualGrantedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -560,6 +684,11 @@ export type DbBarSubscriptionUpdateWithoutBarInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -574,6 +703,11 @@ export type DbBarSubscriptionUncheckedUpdateWithoutBarInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
+  manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manualGrantedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -591,6 +725,11 @@ export type DbBarSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.Int
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  manualPlan?: boolean
+  manualGrantExpiresAt?: boolean
+  manualGrantReason?: boolean
+  manualGrantedById?: boolean
+  manualGrantedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
@@ -607,6 +746,11 @@ export type DbBarSubscriptionSelectCreateManyAndReturn<ExtArgs extends runtime.T
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  manualPlan?: boolean
+  manualGrantExpiresAt?: boolean
+  manualGrantReason?: boolean
+  manualGrantedById?: boolean
+  manualGrantedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
@@ -623,6 +767,11 @@ export type DbBarSubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  manualPlan?: boolean
+  manualGrantExpiresAt?: boolean
+  manualGrantReason?: boolean
+  manualGrantedById?: boolean
+  manualGrantedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
@@ -639,11 +788,16 @@ export type DbBarSubscriptionSelectScalar = {
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  manualPlan?: boolean
+  manualGrantExpiresAt?: boolean
+  manualGrantReason?: boolean
+  manualGrantedById?: boolean
+  manualGrantedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbBarSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "canceledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbBarSubscription"]>
+export type DbBarSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "canceledAt" | "manualPlan" | "manualGrantExpiresAt" | "manualGrantReason" | "manualGrantedById" | "manualGrantedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbBarSubscription"]>
 export type DbBarSubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
 }
@@ -670,6 +824,11 @@ export type $DbBarSubscriptionPayload<ExtArgs extends runtime.Types.Extensions.I
     currentPeriodEnd: Date | null
     trialEndsAt: Date | null
     canceledAt: Date | null
+    manualPlan: $Enums.DbSubscriptionPlan | null
+    manualGrantExpiresAt: Date | null
+    manualGrantReason: string | null
+    manualGrantedById: string | null
+    manualGrantedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dbBarSubscription"]>
@@ -1106,6 +1265,11 @@ export interface DbBarSubscriptionFieldRefs {
   readonly currentPeriodEnd: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly trialEndsAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly canceledAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
+  readonly manualPlan: Prisma.FieldRef<"DbBarSubscription", 'DbSubscriptionPlan'>
+  readonly manualGrantExpiresAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
+  readonly manualGrantReason: Prisma.FieldRef<"DbBarSubscription", 'String'>
+  readonly manualGrantedById: Prisma.FieldRef<"DbBarSubscription", 'String'>
+  readonly manualGrantedAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbBarSubscription", 'DateTime'>
 }

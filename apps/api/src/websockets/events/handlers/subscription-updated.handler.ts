@@ -1,5 +1,6 @@
 import {
   SubscriptionCancelledEvent,
+  SubscriptionOverriddenEvent,
   SubscriptionPaymentFailedEvent,
   SubscriptionRenewedEvent,
 } from '@coaster/bar-subscription';
@@ -13,9 +14,18 @@ import { BarGateway } from '../../bar.gateway';
  * do as a cancellation is. Leaving it out kept the clients acting as if they were still paid up
  * until somebody happened to reload.
  */
-type SubscriptionEvent = SubscriptionRenewedEvent | SubscriptionCancelledEvent | SubscriptionPaymentFailedEvent;
+type SubscriptionEvent =
+  | SubscriptionRenewedEvent
+  | SubscriptionCancelledEvent
+  | SubscriptionPaymentFailedEvent
+  | SubscriptionOverriddenEvent;
 
-@EventsHandler(SubscriptionRenewedEvent, SubscriptionCancelledEvent, SubscriptionPaymentFailedEvent)
+@EventsHandler(
+  SubscriptionRenewedEvent,
+  SubscriptionCancelledEvent,
+  SubscriptionPaymentFailedEvent,
+  SubscriptionOverriddenEvent,
+)
 export class SubscriptionUpdatedHandler implements IEventHandler<SubscriptionEvent> {
   readonly #logger = new Logger(SubscriptionUpdatedHandler.name);
 

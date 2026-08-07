@@ -1,5 +1,6 @@
 export * from './constants/adjustment-target.type';
 export * from './constants/adjustment-type.type';
+export * from './constants/admin-audit-action.type';
 export * from './constants/bar-permissions.type';
 export * from './constants/bar-role.type';
 export * from './constants/delivery-status.type';
@@ -15,6 +16,7 @@ export * from './constants/subscription-plan.type';
 export * from './constants/subscription-status.type';
 export * from './constants/table-status.type';
 export * from './domain/pricing';
+export * from './interfaces/admin.interface';
 export * from './interfaces/ai.interface';
 export * from './interfaces/bar-member.interface';
 export * from './interfaces/bar.interface';

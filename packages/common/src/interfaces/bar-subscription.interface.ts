@@ -5,6 +5,22 @@ import { Brand } from './brand.type';
 
 export type BarSubscriptionId = Brand<string, 'BarSubscriptionId'>;
 
+export interface ManualGrant {
+  plan: SubscriptionPlan;
+  expiresAt: string | null;
+}
+
+export interface AdminManualGrant extends ManualGrant {
+  reason: string | null;
+  grantedById: string | null;
+  grantedByName: string | null;
+  grantedAt: string;
+}
+
+export interface AdminBarSubscription extends Omit<BarSubscription, 'manualGrant'> {
+  manualGrant: AdminManualGrant | null;
+}
+
 export interface BarSubscription {
   id: BarSubscriptionId;
   barId: BarId;
@@ -16,6 +32,7 @@ export interface BarSubscription {
   currentPeriodEnd: string | null;
   trialEndsAt: string | null;
   canceledAt: string | null;
+  manualGrant: ManualGrant | null;
   createdAt: string;
   updatedAt: string;
 }

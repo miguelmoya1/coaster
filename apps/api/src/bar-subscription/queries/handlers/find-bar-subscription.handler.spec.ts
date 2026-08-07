@@ -58,6 +58,7 @@ describe('FindBarSubscriptionHandler', () => {
       currentPeriodEnd: new Date('2026-02-01').toISOString(),
       trialEndsAt: null,
       canceledAt: null,
+      manualGrant: null,
       createdAt: new Date('2026-01-01').toISOString(),
       updatedAt: new Date('2026-01-01').toISOString(),
     });

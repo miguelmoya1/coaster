@@ -59,6 +59,17 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
       </div>
 
       <div class="flex items-center shrink-0">
+        @if (isAdmin()) {
+          <a
+            mat-icon-button
+            routerLink="/admin/overview"
+            [attr.aria-label]="'admin.nav.open_panel' | translate"
+            [title]="'admin.nav.open_panel' | translate"
+          >
+            <mat-icon>admin_panel_settings</mat-icon>
+          </a>
+        }
+
         <coaster-ai-assistant-trigger [barId]="barId()" />
 
         <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
@@ -172,6 +183,7 @@ export class TopAppBar {
   readonly #planDialogService = inject(PlanDialogService);
 
   readonly currentLang = this.#translate.currentLang;
+  readonly isAdmin = this.#currentUser.isAdmin;
   readonly apiUrl = environment.apiUrl;
   readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
   readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());

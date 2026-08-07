@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { BarListStore } from '@coaster/bars';
@@ -34,6 +35,7 @@ describe('SelectBar', () => {
     current: {
       value: vi.fn().mockReturnValue({ role: Role.USER }),
     },
+    isAdmin: signal(false),
   };
 
   beforeEach(async () => {

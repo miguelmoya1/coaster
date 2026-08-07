@@ -18,6 +18,11 @@ const buildDbSub = (overrides: Partial<DbBarSubscription> = {}): DbBarSubscripti
     currentPeriodEnd: new Date('2026-02-01T00:00:00.000Z'),
     trialEndsAt: null,
     canceledAt: null,
+    manualPlan: null,
+    manualGrantExpiresAt: null,
+    manualGrantReason: null,
+    manualGrantedById: null,
+    manualGrantedAt: null,
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,
@@ -49,6 +54,7 @@ describe('BarSubscriptionMapper', () => {
       currentPeriodEnd: new Date('2026-02-01T00:00:00.000Z').toISOString(),
       trialEndsAt: null,
       canceledAt: null,
+      manualGrant: null,
       createdAt: NOW.toISOString(),
       updatedAt: NOW.toISOString(),
     });
@@ -146,9 +152,109 @@ describe('BarSubscriptionMapper', () => {
         currentPeriodEnd: null,
         trialEndsAt: null,
         canceledAt: null,
+        manualGrant: null,
         createdAt: NOW.toISOString(),
         updatedAt: NOW.toISOString(),
       });
+    });
+  });
+
+  describe('manual grants', () => {
+    it('should report PRO and ACTIVE while an open-ended grant is in force', () => {
+      const dbSub = buildDbSub({
+        plan: SubscriptionPlan.FREE,
+        status: SubscriptionStatus.INACTIVE,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        manualPlan: SubscriptionPlan.PRO,
+        manualGrantExpiresAt: null,
+        manualGrantReason: 'Partner venue',
+        manualGrantedById: 'admin-1',
+        manualGrantedAt: NOW,
+      });
+
+      const domain = BarSubscriptionMapper.toDomain(dbSub);
+
+      expect(domain.plan).toBe(SubscriptionPlan.PRO);
+      expect(domain.status).toBe(SubscriptionStatus.ACTIVE);
+      expect(domain.manualGrant).toEqual({ plan: SubscriptionPlan.PRO, expiresAt: null });
+    });
+
+    it('should never leak the admin note or the grantor to the workspace payload', () => {
+      const dbSub = buildDbSub({
+        manualPlan: SubscriptionPlan.PRO,
+        manualGrantExpiresAt: null,
+        manualGrantReason: 'Friend of the founder',
+        manualGrantedById: 'admin-1',
+        manualGrantedAt: NOW,
+      });
+
+      const serialised = JSON.stringify(BarSubscriptionMapper.toDomain({ ...dbSub, manualGrantedByName: 'Miguel' }));
+
+      expect(serialised).not.toContain('Friend of the founder');
+      expect(serialised).not.toContain('Miguel');
+      expect(serialised).not.toContain('admin-1');
+    });
+
+    it('should give the backoffice the reason and the grantor', () => {
+      const dbSub = buildDbSub({
+        manualPlan: SubscriptionPlan.PRO,
+        manualGrantExpiresAt: new Date('2026-02-15T00:00:00.000Z'),
+        manualGrantReason: 'Partner venue',
+        manualGrantedById: 'admin-1',
+        manualGrantedAt: NOW,
+      });
+
+      const domain = BarSubscriptionMapper.toAdminDomain({ ...dbSub, manualGrantedByName: 'Miguel' });
+
+      expect(domain.manualGrant).toEqual({
+        plan: SubscriptionPlan.PRO,
+        expiresAt: '2026-02-15T00:00:00.000Z',
+        reason: 'Partner venue',
+        grantedById: 'admin-1',
+        grantedByName: 'Miguel',
+        grantedAt: NOW.toISOString(),
+      });
+    });
+
+    it('should refuse to treat a FREE manual plan as granted access', () => {
+      const dbSub = buildDbSub({
+        plan: SubscriptionPlan.FREE,
+        status: SubscriptionStatus.INACTIVE,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+        manualPlan: SubscriptionPlan.FREE,
+        manualGrantExpiresAt: null,
+        manualGrantedAt: NOW,
+      });
+
+      const domain = BarSubscriptionMapper.toDomain(dbSub);
+
+      expect(domain.manualGrant).toBeNull();
+      expect(domain.status).toBe(SubscriptionStatus.INACTIVE);
+    });
+
+    it('should fall back to the Stripe state once the grant has expired', () => {
+      const dbSub = buildDbSub({
+        plan: SubscriptionPlan.FREE,
+        status: SubscriptionStatus.INACTIVE,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        manualPlan: SubscriptionPlan.PRO,
+        manualGrantExpiresAt: new Date('2026-01-14T23:59:59.000Z'),
+        manualGrantedById: 'admin-1',
+        manualGrantedAt: new Date('2025-12-01T00:00:00.000Z'),
+      });
+
+      const domain = BarSubscriptionMapper.toDomain(dbSub);
+
+      expect(domain.manualGrant).toBeNull();
+      expect(domain.plan).toBe(SubscriptionPlan.FREE);
+      expect(domain.status).toBe(SubscriptionStatus.INACTIVE);
     });
   });
 });

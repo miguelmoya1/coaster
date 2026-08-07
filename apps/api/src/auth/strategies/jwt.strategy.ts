@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
         where: { googleId: decodedToken.sub },
       });
 
-      if (!user) {
+      if (!user || !user.active) {
         throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
       }
 

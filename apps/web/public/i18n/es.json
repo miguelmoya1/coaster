@@ -221,7 +221,8 @@
     },
     "save": "Guardar",
     "update": "Actualizar",
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "refresh": "Actualizar"
   },
   "dashboard": {
     "overview": {
@@ -778,5 +779,162 @@
       "copyright": "Coaster Inc. Todos los derechos reservados.",
       "status_ok": "Todos los sistemas operativos"
     }
-  }
+  },
+  "admin": {
+    "nav": {
+      "overview": "Resumen",
+      "bars": "Bares",
+      "users": "Usuarios",
+      "audit": "Auditoría",
+      "templates": "Plantillas",
+      "open_panel": "Panel de admin"
+    },
+    "billing_source": {
+      "manual": "Manual",
+      "stripe": "Stripe",
+      "none": "Sin acceso"
+    },
+    "subscription_status": {
+      "inactive": "Inactiva",
+      "trialing": "En prueba",
+      "active": "Activa",
+      "past_due": "Pago pendiente",
+      "canceled": "Cancelada",
+      "unpaid": "Impagada",
+      "expired": "Caducada"
+    },
+    "user_role": {
+      "admin": "Administrador",
+      "user": "Usuario"
+    },
+    "audit_action": {
+      "bar_plan_granted": "Plan concedido",
+      "bar_plan_revoked": "Plan retirado",
+      "bar_renamed": "Bar renombrado",
+      "bar_member_role_changed": "Rol de miembro cambiado",
+      "user_role_changed": "Rol de usuario cambiado",
+      "user_activation_changed": "Estado de usuario cambiado"
+    },
+    "pagination": {
+      "range": "{{ from }}–{{ to }} de {{ total }}",
+      "previous": "Página anterior",
+      "next": "Página siguiente"
+    },
+    "overview": {
+      "title": "Resumen de la plataforma",
+      "subtitle": "Estado general de bares, usuarios y suscripciones.",
+      "total_bars": "Bares",
+      "new_last_7": "{{ count }} nuevos en 7 días",
+      "with_access": "Con acceso",
+      "without_access": "{{ count }} sin acceso",
+      "users": "Usuarios",
+      "active_users": "{{ count }} activos",
+      "revenue_30": "Facturado (30 d)",
+      "orders_30": "{{ count }} pedidos",
+      "billing_title": "Facturación",
+      "by_status": "Por estado",
+      "no_subscriptions": "Todavía no hay suscripciones.",
+      "recent_activity": "Actividad reciente",
+      "see_all": "Ver todo",
+      "load_error": "No se pudieron cargar las métricas."
+    },
+    "bars": {
+      "title": "Bares",
+      "subtitle": "Busca por nombre, ID o email del dueño y gestiona su plan.",
+      "search_placeholder": "Nombre, ID o email del dueño...",
+      "clear_filters": "Limpiar filtros",
+      "filter_all": "Todos",
+      "col_bar": "Bar",
+      "col_owner": "Dueño",
+      "col_access": "Acceso",
+      "col_members": "Miembros",
+      "col_actions": "Acciones",
+      "empty": "No hay bares que coincidan con la búsqueda."
+    },
+    "bar_detail": {
+      "not_found": "No se encontró el bar.",
+      "rename": "Renombrar",
+      "rename_label": "Nombre del bar",
+      "rename_success": "Bar renombrado",
+      "rename_too_short": "El nombre debe tener al menos 3 caracteres.",
+      "enter": "Entrar al bar",
+      "subscription_title": "Suscripción",
+      "grant_active": "Plan {{ plan }} concedido manualmente",
+      "grant_until": "Vigente hasta el {{ date }}",
+      "grant_forever": "Sin fecha de caducidad",
+      "grant_by": "Concedido por {{ name }} el {{ date }}",
+      "no_grant": "Este bar no tiene ningún plan concedido a mano. Su acceso depende de Stripe.",
+      "plan": "Plan",
+      "period_end": "Fin de periodo",
+      "trial_ends": "Fin de prueba",
+      "stripe_id": "Suscripción Stripe",
+      "grant_pro": "Conceder PRO",
+      "extend_pro": "Modificar concesión",
+      "revoke_pro": "Quitar PRO",
+      "grant_success": "Plan concedido",
+      "revoke_title": "Quitar el PRO concedido",
+      "revoke_text": "Se retirará el plan concedido a mano a \"{{ bar }}\". Si no tiene una suscripción de Stripe activa, el bar pasará a solo lectura.",
+      "revoke_confirm": "Quitar PRO",
+      "revoke_success": "Plan retirado",
+      "products": "Productos",
+      "categories": "{{ count }} categorías",
+      "tables": "Mesas",
+      "orders_30": "Pedidos (30 d)",
+      "orders_total": "{{ count }} en total",
+      "revenue_30": "Facturado (30 d)",
+      "members_title": "Miembros ({{ count }})",
+      "member_inactive": "Inactivo",
+      "change_role": "Cambiar rol",
+      "member_role_success": "Rol actualizado",
+      "no_members": "Este bar no tiene miembros.",
+      "activity_title": "Actividad de admin"
+    },
+    "grant_dialog": {
+      "title": "Conceder {{ plan }}",
+      "subtitle": "Se activará el plan en \"{{ bar }}\" sin pasar por Stripe.",
+      "duration_label": "Duración",
+      "duration_7": "7 días",
+      "duration_30": "30 días",
+      "duration_90": "90 días",
+      "duration_365": "1 año",
+      "duration_forever": "Indefinido",
+      "reason_label": "Motivo (opcional)",
+      "confirm": "Conceder"
+    },
+    "users": {
+      "title": "Usuarios",
+      "subtitle": "Busca personas, revisa sus bares y gestiona su acceso.",
+      "search_placeholder": "Nombre, email o ID...",
+      "filter_all": "Todos",
+      "col_user": "Usuario",
+      "col_role": "Rol",
+      "col_bars": "Bares",
+      "empty": "No hay usuarios que coincidan con la búsqueda.",
+      "inactive": "Inactivo",
+      "actions": "Acciones",
+      "promote": "Hacer administrador",
+      "demote": "Quitar administrador",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "update_success": "Usuario actualizado",
+      "promote_title": "Hacer administrador",
+      "promote_text": "{{ name }} ({{ email }}) tendrá acceso completo al panel de administración y a todos los bares.",
+      "promote_confirm": "Hacer administrador",
+      "demote_title": "Quitar administrador",
+      "demote_text": "{{ name }} ({{ email }}) perderá el acceso al panel de administración.",
+      "demote_confirm": "Quitar administrador",
+      "state_all": "Cualquier estado",
+      "state_active": "Activos",
+      "state_inactive": "Inactivos"
+    },
+    "audit": {
+      "title": "Auditoría",
+      "subtitle": "Todo lo que se ha hecho desde el panel de administración.",
+      "filter_all": "Todas",
+      "empty": "No hay actividad registrada."
+    }
+  },
+  "NO_MANUAL_GRANT": "Este bar no tiene ningún plan concedido a mano.",
+  "CANNOT_DEMOTE_LAST_ADMIN": "No puedes quitar el último administrador de la plataforma.",
+  "CANNOT_EDIT_OWN_ADMIN_ACCOUNT": "No puedes modificar tu propia cuenta de administrador."
 }
