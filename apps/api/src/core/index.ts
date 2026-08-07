@@ -10,3 +10,4 @@ export * from './security/guards/bar-permissions.guard';
 export * from './security/guards/subscription-active.guard';
 export * from './utils/brands';
 export * from './utils/prisma-errors';
+export * from './utils/public-assets';

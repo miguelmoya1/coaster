@@ -88,6 +88,16 @@ export type DbOrderItem = Prisma.DbOrderItemModel
  */
 export type DbPrinterConfig = Prisma.DbPrinterConfigModel
 /**
+ * Model DbPrintJob
+ * A ticket waiting for the bar's print bridge to collect it.
+ * 
+ * The queue lives in the database rather than in memory because the API
+ * autoscales: the bridge's long-poll and the waiter's print request routinely
+ * land on different instances, and anything held in process memory would be
+ * invisible to the other one.
+ */
+export type DbPrintJob = Prisma.DbPrintJobModel
+/**
  * Model DbBarSubscription
  * 
  */

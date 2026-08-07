@@ -65,7 +65,7 @@ func TestValidateJWT_InvalidFormat(t *testing.T) {
 }
 
 func TestJWTMiddleware_MissingHeader(t *testing.T) {
-	handler := JWT("test-secret")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("test-secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -79,7 +79,7 @@ func TestJWTMiddleware_MissingHeader(t *testing.T) {
 }
 
 func TestJWTMiddleware_InvalidFormat(t *testing.T) {
-	handler := JWT("test-secret")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("test-secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -99,7 +99,7 @@ func TestJWTMiddleware_ValidToken(t *testing.T) {
 	token := genToken("bar-123", now+300, []byte(secret))
 
 	nextCalled := false
-	handler := JWT(secret)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCalled = true
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -119,7 +119,7 @@ func TestJWTMiddleware_ValidToken(t *testing.T) {
 
 func TestJWTMiddleware_OptionsPassthrough(t *testing.T) {
 	nextCalled := false
-	handler := JWT("secret")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCalled = true
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -241,7 +241,7 @@ func TestJWTMiddleware_ExpiredToken(t *testing.T) {
 	now := time.Now().Unix()
 	token := genToken("bar-1", now-10, []byte(secret))
 
-	handler := JWT(secret)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -255,5 +255,45 @@ func TestJWTMiddleware_ExpiredToken(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), "expired") {
 		t.Errorf("expected expired error message, got: %s", w.Body.String())
+	}
+}
+
+func TestJWTMiddleware_RejectsATokenFromAnotherBar(t *testing.T) {
+	secret := "test-secret"
+	token := genToken("some-other-bar", time.Now().Unix()+300, []byte(secret))
+
+	nextCalled := false
+	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+	}))
+
+	req := httptest.NewRequest(http.MethodPost, "/print", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("expected 403 for a token from another bar, got %d", w.Code)
+	}
+	if nextCalled {
+		t.Error("expected the request not to reach the print handler")
+	}
+}
+
+func TestJWTMiddleware_SkipsTheBarCheckWhenUnconfigured(t *testing.T) {
+	secret := "test-secret"
+	token := genToken("any-bar", time.Now().Unix()+300, []byte(secret))
+
+	nextCalled := false
+	handler := JWT(secret, "")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+	}))
+
+	req := httptest.NewRequest(http.MethodPost, "/print", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	if !nextCalled {
+		t.Error("expected the request to be accepted when no bar is configured")
 	}
 }

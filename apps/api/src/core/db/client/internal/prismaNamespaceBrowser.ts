@@ -65,6 +65,7 @@ export const ModelName = {
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
   DbPrinterConfig: 'DbPrinterConfig',
+  DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
@@ -280,6 +281,21 @@ export const DbPrinterConfigScalarFieldEnum = {
 } as const
 
 export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
+
+
+export const DbPrintJobScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  createdAt: 'createdAt',
+  claimedAt: 'claimedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DbPrintJobScalarFieldEnum = (typeof DbPrintJobScalarFieldEnum)[keyof typeof DbPrintJobScalarFieldEnum]
 
 
 export const DbBarSubscriptionScalarFieldEnum = {

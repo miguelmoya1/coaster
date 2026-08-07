@@ -397,6 +397,8 @@ class OrderDetail {
 
     try {
       await this.#printTicket.execute(order);
+    } catch (error) {
+      this.#feedback.error(error);
     } finally {
       this.isPrinting.set(false);
     }

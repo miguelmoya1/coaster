@@ -146,6 +146,7 @@ model DbBar {
   tables     DbTable[]
   orders     DbOrder[]
   printer    DbPrinterConfig?
+  printJobs  DbPrintJob[]
   billing    DbBarSubscription?
 
   @@map("Bar")
@@ -323,6 +324,31 @@ model DbPrinterConfig {
   @@map("PrinterConfig")
 }
 
+enum DbPrintJobStatus {
+  PENDING
+  PRINTING
+  PRINTED
+  FAILED
+
+  @@map("PrintJobStatus")
+}
+
+model DbPrintJob {
+  id          String           @id @default(uuid())
+  barId       String
+  bar         DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  payload     Json
+  status      DbPrintJobStatus @default(PENDING)
+  attempts    Int              @default(0)
+  error       String?
+  createdAt   DateTime         @default(now())
+  claimedAt   DateTime?
+  completedAt DateTime?
+
+  @@index([barId, status, createdAt])
+  @@map("PrintJob")
+}
+
 model DbBarSubscription {
   id                   String               @id @default(uuid())
   barId                String               @unique
@@ -343,16 +369,16 @@ model DbBarSubscription {
 }
 
 model DbStripeWebhookEvent {
-  id               String   @id @default(uuid())
-  stripeEventId    String   @unique
+  id               String    @id @default(uuid())
+  stripeEventId    String    @unique
   type             String
   payload          Json
-  processingStatus String   @default("PROCESSED")
-  attempts         Int      @default(0)
+  processingStatus String    @default("PROCESSED")
+  attempts         Int       @default(0)
   lastError        String?
-  receivedAt       DateTime @default(now())
+  receivedAt       DateTime  @default(now())
   processedAt      DateTime?
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime  @updatedAt
 
   @@map("StripeWebhookEvent")
 }

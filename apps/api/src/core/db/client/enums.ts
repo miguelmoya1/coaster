@@ -106,3 +106,13 @@ export const DbAdjustmentTarget = {
 } as const
 
 export type DbAdjustmentTarget = (typeof DbAdjustmentTarget)[keyof typeof DbAdjustmentTarget]
+
+
+export const DbPrintJobStatus = {
+  PENDING: 'PENDING',
+  PRINTING: 'PRINTING',
+  PRINTED: 'PRINTED',
+  FAILED: 'FAILED'
+} as const
+
+export type DbPrintJobStatus = (typeof DbPrintJobStatus)[keyof typeof DbPrintJobStatus]

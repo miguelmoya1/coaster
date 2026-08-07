@@ -398,6 +398,7 @@ export const ModelName = {
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
   DbPrinterConfig: 'DbPrinterConfig',
+  DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbBarSubscription" | "dbStripeWebhookEvent"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbStripeWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1455,6 +1456,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DbPrintJob: {
+      payload: Prisma.$DbPrintJobPayload<ExtArgs>
+      fields: Prisma.DbPrintJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbPrintJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbPrintJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        findFirst: {
+          args: Prisma.DbPrintJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbPrintJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        findMany: {
+          args: Prisma.DbPrintJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>[]
+        }
+        create: {
+          args: Prisma.DbPrintJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        createMany: {
+          args: Prisma.DbPrintJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbPrintJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>[]
+        }
+        delete: {
+          args: Prisma.DbPrintJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        update: {
+          args: Prisma.DbPrintJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbPrintJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbPrintJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbPrintJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbPrintJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrintJobPayload>
+        }
+        aggregate: {
+          args: Prisma.DbPrintJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbPrintJob>
+        }
+        groupBy: {
+          args: Prisma.DbPrintJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbPrintJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbPrintJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbPrintJobCountAggregateOutputType> | number
+        }
+      }
+    }
     DbBarSubscription: {
       payload: Prisma.$DbBarSubscriptionPayload<ExtArgs>
       fields: Prisma.DbBarSubscriptionFieldRefs
@@ -1839,6 +1914,21 @@ export const DbPrinterConfigScalarFieldEnum = {
 export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
 
 
+export const DbPrintJobScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  createdAt: 'createdAt',
+  claimedAt: 'claimedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DbPrintJobScalarFieldEnum = (typeof DbPrintJobScalarFieldEnum)[keyof typeof DbPrintJobScalarFieldEnum]
+
+
 export const DbBarSubscriptionScalarFieldEnum = {
   id: 'id',
   barId: 'barId',
@@ -2095,6 +2185,34 @@ export type ListEnumDbDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'DbPrintJobStatus'
+ */
+export type EnumDbPrintJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbPrintJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DbPrintJobStatus[]'
+ */
+export type ListEnumDbPrintJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbPrintJobStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'DbSubscriptionPlan'
  */
 export type EnumDbSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionPlan'>
@@ -2119,20 +2237,6 @@ export type EnumDbSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'DbSubscriptionStatus[]'
  */
 export type ListEnumDbSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbSubscriptionStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2273,6 +2377,7 @@ export type GlobalOmitConfig = {
   dbOrder?: Prisma.DbOrderOmit
   dbOrderItem?: Prisma.DbOrderItemOmit
   dbPrinterConfig?: Prisma.DbPrinterConfigOmit
+  dbPrintJob?: Prisma.DbPrintJobOmit
   dbBarSubscription?: Prisma.DbBarSubscriptionOmit
   dbStripeWebhookEvent?: Prisma.DbStripeWebhookEventOmit
 }

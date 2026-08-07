@@ -2,97 +2,161 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
+	"time"
 
 	"printer-service/internal/config"
 	"printer-service/internal/domain"
+	"printer-service/internal/escpos"
 	"printer-service/internal/handler"
 	"printer-service/internal/infrastructure/printer"
 	"printer-service/internal/middleware"
 	"printer-service/internal/registration"
+	"printer-service/internal/relay"
 	"printer-service/internal/updater"
 	"printer-service/internal/usecase"
 )
 
+const shutdownGrace = 10 * time.Second
+
 func main() {
-	srv, err := BuildServer(os.Args[1:])
+	log.SetFlags(log.LstdFlags | log.Lmsgprefix)
+	log.SetPrefix("[coaster-printer] ")
+
+	svc, err := buildService(os.Args[1:])
 	if err != nil {
-		log.Fatalf("Failed to build server: %v", err)
+		log.Fatalf("Failed to start: %v", err)
 	}
-	log.Printf("Service ready and listening on %s\n", srv.Addr)
-	if err := srv.ListenAndServe(); err != nil {
-		log.Fatalf("HTTP server error: %v", err)
+
+	if err := svc.run(); err != nil {
+		log.Fatalf("Shut down with an error: %v", err)
 	}
 }
 
-func BuildServer(args []string) (*http.Server, error) {
+type service struct {
+	cfg      *config.Config
+	printUC  *usecase.PrintTicketUseCase
+	renderer *escpos.Renderer
+	device   domain.Printer
+	server   *http.Server
+}
+
+func buildService(args []string) (*service, error) {
 	cfg, err := config.Parse(args)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("Starting Print Service v%s on %s/%s\n", updater.CurrentVersion, runtime.GOOS, runtime.GOARCH)
+	device := buildPrinter(cfg)
+	printUC := usecase.NewPrintTicketUseCase(device)
+	renderer := escpos.NewRenderer(cfg.PrintWidth, cfg.CodePage)
 
-	checkURL := cfg.APIURL + "/printer/check-version"
-	up := updater.NewUpdater(checkURL)
-	log.Printf("Checking for updates at %s...\n", checkURL)
-	if err := up.AutoUpdate(); err != nil {
-		log.Printf("Could not update (running current version): %v\n", err)
+	svc := &service{cfg: cfg, printUC: printUC, renderer: renderer, device: device}
+	svc.server = &http.Server{
+		Addr:              ":" + cfg.Port,
+		Handler:           svc.routes(),
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	printerDevice := buildPrinter(cfg)
+	return svc, nil
+}
 
-	if cfg.BarID != "" && cfg.DeviceKey != "" {
-		log.Printf("Starting background IP registration loop for bar %s...\n", cfg.BarID)
-		go registration.StartIPRegistration(context.Background(), cfg)
+func (s *service) routes() http.Handler {
+	cors := middleware.CORS(s.cfg.AllowedOrigins)
+
+	mux := http.NewServeMux()
+	mux.Handle("/print", cors(s.printHandler()))
+	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.BarID, fmt.Sprint(s.device))))
+	mux.Handle("/printers", cors(handler.NewDiscoveryHandler()))
+
+	return mux
+}
+
+func (s *service) printHandler() http.Handler {
+	if s.cfg.JWTSecret != "" {
+		return middleware.JWT(s.cfg.JWTSecret, s.cfg.BarID)(handler.NewPrintHandler(s.printUC, s.renderer))
+	}
+
+	if s.cfg.Insecure {
+		return handler.NewPrintHandler(s.printUC, s.renderer)
+	}
+
+	return handler.NewDisabledHandler(
+		"The local print endpoint needs -jwt-secret (or -insecure to run without authentication)")
+}
+
+func (s *service) run() error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	log.Printf("Coaster print bridge v%s on %s/%s\n", updater.CurrentVersion, runtime.GOOS, runtime.GOARCH)
+	log.Printf("Printer: %v (width %d, code page %s)\n", s.device, s.cfg.PrintWidth, s.cfg.CodePage.Name)
+	s.warnAboutConfiguration()
+
+	up := updater.NewUpdater(s.cfg.APIURL + "/printer/check-version")
+	up.AcquireIdle = s.printUC.AcquireIdle
+	go up.Watch(ctx, s.cfg.UpdateInterval)
+
+	if s.cfg.RelayEnabled() {
+		go registration.StartIPRegistration(ctx, s.cfg)
+		go relay.Run(ctx, s.cfg, s.printUC, s.renderer)
 	} else {
-		log.Println("Background IP registration skipped: bar-id or device-key is empty.")
+		log.Println("No bar-id/device-key: printing only from the local network.")
 	}
 
-	printUC := usecase.NewPrintTicketUseCase(printerDevice)
-	mux := buildMux(cfg, printUC)
+	errs := make(chan error, 1)
+	go func() {
+		log.Printf("Listening on %s\n", s.server.Addr)
+		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errs <- err
+		}
+	}()
 
-	return &http.Server{
-		Addr:    ":" + cfg.Port,
-		Handler: mux,
-	}, nil
+	select {
+	case err := <-errs:
+		return err
+	case <-ctx.Done():
+		log.Println("Shutting down...")
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownGrace)
+	defer cancel()
+
+	return s.server.Shutdown(shutdownCtx)
+}
+
+func (s *service) warnAboutConfiguration() {
+	if s.cfg.JWTSecret != "" {
+		if s.cfg.BarID == "" {
+			log.Println("WARNING: -bar-id is not set, so a token issued for any bar will be accepted.")
+		}
+		return
+	}
+
+	if s.cfg.Insecure {
+		log.Println("WARNING: running with -insecure. Anyone who can reach this port can print.")
+		return
+	}
+
+	log.Println("Local print endpoint is disabled: no -jwt-secret was provided.")
+	log.Println("Set PRINTER_JWT_SECRET to the value the API uses, or pass -insecure to accept unauthenticated requests.")
 }
 
 func buildPrinter(cfg *config.Config) domain.Printer {
-	if cfg.PrinterType == "network" {
-		path := cfg.PrinterPath
-		if path == "" {
-			path = "192.168.1.200:9100"
-		}
-		return printer.NewNetworkPrinter(path)
+	if cfg.PrinterType == config.PrinterTypeNetwork {
+		return printer.NewNetworkPrinter(cfg.PrinterPath)
 	}
 
 	if cfg.PrinterPath != "" {
 		return printer.NewUSBPrinter(cfg.PrinterPath)
 	}
 
-	log.Println("Searching for available printers (USB/Bluetooth/Serial)...")
-	if _, err := printer.AutoDetect(); err != nil {
-		log.Printf("Warning: %v. (Will search again upon printing)\n", err)
-	} else {
-		log.Println("Printer successfully detected and ready to use!")
-	}
 	return printer.NewAutoPrinter()
-}
-
-func buildMux(cfg *config.Config, printUC *usecase.PrintTicketUseCase) http.Handler {
-	printHandler := handler.NewPrintHandler(printUC)
-
-	if cfg.JWTSecret != "" {
-		printHandler = middleware.JWT(cfg.JWTSecret)(printHandler)
-	}
-
-	printHandler = middleware.CORS(cfg.AllowedOrigins)(printHandler)
-
-	mux := http.NewServeMux()
-	mux.Handle("/print", printHandler)
-	return mux
 }

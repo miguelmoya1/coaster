@@ -1,7 +1,7 @@
 import type { GenerateDeviceKeyResponseDto } from '@coaster/common';
-import { ErrorCodes } from '@coaster/common';
-import { ConflictException, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
 import { PrinterReadRepository } from '../../data-access/printer.read.repository';
 import { PrinterWriteRepository } from '../../data-access/printer.write.repository';
 import { GenerateDeviceKeyCommand } from '../impl/generate-device-key.command';
@@ -19,17 +19,18 @@ export class GenerateDeviceKeyHandler implements ICommandHandler<
   ) {}
 
   async execute(command: GenerateDeviceKeyCommand): Promise<GenerateDeviceKeyResponseDto> {
-    this.#logger.debug(`Generating device key for bar ${command.barId}...`);
-
     const existing = await this.readRepo.findByBarId(command.barId);
-    if (existing) {
-      throw new ConflictException(ErrorCodes.PRINTER_ALREADY_CONFIGURED);
+
+    if (!existing) {
+      const config = await this.writeRepo.createPrinterConfig(command.barId);
+      this.#logger.log(`Device key issued for bar ${command.barId}`);
+      return { deviceKey: config.deviceKey };
     }
 
-    const config = await this.writeRepo.createPrinterConfig(command.barId);
+    const deviceKey = randomUUID();
+    await this.writeRepo.rotateDeviceKey(command.barId, deviceKey);
+    this.#logger.log(`Device key rotated for bar ${command.barId}; the previous key no longer works`);
 
-    this.#logger.log(`Device key generated for bar ${command.barId}`);
-
-    return { deviceKey: config.deviceKey };
+    return { deviceKey };
   }
 }

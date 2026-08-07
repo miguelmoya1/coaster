@@ -3,6 +3,7 @@ package middleware
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -24,7 +25,7 @@ type JWTPayload struct {
 	Exp   int64  `json:"exp"`
 }
 
-func JWT(secret string) func(http.Handler) http.Handler {
+func JWT(secret, barID string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method == http.MethodOptions {
@@ -32,35 +33,47 @@ func JWT(secret string) func(http.Handler) http.Handler {
 				return
 			}
 
-			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(map[string]string{"error": "Authorization header required"})
+			token, err := bearerToken(r.Header.Get("Authorization"))
+			if err != nil {
+				deny(w, http.StatusUnauthorized, err.Error())
 				return
 			}
 
-			parts := strings.Split(authHeader, " ")
-			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(map[string]string{"error": "Invalid Authorization header format"})
-				return
-			}
-
-			tokenStr := parts[1]
-			_, err := ValidateJWT(tokenStr, []byte(secret))
+			payload, err := ValidateJWT(token, []byte(secret))
 			if err != nil {
 				log.Printf("JWT validation failed: %v\n", err)
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized: " + err.Error()})
+				deny(w, http.StatusUnauthorized, "Unauthorized: "+err.Error())
+				return
+			}
+
+			if barID != "" && subtle.ConstantTimeCompare([]byte(payload.BarID), []byte(barID)) != 1 {
+				log.Printf("Rejected a token issued for bar %q on the bridge for bar %q\n", payload.BarID, barID)
+				deny(w, http.StatusForbidden, "Token was issued for a different bar")
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+func bearerToken(header string) (string, error) {
+	if header == "" {
+		return "", errors.New("Authorization header required")
+	}
+
+	scheme, token, found := strings.Cut(header, " ")
+	if !found || !strings.EqualFold(scheme, "bearer") || token == "" {
+		return "", errors.New("Invalid Authorization header format")
+	}
+
+	return token, nil
+}
+
+func deny(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
 func ValidateJWT(tokenStr string, secret []byte) (*JWTPayload, error) {
@@ -70,19 +83,6 @@ func ValidateJWT(tokenStr string, secret []byte) (*JWTPayload, error) {
 	}
 
 	headerPart, payloadPart, signaturePart := parts[0], parts[1], parts[2]
-
-	mac := hmac.New(sha256.New, secret)
-	mac.Write([]byte(headerPart + "." + payloadPart))
-	expectedSignature := mac.Sum(nil)
-
-	sigBytes, err := base64.RawURLEncoding.DecodeString(signaturePart)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode signature: %w", err)
-	}
-
-	if !hmac.Equal(sigBytes, expectedSignature) {
-		return nil, errors.New("signature verification failed")
-	}
 
 	headerBytes, err := base64.RawURLEncoding.DecodeString(headerPart)
 	if err != nil {
@@ -94,6 +94,18 @@ func ValidateJWT(tokenStr string, secret []byte) (*JWTPayload, error) {
 	}
 	if header.Alg != "HS256" {
 		return nil, fmt.Errorf("unsupported algorithm: %s", header.Alg)
+	}
+
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(headerPart + "." + payloadPart))
+	expectedSignature := mac.Sum(nil)
+
+	sigBytes, err := base64.RawURLEncoding.DecodeString(signaturePart)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode signature: %w", err)
+	}
+	if !hmac.Equal(sigBytes, expectedSignature) {
+		return nil, errors.New("signature verification failed")
 	}
 
 	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadPart)

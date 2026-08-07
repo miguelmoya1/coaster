@@ -20,9 +20,8 @@ const envConfig: Environment = {
   apiUrl:
     process.env.API_URL ||
     (process.env.PRODUCTION === 'true'
-      ? 'https://api-774617138158.europe-southwest1.run.app'
+      ? 'https://api.coaster.business'
       : 'http://localhost:3000'),
-  printerUrl: process.env.PRINTER_URL || 'http://localhost:8080',
 };
 
 const objectString = JSON.stringify(envConfig, null, 2).replace(/"([^"]+)":/g, '$1:');

@@ -111,4 +111,5 @@ jobs:
           gcloud run deploy ${{ env.GCP_SERVICE_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
+            --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL || 'https://api.coaster.business' }}" \
             --allow-unauthenticated

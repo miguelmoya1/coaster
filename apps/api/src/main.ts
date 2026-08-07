@@ -1,6 +1,7 @@
 import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
+import { PUBLIC_ROOT } from '@coaster/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -8,7 +9,6 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyRawBody from 'fastify-raw-body';
 import { getApps, initializeApp } from 'firebase-admin/app';
-import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -40,7 +40,7 @@ async function bootstrap() {
   await app.register(compression, { encodings: ['gzip', 'deflate'] });
 
   await app.register(fastifyStatic, {
-    root: join(__dirname, '..', 'public'),
+    root: PUBLIC_ROOT,
     prefix: '/public/',
   });
 

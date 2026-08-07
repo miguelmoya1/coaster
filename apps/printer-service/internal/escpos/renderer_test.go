@@ -2,10 +2,15 @@ package escpos
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
-func TestRenderTicket_OrderType(t *testing.T) {
+func newTestRenderer() *Renderer {
+	return NewRenderer(Width58mm, CP858)
+}
+
+func TestRender_OrderType(t *testing.T) {
 	payload := TicketPayload{
 		Type:    "order",
 		BarName: "Bar Central",
@@ -20,63 +25,57 @@ func TestRenderTicket_OrderType(t *testing.T) {
 		Notes:    "Sin hielo",
 	}
 
-	result := RenderTicket(payload)
+	result := newTestRenderer().Render(payload)
 
 	if !bytes.HasPrefix(result, Init) {
 		t.Error("expected result to start with Init command")
 	}
-
 	if !bytes.HasSuffix(result, FeedAndCut) {
 		t.Error("expected result to end with FeedAndCut command")
 	}
 
-	if !bytes.Contains(result, []byte("Bar Central")) {
-		t.Error("expected result to contain bar name")
-	}
-
-	if !bytes.Contains(result, []byte("Mesa: 5")) {
-		t.Error("expected result to contain table info")
-	}
-
-	if !bytes.Contains(result, []byte("Fecha: 2025-01-15 20:30")) {
-		t.Error("expected result to contain date")
-	}
-
-	if !bytes.Contains(result, []byte("Negroni")) {
-		t.Error("expected result to contain item name 'Negroni'")
-	}
-	if !bytes.Contains(result, []byte("Cerveza")) {
-		t.Error("expected result to contain item name 'Cerveza'")
-	}
-
-	if !bytes.Contains(result, []byte("TOTAL: 15.50 EUR")) {
-		t.Error("expected result to contain total")
-	}
-
-	if !bytes.Contains(result, []byte("Sin hielo")) {
-		t.Error("expected result to contain notes")
-	}
-
-	if !bytes.Contains(result, []byte("--------------------------------")) {
-		t.Error("expected result to contain separator line")
+	for _, want := range []string{"Bar Central", "Mesa: 5", "Fecha: 2025-01-15 20:30", "Negroni", "Cerveza", "TOTAL: 15.50 EUR", "Sin hielo", strings.Repeat("-", Width58mm)} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Errorf("expected result to contain %q", want)
+		}
 	}
 
 	if !bytes.Contains(result, AlignCenter) {
 		t.Error("expected result to contain center align command")
 	}
-	
 	if !bytes.Contains(result, BoldOn) {
 		t.Error("expected result to contain bold on command")
 	}
 }
 
-func TestRenderTicket_RawType(t *testing.T) {
-	payload := TicketPayload{
-		Type:    "raw",
-		RawText: "Hello raw world",
-	}
+func TestRender_SelectsCodePageAfterInit(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Bar"})
 
-	result := RenderTicket(payload)
+	want := append(append([]byte{}, Init...), SelectCodePage(CP858.Command)...)
+	if !bytes.HasPrefix(result, want) {
+		t.Errorf("expected Init immediately followed by ESC t %d, got % x", CP858.Command, result[:8])
+	}
+}
+
+func TestRender_UnitPriceShownOnlyForMultiples(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{
+		Type: "order",
+		Items: []TicketItem{
+			{Name: "Negroni", Quantity: 2, Price: "6.00", Total: "12.00"},
+			{Name: "Cerveza", Quantity: 1, Price: "3.50", Total: "3.50"},
+		},
+	})
+
+	if !bytes.Contains(result, []byte("2x Negroni (6.00)")) {
+		t.Error("expected unit price for a quantity above one")
+	}
+	if bytes.Contains(result, []byte("(3.50)")) {
+		t.Error("did not expect a unit price for a single unit")
+	}
+}
+
+func TestRender_RawType(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{Type: "raw", RawText: "Hello raw world"})
 
 	if !bytes.HasPrefix(result, Init) {
 		t.Error("expected raw ticket to start with Init")
@@ -89,30 +88,16 @@ func TestRenderTicket_RawType(t *testing.T) {
 	}
 }
 
-func TestRenderTicket_DefaultCurrency(t *testing.T) {
-	payload := TicketPayload{
-		Type:    "order",
-		BarName: "Test Bar",
-		Items:   []TicketItem{},
-		Total:   "10.00",
-
-	}
-
-	result := RenderTicket(payload)
+func TestRender_DefaultCurrency(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Test Bar", Total: "10.00"})
 	if !bytes.Contains(result, []byte("TOTAL: 10.00 EUR")) {
 		t.Error("expected default EUR currency")
 	}
 }
 
-func TestRenderTicket_NoTableNoDate(t *testing.T) {
-	payload := TicketPayload{
-		Type:    "order",
-		BarName: "Test",
-		Items:   []TicketItem{},
-		Total:   "0.00",
-	}
+func TestRender_NoTableNoDate(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Test", Total: "0.00"})
 
-	result := RenderTicket(payload)
 	if bytes.Contains(result, []byte("Mesa:")) {
 		t.Error("should not contain table when empty")
 	}
@@ -121,61 +106,105 @@ func TestRenderTicket_NoTableNoDate(t *testing.T) {
 	}
 }
 
-func TestFormatItemLine(t *testing.T) {
-	item := TicketItem{Name: "Negroni", Quantity: 2, Price: "6.00", Total: "12.00"}
-	line := formatItemLine(item)
+func TestRender_SkipsEmptyHeader(t *testing.T) {
+	result := newTestRenderer().Render(TicketPayload{Type: "order", Total: "0.00"})
 
-	if len(line) != 32 {
-		t.Errorf("expected line length 32, got %d: %q", len(line), line)
-	}
-	if line[:10] != "2x Negroni" {
-		t.Errorf("expected line to start with '2x Negroni', got %q", line[:10])
-	}
-	if line[27:] != "12.00" {
-		t.Errorf("expected line to end with '12.00', got %q", line[27:])
+	if bytes.Contains(result, DoubleHeight) {
+		t.Error("expected no header block when the bar name is empty")
 	}
 }
 
-func TestFormatItemLine_LongName(t *testing.T) {
-	item := TicketItem{Name: "A Very Long Cocktail Name Here", Quantity: 1, Price: "15.00", Total: "15.00"}
-	line := formatItemLine(item)
+func TestRender_WidthIsConfigurable(t *testing.T) {
+	result := NewRenderer(Width80mm, CP858).Render(TicketPayload{Type: "order", Total: "1.00"})
 
-	if len(line) < 32 {
-		t.Errorf("expected line >= 32 chars, got %d: %q", len(line), line)
+	if !bytes.Contains(result, []byte(strings.Repeat("-", Width80mm))) {
+		t.Errorf("expected an %d character separator", Width80mm)
 	}
 }
 
-func TestTryParsePayload_Valid(t *testing.T) {
-	data := []byte(`{"type":"order","barName":"Test","items":[],"total":"0.00"}`)
-	payload, ok := TryParsePayload(data)
-	if !ok {
-		t.Error("expected valid parse")
+func TestItemLines_AlignsToTheMargin(t *testing.T) {
+	lines := newTestRenderer().itemLines(TicketItem{Name: "Negroni", Quantity: 2, Total: "12.00"})
+
+	if len(lines) != 1 {
+		t.Fatalf("expected a single line, got %d: %q", len(lines), lines)
 	}
-	if payload.Type != "order" {
-		t.Errorf("expected type 'order', got %q", payload.Type)
+	if len(lines[0]) != Width58mm {
+		t.Errorf("expected line width %d, got %d: %q", Width58mm, len(lines[0]), lines[0])
+	}
+	if !strings.HasPrefix(lines[0], "2x Negroni") {
+		t.Errorf("expected line to start with the description, got %q", lines[0])
+	}
+	if !strings.HasSuffix(lines[0], "12.00") {
+		t.Errorf("expected line to end with the amount, got %q", lines[0])
 	}
 }
 
-func TestTryParsePayload_NoType(t *testing.T) {
-	data := []byte(`{"barName":"Test"}`)
-	_, ok := TryParsePayload(data)
-	if ok {
-		t.Error("expected invalid parse when type is missing")
+func TestItemLines_AccentsDoNotShiftTheAmount(t *testing.T) {
+	r := newTestRenderer()
+
+	plain := r.itemLines(TicketItem{Name: "Jamon serrano", Quantity: 1, Total: "6.50"})[0]
+	accented := r.itemLines(TicketItem{Name: "Jamón serrano", Quantity: 1, Total: "6.50"})[0]
+
+	if len([]rune(plain)) != len([]rune(accented)) {
+		t.Errorf("accented line has a different printed width: %q (%d) vs %q (%d)",
+			plain, len([]rune(plain)), accented, len([]rune(accented)))
 	}
 }
 
-func TestTryParsePayload_InvalidJSON(t *testing.T) {
-	data := []byte(`not json at all`)
-	_, ok := TryParsePayload(data)
-	if ok {
-		t.Error("expected invalid parse for non-JSON")
+func TestItemLines_WrapsLongDescriptions(t *testing.T) {
+	lines := newTestRenderer().itemLines(TicketItem{
+		Name:     "Bocadillo de jamon serrano con tomate y aceite",
+		Quantity: 1,
+		Total:    "15.00",
+	})
+
+	if len(lines) < 2 {
+		t.Fatalf("expected the description to wrap, got %q", lines)
+	}
+	for _, line := range lines {
+		if len([]rune(line)) > Width58mm {
+			t.Errorf("line exceeds paper width: %q (%d)", line, len([]rune(line)))
+		}
+	}
+	if !strings.HasSuffix(lines[len(lines)-1], "15.00") {
+		t.Errorf("expected the amount on the last line, got %q", lines)
 	}
 }
 
-func TestTryParsePayload_PlainText(t *testing.T) {
-	data := []byte("Hello, this is plain text content for the printer")
-	_, ok := TryParsePayload(data)
-	if ok {
-		t.Error("expected invalid parse for plain text")
+func TestWrap_HardSplitsUnbrokenText(t *testing.T) {
+	lines := wrap(strings.Repeat("A", 70), 32)
+
+	if len(lines) != 3 {
+		t.Fatalf("expected 3 lines, got %d: %q", len(lines), lines)
+	}
+	for _, line := range lines {
+		if len(line) > 32 {
+			t.Errorf("line exceeds width: %q", line)
+		}
+	}
+}
+
+func TestTryParsePayload(t *testing.T) {
+	tests := []struct {
+		name string
+		data string
+		want bool
+	}{
+		{"valid", `{"type":"order","barName":"Test","items":[],"total":"0.00"}`, true},
+		{"missing type", `{"barName":"Test"}`, false},
+		{"invalid json", `not json at all`, false},
+		{"plain text", "Hello, this is plain text content for the printer", false},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			payload, ok := TryParsePayload([]byte(tc.data))
+			if ok != tc.want {
+				t.Fatalf("expected ok=%v, got %v", tc.want, ok)
+			}
+			if ok && payload.Type != "order" {
+				t.Errorf("expected type 'order', got %q", payload.Type)
+			}
+		})
 	}
 }
