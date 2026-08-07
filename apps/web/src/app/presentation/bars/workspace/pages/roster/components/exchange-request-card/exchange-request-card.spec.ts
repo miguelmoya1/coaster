@@ -17,7 +17,6 @@ describe('ExchangeRequestCard', () => {
     fixture = TestBed.createComponent(ExchangeRequestCard);
     component = fixture.componentInstance;
 
-    // Set required inputs
     fixture.componentRef.setInput('month', 'JAN');
     fixture.componentRef.setInput('day', '15');
     fixture.componentRef.setInput('roleName', BarRole.OWNER);

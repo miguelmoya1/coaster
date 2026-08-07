@@ -1,7 +1,7 @@
+import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { DbBarRole, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId, asUserId } from '../../core';
-import { DbBarRole, DbService } from '../../core/db';
 import { BarMembersWriteRepository } from './bar-members.write.repository';
 
 describe('BarMembersWriteRepository', () => {

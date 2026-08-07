@@ -5,6 +5,8 @@ export type PrinterConfigId = string & { readonly __brand: 'PrinterConfigId' };
 export interface RegisterPrinterIpDto {
   barId: BarId;
   ipAddress: string;
+
+  port?: number;
 }
 
 export interface PrinterConnectionDetailsDto {
@@ -42,4 +44,28 @@ export interface PrintTicketPayloadDto {
   currency?: string;
   notes?: string;
   rawText?: string;
+}
+
+export type PrintJobStatus = 'PENDING' | 'PRINTING' | 'PRINTED' | 'FAILED';
+
+export interface PrintJobDto {
+  id: string;
+  status: PrintJobStatus;
+  error: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export interface EnqueuePrintJobResponseDto {
+  jobId: string;
+}
+
+export interface ClaimedPrintJobDto {
+  id: string;
+  payload: PrintTicketPayloadDto;
+}
+
+export interface PrintJobResultDto {
+  status: 'printed' | 'failed';
+  error?: string;
 }

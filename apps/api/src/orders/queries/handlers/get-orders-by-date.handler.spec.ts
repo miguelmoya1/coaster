@@ -1,9 +1,9 @@
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
-import { GetOrdersByDateHandler } from './get-orders-by-date.handler';
 import { GetOrdersByDateQuery } from '../impl/get-orders-by-date.query';
+import { GetOrdersByDateHandler } from './get-orders-by-date.handler';
 
 describe('GetOrdersByDateHandler', () => {
   let handler: GetOrdersByDateHandler;

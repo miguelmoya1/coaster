@@ -1,19 +1,18 @@
-import { readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
-const srcDirs = readdirSync(resolve(__dirname, './src'), { withFileTypes: true })
-  .filter((dirent) => dirent.isDirectory() && dirent.name !== '__mocks__')
-  .map((dirent) => dirent.name);
+const tsconfig = JSON.parse(readFileSync(resolve(__dirname, './tsconfig.json'), 'utf8')) as {
+  compilerOptions: { paths: Record<string, string[]> };
+};
 
-const aliases = srcDirs.reduce(
-  (acc, dir) => {
-    acc[`@${dir}`] = resolve(__dirname, `./src/${dir}`);
-    return acc;
-  },
-  { src: resolve(__dirname, './src') } as Record<string, string>,
-);
+const alias = Object.entries(tsconfig.compilerOptions.paths)
+  .sort(([a], [b]) => b.length - a.length)
+  .map(([find, [target]]) => ({
+    find,
+    replacement: resolve(__dirname, target),
+  }));
 
 export default defineConfig({
   test: {
@@ -31,6 +30,6 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: aliases,
+    alias,
   },
 });

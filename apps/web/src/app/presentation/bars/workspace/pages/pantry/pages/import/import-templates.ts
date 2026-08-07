@@ -52,7 +52,6 @@ export default class ImportTemplates {
     return total;
   });
 
-  // Join categories and products locally in the client reactively
   readonly matchedTemplates = computed(() => {
     const categories = this.#templatesStore.categories.value() ?? [];
     const products = this.#templatesStore.products.value() ?? [];
@@ -63,7 +62,6 @@ export default class ImportTemplates {
     }));
   });
 
-  // Local filtering based on query matching category or product name
   readonly filteredTemplates = computed(() => {
     const templates = this.matchedTemplates();
     const query = this.searchQuery().toLowerCase().trim();
@@ -128,11 +126,9 @@ export default class ImportTemplates {
       const translationResult = this.#translate.instant('pantry.import_success');
       this.#feedback.success(translationResult);
 
-      // Reload stores to refresh the lists in the pantry view
       this.#categoriesStore.reloadCategories();
       this.#productsStore.reloadProducts();
 
-      // Navigate back to the pantry
       this.#router.navigate(['/bars', barId, 'pantry']);
     } catch (error) {
       this.#feedback.error(error);

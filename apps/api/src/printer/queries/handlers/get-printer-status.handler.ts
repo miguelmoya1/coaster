@@ -3,7 +3,6 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrinterReadRepository } from '../../data-access/printer.read.repository';
 import { GetPrinterStatusQuery } from '../impl/get-printer-status.query';
 
-/** Consider a printer "online" if it was seen in the last 2 minutes. */
 const ONLINE_THRESHOLD_MS = 2 * 60 * 1000;
 
 @QueryHandler(GetPrinterStatusQuery)

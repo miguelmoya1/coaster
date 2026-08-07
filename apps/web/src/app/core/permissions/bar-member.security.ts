@@ -1,14 +1,11 @@
 import { BarPermission, BarRole } from '@coaster/common';
 
 const STAFF_PERMISSIONS: BarPermission[] = [
-  // --- Members ---
   'bar:view-members',
 
-  // --- Tables ---
   'bar:view-tables',
   'bar:open-table',
 
-  // --- Orders ---
   'bar:view-orders',
   'bar:create-order',
   'bar:update-order',
@@ -18,12 +15,10 @@ const STAFF_PERMISSIONS: BarPermission[] = [
   'bar:move-order-table',
   'bar:merge-orders',
 
-  // --- Products & Categories ---
   'bar:view-categories',
   'bar:view-products',
   'bar:update-product-stock',
 
-  // --- Shifts & Roster ---
   'bar:view-shifts',
   'bar:view-exchanges',
   'bar:create-exchange',
@@ -32,25 +27,20 @@ const STAFF_PERMISSIONS: BarPermission[] = [
 ];
 
 export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
-  OWNER: [], // OWNER permissions are handled explicitly below
+  OWNER: [],
   MANAGER: [
-    // --- Management Dashboard ---
     'bar:view-dashboard',
 
-    // --- Staff Management ---
     'bar:invite-member',
 
-    // --- Pantry Management ---
     'bar:create-category',
     'bar:update-category',
     'bar:create-product',
     'bar:update-product',
 
-    // --- Roster Management ---
     'bar:create-shift',
     'bar:delete-shift',
 
-    // Inherits all staff permissions
     ...STAFF_PERMISSIONS,
   ],
   STAFF: STAFF_PERMISSIONS,

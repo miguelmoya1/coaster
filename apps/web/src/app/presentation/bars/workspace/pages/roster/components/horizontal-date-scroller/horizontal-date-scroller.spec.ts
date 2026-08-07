@@ -3,7 +3,6 @@ import { ScrollerDay } from '@coaster/roster';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HorizontalDateScroller } from './horizontal-date-scroller';
 
-// TODO: (@angular/aria >=22) Enriquecer tests con ListboxHarness de @angular/aria/listbox-testing (orientación, selección de día)
 describe('HorizontalDateScroller', () => {
   let component: HorizontalDateScroller;
   let fixture: ComponentFixture<HorizontalDateScroller>;

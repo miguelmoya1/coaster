@@ -24,8 +24,13 @@ import { PricePipe } from '../../../../../pipes/price/price';
       "
       [class.border-primary/20]="isSelected()"
       [class.bg-primary/5]="isSelected()"
+      [class.cursor-pointer]="isOpen()"
+      (click)="isOpen() && toggleSelect.emit()"
+      (keyup.enter)="isOpen() && toggleSelect.emit()"
+      (keyup.space)="isOpen() && toggleSelect.emit()"
+      tabindex="0"
+      role="button"
     >
-      <!-- Selection Checkbox -->
       @if (isOpen()) {
         <button
           type="button"
@@ -36,7 +41,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           [class.bg-primary]="isSelected()"
           [class.text-on-primary]="isSelected()"
           [class.border-on-surface-variant]="!isSelected()"
-          (click)="toggleSelect.emit()"
+          (click)="$event.stopPropagation(); toggleSelect.emit()"
         >
           @if (isSelected()) {
             <mat-icon class="stroke-3 text-xs w-3 h-3 leading-3">check</mat-icon>
@@ -51,7 +56,6 @@ import { PricePipe } from '../../../../../pipes/price/price';
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>
         </div>
 
-        <!-- Adjustments -->
         @for (adj of itemAdjustments(); track adj.id) {
           <div class="text-xs text-tertiary flex items-center gap-1 mt-0.5">
             <mat-icon class="text-[12px]! w-[12px]! h-[12px]! leading-[12px]!">local_offer</mat-icon>
@@ -60,7 +64,11 @@ import { PricePipe } from '../../../../../pipes/price/price';
               >(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span
             >
             @if (isOpen()) {
-              <button mat-icon-button class="w-4! h-4! p-0!" (click)="removeAdjustment.emit(adj.id)">
+              <button
+                mat-icon-button
+                class="w-4! h-4! p-0!"
+                (click)="$event.stopPropagation(); removeAdjustment.emit(adj.id)"
+              >
                 <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]!">close</mat-icon>
               </button>
             }
@@ -121,27 +129,34 @@ import { PricePipe } from '../../../../../pipes/price/price';
         }
       </div>
 
-      <!-- In-row Compact Adjustment Controls -->
       @if (isOpen()) {
         <div class="flex items-center gap-2 shrink-0">
           @if (isSelected()) {
             <div class="w-28">
-              <!-- Pay adjustment -->
               <coaster-number-input
                 [value]="selectedQty()?.paidQty || 0"
                 (valueChange)="updatePayQty.emit($event)"
                 [min]="-item().paidQuantity"
                 [max]="item().quantity - item().paidQuantity"
                 wrapperClass="w-full"
+                (click)="$event.stopPropagation()"
               />
             </div>
           }
 
-          <button mat-icon-button (click)="addAdjustment.emit(item().id)" title="Añadir descuento/invitación">
+          <button
+            mat-icon-button
+            (click)="$event.stopPropagation(); addAdjustment.emit(item().id)"
+            title="Añadir descuento/invitación"
+          >
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">local_offer</mat-icon>
           </button>
 
-          <button mat-icon-button (click)="removeItem.emit()" [title]="'orders.remove_item' | translate">
+          <button
+            mat-icon-button
+            (click)="$event.stopPropagation(); removeItem.emit()"
+            [title]="'orders.remove_item' | translate"
+          >
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">delete</mat-icon>
           </button>
         </div>

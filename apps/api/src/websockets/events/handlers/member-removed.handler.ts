@@ -1,4 +1,4 @@
-import { MemberRemovedEvent } from '@bar-members/events';
+import { MemberRemovedEvent } from '@coaster/bar-members';
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';

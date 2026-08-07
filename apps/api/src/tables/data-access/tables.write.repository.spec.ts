@@ -1,7 +1,7 @@
+import { asBarId, asTableId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId } from '../../core';
-import { DbService } from '../../core/db';
 import { TablesWriteRepository } from './tables.write.repository';
 
 describe('TablesWriteRepository', () => {

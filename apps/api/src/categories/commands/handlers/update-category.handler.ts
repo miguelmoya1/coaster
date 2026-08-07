@@ -1,4 +1,6 @@
-import { Logger } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { isRecordNotFoundError } from '@coaster/core';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { CategoryUpdatedEvent } from '../../events';
@@ -16,7 +18,17 @@ export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryComm
 
   async execute(command: UpdateCategoryCommand): Promise<void> {
     this.#logger.debug(`Executing updateCategory...`);
-    const updated = await this.repository.update(command.barId, command.categoryId, command.dto);
+
+    const updated = await this.repository
+      .update(command.barId, command.categoryId, command.dto)
+      .catch((error: unknown) => {
+        if (isRecordNotFoundError(error)) {
+          throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
+        }
+
+        throw error;
+      });
+
     const mapped = CategoriesMapper.toDomain(updated);
     this.#logger.debug(`Publishing CategoryUpdatedEvent...`);
     this._eventBus.publish(new CategoryUpdatedEvent(command.barId, mapped));

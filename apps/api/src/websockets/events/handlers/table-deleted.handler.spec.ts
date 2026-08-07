@@ -1,8 +1,8 @@
 import { SocketEvents } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
+import { TableDeletedEvent } from '@coaster/tables';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TableDeletedEvent } from '@tables/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { TableDeletedHandler } from './table-deleted.handler';
 

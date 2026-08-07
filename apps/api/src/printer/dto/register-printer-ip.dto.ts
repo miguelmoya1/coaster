@@ -1,5 +1,5 @@
 import type { BarId, RegisterPrinterIpDto as IRegisterPrinterIpDto } from '@coaster/common';
-import { IsIP, IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsIP, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class RegisterPrinterIpDto implements IRegisterPrinterIpDto {
   @IsString()
@@ -9,4 +9,10 @@ export class RegisterPrinterIpDto implements IRegisterPrinterIpDto {
   @IsIP()
   @IsNotEmpty()
   ipAddress!: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  port?: number;
 }

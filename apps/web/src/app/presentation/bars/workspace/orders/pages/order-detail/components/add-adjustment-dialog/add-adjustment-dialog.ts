@@ -11,7 +11,7 @@ import { NumberInput } from '../../../../../../../components/number-input/number
 
 export interface AddAdjustmentResult {
   type: AdjustmentType;
-  value: number; // For percentage 0-100, for fixed amount in cents
+  value: number;
   reason?: string;
 }
 
@@ -35,7 +35,6 @@ export interface AddAdjustmentResult {
     <h2 mat-dialog-title>Añadir Descuento / Ajuste</h2>
 
     <mat-dialog-content class="flex flex-col gap-4 !pt-2">
-      
       <div class="flex justify-center mb-2">
         <mat-button-toggle-group [value]="type()" (change)="type.set($event.value)" class="w-full">
           <mat-button-toggle class="w-1/2" [value]="AdjustmentType.FIXED_AMOUNT">Fijo (€)</mat-button-toggle>
@@ -49,7 +48,7 @@ export interface AddAdjustmentResult {
             [value]="(valueCents() || 0) / 100"
             (valueChange)="updateFromEuros($event)"
             [min]="0"
-            [step]="0.50"
+            [step]="0.5"
             wrapperClass="w-full"
           />
           <span class="text-xl font-bold text-on-surface w-8">€</span>
@@ -72,16 +71,13 @@ export interface AddAdjustmentResult {
           <input matInput [ngModel]="reason()" (ngModelChange)="reason.set($event)" placeholder="Ej. Invitación" />
         </mat-form-field>
       </div>
-      
     </mat-dialog-content>
 
     <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
       <button mat-button (click)="canceled.emit()">
         {{ 'common.cancel' | translate }}
       </button>
-      <button mat-flat-button color="primary" (click)="onConfirm()" [disabled]="!isValid()">
-        Aplicar
-      </button>
+      <button mat-flat-button color="primary" (click)="onConfirm()" [disabled]="!isValid()">Aplicar</button>
     </mat-dialog-actions>
   `,
   host: {
@@ -90,7 +86,7 @@ export interface AddAdjustmentResult {
 })
 export class AddAdjustmentDialog {
   protected readonly AdjustmentType = AdjustmentType;
-  
+
   public readonly type = signal<AdjustmentType>(AdjustmentType.FIXED_AMOUNT);
   public readonly valueCents = signal<number>(0);
   public readonly valuePercentage = signal<number>(0);

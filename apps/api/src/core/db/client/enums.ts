@@ -26,6 +26,27 @@ export const DbRole = {
 export type DbRole = (typeof DbRole)[keyof typeof DbRole]
 
 
+export const DbSubscriptionPlan = {
+  FREE: 'FREE',
+  PRO: 'PRO'
+} as const
+
+export type DbSubscriptionPlan = (typeof DbSubscriptionPlan)[keyof typeof DbSubscriptionPlan]
+
+
+export const DbSubscriptionStatus = {
+  INACTIVE: 'INACTIVE',
+  TRIALING: 'TRIALING',
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELED: 'CANCELED',
+  UNPAID: 'UNPAID',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type DbSubscriptionStatus = (typeof DbSubscriptionStatus)[keyof typeof DbSubscriptionStatus]
+
+
 export const DbTableStatus = {
   FREE: 'FREE',
   OCCUPIED: 'OCCUPIED'
@@ -85,3 +106,13 @@ export const DbAdjustmentTarget = {
 } as const
 
 export type DbAdjustmentTarget = (typeof DbAdjustmentTarget)[keyof typeof DbAdjustmentTarget]
+
+
+export const DbPrintJobStatus = {
+  PENDING: 'PENDING',
+  PRINTING: 'PRINTING',
+  PRINTED: 'PRINTED',
+  FAILED: 'FAILED'
+} as const
+
+export type DbPrintJobStatus = (typeof DbPrintJobStatus)[keyof typeof DbPrintJobStatus]

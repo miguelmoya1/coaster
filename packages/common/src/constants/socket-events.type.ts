@@ -3,6 +3,7 @@ export const SocketEvents = {
   leaveBar: 'leaveBar',
   joined: 'joined',
   left: 'left',
+  unauthorized: 'unauthorized',
   productCreated: 'productCreated',
   productUpdated: 'productUpdated',
   productStockChanged: 'productStockChanged',
@@ -26,6 +27,7 @@ export const SocketEvents = {
   orderAdjustmentsUpdated: 'orderAdjustmentsUpdated',
   shiftCreated: 'shiftCreated',
   shiftDeleted: 'shiftDeleted',
+  subscriptionUpdated: 'subscriptionUpdated',
 } as const;
 
 export type SocketEvents = (typeof SocketEvents)[keyof typeof SocketEvents];

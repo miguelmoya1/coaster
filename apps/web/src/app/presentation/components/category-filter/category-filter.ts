@@ -23,13 +23,15 @@ import { AVAILABLE_ICONS } from '../icon-picker/icon-picker';
                 {{ category.icon }}
               </mat-icon>
             } @else if (category.id !== 'ALL' && category.label) {
-               <div class="w-[18px] h-[18px] rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center text-[9px] font-bold">
-                 {{ getInitials(category.label | translate) }}
-               </div>
+              <div
+                class="w-[18px] h-[18px] rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center text-[9px] font-bold"
+              >
+                {{ getInitials(category.label | translate) }}
+              </div>
             }
             <span class="text-sm font-medium" data-testid="category-name">{{ category.label | translate }}</span>
           </div>
-          
+
           @if (editable() && category.id !== 'ALL') {
             <button
               matChipTrailingIcon
@@ -49,7 +51,7 @@ export class CategoryFilter {
   readonly categories = input.required<Category[]>();
   readonly selectedCategoryId = model<string>('ALL');
   readonly editable = input(false);
-  
+
   readonly editCategoryClicked = output<string>();
 
   readonly tabs = computed(() => {

@@ -1,6 +1,6 @@
 import { UserId } from '@coaster/common';
+import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../core/db';
 
 @Injectable()
 export class UserReadRepository {

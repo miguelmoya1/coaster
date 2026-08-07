@@ -1,4 +1,4 @@
-import { BarRole, TableStatus } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -14,7 +14,6 @@ describe('TablesController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -25,18 +24,7 @@ describe('TablesController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -50,7 +38,6 @@ describe('TablesController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/tables`).send(dto).expect(201);
 
-      // Verify in database
       const tables = await testSetup.prisma.dbTable.findMany({
         where: { barId },
       });
@@ -117,7 +104,6 @@ describe('TablesController (e2e)', () => {
       const deleted = await testSetup.prisma.dbTable.findUnique({
         where: { id: table.id },
       });
-      // Hard delete
       expect(deleted).toBeNull();
     });
   });

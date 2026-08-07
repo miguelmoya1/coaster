@@ -12,9 +12,13 @@ export class AuthRepository {
 
   public async syncUser(token: string): Promise<void> {
     await firstValueFrom(
-      this.#http.post<void>(this.routes.login, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      this.#http.post<void>(
+        this.routes.login,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      ),
     );
   }
 }

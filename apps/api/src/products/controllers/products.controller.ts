@@ -1,9 +1,9 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import type { BarId, Product, ProductId } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard, commonMapper } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard } from '../../auth';
-import { BarPermissions, BarPermissionsGuard, commonMapper } from '../../core';
 import {
   CreateProductCommand,
   DeleteProductCommand,

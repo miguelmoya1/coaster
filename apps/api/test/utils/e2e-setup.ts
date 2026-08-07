@@ -4,7 +4,10 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
-import { DbService } from '../../src/core/db';
+import { DbService, DbBarRole, DbSubscriptionPlan, DbSubscriptionStatus } from '../../src/core/db';
+import { WsAuthService } from '../../src/websockets/services';
+
+const TRIAL_DAYS = 14;
 
 export const mockUser = {
   id: '00000000-0000-4000-8000-000000000000',
@@ -14,10 +17,20 @@ export const mockUser = {
   role: 'USER',
 };
 
+export class MockWsAuthService {
+  authenticate(client: { handshake?: { auth?: { token?: unknown } } }): Promise<string | null> {
+    const token = client?.handshake?.auth?.token;
+    return Promise.resolve(typeof token === 'string' && token.length > 0 ? mockUser.id : null);
+  }
+
+  canAccessBar(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+}
+
 export class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    // Inject the mock user
     request.user = { ...mockUser };
     return true;
   }
@@ -35,6 +48,8 @@ export class E2eTestSetup {
       .useClass(MockAuthGuard)
       .overrideGuard(OptionalFirebaseAuthGuard)
       .useClass(MockAuthGuard)
+      .overrideProvider(WsAuthService)
+      .useClass(MockWsAuthService)
       .compile();
 
     this.app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
@@ -55,8 +70,26 @@ export class E2eTestSetup {
     await this.app.init();
     await this.app.getHttpAdapter().getInstance().ready();
 
-    // Get Prisma Client from Nest DI
     this.prisma = this.app.get(DbService);
+  }
+
+  async createBar(name = 'Test Bar', options: { ownerId?: string | null; role?: DbBarRole } = {}) {
+    const ownerId = options.ownerId === undefined ? mockUser.id : options.ownerId;
+    const role = options.role ?? DbBarRole.OWNER;
+
+    return this.prisma.dbBar.create({
+      data: {
+        name,
+        ...(ownerId ? { members: { create: { userId: ownerId, role } } } : {}),
+        billing: {
+          create: {
+            plan: DbSubscriptionPlan.FREE,
+            status: DbSubscriptionStatus.TRIALING,
+            trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
+          },
+        },
+      },
+    });
   }
 
   async teardown() {

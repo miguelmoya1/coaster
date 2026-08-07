@@ -74,8 +74,8 @@
         }
       </div>
 
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
           <div class="flex items-center gap-2">
             @if (order.original.totalAmount !== order.original.payableTotal) {
               <span class="text-sm font-medium text-on-surface-variant line-through decoration-error/50">
@@ -108,7 +108,12 @@
         </div>
 
         @if (isOwner() && isToday()) {
-          <button mat-icon-button (click)="handleDeleteOrder(order.original); $event.stopPropagation()">
+          <button
+            mat-icon-button
+            coasterRequireSubscription
+            [barId]="barId()"
+            (click)="handleDeleteOrder(order.original); $event.stopPropagation()"
+          >
             <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">delete</mat-icon>
           </button>
         }

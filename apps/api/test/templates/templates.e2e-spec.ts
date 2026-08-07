@@ -1,4 +1,4 @@
-import { BarRole, Role } from '@coaster/common';
+import { Role } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -8,7 +8,6 @@ describe('TemplatesController (e2e)', () => {
   let barId: string;
 
   beforeAll(async () => {
-    // Temporary make mock user an ADMIN to bypass AdminGuard
     mockUser.role = 'ADMIN';
     await testSetup.setup();
   });
@@ -16,7 +15,6 @@ describe('TemplatesController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -27,23 +25,11 @@ describe('TemplatesController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
   afterAll(async () => {
-    // Reset mock user role
     mockUser.role = 'USER';
     await testSetup.teardown();
   });
@@ -125,7 +111,6 @@ describe('TemplatesController (e2e)', () => {
 
   describe('Import Templates', () => {
     it('should import templates into a bar', async () => {
-      // First create templates
       const cat = await testSetup.prisma.dbCategoryTemplate.create({
         data: { name: 'Drinks', icon: 'beer' },
       });
@@ -139,7 +124,6 @@ describe('TemplatesController (e2e)', () => {
         .send({ categoryTemplateIds: [cat.id] })
         .expect(201);
 
-      // Verify they were imported
       const barCategories = await testSetup.prisma.dbCategory.findMany({ where: { barId } });
       expect(barCategories).toHaveLength(1);
       expect(barCategories[0].name).toBe('Drinks');

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InventoryItemCard } from './inventory-item-card';
@@ -10,7 +11,11 @@ describe('InventoryItemCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InventoryItemCard],
-      providers: [provideTranslateService()],
+      providers: [
+        provideTranslateService(),
+        { provide: BarSubscriptionStore, useValue: { isReadOnly: () => false } },
+        { provide: PlanDialogService, useValue: { open: vi.fn() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InventoryItemCard);
@@ -18,6 +23,7 @@ describe('InventoryItemCard', () => {
 
     fixture.componentRef.setInput('itemName', 'Beer');
     fixture.componentRef.setInput('qty', 10);
+    fixture.componentRef.setInput('barId', 'bar-1');
 
     fixture.detectChanges();
   });
@@ -40,8 +46,8 @@ describe('InventoryItemCard', () => {
       const element: HTMLElement = fixture.nativeElement;
       expect(element.textContent).toContain('pantry.status.ALERT');
 
-      const hostElement: HTMLElement = fixture.nativeElement;
-      expect(hostElement.classList.contains('border-error')).toBe(true);
+      const indicatorSpan: HTMLElement = fixture.nativeElement.querySelector('span.absolute');
+      expect(indicatorSpan.classList.contains('bg-error')).toBe(true);
     });
 
     it('should apply low stock styles and text when statusLevel is WARNING', () => {
@@ -51,8 +57,8 @@ describe('InventoryItemCard', () => {
       const element: HTMLElement = fixture.nativeElement;
       expect(element.textContent).toContain('pantry.status.WARNING');
 
-      const hostElement: HTMLElement = fixture.nativeElement;
-      expect(hostElement.classList.contains('border-tertiary')).toBe(true);
+      const indicatorSpan: HTMLElement = fixture.nativeElement.querySelector('span.absolute');
+      expect(indicatorSpan.classList.contains('bg-tertiary')).toBe(true);
     });
   });
 

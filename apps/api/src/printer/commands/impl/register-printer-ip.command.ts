@@ -5,5 +5,6 @@ export class RegisterPrinterIpCommand {
     public readonly barId: BarId,
     public readonly ipAddress: string,
     public readonly deviceKey: string,
+    public readonly port?: number,
   ) {}
 }

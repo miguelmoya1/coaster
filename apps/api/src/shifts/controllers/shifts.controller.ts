@@ -1,9 +1,9 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
 import type { BarId, Shift, ShiftId } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FirebaseAuthGuard } from '../../auth';
-import { BarPermissions, BarPermissionsGuard } from '../../core';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 import { ShiftsMapper } from '../mappers/shifts.mapper';

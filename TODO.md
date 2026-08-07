@@ -4,20 +4,7 @@ Este documento detalla la estrategia de desarrollo secuencial para las funcional
 
 ---
 
-## Fase 1: Poner imagenes e iconos en los catalogos y productos y mostrarlos en la app
-
-Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es necesario.
-
-## Fase 2: Infraestructura SaaS y Comercialización
-
-**Módulos:** Landing Page & Monetización con Stripe
-
-- **Impacto en Arquitectura:** Introducción formal del concepto de multi-inquilino (_Multi-tenancy_) y control de límites por suscripción (_Free Tier_ vs _Premium_).
-- **Flujo de Trabajo:**
-  1. Migración del enrutamiento de la aplicación hacia `coaster.business/app`, liberando la raíz para la landing comercial.
-  2. Integración de Webhooks de Stripe desacoplados. El webhook capturará el evento externo y disparará un evento de dominio interno (`SubscriptionRenewedEvent` o `SubscriptionCancelledEvent`) para actualizar de forma asíncrona el estado del local.
-
-## Fase 3: Operativa Interna y Cumplimiento Legal
+## Fase 1: Operativa Interna y Cumplimiento Legal
 
 **Módulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
@@ -26,7 +13,7 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
   1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
   2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-## Fase 4: Capa de Inteligencia y Valor Añadido
+## Fase 2: Capa de Inteligencia y Valor Añadido
 
 **Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 
@@ -38,22 +25,6 @@ Deberia de mostrar si tiene, comprobar un banco de imagenes y ponerlas si es nec
 
 ---
 
-## 📂 Propuesta de Estructura de Documentación (`/docs`)
+## SISTEMA DE RESERVA DE MESAS (PLANTEAR).
 
-Para integrarse perfectamente con GitHub (wikis, documentación interna o GitHub Pages), se recomienda la creación de una carpeta `/docs` en la raíz del repositorio con la siguiente estructura limpia:
-
-```text
-coaster/
-├── .github/
-├── docs/
-│   ├── README.md               # Índice general y guía de la documentación
-│   ├── roadmap.md              # Este archivo (Plan de Ruta)
-│   ├── architecture/
-│   │   ├── domain-models.md    # Definición de agregados, entidades y eventos
-│   │   └── printing-bridge.md  # Especificación del puente en Go y seguridad CORS
-│   └── saas/
-│       └── stripe-integration.md # Flujo de webhooks y manejo de tiers
-├── backend/                    # NestJS
-├── frontend/                   # Angular
-└── printing-bridge/            # Go Application
-```
+## visualizar la carta de forma publica.

@@ -36,6 +36,7 @@ export const BarPermission = {
   BAR_IMPORT_TEMPLATES: 'bar:import-templates',
   BAR_VIEW_PRINTER: 'bar:view-printer',
   BAR_MANAGE_PRINTER: 'bar:manage-printer',
+  BAR_MANAGE_BILLING: 'bar:manage-billing',
 } as const;
 
 export type BarPermission = (typeof BarPermission)[keyof typeof BarPermission];

@@ -1,23 +1,28 @@
-import { OnDestroy, Service, signal } from '@angular/core';
+import { effect, inject, OnDestroy, Service, signal } from '@angular/core';
 import type { Category, Order, OrderAdjustment, Product, Shift, Table } from '@coaster/common';
 import { SocketEvents } from '@coaster/common';
 import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
+import { Auth } from './auth';
+
+const JOIN_BAR_MAX_ATTEMPTS = 3;
+const JOIN_BAR_RETRY_MS = 1000;
 
 @Service()
 export class Socket implements OnDestroy {
+  readonly #auth = inject(Auth);
   #socket: SocketClient | null = null;
+  readonly #currentBarId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
 
-  // Expose signals for different events
   readonly orderCreated = signal<Order | null>(null);
   readonly orderUpdated = signal<Order | null>(null);
   readonly orderClosed = signal<Order | null>(null);
   readonly orderCancelled = signal<{ id: string } | Order | null>(null);
   readonly orderItemAdded = signal<Order | null>(null);
-  readonly orderTipUpdated = signal<{ orderId: string, tipAmount: number } | null>(null);
-  readonly orderAdjustmentsUpdated = signal<{ orderId: string, adjustments: OrderAdjustment[] } | null>(null);
+  readonly orderTipUpdated = signal<{ orderId: string; tipAmount: number } | null>(null);
+  readonly orderAdjustmentsUpdated = signal<{ orderId: string; adjustments: OrderAdjustment[] } | null>(null);
   readonly tableStatusChanged = signal<Partial<Table> | null>(null);
   readonly productCreated = signal<Product | null>(null);
   readonly productStockChanged = signal<Product | null>(null);
@@ -34,13 +39,42 @@ export class Socket implements OnDestroy {
   readonly shiftCreated = signal<Shift | null>(null);
   readonly shiftDeleted = signal<{ id: string } | null>(null);
   readonly memberInvited = signal<{ id: string } | null>(null);
+  readonly subscriptionUpdated = signal<{ barId: string } | null>(null);
 
   constructor() {
-    this.connect();
+    effect(() => {
+      const token = this.#auth.idToken();
+
+      if (!token) {
+        this.#teardown();
+        return;
+      }
+
+      this.connect(token);
+    });
+
+    effect(() => {
+      const barId = this.#currentBarId();
+      const isConnected = this.#connected();
+
+      if (barId && isConnected) {
+        this.#joinBar(barId);
+      }
+    });
   }
 
-  public connect() {
-    if (this.#socket?.connected) {
+  public connect(token: string | null | undefined = this.#auth.idToken()) {
+    if (!token) {
+      return;
+    }
+
+    if (this.#socket) {
+      this.#socket.auth = { token };
+
+      if (!this.#socket.connected && !this.#socket.active) {
+        this.#socket.connect();
+      }
+
       return;
     }
 
@@ -48,6 +82,7 @@ export class Socket implements OnDestroy {
       transports: ['websocket'],
       autoConnect: true,
       reconnection: true,
+      auth: { token },
     });
 
     this.#socket.on('connect', () => {
@@ -58,7 +93,11 @@ export class Socket implements OnDestroy {
       this.#connected.set(false);
     });
 
-    // Listen to business events
+    this.#socket.on(SocketEvents.unauthorized, () => {
+      this.#connected.set(false);
+      this.#socket?.disconnect();
+    });
+
     this.#socket.on(SocketEvents.orderCreated, (order: Order) => {
       this.orderCreated.set(order);
     });
@@ -79,13 +118,16 @@ export class Socket implements OnDestroy {
       this.orderItemAdded.set(order);
     });
 
-    this.#socket.on(SocketEvents.orderTipUpdated, (payload: { orderId: string, tipAmount: number }) => {
+    this.#socket.on(SocketEvents.orderTipUpdated, (payload: { orderId: string; tipAmount: number }) => {
       this.orderTipUpdated.set(payload);
     });
 
-    this.#socket.on(SocketEvents.orderAdjustmentsUpdated, (payload: { orderId: string, adjustments: OrderAdjustment[] }) => {
-      this.orderAdjustmentsUpdated.set(payload);
-    });
+    this.#socket.on(
+      SocketEvents.orderAdjustmentsUpdated,
+      (payload: { orderId: string; adjustments: OrderAdjustment[] }) => {
+        this.orderAdjustmentsUpdated.set(payload);
+      },
+    );
 
     this.#socket.on(SocketEvents.tableStatusChanged, (table: Partial<Table>) => {
       this.tableStatusChanged.set(table);
@@ -150,29 +192,53 @@ export class Socket implements OnDestroy {
     this.#socket.on(SocketEvents.memberInvited, (payload: { id: string }) => {
       this.memberInvited.set(payload);
     });
+
+    this.#socket.on(SocketEvents.subscriptionUpdated, (payload: { barId: string }) => {
+      this.subscriptionUpdated.set(payload);
+    });
   }
 
   public joinBar(barId: string) {
-    if (this.#socket?.connected) {
-      this.#socket.emit(SocketEvents.joinBar, barId);
-    } else {
-      // Retry once connected
-      this.#socket?.once('connect', () => {
-        this.#socket?.emit(SocketEvents.joinBar, barId);
-      });
-    }
+    this.#currentBarId.set(barId);
+    this.connect();
+  }
+
+  #joinBar(barId: string, attempt = 1) {
+    this.#socket?.emit(SocketEvents.joinBar, barId, (ack?: { status?: string; message?: string }) => {
+      if (ack?.status !== 'error') {
+        return;
+      }
+
+      console.error(`Could not join the realtime room for bar ${barId}: ${ack.message ?? 'unknown error'}`);
+
+      if (attempt < JOIN_BAR_MAX_ATTEMPTS && this.#currentBarId() === barId) {
+        setTimeout(() => this.#joinBar(barId, attempt + 1), JOIN_BAR_RETRY_MS);
+      }
+    });
   }
 
   public leaveBar(barId: string) {
+    if (this.#currentBarId() === barId) {
+      this.#currentBarId.set(null);
+    }
+
     if (this.#socket?.connected) {
       this.#socket.emit(SocketEvents.leaveBar, barId);
     }
   }
 
-  ngOnDestroy() {
-    if (this.#socket) {
-      this.#socket.disconnect();
-      this.#socket = null;
+  #teardown() {
+    if (!this.#socket) {
+      return;
     }
+
+    this.#socket.disconnect();
+    this.#socket = null;
+    this.#connected.set(false);
+  }
+
+  ngOnDestroy() {
+    this.#currentBarId.set(null);
+    this.#teardown();
   }
 }

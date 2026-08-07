@@ -1,4 +1,4 @@
-import { MemberInvitedEvent } from '@bar-members/events';
+import { MemberInvitedEvent } from '@coaster/bar-members';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { EmailService } from '../../email.service';

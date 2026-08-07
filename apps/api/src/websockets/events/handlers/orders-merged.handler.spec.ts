@@ -1,9 +1,9 @@
 import type { Order } from '@coaster/common';
 import { SocketEvents, TableStatus } from '@coaster/common';
+import { asBarId, asOrderId, asTableId } from '@coaster/core';
+import { OrdersMergedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrdersMergedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asTableId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrdersMergedHandler } from './orders-merged.handler';
 
@@ -39,14 +39,12 @@ describe('OrdersMergedHandler', () => {
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, primaryOrder);
 
-    // Check first source order cancellation and table freeing
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, { id: 'order-s1' });
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: 'table-1',
       status: TableStatus.FREE,
     });
 
-    // Check second source order cancellation (no table)
     expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, { id: 'order-s2' });
   });
 });

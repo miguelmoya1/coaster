@@ -56,7 +56,6 @@ export class OrderHistoryStore {
       });
     };
 
-    // Order created
     effect(() => {
       const created = this.#socketService.orderCreated();
       if (created && this.#currentBarId() === created.barId) {
@@ -64,7 +63,6 @@ export class OrderHistoryStore {
       }
     });
 
-    // Order updated
     effect(() => {
       const updated = this.#socketService.orderUpdated();
       if (updated && this.#currentBarId() === updated.barId) {
@@ -72,7 +70,6 @@ export class OrderHistoryStore {
       }
     });
 
-    // Order closed
     effect(() => {
       const closed = this.#socketService.orderClosed();
       if (closed && this.#currentBarId() === closed.barId) {
@@ -80,7 +77,6 @@ export class OrderHistoryStore {
       }
     });
 
-    // Order cancelled
     effect(() => {
       const cancelled = this.#socketService.orderCancelled();
       if (cancelled) {
@@ -91,7 +87,6 @@ export class OrderHistoryStore {
       }
     });
 
-    // Order item added
     effect(() => {
       const itemAdded = this.#socketService.orderItemAdded();
       if (itemAdded && this.#currentBarId() === itemAdded.barId) {
@@ -99,7 +94,6 @@ export class OrderHistoryStore {
       }
     });
 
-    // Order deleted
     effect(() => {
       const deleted = this.#socketService.orderDeleted();
       if (deleted) {

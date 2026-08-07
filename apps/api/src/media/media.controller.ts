@@ -1,10 +1,10 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { BarPermission, MediaUploadResponse } from '@coaster/common';
+import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MediaService } from './media.service';
 import { GenerateUploadUrlsDto } from './dto/generate-upload-urls.dto';
-import { FirebaseAuthGuard } from '../auth';
-import { BarPermissions, BarPermissionsGuard } from '../core';
-import { BarPermission, MediaUploadResponse } from '@coaster/common';
+import { MediaService } from './media.service';
 
 @ApiTags('Media')
 @Controller('bars/:barId/media')
@@ -14,7 +14,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post('upload-urls')
-  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT) // Assuming uploading media needs update permissions
+  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT)
   @ApiOperation({ summary: 'Generate signed URLs for uploading media directly to cloud storage' })
   @ApiResponse({ status: 201, description: 'Signed URLs generated successfully' })
   async generateUploadUrls(

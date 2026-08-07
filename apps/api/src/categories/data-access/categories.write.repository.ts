@@ -1,6 +1,6 @@
 import type { BarId, CategoryId } from '@coaster/common';
+import { DbCategoryUncheckedCreateInput, DbCategoryUncheckedUpdateInput, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { DbCategoryUncheckedCreateInput, DbCategoryUncheckedUpdateInput, DbService } from '../../core/db';
 
 type CreateCategoryDto = Omit<DbCategoryUncheckedCreateInput, 'id' | 'barId' | 'products'>;
 type UpdateCategoryDto = Omit<DbCategoryUncheckedUpdateInput, 'id' | 'barId' | 'products'>;
@@ -25,9 +25,9 @@ export class CategoriesWriteRepository {
     });
   }
 
-  public async delete(categoryId: CategoryId) {
+  public async delete(barId: BarId, categoryId: CategoryId) {
     return this._db.dbCategory.update({
-      where: { id: categoryId },
+      where: { id: categoryId, barId },
       data: { deletedAt: new Date() },
     });
   }

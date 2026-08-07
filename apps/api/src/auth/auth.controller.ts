@@ -1,8 +1,8 @@
-import { Controller, Post, Headers, UnauthorizedException } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { ErrorCodes } from '@coaster/common';
-import { DbUser } from '../core/db';
+import { DbUser } from '@coaster/core/db';
+import { Controller, Headers, Post, UnauthorizedException } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SyncUserCommand } from './commands/impl/sync-user.command';
 
 @ApiTags('Auth')
@@ -21,7 +21,7 @@ export class AuthController {
     }
 
     const token = authHeader.split(' ')[1];
-    
+
     return this.commandBus.execute(new SyncUserCommand(token));
   }
 }

@@ -22,7 +22,6 @@ export class ProductsStore {
   readonly #currentBarId = signal<BarId | null>(null);
   public readonly currentBarId = this.#currentBarId.asReadonly();
 
-
   readonly #productsResource = httpResource(() => this.#barProducts.execute(this.#currentBarId()), {
     parse: (products) => productArrayMapper(products),
   });
@@ -30,7 +29,6 @@ export class ProductsStore {
   readonly list = this.#productsResource.asReadonly();
 
   constructor() {
-    // Product created
     effect(() => {
       const created = this.#socketService.productCreated();
       if (created) {
@@ -45,7 +43,6 @@ export class ProductsStore {
       }
     });
 
-    // Product stock changed / updated
     effect(() => {
       const updated = this.#socketService.productStockChanged();
       if (updated) {
@@ -59,7 +56,6 @@ export class ProductsStore {
       }
     });
 
-    // Product deleted
     effect(() => {
       const deleted = this.#socketService.productDeleted();
       if (deleted) {
@@ -72,7 +68,6 @@ export class ProductsStore {
       }
     });
 
-    // Product updated (name, price, category changes)
     effect(() => {
       const updated = this.#socketService.productUpdated();
       if (updated) {

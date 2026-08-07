@@ -1,8 +1,8 @@
-import { CategoryUpdatedEvent } from '@categories/events';
+import { CategoryUpdatedEvent } from '@coaster/categories';
 import { SocketEvents } from '@coaster/common';
+import { asBarId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { CategoryUpdatedHandler } from './category-updated.handler';
 

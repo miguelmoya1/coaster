@@ -1,7 +1,7 @@
+import { asBarId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../core';
-import { DbService } from '../../core/db';
 import { CategoriesReadRepository } from './categories.read.repository';
 
 describe('CategoriesReadRepository', () => {

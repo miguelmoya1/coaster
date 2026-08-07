@@ -25,7 +25,11 @@ describe('ToServe', () => {
     openOrdersSignal.set([]);
     await TestBed.configureTestingModule({
       imports: [ToServe],
-      providers: [provideTranslateService(), provideRouter([]), { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock }],
+      providers: [
+        provideTranslateService(),
+        provideRouter([]),
+        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
+      ],
     }).compileComponents();
 
     vi.clearAllMocks();

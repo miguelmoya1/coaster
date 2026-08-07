@@ -10,11 +10,19 @@ describe('PrintTicket', () => {
   let service: PrintTicket;
   let printerRepositoryMock: {
     printTicket: ReturnType<typeof vi.fn>;
+    getJob: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     printerRepositoryMock = {
-      printTicket: vi.fn().mockResolvedValue(undefined),
+      printTicket: vi.fn().mockResolvedValue({ jobId: 'job-1' }),
+      getJob: vi.fn().mockResolvedValue({
+        id: 'job-1',
+        status: 'PRINTED',
+        error: null,
+        createdAt: '2026-08-07T10:00:00.000Z',
+        completedAt: '2026-08-07T10:00:02.000Z',
+      }),
     };
 
     TestBed.configureTestingModule({
@@ -138,5 +146,34 @@ describe('PrintTicket', () => {
 
     const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
     expect(payload.notes).toBe('Sin hielo');
+  });
+
+  it('should wait for the bridge to confirm the ticket printed', async () => {
+    printerRepositoryMock.getJob
+      .mockResolvedValueOnce({ id: 'job-1', status: 'PENDING', error: null, createdAt: '', completedAt: null })
+      .mockResolvedValueOnce({ id: 'job-1', status: 'PRINTED', error: null, createdAt: '', completedAt: '' });
+
+    await service.execute(createMockOrder());
+
+    expect(printerRepositoryMock.getJob).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reject when the bridge reports a failure', async () => {
+    printerRepositoryMock.getJob.mockResolvedValue({
+      id: 'job-1',
+      status: 'FAILED',
+      error: 'printer is out of paper',
+      createdAt: '',
+      completedAt: '',
+    });
+
+    await expect(service.execute(createMockOrder())).rejects.toThrow('printer is out of paper');
+  });
+
+  it('should pass the bar name through to the ticket header', async () => {
+    await service.execute(createMockOrder(), 'Bar Central');
+
+    const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
+    expect(payload.barName).toBe('Bar Central');
   });
 });

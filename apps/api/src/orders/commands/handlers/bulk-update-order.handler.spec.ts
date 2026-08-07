@@ -1,9 +1,9 @@
 import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId } from '@coaster/core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { BulkUpdateOrderCommand } from '../impl/bulk-update-order.command';

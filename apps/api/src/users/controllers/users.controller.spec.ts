@@ -1,9 +1,9 @@
+import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '@coaster/auth';
+import { asUserId } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../auth';
-import { asUserId } from '../../core';
 import { UpdateUserCommand } from '../commands';
 import { UsersController } from './users.controller';
 
@@ -31,7 +31,14 @@ describe('UsersController', () => {
   });
 
   it('findMe should return the user directly using mappers', () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const, language: 'es' };
+    const user = {
+      id: asUserId('user-1'),
+      name: 'User 1',
+      email: 'u@u.com',
+      active: true,
+      role: 'USER' as const,
+      language: 'es',
+    };
     const result = controller.findMe(user);
     expect(result?.id).toBe(user.id);
   });
@@ -42,7 +49,14 @@ describe('UsersController', () => {
   });
 
   it('updateMe should delegate to command bus', async () => {
-    const user = { id: asUserId('user-1'), name: 'User 1', email: 'u@u.com', active: true, role: 'USER' as const, language: 'es' };
+    const user = {
+      id: asUserId('user-1'),
+      name: 'User 1',
+      email: 'u@u.com',
+      active: true,
+      role: 'USER' as const,
+      language: 'es',
+    };
     const dto = { name: 'New Name' };
     commandBus.execute.mockResolvedValue(undefined);
 

@@ -1,10 +1,10 @@
 import type { AddOrderItemsDto } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId, asProductId } from '@coaster/core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asProductId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { AddOrderItemsCommand } from '../impl/add-order-items.command';

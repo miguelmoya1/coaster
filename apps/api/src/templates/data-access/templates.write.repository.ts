@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import {
   DbCategoryTemplateUncheckedCreateInput,
   DbCategoryTemplateUncheckedUpdateInput,
   DbProductTemplateUncheckedCreateInput,
   DbProductTemplateUncheckedUpdateInput,
   DbService,
-} from '../../core/db';
+} from '@coaster/core/db';
+import { Injectable } from '@nestjs/common';
 
 type CreateCategoryTemplateDto = Omit<
   DbCategoryTemplateUncheckedCreateInput,

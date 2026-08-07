@@ -3,48 +3,85 @@ import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WsAuthService } from './services';
+
+interface AuthenticatedSocket extends Socket {
+  data: { userId?: string };
+}
 
 @WebSocketGateway({ cors: { origin: '*' } })
-// implements OnGatewayConnection, OnGatewayDisconnect
-export class BarGateway {
+export class BarGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   declare server: Server;
 
   private readonly _logger = new Logger(BarGateway.name);
 
-  handleConnection(_client: Socket) {
-    // this._logger.debug(`Cliente conectado: ${client.id}`);
+  constructor(private readonly _wsAuth: WsAuthService) {}
+
+  afterInit(server: Server) {
+    server.use((socket, next) => {
+      void this._wsAuth
+        .authenticate(socket)
+        .then((userId) => {
+          (socket as AuthenticatedSocket).data.userId = userId ?? undefined;
+          next();
+        })
+        .catch(() => next());
+    });
   }
 
-  handleDisconnect(_client: Socket) {
-    // this._logger.debug(`Cliente desconectado: ${client.id}`);
+  handleConnection(client: AuthenticatedSocket) {
+    const userId = client.data.userId;
+
+    if (!userId) {
+      client.emit(SocketEvents.unauthorized, { message: ErrorCodes.UNAUTHORIZED });
+      client.disconnect(true);
+      return;
+    }
+
+    this._logger.debug(`Cliente ${client.id} autenticado como usuario ${userId}`);
   }
 
   @SubscribeMessage(SocketEvents.joinBar)
-  handleJoinBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
+  async handleJoinBar(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
-    void client.join(barId);
+    const userId = client.data.userId;
+
+    if (!userId) {
+      throw new WsException(ErrorCodes.UNAUTHORIZED);
+    }
+
+    const canAccess = await this._wsAuth.canAccessBar(userId, barId);
+
+    if (!canAccess) {
+      this._logger.warn(`Usuario ${userId} intentó unirse al bar ${barId} sin pertenecer a él`);
+      throw new WsException(ErrorCodes.UNAUTHORIZED);
+    }
+
+    await client.join(barId);
     this._logger.debug(`Cliente ${client.id} se unió a la sala del bar: ${barId}`);
 
     return { event: SocketEvents.joined, data: barId };
   }
 
   @SubscribeMessage(SocketEvents.leaveBar)
-  handleLeaveBar(@ConnectedSocket() client: Socket, @MessageBody() barId: string) {
+  async handleLeaveBar(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {
       throw new WsException(ErrorCodes.INVALID_BAR_ID);
     }
 
-    void client.leave(barId);
+    await client.leave(barId);
     this._logger.debug(`Cliente ${client.id} abandonó la sala del bar: ${barId}`);
 
     return { event: SocketEvents.left, data: barId };

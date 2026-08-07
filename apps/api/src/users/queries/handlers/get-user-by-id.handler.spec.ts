@@ -1,9 +1,9 @@
+import { asUserId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asUserId } from '../../../core';
 import { UserReadRepository } from '../../data-access/user.read.repository';
-import { GetUserByIdHandler } from './get-user-by-id.handler';
 import { GetUserByIdQuery } from '../impl/get-user-by-id.query';
+import { GetUserByIdHandler } from './get-user-by-id.handler';
 
 describe('GetUserByIdHandler', () => {
   let handler: GetUserByIdHandler;

@@ -1,8 +1,8 @@
 import type { Product } from '@coaster/common';
+import { asBarId, asProductId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asProductId } from '../../../core';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductStockChangedEvent } from '../../events';
 import { AdjustProductStockCommand } from '../impl/adjust-product-stock.command';

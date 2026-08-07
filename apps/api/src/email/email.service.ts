@@ -27,7 +27,7 @@ export class EmailService {
       });
 
       await this.#resend.emails.send({
-        from: 'Coaster <hello@coaster.business>', // Or from ConfigService
+        from: 'Coaster <hello@coaster.business>',
         to,
         subject: translations.subject,
         html,

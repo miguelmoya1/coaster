@@ -1,7 +1,7 @@
+import { asBarId } from '@coaster/core';
+import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../core';
-import { DbOrderStatus, DbService } from '../../core/db';
 import { StatsReadRepository } from './stats.read.repository';
 
 describe('StatsReadRepository', () => {

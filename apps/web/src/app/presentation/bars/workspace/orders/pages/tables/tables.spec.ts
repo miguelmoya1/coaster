@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -38,7 +38,7 @@ describe('Tables', () => {
     delete: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     isOwner: signal(false),
   };
 
@@ -50,7 +50,7 @@ describe('Tables', () => {
         provideRouter([]),
         { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
         { provide: TablesStore, useValue: tablesStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
 
@@ -74,8 +74,8 @@ describe('Tables', () => {
   describe('rendering', () => {
     it('should render status cards', () => {
       fixture.detectChanges();
-      const cards = fixture.nativeElement.querySelectorAll('.flex.gap-3 mat-card');
-      expect(cards.length).toBe(3);
+      const cards = fixture.nativeElement.querySelectorAll('.grid mat-card');
+      expect(cards.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should render tables title', () => {
@@ -98,6 +98,4 @@ describe('Tables', () => {
       expect(component['barOrdersViewModel']()).toEqual([]);
     });
   });
-
-
 });

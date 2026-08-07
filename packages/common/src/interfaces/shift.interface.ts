@@ -8,8 +8,8 @@ export type ShiftExchangeId = Brand<string, 'ShiftExchangeId'>;
 
 export interface Shift {
   id: ShiftId;
-  startTime: string; // ISO String
-  endTime: string; // ISO String
+  startTime: string;
+  endTime: string;
   userId: UserId;
   userName: string;
   userImage?: string;

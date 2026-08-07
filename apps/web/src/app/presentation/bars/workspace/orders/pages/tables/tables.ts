@@ -4,7 +4,8 @@ import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Order, Table } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { ActiveOrdersStore } from '@coaster/orders';
@@ -19,7 +20,7 @@ import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip],
+  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip, RequireSubscriptionDirective],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
 })
@@ -28,7 +29,7 @@ class Tables {
 
   readonly #tablesStore = inject(TablesStore);
   readonly #activeOrdersStore = inject(ActiveOrdersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
 
   readonly #router = inject(Router);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -47,7 +48,7 @@ class Tables {
 
   readonly isSubmitting = signal(false);
 
-  readonly isOwner = this.#barsStore.isOwner;
+  readonly isOwner = this.#myMemberStore.isOwner;
 
   protected readonly freeCount = this.#tablesStore.freeCount;
   protected readonly occupiedCount = this.#tablesStore.occupiedCount;

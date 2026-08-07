@@ -16,7 +16,6 @@ describe('ConfirmDialogComponent', () => {
     fixture = TestBed.createComponent(ConfirmDialogComponent);
     component = fixture.componentInstance;
 
-    // Set required inputs using ComponentRef.setInput()
     fixture.componentRef.setInput('title', 'Test Title');
     fixture.componentRef.setInput('text', 'Test Text');
 
@@ -30,7 +29,6 @@ describe('ConfirmDialogComponent', () => {
   it('should display title and text', () => {
     const titleEl = fixture.nativeElement.querySelector('h2');
     const textEls = fixture.nativeElement.querySelectorAll('p');
-    // By default subtitle is not set, so the first paragraph is the text
     expect(titleEl.textContent.trim()).toBe('Test Title');
     expect(textEls[0].textContent.trim()).toBe('Test Text');
   });

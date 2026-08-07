@@ -1,13 +1,16 @@
 import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, BarMember } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
@@ -20,9 +23,18 @@ type MemberItem = BarMember & {
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink],
+  imports: [
+    Loading,
+    StaffMemberCard,
+    Fab,
+    TranslatePipe,
+    RouterLink,
+    PageContainer,
+    PageHeader,
+    RequireSubscriptionDirective,
+  ],
   host: {
-    class: 'flex flex-col gap-2',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },
   templateUrl: './staff.html',
 })
@@ -30,7 +42,7 @@ export default class Staff {
   public readonly barId = input.required<BarId>();
 
   readonly #membersStore = inject(MembersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   protected readonly router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #confirmation = inject(ConfirmationDialog);
@@ -41,12 +53,12 @@ export default class Staff {
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
   protected readonly userMember = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value();
+    return this.#myMemberStore.myMember.value();
   });
-  protected readonly isOwner = this.#barsStore.isOwner;
+  protected readonly isOwner = this.#myMemberStore.isOwner;
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];

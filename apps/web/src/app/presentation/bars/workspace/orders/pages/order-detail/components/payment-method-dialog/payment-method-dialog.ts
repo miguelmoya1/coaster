@@ -28,9 +28,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
         </div>
       }
 
-      <!-- Dual Column Payment Buttons -->
       <div class="grid grid-cols-2 gap-4">
-        <!-- Cash Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
           (click)="selected.emit(PaymentMethod.CASH)"
@@ -45,7 +43,6 @@ import { PricePipe } from '../../../../../pipes/price/price';
           </span>
         </button>
 
-        <!-- Card Button -->
         <button
           class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl group cursor-pointer transition-all duration-200 hover:bg-surface-bright/50"
           (click)="selected.emit(PaymentMethod.CARD)"

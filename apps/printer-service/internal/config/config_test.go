@@ -16,7 +16,7 @@ func TestParse_Defaults(t *testing.T) {
 	if cfg.PrinterType != "usb" {
 		t.Errorf("expected printer-type usb, got %s", cfg.PrinterType)
 	}
-	if cfg.APIURL != "https://api-774617138158.europe-southwest1.run.app/api/v1" {
+	if cfg.APIURL != "https://api.coaster.business/api/v1" {
 		t.Errorf("unexpected default API URL: %s", cfg.APIURL)
 	}
 	if len(cfg.AllowedOrigins) != 2 {
@@ -141,5 +141,15 @@ func TestParseOrigins(t *testing.T) {
 				t.Errorf("parseOrigins(%q)[%d]: expected %q, got %q", tc.input, i, tc.expected[i], v)
 			}
 		}
+	}
+}
+
+func TestParse_NetworkPrinterNeedsAnAddress(t *testing.T) {
+	if _, err := Parse([]string{"--printer-type=network"}); err == nil {
+		t.Error("expected an error when no printer address is given")
+	}
+
+	if _, err := Parse([]string{"--printer-type=network", "--printer-path=192.168.1.200"}); err != nil {
+		t.Errorf("expected an address to be accepted, got %v", err)
 	}
 }

@@ -20,6 +20,7 @@
 
   <div class="w-full shrink-0 sticky bottom-4 z-10 pb-4">
     <coaster-pos-cart
+      [barId]="barId()"
       class="block bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant/10 p-4"
       [items]="cartItems()"
       [tables]="isAddItemsMode() ? [] : tables()"

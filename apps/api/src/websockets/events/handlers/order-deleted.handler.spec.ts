@@ -1,8 +1,8 @@
 import { SocketEvents } from '@coaster/common';
+import { asBarId, asOrderId } from '@coaster/core';
+import { OrderDeletedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderDeletedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrderDeletedHandler } from './order-deleted.handler';
 

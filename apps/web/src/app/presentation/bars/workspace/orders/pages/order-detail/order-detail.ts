@@ -63,10 +63,8 @@ class OrderDetail {
   readonly isLoading = signal(false);
   #loadRequest = 0;
 
-  // Local multi-selection state: maps itemId to selected paid quantities
   protected readonly selectedItems = signal<Map<string, { paidQty: number }>>(new Map());
 
-  // Helper computed signals
   protected readonly selectedItemsList = computed(() => {
     const selected = this.selectedItems();
     return Array.from(selected.entries())
@@ -399,6 +397,8 @@ class OrderDetail {
 
     try {
       await this.#printTicket.execute(order);
+    } catch (error) {
+      this.#feedback.error(error);
     } finally {
       this.isPrinting.set(false);
     }

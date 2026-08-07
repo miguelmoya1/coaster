@@ -25,7 +25,7 @@ export class PrinterTokenService {
       JSON.stringify({
         barId,
         iat: now,
-        exp: now + 8 * 24 * 60 * 60, // 8 days expiry
+        exp: now + 8 * 24 * 60 * 60,
       }),
     ).toString('base64url');
 

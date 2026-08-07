@@ -1,4 +1,3 @@
-import { BarRole } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -15,7 +14,6 @@ describe('ProductsController (e2e)', () => {
   beforeEach(async () => {
     await testSetup.clearDatabase();
 
-    // Seed the mock user
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -26,21 +24,9 @@ describe('ProductsController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: BarRole.OWNER,
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
 
-    // Seed a category
     const category = await testSetup.prisma.dbCategory.create({
       data: {
         name: 'Drinks',
@@ -66,7 +52,6 @@ describe('ProductsController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/products`).send(dto).expect(201);
 
-      // Verify in database
       const products = await testSetup.prisma.dbProduct.findMany({
         where: { categoryId },
       });
@@ -85,7 +70,6 @@ describe('ProductsController (e2e)', () => {
 
   describe('GET /api/bars/:barId/products', () => {
     it('should return a list of products', async () => {
-      // Seed a product
       const product = await testSetup.prisma.dbProduct.create({
         data: {
           name: 'Coke',

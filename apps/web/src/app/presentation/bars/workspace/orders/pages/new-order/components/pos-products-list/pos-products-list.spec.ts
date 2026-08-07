@@ -63,7 +63,6 @@ describe('PosProductsList', () => {
 
   it('should add out-of-stock class to card and button if stock is 0', () => {
     const cards = fixture.nativeElement.querySelectorAll('mat-card');
-    // The second card should be out of stock
     expect(cards[1].className).toContain('opacity-60');
     expect(cards[1].className).toContain('border-error/30');
   });

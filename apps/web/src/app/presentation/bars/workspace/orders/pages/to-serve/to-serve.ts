@@ -23,7 +23,6 @@ class ToServe {
 
   readonly isLoading = signal(false);
 
-  // Map of selected items: itemId -> { orderId, item, serveQty }
   protected readonly selectedItems = signal<Map<string, { orderId: string; item: OrderItem; serveQty: number }>>(
     new Map(),
   );
@@ -41,7 +40,6 @@ class ToServe {
     });
   }
 
-  // Filtered and sorted open orders with pending/unserved items
   protected readonly ordersToServe = computed(() => {
     const orders = this.#activeOrdersStore.openOrders();
     return orders
@@ -69,7 +67,7 @@ class ToServe {
       .sort((a, b) => {
         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return aTime - bTime; // Oldest first (FIFO queue)
+        return aTime - bTime;
       });
   });
 
@@ -85,7 +83,7 @@ class ToServe {
       current.set(item.id, {
         orderId,
         item,
-        serveQty: item.quantity - item.servedQuantity, // Default to all remaining
+        serveQty: item.quantity - item.servedQuantity,
       });
     }
     this.selectedItems.set(current);
@@ -104,14 +102,12 @@ class ToServe {
     this.selectedItems.set(new Map());
   }
 
-  // Serve selected items in bulk across orders
   protected async applySelectedChanges() {
     if (this.selectedItems().size === 0) return;
 
     try {
       this.isLoading.set(true);
 
-      // Group changes by orderId
       const groups = new Map<string, BulkUpdateItemDto[]>();
       for (const val of this.selectedItems().values()) {
         if (!groups.has(val.orderId)) {
@@ -119,11 +115,10 @@ class ToServe {
         }
         groups.get(val.orderId)!.push({
           itemId: asOrderItemId(val.item.id),
-          servedQuantity: val.item.servedQuantity + val.serveQty, // partial / full served value!
+          servedQuantity: val.item.servedQuantity + val.serveQty,
         });
       }
 
-      // Execute bulk updates in parallel
       await Promise.all(
         Array.from(groups.entries()).map(([orderId, items]) =>
           this.#activeOrdersStore.bulkUpdate(this.barId(), asOrderId(orderId), { items }),
@@ -138,7 +133,6 @@ class ToServe {
     }
   }
 
-  // Quick serve button action
   protected async serveSingleItem(orderId: string, item: OrderItem) {
     try {
       this.isLoading.set(true);
@@ -146,11 +140,10 @@ class ToServe {
         items: [
           {
             itemId: asOrderItemId(item.id),
-            servedQuantity: item.quantity, // fully serve
+            servedQuantity: item.quantity,
           },
         ],
       });
-      // Remove from selection if it was selected
       if (this.isItemSelected(item.id)) {
         const current = new Map(this.selectedItems());
         current.delete(item.id);

@@ -13,20 +13,22 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
+      "@coaster/admin": ["./src/app/admin/index.ts"],
+      "@coaster/bar-members": ["./src/app/bar-members/index.ts"],
+      "@coaster/bar-subscription": ["./src/app/bar-subscription/index.ts"],
       "@coaster/bars": ["./src/app/bars/index.ts"],
       "@coaster/categories": ["./src/app/categories/index.ts"],
       "@coaster/core": ["./src/app/core/index.ts"],
+      "@coaster/env": ["./src/environments/environment.ts"],
       "@coaster/exchanges": ["./src/app/exchanges/index.ts"],
-      "@coaster/members": ["./src/app/members/index.ts"],
       "@coaster/orders": ["./src/app/orders/index.ts"],
       "@coaster/printer": ["./src/app/printer/index.ts"],
       "@coaster/products": ["./src/app/products/index.ts"],
       "@coaster/roster": ["./src/app/roster/index.ts"],
       "@coaster/shifts": ["./src/app/shifts/index.ts"],
-      "@coaster/tables": ["./src/app/tables/index.ts"],
-      "@coaster/templates": ["./src/app/templates/index.ts"],
       "@coaster/stats": ["./src/app/stats/index.ts"],
-      "@coaster/env": ["./src/environments/environment.ts"]
+      "@coaster/tables": ["./src/app/tables/index.ts"],
+      "@coaster/templates": ["./src/app/templates/index.ts"]
     }
   },
   "angularCompilerOptions": {

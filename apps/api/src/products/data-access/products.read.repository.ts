@@ -1,6 +1,6 @@
-import type { BarId, CategoryId } from '@coaster/common';
+import type { BarId, CategoryId, ProductId } from '@coaster/common';
+import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { DbService } from '../../core/db';
 
 @Injectable()
 export class ProductsReadRepository {
@@ -15,6 +15,15 @@ export class ProductsReadRepository {
       return false;
     }
     return category.barId === barId;
+  }
+
+  public async checkProductBelongsToBar(productId: ProductId, barId: BarId) {
+    const product = await this._db.dbProduct.findFirst({
+      where: { id: productId, deletedAt: null, category: { barId } },
+      select: { id: true },
+    });
+
+    return product !== null;
   }
 
   public async findByBarId(barId: BarId) {

@@ -28,6 +28,25 @@ enum DbRole {
   @@map("Role")
 }
 
+enum DbSubscriptionPlan {
+  FREE
+  PRO
+
+  @@map("SubscriptionPlan")
+}
+
+enum DbSubscriptionStatus {
+  INACTIVE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  EXPIRED
+
+  @@map("SubscriptionStatus")
+}
+
 enum DbTableStatus {
   FREE
   OCCUPIED
@@ -117,16 +136,18 @@ model DbUser {
 }
 
 model DbBar {
-  id         String           @id @default(uuid())
+  id         String             @id @default(uuid())
   name       String
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
   members    DbBarMember[]
   shifts     DbShift[]
   categories DbCategory[]
   tables     DbTable[]
   orders     DbOrder[]
   printer    DbPrinterConfig?
+  printJobs  DbPrintJob[]
+  billing    DbBarSubscription?
 
   @@map("Bar")
 }
@@ -301,4 +322,63 @@ model DbPrinterConfig {
   updatedAt  DateTime  @updatedAt
 
   @@map("PrinterConfig")
+}
+
+enum DbPrintJobStatus {
+  PENDING
+  PRINTING
+  PRINTED
+  FAILED
+
+  @@map("PrintJobStatus")
+}
+
+model DbPrintJob {
+  id          String           @id @default(uuid())
+  barId       String
+  bar         DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  payload     Json
+  status      DbPrintJobStatus @default(PENDING)
+  attempts    Int              @default(0)
+  error       String?
+  createdAt   DateTime         @default(now())
+  claimedAt   DateTime?
+  completedAt DateTime?
+
+  @@index([barId, status, createdAt])
+  @@map("PrintJob")
+}
+
+model DbBarSubscription {
+  id                   String               @id @default(uuid())
+  barId                String               @unique
+  bar                  DbBar                @relation(fields: [barId], references: [id], onDelete: Cascade)
+  plan                 DbSubscriptionPlan   @default(FREE)
+  status               DbSubscriptionStatus @default(INACTIVE)
+  stripeCustomerId     String?              @unique
+  stripeSubscriptionId String?              @unique
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  trialEndsAt          DateTime?
+  canceledAt           DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@index([status])
+  @@map("BarSubscription")
+}
+
+model DbStripeWebhookEvent {
+  id               String    @id @default(uuid())
+  stripeEventId    String    @unique
+  type             String
+  payload          Json
+  processingStatus String    @default("PROCESSED")
+  attempts         Int       @default(0)
+  lastError        String?
+  receivedAt       DateTime  @default(now())
+  processedAt      DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  @@map("StripeWebhookEvent")
 }

@@ -1,9 +1,9 @@
 import { BarRole } from '@coaster/common';
+import { asBarId, asBarMemberId, asUserId } from '@coaster/core';
+import { DbBarRole } from '@coaster/core/db';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId, asUserId } from '../../../core';
-import { DbBarRole } from '../../../core/db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { GetMemberMeQuery } from '../impl/get-member-me.query';
 import { GetMemberMeHandler } from './get-member-me.handler';

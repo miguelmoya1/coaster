@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { ExchangesStore } from '@coaster/exchanges';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { ShiftsStore } from '@coaster/shifts';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -33,7 +33,7 @@ describe('Roster', () => {
     reload: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue(undefined),
       hasValue: vi.fn().mockReturnValue(true),
@@ -64,7 +64,7 @@ describe('Roster', () => {
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ExchangesStore, useValue: exchangesMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
       ],

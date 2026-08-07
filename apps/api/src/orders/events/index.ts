@@ -1,4 +1,3 @@
-
 export * from './impl/order-cancelled.event';
 export * from './impl/order-closed.event';
 export * from './impl/order-created.event';

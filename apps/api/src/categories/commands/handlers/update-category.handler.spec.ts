@@ -1,7 +1,7 @@
+import { asBarId, asCategoryId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asCategoryId } from '../../../core';
 import { CategoriesWriteRepository } from '../../data-access/categories.write.repository';
 import { CategoryUpdatedEvent } from '../../events';
 import { UpdateCategoryCommand } from '../impl/update-category.command';

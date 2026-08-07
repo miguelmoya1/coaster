@@ -24,7 +24,6 @@ import {
   AdjustmentTarget,
 } from '@coaster/common';
 
-// Casting functions
 export const asBarId = (id: string): BarId => id as BarId;
 export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
@@ -37,7 +36,6 @@ export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExc
 export const asTableId = (id: string): TableId => id as TableId;
 export const asUserId = (id: string): UserId => id as UserId;
 
-// Mapper validators
 export const asBarRole = (role: string): BarRole => {
   const roles: BarRole[] = Object.values(BarRole);
   if (roles.includes(role as BarRole)) return role as BarRole;
@@ -107,4 +105,3 @@ export const asAdjustmentTarget = (target: string): AdjustmentTarget => {
   console.warn(`Invalid AdjustmentTarget mapping: ${target}, defaulting to ORDER`);
   return AdjustmentTarget.ORDER;
 };
-

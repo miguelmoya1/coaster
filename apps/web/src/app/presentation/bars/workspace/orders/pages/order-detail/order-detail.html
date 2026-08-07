@@ -34,7 +34,6 @@
     }
   </div>
 
-  <!-- Gorgeous Glassmorphic Floating Group Action Bar -->
   @if (totalSelectedItemsCount() > 0) {
     <coaster-order-bulk-actions
       [selectedCount]="totalSelectedItemsCount()"
@@ -47,6 +46,7 @@
 
   @if (order.status === OrderStatus.OPEN) {
     <coaster-order-actions
+      [barId]="barId()"
       [hasTable]="!!order.tableId"
       (addItems)="onAddItems()"
       (checkout)="handleOpenCheckout()"

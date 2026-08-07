@@ -21,7 +21,6 @@ import {
   TableStatus,
 } from '@coaster/common';
 
-// Basic validators
 export const asUserId = (id: string): UserId => id as UserId;
 export const asBarId = (id: string): BarId => id as BarId;
 export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
@@ -33,7 +32,6 @@ export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
 export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
 
-// Mapper validators
 export const asBarRole = (role: string): BarRole => {
   const roles: BarRole[] = Object.values(BarRole);
   if (roles.includes(role as BarRole)) return role as BarRole;

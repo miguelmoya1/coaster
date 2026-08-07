@@ -1,24 +1,26 @@
+import { AiModule } from '@coaster/ai';
+import { AuthModule } from '@coaster/auth';
+import { BarMembersModule } from '@coaster/bar-members';
+import { BarSubscriptionModule } from '@coaster/bar-subscription';
+import { BarsModule } from '@coaster/bars';
+import { CategoriesModule } from '@coaster/categories';
+import { SecurityModule } from '@coaster/core';
+import { DbModule } from '@coaster/core/db';
+import { EmailModule } from '@coaster/email';
+import { MediaModule } from '@coaster/media';
+import { OrdersModule } from '@coaster/orders';
+import { PrinterModule } from '@coaster/printer';
+import { ProductsModule } from '@coaster/products';
+import { ShiftExchangesModule } from '@coaster/shift-exchanges';
+import { ShiftsModule } from '@coaster/shifts';
+import { StatsModule } from '@coaster/stats';
+import { StripeModule } from '@coaster/stripe';
+import { TablesModule } from '@coaster/tables';
+import { TemplatesModule } from '@coaster/templates';
+import { UserModule } from '@coaster/users';
+import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { BarMembersModule } from './bar-members/bar-members.module';
-import { BarsModule } from './bars/bars.module';
-import { CategoriesModule } from './categories/categories.module';
-import { DbModule } from './core/db';
-import { SecurityModule } from './core/security/security.module';
-import { EmailModule } from './email/email.module';
-import { OrdersModule } from './orders/orders.module';
-import { PrinterModule } from './printer/printer.module';
-import { ProductsModule } from './products/products.module';
-import { ShiftExchangesModule } from './shift-exchanges/shift-exchanges.module';
-import { ShiftsModule } from './shifts/shifts.module';
-import { StatsModule } from './stats/stats.module';
-import { TablesModule } from './tables/tables.module';
-import { TemplatesModule } from './templates/templates.module';
-import { UserModule } from './users/user.module';
-import { WebsocketsModule } from './websockets/websockets.module';
-import { AiModule } from './ai/ai.module';
-import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -26,11 +28,13 @@ import { MediaModule } from './media/media.module';
       isGlobal: true,
     }),
     DbModule,
+    StripeModule,
     EmailModule,
     WebsocketsModule,
     AuthModule,
     UserModule,
     BarsModule,
+    BarSubscriptionModule,
     BarMembersModule,
     CategoriesModule,
     ProductsModule,

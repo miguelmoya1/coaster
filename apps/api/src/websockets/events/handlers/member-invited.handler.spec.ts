@@ -1,8 +1,8 @@
-import { MemberInvitedEvent } from '@bar-members/events';
+import { MemberInvitedEvent } from '@coaster/bar-members';
 import { SocketEvents } from '@coaster/common';
+import { asBarId, asBarMemberId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarMemberId } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { MemberInvitedHandler } from './member-invited.handler';
 

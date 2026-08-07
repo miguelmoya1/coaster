@@ -33,7 +33,6 @@ export class RosterStateService {
 
   readonly scrollerDays = computed<(ScrollerDay & { dateObj: Date })[]>(() => {
     const currentSelected = this.selectedDate();
-    // Center the 15-day range around the selected date
     const start = subDays(currentSelected, 7);
 
     return Array.from({ length: TOTAL_DAYS }).map((_, i) => {
@@ -91,7 +90,6 @@ export class RosterStateService {
         endIso: endLocal.toISOString(),
       };
     } else {
-      // For Day or Week view, query the entire active week
       const start = startOfWeek(selected, { weekStartsOn: 1 });
       const end = endOfWeek(selected, { weekStartsOn: 1 });
       const startLocal = new Date(start);

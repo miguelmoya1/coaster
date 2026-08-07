@@ -1,7 +1,7 @@
+import { asUserId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asUserId } from '../../core';
-import { DbService } from '../../core/db';
 import { UserReadRepository } from './user.read.repository';
 
 describe('UserReadRepository', () => {

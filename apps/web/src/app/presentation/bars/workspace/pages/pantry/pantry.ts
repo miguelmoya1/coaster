@@ -3,7 +3,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, Category } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
@@ -13,6 +14,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoryFilter } from '../../../../components/category-filter/category-filter';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { StatCard } from '../../../../components/stat-card/stat-card';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
@@ -35,9 +38,12 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
     MatButton,
     PantrySearch,
     Fab,
+    PageContainer,
+    PageHeader,
+    RequireSubscriptionDirective,
   ],
   host: {
-    class: 'flex flex-col gap-2',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   templateUrl: './pantry.html',
   styles: `
@@ -50,16 +56,20 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
 export default class Pantry {
   public readonly barId = input.required<BarId>();
 
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
 
   protected readonly canImportTemplates = computed(() =>
-    this.#barsStore.hasPermission(BarPermission.BAR_IMPORT_TEMPLATES),
+    this.#myMemberStore.hasPermission(BarPermission.BAR_IMPORT_TEMPLATES),
   );
   protected readonly canUpdateCategory = computed(() =>
-    this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_CATEGORY),
+    this.#myMemberStore.hasPermission(BarPermission.BAR_UPDATE_CATEGORY),
   );
-  protected readonly canUpdateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_UPDATE_PRODUCT));
-  protected readonly canCreateProduct = computed(() => this.#barsStore.hasPermission(BarPermission.BAR_CREATE_PRODUCT));
+  protected readonly canUpdateProduct = computed(() =>
+    this.#myMemberStore.hasPermission(BarPermission.BAR_UPDATE_PRODUCT),
+  );
+  protected readonly canCreateProduct = computed(() =>
+    this.#myMemberStore.hasPermission(BarPermission.BAR_CREATE_PRODUCT),
+  );
 
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);

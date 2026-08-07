@@ -1,4 +1,4 @@
-import { InviteMemberRequestedEvent } from '@bar-members/events';
+import { InviteMemberRequestedEvent } from '@coaster/bar-members';
 import { Injectable, Logger } from '@nestjs/common';
 import { ofType, Saga } from '@nestjs/cqrs';
 import { map, Observable } from 'rxjs';

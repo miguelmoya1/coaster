@@ -1,8 +1,8 @@
 import { BarRole } from '@coaster/common';
+import { asBarId, asUserId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asUserId } from '../../../core';
 import { UserWriteRepository } from '../../data-access/user.write.repository';
 import { UserPreparedForInviteEvent } from '../../events';
 import { PrepareUserForInviteCommand } from '../impl/prepare-user-for-invite.command';

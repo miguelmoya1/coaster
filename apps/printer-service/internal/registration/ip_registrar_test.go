@@ -25,17 +25,31 @@ func TestGetLocalIP(t *testing.T) {
 }
 
 func TestStartIPRegistration_HTTPCall(t *testing.T) {
-	called := false
+	type registration struct {
+		BarID     string `json:"barId"`
+		IPAddress string `json:"ipAddress"`
+		Port      int    `json:"port"`
+	}
+
+	received := make(chan registration, 1)
 	var receivedKey string
-	var receivedBody map[string]string
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/printer/register-ip" && r.Method == http.MethodPost {
-			called = true
-			receivedKey = r.Header.Get("X-Device-Key")
-			json.NewDecoder(r.Body).Decode(&receivedBody)
-			w.WriteHeader(http.StatusCreated)
+		if r.URL.Path != "/printer/register-ip" || r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusNotFound)
+			return
 		}
+
+		receivedKey = r.Header.Get("X-Device-Key")
+
+		var body registration
+		json.NewDecoder(r.Body).Decode(&body)
+		select {
+		case received <- body:
+		default:
+		}
+
+		w.WriteHeader(http.StatusCreated)
 	}))
 	defer server.Close()
 
@@ -44,6 +58,7 @@ func TestStartIPRegistration_HTTPCall(t *testing.T) {
 
 	cfg := &config.Config{
 		APIURL:    server.URL,
+		Port:      "9090",
 		BarID:     "bar-123",
 		DeviceKey: "key-xyz",
 		IPAddress: "192.168.1.100",
@@ -51,22 +66,31 @@ func TestStartIPRegistration_HTTPCall(t *testing.T) {
 
 	go StartIPRegistration(ctx, cfg)
 
-	time.Sleep(50 * time.Millisecond)
-	cancel()
-
-	if !called {
-		t.Error("expected register-ip request to be fired")
+	select {
+	case body := <-received:
+		if body.BarID != "bar-123" || body.IPAddress != "192.168.1.100" {
+			t.Errorf("unexpected registration contents: %+v", body)
+		}
+		if body.Port != 9090 {
+			t.Errorf("expected port 9090 to be registered, got %d", body.Port)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected a register-ip request to be fired")
 	}
+
 	if receivedKey != "key-xyz" {
 		t.Errorf("expected header key-xyz, got %s", receivedKey)
-	}
-	if receivedBody["barId"] != "bar-123" || receivedBody["ipAddress"] != "192.168.1.100" {
-		t.Errorf("unexpected body registration contents: %v", receivedBody)
 	}
 }
 
 func TestStartIPRegistration_FailedServer(t *testing.T) {
+	requests := make(chan struct{}, 1)
+
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case requests <- struct{}{}:
+		default:
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("server error"))
 	}))
@@ -77,12 +101,37 @@ func TestStartIPRegistration_FailedServer(t *testing.T) {
 
 	cfg := &config.Config{
 		APIURL:    server.URL,
+		Port:      "8080",
 		BarID:     "bar-fail",
 		DeviceKey: "key-fail",
 		IPAddress: "10.0.0.1",
 	}
 
 	go StartIPRegistration(ctx, cfg)
+
+	select {
+	case <-requests:
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected a request even though the server errors")
+	}
+}
+
+func TestStartIPRegistration_SkipsAnInvalidPort(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Error("expected no request when the port is unusable")
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go StartIPRegistration(ctx, &config.Config{
+		APIURL:    server.URL,
+		Port:      "not-a-port",
+		BarID:     "bar-123",
+		DeviceKey: "key-xyz",
+		IPAddress: "192.168.1.100",
+	})
+
 	time.Sleep(50 * time.Millisecond)
-	cancel()
 }

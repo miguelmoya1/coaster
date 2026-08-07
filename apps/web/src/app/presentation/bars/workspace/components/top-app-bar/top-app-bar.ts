@@ -1,18 +1,25 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { Auth, CurrentUser } from '@coaster/core';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/bar-subscription';
+import type { BarId } from '@coaster/common';
+import { BarPermission, ErrorCodes } from '@coaster/common';
+import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
 @Component({
   selector: 'coaster-top-app-bar',
   imports: [
+    AiAssistantTrigger,
     AvatarBadge,
     RouterLink,
     MatButton,
@@ -22,6 +29,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
     MatToolbar,
     MatMenuModule,
     MatDivider,
+    MatProgressSpinner,
   ],
   host: {
     class: 'block w-full z-50 shrink-0',
@@ -35,20 +43,57 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <coaster-avatar-badge [imageSrc]="image" altText="User profile" class="shrink-0" />
         }
 
-        <h1 class="heading-1 font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
-          {{ label() }}
-        </h1>
+        <div class="flex items-center gap-2 sm:gap-3 truncate min-w-0">
+          <h1 class="heading-1 font-black text-primary text-xl! sm:text-3xl! tracking-tighter truncate">
+            {{ label() }}
+          </h1>
+
+          <div
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] sm:text-xs font-black tracking-wider uppercase shrink-0 transition-all"
+            [class]="statusBadgeTextClass()"
+          >
+            <span class="w-2 h-2 rounded-full shrink-0" [class]="statusDotClass()"></span>
+            <span>{{ statusBadgeKey() | translate }}</span>
+          </div>
+        </div>
       </div>
 
-      <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
+      <div class="flex items-center shrink-0">
+        <coaster-ai-assistant-trigger [barId]="barId()" />
+
+        <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" aria-label="Open menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
 
       <mat-menu #menu="matMenu" xPosition="before" class="rounded-2xl!">
         <a mat-menu-item routerLink="/bars/select">
           <mat-icon>swap_horiz</mat-icon>
           <span>{{ 'common.change_bar' | translate }}</span>
         </a>
+
+        @if (canManageBilling() && showBillingAction()) {
+          @if (billingAction() === BillingAction.MANAGE) {
+            <button
+              mat-menu-item
+              [disabled]="isOpeningBillingPortal()"
+              [attr.aria-busy]="isOpeningBillingPortal()"
+              (click)="manageBilling(); menuTrigger.closeMenu()"
+            >
+              @if (isOpeningBillingPortal()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>receipt_long</mat-icon>
+              }
+              <span>{{ 'billing.manage_billing' | translate }}</span>
+            </button>
+          } @else {
+            <button mat-menu-item (click)="activatePro(); menuTrigger.closeMenu()">
+              <mat-icon>rocket_launch</mat-icon>
+              <span>{{ 'billing.activate_pro_title' | translate }}</span>
+            </button>
+          }
+        }
 
         <mat-divider />
 
@@ -113,19 +158,102 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
   `,
 })
 export class TopAppBar {
+  readonly barId = input.required<BarId>();
   readonly label = input.required<string>();
   readonly image = input.required<string>();
 
   readonly #auth = inject(Auth);
   readonly #currentUser = inject(CurrentUser);
+  readonly #myMemberStore = inject(MyMemberStore);
+  readonly #barSubscriptionStore = inject(BarSubscriptionStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
+  readonly #actionFeedback = inject(ActionFeedback);
+  readonly #planDialogService = inject(PlanDialogService);
 
   readonly currentLang = this.#translate.currentLang;
   readonly apiUrl = environment.apiUrl;
+  readonly canManageBilling = computed(() => this.#myMemberStore.hasPermission(BarPermission.BAR_MANAGE_BILLING));
+  readonly subscription = computed(() => this.#barSubscriptionStore.subscription.value());
+  readonly billingAction = this.#barSubscriptionStore.billingAction;
+  readonly isOpeningBillingPortal = this.#barSubscriptionStore.isOpeningBillingPortal;
+  readonly showBillingAction = this.#barSubscriptionStore.showBillingAction;
+  readonly BillingAction = BillingAction;
+
+  readonly isProActive = computed(() => {
+    return this.billingAction() === BillingAction.MANAGE;
+  });
+
+  readonly isPendingCancel = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return false;
+    if (sub.status === 'CANCELED') {
+      if (!sub.currentPeriodEnd) return true;
+      return new Date() <= new Date(sub.currentPeriodEnd);
+    }
+    return false;
+  });
+
+  readonly statusDotClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'bg-zinc-400';
+    if (this.isPendingCancel()) {
+      return 'bg-secondary shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+    }
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
+      case 'TRIALING':
+        return 'bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'bg-secondary animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+      default:
+        return 'bg-zinc-400';
+    }
+  });
+
+  readonly statusBadgeKey = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'billing.status_badge.free';
+    if (this.isPendingCancel()) {
+      return 'billing.status_badge.cancel_at_period_end';
+    }
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'billing.status_badge.active';
+      case 'TRIALING':
+        return 'billing.status_badge.trialing';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'billing.status_badge.past_due';
+      default:
+        return 'billing.status_badge.free';
+    }
+  });
+
+  readonly statusBadgeTextClass = computed(() => {
+    const sub = this.subscription();
+    if (!sub) return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
+    if (this.isPendingCancel()) {
+      return 'text-secondary bg-secondary/10 border-secondary/20';
+    }
+    switch (sub.status) {
+      case 'ACTIVE':
+        return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+      case 'TRIALING':
+        return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
+      case 'PAST_DUE':
+      case 'UNPAID':
+        return 'text-secondary bg-secondary/10 border-secondary/20';
+      default:
+        return 'text-on-surface-variant/70 bg-surface-container border-outline-variant/30';
+    }
+  });
 
   setLanguage(lang: string): void {
     if (this.#auth.isAuthenticated()) {
+      this.#translate.use(lang);
       this.#currentUser.updateLanguage(lang);
     }
   }
@@ -133,5 +261,29 @@ export class TopAppBar {
   async logout(): Promise<void> {
     await this.#auth.logout();
     await this.#router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  async manageBilling(): Promise<void> {
+    if (this.isOpeningBillingPortal()) {
+      return;
+    }
+
+    try {
+      const portalUrl = await this.#barSubscriptionStore.createCustomerPortalSession();
+
+      if (portalUrl) {
+        window.location.assign(portalUrl);
+      } else {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        this.#actionFeedback.error(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
+      }
+    }
+  }
+
+  activatePro(): void {
+    this.#planDialogService.open(this.barId());
   }
 }

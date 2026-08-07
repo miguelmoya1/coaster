@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard, noAuthGuard } from './core';
+import { adminGuard } from '@coaster/admin';
+import { authGuard, noAuthGuard } from '@coaster/core';
 
 export const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'bars',
-    pathMatch: 'full',
+    loadComponent: () => import('./presentation/landing/landing'),
   },
   {
     path: 'login',
@@ -18,14 +18,14 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./presentation/bars/bars.routes'),
   },
   {
-    path: 'admin/dashboard',
+    path: 'admin',
     canActivate: [adminGuard],
-    loadComponent: () => import('./presentation/admin/pages/admin-dashboard/admin-dashboard'),
+    loadChildren: () => import('./presentation/admin/admin.routes'),
   },
   {
-    path: 'admin/templates',
-    canActivate: [adminGuard],
-    loadComponent: () => import('./presentation/admin/pages/admin-templates/admin-templates'),
+    path: 'bar',
+    redirectTo: 'bars',
+    pathMatch: 'full',
   },
   {
     path: '**',

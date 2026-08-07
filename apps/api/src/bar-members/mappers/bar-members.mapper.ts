@@ -1,5 +1,5 @@
 import type { BarMember } from '@coaster/common';
-import { asBarId, asBarMemberId, asBarRole, asUserId, getRolePermissions } from '../../core';
+import { asBarId, asBarMemberId, asBarRole, asUserId, getRolePermissions } from '@coaster/core';
 
 export const BarMembersMapper = {
   toDomain(member: {

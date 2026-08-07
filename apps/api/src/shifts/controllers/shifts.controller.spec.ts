@@ -1,9 +1,9 @@
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { asBarId, asShiftId, asUserId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { FirebaseAuthGuard } from '../../auth';
-import { asBarId, asShiftId, asUserId, BarPermissionsGuard } from '../../core';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
 import { GetShiftsQuery } from '../queries';
 import { ShiftsController } from './shifts.controller';

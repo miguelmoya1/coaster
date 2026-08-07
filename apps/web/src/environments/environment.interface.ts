@@ -12,5 +12,4 @@ export interface Environment {
     appId: string;
   };
   apiUrl: string;
-  printerUrl: string;
 }
