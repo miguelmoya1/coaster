@@ -1,6 +1,5 @@
 export * from './bar-subscription.module';
 export * from './commands';
-export * from './consumers';
 export * from './data-access';
 export * from './controllers';
 export * from './events';
