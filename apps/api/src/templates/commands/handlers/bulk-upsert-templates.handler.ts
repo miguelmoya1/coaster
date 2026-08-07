@@ -1,5 +1,5 @@
+import { commonMapper } from '@coaster/core';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { commonMapper } from '../../../core/mappers/common.mapper';
 import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { BulkUpsertTemplatesCommand } from '../impl/bulk-upsert-templates.command';
 
@@ -20,8 +20,14 @@ export class BulkUpsertTemplatesHandler implements ICommandHandler<BulkUpsertTem
           const productSlug = this._slugify(productJson.name);
           const productNameKey = `templates.products.${productSlug}`;
           const productPrice = productJson.price ?? 0;
+          const productImageUrl = productJson.imageUrl ?? null;
 
-          await this.writeRepo.upsertProductTemplate(productNameKey, productPrice, categoryTemplate.id);
+          await this.writeRepo.upsertProductTemplate(
+            productNameKey,
+            productPrice,
+            categoryTemplate.id,
+            productImageUrl,
+          );
         }
       }
     }

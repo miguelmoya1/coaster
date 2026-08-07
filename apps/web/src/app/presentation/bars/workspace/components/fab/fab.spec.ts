@@ -32,7 +32,6 @@ describe('Fab', () => {
     it('should show default icon', () => {
       const icon = fixture.nativeElement.querySelector('mat-icon');
       expect(icon).toBeTruthy();
-      // Since it's a dynamic name, we mainly check it exists.
     });
   });
 

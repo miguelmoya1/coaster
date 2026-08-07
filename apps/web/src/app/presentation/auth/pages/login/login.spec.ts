@@ -81,11 +81,7 @@ describe('Login', () => {
     it('should set isLoading to false even if login fails', async () => {
       authMock.loginWithGoogle.mockRejectedValueOnce(new Error('fail'));
 
-      try {
-        await component.signIn();
-      } catch {
-        // expected
-      }
+      await component.signIn().catch(() => undefined);
 
       expect(component['isLoading']()).toBe(false);
     });

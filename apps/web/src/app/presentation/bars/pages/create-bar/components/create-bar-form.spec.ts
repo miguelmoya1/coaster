@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,14 +10,14 @@ describe('CreateBarForm', () => {
   let component: CreateBarForm;
   let fixture: ComponentFixture<CreateBarForm>;
 
-  const barsStoreMock = {
+  const barListStoreMock = {
     create: vi.fn(),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CreateBarForm],
-      providers: [provideTranslateService(), provideRouter([]), { provide: BarsStore, useValue: barsStoreMock }],
+      providers: [provideTranslateService(), provideRouter([]), { provide: BarListStore, useValue: barListStoreMock }],
     }).compileComponents();
 
     vi.clearAllMocks();
@@ -96,7 +96,7 @@ describe('CreateBarForm', () => {
 
       await fixture.whenStable();
 
-      expect(barsStoreMock.create).toHaveBeenCalledWith({ name: 'My New Bar' });
+      expect(barListStoreMock.create).toHaveBeenCalledWith({ name: 'My New Bar' });
       expect(submitSpy).toHaveBeenCalled();
     });
   });

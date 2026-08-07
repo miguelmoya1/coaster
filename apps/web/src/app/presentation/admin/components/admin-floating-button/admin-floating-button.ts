@@ -8,7 +8,12 @@ import { Router } from '@angular/router';
   selector: 'coaster-admin-floating-button',
   imports: [MatFabButton, MatIcon, CdkDrag],
   template: `
-    <button mat-fab cdkDrag style="position: fixed; bottom: 5rem; left: 5rem; z-index: 9999;" (click)="navigateToAdmin()">
+    <button
+      mat-fab
+      cdkDrag
+      style="position: fixed; bottom: 5rem; left: 5rem; z-index: 9999;"
+      (click)="navigateToAdmin()"
+    >
       <mat-icon>admin_panel_settings</mat-icon>
     </button>
   `,

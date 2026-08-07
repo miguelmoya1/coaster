@@ -1,22 +1,15 @@
-<div
-  class="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
->
-  <div class="flex items-center justify-between border-b border-outline-variant pb-4">
-    <button mat-button (click)="goBack()">
-      <mat-icon class="text-xl group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
-      <span class="font-bold text-sm tracking-wider uppercase">{{ 'admin_templates.back' | translate }}</span>
+<coaster-page-container size="md">
+  <coaster-page-header
+    [title]="'admin_templates.title' | translate"
+    [subtitle]="'admin_templates.description' | translate"
+    backUrl="/admin/dashboard"
+    badge="ADMIN"
+  >
+    <button actions mat-stroked-button type="button" (click)="loadStandardTemplates()">
+      <mat-icon class="text-lg">auto_awesome</mat-icon>
+      <span class="hidden sm:inline">{{ 'admin_templates.load_standard' | translate }}</span>
     </button>
-
-    <div class="flex items-center gap-2 text-primary font-black uppercase tracking-wider text-sm">
-      <mat-icon class="text-lg spin">settings</mat-icon>
-      <span>{{ 'admin_templates.control_panel' | translate }}</span>
-    </div>
-  </div>
-
-  <div class="flex flex-col gap-2 items-center text-center">
-    <h1 class="heading-1">{{ 'admin_templates.title' | translate }}</h1>
-    <p class="text-on-surface-variant text-sm">{{ 'admin_templates.description' | translate }}</p>
-  </div>
+  </coaster-page-header>
 
   <div class="bg-surface-container rounded-2xl border border-outline-variant p-6 flex flex-col gap-6 shadow-xl">
     <form [formRoot]="form" (submit)="$event.preventDefault()" class="flex flex-col gap-6">
@@ -55,11 +48,6 @@
         ></p>
       </div>
 
-      <button mat-stroked-button type="button" (click)="loadStandardTemplates()" class="self-center">
-        <mat-icon class="text-lg group-hover:scale-110 transition-transform">auto_awesome</mat-icon>
-        {{ 'admin_templates.load_standard' | translate }}
-      </button>
-
       <div class="flex flex-col gap-3 mt-2 items-center">
         <button mat-flat-button type="submit" [disabled]="form().disabled() || form().submitting() || form().invalid()">
           @if (form().submitting()) {
@@ -76,4 +64,4 @@
       </div>
     </form>
   </div>
-</div>
+</coaster-page-container>

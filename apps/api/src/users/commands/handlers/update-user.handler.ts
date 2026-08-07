@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { UserReadRepository } from '../../data-access/user.read.repository';
 import { UserWriteRepository } from '../../data-access/user.write.repository';
 import { UpdateUserCommand } from '../impl/update-user.command';

@@ -1,8 +1,8 @@
+import { BarRole, ErrorCodes } from '@coaster/common';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { ErrorCodes } from '../../constants';
 import { DbRole } from '../../db';
 import { hasPermission } from '../../permissions/bar-member.security';
 import { SecurityRepository } from '../data-access/security.repository';
@@ -138,7 +138,7 @@ describe('BarPermissionsGuard', () => {
   it('should throw ForbiddenException if membership is inactive', async () => {
     (reflector.getAllAndOverride as Mock).mockReturnValue(['INVITE_MEMBER']);
     (securityRepository.getUserRole as Mock).mockResolvedValue(DbRole.USER);
-    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: 'STAFF', active: false });
+    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: BarRole.STAFF, active: false });
 
     const context = {
       getHandler: vi.fn(),
@@ -157,7 +157,7 @@ describe('BarPermissionsGuard', () => {
   it('should return true if membership is active and has all required permissions', async () => {
     (reflector.getAllAndOverride as Mock).mockReturnValue(['INVITE_MEMBER']);
     (securityRepository.getUserRole as Mock).mockResolvedValue(DbRole.USER);
-    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: 'OWNER', active: true });
+    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: BarRole.OWNER, active: true });
     (hasPermission as Mock).mockReturnValue(true);
 
     const context = {
@@ -174,13 +174,13 @@ describe('BarPermissionsGuard', () => {
     const result = await guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(hasPermission).toHaveBeenCalledWith('OWNER', 'INVITE_MEMBER');
+    expect(hasPermission).toHaveBeenCalledWith(BarRole.OWNER, 'INVITE_MEMBER');
   });
 
   it('should throw ForbiddenException if membership is active but does not have required permissions', async () => {
     (reflector.getAllAndOverride as Mock).mockReturnValue(['INVITE_MEMBER']);
     (securityRepository.getUserRole as Mock).mockResolvedValue(DbRole.USER);
-    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: 'STAFF', active: true });
+    (securityRepository.getBarMemberRole as Mock).mockResolvedValue({ role: BarRole.STAFF, active: true });
     (hasPermission as Mock).mockReturnValue(false);
 
     const context = {
@@ -195,6 +195,6 @@ describe('BarPermissionsGuard', () => {
     } as unknown as ExecutionContext;
 
     await expect(guard.canActivate(context)).rejects.toThrow(new ForbiddenException(ErrorCodes.UNAUTHORIZED));
-    expect(hasPermission).toHaveBeenCalledWith('STAFF', 'INVITE_MEMBER');
+    expect(hasPermission).toHaveBeenCalledWith(BarRole.STAFF, 'INVITE_MEMBER');
   });
 });

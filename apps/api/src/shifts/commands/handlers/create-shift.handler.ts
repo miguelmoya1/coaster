@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
 import { ShiftCreatedEvent } from '../../events';

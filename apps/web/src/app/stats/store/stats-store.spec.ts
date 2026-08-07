@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { BarStats, Order } from '@coaster/common';
-import { asBarId, asOrderId, OrderStatus } from '@coaster/core';
-import { Socket } from '@coaster/core';
+import { OrderStatus, PaymentMethod } from '@coaster/common';
+import { asBarId, asOrderId, Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { StatsStore } from './stats-store';
 
@@ -91,7 +91,6 @@ describe('StatsStore', () => {
 
       expect(store.stats.value()?.todayRevenue).toBe(100);
 
-      // Emit socket event for the same barId
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-1'),
@@ -99,14 +98,17 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
 
-      // Expect a new reload request
       const reloadReq = httpMock.expectOne(`/bars/${barId}/stats`);
       expect(reloadReq.request.method).toBe('GET');
       reloadReq.flush({ ...mockStats, todayRevenue: 180 });
@@ -128,7 +130,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Emit socket event for a DIFFERENT barId
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-2'),
@@ -136,14 +137,17 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
 
-      // Verify no other requests were made
       httpMock.expectNone(`/bars/${barId}/stats`);
     });
 
@@ -158,7 +162,6 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      // Emit cancelled event
       mockSocket.orderCancelled.set({
         id: asOrderId('ord-1'),
         barId: asBarId('bar-1'),
@@ -166,7 +169,11 @@ describe('StatsStore', () => {
         totalAmount: 100,
         amountPaidCash: 0,
         amountPaidCard: 0,
-        paymentMethod: 'NONE',
+        paymentMethod: PaymentMethod.NONE,
+        adjustments: [],
+        tipAmount: 0,
+        orderTotal: 100,
+        payableTotal: 100,
         items: [],
       });
       TestBed.tick();

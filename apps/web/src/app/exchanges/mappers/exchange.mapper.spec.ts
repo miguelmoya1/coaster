@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
 import type { ShiftExchange } from '@coaster/common';
-import { asShiftExchangeId, asShiftId, asUserId, ShiftExchangeStatus } from '@coaster/core';
+import { ShiftExchangeStatus } from '@coaster/common';
+import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
+import { describe, expect, it } from 'vitest';
 import { checkIsExchange, exchangeArrayMapper, exchangeMapper } from './exchange.mapper';
 
 describe('Exchange Mapper', () => {

@@ -1,6 +1,7 @@
+import { ErrorCodes, OrderStatus } from '@coaster/common';
+import { asProductId, asTableId } from '@coaster/core';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asProductId, asTableId, ErrorCodes } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderCancelledEvent, OrderItemRemovedEvent, OrderUpdatedEvent } from '../../events';
@@ -26,7 +27,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
-    if (order.status !== 'OPEN') {
+    if (order.status !== OrderStatus.OPEN) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 

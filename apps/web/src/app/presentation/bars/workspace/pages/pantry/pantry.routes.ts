@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { BarPermission } from '@coaster/core';
-import { permissionGuard } from '@coaster/core';
+import { BarPermission } from '@coaster/common';
+import { permissionGuard } from '@coaster/bar-members';
 
 const pantryRoutes: Routes = [
   { path: '', loadComponent: () => import('./pantry') },
@@ -8,7 +8,7 @@ const pantryRoutes: Routes = [
   {
     path: 'import',
     loadComponent: () => import('./pages/import/import-templates'),
-    canActivate: [permissionGuard(BarPermission.IMPORT_TEMPLATES)],
+    canActivate: [permissionGuard(BarPermission.BAR_IMPORT_TEMPLATES)],
   },
 ];
 

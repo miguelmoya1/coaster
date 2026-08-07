@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
-import { MembersStore } from '@coaster/members';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarRole } from '@coaster/common';
+import { MembersStore } from '@coaster/bar-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import Staff from './staff';
 
 describe('Staff', () => {
@@ -22,12 +24,16 @@ describe('Staff', () => {
     remove: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     myMember: {
       value: signal(undefined),
       hasValue: signal(true),
     },
     isOwner: signal(false),
+  };
+
+  const confirmationDialogMock = {
+    confirm: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -37,7 +43,8 @@ describe('Staff', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: ConfirmationDialog, useValue: confirmationDialogMock },
       ],
     }).compileComponents();
 
@@ -62,7 +69,7 @@ describe('Staff', () => {
   describe('rendering', () => {
     it('should render section title', () => {
       fixture.detectChanges();
-      const sectionTitle = fixture.nativeElement.querySelector('.heading-2');
+      const sectionTitle = fixture.nativeElement.querySelector('coaster-page-header');
       expect(sectionTitle).toBeTruthy();
     });
   });
@@ -83,11 +90,11 @@ describe('Staff', () => {
     it('should calculate members correctly with permissions', () => {
       membersStoreMock.list.hasValue.set(true);
       membersStoreMock.list.value.set([
-        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: 'OWNER' }
+        { id: 'm1', userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER },
       ] as any);
-      barsStoreMock.myMember.hasValue.set(true);
-      barsStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: 'OWNER' } as any);
-      barsStoreMock.isOwner.set(false);
+      myMemberStoreMock.myMember.hasValue.set(true);
+      myMemberStoreMock.myMember.value.set({ userId: 'u1', userName: 'Test User 1', role: BarRole.OWNER } as any);
+      myMemberStoreMock.isOwner.set(false);
       membersStoreMock.isOnlyOwner.mockReturnValue(false);
 
       const members = component['members']();
@@ -104,10 +111,19 @@ describe('Staff', () => {
       expect(navigateSpy).toHaveBeenCalledWith(['/bars', 'bar-1', 'staff']);
     });
 
-    it('should handle confirm delete member', async () => {
+    it('should remove a member after confirmation', async () => {
       membersStoreMock.remove.mockResolvedValue(null);
-      (component as any).memberDeleting.set({ id: 'm1' });
-      await (component as any).handleConfirmDeleteMember();
+      confirmationDialogMock.confirm.mockResolvedValue(true);
+
+      await (component as any).handleClickDeleteMember({
+        id: 'm1',
+        userId: 'u1',
+        userName: 'Test User',
+        role: BarRole.STAFF,
+        isCurrentUser: false,
+      });
+
+      expect(confirmationDialogMock.confirm).toHaveBeenCalled();
       expect(membersStoreMock.remove).toHaveBeenCalledWith('m1');
     });
   });

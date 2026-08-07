@@ -1,7 +1,7 @@
+import { asBarId, asCategoryId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asCategoryId } from '../../core';
-import { DbService } from '../../core/db';
 import { CategoriesWriteRepository } from './categories.write.repository';
 
 describe('CategoriesWriteRepository', () => {
@@ -71,15 +71,16 @@ describe('CategoriesWriteRepository', () => {
   });
 
   describe('delete', () => {
-    it('should call dbCategory.update with correct parameters', async () => {
+    it('should scope the soft delete to the owning bar', async () => {
+      const barId = asBarId('bar-1');
       const categoryId = asCategoryId('cat-1');
       const expectedResult = { id: 'cat-1' };
       vi.mocked(dbService.dbCategory.update).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.delete(categoryId);
+      const result = await repository.delete(barId, categoryId);
 
       expect(dbService.dbCategory.update).toHaveBeenCalledWith({
-        where: { id: categoryId },
+        where: { id: categoryId, barId },
         data: { deletedAt: expect.any(Date) },
       });
       expect(result).toEqual(expectedResult);

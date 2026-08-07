@@ -98,7 +98,7 @@ describe('ImportTemplates', () => {
 
     component.toggleCategory('cat-1');
     expect(component.selectedCategoriesCount()).toBe(1);
-    expect(component.selectedProductsCount()).toBe(1); // 'cat-1' has 1 product ('prod-1')
+    expect(component.selectedProductsCount()).toBe(1);
 
     component.toggleCategory('cat-1');
     expect(component.selectedCategoriesCount()).toBe(0);

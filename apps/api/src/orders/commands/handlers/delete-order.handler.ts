@@ -1,6 +1,6 @@
+import { ErrorCodes, OrderStatus } from '@coaster/common';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderDeletedEvent } from '../../events';
@@ -22,7 +22,7 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
-    if (order.status === 'OPEN') {
+    if (order.status === OrderStatus.OPEN) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 

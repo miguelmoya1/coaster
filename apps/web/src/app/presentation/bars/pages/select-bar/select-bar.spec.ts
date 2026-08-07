@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import type { Bar } from '@coaster/common';
-import { asBarId, Role } from '@coaster/core';
-import { CurrentUser } from '@coaster/core';
+import { Role } from '@coaster/common';
+import { asBarId, CurrentUser } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SelectBar from './select-bar';
@@ -22,7 +22,7 @@ describe('SelectBar', () => {
     },
   ];
 
-  const barsStoreMock = {
+  const barListStoreMock = {
     list: {
       value: vi.fn().mockReturnValue(mockBars),
       isLoading: vi.fn().mockReturnValue(false),
@@ -43,7 +43,7 @@ describe('SelectBar', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: Router, useValue: routerMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: BarListStore, useValue: barListStoreMock },
         { provide: CurrentUser, useValue: currentUserMock },
       ],
     }).compileComponents();
@@ -71,7 +71,7 @@ describe('SelectBar', () => {
     });
 
     it('should render create button', () => {
-      const button = fixture.nativeElement.querySelector('button[mat-stroked-button]');
+      const button = fixture.nativeElement.querySelector('button[mat-flat-button]');
       expect(button).toBeTruthy();
     });
   });

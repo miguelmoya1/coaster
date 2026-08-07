@@ -1,21 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
-import type { BarId, BarRole, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { DateFormatterService } from '@coaster/core';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
+import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { BarRole } from '@coaster/common';
+import { ActionFeedback, DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
-import { MembersStore } from '@coaster/members';
+import { MembersStore } from '@coaster/bar-members';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
@@ -41,6 +44,21 @@ export type PendingExchangeItem = ShiftExchange & {
   isOwnRequest: boolean;
 };
 
+const toDailyShiftItem = (
+  shift: Shift,
+  now: Date,
+  pendingShiftIds: ReadonlySet<string>,
+  currentUserId: string | undefined,
+  dateFormatter: DateFormatterService,
+): DailyShiftItem => ({
+  ...shift,
+  timeRange: dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
+  roleName: BarRole.STAFF,
+  hasPendingExchange: pendingShiftIds.has(shift.id),
+  isOwn: shift.userId === currentUserId,
+  isPast: new Date(shift.startTime) < now,
+});
+
 @Component({
   selector: 'coaster-roster',
   imports: [
@@ -54,14 +72,18 @@ export type PendingExchangeItem = ShiftExchange & {
     RosterWeeklyGrid,
     RosterMonthlyGrid,
     MatIcon,
+    PageContainer,
+    PageHeader,
+    RequireSubscriptionDirective,
   ],
   providers: [RosterStateService],
   host: {
-    class: 'flex flex-col gap-2 relative',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },
   templateUrl: './roster.html',
 })
 export default class Roster {
+  protected readonly BarRole = BarRole;
   public readonly barId = input.required<BarId>();
   public readonly date = input<string>();
   public readonly view = input<'day' | 'week' | 'month'>();
@@ -70,15 +92,16 @@ export default class Roster {
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #dateFormatter = inject(DateFormatterService);
   readonly #membersStore = inject(MembersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   readonly #exchangesStore = inject(ExchangesStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #http = inject(HttpClient);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
 
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly pendingExchanges = this.#exchangesStore.exchanges;
@@ -91,11 +114,6 @@ export default class Roster {
   readonly viewMode = this.#state.viewMode;
 
   readonly isSubmitting = signal(false);
-  protected readonly showReplicateConfirm = signal(false);
-
-  protected readonly shiftDeleting = signal<DailyShiftItem | null>(null);
-  protected readonly exchangeDeleting = signal<PendingExchangeItem | null>(null);
-
   readonly isCreateMode = isActive(
     createUrlTreeFromSnapshot(this.#route.parent?.snapshot ?? this.#route.snapshot, ['new']),
     this.#router,
@@ -109,19 +127,19 @@ export default class Roster {
   });
 
   readonly currentUserId = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value()?.userId;
+    return this.#myMemberStore.myMember.value()?.userId;
   });
 
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
 
   readonly currentUserRole = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value()?.role;
+    return this.#myMemberStore.myMember.value()?.role;
   });
 
   readonly pendingShiftIds = computed(() => {
@@ -140,18 +158,13 @@ export default class Roster {
 
     const now = new Date();
     const selectedId = this.selectedDayId();
+    const pendingShiftIds = this.pendingShiftIds();
+    const currentUserId = this.currentUserId();
 
     return this.shifts
       .value()
       .filter((shift) => this.#dateFormatter.formatDayId(new Date(shift.startTime)) === selectedId)
-      .map((shift) => ({
-        ...shift,
-        timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-        roleName: 'STAFF' as BarRole,
-        hasPendingExchange: this.pendingShiftIds().has(shift.id),
-        isOwn: shift.userId === this.currentUserId(),
-        isPast: new Date(shift.startTime) < now,
-      }));
+      .map((shift) => toDailyShiftItem(shift, now, pendingShiftIds, currentUserId, this.#dateFormatter));
   });
 
   readonly weekViewDays = computed(() => {
@@ -161,19 +174,14 @@ export default class Roster {
 
     const now = new Date();
     const shiftsList = this.shifts.value();
+    const pendingShiftIds = this.pendingShiftIds();
+    const currentUserId = this.currentUserId();
 
     return this.#state.activeWeekDays().map((date) => {
       const dayId = this.#dateFormatter.formatDayId(date);
       const dayShifts = shiftsList
         .filter((shift) => this.#dateFormatter.formatDayId(new Date(shift.startTime)) === dayId)
-        .map((shift) => ({
-          ...shift,
-          timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: 'STAFF' as BarRole,
-          hasPendingExchange: this.pendingShiftIds().has(shift.id),
-          isOwn: shift.userId === this.currentUserId(),
-          isPast: new Date(shift.startTime) < now,
-        }));
+        .map((shift) => toDailyShiftItem(shift, now, pendingShiftIds, currentUserId, this.#dateFormatter));
 
       return {
         date,
@@ -194,18 +202,13 @@ export default class Roster {
 
     const now = new Date();
     const shiftsList = this.shifts.value();
+    const pendingShiftIds = this.pendingShiftIds();
+    const currentUserId = this.currentUserId();
 
     return this.#state.calendarMonthDays().map((day) => {
       const dayShifts = shiftsList
         .filter((shift) => this.#dateFormatter.formatDayId(new Date(shift.startTime)) === day.id)
-        .map((shift) => ({
-          ...shift,
-          timeRange: this.#dateFormatter.formatTimeRange(shift.startTime, shift.endTime),
-          roleName: 'STAFF' as BarRole,
-          hasPendingExchange: this.pendingShiftIds().has(shift.id),
-          isOwn: shift.userId === this.currentUserId(),
-          isPast: new Date(shift.startTime) < now,
-        }));
+        .map((shift) => toDailyShiftItem(shift, now, pendingShiftIds, currentUserId, this.#dateFormatter));
 
       return {
         ...day,
@@ -225,7 +228,7 @@ export default class Roster {
       day: this.#dateFormatter.formatDay(exchange.shiftStartTime),
       shiftPeriod: 'roster.exchanges.period_' + this.#dateFormatter.formatShiftPeriod(exchange.shiftStartTime),
       timeRange: this.#dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime),
-      roleName: 'STAFF' as BarRole,
+      roleName: BarRole.STAFF as BarRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
     }));
   });
@@ -318,101 +321,69 @@ export default class Roster {
   protected async handleAcceptExchange(exchangeId: ShiftExchangeId) {
     this.isSubmitting.set(true);
 
-    const error = await this.#exchangesStore.accept(exchangeId);
-    if (error) {
+    try {
+      await this.#exchangesStore.accept(exchangeId);
+      this.#shiftsStore.reload();
+      this.#exchangesStore.reload();
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
       this.isSubmitting.set(false);
-      return;
     }
-
-    this.#shiftsStore.reload();
-    this.#exchangesStore.reload();
-    this.isSubmitting.set(false);
   }
 
   protected async handleOfferExchange(shiftId: ShiftId) {
     this.isSubmitting.set(true);
 
-    const error = await this.#exchangesStore.request(shiftId, {});
-    if (error) {
-      this.isSubmitting.set(false);
-      return;
-    }
-
-    this.#shiftsStore.reload();
-    this.#exchangesStore.reload();
-    this.isSubmitting.set(false);
-  }
-
-  protected handleClickDeleteShift(shift: DailyShiftItem) {
-    this.shiftDeleting.set(shift);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('roster.delete_shift_title')),
-        inputBinding('text', () => this.#translate.instant('roster.delete_shift_confirm')),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteShift();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteShift();
-          dialogRef.close();
-        }),
-      ],
-    });
-  }
-
-  protected handleCancelDeleteShift() {
-    this.shiftDeleting.set(null);
-  }
-
-  protected async handleConfirmDeleteShift() {
-    const shift = this.shiftDeleting();
-    if (!shift) return;
-
-    this.isSubmitting.set(true);
-    const error = await this.#shiftsStore.delete(shift.id);
-    if (!error) {
-      this.shiftDeleting.set(null);
-      this.#exchangesStore.reload();
-    }
-    this.isSubmitting.set(false);
-  }
-
-  protected handleClickDeleteExchange(exchange: PendingExchangeItem) {
-    this.exchangeDeleting.set(exchange);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('roster.exchanges.delete_title')),
-        inputBinding('text', () => this.#translate.instant('roster.exchanges.delete_confirm')),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteExchange();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteExchange();
-          dialogRef.close();
-        }),
-      ],
-    });
-  }
-
-  protected handleCancelDeleteExchange() {
-    this.exchangeDeleting.set(null);
-  }
-
-  protected async handleConfirmDeleteExchange() {
-    const exchange = this.exchangeDeleting();
-    if (!exchange) return;
-
-    this.isSubmitting.set(true);
-    const error = await this.#exchangesStore.delete(exchange.id);
-    if (!error) {
-      this.exchangeDeleting.set(null);
+    try {
+      await this.#exchangesStore.request(shiftId, {});
       this.#shiftsStore.reload();
+      this.#exchangesStore.reload();
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
     }
-    this.isSubmitting.set(false);
+  }
+
+  protected async handleClickDeleteShift(shift: DailyShiftItem) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('roster.delete_shift_title'),
+      text: this.#translate.instant('roster.delete_shift_confirm'),
+    });
+
+    if (!confirmed) return;
+
+    this.isSubmitting.set(true);
+    try {
+      await this.#shiftsStore.delete(shift.id);
+      this.#exchangesStore.reload();
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  protected async handleClickDeleteExchange(exchange: PendingExchangeItem) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('roster.exchanges.delete_title'),
+      text: this.#translate.instant('roster.exchanges.delete_confirm'),
+    });
+
+    if (!confirmed) return;
+
+    this.isSubmitting.set(true);
+    try {
+      await this.#exchangesStore.delete(exchange.id);
+      this.#shiftsStore.reload();
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
 
   protected handleNext() {
@@ -442,31 +413,18 @@ export default class Roster {
     });
   }
 
-  protected handleOpenReplicateConfirm() {
-    this.showReplicateConfirm.set(true);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => false),
-        inputBinding('title', () => this.#translate.instant('roster.replication.confirm_title')),
-        inputBinding('text', () => this.#translate.instant('roster.replication.confirm_msg')),
-        outputBinding('canceled', () => {
-          this.handleCancelReplicate();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmReplicate();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleOpenReplicateConfirm() {
+    const confirmed = await this.#confirmation.confirm({
+      title: this.#translate.instant('roster.replication.confirm_title'),
+      text: this.#translate.instant('roster.replication.confirm_msg'),
     });
-  }
 
-  protected handleCancelReplicate() {
-    this.showReplicateConfirm.set(false);
+    if (confirmed) {
+      await this.handleConfirmReplicate();
+    }
   }
 
   protected async handleConfirmReplicate() {
-    this.showReplicateConfirm.set(false);
     this.isSubmitting.set(true);
 
     try {
@@ -482,12 +440,10 @@ export default class Roster {
       const startIso = startLocal.toISOString();
       const endIso = endLocal.toISOString();
 
-      // Fetch previous week's shifts directly
       const url = `/bars/${this.barId()}/shifts?startDate=${startIso}&endDate=${endIso}`;
       const rawShifts = await firstValueFrom(this.#http.get<Shift[]>(url));
 
       if (rawShifts && rawShifts.length > 0) {
-        // Replicate each shift by adding exactly 7 days
         for (const shift of rawShifts) {
           const newStart = addDays(new Date(shift.startTime), 7).toISOString();
           const newEnd = addDays(new Date(shift.endTime), 7).toISOString();
@@ -503,7 +459,7 @@ export default class Roster {
 
       this.#shiftsStore.reload();
     } catch (error) {
-      console.error('Error replicating shifts:', error);
+      this.#feedback.error(error);
     } finally {
       this.isSubmitting.set(false);
     }

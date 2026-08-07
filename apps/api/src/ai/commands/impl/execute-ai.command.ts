@@ -1,9 +1,6 @@
-import type { BarId, User } from '@coaster/common';
+import type { AiMessage, BarId, User } from '@coaster/common';
 
-export interface AiMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+export type AiDeltaListener = (delta: string) => void;
 
 export class ExecuteAiCommand {
   constructor(
@@ -11,5 +8,6 @@ export class ExecuteAiCommand {
     public readonly prompt: string,
     public readonly user: User,
     public readonly messages?: AiMessage[],
+    public readonly onDelta?: AiDeltaListener,
   ) {}
 }

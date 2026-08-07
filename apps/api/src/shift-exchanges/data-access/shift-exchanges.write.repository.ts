@@ -1,7 +1,7 @@
 import type { ShiftExchangeId, ShiftId, UserId } from '@coaster/common';
+import { ShiftExchangeStatus } from '@coaster/common';
+import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { ShiftExchangeStatus } from '../../core';
-import { DbService } from '../../core/db';
 
 @Injectable()
 export class ShiftExchangesWriteRepository {

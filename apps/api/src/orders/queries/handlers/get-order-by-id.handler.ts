@@ -1,7 +1,7 @@
 import type { Order } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { GetOrderByIdQuery } from '../impl/get-order-by-id.query';

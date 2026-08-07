@@ -1,10 +1,10 @@
+import { asUserId } from '@coaster/core';
+import { DbRole } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asUserId } from '../../../core';
-import { DbRole } from '../../../core/db';
 import { UserReadRepository } from '../../data-access/user.read.repository';
-import { GetUserByEmailHandler } from './get-user-by-email.handler';
 import { GetUserByEmailQuery } from '../impl/get-user-by-email.query';
+import { GetUserByEmailHandler } from './get-user-by-email.handler';
 
 describe('GetUserByEmailHandler', () => {
   let handler: GetUserByEmailHandler;

@@ -5,12 +5,12 @@ import { RouterOutlet } from '@angular/router';
   selector: 'coaster-bars-layout',
   imports: [RouterOutlet],
   template: `
-    <main class="w-full max-w-xl mt-12 md:mt-24">
+    <main class="w-full flex-1 flex flex-col py-6 sm:py-12">
       <router-outlet />
     </main>
   `,
   host: {
-    class: 'min-h-screen flex flex-col items-center',
+    class: 'min-h-screen w-full flex flex-col bg-background',
   },
 })
 export default class BarsLayout {}

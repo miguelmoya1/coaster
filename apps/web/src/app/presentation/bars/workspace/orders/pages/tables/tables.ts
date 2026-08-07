@@ -1,26 +1,17 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  inputBinding,
-  linkedSignal,
-  outputBinding,
-  signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatCard } from '@angular/material/card';
 import { MatChip } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Order, Table } from '@coaster/common';
-import { OrdersStore } from '@coaster/orders';
+import { ActionFeedback } from '@coaster/core';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
 import { Fab } from '../../../components/fab/fab';
 import { PricePipe } from '../../../pipes/price/price';
@@ -29,7 +20,7 @@ import { TableCard } from './components/table-card/table-card';
 
 @Component({
   selector: 'coaster-tables',
-  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip],
+  imports: [TableCard, MatCard, Loading, Fab, TranslatePipe, MatIcon, PricePipe, MatChip, RequireSubscriptionDirective],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './tables.html',
 })
@@ -37,12 +28,13 @@ class Tables {
   public readonly barId = input.required<BarId>();
 
   readonly #tablesStore = inject(TablesStore);
-  readonly #ordersStore = inject(OrdersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #myMemberStore = inject(MyMemberStore);
 
   readonly #router = inject(Router);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly #translate = inject(TranslateService);
 
@@ -50,43 +42,43 @@ class Tables {
     effect(() => {
       const barId = this.barId();
       this.#tablesStore.setBarId(barId);
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
   readonly isSubmitting = signal(false);
-  readonly tableToDelete = signal<Table | null>(null);
-  readonly isDeletingTableModalOpen = linkedSignal(() => !!this.tableToDelete());
 
-  readonly isOwner = this.#barsStore.isOwner;
+  readonly isOwner = this.#myMemberStore.isOwner;
 
   protected readonly freeCount = this.#tablesStore.freeCount;
   protected readonly occupiedCount = this.#tablesStore.occupiedCount;
-  protected readonly totalOpen = this.#ordersStore.totalOpen;
+  protected readonly totalOpen = this.#activeOrdersStore.totalOpen;
   protected readonly isLoadingTables = this.#tablesStore.tables.isLoading;
 
   protected readonly tablesViewModel = computed(() => {
     if (!this.#tablesStore.tables.hasValue()) return [];
     const tables = this.#tablesStore.tables.value() ?? [];
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
 
     return tables.map((table) => {
       const order = orders.find((o) => o.tableId === table.id);
       return {
         original: table,
-        orderAmount: order?.totalAmount,
+        orderAmount: order?.payableTotal,
       };
     });
   });
 
-  protected readonly barOrdersViewModel = computed(() => this.#ordersStore.openOrders().filter((o) => !o.tableId));
+  protected readonly barOrdersViewModel = computed(() =>
+    this.#activeOrdersStore.openOrders().filter((o) => !o.tableId),
+  );
 
   onBarOrder() {
     this.#router.navigate(['/bars', this.barId(), 'orders', 'new']);
   }
 
   onTableClicked(table: Table) {
-    const order = this.#ordersStore.openOrders().find((o) => o.tableId === table.id);
+    const order = this.#activeOrdersStore.openOrders().find((o) => o.tableId === table.id);
     if (order) {
       this.#router.navigate(['/bars', this.barId(), 'orders', order.id]);
     } else {
@@ -108,7 +100,7 @@ class Tables {
             await this.#tablesStore.create({ name });
             bottomSheetRef.dismiss();
           } catch (e) {
-            console.error(e);
+            this.#feedback.error(e);
           }
           this.isSubmitting.set(false);
         }),
@@ -116,37 +108,20 @@ class Tables {
     });
   }
 
-  protected handleDeleteTable(table: Table) {
-    this.tableToDelete.set(table);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('orders.delete_table_title')),
-        inputBinding('text', () => this.#translate.instant('orders.delete_table_message', { name: table.name })),
-        outputBinding('canceled', () => {
-          this.handleCloseDeleteTableModal();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteTable();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteTable(table: Table) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('orders.delete_table_title'),
+      text: this.#translate.instant('orders.delete_table_message', { name: table.name }),
     });
-  }
 
-  protected handleCloseDeleteTableModal() {
-    this.tableToDelete.set(null);
-  }
+    if (!confirmed) return;
 
-  protected async handleConfirmDeleteTable() {
-    const table = this.tableToDelete();
-    if (!table) {
-      return;
+    try {
+      await this.#tablesStore.delete(table.id);
+    } catch (error) {
+      this.#feedback.error(error);
     }
-
-    await this.#tablesStore.delete(table.id);
-    this.tableToDelete.set(null);
   }
 }
 

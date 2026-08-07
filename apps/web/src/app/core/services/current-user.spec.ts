@@ -2,8 +2,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { User } from '@coaster/common';
+import { Role } from '@coaster/common';
+import { asUserId } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
-import { asUserId, Role } from '@coaster/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Auth, UserProfile } from './auth';
 import { CurrentUser } from './current-user';
@@ -28,11 +29,7 @@ describe('CurrentUser', () => {
     userProfile.set(null);
 
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClientTesting(),
-        provideTranslateService(),
-        { provide: Auth, useValue: authMock },
-      ],
+      providers: [provideHttpClientTesting(), provideTranslateService(), { provide: Auth, useValue: authMock }],
     });
 
     service = TestBed.inject(CurrentUser);

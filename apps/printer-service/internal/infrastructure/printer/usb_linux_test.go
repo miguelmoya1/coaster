@@ -8,40 +8,54 @@ import (
 	"printer-service/internal/infrastructure/printer"
 )
 
-func TestUSBPrinter_AutoDetectOS_NotFound(t *testing.T) {
-	// In a normal CI/test environment without physical USB printers connected,
-	// AutoDetectOS should loop through the common paths and return an error.
+func TestAutoDetectOS_ReportsWhereItLooked(t *testing.T) {
 	p, err := printer.AutoDetectOS()
-	
 	if p != nil {
-		// Just in case a path exists, we close it
 		p.Close()
 	}
 
 	if err == nil {
-		// If by any chance it found one in the host system, we don't fail, 
-		// but typically it should return an error.
-		t.Log("Warning: A printer was found in the system during testing.")
-	} else if !strings.Contains(err.Error(), "no active local or bluetooth printer found") {
-		t.Errorf("expected 'no active local or bluetooth printer found', got %v", err)
+		t.Log("a printer was found on this machine; nothing to assert")
+		return
+	}
+
+	for _, want := range []string{"/dev/usb/lp", "/dev/rfcomm", "/dev/ttyUSB"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("expected the error to mention %s, got %v", want, err)
+		}
 	}
 }
 
 func TestUSBPrinter_Connect_NotFound(t *testing.T) {
 	u := printer.NewUSBPrinter("/dev/null/invalid_path_for_test")
-	err := u.Connect(context.Background())
-	if err == nil {
-		t.Errorf("expected connect to fail on invalid path, got nil")
+	if err := u.Connect(context.Background()); err == nil {
+		t.Error("expected connect to fail on an invalid path")
 	}
 }
 
-func TestUSBPrinter_Write_Close_WithoutConnect(t *testing.T) {
+func TestUSBPrinter_WriteWithoutConnect(t *testing.T) {
 	u := printer.NewUSBPrinter("/dev/null/invalid_path_for_test")
-	// Since we haven't connected, file is nil, write should panic or fail. 
-	// Wait, the current implementation of Write might panic if u.file is nil!
-	// Let's test Close.
-	err := u.Close()
-	if err != nil {
+
+	n, err := u.Write([]byte("test"))
+	if err == nil {
+		t.Error("expected an error when writing before connecting")
+	}
+	if n != 0 {
+		t.Errorf("expected no bytes written, got %d", n)
+	}
+}
+
+func TestUSBPrinter_CloseWithoutConnect(t *testing.T) {
+	u := printer.NewUSBPrinter("/dev/null/invalid_path_for_test")
+	if err := u.Close(); err != nil {
 		t.Errorf("expected close to return nil if not connected, got %v", err)
+	}
+}
+
+func TestLocalCandidates_OnlyReturnsExistingDevices(t *testing.T) {
+	for _, path := range printer.LocalCandidates() {
+		if !strings.HasPrefix(path, "/dev/") {
+			t.Errorf("expected a device node, got %q", path)
+		}
 	}
 }

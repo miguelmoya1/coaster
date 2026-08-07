@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
-import { OrdersStore } from '@coaster/orders';
+import { MyMemberStore } from '@coaster/bar-members';
+import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,7 +14,7 @@ describe('History', () => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const ordersStoreMock = {
+  const orderHistoryStoreMock = {
     history: {
       value: vi.fn().mockReturnValue([]),
       isLoading: vi.fn().mockReturnValue(false),
@@ -27,11 +27,15 @@ describe('History', () => {
     averageTicket: signal(0),
     setHistoryDate: vi.fn(),
     reloadHistory: vi.fn(),
+    setBarId: vi.fn(),
+  };
+
+  const activeOrdersStoreMock = {
     deleteOrder: vi.fn(),
     setBarId: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     isOwner: signal(false),
   };
 
@@ -42,8 +46,9 @@ describe('History', () => {
         provideTranslateService(),
         provideNativeDateAdapter(),
         provideRouter([]),
-        { provide: OrdersStore, useValue: ordersStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: OrderHistoryStore, useValue: orderHistoryStoreMock },
+        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
 
@@ -85,17 +90,17 @@ describe('History', () => {
   describe('actions', () => {
     it('should call setHistoryDate on previous day navigation', () => {
       component.prevDay();
-      expect(ordersStoreMock.setHistoryDate).toHaveBeenCalled();
+      expect(orderHistoryStoreMock.setHistoryDate).toHaveBeenCalled();
     });
 
     it('should call setHistoryDate on goToday', () => {
       component.goToday();
-      expect(ordersStoreMock.setHistoryDate).toHaveBeenCalledWith(today);
+      expect(orderHistoryStoreMock.setHistoryDate).toHaveBeenCalledWith(today);
     });
 
     it('should call setHistoryDate on goYesterday', () => {
       component.goYesterday();
-      expect(ordersStoreMock.setHistoryDate).toHaveBeenCalled();
+      expect(orderHistoryStoreMock.setHistoryDate).toHaveBeenCalled();
     });
   });
 });

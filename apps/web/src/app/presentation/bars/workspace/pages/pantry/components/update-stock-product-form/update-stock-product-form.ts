@@ -1,6 +1,7 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, min, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
+import { handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
@@ -77,13 +78,13 @@ export class UpdateStockProductForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = await this.#productStore.updateStock(this.product().id, payload);
-
-          if (!error) {
+          try {
+            await this.#productStore.updateStock(this.product().id, payload);
             this.updated.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          return error;
         },
       },
     },

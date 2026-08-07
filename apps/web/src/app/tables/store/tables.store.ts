@@ -1,8 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
-import { TableStatus } from '@coaster/core';
-import { handleErrorFormField, Socket } from '@coaster/core';
+import { ErrorCodes, TableStatus } from '@coaster/common';
+import { Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { BarTables } from '../services/bar-tables';
 import { CreateTable } from '../services/create-table';
@@ -61,7 +61,6 @@ export class TablesStore {
       }
     });
 
-    // Table created
     effect(() => {
       const created = this.#socketService.tableCreated();
       if (created && this.#currentBarId() === created.barId) {
@@ -75,7 +74,6 @@ export class TablesStore {
       }
     });
 
-    // Table updated
     effect(() => {
       const updated = this.#socketService.tableUpdated();
       if (updated && this.#currentBarId() === updated.barId) {
@@ -88,7 +86,6 @@ export class TablesStore {
       }
     });
 
-    // Table deleted
     effect(() => {
       const deleted = this.#socketService.tableDeleted();
       if (deleted) {
@@ -118,54 +115,39 @@ export class TablesStore {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
-    try {
-      await this.#createTable.execute(barId, createTableDto);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#createTable.execute(barId, createTableDto);
+    this.reload();
   }
 
   public async delete(tableId: TableId) {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
-    try {
-      await this.#deleteTable.execute(barId, tableId);
-      this.#listResource.update((tables) => {
-        if (!tables) {
-          return undefined;
-        }
-        return tables.filter((t) => t.id !== tableId);
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#deleteTable.execute(barId, tableId);
+    this.#listResource.update((tables) => {
+      if (!tables) {
+        return undefined;
+      }
+      return tables.filter((t) => t.id !== tableId);
+    });
   }
 
   public async update(tableId: TableId, updateTableDto: UpdateTableDto) {
     const barId = this.#currentBarId();
 
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
-    try {
-      await this.#updateTable.execute(barId, tableId, updateTableDto);
-      this.#listResource.update((tables) => {
-        if (!tables) {
-          return undefined;
-        }
-        return tables.map((t) => (t.id === tableId ? { ...t, ...updateTableDto } : t));
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#updateTable.execute(barId, tableId, updateTableDto);
+    this.#listResource.update((tables) => {
+      if (!tables) {
+        return undefined;
+      }
+      return tables.map((t) => (t.id === tableId ? { ...t, ...updateTableDto } : t));
+    });
   }
 }

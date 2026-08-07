@@ -1,7 +1,7 @@
+import { SocketEvents, TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { OrderClosedEvent } from '@orders/events';
-import { SocketEvents } from '../../../core';
+import { OrderClosedEvent } from '@coaster/orders';
 import { BarGateway } from '../../bar.gateway';
 
 @EventsHandler(OrderClosedEvent)
@@ -12,12 +12,12 @@ export class OrderClosedHandler implements IEventHandler<OrderClosedEvent> {
 
   handle(event: OrderClosedEvent) {
     this.#logger.debug(`Catching OrderClosedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.ORDER_CLOSED, event.order);
+    this._barGateway.server.to(event.barId).emit(SocketEvents.orderClosed, event.order);
 
     if (event.tableId) {
-      this._barGateway.server.to(event.barId).emit(SocketEvents.TABLE_STATUS_CHANGED, {
+      this._barGateway.server.to(event.barId).emit(SocketEvents.tableStatusChanged, {
         id: event.tableId,
-        status: 'FREE',
+        status: TableStatus.FREE,
       });
     }
   }

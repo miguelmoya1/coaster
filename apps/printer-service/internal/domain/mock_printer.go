@@ -4,7 +4,6 @@ import (
 	"context"
 )
 
-// MockPrinter is a manual mock for the domain.Printer interface to be used in tests.
 type MockPrinter struct {
 	ConnectFunc func(ctx context.Context) error
 	WriteFunc   func(b []byte) (int, error)

@@ -1,86 +1,61 @@
-<div class="flex gap-4 mb-6">
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.total' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ totalProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.critical' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ criticalProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
-
-  <mat-card class="relative overflow-hidden flex-1 p-6 flex flex-col gap-1 justify-between">
-    <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
-    <mat-card-subtitle class="text-sm text-on-surface-variant font-medium m-0!">
-      {{ 'pantry.alerts' | translate }}
-    </mat-card-subtitle>
-    <mat-card-title class="text-3xl font-bold text-on-surface m-0!">
-      {{ alertProductsCount() ?? 0 }}
-    </mat-card-title>
-  </mat-card>
-</div>
-
-<div class="flex items-center justify-between gap-4 mb-2">
-  <h2 class="heading-2 mb-0">{{ 'pantry.inventory_title' | translate }}</h2>
-  @if (canImportTemplates()) {
-    <button mat-flat-button [routerLink]="['import']">
-      <mat-icon>download</mat-icon>
-      <span>{{ 'pantry.import_title' | translate }}</span>
-    </button>
-  }
-</div>
-
-<div class="mb-4 w-full">
-  <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
-</div>
-
-<div class="-mx-4 px-4 mb-4 overflow-hidden">
-  <mat-chip-listbox
-    #chipListbox
-    [value]="selectedCategoryId()"
-    (change)="onCategoryChange($event, chipListbox)"
-    class="hide-scrollbar"
-  >
-    @for (category of tabs(); track category.id) {
-      <mat-chip-option [value]="category.id" [selectable]="true" data-testid="category-chip">
-        <span class="text-sm font-medium" data-testid="category-name">{{ category.label | translate }}</span>
-        @if (canUpdateCategory() && category.id !== 'ALL') {
-          <button
-            matChipTrailingIcon
-            (click)="onEditCategoryClicked($event, category.id)"
-            class="flex items-center justify-center ml-1 shrink-0"
-            aria-label="Editar categoría"
-          >
-            <mat-icon class="text-[14px] w-3.5 h-3.5 flex items-center justify-center">edit</mat-icon>
-          </button>
-        }
-      </mat-chip-option>
+<coaster-page-container size="lg">
+  <coaster-page-header [title]="'nav.pantry' | translate" [subtitle]="'pantry.inventory_title' | translate">
+    @if (canImportTemplates()) {
+      <button actions mat-flat-button [routerLink]="['import']">
+        <mat-icon>download</mat-icon>
+        <span>{{ 'pantry.import_title' | translate }}</span>
+      </button>
     }
-  </mat-chip-listbox>
-</div>
+  </coaster-page-header>
 
-@if (categories.isLoading() || products.isLoading()) {
-  <coaster-loading />
-}
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+    <coaster-stat-card
+      class="flex-1"
+      [label]="'pantry.total' | translate"
+      [value]="totalProductsCount() ?? 0"
+      size="large"
+    />
+    <coaster-stat-card
+      class="flex-1"
+      [label]="'pantry.critical' | translate"
+      [value]="criticalProductsCount() ?? 0"
+      tone="error"
+      size="large"
+    />
+    <coaster-stat-card
+      class="flex-1"
+      [label]="'pantry.alerts' | translate"
+      [value]="alertProductsCount() ?? 0"
+      tone="tertiary"
+      size="large"
+    />
+  </div>
 
-<div class="flex-1">
-  <div class="grid gap-4">
+  <div class="mb-4 w-full">
+    <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
+  </div>
+
+  <div class="mb-4 overflow-hidden">
+    <coaster-category-filter
+      [categories]="categories.value() ?? []"
+      [(selectedCategoryId)]="selectedCategoryId"
+      [editable]="canUpdateCategory()"
+      (editCategoryClicked)="onEditCategoryClicked($event)"
+    />
+  </div>
+
+  @if (categories.isLoading() || products.isLoading()) {
+    <coaster-loading />
+  }
+
+  <div class="flex flex-col gap-4">
     @for (product of filteredProducts(); track product.id) {
       <coaster-inventory-item-card
-        class="product"
+        [barId]="barId()"
         [itemName]="product.name"
         [qty]="product.currentStock"
         [price]="product.price"
+        [imageUrl]="product.imageUrl"
         [statusLevel]="product.stockStatus"
         [showEditButton]="canUpdateProduct()"
         (click)="onProductClicked(product)"
@@ -91,8 +66,13 @@
       <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
     }
   </div>
-</div>
 
-@if (canCreateProduct()) {
-  <coaster-fab data-testid="create-pantry-fab" (click)="onCreatePantryClicked()" />
-}
+  @if (canCreateProduct()) {
+    <coaster-fab
+      data-testid="create-pantry-fab"
+      coasterRequireSubscription
+      [barId]="barId()"
+      (click)="onCreatePantryClicked()"
+    />
+  }
+</coaster-page-container>

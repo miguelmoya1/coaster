@@ -31,8 +31,8 @@ export * from "./enums.js"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more DbUsers
- * const dbUsers = await prisma.dbUser.findMany()
+ * // Fetch zero or more DbOrderAdjustments
+ * const dbOrderAdjustments = await prisma.dbOrderAdjustment.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,11 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model DbOrderAdjustment
+ * 
+ */
+export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
 /**
  * Model DbUser
  * 
@@ -101,3 +106,28 @@ export type DbOrder = Prisma.DbOrderModel
  * 
  */
 export type DbOrderItem = Prisma.DbOrderItemModel
+/**
+ * Model DbPrinterConfig
+ * 
+ */
+export type DbPrinterConfig = Prisma.DbPrinterConfigModel
+/**
+ * Model DbPrintJob
+ * A ticket waiting for the bar's print bridge to collect it.
+ * 
+ * The queue lives in the database rather than in memory because the API
+ * autoscales: the bridge's long-poll and the waiter's print request routinely
+ * land on different instances, and anything held in process memory would be
+ * invisible to the other one.
+ */
+export type DbPrintJob = Prisma.DbPrintJobModel
+/**
+ * Model DbBarSubscription
+ * 
+ */
+export type DbBarSubscription = Prisma.DbBarSubscriptionModel
+/**
+ * Model DbStripeWebhookEvent
+ * 
+ */
+export type DbStripeWebhookEvent = Prisma.DbStripeWebhookEventModel

@@ -1,6 +1,6 @@
 import type { BarId, OrderId, OrderItemId, TableId } from '@coaster/common';
+import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { DbOrderStatus, DbService } from '../../core/db';
 
 @Injectable()
 export class OrdersReadRepository {
@@ -14,6 +14,7 @@ export class OrdersReadRepository {
       },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
         table: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -40,6 +41,7 @@ export class OrdersReadRepository {
       },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
         table: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -51,6 +53,7 @@ export class OrdersReadRepository {
       where: { id: orderId },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
         table: true,
       },
     });
@@ -79,6 +82,7 @@ export class OrdersReadRepository {
       where: { id: { in: orderIds } },
       include: {
         items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
+        adjustments: true,
         table: true,
       },
     });

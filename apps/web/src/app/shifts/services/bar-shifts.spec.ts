@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftRepository } from '../data-access/shift-repository';
@@ -13,7 +13,7 @@ describe('BarShifts', () => {
 
   const currentBarId = signal<BarId | undefined>(undefined);
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     currentId: currentBarId.asReadonly(),
   };
 
@@ -30,7 +30,7 @@ describe('BarShifts', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClientTesting(),
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: ShiftRepository, useValue: { routes: mockRoutes } },
       ],
     });

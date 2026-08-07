@@ -1,0 +1,22 @@
+package escpos
+
+var (
+	Init         = []byte{0x1B, 0x40}
+	BoldOn       = []byte{0x1B, 0x45, 0x01}
+	BoldOff      = []byte{0x1B, 0x45, 0x00}
+	AlignLeft    = []byte{0x1B, 0x61, 0x00}
+	AlignCenter  = []byte{0x1B, 0x61, 0x01}
+	AlignRight   = []byte{0x1B, 0x61, 0x02}
+	DoubleHeight = []byte{0x1B, 0x21, 0x10}
+	NormalSize   = []byte{0x1B, 0x21, 0x00}
+	LineFeed     = []byte{0x0A}
+
+	feedFourLinesClearOfTheBlade = []byte{0x1B, 0x64, 0x04}
+	partialCut                   = []byte{0x1D, 0x56, 0x42, 0x00}
+
+	FeedAndCut = append(append([]byte{}, feedFourLinesClearOfTheBlade...), partialCut...)
+)
+
+func SelectCodePage(n byte) []byte {
+	return []byte{0x1B, 0x74, n}
+}

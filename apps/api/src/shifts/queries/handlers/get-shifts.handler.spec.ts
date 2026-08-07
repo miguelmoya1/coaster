@@ -1,10 +1,10 @@
+import { asBarId } from '@coaster/core';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
-import { GetShiftsHandler } from './get-shifts.handler';
 import { GetShiftsQuery } from '../impl/get-shifts.query';
+import { GetShiftsHandler } from './get-shifts.handler';
 
 describe('GetShiftsHandler', () => {
   let handler: GetShiftsHandler;

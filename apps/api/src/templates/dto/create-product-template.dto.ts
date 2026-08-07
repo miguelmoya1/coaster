@@ -10,4 +10,8 @@ export class CreateProductTemplateDto {
 
   @IsString()
   declare categoryId: string;
+
+  @IsString()
+  @IsOptional()
+  declare imageUrl?: string;
 }

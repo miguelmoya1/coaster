@@ -2,24 +2,26 @@ import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../components/loading/loading';
+import { PageContainer } from '../../../components/page-container/page-container';
+import { PageHeader } from '../../../components/page-header/page-header';
 import { BarCard } from './components/bar-card/bar-card';
 
 @Component({
   selector: 'coaster-select-bar',
-  imports: [BarCard, TranslatePipe, MatButton, MatIcon, Loading],
+  imports: [BarCard, TranslatePipe, MatButton, MatIcon, Loading, PageContainer, PageHeader],
   templateUrl: './select-bar.html',
   host: {
-    class: 'flex flex-col gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
 })
 export default class SelectBar {
   readonly #router = inject(Router);
-  readonly #barsStore = inject(BarsStore);
+  readonly #barListStore = inject(BarListStore);
 
-  readonly bars = this.#barsStore.list;
+  readonly bars = this.#barListStore.list;
 
   navigateToCreate() {
     this.#router.navigate(['/bars/create']);

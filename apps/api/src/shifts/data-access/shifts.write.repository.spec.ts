@@ -1,7 +1,7 @@
+import { asBarId, asShiftId, asUserId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId, asUserId } from '../../core';
-import { DbService } from '../../core/db';
 import { ShiftsWriteRepository } from './shifts.write.repository';
 
 describe('ShiftsWriteRepository', () => {

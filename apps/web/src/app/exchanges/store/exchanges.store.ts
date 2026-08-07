@@ -1,7 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import type { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { handleErrorFormField } from '@coaster/core';
+import { ErrorCodes } from '@coaster/common';
+
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 import { AcceptExchange } from '../services/accept-exchange';
 import { BarExchanges } from '../services/bar-exchanges';
@@ -36,47 +37,32 @@ export class ExchangesStore {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reload();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#acceptExchange.execute(barId, exchangeId);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#acceptExchange.execute(barId, exchangeId);
+    this.reload();
   }
 
   public async request(shiftId: ShiftId, dto: CreateShiftExchangeDto) {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reload();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#requestExchange.execute(barId, shiftId, dto);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#requestExchange.execute(barId, shiftId, dto);
+    this.reload();
   }
 
   public async delete(exchangeId: ShiftExchangeId) {
     const barId = this.#currentBarId();
     if (!barId) {
       this.reload();
-      return handleErrorFormField('NO_BAR_ID_REGISTERED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#deleteExchange.execute(barId, exchangeId);
-      this.reload();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#deleteExchange.execute(barId, exchangeId);
+    this.reload();
   }
 }

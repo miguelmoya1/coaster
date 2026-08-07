@@ -11,8 +11,7 @@ describe('UsersController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
-    // Seed the mock user for tests that require a database user to exist
+
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -30,32 +29,28 @@ describe('UsersController (e2e)', () => {
 
   describe('GET /api/users/me', () => {
     it('should return the current user profile', async () => {
-      const response = await request(testSetup.app.getHttpServer())
-        .get('/api/users/me')
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get('/api/users/me').expect(200);
 
-      expect(response.body).toEqual(expect.objectContaining({
-        id: mockUser.id,
-        email: mockUser.email,
-        name: mockUser.name,
-      }));
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.name,
+        }),
+      );
     });
   });
 
   describe('PATCH /api/users/me', () => {
     it('should update the current user profile', async () => {
       const updatedName = 'Updated Name';
-      
-      await request(testSetup.app.getHttpServer())
-        .patch('/api/users/me')
-        .send({ name: updatedName })
-        .expect(200);
 
-      // Verify in database
+      await request(testSetup.app.getHttpServer()).patch('/api/users/me').send({ name: updatedName }).expect(200);
+
       const userInDb = await testSetup.prisma.dbUser.findUnique({
         where: { id: mockUser.id },
       });
-      
+
       expect(userInDb?.name).toBe(updatedName);
     });
   });

@@ -1,6 +1,6 @@
+import { BarRole, ErrorCodes } from '@coaster/common';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { MemberRemovedEvent } from '../../events';
@@ -23,8 +23,8 @@ export class RemoveMemberHandler implements ICommandHandler<RemoveMemberCommand,
     const members = await this.readRepo.getMembersByBar(barId);
     const memberToRemove = members.find((m) => m.id === memberId);
 
-    if (memberToRemove?.role === 'OWNER') {
-      const ownerCount = members.filter((m) => m.role === 'OWNER').length;
+    if (memberToRemove?.role === BarRole.OWNER) {
+      const ownerCount = members.filter((m) => m.role === BarRole.OWNER).length;
       if (ownerCount <= 1) {
         throw new BadRequestException(ErrorCodes.CANNOT_REMOVE_LAST_OWNER);
       }

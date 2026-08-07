@@ -50,9 +50,9 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test
 
-      #      - name: 🧪 Backend E2E Tests
-      #        run: npm run test:e2e -w @coaster/api
-      #
+      - name: 🧪 Backend E2E Tests
+        run: npm run test:e2e -w @coaster/api
+
       #      - name: 🌐 Install Playwright Browsers
       #        run: npx playwright install --with-deps
       #        working-directory: apps/web
@@ -111,4 +111,5 @@ jobs:
           gcloud run deploy ${{ env.GCP_SERVICE_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
+            --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL || 'https://api.coaster.business' }}" \
             --allow-unauthenticated

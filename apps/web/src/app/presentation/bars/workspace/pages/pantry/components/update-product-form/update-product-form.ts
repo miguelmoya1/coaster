@@ -5,10 +5,11 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, UpdateProductDto } from '@coaster/common';
-import { asCategoryId } from '@coaster/core';
+import { asCategoryId, handleErrorFormField } from '@coaster/core';
 import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
+import { ImageUploader } from '../../../../../../components/image-uploader/image-uploader';
 
 @Component({
   selector: 'coaster-edit-product-form',
@@ -24,6 +25,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
     FormField,
     MatButton,
     TranslatePipe,
+    ImageUploader,
   ],
   host: {
     class: 'block px-6 pb-6 pt-2',
@@ -58,6 +60,15 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
             }}</mat-error>
           }
         </mat-form-field>
+
+        <coaster-image-uploader
+          [barId]="barId()!"
+          entityType="products"
+          [label]="'pantry.edit_product.image_url_label' | translate"
+          [value]="form.imageUrl().value()"
+          (valueChange)="form.imageUrl().value.set($event)"
+          [disabled]="form().submitting() || form().disabled()"
+        />
 
         <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
@@ -102,6 +113,7 @@ export class UpdateProductForm {
 
   readonly #productStore = inject(ProductsStore);
   readonly #translate = inject(TranslateService);
+  readonly barId = this.#productStore.currentBarId;
 
   protected readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
@@ -115,6 +127,7 @@ export class UpdateProductForm {
     price: 0,
     minStockAlert: 0,
     name: '',
+    imageUrl: '',
   });
 
   readonly form = form(
@@ -135,13 +148,14 @@ export class UpdateProductForm {
       submission: {
         action: async (form) => {
           const payload = form().value();
-          const error = await this.#productStore.update(this.product().id, payload);
 
-          if (!error) {
+          try {
+            await this.#productStore.update(this.product().id, payload);
             this.edited.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          return error;
         },
       },
     },
@@ -156,6 +170,7 @@ export class UpdateProductForm {
           categoryId: product.categoryId,
           price: product.price ?? 0,
           minStockAlert: product.minStockAlert,
+          imageUrl: product.imageUrl ?? '',
         });
       }
     });

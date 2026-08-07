@@ -1,6 +1,7 @@
+import { ErrorCodes, OrderStatus } from '@coaster/common';
+import { asTableId } from '@coaster/core';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes, asTableId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderCancelledEvent } from '../../events';
@@ -26,7 +27,7 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, v
     if (!existingOrder || existingOrder.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
-    if (existingOrder.status !== 'OPEN') {
+    if (existingOrder.status !== OrderStatus.OPEN) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 

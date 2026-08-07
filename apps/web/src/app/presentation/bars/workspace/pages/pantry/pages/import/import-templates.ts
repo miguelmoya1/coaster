@@ -1,14 +1,14 @@
 import { LowerCasePipe } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId } from '@coaster/common';
-import { Toast } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../../components/loading/loading';
 
 import { PricePipe } from '../../../../pipes/price/price';
@@ -27,7 +27,7 @@ export default class ImportTemplates {
   readonly #templatesStore = inject(TemplatesStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #productsStore = inject(ProductsStore);
-  readonly #toast = inject(Toast);
+  readonly #feedback = inject(ActionFeedback);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
 
@@ -52,7 +52,6 @@ export default class ImportTemplates {
     return total;
   });
 
-  // Join categories and products locally in the client reactively
   readonly matchedTemplates = computed(() => {
     const categories = this.#templatesStore.categories.value() ?? [];
     const products = this.#templatesStore.products.value() ?? [];
@@ -63,7 +62,6 @@ export default class ImportTemplates {
     }));
   });
 
-  // Local filtering based on query matching category or product name
   readonly filteredTemplates = computed(() => {
     const templates = this.matchedTemplates();
     const query = this.searchQuery().toLowerCase().trim();
@@ -120,22 +118,21 @@ export default class ImportTemplates {
     if (ids.length === 0) return;
 
     this.isSubmitting.set(true);
-    const { err } = await this.#templatesStore.importToBar(barId, ids);
-    this.isSubmitting.set(false);
 
-    if (err) {
-      this.#toast.error(this.#translate.instant('common.error'));
-      return;
+    try {
+      await this.#templatesStore.importToBar(barId, ids);
+      this.isSubmitting.set(false);
+
+      const translationResult = this.#translate.instant('pantry.import_success');
+      this.#feedback.success(translationResult);
+
+      this.#categoriesStore.reloadCategories();
+      this.#productsStore.reloadProducts();
+
+      this.#router.navigate(['/bars', barId, 'pantry']);
+    } catch (error) {
+      this.#feedback.error(error);
+      this.isSubmitting.set(false);
     }
-
-    const translationResult = this.#translate.instant('pantry.import_success');
-    this.#toast.success(translationResult);
-
-    // Reload stores to refresh the lists in the pantry view
-    this.#categoriesStore.reloadCategories();
-    this.#productsStore.reloadProducts();
-
-    // Navigate back to the pantry
-    this.#router.navigate(['/bars', barId, 'pantry']);
   }
 }

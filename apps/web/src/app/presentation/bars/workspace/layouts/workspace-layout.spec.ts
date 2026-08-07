@@ -1,9 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
-import { CurrentUser, Socket, Auth } from '@coaster/core';
-import { MembersStore } from '@coaster/members';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore } from '@coaster/bar-subscription';
+import { Auth, CurrentUser, Socket } from '@coaster/core';
+import { MembersStore } from '@coaster/bar-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceLayout from './workspace-layout';
@@ -19,14 +21,19 @@ describe('WorkspaceLayout', () => {
     },
   };
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     current: {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue({ name: 'Test Bar' }),
     },
-    isOwner: signal(false),
+    currentId: signal('bar-1'),
     setBarId: vi.fn(),
+  };
+
+  const myMemberStoreMock = {
+    isOwner: signal(false),
     hasPermission: vi.fn().mockReturnValue(true),
+    setBarId: vi.fn(),
   };
 
   const membersStoreMock = {
@@ -41,10 +48,27 @@ describe('WorkspaceLayout', () => {
   const socketMock = {
     joinBar: vi.fn(),
     leaveBar: vi.fn(),
+    subscriptionUpdated: signal(null),
   };
 
   const authMock = {
     logout: vi.fn().mockResolvedValue(undefined),
+  };
+
+  const barSubscriptionStoreMock = {
+    setBarId: vi.fn(),
+    isReadOnly: signal(false),
+    isTrialExpiringSoon: signal(false),
+    showSubscriptionBanner: signal(false),
+    billingAction: signal('ACTIVATE'),
+    isOpeningBillingPortal: signal(false),
+    showBillingAction: signal(true),
+    trialDaysRemaining: signal(14),
+    subscription: {
+      value: vi.fn().mockReturnValue(null),
+      hasValue: vi.fn().mockReturnValue(false),
+    },
+    reloadSubscription: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -54,7 +78,9 @@ describe('WorkspaceLayout', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: CurrentUser, useValue: currentUserMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: Socket, useValue: socketMock },
         { provide: Auth, useValue: authMock },
@@ -76,6 +102,22 @@ describe('WorkspaceLayout', () => {
   describe('barId input', () => {
     it('should expose barId with provided value', () => {
       expect(component.barId()).toBe('bar-1');
+    });
+
+    it('should feed the bar id to every bar-scoped store', () => {
+      expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(membersStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(myMemberStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+      expect(barSubscriptionStoreMock.setBarId).toHaveBeenCalledWith('bar-1');
+    });
+
+    it('should clear the bar id on every bar-scoped store when destroyed', () => {
+      fixture.destroy();
+
+      expect(currentBarStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(membersStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(myMemberStoreMock.setBarId).toHaveBeenCalledWith(undefined);
+      expect(barSubscriptionStoreMock.setBarId).toHaveBeenCalledWith(undefined);
     });
   });
 

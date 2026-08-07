@@ -1,6 +1,7 @@
-import { ForbiddenException, Logger } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { asCategoryId } from '@coaster/core';
+import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asCategoryId, ErrorCodes } from '../../../core';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductUpdatedEvent } from '../../events';
@@ -19,6 +20,13 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
 
   async execute(command: UpdateProductCommand): Promise<void> {
     this.#logger.debug(`Executing updateProduct...`);
+
+    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+
+    if (!belongsToBar) {
+      throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
+    }
+
     if (command.dto.categoryId) {
       const validCategoryId = asCategoryId(command.dto.categoryId);
       const isValidCategory = await this.readRepo.checkCategoryBelongsToBar(validCategoryId, command.barId);

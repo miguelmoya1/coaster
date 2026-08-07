@@ -1,3 +1,4 @@
+import { BarRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Page } from '@playwright/test';
 
 // Base API url to mock
@@ -94,7 +95,7 @@ export async function setupMockApi(page: Page) {
     id: 'test-user-123',
     email: 'test@example.com',
     name: 'Test User',
-    role: 'ADMIN',
+    role: Role.ADMIN,
     active: true,
     language: 'es',
   });
@@ -122,7 +123,7 @@ export async function setupMockApi(page: Page) {
           id: 'member-123',
           userId: 'test-user-123',
           barId: 'bar-123',
-          role: 'OWNER',
+          role: BarRole.OWNER,
           permissions: ['VIEW_DASHBOARD', 'VIEW_PRODUCTS', 'VIEW_SHIFTS', 'VIEW_MEMBERS', 'VIEW_ORDERS'],
           active: true,
           userName: 'Test User',
@@ -156,9 +157,45 @@ export async function setupMockApi(page: Page) {
       await route.fallback();
     }
   });
+
+  await page.route('**/api/v1/bars/*/bar-subscription', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
+    } else if (route.request().method() === 'GET') {
+      const now = Date.now();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({
+          id: 'sub-123',
+          barId: 'bar-123',
+          plan: SubscriptionPlan.PRO,
+          status: SubscriptionStatus.ACTIVE,
+          stripeCustomerId: 'cus_test',
+          stripeSubscriptionId: 'sub_test',
+          currentPeriodStart: new Date(now - 86_400_000).toISOString(),
+          currentPeriodEnd: new Date(now + 30 * 86_400_000).toISOString(),
+          trialEndsAt: null,
+          canceledAt: null,
+          createdAt: new Date(now - 86_400_000).toISOString(),
+          updatedAt: new Date(now).toISOString(),
+        }),
+      });
+    } else {
+      await route.fallback();
+    }
+  });
 }
 
-export async function mockApiResponse(page: Page, path: string, method: string, response: any, status = 200) {
+export async function mockApiResponse(page: Page, path: string, method: string, response: unknown, status = 200) {
   const endpoint = `${API_BASE}${path}`;
   await page.route(
     (url) => {
@@ -176,6 +213,7 @@ export async function mockApiResponse(page: Page, path: string, method: string, 
           },
         });
       } else if (route.request().method() === method) {
+        // @ts-expect-error process is not defined in this context
         if (process.env['DEBUG_E2E_MOCKS']) console.log(`Mocking ${method} ${endpoint}`);
         await route.fulfill({
           status,

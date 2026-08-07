@@ -1,8 +1,9 @@
+import { ErrorCodes, ShiftExchangeStatus } from '@coaster/common';
+import { asBarId, asShiftExchangeId, asUserId } from '@coaster/core';
+import { DbBarRole } from '@coaster/core/db';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ErrorCodes, ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '../../../core';
-import { DbBarRole } from '../../../core/db';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
 import { ShiftExchangesWriteRepository } from '../../data-access/shift-exchanges.write.repository';
 import { DeleteExchangeCommand } from '../impl/delete-exchange.command';
@@ -71,7 +72,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: 'other-user',
       status: ShiftExchangeStatus.APPROVED,
     } as any);
-    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.OWNER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.OWNER });
 
     await handler.execute(command);
 
@@ -85,7 +86,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: 'other-user',
       status: ShiftExchangeStatus.PENDING,
     } as any);
-    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.STAFF });
 
     await expect(handler.execute(command)).rejects.toThrow(new ForbiddenException(ErrorCodes.UNAUTHORIZED));
   });
@@ -97,7 +98,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: userId,
       status: ShiftExchangeStatus.APPROVED,
     } as any);
-    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.STAFF });
 
     await expect(handler.execute(command)).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_EXCHANGE));
   });
@@ -109,7 +110,7 @@ describe('DeleteExchangeHandler', () => {
       requesterId: userId,
       status: ShiftExchangeStatus.PENDING,
     } as any);
-    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.BARTENDER } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.STAFF });
 
     await handler.execute(command);
 

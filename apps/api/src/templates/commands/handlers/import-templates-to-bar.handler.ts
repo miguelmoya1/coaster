@@ -1,6 +1,6 @@
+import { ErrorCodes } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ErrorCodes } from '../../../core';
 import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
 import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { ImportTemplatesToBarCommand } from '../impl/import-templates-to-bar.command';
@@ -58,6 +58,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
       price: number;
       currentStock: number;
       minStockAlert: number;
+      imageUrl?: string | null;
     }[] = [];
 
     for (const categoryTemplate of categoryTemplates) {
@@ -73,6 +74,7 @@ export class ImportTemplatesToBarHandler implements ICommandHandler<ImportTempla
               price: productTemplate.price,
               currentStock: 0,
               minStockAlert: 0,
+              imageUrl: productTemplate.imageUrl,
             });
           }
         }

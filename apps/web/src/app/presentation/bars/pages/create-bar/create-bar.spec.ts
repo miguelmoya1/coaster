@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CreateBar from './create-bar';
@@ -8,29 +8,22 @@ import CreateBar from './create-bar';
 describe('CreateBar', () => {
   let component: CreateBar;
   let fixture: ComponentFixture<CreateBar>;
-  const routerMock = {
-    navigate: vi.fn().mockResolvedValue(true),
-  };
+  let router: Router;
 
-  const barsStoreMock = {
+  const barListStoreMock = {
     create: vi.fn(),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CreateBar],
-      providers: [
-        provideTranslateService(),
-        provideRouter([]),
-        { provide: Router, useValue: routerMock },
-        { provide: BarsStore, useValue: barsStoreMock },
-      ],
+      providers: [provideTranslateService(), provideRouter([]), { provide: BarListStore, useValue: barListStoreMock }],
     }).compileComponents();
-
-    vi.clearAllMocks();
 
     fixture = TestBed.createComponent(CreateBar);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
@@ -45,7 +38,7 @@ describe('CreateBar', () => {
     });
 
     it('should show badge text', () => {
-      const badge = fixture.nativeElement.querySelector('.text-primary.tracking-\\[0\\.25em\\]');
+      const badge = fixture.nativeElement.querySelector('coaster-page-header');
       expect(badge).toBeTruthy();
     });
 
@@ -63,12 +56,12 @@ describe('CreateBar', () => {
   describe('actions', () => {
     it('should navigate to select bar on submit', () => {
       component['onSubmit']();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+      expect(router.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
 
     it('should navigate to select bar on cancel', () => {
       component['onCancel']();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+      expect(router.navigate).toHaveBeenCalledWith(['/bars/select']);
     });
   });
 });

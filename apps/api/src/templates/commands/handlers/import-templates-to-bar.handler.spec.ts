@@ -1,7 +1,7 @@
+import { asBarId } from '@coaster/core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId } from '../../../core';
 import { TemplatesReadRepository } from '../../data-access/templates.read.repository';
 import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { ImportTemplatesToBarCommand } from '../impl/import-templates-to-bar.command';

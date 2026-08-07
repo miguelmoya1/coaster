@@ -9,6 +9,8 @@ import type {
   MoveTableDto,
   OrderId,
   OrderItemId,
+  UpdateOrderTipDto,
+  AddOrderAdjustmentDto,
 } from '@coaster/common';
 import { OrderRepository } from '../data-access/order-repository';
 
@@ -50,5 +52,17 @@ export class ManageOrder {
 
   public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
     await this.#orderRepository.removeItem(barId, orderId, itemId);
+  }
+
+  public async updateTip(barId: BarId, orderId: OrderId, dto: UpdateOrderTipDto): Promise<void> {
+    await this.#orderRepository.updateTip(barId, orderId, dto);
+  }
+
+  public async addAdjustment(barId: BarId, orderId: OrderId, dto: AddOrderAdjustmentDto): Promise<void> {
+    await this.#orderRepository.addAdjustment(barId, orderId, dto);
+  }
+
+  public async removeAdjustment(barId: BarId, orderId: OrderId, adjustmentId: string): Promise<void> {
+    await this.#orderRepository.removeAdjustment(barId, orderId, adjustmentId);
   }
 }

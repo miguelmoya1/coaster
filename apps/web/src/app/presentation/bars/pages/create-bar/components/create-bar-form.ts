@@ -4,8 +4,9 @@ import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { BarsStore } from '@coaster/bars';
+import { BarListStore } from '@coaster/bars';
 import type { CreateBarDto } from '@coaster/common';
+import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -61,7 +62,7 @@ export class CreateBarForm {
   public readonly formCancelled = output<void>();
   public readonly formSubmitted = output<void>();
 
-  readonly #barsStore = inject(BarsStore);
+  readonly #barListStore = inject(BarListStore);
 
   protected readonly formModel = signal<CreateBarDto>({
     name: '',
@@ -79,15 +80,13 @@ export class CreateBarForm {
         action: async (form) => {
           const payload = form().value();
 
-          const error = await this.#barsStore.create({ name: payload.name });
-
-          if (error) {
-            return error;
+          try {
+            await this.#barListStore.create({ name: payload.name });
+            this.formSubmitted.emit();
+            return null;
+          } catch (error) {
+            return handleErrorFormField(error);
           }
-
-          this.formSubmitted.emit();
-
-          return null;
         },
       },
     },

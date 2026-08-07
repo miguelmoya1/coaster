@@ -1,6 +1,7 @@
+import { ErrorCodes, OrderStatus } from '@coaster/common';
+import { asOrderId, asTableId } from '@coaster/core';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asOrderId, asTableId, ErrorCodes } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrdersMergedEvent } from '../../events';
@@ -29,7 +30,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
       throw new BadRequestException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
-    const nonOpenOrders = orders.filter((o) => o.status !== 'OPEN');
+    const nonOpenOrders = orders.filter((o) => o.status !== OrderStatus.OPEN);
     if (nonOpenOrders.length > 0) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }

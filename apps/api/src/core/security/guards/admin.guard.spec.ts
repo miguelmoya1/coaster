@@ -1,8 +1,8 @@
+import { ErrorCodes } from '@coaster/common';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { ErrorCodes } from '../../constants';
 import { DbRole } from '../../db';
 import { SecurityRepository } from '../data-access/security.repository';
 import { AdminGuard } from './admin.guard';

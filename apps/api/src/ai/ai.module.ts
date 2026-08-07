@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
-import { AiController } from './controllers/ai.controller';
+import { AiControllers } from './controllers';
 
 @Module({
   imports: [CqrsModule],
-  controllers: [AiController],
+  controllers: [...AiControllers],
   providers: [...CommandHandlers],
 })
 export class AiModule {}

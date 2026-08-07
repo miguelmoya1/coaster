@@ -1,6 +1,6 @@
+import { asBarMemberId } from '@coaster/core';
 import { Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asBarMemberId } from '../../../core';
 import { BarMembersWriteRepository } from '../../data-access/bar-members.write.repository';
 import { MemberInvitedEvent } from '../../events';
 import { CompleteInviteMemberCommand } from '../impl/complete-invite-member.command';

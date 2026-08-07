@@ -1,7 +1,11 @@
-import type { Order, OrderItem } from '@coaster/common';
+import type { Order, OrderAdjustment, OrderItem } from '@coaster/common';
+import { OrderPricingEngine } from '@coaster/common';
 import {
+  asAdjustmentTarget,
+  asAdjustmentType,
   asBarId,
   asDeliveryStatus,
+  asOrderAdjustmentId,
   asOrderId,
   asOrderItemId,
   asOrderStatus,
@@ -9,20 +13,46 @@ import {
   asPaymentStatus,
   asProductId,
   asTableId,
-} from '../../core';
-import { DbOrder as OrderDb, DbOrderItem as OrderItemDb } from '../../core/db';
+} from '@coaster/core';
+import {
+  DbOrderAdjustment as OrderAdjustmentDb,
+  DbOrder as OrderDb,
+  DbOrderItem as OrderItemDb,
+} from '@coaster/core/db';
 
 type OrderItemWithProduct = OrderItemDb & {
   product: { name: string };
 };
 
-type OrderWithRelations = OrderDb & {
+export type OrderWithRelations = OrderDb & {
   items: OrderItemWithProduct[];
   table: { name: string } | null;
+  adjustments: OrderAdjustmentDb[];
 };
 
 export const OrdersMapper = {
   toDomain(dbOrder: OrderWithRelations): Order {
+    const adjustments = dbOrder.adjustments ? dbOrder.adjustments.map((a) => OrdersMapper.adjustmentToDomain(a)) : [];
+
+    const pricing = OrderPricingEngine.calculate({
+      items: dbOrder.items.map((i) => ({
+        id: i.id,
+        priceAtPurchase: i.priceAtPurchase,
+        quantity: i.quantity,
+        paidQuantity: i.paidQuantity,
+      })),
+      adjustments: adjustments.map((a) => ({
+        id: a.id,
+        target: a.target,
+        type: a.type,
+        value: a.value,
+        itemId: a.itemId,
+      })),
+      tipAmount: dbOrder.tipAmount,
+      amountPaidCash: dbOrder.amountPaidCash,
+      amountPaidCard: dbOrder.amountPaidCard,
+    });
+
     return {
       id: asOrderId(dbOrder.id),
       barId: asBarId(dbOrder.barId),
@@ -33,7 +63,12 @@ export const OrdersMapper = {
       amountPaidCash: dbOrder.amountPaidCash,
       amountPaidCard: dbOrder.amountPaidCard,
       items: dbOrder.items.map((item) => OrdersMapper.itemToDomain(item)),
+      adjustments,
       paymentMethod: asPaymentMethod(dbOrder.paymentMethod),
+      notes: dbOrder.notes || undefined,
+      tipAmount: dbOrder.tipAmount,
+      orderTotal: pricing.orderTotal,
+      payableTotal: pricing.payableTotal,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.updatedAt.getTime()).toString(),
     };
@@ -54,8 +89,22 @@ export const OrdersMapper = {
       paymentStatus: asPaymentStatus(dbItem.paymentStatus),
       deliveryStatus: asDeliveryStatus(dbItem.deliveryStatus),
       paymentMethod: asPaymentMethod(dbItem.paymentMethod),
+      notes: dbItem.notes || undefined,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbItem.createdAt.getTime()).toString(),
       updatedAt: Temporal.Instant.fromEpochMilliseconds(dbItem.updatedAt.getTime()).toString(),
+    };
+  },
+
+  adjustmentToDomain(dbAdjustment: OrderAdjustmentDb): OrderAdjustment {
+    return {
+      id: asOrderAdjustmentId(dbAdjustment.id),
+      orderId: asOrderId(dbAdjustment.orderId),
+      target: asAdjustmentTarget(dbAdjustment.target),
+      itemId: dbAdjustment.itemId ? asOrderItemId(dbAdjustment.itemId) : undefined,
+      type: asAdjustmentType(dbAdjustment.type),
+      value: dbAdjustment.value,
+      reason: dbAdjustment.reason || undefined,
+      createdAt: Temporal.Instant.fromEpochMilliseconds(dbAdjustment.createdAt.getTime()).toString(),
     };
   },
 

@@ -1,24 +1,24 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { BarId, OrderId, TableId } from '@coaster/common';
-import { asOrderId, asProductId, asTableId } from '@coaster/core';
-import { OrdersStore } from '@coaster/orders';
+import { ActionFeedback, asOrderId, asProductId, asTableId } from '@coaster/core';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { Loading } from '../../../../../components/loading/loading';
 
+import { CategoryFilter } from '../../../../../components/category-filter/category-filter';
 import { CartItem, PosCart } from './components/pos-cart/pos-cart';
-import { PosSearch } from './components/pos-search/pos-search';
-import { PosCategorySelector } from './components/pos-category-selector/pos-category-selector';
 import { PosProductsList } from './components/pos-products-list/pos-products-list';
+import { PosSearch } from './components/pos-search/pos-search';
 
 @Component({
   selector: 'coaster-new-order',
-  imports: [PosSearch, PosCategorySelector, PosProductsList, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
+  imports: [CategoryFilter, PosProductsList, PosSearch, PosCart, Loading, TranslatePipe, MatIcon, MatIconButton],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './new-order.html',
 })
@@ -30,19 +30,22 @@ class NewOrder {
   readonly #productsStore = inject(ProductsStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #tablesStore = inject(TablesStore);
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
   readonly #router = inject(Router);
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly selectedCategory = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
   readonly cart = signal<Map<string, CartItem>>(new Map());
   readonly selectedTableId = signal<string | undefined>(undefined);
+  readonly orderNotes = signal<string>('');
   readonly isSubmitting = signal(false);
 
   readonly existingOrderId = signal<OrderId | undefined>(undefined);
   readonly isAddItemsMode = computed(() => !!this.existingOrderId());
   readonly tableLocked = signal(false);
+  #initialNotesLoaded = false;
 
   readonly cartItems = computed(() => Array.from(this.cart().values()));
 
@@ -98,7 +101,7 @@ class NewOrder {
       this.#productsStore.setBarId(barId);
       this.#categoriesStore.setBarId(barId);
       this.#tablesStore.setBarId(barId);
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
 
     effect(() => {
@@ -114,6 +117,22 @@ class NewOrder {
         const resolved = asOrderId(orderId);
         this.existingOrderId.set(resolved);
         this.tableLocked.set(true);
+      }
+    });
+
+    effect(() => {
+      const orderId = this.existingOrderId();
+      if (!orderId || this.#initialNotesLoaded) return;
+
+      const orders = this.#activeOrdersStore.list.value();
+      if (!orders) return;
+
+      const existingOrder = orders.find((o) => o.id === orderId);
+      if (existingOrder) {
+        if (existingOrder.notes) {
+          this.orderNotes.set(existingOrder.notes);
+        }
+        this.#initialNotesLoaded = true;
       }
     });
   }
@@ -133,9 +152,19 @@ class NewOrder {
         productName: product.name,
         price: product.price,
         quantity: 1,
+        notes: '',
       });
     }
     this.cart.set(current);
+  }
+
+  updateItemNotes(event: { productId: string; notes: string }) {
+    const current = new Map(this.cart());
+    const item = current.get(event.productId);
+    if (item) {
+      current.set(event.productId, { ...item, notes: event.notes });
+      this.cart.set(current);
+    }
   }
 
   incrementItem(productId: string) {
@@ -169,25 +198,31 @@ class NewOrder {
       const itemDtos = items.map((item) => ({
         productId: asProductId(item.productId),
         quantity: item.quantity,
+        notes: item.notes,
       }));
 
       const orderId = this.existingOrderId();
       if (orderId) {
-        await this.#ordersStore.addItems(this.barId(), orderId, { items: itemDtos });
+        await this.#activeOrdersStore.addItems(this.barId(), orderId, {
+          items: itemDtos,
+          notes: this.orderNotes(),
+        });
       } else {
-        await this.#ordersStore.create(this.barId(), {
+        await this.#activeOrdersStore.create(this.barId(), {
           tableId: this.selectedTableId() ? asTableId(this.selectedTableId()!) : undefined,
           items: itemDtos,
+          notes: this.orderNotes(),
         });
       }
 
       this.cart.set(new Map());
-      this.#ordersStore.reloadOrders();
+      this.orderNotes.set('');
+      this.#activeOrdersStore.reloadOrders();
       this.#tablesStore.reload();
 
       await this.#router.navigate(['/bars', this.barId(), 'orders', 'tables']);
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     }
     this.isSubmitting.set(false);
   }

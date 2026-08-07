@@ -1,6 +1,7 @@
+import { ErrorCodes } from '@coaster/common';
+import { asCategoryId } from '@coaster/core';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { asCategoryId, ErrorCodes } from '../../../core';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductCreatedEvent } from '../../events';
@@ -31,6 +32,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
       price: command.dto.price ?? 0,
       currentStock: command.dto.currentStock ?? 0,
       minStockAlert: command.dto.minStockAlert ?? 0,
+      imageUrl: command.dto.imageUrl ?? null,
     };
 
     const product = await this.writeRepo.create(validCategoryId, createData);

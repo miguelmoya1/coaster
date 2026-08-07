@@ -1,8 +1,9 @@
 import type { Order, TableId } from '@coaster/common';
+import { OrderStatus, TableStatus } from '@coaster/common';
+import { asBarId, asOrderId, asTableId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asTableId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderTableMovedEvent } from '../../events';
@@ -37,17 +38,22 @@ describe('MoveOrderTableHandler', () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       tableId: 'table-1',
       items: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    repository.findTableById.mockResolvedValue({ id: 'table-2', barId: 'bar-1', status: 'FREE', name: 'Mesa 2' });
+    repository.findTableById.mockResolvedValue({
+      id: 'table-2',
+      barId: 'bar-1',
+      status: TableStatus.FREE,
+      name: 'Mesa 2',
+    });
     repository.moveTable.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       tableId: 'table-2',
       items: [],
       createdAt: new Date(),

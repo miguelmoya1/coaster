@@ -1,7 +1,7 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BarsStore } from '@coaster/bars';
+import { CurrentBarStore } from '@coaster/bars';
 import type { BarId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
@@ -13,7 +13,7 @@ describe('ExchangesStore', () => {
 
   const currentBarId = signal<BarId | undefined>(undefined);
 
-  const barsStoreMock = {
+  const currentBarStoreMock = {
     currentId: currentBarId.asReadonly(),
   };
 
@@ -25,19 +25,6 @@ describe('ExchangesStore', () => {
     },
   };
 
-  // const mockExchanges: ShiftExchange[] = [
-  //   {
-  //     createdAt: new Date(),
-  //     id: asShiftExchangeId('exchange-1'),
-  //     shiftId: asShiftId('shift-1'),
-  //     requesterId: asUserId('user-1'),
-  //     status: ShiftExchangeStatus.PENDING,
-  //     requesterName: 'John',
-  //     shiftStartTime: '2026-04-17T09:00:00.000Z',
-  //     shiftEndTime: '2026-04-17T17:00:00.000Z',
-  //   },
-  // ];
-
   beforeEach(() => {
     currentBarId.set(undefined);
     vi.clearAllMocks();
@@ -46,7 +33,7 @@ describe('ExchangesStore', () => {
       providers: [
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
         { provide: ExchangeRepository, useValue: repositoryMock },
       ],
     });
@@ -68,45 +55,10 @@ describe('ExchangesStore', () => {
       expect(store.exchanges.status()).toBe('idle');
     });
 
-    // it('should fetch pending exchanges when bar context is set', async () => {
-    //   const barId = asBarId('bar-1');
-    //   currentBarId.set(barId);
-    //   TestBed.tick();
-
-    //   // expect(store.exchanges.isLoading()).toBe(true);
-
-    //   httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
-    //   await TestBed.inject(ApplicationRef).whenStable();
-
-    //   expect(store.exchanges.hasValue()).toBe(true);
-    //   expect(store.exchanges.value()).toEqual(mockExchanges);
-    // });
-
     it('should not fetch if barId is not set', () => {
       TestBed.tick();
       httpMock.expectNone(() => true);
       expect(store.exchanges.status()).toBe('idle');
     });
   });
-
-  // describe('reloadPending', () => {
-  //   it('should reload the pending exchanges', async () => {
-  //     const barId = asBarId('bar-1');
-  //     currentBarId.set(barId);
-  //     TestBed.tick();
-
-  //     httpMock.expectOne(`/bars/${barId}/exchanges`).flush(mockExchanges);
-  //     await TestBed.inject(ApplicationRef).whenStable();
-
-  //     store.reload();
-  //     TestBed.tick();
-
-  //     expect(store.exchanges.isLoading()).toBe(true);
-
-  //     httpMock.expectOne(`/bars/${barId}/exchanges`).flush([]);
-  //     await TestBed.inject(ApplicationRef).whenStable();
-
-  //     expect(store.exchanges.value()).toEqual([]);
-  //   });
-  // });
 });

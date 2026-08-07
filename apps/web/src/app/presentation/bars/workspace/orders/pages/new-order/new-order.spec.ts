@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
+import { ActiveOrdersStore } from '@coaster/orders';
 import { Product, ProductsStore } from '@coaster/products';
-import { OrdersStore } from '@coaster/orders';
 import { TablesStore } from '@coaster/tables';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -44,7 +44,7 @@ describe('NewOrder', () => {
     reload: vi.fn(),
   };
 
-  const ordersStoreMock = {
+  const activeOrdersStoreMock = {
     create: vi.fn(),
     addItems: vi.fn(),
     reloadOrders: vi.fn(),
@@ -61,7 +61,7 @@ describe('NewOrder', () => {
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: TablesStore, useValue: tablesStoreMock },
-        { provide: OrdersStore, useValue: ordersStoreMock },
+        { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
       ],
     }).compileComponents();
 
@@ -103,7 +103,7 @@ describe('NewOrder', () => {
 
     it('should render category selector', () => {
       fixture.detectChanges();
-      const selector = fixture.nativeElement.querySelector('coaster-pos-category-selector');
+      const selector = fixture.nativeElement.querySelector('coaster-category-filter');
       expect(selector).toBeTruthy();
     });
 
@@ -142,14 +142,13 @@ describe('NewOrder', () => {
       productsStoreMock.list.value.mockReturnValue(mockProducts);
       productsStoreMock.list.hasValue.mockReturnValue(true);
 
-      // Trigger re-evaluation of the computed signal by changing its state
       component.selectedCategory.set('TEMP_VAL');
       component.selectedCategory.set('ALL');
 
       const filtered = component['filteredProducts']();
-      expect(filtered[0].id).toBe('p-2'); // Absolut Vodka
-      expect(filtered[1].id).toBe('p-1'); // Vodka
-      expect(filtered[2].id).toBe('p-3'); // Zinebra
+      expect(filtered[0].id).toBe('p-2');
+      expect(filtered[1].id).toBe('p-1');
+      expect(filtered[2].id).toBe('p-3');
     });
   });
 

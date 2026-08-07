@@ -1,7 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
-import { handleErrorFormField, Socket } from '@coaster/core';
+import { ErrorCodes } from '@coaster/common';
+import { Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { BarProducts } from '../services/bar-products';
 import { CreateProduct } from '../services/create-product';
@@ -19,6 +20,7 @@ export class ProductsStore {
   readonly #socketService = inject(Socket);
 
   readonly #currentBarId = signal<BarId | null>(null);
+  public readonly currentBarId = this.#currentBarId.asReadonly();
 
   readonly #productsResource = httpResource(() => this.#barProducts.execute(this.#currentBarId()), {
     parse: (products) => productArrayMapper(products),
@@ -27,7 +29,6 @@ export class ProductsStore {
   readonly list = this.#productsResource.asReadonly();
 
   constructor() {
-    // Product created
     effect(() => {
       const created = this.#socketService.productCreated();
       if (created) {
@@ -42,7 +43,6 @@ export class ProductsStore {
       }
     });
 
-    // Product stock changed / updated
     effect(() => {
       const updated = this.#socketService.productStockChanged();
       if (updated) {
@@ -56,7 +56,6 @@ export class ProductsStore {
       }
     });
 
-    // Product deleted
     effect(() => {
       const deleted = this.#socketService.productDeleted();
       if (deleted) {
@@ -69,7 +68,6 @@ export class ProductsStore {
       }
     });
 
-    // Product updated (name, price, category changes)
     effect(() => {
       const updated = this.#socketService.productUpdated();
       if (updated) {
@@ -119,75 +117,55 @@ export class ProductsStore {
   public async create(createProductDto: CreateProductDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#createProduct.execute(barId, createProductDto);
-      this.reloadProducts();
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#createProduct.execute(barId, createProductDto);
+    this.reloadProducts();
   }
 
   public async update(productId: ProductId, updateProductDto: UpdateProductDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#updateProduct.execute(barId, productId, updateProductDto);
-      this.#productsResource.update((products) => {
-        if (!products) {
-          return undefined;
-        }
-        return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductDto }) : p));
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#updateProduct.execute(barId, productId, updateProductDto);
+    this.#productsResource.update((products) => {
+      if (!products) {
+        return undefined;
+      }
+      return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductDto }) : p));
+    });
   }
 
   public async updateStock(productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
-      this.#productsResource.update((products) => {
-        if (!products) {
-          return undefined;
-        }
-        return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductStockDto }) : p));
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+    this.#productsResource.update((products) => {
+      if (!products) {
+        return undefined;
+      }
+      return products.map((p) => (p.id === productId ? productMapper({ ...p, ...updateProductStockDto }) : p));
+    });
   }
 
   public async delete(productId: ProductId) {
     const barId = this.#currentBarId();
     if (!barId) {
-      return handleErrorFormField('NO_BAR_SELECTED');
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
     }
 
-    try {
-      await this.#deleteProduct.execute(barId, productId);
-      this.#productsResource.update((products) => {
-        if (!products) {
-          return undefined;
-        }
-        return products.filter((p) => p.id !== productId);
-      });
-      return null;
-    } catch (error) {
-      return handleErrorFormField(error);
-    }
+    await this.#deleteProduct.execute(barId, productId);
+    this.#productsResource.update((products) => {
+      if (!products) {
+        return undefined;
+      }
+      return products.filter((p) => p.id !== productId);
+    });
   }
 }

@@ -1,5 +1,5 @@
+import { commonMapper } from '@coaster/core';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { commonMapper } from '../../../core/mappers/common.mapper';
 import { TemplatesWriteRepository } from '../../data-access/templates.write.repository';
 import { DeleteCategoryTemplateCommand } from '../impl/delete-category-template.command';
 

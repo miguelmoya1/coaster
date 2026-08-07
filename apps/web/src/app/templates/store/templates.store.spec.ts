@@ -59,6 +59,6 @@ describe('TemplatesStore', () => {
     req.flush(null);
 
     const result = await promise;
-    expect(result).toEqual({ err: null });
+    expect(result).toBeUndefined();
   });
 });

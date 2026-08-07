@@ -1,8 +1,9 @@
+import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId, asOrderItemId } from '@coaster/core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId, asOrderItemId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { BulkUpdateOrderCommand } from '../impl/bulk-update-order.command';
@@ -36,7 +37,7 @@ describe('BulkUpdateOrderHandler', () => {
   const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
 
   it('should throw NotFoundException if order item not found', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: 'OPEN', items: [] });
+    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: OrderStatus.OPEN, items: [] });
 
     await expect(handler.execute(new BulkUpdateOrderCommand(barId, orderId, dto))).rejects.toThrow(NotFoundException);
   });

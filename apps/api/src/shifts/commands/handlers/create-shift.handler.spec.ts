@@ -1,7 +1,7 @@
+import { asBarId, asShiftId, asUserId } from '@coaster/core';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asShiftId, asUserId } from '../../../core';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
 import { ShiftCreatedEvent } from '../../events';

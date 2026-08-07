@@ -1,30 +1,30 @@
-# 📋 Coaster TODO List
+# 📋 Plan de Ruta y Arquitectura de Coaster
 
-## 🤖 Inteligencia Artificial (Recomendaciones)
+Este documento detalla la estrategia de desarrollo secuencial para las funcionalidades restantes de **Coaster**. Está estructurado para respetar y potenciar la arquitectura limpia (DDD/CQRS) implementada en el core de NestJS y Angular.
 
-- [ ] **Esquema BD:** Crear modelo `DbAiRecommendation` (campos: type, content, barId, status).
-- [ ] **Backend (Ventas):** Crear CronJob en NestJS que analice productos más/menos vendidos.
-- [ ] **Backend (Inventario):** IA para sugerir bajar precios de productos con stock alto y sin ventas recientes.
-- [ ] **Backend (RRHH):** IA para recomendaciones de horarios de empleados y tiempos basados en el flujo de trabajo.
+---
 
-## 🕒 Fichaje y Control Horario (Clock-in / Clock-out) (?)
+## Fase 1: Operativa Interna y Cumplimiento Legal
 
-- [ ] **Esquema BD:** Añadir `clockInTime` y `clockOutTime` a `DbShift` (o crear modelo `DbTimeLog` para registrar pausas).
-- [ ] **Frontend:** Interfaz de fichaje en tiempo real (con opción de geolocalización, según README).
-- [ ] **Backend:** Lógica para comparar hora real vs hora programada.
+**Módulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
-## 💰 Pedidos, Descuentos y Propinas
+- **Impacto en Arquitectura:** Extensión del modelo de trabajadores o creación de un dominio separado para la gestión de jornadas (`DbShift` / `DbTimeLog`).
+- **Flujo de Trabajo:**
+  1. Registro de marcas de tiempo en tiempo real con opción de geolocalización asíncrona.
+  2. Lógica de dominio para contrastar la planificación teórica versus las marcas reales del empleado.
 
-- [ ] **Esquema BD:** Añadir campos `tipAmount`, `discountAmount` (o porcentaje) a `DbOrder` y `DbOrderItem`.
-- [ ] **Frontend:** Añadir opciones en el TPV para registrar propinas y aplicar descuentos (invitaciones de la casa, promociones).
-- [ ] **Backend:** Actualizar la lógica de cálculo de los totales de la orden.
+## Fase 2: Capa de Inteligencia y Valor Añadido
 
-## Landing Page
+**Módulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
 
-...
+- **Impacto en Arquitectura:** Consumo de datos históricos acumulados mediante un servicio asíncronizado (`CronJob` en NestJS) que interactúa con la persistencia a través de `DbAiRecommendation`.
+- **Flujo de Trabajo:**
+  1. **Ventas:** Análisis de los productos con mayor y menor rendimiento comercial.
+  2. **Inventario:** Sugerencia inteligente de ajustes de precios basados en stock estancado y rotación nula.
+  3. **RRHH:** Optimización de turnos basada en la carga y flujo histórico de trabajo del bar.
 
-## Printer
+---
 
-Hay que hacer que el backend de la impresora coja la IP local actual del ordenador, o que la web la detecte, para que cualquiera que esté en la red pueda imprimir y mandar tickets.
+## SISTEMA DE RESERVA DE MESAS (PLANTEAR).
 
-Poner seguridad de CORS para la dirección de la URL, o una ruta con una clave que cambie cada cierto tiempo y se regenere automáticamente.
+## visualizar la carta de forma publica.

@@ -1,27 +1,24 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatCard, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Order } from '@coaster/common';
-import { asOrderId, OrderStatus } from '@coaster/core';
-import { OrdersStore } from '@coaster/orders';
+import { OrderStatus } from '@coaster/common';
+import { ActionFeedback, asOrderId } from '@coaster/core';
+import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
-
+import { StatCard } from '../../../../../components/stat-card/stat-card';
 import { PricePipe } from '../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-history',
   imports: [
-    MatCard,
-    MatCardTitle,
-    MatCardSubtitle,
     MatDatepicker,
     MatDatepickerInput,
     MatDatepickerToggle,
@@ -32,6 +29,8 @@ import { PricePipe } from '../../../pipes/price/price';
     MatButton,
     MatIconButton,
     PricePipe,
+    StatCard,
+    RequireSubscriptionDirective,
   ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './history.html',
@@ -39,42 +38,43 @@ import { PricePipe } from '../../../pipes/price/price';
 class History {
   public readonly barId = input.required<BarId>();
 
-  readonly #ordersStore = inject(OrdersStore);
-  readonly #barsStore = inject(BarsStore);
-  readonly #dialog = inject(MatDialog);
+  readonly #orderHistoryStore = inject(OrderHistoryStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #myMemberStore = inject(MyMemberStore);
+  readonly #confirmation = inject(ConfirmationDialog);
 
   readonly #translate = inject(TranslateService);
   readonly #router = inject(Router);
+  readonly #feedback = inject(ActionFeedback);
 
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#orderHistoryStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
   readonly today = new Date().toISOString().split('T')[0];
   readonly todayDate = new Date();
-  protected readonly selectedDate = this.#ordersStore.selectedDate;
-  protected readonly selectedDateAsDate = computed(() => new Date(this.#ordersStore.selectedDate()));
-  protected readonly isLoading = this.#ordersStore.history.isLoading;
-  protected readonly totalClosed = this.#ordersStore.totalClosed;
-  protected readonly totalCancelled = this.#ordersStore.totalCancelled;
+  protected readonly selectedDate = this.#orderHistoryStore.selectedDate;
+  protected readonly selectedDateAsDate = computed(() => new Date(this.#orderHistoryStore.selectedDate()));
+  protected readonly isLoading = this.#orderHistoryStore.history.isLoading;
+  protected readonly totalClosed = this.#orderHistoryStore.totalClosed;
+  protected readonly totalCancelled = this.#orderHistoryStore.totalCancelled;
 
-  protected readonly orderToDelete = signal<Order | null>(null);
+  readonly isToday = computed(() => this.#orderHistoryStore.selectedDate() === this.today);
+  readonly isOwner = this.#myMemberStore.isOwner;
 
-  readonly isToday = computed(() => this.#ordersStore.selectedDate() === this.today);
-  readonly isOwner = this.#barsStore.isOwner;
-
-  readonly totalRevenue = this.#ordersStore.historyTotalRevenue;
-  readonly averageTicket = this.#ordersStore.averageTicket;
+  readonly totalRevenue = this.#orderHistoryStore.historyTotalRevenue;
+  readonly averageTicket = this.#orderHistoryStore.averageTicket;
 
   protected readonly ordersViewModel = computed(() => {
-    if (!this.#ordersStore.history.hasValue()) {
+    if (!this.#orderHistoryStore.history.hasValue()) {
       return [];
     }
 
-    const orders = this.#ordersStore.history.value() ?? [];
+    const orders = this.#orderHistoryStore.history.value() ?? [];
     return orders.map((order) => ({
       original: order,
       tableName: order.tableName ?? this.#translate.instant('orders.no_table'),
@@ -87,37 +87,37 @@ class History {
   onDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value) {
-      this.#ordersStore.setHistoryDate(input.value);
+      this.#orderHistoryStore.setHistoryDate(input.value);
     }
   }
 
   onDatePickerChange(date: Date | null) {
     if (date) {
-      this.#ordersStore.setHistoryDate(date.toISOString().split('T')[0]);
+      this.#orderHistoryStore.setHistoryDate(date.toISOString().split('T')[0]);
     }
   }
 
   prevDay() {
-    const current = new Date(this.#ordersStore.selectedDate());
+    const current = new Date(this.#orderHistoryStore.selectedDate());
     current.setDate(current.getDate() - 1);
-    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   nextDay() {
     if (this.isToday()) return;
-    const current = new Date(this.#ordersStore.selectedDate());
+    const current = new Date(this.#orderHistoryStore.selectedDate());
     current.setDate(current.getDate() + 1);
-    this.#ordersStore.setHistoryDate(current.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(current.toISOString().split('T')[0]);
   }
 
   goToday() {
-    this.#ordersStore.setHistoryDate(this.today);
+    this.#orderHistoryStore.setHistoryDate(this.today);
   }
 
   goYesterday() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    this.#ordersStore.setHistoryDate(yesterday.toISOString().split('T')[0]);
+    this.#orderHistoryStore.setHistoryDate(yesterday.toISOString().split('T')[0]);
   }
 
   onOrderClicked(order: Order) {
@@ -141,38 +141,21 @@ class History {
     return 'history.status_open';
   }
 
-  protected handleDeleteOrder(order: Order) {
-    this.orderToDelete.set(order);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('history.delete_title')),
-        inputBinding('text', () => this.#translate.instant('history.delete_message')),
-        outputBinding('canceled', () => {
-          this.handleCancelDeleteOrder();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleDeleteOrderConfirmed();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleDeleteOrder(order: Order) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('history.delete_title'),
+      text: this.#translate.instant('history.delete_message'),
     });
-  }
 
-  protected handleCancelDeleteOrder() {
-    this.orderToDelete.set(null);
-  }
+    if (!confirmed) return;
 
-  protected async handleDeleteOrderConfirmed() {
-    const order = this.orderToDelete();
-    if (!order) {
-      return;
+    try {
+      await this.#activeOrdersStore.deleteOrder(this.barId(), asOrderId(order.id));
+      this.#orderHistoryStore.reloadHistory();
+    } catch (error) {
+      this.#feedback.error(error);
     }
-
-    await this.#ordersStore.deleteOrder(this.barId(), asOrderId(order.id));
-    this.#ordersStore.reloadHistory();
-    this.orderToDelete.set(null);
   }
 }
 

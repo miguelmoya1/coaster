@@ -1,6 +1,11 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MembersStore } from '@coaster/members';
+import { CurrentBarStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { BarSubscriptionStore, PlanDialogService } from '@coaster/bar-subscription';
+import { BarId, BarPermission } from '@coaster/common';
+import { MembersStore } from '@coaster/bar-members';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
@@ -61,6 +66,32 @@ describe('Dashboard', () => {
     setBarId: vi.fn(),
   };
 
+  const subscriptionSignal = signal({ status: 'ACTIVE', plan: 'PRO' });
+  const barSubscriptionStoreMock = {
+    subscription: {
+      value: subscriptionSignal,
+    },
+    billingAction: signal('MANAGE').asReadonly(),
+    showBillingAction: signal(true).asReadonly(),
+    isOpeningBillingPortal: signal(false).asReadonly(),
+    trialDaysRemaining: signal(0).asReadonly(),
+    isTrialActive: signal(false).asReadonly(),
+    createCustomerPortalSession: vi.fn().mockResolvedValue('https://stripe.portal'),
+    createCheckoutSession: vi.fn().mockResolvedValue('https://stripe.checkout'),
+  };
+
+  const myMemberStoreMock = {
+    hasPermission: vi.fn().mockImplementation((perm: BarPermission) => perm === BarPermission.BAR_MANAGE_BILLING),
+  };
+
+  const currentBarStoreMock = {
+    currentId: signal<BarId | undefined>('bar-1' as BarId).asReadonly(),
+  };
+
+  const planDialogServiceMock = {
+    open: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Dashboard],
@@ -71,6 +102,10 @@ describe('Dashboard', () => {
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: StatsStore, useValue: statsStoreMock },
+        { provide: BarSubscriptionStore, useValue: barSubscriptionStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: PlanDialogService, useValue: planDialogServiceMock },
       ],
     }).compileComponents();
 
@@ -113,6 +148,13 @@ describe('Dashboard', () => {
       const stats = component.overviewStats();
       expect(stats.length).toBe(3);
       expect(stats[0].count).toBe(0);
+    });
+
+    it('should compute statusLabelKey as cancel_at_period_end when status is CANCELED and period is active', () => {
+      const futureDate = new Date(Date.now() + 86400000).toISOString();
+      subscriptionSignal.set({ status: 'CANCELED', currentPeriodEnd: futureDate } as any);
+      expect(component.statusLabelKey()).toBe('billing.status.cancel_at_period_end');
+      expect(component.periodInfoKey()).toBe('billing.cancels_on');
     });
   });
 

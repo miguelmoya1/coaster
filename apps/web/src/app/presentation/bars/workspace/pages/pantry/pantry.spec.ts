@@ -1,8 +1,9 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
 import { CategoriesStore } from '@coaster/categories';
+import { BarRole } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -38,10 +39,10 @@ describe('Pantry', () => {
     setBarId: vi.fn(),
   };
 
-  const barsStoreMock = {
+  const myMemberStoreMock = {
     myMember: {
       value: vi.fn().mockReturnValue({
-        role: 'STAFF',
+        role: BarRole.STAFF,
         permissions: [],
       }),
       hasValue: vi.fn().mockReturnValue(true),
@@ -58,7 +59,7 @@ describe('Pantry', () => {
         provideRouter([]),
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
-        { provide: BarsStore, useValue: barsStoreMock },
+        { provide: MyMemberStore, useValue: myMemberStoreMock },
       ],
     }).compileComponents();
 
@@ -89,7 +90,7 @@ describe('Pantry', () => {
 
     it('should render inventory title', () => {
       fixture.detectChanges();
-      const title = fixture.nativeElement.querySelector('.heading-2');
+      const title = fixture.nativeElement.querySelector('coaster-page-header');
       expect(title).toBeTruthy();
     });
 
@@ -159,20 +160,13 @@ describe('Pantry', () => {
       productsStoreMock.list.value.mockReturnValue(mockProducts);
       productsStoreMock.list.hasValue.mockReturnValue(true);
 
-      // Trigger re-evaluation of the computed signal by changing its state
       component.selectedCategoryId.set('TEMP_VAL');
       component.selectedCategoryId.set('ALL');
 
       const filtered = component.filteredProducts();
-      expect(filtered[0].id).toBe('p-2'); // Absolut Vodka
-      expect(filtered[1].id).toBe('p-1'); // Vodka
-      expect(filtered[2].id).toBe('p-3'); // Zinebra
-    });
-
-    it('should return tabs with ALL as first option', () => {
-      const tabs = component.tabs();
-      expect(tabs.length).toBeGreaterThanOrEqual(1);
-      expect(tabs[0].id).toBe('ALL');
+      expect(filtered[0].id).toBe('p-2');
+      expect(filtered[1].id).toBe('p-1');
+      expect(filtered[2].id).toBe('p-3');
     });
   });
 

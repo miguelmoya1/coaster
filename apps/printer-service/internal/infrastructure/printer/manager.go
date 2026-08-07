@@ -3,10 +3,10 @@ package printer
 import (
 	"context"
 	"fmt"
+
 	"printer-service/internal/domain"
 )
 
-// AutoDetectFunc allows mocking the OS detection in tests
 var AutoDetectFunc = func() (domain.Printer, error) {
 	return AutoDetectOS()
 }
@@ -16,7 +16,7 @@ func AutoDetect() (domain.Printer, error) {
 }
 
 type AutoPrinter struct {
-	actualPrinter domain.Printer
+	current domain.Printer
 }
 
 func NewAutoPrinter() *AutoPrinter {
@@ -24,6 +24,13 @@ func NewAutoPrinter() *AutoPrinter {
 }
 
 func (a *AutoPrinter) Connect(ctx context.Context) error {
+	if a.current != nil {
+		if err := a.current.Connect(ctx); err == nil {
+			return nil
+		}
+		a.current = nil
+	}
+
 	p, err := AutoDetect()
 	if err != nil {
 		return err
@@ -31,22 +38,28 @@ func (a *AutoPrinter) Connect(ctx context.Context) error {
 	if err := p.Connect(ctx); err != nil {
 		return err
 	}
-	a.actualPrinter = p
+
+	a.current = p
 	return nil
 }
 
 func (a *AutoPrinter) Write(b []byte) (int, error) {
-	if a.actualPrinter == nil {
+	if a.current == nil {
 		return 0, fmt.Errorf("printer not connected")
 	}
-	return a.actualPrinter.Write(b)
+	return a.current.Write(b)
 }
 
 func (a *AutoPrinter) Close() error {
-	if a.actualPrinter != nil {
-		err := a.actualPrinter.Close()
-		a.actualPrinter = nil
-		return err
+	if a.current == nil {
+		return nil
 	}
-	return nil
+	return a.current.Close()
+}
+
+func (a *AutoPrinter) String() string {
+	if a.current == nil {
+		return "auto:(not yet detected)"
+	}
+	return fmt.Sprintf("auto:%v", a.current)
 }

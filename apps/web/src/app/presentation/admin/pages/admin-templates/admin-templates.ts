@@ -6,23 +6,39 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Toast } from '@coaster/core';
+import { ActionFeedback } from '@coaster/core';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { Loading } from '../../../components/loading/loading';
+import { PageContainer } from '../../../components/page-container/page-container';
+import { PageHeader } from '../../../components/page-header/page-header';
 import { STANDARD_TEMPLATES_JSON } from './admin-template.constants';
 
 @Component({
   selector: 'coaster-admin-templates',
-  imports: [FormRoot, FormField, MatFormField, MatInput, MatButton, MatIcon, Loading, TranslatePipe],
+  imports: [
+    FormRoot,
+    FormField,
+    MatFormField,
+    MatInput,
+    MatButton,
+    MatIcon,
+    Loading,
+    TranslatePipe,
+    PageContainer,
+    PageHeader,
+  ],
+  host: {
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
+  },
   templateUrl: './admin-templates.html',
   styleUrl: './admin-templates.css',
 })
 export class AdminTemplates {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);
-  readonly #toast = inject(Toast);
+  readonly #feedback = inject(ActionFeedback);
   readonly #templatesStore = inject(TemplatesStore);
   readonly #translate = inject(TranslateService);
 
@@ -67,16 +83,15 @@ export class AdminTemplates {
             const payload = JSON.parse(form().value().jsonContent);
             await firstValueFrom(this.#http.post('/templates/bulk', payload));
 
-            this.#toast.success(this.#translate.instant('admin_templates.toasts.update_success'));
+            this.#feedback.success(this.#translate.instant('admin_templates.toasts.update_success'));
             this.#templatesStore.reloadTemplates();
             this.form.jsonContent().value.set('');
           } catch (err) {
-            console.error(err);
             let errMsg = this.#translate.instant('admin_templates.toasts.update_error');
             if (err instanceof HttpErrorResponse) {
               errMsg = err.error?.message || err.message || errMsg;
             }
-            this.#toast.error(errMsg);
+            this.#feedback.error(errMsg);
             return {
               kind: 'http_error',
               message: errMsg,
@@ -94,7 +109,7 @@ export class AdminTemplates {
 
   loadStandardTemplates() {
     this.form.jsonContent().value.set(STANDARD_TEMPLATES_JSON);
-    this.#toast.show(this.#translate.instant('admin_templates.toasts.load_success'), 'info', 2000);
+    this.#feedback.info(this.#translate.instant('admin_templates.toasts.load_success'), 2000);
   }
 }
 

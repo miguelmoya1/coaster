@@ -11,7 +11,7 @@ import {
   User,
 } from 'firebase/auth';
 import { Observable } from 'rxjs';
-
+import { AuthRepository } from '../data-access/auth-repository';
 export const FIREBASE_AUTH = new InjectionToken<FirebaseAuth>('FIREBASE_AUTH');
 
 export interface UserProfile {
@@ -58,6 +58,7 @@ export function idToken(auth: FirebaseAuth): Observable<string | null> {
 export class Auth {
   readonly #auth = inject(FIREBASE_AUTH);
   readonly #router = inject(Router);
+  readonly #authRepo = inject(AuthRepository);
   #isTestMode = false;
   readonly #currentUser = signal<User | null | undefined>(undefined);
   readonly #token = signal<string | null | undefined>(undefined);
@@ -80,7 +81,6 @@ export class Auth {
     if (typeof window !== 'undefined' && !(window as unknown as { _production: boolean })._production) {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
         async (token = 'fake-jwt-token', targetRoute = '/bars') => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.#isTestMode = true;
           this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
           this.#token.set(token);
@@ -127,6 +127,10 @@ export class Auth {
   public async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
     const credentials = await signInWithPopup(this.#auth, provider);
+
+    const token = await credentials.user.getIdToken();
+
+    await this.#authRepo.syncUser(token);
 
     return credentials.user;
   }

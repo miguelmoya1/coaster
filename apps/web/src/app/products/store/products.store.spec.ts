@@ -120,7 +120,6 @@ describe('ProductsStore', () => {
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
 
-      // Wait for repository PATCH promise to resolve and local update to execute
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -129,10 +128,10 @@ describe('ProductsStore', () => {
       TestBed.tick();
 
       const list = store.list.value();
-      expect(list?.length).toBe(2); // Should NOT duplicate!
+      expect(list?.length).toBe(2);
       expect(list?.[0].name).toBe('Vodka Premium Extra');
       expect(list?.[0].price).toBe(1800);
-      expect(list?.[1]).toEqual(mockProducts[1]); // The other product remains unchanged
+      expect(list?.[1]).toEqual(mockProducts[1]);
     });
   });
 
@@ -158,7 +157,6 @@ describe('ProductsStore', () => {
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
 
-      // Wait for repository PATCH promise to resolve and local update to execute
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
@@ -167,9 +165,9 @@ describe('ProductsStore', () => {
       TestBed.tick();
 
       const list = store.list.value();
-      expect(list?.length).toBe(2); // Should NOT duplicate!
+      expect(list?.length).toBe(2);
       expect(list?.[0].currentStock).toBe(15);
-      expect(list?.[1]).toEqual(mockProducts[1]); // The other product remains unchanged
+      expect(list?.[1]).toEqual(mockProducts[1]);
     });
   });
 
@@ -204,8 +202,7 @@ describe('ProductsStore', () => {
 
     it('should return error if no bar selected', async () => {
       store.setBarId(null);
-      const res = await store.delete(mockProducts[0].id);
-      expect(res).not.toBeNull();
+      await expect(store.delete(mockProducts[0].id)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 
@@ -213,7 +210,7 @@ describe('ProductsStore', () => {
     it('should call create and reload', async () => {
       const barId = asBarId('bar-1');
       store.setBarId(barId);
-      
+
       const createPromise = store.create({ name: 'New', price: 100 } as any);
       const createReq = httpMock.expectOne(`/bars/${barId}/products`);
       expect(createReq.request.method).toBe('POST');
@@ -222,17 +219,16 @@ describe('ProductsStore', () => {
       TestBed.tick();
       await Promise.resolve();
       TestBed.tick();
-      
+
       const reloadReq = httpMock.expectOne(`/bars/${barId}/products`);
       reloadReq.flush(mockProductsRaw);
-      
+
       await createPromise;
     });
 
     it('should return error if no bar selected', async () => {
       store.setBarId(null);
-      const res = await store.create({ name: 'New', price: 100 } as any);
-      expect(res).not.toBeNull();
+      await expect(store.create({ name: 'New', price: 100 } as any)).rejects.toThrow('MISSING_BAR_ID');
     });
   });
 
@@ -244,9 +240,9 @@ describe('ProductsStore', () => {
 
       const getReq = httpMock.expectOne(`/bars/${barId}/products`);
       getReq.flush([
-        { ...mockProductsRaw[0], currentStock: 10, minStockAlert: 5 }, // GOOD
-        { ...mockProductsRaw[1], currentStock: 5, minStockAlert: 5 },  // WARNING
-        { id: 'p-3', currentStock: 0, minStockAlert: 5, categoryId: 'cat-3', name: 'Alert' } // ALERT
+        { ...mockProductsRaw[0], currentStock: 10, minStockAlert: 5 },
+        { ...mockProductsRaw[1], currentStock: 5, minStockAlert: 5 },
+        { id: 'p-3', currentStock: 0, minStockAlert: 5, categoryId: 'cat-3', name: 'Alert' },
       ]);
       TestBed.tick();
       await Promise.resolve();
@@ -272,7 +268,7 @@ describe('ProductsStore', () => {
 
       mockSocket.productCreated.set({ ...mockProducts[0], id: asProductId('new-sock-1') } as any);
       TestBed.tick();
-      
+
       expect(store.list.value()?.length).toBe(3);
     });
 
@@ -289,7 +285,7 @@ describe('ProductsStore', () => {
 
       mockSocket.productDeleted.set({ id: mockProducts[0].id });
       TestBed.tick();
-      
+
       expect(store.list.value()?.length).toBe(1);
       expect(store.list.value()?.[0].id).toBe(mockProducts[1].id);
     });

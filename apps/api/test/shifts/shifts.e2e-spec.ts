@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('ShiftsController (e2e)', () => {
@@ -13,8 +13,7 @@ describe('ShiftsController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
-    // Seed the mock user
+
     const user = await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -26,18 +25,7 @@ describe('ShiftsController (e2e)', () => {
     });
     userId = user.id;
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: 'OWNER',
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
@@ -57,18 +45,14 @@ describe('ShiftsController (e2e)', () => {
         notes: 'Morning shift',
       };
 
-      const response = await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/shifts`)
-        .send(dto);
-
+      const response = await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/shifts`).send(dto);
 
       expect(response.status).toBe(201);
 
-      // Verify in database
       const shifts = await testSetup.prisma.dbShift.findMany({
         where: { barId },
       });
-      
+
       expect(shifts).toHaveLength(1);
       expect(shifts[0].userId).toBe(userId);
       expect(shifts[0].notes).toBe('Morning shift');
@@ -97,9 +81,7 @@ describe('ShiftsController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/shifts`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/shifts`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(shift.id);
@@ -118,9 +100,7 @@ describe('ShiftsController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/shifts/${shift.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/shifts/${shift.id}`).expect(200);
 
       const deleted = await testSetup.prisma.dbShift.findUnique({
         where: { id: shift.id },

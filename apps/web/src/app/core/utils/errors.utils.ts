@@ -1,8 +1,9 @@
 import { TreeValidationResult } from '@angular/forms/signals';
+import { ErrorCodes } from '@coaster/common';
 import { environment } from '@coaster/env';
 import { ApiError } from '../errors/api-error';
 
-const handleError = (error: unknown) => {
+export const getErrorMessage = (error: unknown): string => {
   if (error instanceof ApiError) {
     return error.message;
   }
@@ -15,7 +16,7 @@ const handleError = (error: unknown) => {
     return error;
   }
 
-  return 'UNEXPECTED_ERROR';
+  return ErrorCodes.UNEXPECTED_ERROR;
 };
 
 export const handleErrorFormField: (error: unknown) => TreeValidationResult = (error: unknown) => {
@@ -25,6 +26,6 @@ export const handleErrorFormField: (error: unknown) => TreeValidationResult = (e
 
   return {
     kind: 'processing_error',
-    message: handleError(error),
+    message: getErrorMessage(error),
   };
 };

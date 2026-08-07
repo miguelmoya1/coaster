@@ -1,13 +1,16 @@
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, outputBinding } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
-import { BarsStore } from '@coaster/bars';
+import { MyMemberStore } from '@coaster/bar-members';
+import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, BarMember } from '@coaster/common';
-import { MembersStore } from '@coaster/members';
+import { ActionFeedback } from '@coaster/core';
+import { MembersStore } from '@coaster/bar-members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
+import { PageContainer } from '../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
 import { InviteMemberForm } from './components/invite-member-form/invite-member-form';
 import { StaffMemberCard } from './components/staff-member-card/staff-member-card';
@@ -20,9 +23,18 @@ type MemberItem = BarMember & {
 
 @Component({
   selector: 'coaster-staff',
-  imports: [Loading, StaffMemberCard, Fab, TranslatePipe, RouterLink],
+  imports: [
+    Loading,
+    StaffMemberCard,
+    Fab,
+    TranslatePipe,
+    RouterLink,
+    PageContainer,
+    PageHeader,
+    RequireSubscriptionDirective,
+  ],
   host: {
-    class: 'flex flex-col gap-2',
+    class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 relative',
   },
   templateUrl: './staff.html',
 })
@@ -30,23 +42,23 @@ export default class Staff {
   public readonly barId = input.required<BarId>();
 
   readonly #membersStore = inject(MembersStore);
-  readonly #barsStore = inject(BarsStore);
+  readonly #myMemberStore = inject(MyMemberStore);
   protected readonly router = inject(Router);
   readonly #route = inject(ActivatedRoute);
-  readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
   readonly #translate = inject(TranslateService);
+  readonly #feedback = inject(ActionFeedback);
   readonly #bottomSheet = inject(MatBottomSheet);
 
-  protected readonly memberDeleting = signal<MemberItem | null>(null);
   protected readonly membersLoading = this.#membersStore.list.isLoading;
 
   protected readonly userMember = computed(() => {
-    if (!this.#barsStore.myMember.hasValue()) {
+    if (!this.#myMemberStore.myMember.hasValue()) {
       return undefined;
     }
-    return this.#barsStore.myMember.value();
+    return this.#myMemberStore.myMember.value();
   });
-  protected readonly isOwner = this.#barsStore.isOwner;
+  protected readonly isOwner = this.#myMemberStore.isOwner;
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];
@@ -98,45 +110,28 @@ export default class Staff {
     });
   }
 
-  protected handleClickDeleteMember(member: MemberItem) {
-    this.memberDeleting.set(member);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.title' : 'members.delete.title', {
-            name: member.userName,
-          }),
-        ),
-        inputBinding('text', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.message' : 'members.delete.message', {
-            name: member.userName,
-          }),
-        ),
-        inputBinding('confirmLabel', () =>
-          this.#translate.instant(member.isCurrentUser ? 'members.leave' : 'common.delete'),
-        ),
-        outputBinding('canceled', () => {
-          this.memberDeleting.set(null);
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleConfirmDeleteMember();
-          dialogRef.close();
-        }),
-      ],
+  protected async handleClickDeleteMember(member: MemberItem) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.title' : 'members.delete.title', {
+        name: member.userName,
+      }),
+      text: this.#translate.instant(member.isCurrentUser ? 'members.leave_dialog.message' : 'members.delete.message', {
+        name: member.userName,
+      }),
+      confirmLabel: member.isCurrentUser ? 'members.leave' : 'common.delete',
     });
+
+    if (!confirmed) return;
+
+    try {
+      await this.#membersStore.remove(member.id);
+    } catch (error) {
+      this.#feedback.error(error);
+    }
   }
 
   protected closeModal() {
     this.router.navigate(['/bars', this.barId(), 'staff']);
-  }
-
-  protected async handleConfirmDeleteMember() {
-    const member = this.memberDeleting();
-
-    if (member) {
-      await this.#membersStore.remove(member.id);
-    }
   }
 }

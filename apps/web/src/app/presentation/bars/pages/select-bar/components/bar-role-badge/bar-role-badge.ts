@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import type { BarRole } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

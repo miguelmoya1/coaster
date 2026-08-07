@@ -1,10 +1,10 @@
+import { asBarId, asBarRole, getRolePermissions } from '@coaster/core';
+import { DbBarRole } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asBarRole, getRolePermissions } from '../../../core';
-import { DbBarRole } from '../../../core/db';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
-import { GetMembersHandler } from './get-members.handler';
 import { GetMembersQuery } from '../impl/get-members.query';
+import { GetMembersHandler } from './get-members.handler';
 
 describe('GetMembersHandler', () => {
   let handler: GetMembersHandler;

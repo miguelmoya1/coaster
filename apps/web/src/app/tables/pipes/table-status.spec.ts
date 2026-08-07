@@ -1,5 +1,6 @@
+import { TableStatus } from '@coaster/common';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { TableStatusPipe } from './table-status';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('TableStatusPipe', () => {
   let pipe: TableStatusPipe;
@@ -13,30 +14,30 @@ describe('TableStatusPipe', () => {
   });
 
   it('should return correct class for OCCUPIED', () => {
-    expect(pipe.transform('OCCUPIED', 'class')).toBe('bg-error/10 border-error/40 text-error');
+    expect(pipe.transform(TableStatus.OCCUPIED, 'class')).toBe('bg-error/10 border-error/40 text-error');
   });
 
   it('should return correct class for FREE', () => {
-    expect(pipe.transform('FREE', 'class')).toBe('bg-secondary/10 border-secondary/40 text-secondary');
+    expect(pipe.transform(TableStatus.FREE, 'class')).toBe('bg-secondary/10 border-secondary/40 text-secondary');
   });
 
   it('should return correct icon for OCCUPIED', () => {
-    expect(pipe.transform('OCCUPIED', 'icon')).toBe('group');
+    expect(pipe.transform(TableStatus.OCCUPIED, 'icon')).toBe('group');
   });
 
   it('should return correct icon for FREE', () => {
-    expect(pipe.transform('FREE', 'icon')).toBe('check_circle');
+    expect(pipe.transform(TableStatus.FREE, 'icon')).toBe('check_circle');
   });
 
   it('should return correct label for OCCUPIED', () => {
-    expect(pipe.transform('OCCUPIED', 'label')).toBe('orders.table_occupied');
+    expect(pipe.transform(TableStatus.OCCUPIED, 'label')).toBe('orders.table_occupied');
   });
 
   it('should return correct label for FREE', () => {
-    expect(pipe.transform('FREE', 'label')).toBe('orders.table_free');
+    expect(pipe.transform(TableStatus.FREE, 'label')).toBe('orders.table_free');
   });
 
   it('should return empty string for unknown type', () => {
-    expect(pipe.transform('FREE', 'unknown' as any)).toBe('');
+    expect(pipe.transform(TableStatus.FREE, 'unknown' as any)).toBe('');
   });
 });

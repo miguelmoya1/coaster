@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -41,13 +42,19 @@ import { TranslatePipe } from '@ngx-translate/core';
       <span [class]="compact() ? 'text-sm font-bold text-white truncate' : 'text-white font-bold title-lg'">
         {{ staffName() }}
       </span>
-      @if (!compact() && roleName() === 'OWNER') {
+      @if (!compact() && roleName() === BarRole.OWNER) {
         <div class="flex items-center gap-2 mt-1">
           <span
             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mat-bg-surface-container-highest mat-text-on-surface-variant"
           >
             {{ roleName() }}
           </span>
+        </div>
+      }
+      @if (notes()) {
+        <div class="flex items-start gap-1.5 mt-2 bg-surface-container p-2 rounded-lg text-sm text-on-surface-variant">
+          <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0! shrink-0">notes</mat-icon>
+          <span class="leading-tight">{{ notes() }}</span>
         </div>
       }
     </div>
@@ -114,10 +121,12 @@ import { TranslatePipe } from '@ngx-translate/core';
   },
 })
 export class ShiftCard {
+  protected readonly BarRole = BarRole;
   readonly staffName = input.required<string>();
   readonly staffImage = input<string>('');
   readonly timeRange = input.required<string>();
   readonly roleName = input.required<string>();
+  readonly notes = input<string>();
   readonly roleColorClass = input('text-primary bg-primary');
   readonly disabled = input(false);
   readonly isOwn = input(false);

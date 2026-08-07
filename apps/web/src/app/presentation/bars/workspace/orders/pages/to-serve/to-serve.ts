@@ -2,8 +2,8 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { BarId, BulkUpdateItemDto, OrderItem } from '@coaster/common';
-import { asOrderId, asOrderItemId } from '@coaster/core';
-import { OrderTitlePipe, OrdersStore } from '@coaster/orders';
+import { ActionFeedback, asOrderId, asOrderItemId } from '@coaster/core';
+import { ActiveOrdersStore, OrderTitlePipe } from '@coaster/orders';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Loading } from '../../../../../components/loading/loading';
 
@@ -18,11 +18,11 @@ import { NumberInput } from '../../../../../components/number-input/number-input
 class ToServe {
   public readonly barId = input.required<BarId>();
 
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly isLoading = signal(false);
 
-  // Map of selected items: itemId -> { orderId, item, serveQty }
   protected readonly selectedItems = signal<Map<string, { orderId: string; item: OrderItem; serveQty: number }>>(
     new Map(),
   );
@@ -36,13 +36,12 @@ class ToServe {
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
     });
   }
 
-  // Filtered and sorted open orders with pending/unserved items
   protected readonly ordersToServe = computed(() => {
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
     return orders
       .map((order) => {
         const unservedItems = order.items
@@ -68,7 +67,7 @@ class ToServe {
       .sort((a, b) => {
         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return aTime - bTime; // Oldest first (FIFO queue)
+        return aTime - bTime;
       });
   });
 
@@ -84,7 +83,7 @@ class ToServe {
       current.set(item.id, {
         orderId,
         item,
-        serveQty: item.quantity - item.servedQuantity, // Default to all remaining
+        serveQty: item.quantity - item.servedQuantity,
       });
     }
     this.selectedItems.set(current);
@@ -103,14 +102,12 @@ class ToServe {
     this.selectedItems.set(new Map());
   }
 
-  // Serve selected items in bulk across orders
   protected async applySelectedChanges() {
     if (this.selectedItems().size === 0) return;
 
     try {
       this.isLoading.set(true);
 
-      // Group changes by orderId
       const groups = new Map<string, BulkUpdateItemDto[]>();
       for (const val of this.selectedItems().values()) {
         if (!groups.has(val.orderId)) {
@@ -118,45 +115,42 @@ class ToServe {
         }
         groups.get(val.orderId)!.push({
           itemId: asOrderItemId(val.item.id),
-          servedQuantity: val.item.servedQuantity + val.serveQty, // partial / full served value!
+          servedQuantity: val.item.servedQuantity + val.serveQty,
         });
       }
 
-      // Execute bulk updates in parallel
       await Promise.all(
         Array.from(groups.entries()).map(([orderId, items]) =>
-          this.#ordersStore.bulkUpdate(this.barId(), asOrderId(orderId), { items }),
+          this.#activeOrdersStore.bulkUpdate(this.barId(), asOrderId(orderId), { items }),
         ),
       );
 
       this.clearSelection();
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  // Quick serve button action
   protected async serveSingleItem(orderId: string, item: OrderItem) {
     try {
       this.isLoading.set(true);
-      await this.#ordersStore.bulkUpdate(this.barId(), asOrderId(orderId), {
+      await this.#activeOrdersStore.bulkUpdate(this.barId(), asOrderId(orderId), {
         items: [
           {
             itemId: asOrderItemId(item.id),
-            servedQuantity: item.quantity, // fully serve
+            servedQuantity: item.quantity,
           },
         ],
       });
-      // Remove from selection if it was selected
       if (this.isItemSelected(item.id)) {
         const current = new Map(this.selectedItems());
         current.delete(item.id);
         this.selectedItems.set(current);
       }
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     } finally {
       this.isLoading.set(false);
     }

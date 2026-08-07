@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
+ * Model DbOrderAdjustment
+ * 
+ */
+export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
+/**
  * Model DbUser
  * 
  */
@@ -77,3 +82,28 @@ export type DbOrder = Prisma.DbOrderModel
  * 
  */
 export type DbOrderItem = Prisma.DbOrderItemModel
+/**
+ * Model DbPrinterConfig
+ * 
+ */
+export type DbPrinterConfig = Prisma.DbPrinterConfigModel
+/**
+ * Model DbPrintJob
+ * A ticket waiting for the bar's print bridge to collect it.
+ * 
+ * The queue lives in the database rather than in memory because the API
+ * autoscales: the bridge's long-poll and the waiter's print request routinely
+ * land on different instances, and anything held in process memory would be
+ * invisible to the other one.
+ */
+export type DbPrintJob = Prisma.DbPrintJobModel
+/**
+ * Model DbBarSubscription
+ * 
+ */
+export type DbBarSubscription = Prisma.DbBarSubscriptionModel
+/**
+ * Model DbStripeWebhookEvent
+ * 
+ */
+export type DbStripeWebhookEvent = Prisma.DbStripeWebhookEventModel

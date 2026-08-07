@@ -1,8 +1,9 @@
+import { OrderStatus } from '@coaster/common';
+import { asBarId, asOrderId } from '@coaster/core';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asOrderId } from '../../../core';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
 import { OrderDeletedEvent } from '../../events';
@@ -36,7 +37,7 @@ describe('DeleteOrderHandler', () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'OPEN',
+      status: OrderStatus.OPEN,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -46,11 +47,11 @@ describe('DeleteOrderHandler', () => {
     );
   });
 
-  it('should delete today\'s closed order successfully', async () => {
+  it("should delete today's closed order successfully", async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
       barId: 'bar-1',
-      status: 'CLOSED',
+      status: OrderStatus.CLOSED,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

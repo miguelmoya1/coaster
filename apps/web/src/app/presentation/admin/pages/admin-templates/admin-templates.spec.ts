@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
 import { submit } from '@angular/forms/signals';
-import { Toast } from '@coaster/core';
+import { provideRouter, Router } from '@angular/router';
+import { ActionFeedback } from '@coaster/core';
 import { TemplatesStore } from '@coaster/templates';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -17,14 +17,12 @@ describe('AdminTemplates', () => {
     post: vi.fn(),
   };
 
-  const routerMock = {
-    navigate: vi.fn().mockResolvedValue(true),
-  };
+  let router: Router;
 
-  const toastMock = {
+  const feedbackMock = {
     success: vi.fn(),
     error: vi.fn(),
-    show: vi.fn(),
+    info: vi.fn(),
   };
 
   const templatesStoreMock = {
@@ -38,16 +36,15 @@ describe('AdminTemplates', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-        { provide: Toast, useValue: toastMock },
+        { provide: ActionFeedback, useValue: feedbackMock },
         { provide: TemplatesStore, useValue: templatesStoreMock },
       ],
     }).compileComponents();
 
-    vi.clearAllMocks();
-
     fixture = TestBed.createComponent(AdminTemplates);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
@@ -62,12 +59,12 @@ describe('AdminTemplates', () => {
   it('should load standard templates and show toast', () => {
     component.loadStandardTemplates();
     expect(component.form.jsonContent().value()).toContain('Cafetería');
-    expect(toastMock.show).toHaveBeenCalled();
+    expect(feedbackMock.info).toHaveBeenCalled();
   });
 
   it('should navigate back', () => {
     component.goBack();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
   });
 
   describe('validation', () => {
@@ -105,7 +102,7 @@ describe('AdminTemplates', () => {
       await submit(component.form);
 
       expect(httpMock.post).toHaveBeenCalledWith('/templates/bulk', []);
-      expect(toastMock.success).toHaveBeenCalled();
+      expect(feedbackMock.success).toHaveBeenCalled();
       expect(templatesStoreMock.reloadTemplates).toHaveBeenCalled();
       expect(component.form.jsonContent().value()).toBe('');
     });
@@ -119,7 +116,7 @@ describe('AdminTemplates', () => {
       await submit(component.form);
 
       expect(httpMock.post).toHaveBeenCalled();
-      expect(toastMock.error).toHaveBeenCalled();
+      expect(feedbackMock.error).toHaveBeenCalled();
     });
   });
 });

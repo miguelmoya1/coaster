@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BarRole } from '@coaster/core';
+import { BarRole } from '@coaster/common';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BarRoleBadge } from './bar-role-badge';
 
 describe('BarRoleBadge', () => {

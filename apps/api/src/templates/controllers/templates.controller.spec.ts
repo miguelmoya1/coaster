@@ -1,10 +1,9 @@
-import { asCategoryId } from '../../core';
+import { FirebaseAuthGuard } from '@coaster/auth';
+import { AdminGuard, asCategoryId, BarPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { AdminGuard, BarPermissionsGuard } from '../../core';
-import { FirebaseAuthGuard } from '../../auth';
 import {
   BulkUpsertTemplatesCommand,
   CreateCategoryTemplateCommand,

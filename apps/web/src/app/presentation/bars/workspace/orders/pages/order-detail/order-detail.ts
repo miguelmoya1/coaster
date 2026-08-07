@@ -3,51 +3,68 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import type { BarId, BulkUpdateItemDto, Order, OrderItem, PaymentMethod } from '@coaster/common';
-import { asOrderId, asOrderItemId, asTableId } from '@coaster/core';
-import { OrdersStore, OrderTitlePipe } from '@coaster/orders';
+import type { BarId, BulkUpdateItemDto, Order, OrderItem } from '@coaster/common';
+import { AdjustmentTarget, OrderStatus, PaymentMethod } from '@coaster/common';
+import { ActionFeedback, asOrderId, asOrderItemId, asTableId } from '@coaster/core';
+import { ActiveOrdersStore, OrderHistoryStore, OrderTitlePipe } from '@coaster/orders';
+import { PrintTicket } from '@coaster/printer';
 import { TablesStore } from '@coaster/tables';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ConfirmDialogComponent } from '../../../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmationDialog } from '../../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../../components/loading/loading';
+import { AddAdjustmentDialog, AddAdjustmentResult } from './components/add-adjustment-dialog/add-adjustment-dialog';
 import { MergeOrdersDialog } from './components/merge-orders-dialog/merge-orders-dialog';
 import { MoveTableDialog } from './components/move-table-dialog/move-table-dialog';
-import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
 import { OrderActions } from './components/order-actions/order-actions';
-import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
-import { OrderItemCard } from './components/order-item-card/order-item-card';
 import { OrderBulkActions } from './components/order-bulk-actions/order-bulk-actions';
+import { OrderItemCard } from './components/order-item-card/order-item-card';
+import { OrderSummaryCard } from './components/order-summary-card/order-summary-card';
+import { PaymentMethodDialog } from './components/payment-method-dialog/payment-method-dialog';
+import { UpdateTipDialog } from './components/update-tip-dialog/update-tip-dialog';
 
 @Component({
   selector: 'coaster-order-detail',
-  imports: [Loading, MatButton, MatIconButton, TranslatePipe, MatIcon, OrderTitlePipe, OrderActions, OrderSummaryCard, OrderItemCard, OrderBulkActions],
+  imports: [
+    Loading,
+    MatButton,
+    MatIconButton,
+    TranslatePipe,
+    MatIcon,
+    OrderTitlePipe,
+    OrderActions,
+    OrderSummaryCard,
+    OrderItemCard,
+    OrderBulkActions,
+  ],
   host: { class: 'flex flex-col gap-4' },
   templateUrl: './order-detail.html',
 })
 class OrderDetail {
+  protected readonly OrderStatus = OrderStatus;
   public readonly barId = input.required<BarId>();
   public readonly orderId = input.required<string>();
 
-  readonly #ordersStore = inject(OrdersStore);
+  readonly #activeOrdersStore = inject(ActiveOrdersStore);
+  readonly #orderHistoryStore = inject(OrderHistoryStore);
   readonly #tablesStore = inject(TablesStore);
   readonly #router = inject(Router);
   readonly #dialog = inject(MatDialog);
+  readonly #confirmation = inject(ConfirmationDialog);
+  readonly #printTicket = inject(PrintTicket);
+  readonly #feedback = inject(ActionFeedback);
 
   readonly #translate = inject(TranslateService);
 
   protected readonly isPrinting = signal(false);
-  protected readonly orderItemDeleting = signal<OrderItem | null>(null);
-  protected readonly isCancelingOrderModelOpen = signal(false);
 
   readonly resolvedOrderId = computed(() => asOrderId(this.orderId()));
 
   readonly fetchedOrder = signal<Order | null>(null);
   readonly isLoading = signal(false);
+  #loadRequest = 0;
 
-  // Local multi-selection state: maps itemId to selected paid quantities
   protected readonly selectedItems = signal<Map<string, { paidQty: number }>>(new Map());
 
-  // Helper computed signals
   protected readonly selectedItemsList = computed(() => {
     const selected = this.selectedItems();
     return Array.from(selected.entries())
@@ -77,7 +94,7 @@ class OrderDetail {
   });
 
   readonly currentOrder = computed(() => {
-    const orders = this.#ordersStore.openOrders();
+    const orders = this.#activeOrdersStore.openOrders();
     return orders.find((o) => o.id === this.resolvedOrderId()) ?? null;
   });
 
@@ -105,34 +122,46 @@ class OrderDetail {
     };
   });
 
-  protected readonly isLoadingServices = this.#ordersStore.list.isLoading;
+  protected readonly isLoadingServices = this.#activeOrdersStore.list.isLoading;
 
   #isNavigatingAway = false;
 
   constructor() {
     effect(() => {
       const barId = this.barId();
-      this.#ordersStore.setBarId(barId);
+      this.#activeOrdersStore.setBarId(barId);
+      this.#orderHistoryStore.setBarId(barId);
       this.#tablesStore.setBarId(barId);
     });
 
-    effect(async () => {
+    effect(() => {
       if (this.#isNavigatingAway) return;
       const current = this.currentOrder();
+      const request = ++this.#loadRequest;
+
       if (!current) {
-        this.isLoading.set(true);
-        try {
-          const order = await this.#ordersStore.getOrder(this.barId(), this.resolvedOrderId());
-          this.fetchedOrder.set(order);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          this.isLoading.set(false);
-        }
+        void this.loadOrder(request);
       } else {
         this.fetchedOrder.set(null);
+        this.isLoading.set(false);
       }
     });
+  }
+
+  private async loadOrder(request: number) {
+    this.isLoading.set(true);
+    try {
+      const order = await this.#activeOrdersStore.getOrder(this.barId(), this.resolvedOrderId());
+      if (request === this.#loadRequest) {
+        this.fetchedOrder.set(order);
+      }
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      if (request === this.#loadRequest) {
+        this.isLoading.set(false);
+      }
+    }
   }
 
   async goBack() {
@@ -212,12 +241,12 @@ class OrderDetail {
 
     try {
       this.isLoading.set(true);
-      await this.#ordersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
-      const updated = await this.#ordersStore.getOrder(this.barId(), order.id);
+      await this.#activeOrdersStore.bulkUpdate(this.barId(), order.id, { items: itemsToUpdate });
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
       this.fetchedOrder.set(updated);
       this.clearSelection();
     } catch (e) {
-      console.error(e);
+      this.#feedback.error(e);
     } finally {
       this.isLoading.set(false);
     }
@@ -227,13 +256,14 @@ class OrderDetail {
     const order = this.currentOrder();
     if (!order) return;
 
-    this.#openPaymentMethodDialog(order.totalAmount).subscribe(async (method) => {
+    const pendingAmount = Math.max(0, order.payableTotal - (order.amountPaidCash + order.amountPaidCard));
+    this.#openPaymentMethodDialog(pendingAmount).subscribe(async (method) => {
       if (!method) return;
 
-      await this.#ordersStore.checkout(this.barId(), order.id, method);
+      await this.#activeOrdersStore.checkout(this.barId(), order.id, method);
       this.goBack();
       this.#tablesStore.reload();
-      this.#ordersStore.reloadHistory();
+      this.#orderHistoryStore.reloadHistory();
     });
   }
 
@@ -253,73 +283,38 @@ class OrderDetail {
     return dialogRef.afterClosed();
   }
 
-  protected handleCancelOrder() {
-    this.isCancelingOrderModelOpen.set(true);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('orders.cancel_title')),
-        inputBinding('text', () => this.#translate.instant('orders.cancel_message')),
-        outputBinding('canceled', () => {
-          this.handleCancelCancelOrderDialog();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleCancelOrderConfirmed();
-          dialogRef.close();
-        }),
-      ],
-    });
-  }
-
-  protected handleCancelCancelOrderDialog() {
-    this.isCancelingOrderModelOpen.set(false);
-  }
-
-  protected async handleCancelOrderConfirmed() {
+  protected async handleCancelOrder() {
     const order = this.currentOrder();
     if (!order) return;
 
-    await this.#ordersStore.cancel(this.barId(), order.id);
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('orders.cancel_title'),
+      text: this.#translate.instant('orders.cancel_message'),
+    });
+
+    if (!confirmed) return;
+
+    await this.#activeOrdersStore.cancel(this.barId(), order.id);
     this.goBack();
     this.#tablesStore.reload();
-    this.#ordersStore.reloadHistory();
-    this.isCancelingOrderModelOpen.set(false);
+    this.#orderHistoryStore.reloadHistory();
   }
 
-  protected handleRemoveItem(item: OrderItem) {
-    this.orderItemDeleting.set(item);
-    const dialogRef = this.#dialog.open(ConfirmDialogComponent, {
-      bindings: [
-        inputBinding('destructive', () => true),
-        inputBinding('title', () => this.#translate.instant('orders.remove_item_title')),
-        inputBinding('text', () => this.#translate.instant('orders.remove_item_message')),
-        outputBinding('canceled', () => {
-          this.handleCancelRemoveItem();
-          dialogRef.close();
-        }),
-        outputBinding('deleted', () => {
-          this.handleRemoveItemConfirmed();
-          dialogRef.close();
-        }),
-      ],
-    });
-  }
-
-  protected handleCancelRemoveItem() {
-    this.orderItemDeleting.set(null);
-  }
-
-  protected async handleRemoveItemConfirmed() {
+  protected async handleRemoveItem(item: OrderItem) {
     const order = this.currentOrder();
-    const item = this.orderItemDeleting();
-    if (!order || !item) {
-      return;
-    }
+    if (!order) return;
 
-    await this.#ordersStore.removeItem(this.barId(), order.id, item.id);
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('orders.remove_item_title'),
+      text: this.#translate.instant('orders.remove_item_message'),
+    });
+
+    if (!confirmed) return;
+
+    await this.#activeOrdersStore.removeItem(this.barId(), order.id, item.id);
     this.#tablesStore.reload();
-    this.orderItemDeleting.set(null);
   }
 
   onMoveTable() {
@@ -345,11 +340,11 @@ class OrderDetail {
 
     if (targetTableId) {
       try {
-        await this.#ordersStore.moveTable(this.barId(), order.id, { tableId: asTableId(targetTableId) });
-        this.#ordersStore.reloadOrders();
+        await this.#activeOrdersStore.moveTable(this.barId(), order.id, { tableId: asTableId(targetTableId) });
+        this.#activeOrdersStore.reloadOrders();
         this.#tablesStore.reload();
       } catch (e) {
-        console.error(e);
+        this.#feedback.error(e);
       }
     }
   }
@@ -377,13 +372,13 @@ class OrderDetail {
 
     if (targetOrderId) {
       try {
-        await this.#ordersStore.merge(this.barId(), {
+        await this.#activeOrdersStore.merge(this.barId(), {
           orderIds: [order.id, asOrderId(targetOrderId)],
         });
-        this.#ordersStore.reloadOrders();
+        this.#activeOrdersStore.reloadOrders();
         this.#tablesStore.reload();
       } catch (e) {
-        console.error(e);
+        this.#feedback.error(e);
       }
     }
   }
@@ -392,7 +387,7 @@ class OrderDetail {
     this.#tablesStore.tables.hasValue() ? (this.#tablesStore.tables.value() ?? []) : [],
   );
 
-  protected readonly openOrders = this.#ordersStore.openOrders;
+  protected readonly openOrders = this.#activeOrdersStore.openOrders;
 
   async printOrder() {
     const order = this.displayOrderViewModel();
@@ -401,11 +396,82 @@ class OrderDetail {
     this.isPrinting.set(true);
 
     try {
-      await this.#ordersStore.printOrder(order);
-    } catch {
-      // Toast handled in the store
+      await this.#printTicket.execute(order);
+    } catch (error) {
+      this.#feedback.error(error);
     } finally {
       this.isPrinting.set(false);
+    }
+  }
+
+  onUpdateTip(currentTipAmount: number) {
+    const dialogRef = this.#dialog.open(UpdateTipDialog, {
+      autoFocus: false,
+      bindings: [
+        inputBinding('currentTipAmount', () => currentTipAmount),
+        outputBinding('confirmed', (tipCents: number) => {
+          this.handleUpdateTipResult(tipCents);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+  }
+
+  protected async handleUpdateTipResult(tipCents: number) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.updateTip(this.barId(), order.id, tipCents);
+    } catch (e) {
+      this.#feedback.error(e);
+    }
+  }
+
+  onAddAdjustment(itemId?: string) {
+    const dialogRef = this.#dialog.open(AddAdjustmentDialog, {
+      autoFocus: false,
+      bindings: [
+        outputBinding('confirmed', (result: AddAdjustmentResult) => {
+          this.handleAddAdjustmentResult(result, itemId);
+          dialogRef.close();
+        }),
+        outputBinding('canceled', () => {
+          dialogRef.close();
+        }),
+      ],
+    });
+  }
+
+  protected async handleAddAdjustmentResult(result: AddAdjustmentResult, itemId?: string) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.addAdjustment(this.barId(), order.id, {
+        target: itemId ? AdjustmentTarget.ITEM : AdjustmentTarget.ORDER,
+        type: result.type,
+        value: result.value,
+        reason: result.reason,
+        itemId: itemId ? asOrderItemId(itemId) : undefined,
+      });
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
+    } catch (e) {
+      this.#feedback.error(e);
+    }
+  }
+
+  async onRemoveAdjustment(adjustmentId: string) {
+    const order = this.currentOrder();
+    if (!order) return;
+    try {
+      await this.#activeOrdersStore.removeAdjustment(this.barId(), order.id, adjustmentId);
+      const updated = await this.#activeOrdersStore.getOrder(this.barId(), order.id);
+      this.fetchedOrder.set(updated);
+    } catch (e) {
+      this.#feedback.error(e);
     }
   }
 }

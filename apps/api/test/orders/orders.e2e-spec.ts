@@ -1,5 +1,6 @@
+import { OrderStatus, PaymentMethod } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('OrdersController (e2e)', () => {
@@ -16,8 +17,7 @@ describe('OrdersController (e2e)', () => {
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
-    // Seed the mock user
+
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
@@ -28,21 +28,9 @@ describe('OrdersController (e2e)', () => {
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: 'OWNER',
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
 
-    // Seed a table
     const table = await testSetup.prisma.dbTable.create({
       data: {
         name: 'Table 1',
@@ -51,7 +39,6 @@ describe('OrdersController (e2e)', () => {
     });
     tableId = table.id;
 
-    // Seed a category and products
     const category = await testSetup.prisma.dbCategory.create({
       data: {
         name: 'Drinks',
@@ -93,29 +80,22 @@ describe('OrdersController (e2e)', () => {
         ],
       };
 
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
-        .send(dto)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send(dto).expect(201);
 
-      // Verify in database
       const orders = await testSetup.prisma.dbOrder.findMany({
         where: { barId },
         include: { items: true },
       });
-      
+
       expect(orders).toHaveLength(1);
       expect(orders[0].tableId).toBe(tableId);
-      expect(orders[0].status).toBe('OPEN');
+      expect(orders[0].status).toBe(OrderStatus.OPEN);
       expect(orders[0].items).toHaveLength(2);
-      expect(orders[0].totalAmount).toBe(13); // 2 * 5 + 1 * 3
+      expect(orders[0].totalAmount).toBe(13);
     });
 
     it('should reject invalid payloads', async () => {
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
-        .send({ items: [] }) // Empty items array is invalid
-        .expect(400);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send({ items: [] }).expect(400);
     });
   });
 
@@ -125,7 +105,7 @@ describe('OrdersController (e2e)', () => {
         data: {
           barId,
           tableId,
-          status: 'OPEN',
+          status: OrderStatus.OPEN,
           totalAmount: 5,
           items: {
             create: [
@@ -139,9 +119,7 @@ describe('OrdersController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get(`/api/bars/${barId}/orders`)
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/orders`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(order.id);
@@ -159,9 +137,7 @@ describe('OrdersController (e2e)', () => {
       });
 
       const dto = {
-        items: [
-          { productId: product1Id, quantity: 1 },
-        ],
+        items: [{ productId: product1Id, quantity: 1 }],
       };
 
       await request(testSetup.app.getHttpServer())
@@ -183,7 +159,7 @@ describe('OrdersController (e2e)', () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
           barId,
-          status: 'OPEN',
+          status: OrderStatus.OPEN,
           totalAmount: 5,
           items: {
             create: [
@@ -197,14 +173,12 @@ describe('OrdersController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/${order.id}/cancel`)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders/${order.id}/cancel`).expect(201);
 
       const updated = await testSetup.prisma.dbOrder.findUnique({
         where: { id: order.id },
       });
-      expect(updated?.status).toBe('CANCELLED');
+      expect(updated?.status).toBe(OrderStatus.CANCELLED);
     });
   });
 
@@ -213,7 +187,7 @@ describe('OrdersController (e2e)', () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
           barId,
-          status: 'OPEN',
+          status: OrderStatus.OPEN,
           totalAmount: 5,
           items: {
             create: [
@@ -230,14 +204,14 @@ describe('OrdersController (e2e)', () => {
 
       await request(testSetup.app.getHttpServer())
         .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
-        .send({ paymentMethod: 'CASH' })
+        .send({ paymentMethod: PaymentMethod.CASH })
         .expect(201);
 
       const updated = await testSetup.prisma.dbOrder.findUnique({
         where: { id: order.id },
       });
-      expect(updated?.status).toBe('CLOSED');
-      expect(updated?.paymentMethod).toBe('CASH');
+      expect(updated?.status).toBe(OrderStatus.CLOSED);
+      expect(updated?.paymentMethod).toBe(PaymentMethod.CASH);
     });
   });
 
@@ -246,13 +220,11 @@ describe('OrdersController (e2e)', () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
           barId,
-          status: 'CLOSED',
+          status: OrderStatus.CLOSED,
         },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/orders/${order.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/orders/${order.id}`).expect(200);
 
       const deleted = await testSetup.prisma.dbOrder.findUnique({
         where: { id: order.id },

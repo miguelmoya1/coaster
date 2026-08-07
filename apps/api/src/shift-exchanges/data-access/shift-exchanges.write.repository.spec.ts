@@ -1,7 +1,8 @@
+import { ShiftExchangeStatus } from '@coaster/common';
+import { asShiftExchangeId, asShiftId, asUserId } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShiftExchangeStatus, asShiftExchangeId, asShiftId, asUserId } from '../../core';
-import { DbService } from '../../core/db';
 import { ShiftExchangesWriteRepository } from './shift-exchanges.write.repository';
 
 describe('ShiftExchangesWriteRepository', () => {

@@ -14,10 +14,7 @@ export class SecurityRepository {
     return user?.role;
   }
 
-  async getBarMemberRole(
-    userId: string,
-    barId: string,
-  ): Promise<{ role: string; active: boolean } | null> {
+  async getBarMemberRole(userId: string, barId: string): Promise<{ role: string; active: boolean } | null> {
     const membership = await this._db.dbBarMember.findUnique({
       where: {
         userId_barId: {

@@ -453,24 +453,12 @@ export type DbUserNullableScalarRelationFilter = {
   isNot?: Prisma.DbUserWhereInput | null
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
 export type EnumDbRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbRole
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type DbUserCreateNestedOneWithoutMembershipsInput = {

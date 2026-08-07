@@ -104,9 +104,12 @@ body {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
 
-/* Material Symbols Outlined Customizations */
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 .mat-icon.material-symbols-outlined {
@@ -116,7 +119,6 @@ body {
   vertical-align: middle;
 }
 
-/* Button styling resets to fix default browser bevel borders and background issues */
 button,
 [type='button'],
 [type='reset'],
@@ -128,7 +130,6 @@ button,
   -webkit-appearance: button;
 }
 
-/* Fix Tailwind CSS v4 preflight border conflicts with Angular Material buttons */
 .mat-mdc-button:not(.mat-mdc-outlined-button),
 .mat-mdc-raised-button,
 .mat-mdc-unelevated-button,
@@ -139,13 +140,11 @@ button,
   border-style: none !important;
 }
 
-/* Ensure outlined button border matches theme colors and has proper style */
 .mat-mdc-outlined-button {
   border-style: solid !important;
   border-color: var(--mat-sys-outline, var(--color-border-strong, #767575)) !important;
 }
 
-/* ─── Centralized heading classes (replaces CoasterTitle directive) ─── */
 .heading-1 {
   font-weight: 900;
   color: var(--color-primary);
@@ -153,7 +152,9 @@ button,
   letter-spacing: -0.05em;
 }
 @media (min-width: 768px) {
-  .heading-1 { font-size: 2.25rem; }
+  .heading-1 {
+    font-size: 2.25rem;
+  }
 }
 
 .heading-2 {
@@ -163,7 +164,9 @@ button,
   letter-spacing: -0.025em;
 }
 @media (min-width: 768px) {
-  .heading-2 { font-size: 1.875rem; }
+  .heading-2 {
+    font-size: 1.875rem;
+  }
 }
 
 .heading-3 {
@@ -172,7 +175,9 @@ button,
   font-size: 1.25rem;
 }
 @media (min-width: 768px) {
-  .heading-3 { font-size: 1.5rem; }
+  .heading-3 {
+    font-size: 1.5rem;
+  }
 }
 
 .heading-4 {
@@ -204,7 +209,6 @@ button,
   color: var(--color-on-surface-variant);
 }
 
-/* ─── MatSnackBar panel classes (replaces custom ToastContainer) ─── */
 .snackbar-success .mdc-snackbar__surface {
   background-color: rgba(16, 185, 129, 0.9) !important;
   backdrop-filter: blur(12px);
@@ -232,13 +236,15 @@ button,
   color: #ffffff !important;
 }
 
-/* ─── Premium Angular Material Card Customizations ─── */
 mat-card {
   background-color: var(--color-surface-container) !important;
   border: 1px solid rgba(255, 255, 255, 0.055) !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease !important;
 }
 
 mat-card:hover {
@@ -259,5 +265,3 @@ mat-card-title {
 mat-card-subtitle {
   color: var(--color-on-surface-variant) !important;
 }
-
-

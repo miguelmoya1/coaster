@@ -1,8 +1,9 @@
 import type { Order } from '@coaster/common';
+import { SocketEvents, TableStatus } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
+import { OrderCreatedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderCreatedEvent } from '@orders/events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId, SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { OrderCreatedHandler } from './order-created.handler';
 
@@ -33,10 +34,10 @@ describe('OrderCreatedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CREATED, order);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, {
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCreated, order);
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: tableId,
-      status: 'OCCUPIED',
+      status: TableStatus.OCCUPIED,
     });
   });
 
@@ -48,7 +49,7 @@ describe('OrderCreatedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.ORDER_CREATED, order);
-    expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.TABLE_STATUS_CHANGED, expect.any(Object));
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCreated, order);
+    expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.tableStatusChanged, expect.any(Object));
   });
 });

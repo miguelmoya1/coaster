@@ -1,5 +1,6 @@
 import type { Product as CommonProduct } from '@coaster/common';
-import { Product, calculateStockStatus } from '../models/product.interface';
+import { calculateStockStatus } from '@coaster/common';
+import { Product } from '../models/product.interface';
 
 export const checkIsProduct = (product: unknown): product is CommonProduct => {
   const p = product as Record<string, unknown>;

@@ -1,21 +1,43 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
-import { FIREBASE_AUTH } from './core';
+import {
+  ApplicationConfig,
+  Injector,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
+import type { BarId } from '@coaster/common';
+import type { PaywallHandler } from '@coaster/core';
+import {
+  errorInterceptor,
+  FIREBASE_AUTH,
+  idTokenInterceptor,
+  PAYWALL_HANDLER,
+  unauthorizedInterceptor,
+  urlInterceptor,
+} from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { initializeApp } from 'firebase/app';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
-import { errorInterceptor, idTokenInterceptor, unauthorizedInterceptor, urlInterceptor } from './core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: PAYWALL_HANDLER,
+      useFactory: (injector: Injector): PaywallHandler => ({
+        open: (barId: BarId) => {
+          void import('@coaster/bar-subscription').then(({ PlanDialogService }) =>
+            injector.get(PlanDialogService).open(barId),
+          );
+        },
+      }),
+      deps: [Injector],
+    },
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideNativeDateAdapter(),
     provideHttpClient(
       withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),
     ),

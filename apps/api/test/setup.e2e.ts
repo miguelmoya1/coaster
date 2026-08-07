@@ -1,13 +1,25 @@
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { execSync } from 'child_process';
+import { randomBytes } from 'crypto';
 import * as path from 'path';
 
 let container: StartedPostgreSqlContainer;
 
+const REQUIRED_SECRETS = ['PRINTER_JWT_SECRET'];
+
+function generateMissingSecrets() {
+  for (const name of REQUIRED_SECRETS) {
+    if (!process.env[name]) {
+      process.env[name] = randomBytes(32).toString('hex');
+    }
+  }
+}
+
 export async function setup() {
+  generateMissingSecrets();
+
   console.log('\n🚀 Starting PostgreSQL Testcontainer...');
-  
-  // Start the PostgreSQL container
+
   container = await new PostgreSqlContainer('postgres:16-alpine')
     .withDatabase('coaster_test')
     .withUsername('postgres')
@@ -15,21 +27,19 @@ export async function setup() {
     .start();
 
   const databaseUrl = container.getConnectionUri();
-  
-  // Set the environment variable so Prisma knows where to connect
+
   process.env.DATABASE_URL = databaseUrl;
-  
+
   console.log(`✅ Testcontainer started: ${databaseUrl}`);
   console.log('⏳ Running Prisma db push...');
 
   try {
-    // Run prisma db push to apply schema
     execSync('npx prisma db push --accept-data-loss', {
       env: {
         ...process.env,
         DATABASE_URL: databaseUrl,
       },
-      cwd: path.resolve(__dirname, '..'), // apps/api
+      cwd: path.resolve(__dirname, '..'),
       stdio: 'inherit',
     });
     console.log('✅ Prisma schema applied successfully.');

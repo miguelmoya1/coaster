@@ -30,7 +30,6 @@ func TestAutoPrinter_CloseWithoutConnect(t *testing.T) {
 }
 
 func TestAutoPrinter_ConnectSuccess(t *testing.T) {
-	// Mock AutoDetectFunc
 	original := printer.AutoDetectFunc
 	defer func() { printer.AutoDetectFunc = original }()
 

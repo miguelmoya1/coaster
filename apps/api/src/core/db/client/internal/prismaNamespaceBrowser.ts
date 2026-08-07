@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
   DbBar: 'DbBar',
   DbBarMember: 'DbBarMember',
@@ -62,7 +63,11 @@ export const ModelName = {
   DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
-  DbOrderItem: 'DbOrderItem'
+  DbOrderItem: 'DbOrderItem',
+  DbPrinterConfig: 'DbPrinterConfig',
+  DbPrintJob: 'DbPrintJob',
+  DbBarSubscription: 'DbBarSubscription',
+  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -79,6 +84,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const DbOrderAdjustmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  target: 'target',
+  itemId: 'itemId',
+  type: 'type',
+  value: 'value',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type DbOrderAdjustmentScalarFieldEnum = (typeof DbOrderAdjustmentScalarFieldEnum)[keyof typeof DbOrderAdjustmentScalarFieldEnum]
 
 
 export const DbUserScalarFieldEnum = {
@@ -165,6 +184,7 @@ export const DbProductScalarFieldEnum = {
   categoryId: 'categoryId',
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -189,6 +209,7 @@ export const DbProductTemplateScalarFieldEnum = {
   name: 'name',
   price: 'price',
   categoryId: 'categoryId',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -218,6 +239,8 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCash: 'amountPaidCash',
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
+  notes: 'notes',
+  tipAmount: 'tipAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -238,11 +261,75 @@ export const DbOrderItemScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   deliveryStatus: 'deliveryStatus',
   paymentMethod: 'paymentMethod',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[keyof typeof DbOrderItemScalarFieldEnum]
+
+
+export const DbPrinterConfigScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  deviceKey: 'deviceKey',
+  ipAddress: 'ipAddress',
+  port: 'port',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldEnum)[keyof typeof DbPrinterConfigScalarFieldEnum]
+
+
+export const DbPrintJobScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  createdAt: 'createdAt',
+  claimedAt: 'claimedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DbPrintJobScalarFieldEnum = (typeof DbPrintJobScalarFieldEnum)[keyof typeof DbPrintJobScalarFieldEnum]
+
+
+export const DbBarSubscriptionScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  plan: 'plan',
+  status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  trialEndsAt: 'trialEndsAt',
+  canceledAt: 'canceledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+
+
+export const DbStripeWebhookEventScalarFieldEnum = {
+  id: 'id',
+  stripeEventId: 'stripeEventId',
+  type: 'type',
+  payload: 'payload',
+  processingStatus: 'processingStatus',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -251,6 +338,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -267,4 +361,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

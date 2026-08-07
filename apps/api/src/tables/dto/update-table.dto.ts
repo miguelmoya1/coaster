@@ -1,5 +1,5 @@
 import type { UpdateTableDto as IUpdateTableDto } from '@coaster/common';
-import { ErrorCodes } from '../../core';
+import { ErrorCodes } from '@coaster/common';
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateTableDto implements IUpdateTableDto {

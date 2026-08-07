@@ -1,7 +1,14 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { OrderItem } from '@coaster/common';
+import {
+  AdjustmentTarget,
+  AdjustmentType,
+  DeliveryStatus,
+  OrderAdjustment,
+  OrderItem,
+  PaymentStatus,
+} from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 import { PricePipe } from '../../../../../pipes/price/price';
@@ -12,25 +19,29 @@ import { PricePipe } from '../../../../../pipes/price/price';
   template: `
     <div
       class="bg-surface-container border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50"
-      [class.opacity-50]="item().paymentStatus === 'PAID' && item().deliveryStatus === 'SERVED'"
+      [class.opacity-50]="
+        item().paymentStatus === PaymentStatus.PAID && item().deliveryStatus === DeliveryStatus.SERVED
+      "
       [class.border-primary/20]="isSelected()"
       [class.bg-primary/5]="isSelected()"
       [class.cursor-pointer]="isOpen()"
-      [attr.role]="isOpen() ? 'button' : null"
-      [attr.tabindex]="isOpen() ? 0 : null"
       (click)="isOpen() && toggleSelect.emit()"
-      (keydown.enter)="isOpen() && toggleSelect.emit(); $event.preventDefault()"
-      (keydown.space)="isOpen() && toggleSelect.emit(); $event.preventDefault()"
+      (keyup.enter)="isOpen() && toggleSelect.emit()"
+      (keyup.space)="isOpen() && toggleSelect.emit()"
+      tabindex="0"
+      role="button"
     >
-      <!-- Selection Checkbox -->
       @if (isOpen()) {
         <button
+          type="button"
+          [attr.aria-label]="'orders.select_item' | translate: { name: item().productName }"
+          [attr.aria-pressed]="isSelected()"
           class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
           [class.border-primary]="isSelected()"
           [class.bg-primary]="isSelected()"
           [class.text-on-primary]="isSelected()"
           [class.border-on-surface-variant]="!isSelected()"
-          (click)="toggleSelect.emit(); $event.stopPropagation()"
+          (click)="$event.stopPropagation(); toggleSelect.emit()"
         >
           @if (isSelected()) {
             <mat-icon class="stroke-3 text-xs w-3 h-3 leading-3">check</mat-icon>
@@ -44,6 +55,26 @@ import { PricePipe } from '../../../../../pipes/price/price';
           <span class="text-xs text-on-surface-variant">x{{ item().quantity }}</span>
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>
         </div>
+
+        @for (adj of itemAdjustments(); track adj.id) {
+          <div class="text-xs text-tertiary flex items-center gap-1 mt-0.5">
+            <mat-icon class="text-[12px]! w-[12px]! h-[12px]! leading-[12px]!">local_offer</mat-icon>
+            <span>{{ adj.reason || 'Descuento' }}</span>
+            <span class="font-bold"
+              >(-{{ adj.type === AdjustmentType.PERCENTAGE ? adj.value + '%' : (adj.value | price) }})</span
+            >
+            @if (isOpen()) {
+              <button
+                mat-icon-button
+                class="w-4! h-4! p-0!"
+                (click)="$event.stopPropagation(); removeAdjustment.emit(adj.id)"
+              >
+                <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]!">close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
         @if (item().quantity > 1 || item().paidQuantity > 0) {
           <div class="flex flex-col gap-0.5 mt-1">
             <span class="text-xxs text-on-surface-variant font-medium">
@@ -71,7 +102,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
           </div>
         }
         <div class="flex gap-1.5 mt-1">
-          @if (item().paymentStatus === 'PAID') {
+          @if (item().paymentStatus === PaymentStatus.PAID) {
             <span class="text-xxs font-bold text-secondary bg-secondary/15 px-2 py-0.5 rounded-full">
               {{ 'orders.paid' | translate }}
             </span>
@@ -80,7 +111,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
               {{ 'orders.partial_payment' | translate }}
             </span>
           }
-          @if (item().deliveryStatus === 'SERVED') {
+          @if (item().deliveryStatus === DeliveryStatus.SERVED) {
             <span class="text-xxs font-bold text-primary bg-primary/15 px-2 py-0.5 rounded-full">
               {{ 'orders.served' | translate }}
             </span>
@@ -90,27 +121,40 @@ import { PricePipe } from '../../../../../pipes/price/price';
             </span>
           }
         </div>
+        @if (item().notes) {
+          <div class="flex items-start gap-1 mt-1 text-xs text-on-surface-variant italic">
+            <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0! shrink-0">notes</mat-icon>
+            <span class="leading-tight">{{ item().notes }}</span>
+          </div>
+        }
       </div>
 
-      <!-- In-row Compact Adjustment Controls -->
       @if (isOpen()) {
         <div class="flex items-center gap-2 shrink-0">
           @if (isSelected()) {
             <div class="w-28">
-              <!-- Pay adjustment -->
               <coaster-number-input
                 [value]="selectedQty()?.paidQty || 0"
                 (valueChange)="updatePayQty.emit($event)"
                 [min]="-item().paidQuantity"
                 [max]="item().quantity - item().paidQuantity"
                 wrapperClass="w-full"
+                (click)="$event.stopPropagation()"
               />
             </div>
           }
 
           <button
             mat-icon-button
-            (click)="removeItem.emit(); $event.stopPropagation()"
+            (click)="$event.stopPropagation(); addAdjustment.emit(item().id)"
+            title="Añadir descuento/invitación"
+          >
+            <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">local_offer</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            (click)="$event.stopPropagation(); removeItem.emit()"
             [title]="'orders.remove_item' | translate"
           >
             <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">delete</mat-icon>
@@ -121,12 +165,24 @@ import { PricePipe } from '../../../../../pipes/price/price';
   `,
 })
 export class OrderItemCard {
+  protected readonly PaymentStatus = PaymentStatus;
+  protected readonly DeliveryStatus = DeliveryStatus;
+  protected readonly AdjustmentType = AdjustmentType;
+
   public readonly item = input.required<OrderItem & { productName?: string }>();
   public readonly isOpen = input.required<boolean>();
   public readonly isSelected = input.required<boolean>();
   public readonly selectedQty = input<{ paidQty: number } | undefined>();
+  public readonly adjustments = input<OrderAdjustment[]>([]);
 
   public readonly toggleSelect = output<void>();
   public readonly updatePayQty = output<number>();
   public readonly removeItem = output<void>();
+
+  public readonly addAdjustment = output<string>();
+  public readonly removeAdjustment = output<string>();
+
+  itemAdjustments() {
+    return this.adjustments().filter((a) => a.target === AdjustmentTarget.ITEM && a.itemId === this.item().id);
+  }
 }

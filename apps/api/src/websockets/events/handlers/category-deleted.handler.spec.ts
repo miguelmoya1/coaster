@@ -1,7 +1,8 @@
-import { CategoryDeletedEvent } from '@categories/events';
+import { CategoryDeletedEvent } from '@coaster/categories';
+import { SocketEvents } from '@coaster/common';
+import { asBarId, asCategoryId } from '@coaster/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asCategoryId, SocketEvents } from '../../../core';
 import { BarGateway } from '../../bar.gateway';
 import { CategoryDeletedHandler } from './category-deleted.handler';
 
@@ -31,6 +32,6 @@ describe('CategoryDeletedHandler', () => {
     handler.handle(event);
 
     expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.CATEGORY_DELETED, { id: categoryId });
+    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.categoryDeleted, { id: categoryId });
   });
 });

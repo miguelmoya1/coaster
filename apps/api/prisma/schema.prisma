@@ -28,6 +28,25 @@ enum DbRole {
   @@map("Role")
 }
 
+enum DbSubscriptionPlan {
+  FREE
+  PRO
+
+  @@map("SubscriptionPlan")
+}
+
+enum DbSubscriptionStatus {
+  INACTIVE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  EXPIRED
+
+  @@map("SubscriptionStatus")
+}
+
 enum DbTableStatus {
   FREE
   OCCUPIED
@@ -68,6 +87,35 @@ enum DbDeliveryStatus {
   @@map("DeliveryStatus")
 }
 
+enum DbAdjustmentType {
+  PERCENTAGE
+  FIXED_AMOUNT
+
+  @@map("AdjustmentType")
+}
+
+enum DbAdjustmentTarget {
+  ORDER
+  ITEM
+
+  @@map("AdjustmentTarget")
+}
+
+model DbOrderAdjustment {
+  id        String             @id @default(uuid())
+  orderId   String
+  order     DbOrder            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  target    DbAdjustmentTarget
+  itemId    String?
+  item      DbOrderItem?       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type      DbAdjustmentType
+  value     Int
+  reason    String?
+  createdAt DateTime           @default(now())
+
+  @@map("OrderAdjustment")
+}
+
 model DbUser {
   id             String            @id @default(uuid())
   email          String            @unique
@@ -88,15 +136,18 @@ model DbUser {
 }
 
 model DbBar {
-  id         String        @id @default(uuid())
+  id         String             @id @default(uuid())
   name       String
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
   members    DbBarMember[]
   shifts     DbShift[]
   categories DbCategory[]
   tables     DbTable[]
   orders     DbOrder[]
+  printer    DbPrinterConfig?
+  printJobs  DbPrintJob[]
+  billing    DbBarSubscription?
 
   @@map("Bar")
 }
@@ -168,6 +219,7 @@ model DbProduct {
   category      DbCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   currentStock  Int           @default(0)
   minStockAlert Int           @default(0)
+  imageUrl      String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?
@@ -193,6 +245,7 @@ model DbProductTemplate {
   price      Int                @default(0)
   categoryId String
   category   DbCategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  imageUrl   String?
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
 
@@ -213,41 +266,119 @@ model DbTable {
 }
 
 model DbOrder {
-  id             String          @id @default(uuid())
+  id             String              @id @default(uuid())
   barId          String
-  bar            DbBar           @relation(fields: [barId], references: [id], onDelete: Cascade)
+  bar            DbBar               @relation(fields: [barId], references: [id], onDelete: Cascade)
   tableId        String?
-  table          DbTable?        @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  table          DbTable?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
   tableName      String?
-  status         DbOrderStatus   @default(OPEN)
-  totalAmount    Int             @default(0)
-  amountPaidCash Int             @default(0)
-  amountPaidCard Int             @default(0)
+  status         DbOrderStatus       @default(OPEN)
+  totalAmount    Int                 @default(0)
+  amountPaidCash Int                 @default(0)
+  amountPaidCard Int                 @default(0)
   items          DbOrderItem[]
-  paymentMethod  DbPaymentMethod @default(NONE)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  adjustments    DbOrderAdjustment[]
+  paymentMethod  DbPaymentMethod     @default(NONE)
+  notes          String?
+  tipAmount      Int                 @default(0)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
   @@map("Order")
 }
 
 model DbOrderItem {
-  id               String           @id @default(uuid())
+  id               String              @id @default(uuid())
   orderId          String
-  order            DbOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order            DbOrder             @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId        String
-  product          DbProduct        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product          DbProduct           @relation(fields: [productId], references: [id], onDelete: Restrict)
   quantity         Int
   priceAtPurchase  Int
-  paidQuantity     Int              @default(0)
-  paidQuantityCash Int              @default(0)
-  paidQuantityCard Int              @default(0)
-  servedQuantity   Int              @default(0)
-  paymentStatus    DbPaymentStatus  @default(PENDING)
-  deliveryStatus   DbDeliveryStatus @default(PENDING)
-  paymentMethod    DbPaymentMethod  @default(NONE)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  paidQuantity     Int                 @default(0)
+  paidQuantityCash Int                 @default(0)
+  paidQuantityCard Int                 @default(0)
+  servedQuantity   Int                 @default(0)
+  paymentStatus    DbPaymentStatus     @default(PENDING)
+  deliveryStatus   DbDeliveryStatus    @default(PENDING)
+  paymentMethod    DbPaymentMethod     @default(NONE)
+  notes            String?
+  adjustments      DbOrderAdjustment[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   @@map("OrderItem")
+}
+
+model DbPrinterConfig {
+  id         String    @id @default(uuid())
+  barId      String    @unique
+  bar        DbBar     @relation(fields: [barId], references: [id], onDelete: Cascade)
+  deviceKey  String    @default(uuid())
+  ipAddress  String?
+  port       Int       @default(8080)
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("PrinterConfig")
+}
+
+enum DbPrintJobStatus {
+  PENDING
+  PRINTING
+  PRINTED
+  FAILED
+
+  @@map("PrintJobStatus")
+}
+
+model DbPrintJob {
+  id          String           @id @default(uuid())
+  barId       String
+  bar         DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  payload     Json
+  status      DbPrintJobStatus @default(PENDING)
+  attempts    Int              @default(0)
+  error       String?
+  createdAt   DateTime         @default(now())
+  claimedAt   DateTime?
+  completedAt DateTime?
+
+  @@index([barId, status, createdAt])
+  @@map("PrintJob")
+}
+
+model DbBarSubscription {
+  id                   String               @id @default(uuid())
+  barId                String               @unique
+  bar                  DbBar                @relation(fields: [barId], references: [id], onDelete: Cascade)
+  plan                 DbSubscriptionPlan   @default(FREE)
+  status               DbSubscriptionStatus @default(INACTIVE)
+  stripeCustomerId     String?              @unique
+  stripeSubscriptionId String?              @unique
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  trialEndsAt          DateTime?
+  canceledAt           DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@index([status])
+  @@map("BarSubscription")
+}
+
+model DbStripeWebhookEvent {
+  id               String    @id @default(uuid())
+  stripeEventId    String    @unique
+  type             String
+  payload          Json
+  processingStatus String    @default("PROCESSED")
+  attempts         Int       @default(0)
+  lastError        String?
+  receivedAt       DateTime  @default(now())
+  processedAt      DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  @@map("StripeWebhookEvent")
 }

@@ -1,5 +1,7 @@
-import { Logger } from '@nestjs/common';
+import { ErrorCodes } from '@coaster/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductStockChangedEvent } from '../../events';
 import { ProductsMapper } from '../../mappers/products.mapper';
@@ -10,12 +12,20 @@ export class UpdateProductStockHandler implements ICommandHandler<UpdateProductS
   readonly #logger = new Logger(UpdateProductStockHandler.name);
 
   constructor(
+    private readonly readRepo: ProductsReadRepository,
     private readonly writeRepo: ProductsWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateProductStockCommand): Promise<void> {
     this.#logger.debug(`Executing updateProductStock...`);
+
+    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+
+    if (!belongsToBar) {
+      throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
+    }
+
     const product = await this.writeRepo.update(command.productId, command.dto);
     const mapped = ProductsMapper.toDomain(product);
     this.#logger.debug(`Publishing ProductStockChangedEvent...`);

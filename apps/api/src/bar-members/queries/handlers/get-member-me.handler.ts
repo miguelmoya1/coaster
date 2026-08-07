@@ -1,7 +1,8 @@
 import type { BarMember } from '@coaster/common';
+import { BarRole, ErrorCodes, Role } from '@coaster/common';
+import { asBarMemberId } from '@coaster/core';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { asBarMemberId, ErrorCodes } from '../../../core';
 import { BarMembersReadRepository } from '../../data-access/bar-members.read.repository';
 import { BarMembersMapper } from '../../mappers/bar-members.mapper';
 import { GetMemberMeQuery } from '../impl/get-member-me.query';
@@ -14,12 +15,12 @@ export class GetMemberMeHandler implements IQueryHandler<GetMemberMeQuery, BarMe
     const member = await this.repository.getMemberByUserAndBar(query.user.id, query.barId);
 
     if (!member || !member.active) {
-      if (query.user.role === 'ADMIN') {
+      if (query.user.role === Role.ADMIN) {
         return {
           id: asBarMemberId('mock-admin-member'),
           userId: query.user.id,
           barId: query.barId,
-          role: 'OWNER',
+          role: BarRole.OWNER,
           active: true,
           permissions: [],
           userName: query.user.name,

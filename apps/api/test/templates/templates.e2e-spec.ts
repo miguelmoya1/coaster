@@ -1,50 +1,35 @@
+import { Role } from '@coaster/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('TemplatesController (e2e)', () => {
   const testSetup = new E2eTestSetup();
   let barId: string;
-  let categoryTemplateId: string;
-  let productTemplateId: string;
 
   beforeAll(async () => {
-    // Temporary make mock user an ADMIN to bypass AdminGuard
     mockUser.role = 'ADMIN';
     await testSetup.setup();
   });
 
   beforeEach(async () => {
     await testSetup.clearDatabase();
-    
-    // Seed the mock user
+
     await testSetup.prisma.dbUser.create({
       data: {
         id: mockUser.id,
         email: mockUser.email,
         name: mockUser.name,
-        role: 'ADMIN',
+        role: Role.ADMIN,
         active: true,
       },
     });
 
-    // Seed a bar owned by mockUser
-    const bar = await testSetup.prisma.dbBar.create({
-      data: {
-        name: 'My Bar',
-        members: {
-          create: {
-            userId: mockUser.id,
-            role: 'OWNER',
-          },
-        },
-      },
-    });
+    const bar = await testSetup.createBar('My Bar');
     barId = bar.id;
   });
 
   afterAll(async () => {
-    // Reset mock user role
     mockUser.role = 'USER';
     await testSetup.teardown();
   });
@@ -56,15 +41,11 @@ describe('TemplatesController (e2e)', () => {
         icon: 'beer',
       };
 
-      await request(testSetup.app.getHttpServer())
-        .post('/api/templates/categories')
-        .send(dto)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post('/api/templates/categories').send(dto).expect(201);
 
       const categories = await testSetup.prisma.dbCategoryTemplate.findMany();
       expect(categories).toHaveLength(1);
       expect(categories[0].name).toBe('Drinks');
-      categoryTemplateId = categories[0].id;
     });
 
     it('should get all category templates', async () => {
@@ -72,9 +53,7 @@ describe('TemplatesController (e2e)', () => {
         data: { name: 'Food', icon: 'burger' },
       });
 
-      const response = await request(testSetup.app.getHttpServer())
-        .get('/api/templates/categories')
-        .expect(200);
+      const response = await request(testSetup.app.getHttpServer()).get('/api/templates/categories').expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].name).toBe('Food');
@@ -99,9 +78,7 @@ describe('TemplatesController (e2e)', () => {
         data: { name: 'Food', icon: 'burger' },
       });
 
-      await request(testSetup.app.getHttpServer())
-        .delete(`/api/templates/categories/${cat.id}`)
-        .expect(200);
+      await request(testSetup.app.getHttpServer()).delete(`/api/templates/categories/${cat.id}`).expect(200);
 
       const deleted = await testSetup.prisma.dbCategoryTemplate.findUnique({ where: { id: cat.id } });
       expect(deleted).toBeNull();
@@ -124,10 +101,7 @@ describe('TemplatesController (e2e)', () => {
         categoryId: catId,
       };
 
-      await request(testSetup.app.getHttpServer())
-        .post('/api/templates/products')
-        .send(dto)
-        .expect(201);
+      await request(testSetup.app.getHttpServer()).post('/api/templates/products').send(dto).expect(201);
 
       const products = await testSetup.prisma.dbProductTemplate.findMany();
       expect(products).toHaveLength(1);
@@ -137,11 +111,11 @@ describe('TemplatesController (e2e)', () => {
 
   describe('Import Templates', () => {
     it('should import templates into a bar', async () => {
-      // First create templates
       const cat = await testSetup.prisma.dbCategoryTemplate.create({
         data: { name: 'Drinks', icon: 'beer' },
       });
-      const prod = await testSetup.prisma.dbProductTemplate.create({
+
+      await testSetup.prisma.dbProductTemplate.create({
         data: { name: 'Beer', price: 500, categoryId: cat.id },
       });
 
@@ -150,7 +124,6 @@ describe('TemplatesController (e2e)', () => {
         .send({ categoryTemplateIds: [cat.id] })
         .expect(201);
 
-      // Verify they were imported
       const barCategories = await testSetup.prisma.dbCategory.findMany({ where: { barId } });
       expect(barCategories).toHaveLength(1);
       expect(barCategories[0].name).toBe('Drinks');

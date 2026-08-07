@@ -1,9 +1,10 @@
 import type { Table } from '@coaster/common';
+import { TableStatus } from '@coaster/common';
+import { asBarId, asTableId } from '@coaster/core';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { asBarId, asTableId } from '../../../core';
 import { TablesReadRepository } from '../../data-access/tables.read.repository';
 import { TablesWriteRepository } from '../../data-access/tables.write.repository';
 import { TableUpdatedEvent } from '../../events';
@@ -57,7 +58,7 @@ describe('UpdateTableHandler', () => {
       id: 'table-1',
       barId: 'bar-1',
       name: 'Mesa Actualizada',
-      status: 'FREE',
+      status: TableStatus.FREE,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
