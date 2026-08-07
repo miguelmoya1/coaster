@@ -1,10 +1,23 @@
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { execSync } from 'child_process';
+import { randomBytes } from 'crypto';
 import * as path from 'path';
 
 let container: StartedPostgreSqlContainer;
 
+const REQUIRED_SECRETS = ['PRINTER_JWT_SECRET'];
+
+function generateMissingSecrets() {
+  for (const name of REQUIRED_SECRETS) {
+    if (!process.env[name]) {
+      process.env[name] = randomBytes(32).toString('hex');
+    }
+  }
+}
+
 export async function setup() {
+  generateMissingSecrets();
+
   console.log('\n🚀 Starting PostgreSQL Testcontainer...');
 
   container = await new PostgreSqlContainer('postgres:16-alpine')
