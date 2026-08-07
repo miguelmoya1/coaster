@@ -14,13 +14,9 @@ export interface Paginated<T> {
   pageSize: number;
 }
 
-/** How a bar came to have the access it has, which is what an admin actually needs to see at a glance. */
 export const BarBillingSource = {
-  /** Nothing granted: no subscription row, or one that no longer grants access. */
   NONE: 'NONE',
-  /** A live Stripe subscription is paying for it. */
   STRIPE: 'STRIPE',
-  /** An admin granted the plan by hand, bypassing Stripe. */
   MANUAL: 'MANUAL',
 } as const;
 
@@ -36,7 +32,6 @@ export interface AdminBarSummary {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   billingSource: BarBillingSource;
-  /** When the current access lapses. `null` means it does not, which is the case for open-ended grants. */
   accessEndsAt: string | null;
   hasAccess: boolean;
 }
@@ -135,7 +130,6 @@ export interface AdminAuditLogEntry {
 
 export interface GrantBarPlanDto {
   plan: Exclude<SubscriptionPlan, 'FREE'>;
-  /** Days the grant lasts. Omit or send `null` for an open-ended grant. */
   durationDays?: number | null;
   reason?: string;
 }

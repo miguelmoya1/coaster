@@ -56,14 +56,14 @@ describe('WsAuthService', () => {
   describe('authenticate', () => {
     it('should resolve the local user id for a valid token', async () => {
       verifyIdToken.mockResolvedValue({ sub: 'google-1' });
-      dbMock.dbUser.findUnique.mockResolvedValue({ id: 'user-1' });
+      dbMock.dbUser.findUnique.mockResolvedValue({ id: 'user-1', active: true });
 
       const userId = await service.authenticate(createSocket({ auth: { token: 'tok_123' } }));
 
       expect(verifyIdToken).toHaveBeenCalledWith('tok_123');
       expect(dbMock.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-1' },
-        select: { id: true },
+        select: { id: true, active: true },
       });
       expect(userId).toBe('user-1');
     });
@@ -93,6 +93,13 @@ describe('WsAuthService', () => {
 
     it('should reject a decoded token without a subject', async () => {
       verifyIdToken.mockResolvedValue({});
+
+      await expect(service.authenticate(createSocket({ auth: { token: 'tok' } }))).resolves.toBeNull();
+    });
+
+    it('should reject a user an admin has deactivated', async () => {
+      verifyIdToken.mockResolvedValue({ sub: 'google-1' });
+      dbMock.dbUser.findUnique.mockResolvedValue({ id: 'user-1', active: false });
 
       await expect(service.authenticate(createSocket({ auth: { token: 'tok' } }))).resolves.toBeNull();
     });

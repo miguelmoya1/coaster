@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 
 import { AdminUsersQueryDto } from './admin-users-query.dto';
 
-/** Mirrors the global pipe: `transform` plus `enableImplicitConversion`. */
 const parse = (query: Record<string, string>) =>
   plainToInstance(AdminUsersQueryDto, query, { enableImplicitConversion: true });
 
