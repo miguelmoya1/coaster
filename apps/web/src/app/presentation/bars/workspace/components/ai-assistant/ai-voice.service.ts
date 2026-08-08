@@ -46,7 +46,6 @@ interface SpeechRecognitionResult {
 }
 
 interface SpeechRecognitionEvent {
-  resultIndex: number;
   results: Iterable<SpeechRecognitionResult> & {
     length: number;
     [index: number]: SpeechRecognitionResult;
@@ -169,19 +168,30 @@ export class AiVoiceService {
     const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
+    // Two live recognizers would both write to the transcript, so the outgoing one is muted first.
+    if (this.#recognition) {
+      this.#recognition.onresult = null;
+      this.#recognition.onerror = null;
+      this.#recognition.onend = null;
+    }
+
     this.#recognition = new SpeechRecognition();
     this.#recognition.continuous = true;
     this.#recognition.interimResults = true;
     this.#recognition.lang = this.#lang;
 
+    /*
+     * `event.results` holds the whole session, so the transcript is rebuilt from it on every event
+     * instead of appended to. Android re-sends results already seen, and with `resultIndex` stuck
+     * at zero, so appending repeated every phrase the moment the next one arrived.
+     */
     this.#recognition.onresult = (event: SpeechRecognitionEvent) => {
       if (this.status() !== 'listening') return;
 
       let sessionFinal = '';
       let sessionInterim = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
+      for (const result of event.results) {
         const transcript = result?.[0]?.transcript?.trim();
 
         if (!transcript) continue;
@@ -193,12 +203,8 @@ export class AiVoiceService {
         }
       }
 
-      if (sessionFinal) {
-        this.#sessionTranscript = `${this.#sessionTranscript} ${sessionFinal}`.trim();
-      }
-
-      const fullTranscript = `${this.#savedTranscript} ${this.#sessionTranscript} ${sessionInterim}`.trim();
-      this.transcript.set(fullTranscript);
+      this.#sessionTranscript = sessionFinal.trim();
+      this.transcript.set(`${this.#savedTranscript} ${this.#sessionTranscript} ${sessionInterim}`.trim());
     };
 
     this.#recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -217,13 +223,20 @@ export class AiVoiceService {
     };
 
     this.#recognition.onend = () => {
-      if (this.status() === 'listening') {
-        try {
-          this.#initRecognition();
-          this.#recognition?.start();
-        } catch (e) {
-          console.error('Failed to auto-restart speech recognition:', e);
-        }
+      if (this.status() !== 'listening') return;
+
+      /*
+       * Mobile ends the session at every pause in speech. The next one starts with an empty
+       * `results`, so what is already settled moves into the saved half before restarting.
+       */
+      this.#savedTranscript = `${this.#savedTranscript} ${this.#sessionTranscript}`.trim();
+      this.#sessionTranscript = '';
+
+      try {
+        this.#initRecognition();
+        this.#recognition?.start();
+      } catch (e) {
+        console.error('Failed to auto-restart speech recognition:', e);
       }
     };
   }

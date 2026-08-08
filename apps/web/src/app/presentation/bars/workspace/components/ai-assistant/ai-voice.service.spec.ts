@@ -118,6 +118,57 @@ describe('AiVoiceService', () => {
     expect(service.transcript()).toBe('hola mundo');
   });
 
+  it('should not repeat what was already final when the engine re-sends it', () => {
+    service.start('es');
+    const recognition = MockSpeechRecognition.latestInstance;
+
+    recognition?.onresult?.({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'quiero crear una mesa' } }],
+    });
+
+    // Android keeps resultIndex at 0 and re-sends the whole list on every utterance.
+    recognition?.onresult?.({
+      resultIndex: 0,
+      results: [
+        { isFinal: true, 0: { transcript: 'quiero crear una mesa' } },
+        { isFinal: true, 0: { transcript: 'para cuatro personas' } },
+      ],
+    });
+
+    expect(service.transcript()).toBe('quiero crear una mesa para cuatro personas');
+  });
+
+  it('should replace the interim guess instead of stacking it', () => {
+    service.start('es');
+    const recognition = MockSpeechRecognition.latestInstance;
+
+    recognition?.onresult?.({ resultIndex: 0, results: [{ isFinal: false, 0: { transcript: 'mesa' } }] });
+    recognition?.onresult?.({ resultIndex: 0, results: [{ isFinal: false, 0: { transcript: 'mesa cinco' } }] });
+    recognition?.onresult?.({ resultIndex: 0, results: [{ isFinal: true, 0: { transcript: 'mesa cinco' } }] });
+
+    expect(service.transcript()).toBe('mesa cinco');
+  });
+
+  it('should keep what was said before the engine restarted itself mid dictation', () => {
+    service.start('es');
+
+    MockSpeechRecognition.latestInstance?.onresult?.({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'hola' } }],
+    });
+
+    // Mobile ends the session on every pause in speech, and the service starts a fresh one.
+    MockSpeechRecognition.latestInstance?.onend?.();
+
+    MockSpeechRecognition.latestInstance?.onresult?.({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'mundo' } }],
+    });
+
+    expect(service.transcript()).toBe('hola mundo');
+  });
+
   describe('state transitions', () => {
     it('should start with idle state', () => {
       expect(service.status()).toBe('idle');
