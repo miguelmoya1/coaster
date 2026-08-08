@@ -14,9 +14,10 @@ trigger (`time_entry_append_only`). Corregir una marca significa insertar una fi
 apunta a la anterior por `supersedesId`.
 
 ```text
-entry-1  RECORDED  08:00  (fichaje del trabajador)
-entry-2  AMENDED   09:00  supersedes entry-1  motivo: "olvido fichar la entrada"
-entry-3  VOIDED    09:00  supersedes entry-2  motivo: "marca duplicada"
+entry-1  RECORDED   08:00  (fichaje del trabajador)
+entry-2  REQUESTED  07:30  el trabajador pide correccion    motivo: "entre antes pero fiche tarde"
+entry-3  AMENDED    07:30  supersedes entry-1, la encargada aprueba
+entry-4  VOIDED     07:30  supersedes entry-3               motivo: "marca duplicada"
 ```
 
 Las tres filas comparten `rootId = entry-1`. De ahi sale todo:
@@ -25,6 +26,11 @@ Las tres filas comparten `rootId = entry-1`. De ahi sale todo:
 - **historial**: el grupo entero, ordenado, que es lo que se devuelve en `TimeEntry.revisions`;
 - **marca anulada**: el grupo cuya cabeza es `VOIDED`. No se borra ni se esconde, se muestra
   marcada; no cuenta para los totales.
+
+Las filas `REQUESTED` y `REJECTED` **no supersedan a nadie** (`supersedesId` a null): son parte del
+grupo y del historial, pero la hora vigente sale solo de las acciones aplicadas (`APPLIED_ACTIONS`).
+Hay solicitud pendiente cuando la ultima fila del grupo es `REQUESTED`; aprobarla anade una fila
+`AMENDED` y rechazarla una `REJECTED`, y en ambos casos deja de ser la ultima.
 
 Como no hay estado mutable, no existe la posibilidad de que el dato y su auditoria se separen: son
 la misma fila. Por eso la traza **no** se escribe en un manejador de evento aparte, a diferencia
@@ -62,20 +68,34 @@ pleno derecho y se corrigen igual que la entrada y la salida.
 Los fichajes del propio trabajador usan **la hora del servidor**; el cliente no la envia. Las horas
 que llegan del cliente solo existen en las correcciones, que exigen motivo y quedan firmadas.
 
+## Quien corrige que
+
+El trabajador **no cambia su propio registro**: pide la correccion y queda constancia de la
+peticion, pero la hora no se mueve hasta que `MANAGER` u `OWNER` la aprueban. Es lo que sostiene el
+valor probatorio del registro: quien tiene interes en las horas no puede cambiarlas solo.
+
+La ley no lo exige asi —tampoco prohibe que el trabajador se corrija—, pero un registro que el
+propio interesado puede reescribir sin control vale poco en una reclamacion de horas extra.
+
 ## Endpoints
 
-| Metodo y ruta       | Permiso                   | Para que                                       |
-| ------------------- | ------------------------- | ---------------------------------------------- |
-| `POST /clock`       | `bar:clock-in`            | Fichar uno mismo (entrada, pausas, salida)     |
-| `GET /me`           | ser miembro del bar       | Mi jornada con su historial de modificaciones  |
-| `GET /`             | `bar:view-time-entries`   | Jornadas del equipo, filtrando por persona     |
-| `GET /export`       | `bar:view-time-entries`   | CSV con una fila por revision, para Inspeccion |
-| `GET /integrity`    | `bar:manage-time-entries` | Verificacion de la cadena de hash              |
-| `POST /`            | `bar:manage-time-entries` | Alta manual de una marca olvidada              |
-| `POST /:id/amend`   | `bar:manage-time-entries` | Corregir la hora de una marca                  |
-| `POST /:id/void`    | `bar:manage-time-entries` | Anular una marca                               |
+| Metodo y ruta                  | Permiso                       | Para que                                       |
+| ------------------------------ | ----------------------------- | ---------------------------------------------- |
+| `POST /clock`                  | `bar:clock-in`                | Fichar uno mismo (entrada, pausas, salida)     |
+| `GET /me`                      | ser miembro del bar           | Mi jornada con su historial de modificaciones  |
+| `GET /`                        | `bar:view-time-entries`       | Jornadas del equipo, filtrando por persona     |
+| `GET /export`                  | `bar:view-time-entries`       | CSV con una fila por revision, para Inspeccion |
+| `GET /integrity`               | `bar:manage-time-entries`     | Verificacion de la cadena de hash              |
+| `POST /:id/request-correction` | `bar:request-time-correction` | Pedir correccion sobre una marca **propia**    |
+| `POST /`                       | `bar:manage-time-entries`     | Alta manual de una marca olvidada              |
+| `POST /:id/amend`              | `bar:manage-time-entries`     | Corregir la hora de una marca                  |
+| `POST /:id/approve-correction` | `bar:manage-time-entries`     | Aprobar una peticion pendiente                 |
+| `POST /:id/reject-correction`  | `bar:manage-time-entries`     | Rechazar una peticion pendiente                |
+| `POST /:id/void`               | `bar:manage-time-entries`     | Anular una marca                               |
 
-`bar:clock-in` lo tiene todo el mundo; los otros dos, `MANAGER` y `OWNER`. Corregir y anular
+`bar:clock-in` y `bar:request-time-correction` los tiene todo el mundo; el resto, `MANAGER` y
+`OWNER`. Pedir correccion sobre la marca de otro responde `NOT_YOUR_TIME_ENTRY`: el permiso no
+basta, el guard no puede saber de quien es la marca y lo comprueba el handler. Corregir y anular
 exigen motivo (minimo 5 caracteres) y se rechazan si dejarian la jornada descuadrada
 (`INVALID_CLOCK_SEQUENCE`), por ejemplo anular una entrada y dejar la salida huerfana.
 
@@ -109,6 +129,10 @@ va a ver su turno. Toda la gestion se hace desde ahi.
   corregir, anular, anadir marca y verificar integridad.
 - **Correcciones**: hojas inferiores (`time-entry-form`, `void-entry-form`) que exigen motivo de al
   menos 5 caracteres; el boton de guardar no se habilita sin el.
+- **Peticiones**: el trabajador usa el mismo formulario con `asRequest`, y su marca queda con una
+  insignia *Pendiente: 07:30* y el motivo a la vista. Quien gestiona ve ahi mismo **Aprobar** y
+  **Rechazar**. Aprobar conserva el motivo que escribio el trabajador; rechazar pide confirmacion y
+  deja la hora como estaba.
 
 La geolocalizacion se pide al fichar y es opcional: si el navegador la deniega o tarda mas de 3
 segundos, el fichaje sale igual sin coordenadas.

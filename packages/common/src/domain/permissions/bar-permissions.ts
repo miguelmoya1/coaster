@@ -22,6 +22,7 @@ const STAFF_PERMISSIONS: BarPermission[] = [
 
   'bar:view-shifts',
   'bar:clock-in',
+  'bar:request-time-correction',
   'bar:view-exchanges',
   'bar:create-exchange',
   'bar:accept-exchange',

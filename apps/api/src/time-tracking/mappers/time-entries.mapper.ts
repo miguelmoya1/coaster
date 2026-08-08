@@ -1,5 +1,6 @@
-import type { TimeEntry, TimeEntryRevision } from '@coaster/common';
+import type { TimeCorrectionRequest, TimeEntry, TimeEntryRevision } from '@coaster/common';
 import {
+  APPLIED_ACTIONS,
   TimeEntryAction,
   TimeEntrySource,
   TimeEntryType,
@@ -36,11 +37,24 @@ const toRevision = (row: TimeEntryRow): TimeEntryRevision => ({
 
 const bySequence = (a: TimeEntryRow, b: TimeEntryRow) => Number(a.sequence - b.sequence);
 
+const isApplied = (row: TimeEntryRow) => (APPLIED_ACTIONS as readonly string[]).includes(row.action);
+
+const toPendingRequest = (row: TimeEntryRow): TimeCorrectionRequest => ({
+  id: asTimeEntryId(row.id),
+  occurredAt: row.occurredAt.toISOString(),
+  requestedAt: row.recordedAt.toISOString(),
+  requestedById: asUserId(row.actorId),
+  requestedByName: row.actor?.name ?? null,
+  reason: row.reason,
+});
+
 export const TimeEntriesMapper = {
   toDomain(revisions: TimeEntryRow[]): TimeEntry {
     const ordered = [...revisions].sort(bySequence);
-    const original = ordered[0];
-    const head = ordered[ordered.length - 1];
+    const applied = ordered.filter(isApplied);
+    const original = applied[0] ?? ordered[0];
+    const head = applied[applied.length - 1] ?? ordered[ordered.length - 1];
+    const last = ordered[ordered.length - 1];
 
     return {
       id: asTimeEntryId(head.id),
@@ -53,11 +67,12 @@ export const TimeEntriesMapper = {
       recordedAt: head.recordedAt.toISOString(),
       workdayDate: formatWorkdayDate(head.workdayDate),
       source: head.source as TimeEntrySource,
-      amended: ordered.length > 1,
+      amended: applied.length > 1,
       voided: head.action === TimeEntryAction.VOIDED,
       latitude: original.latitude ?? undefined,
       longitude: original.longitude ?? undefined,
       shiftId: original.shiftId ? asShiftId(original.shiftId) : undefined,
+      pendingRequest: last.action === TimeEntryAction.REQUESTED ? toPendingRequest(last) : null,
       revisions: ordered.map(toRevision),
     };
   },

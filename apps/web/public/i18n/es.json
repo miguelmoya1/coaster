@@ -568,7 +568,15 @@
       "download": "Descargar CSV",
       "verify": "Verificar integridad",
       "integrity_ok": "Registro íntegro: {{entries}} marcas verificadas",
-      "integrity_broken": "Integridad comprometida: revisa el registro ({{entries}} marcas verificadas)"
+      "integrity_broken": "Integridad comprometida: revisa el registro ({{entries}} marcas verificadas)",
+      "request": "Pedir correccion",
+      "request_title": "Pedir correccion de fichaje",
+      "badge_pending": "Pendiente: {{time}}",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "reject_title": "Rechazar la correccion",
+      "reject_confirm": "La hora del fichaje se queda como esta y el rechazo queda registrado. ¿Continuas?",
+      "pending_hint": "Tu peticion queda registrada; la hora no cambia hasta que la validen."
     }
   },
   "templates": {
@@ -995,5 +1003,7 @@
   "TIME_ENTRY_NOT_FOUND": "El fichaje no existe",
   "TIME_ENTRY_NOT_CURRENT": "Ese fichaje ya fue corregido o anulado",
   "TIME_ENTRY_REASON_REQUIRED": "Indica el motivo de la corrección",
-  "INVALID_CLOCK_SEQUENCE": "La marca no encaja en la jornada: revisa el orden de entradas, pausas y salidas"
+  "INVALID_CLOCK_SEQUENCE": "La marca no encaja en la jornada: revisa el orden de entradas, pausas y salidas",
+  "NOT_YOUR_TIME_ENTRY": "Solo puedes pedir correcciones sobre tus propios fichajes",
+  "NO_PENDING_TIME_CORRECTION": "Ese fichaje no tiene ninguna correccion pendiente"
 }

@@ -17,7 +17,7 @@ import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink
 import { MyMemberStore } from '@coaster/bar-members';
 import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
 import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId, TimeEntry, TimeEntryType } from '@coaster/common';
-import { BarPermission, BarRole } from '@coaster/common';
+import { asTimeEntryId, BarPermission, BarRole } from '@coaster/common';
 import { ActionFeedback, DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/bar-members';
@@ -132,6 +132,7 @@ export default class Roster {
   readonly canClockIn = computed(() => this.#hasPermission(BarPermission.BAR_CLOCK_IN));
   readonly canCreateShift = computed(() => this.#hasPermission(BarPermission.BAR_CREATE_SHIFT));
   readonly canDeleteShift = computed(() => this.#hasPermission(BarPermission.BAR_DELETE_SHIFT));
+  readonly canRequestCorrection = computed(() => this.#hasPermission(BarPermission.BAR_REQUEST_TIME_CORRECTION));
   readonly canViewTimeEntries = computed(() => this.#hasPermission(BarPermission.BAR_VIEW_TIME_ENTRIES));
   readonly canManageTimeEntries = computed(() => this.#hasPermission(BarPermission.BAR_MANAGE_TIME_ENTRIES));
 
@@ -545,6 +546,40 @@ export default class Roster {
     });
   }
 
+  protected handleRequestCorrection(entry: TimeEntry) {
+    const sheetRef = this.#bottomSheet.open(TimeEntryForm, {
+      disableClose: true,
+      injector: this.#injector,
+      bindings: [
+        inputBinding('entry', () => entry),
+        inputBinding('workdayDate', () => entry.workdayDate),
+        inputBinding('asRequest', () => true),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding('saved', () => {
+          sheetRef.dismiss();
+        }),
+      ],
+    });
+  }
+
+  protected async handleApproveCorrection(entry: TimeEntry) {
+    await this.#resolveCorrection(entry, true);
+  }
+
+  protected async handleRejectCorrection(entry: TimeEntry) {
+    const confirmed = await this.#confirmation.confirm({
+      destructive: true,
+      title: this.#translate.instant('roster.time_tracking.reject_title'),
+      text: this.#translate.instant('roster.time_tracking.reject_confirm'),
+    });
+
+    if (!confirmed) return;
+
+    await this.#resolveCorrection(entry, false);
+  }
+
   protected handleVoidEntry(entry: TimeEntry) {
     const sheetRef = this.#bottomSheet.open(VoidEntryForm, {
       disableClose: true,
@@ -599,6 +634,18 @@ export default class Roster {
       const key = integrity.valid ? 'roster.time_tracking.integrity_ok' : 'roster.time_tracking.integrity_broken';
 
       this.#feedback.info(this.#translate.instant(key, { entries: integrity.checkedEntries }));
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  async #resolveCorrection(entry: TimeEntry, approved: boolean) {
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#timeTrackingStore.resolveCorrection(asTimeEntryId(entry.id), approved);
     } catch (error) {
       this.#feedback.error(error);
     } finally {

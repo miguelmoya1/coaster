@@ -60,7 +60,17 @@
 
       @if (myWorkday(); as workday) {
         <div class="mt-3">
-          <coaster-workday-card [workday]="workday" [disabled]="isSubmitting()" />
+          <coaster-workday-card
+            [workday]="workday"
+            [canManage]="canManageTimeEntries()"
+            [canRequest]="canRequestCorrection()"
+            [disabled]="isSubmitting()"
+            (amend)="handleAmendEntry($event)"
+            (voidEntry)="handleVoidEntry($event)"
+            (request)="handleRequestCorrection($event)"
+            (approve)="handleApproveCorrection($event)"
+            (reject)="handleRejectCorrection($event)"
+          />
         </div>
       }
     }
@@ -112,6 +122,8 @@
               [disabled]="isSubmitting()"
               (amend)="handleAmendEntry($event)"
               (voidEntry)="handleVoidEntry($event)"
+              (approve)="handleApproveCorrection($event)"
+              (reject)="handleRejectCorrection($event)"
             />
           } @empty {
             <div class="text-center py-10 opacity-50 text-white font-bold">

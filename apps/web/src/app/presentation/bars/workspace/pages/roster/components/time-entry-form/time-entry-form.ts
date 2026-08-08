@@ -132,13 +132,19 @@ export class TimeEntryForm {
   public readonly entry = input<TimeEntry>();
   public readonly members = input<BarMember[]>([]);
   public readonly workdayDate = input.required<string>();
+  /** A worker cannot change the record on their own, so the same form files a request instead. */
+  public readonly asRequest = input(false);
 
   public readonly canceled = output<void>();
   public readonly saved = output<void>();
 
-  protected readonly title = computed(() =>
-    this.entry() ? 'roster.time_tracking.amend_title' : 'roster.time_tracking.create_title',
-  );
+  protected readonly title = computed(() => {
+    if (this.asRequest()) {
+      return 'roster.time_tracking.request_title';
+    }
+
+    return this.entry() ? 'roster.time_tracking.amend_title' : 'roster.time_tracking.create_title';
+  });
 
   protected readonly memberOptions = computed(() =>
     this.members().map((member) => ({ value: member.userId, label: member.userName })),
@@ -197,7 +203,11 @@ export class TimeEntryForm {
     const existing = this.entry();
 
     if (existing) {
-      return this.#store.amend(asTimeEntryId(existing.id), { occurredAt: this.#occurredAt(time), reason });
+      const correction = { occurredAt: this.#occurredAt(time), reason };
+
+      return this.asRequest()
+        ? this.#store.requestCorrection(asTimeEntryId(existing.id), correction)
+        : this.#store.amend(asTimeEntryId(existing.id), correction);
     }
 
     return this.#store.createEntry({

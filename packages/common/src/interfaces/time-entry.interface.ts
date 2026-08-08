@@ -19,6 +19,15 @@ export interface TimeEntryRevision {
   hash: string;
 }
 
+export interface TimeCorrectionRequest {
+  id: TimeEntryId;
+  occurredAt: string;
+  requestedAt: string;
+  requestedById: UserId;
+  requestedByName: string | null;
+  reason: string | null;
+}
+
 export interface TimeEntry {
   id: TimeEntryId;
   rootId: TimeEntryId;
@@ -35,6 +44,7 @@ export interface TimeEntry {
   latitude?: number;
   longitude?: number;
   shiftId?: ShiftId;
+  pendingRequest: TimeCorrectionRequest | null;
   revisions: TimeEntryRevision[];
 }
 
@@ -69,6 +79,15 @@ export interface AmendTimeEntryDto {
 
 export interface VoidTimeEntryDto {
   reason: string;
+}
+
+export interface RequestTimeCorrectionDto {
+  occurredAt: string;
+  reason: string;
+}
+
+export interface ResolveTimeCorrectionDto {
+  reason?: string;
 }
 
 export interface TimeSheetQuery {

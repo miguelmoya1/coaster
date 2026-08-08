@@ -11,7 +11,12 @@ export const TimeEntryAction = {
   RECORDED: 'RECORDED',
   AMENDED: 'AMENDED',
   VOIDED: 'VOIDED',
+  REQUESTED: 'REQUESTED',
+  REJECTED: 'REJECTED',
 } as const;
+
+/** A request does not change the hour on the record; only these actions decide what it says. */
+export const APPLIED_ACTIONS = [TimeEntryAction.RECORDED, TimeEntryAction.AMENDED, TimeEntryAction.VOIDED] as const;
 
 export type TimeEntryAction = (typeof TimeEntryAction)[keyof typeof TimeEntryAction];
 

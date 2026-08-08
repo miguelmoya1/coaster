@@ -568,7 +568,15 @@
       "download": "Download CSV",
       "verify": "Verify integrity",
       "integrity_ok": "Record intact: {{entries}} punches verified",
-      "integrity_broken": "Integrity compromised: review the record ({{entries}} punches verified)"
+      "integrity_broken": "Integrity compromised: review the record ({{entries}} punches verified)",
+      "request": "Request correction",
+      "request_title": "Request a punch correction",
+      "badge_pending": "Pending: {{time}}",
+      "approve": "Approve",
+      "reject": "Reject",
+      "reject_title": "Reject the correction",
+      "reject_confirm": "The punch keeps its current time and the refusal goes on record. Continue?",
+      "pending_hint": "Your request goes on record; the time does not change until it is approved."
     }
   },
   "templates": {
@@ -995,5 +1003,7 @@
   "TIME_ENTRY_NOT_FOUND": "That punch does not exist",
   "TIME_ENTRY_NOT_CURRENT": "That punch was already corrected or voided",
   "TIME_ENTRY_REASON_REQUIRED": "State the reason for the correction",
-  "INVALID_CLOCK_SEQUENCE": "The punch does not fit the workday: check the order of clock ins, breaks and clock outs"
+  "INVALID_CLOCK_SEQUENCE": "The punch does not fit the workday: check the order of clock ins, breaks and clock outs",
+  "NOT_YOUR_TIME_ENTRY": "You can only request corrections on your own punches",
+  "NO_PENDING_TIME_CORRECTION": "That punch has no correction waiting"
 }

@@ -5,6 +5,8 @@ import type {
   BarId,
   ClockDto,
   CreateTimeEntryDto,
+  RequestTimeCorrectionDto,
+  ResolveTimeCorrectionDto,
   TimeEntry,
   TimeEntryId,
   TimeSheetIntegrity,
@@ -31,6 +33,12 @@ export class TimeEntryRepository {
     create: (barId: BarId) => `/bars/${barId}/time-entries`,
     amend: (barId: BarId, entryId: TimeEntryId) => `/bars/${barId}/time-entries/${entryId}/amend`,
     void: (barId: BarId, entryId: TimeEntryId) => `/bars/${barId}/time-entries/${entryId}/void`,
+    requestCorrection: (barId: BarId, entryId: TimeEntryId) =>
+      `/bars/${barId}/time-entries/${entryId}/request-correction`,
+    approveCorrection: (barId: BarId, entryId: TimeEntryId) =>
+      `/bars/${barId}/time-entries/${entryId}/approve-correction`,
+    rejectCorrection: (barId: BarId, entryId: TimeEntryId) =>
+      `/bars/${barId}/time-entries/${entryId}/reject-correction`,
   };
 
   public clock(barId: BarId, dto: ClockDto): Promise<TimeEntry> {
@@ -47,6 +55,21 @@ export class TimeEntryRepository {
 
   public void(barId: BarId, entryId: TimeEntryId, dto: VoidTimeEntryDto): Promise<TimeEntry> {
     return firstValueFrom(this.#http.post<TimeEntry>(this.routes.void(barId, entryId), dto));
+  }
+
+  public requestCorrection(barId: BarId, entryId: TimeEntryId, dto: RequestTimeCorrectionDto): Promise<TimeEntry> {
+    return firstValueFrom(this.#http.post<TimeEntry>(this.routes.requestCorrection(barId, entryId), dto));
+  }
+
+  public resolveCorrection(
+    barId: BarId,
+    entryId: TimeEntryId,
+    approved: boolean,
+    dto: ResolveTimeCorrectionDto,
+  ): Promise<TimeEntry> {
+    const route = approved ? this.routes.approveCorrection : this.routes.rejectCorrection;
+
+    return firstValueFrom(this.#http.post<TimeEntry>(route(barId, entryId), dto));
   }
 
   public integrity(barId: BarId): Promise<TimeSheetIntegrity> {
