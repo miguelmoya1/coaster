@@ -104,6 +104,7 @@ export interface WeeklyDayItem {
                 [showDelete]="canDeleteShift()"
                 [disabled]="isSubmitting()"
                 (delete)="deleteShift.emit(shift)"
+                (offerExchange)="offerExchange.emit(shift)"
               />
             } @empty {
               <p class="text-xs text-on-surface-variant/40 italic py-2 text-center">
@@ -124,5 +125,6 @@ export class RosterWeeklyGrid {
 
   readonly quickCreate = output<Date>();
   readonly deleteShift = output<WeeklyShiftItem>();
+  readonly offerExchange = output<WeeklyShiftItem>();
   readonly replicatePreviousWeek = output<void>();
 }

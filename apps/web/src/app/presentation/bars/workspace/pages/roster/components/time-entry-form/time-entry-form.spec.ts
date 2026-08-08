@@ -21,7 +21,6 @@ const entry: TimeEntry = {
   source: TimeEntrySource.EMPLOYEE_DEVICE,
   amended: false,
   voided: false,
-  pendingRequest: null,
   revisions: [
     {
       id: asTimeEntryId('entry-1'),
@@ -44,14 +43,12 @@ describe('TimeEntryForm', () => {
   let store: {
     amend: ReturnType<typeof vi.fn>;
     createEntry: ReturnType<typeof vi.fn>;
-    requestCorrection: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     store = {
       amend: vi.fn().mockResolvedValue(undefined),
       createEntry: vi.fn().mockResolvedValue(undefined),
-      requestCorrection: vi.fn().mockResolvedValue(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -150,21 +147,4 @@ describe('TimeEntryForm', () => {
     );
   });
 
-  it('should file a request instead of changing the record when the worker is the one asking', async () => {
-    fixture.componentRef.setInput('entry', entry);
-    fixture.componentRef.setInput('workdayDate', '2026-08-08');
-    fixture.componentRef.setInput('asRequest', true);
-    fixture.detectChanges();
-
-    component.form.time().value.set(new Date('2026-08-08T07:30:00'));
-    component.form.reason().value.set('Entre antes pero fiche tarde');
-
-    await submitForm();
-
-    expect(store.requestCorrection).toHaveBeenCalledWith(
-      'entry-1',
-      expect.objectContaining({ reason: 'Entre antes pero fiche tarde' }),
-    );
-    expect(store.amend).not.toHaveBeenCalled();
-  });
 });

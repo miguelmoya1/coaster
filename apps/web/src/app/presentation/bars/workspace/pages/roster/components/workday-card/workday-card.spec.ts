@@ -28,7 +28,6 @@ const entry = (overrides: Partial<TimeEntry> = {}): TimeEntry =>
     source: TimeEntrySource.EMPLOYEE_DEVICE,
     amended: false,
     voided: false,
-    pendingRequest: null,
     revisions: [
       {
         id: asTimeEntryId('entry-1'),
@@ -145,68 +144,19 @@ describe('WorkdayCard', () => {
     expect(voidEmitted?.id).toBe('entry-1');
   });
 
-  it('should show a worker the pending request they filed, not an edit button', () => {
-    const requested = entry({
-      pendingRequest: {
-        id: asTimeEntryId('entry-2'),
-        occurredAt: '2026-08-08T05:30:00.000Z',
-        requestedAt: '2026-08-08T18:00:00.000Z',
-        requestedById: asUserId('user-1'),
-        requestedByName: 'Luis',
-        reason: 'Entre antes pero fiche tarde',
-      },
-    });
-
-    fixture.componentRef.setInput('workday', workday([requested]));
-    fixture.componentRef.setInput('canRequest', true);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('roster.time_tracking.badge_pending');
-    expect(fixture.nativeElement.textContent).toContain('Entre antes pero fiche tarde');
-    expect(fixture.nativeElement.querySelectorAll('button').length).toBe(0);
-  });
-
-  it('should let a worker ask for a correction on a mark of their own', () => {
+  it('should let a worker fix a mark of their own without offering to void it', () => {
     fixture.componentRef.setInput('workday', workday([entry()]));
-    fixture.componentRef.setInput('canRequest', true);
+    fixture.componentRef.setInput('canAmend', true);
     fixture.detectChanges();
 
-    let requested: TimeEntry | undefined;
-    fixture.componentInstance.request.subscribe((value) => (requested = value));
+    let amended: TimeEntry | undefined;
+    fixture.componentInstance.amend.subscribe((value) => (amended = value));
 
-    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    const buttons = fixture.nativeElement.querySelectorAll('button');
+    expect(buttons.length).toBe(1);
 
-    expect(requested?.id).toBe('entry-1');
-  });
-
-  it('should offer approve and reject to whoever manages the record', () => {
-    const requested = entry({
-      pendingRequest: {
-        id: asTimeEntryId('entry-2'),
-        occurredAt: '2026-08-08T05:30:00.000Z',
-        requestedAt: '2026-08-08T18:00:00.000Z',
-        requestedById: asUserId('user-1'),
-        requestedByName: 'Luis',
-        reason: 'Entre antes pero fiche tarde',
-      },
-    });
-
-    render(workday([requested]), true);
-
-    let approved: TimeEntry | undefined;
-    let rejected: TimeEntry | undefined;
-    fixture.componentInstance.approve.subscribe((value) => (approved = value));
-    fixture.componentInstance.reject.subscribe((value) => (rejected = value));
-
-    const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
-    const approveButton = buttons.find((button) => button.textContent?.includes('approve'));
-    const rejectButton = buttons.find((button) => button.textContent?.includes('reject'));
-
-    approveButton?.click();
-    rejectButton?.click();
-
-    expect(approved?.id).toBe('entry-1');
-    expect(rejected?.id).toBe('entry-1');
+    (buttons[0] as HTMLButtonElement).click();
+    expect(amended?.id).toBe('entry-1');
   });
 
   it('should not offer to correct a mark that is already void', () => {

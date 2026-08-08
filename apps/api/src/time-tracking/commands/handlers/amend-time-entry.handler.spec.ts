@@ -1,5 +1,6 @@
 import type { User } from '@coaster/common';
 import {
+  BarPermission,
   ErrorCodes,
   TimeEntryAction,
   TimeEntrySource,
@@ -9,7 +10,7 @@ import {
   Role,
   asBarId,
 } from '@coaster/common';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TimeEntryAmendedEvent } from '../../events/impl/time-entry-amended.event';
 import { AmendTimeEntryCommand } from '../impl/amend-time-entry.command';
@@ -66,6 +67,7 @@ describe('AmendTimeEntryHandler', () => {
     findByRoots: ReturnType<typeof vi.fn>;
   };
   let writeRepo: { append: ReturnType<typeof vi.fn> };
+  let queryBus: { execute: ReturnType<typeof vi.fn> };
   let eventBus: { publish: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
@@ -85,8 +87,18 @@ describe('AmendTimeEntryHandler', () => {
       ]),
     };
     writeRepo = { append: vi.fn().mockResolvedValue(row({ id: 'entry-2' })) };
+    queryBus = {
+      execute: vi
+        .fn()
+        .mockResolvedValue([{ userId: 'manager-1', permissions: [BarPermission.BAR_MANAGE_TIME_ENTRIES] }]),
+    };
     eventBus = { publish: vi.fn() };
-    handler = new AmendTimeEntryHandler(readRepo as never, writeRepo as never, eventBus as never);
+    handler = new AmendTimeEntryHandler(
+      readRepo as never,
+      writeRepo as never,
+      queryBus as never,
+      eventBus as never,
+    );
   });
 
   it('should append a new revision instead of rewriting the original mark', async () => {
@@ -163,5 +175,42 @@ describe('AmendTimeEntryHandler', () => {
     await expect(handler.execute(command('ayer por la tarde'))).rejects.toThrow(
       new BadRequestException(ErrorCodes.INVALID_DATE),
     );
+  });
+
+  it('should let a worker fix the hour on a mark of their own', async () => {
+    const worker: User = { ...actor, id: asUserId('user-1'), name: 'Luis', email: 'luis@bar.com' };
+    queryBus.execute.mockResolvedValue([{ userId: 'user-1', permissions: [] }]);
+
+    await handler.execute(
+      new AmendTimeEntryCommand(barId, asTimeEntryId('entry-1'), worker, {
+        occurredAt: '2026-08-08T09:00:00Z',
+        reason: 'Entre antes pero fiche tarde',
+      }),
+    );
+
+    expect(writeRepo.append).toHaveBeenCalledWith(
+      expect.objectContaining({ action: TimeEntryAction.AMENDED, actorId: worker.id }),
+    );
+  });
+
+  it('should stop a worker from touching somebody elses hours', async () => {
+    const worker: User = { ...actor, id: asUserId('user-9'), name: 'Marta', email: 'marta@bar.com' };
+    queryBus.execute.mockResolvedValue([{ userId: 'user-9', permissions: [] }]);
+
+    await expect(
+      handler.execute(
+        new AmendTimeEntryCommand(barId, asTimeEntryId('entry-1'), worker, {
+          occurredAt: '2026-08-08T09:00:00Z',
+          reason: 'Le puse la hora que me dijo',
+        }),
+      ),
+    ).rejects.toThrow(new ForbiddenException(ErrorCodes.NOT_YOUR_TIME_ENTRY));
+    expect(writeRepo.append).not.toHaveBeenCalled();
+  });
+
+  it('should let whoever manages the bar fix anybody hours', async () => {
+    await handler.execute(command());
+
+    expect(writeRepo.append).toHaveBeenCalledWith(expect.objectContaining({ actorId: actor.id }));
   });
 });

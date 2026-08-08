@@ -569,14 +569,7 @@
       "verify": "Verify integrity",
       "integrity_ok": "Record intact: {{entries}} punches verified",
       "integrity_broken": "Integrity compromised: review the record ({{entries}} punches verified)",
-      "request": "Request correction",
-      "request_title": "Request a punch correction",
-      "badge_pending": "Pending: {{time}}",
-      "approve": "Approve",
-      "reject": "Reject",
-      "reject_title": "Reject the correction",
-      "reject_confirm": "The punch keeps its current time and the refusal goes on record. Continue?",
-      "pending_hint": "Your request goes on record; the time does not change until it is approved."
+      "only_today": "You can only clock in on today. For other days, correct the mark stating the reason."
     }
   },
   "templates": {
@@ -1005,5 +998,6 @@
   "TIME_ENTRY_REASON_REQUIRED": "State the reason for the correction",
   "INVALID_CLOCK_SEQUENCE": "The punch does not fit the workday: check the order of clock ins, breaks and clock outs",
   "NOT_YOUR_TIME_ENTRY": "You can only request corrections on your own punches",
-  "NO_PENDING_TIME_CORRECTION": "That punch has no correction waiting"
+  "EXCHANGE_SHIFT_ALREADY_STARTED": "That shift has already started and cannot be handed over",
+  "EXCHANGE_ALREADY_CLOSED": "That exchange is closed and stays on record"
 }

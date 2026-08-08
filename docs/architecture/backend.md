@@ -56,7 +56,13 @@ sin `tsconfig-paths` ni ningun cargador extra.
 `vitest.config.ts` y `vitest.config.e2e.ts` leen los `paths` de `tsconfig.json` y construyen sus
 alias a partir de ahi. No hay ninguna lista que mantener sincronizada.
 
-Los e2e (`npm run test:e2e -w @coaster/api`) corren en CI. Los bares de prueba se crean con
+Los e2e (`npm run test:e2e -w @coaster/api`) corren en CI y levantan la base de datos con
+`prisma migrate deploy`, no con `db push`: el esquema por si solo se deja fuera todo lo escrito en
+SQL a mano (los triggers append-only de `TimeEntry`, el indice unico parcial de `ShiftExchange`), que
+son justo las invariantes sobre las que conviene poder apoyarse en un test.
+
+Para probar algo entre dos personas, `E2eTestSetup.actAs(user)` devuelve la cabecera
+`x-e2e-user-id` que el guard simulado usa para suplantar; sin ella todo sigue siendo `mockUser`. Los bares de prueba se crean con
 `E2eTestSetup.createBar()`, que replica lo que hace `BarWriteRepository.create`: bar, membresia
 del owner y suscripcion en prueba de 14 dias. Crear bares con `prisma.dbBar.create` a pelo deja el
 bar sin suscripcion y `SubscriptionActiveGuard` responde 402 a toda escritura.

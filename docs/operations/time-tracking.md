@@ -14,10 +14,9 @@ trigger (`time_entry_append_only`). Corregir una marca significa insertar una fi
 apunta a la anterior por `supersedesId`.
 
 ```text
-entry-1  RECORDED   08:00  (fichaje del trabajador)
-entry-2  REQUESTED  07:30  el trabajador pide correccion    motivo: "entre antes pero fiche tarde"
-entry-3  AMENDED    07:30  supersedes entry-1, la encargada aprueba
-entry-4  VOIDED     07:30  supersedes entry-3               motivo: "marca duplicada"
+entry-1  RECORDED  08:00  (fichaje del trabajador)
+entry-2  AMENDED   07:30  supersedes entry-1  motivo: "entre antes pero fiche tarde"
+entry-3  VOIDED    07:30  supersedes entry-2  motivo: "marca duplicada"
 ```
 
 Las tres filas comparten `rootId = entry-1`. De ahi sale todo:
@@ -26,11 +25,6 @@ Las tres filas comparten `rootId = entry-1`. De ahi sale todo:
 - **historial**: el grupo entero, ordenado, que es lo que se devuelve en `TimeEntry.revisions`;
 - **marca anulada**: el grupo cuya cabeza es `VOIDED`. No se borra ni se esconde, se muestra
   marcada; no cuenta para los totales.
-
-Las filas `REQUESTED` y `REJECTED` **no supersedan a nadie** (`supersedesId` a null): son parte del
-grupo y del historial, pero la hora vigente sale solo de las acciones aplicadas (`APPLIED_ACTIONS`).
-Hay solicitud pendiente cuando la ultima fila del grupo es `REQUESTED`; aprobarla anade una fila
-`AMENDED` y rechazarla una `REJECTED`, y en ambos casos deja de ser la ultima.
 
 Como no hay estado mutable, no existe la posibilidad de que el dato y su auditoria se separen: son
 la misma fila. Por eso la traza **no** se escribe en un manejador de evento aparte, a diferencia
@@ -70,12 +64,16 @@ que llegan del cliente solo existen en las correcciones, que exigen motivo y que
 
 ## Quien corrige que
 
-El trabajador **no cambia su propio registro**: pide la correccion y queda constancia de la
-peticion, pero la hora no se mueve hasta que `MANAGER` u `OWNER` la aprueban. Es lo que sostiene el
-valor probatorio del registro: quien tiene interes en las horas no puede cambiarlas solo.
+Cada uno corrige sus propias marcas (`bar:amend-own-time-entry`, que tiene todo el mundo) indicando
+el motivo. Tocar las de otro exige `bar:manage-time-entries`. No hay aprobaciones ni estados
+intermedios: el cambio entra al momento y lo que da garantias es el historial, que guarda la hora
+anterior, la nueva, quien la cambio, cuando y por que.
 
-La ley no lo exige asi —tampoco prohibe que el trabajador se corrija—, pero un registro que el
-propio interesado puede reescribir sin control vale poco en una reclamacion de horas extra.
+El guard no puede saber de quien es la marca, asi que la mitad de la regla que depende del dueno se
+comprueba en `AmendTimeEntryHandler`, que responde `NOT_YOUR_TIME_ENTRY`.
+
+Anular sigue siendo cosa de `MANAGER` y `OWNER`: borrar una marca del recuento pesa mas que
+moverle la hora, y queda igualmente registrado.
 
 ## Endpoints
 
@@ -86,16 +84,11 @@ propio interesado puede reescribir sin control vale poco en una reclamacion de h
 | `GET /`                        | `bar:view-time-entries`       | Jornadas del equipo, filtrando por persona     |
 | `GET /export`                  | `bar:view-time-entries`       | CSV con una fila por revision, para Inspeccion |
 | `GET /integrity`               | `bar:manage-time-entries`     | Verificacion de la cadena de hash              |
-| `POST /:id/request-correction` | `bar:request-time-correction` | Pedir correccion sobre una marca **propia**    |
 | `POST /`                       | `bar:manage-time-entries`     | Alta manual de una marca olvidada              |
-| `POST /:id/amend`              | `bar:manage-time-entries`     | Corregir la hora de una marca                  |
-| `POST /:id/approve-correction` | `bar:manage-time-entries`     | Aprobar una peticion pendiente                 |
-| `POST /:id/reject-correction`  | `bar:manage-time-entries`     | Rechazar una peticion pendiente                |
+| `POST /:id/amend`              | `bar:amend-own-time-entry`    | Corregir la hora (la propia, o cualquiera con `bar:manage-time-entries`) |
 | `POST /:id/void`               | `bar:manage-time-entries`     | Anular una marca                               |
 
-`bar:clock-in` y `bar:request-time-correction` los tiene todo el mundo; el resto, `MANAGER` y
-`OWNER`. Pedir correccion sobre la marca de otro responde `NOT_YOUR_TIME_ENTRY`: el permiso no
-basta, el guard no puede saber de quien es la marca y lo comprueba el handler. Corregir y anular
+`bar:clock-in` y `bar:amend-own-time-entry` los tiene todo el mundo; el resto, `MANAGER` y `OWNER`. Corregir y anular
 exigen motivo (minimo 5 caracteres) y se rechazan si dejarian la jornada descuadrada
 (`INVALID_CLOCK_SEQUENCE`), por ejemplo anular una entrada y dejar la salida huerfana.
 
@@ -128,11 +121,12 @@ va a ver su turno. Toda la gestion se hace desde ahi.
   `bar:view-time-entries`, con **Descargar CSV**. Con `bar:manage-time-entries` aparecen ademas
   corregir, anular, anadir marca y verificar integridad.
 - **Correcciones**: hojas inferiores (`time-entry-form`, `void-entry-form`) que exigen motivo de al
-  menos 5 caracteres; el boton de guardar no se habilita sin el.
-- **Peticiones**: el trabajador usa el mismo formulario con `asRequest`, y su marca queda con una
-  insignia *Pendiente: 07:30* y el motivo a la vista. Quien gestiona ve ahi mismo **Aprobar** y
-  **Rechazar**. Aprobar conserva el motivo que escribio el trabajador; rechazar pide confirmacion y
-  deja la hora como estaba.
+  menos 5 caracteres; el boton de guardar no se habilita sin el. El trabajador ve el lapiz en sus
+  propias marcas; anular solo aparece con `bar:manage-time-entries`.
+
+**Fichar solo se ofrece en el dia de hoy.** Un fichaje siempre lleva el reloj del servidor, asi que
+por la API es imposible marcar en pasado; ensenar los botones en otro dia solo invitaba a
+intentarlo. Los dias anteriores se arreglan con correcciones y altas manuales, que piden motivo.
 
 La geolocalizacion se pide al fichar y es opcional: si el navegador la deniega o tarda mas de 3
 segundos, el fichaje sale igual sin coordenadas.

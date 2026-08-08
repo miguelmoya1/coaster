@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import type { TimeEntry, Workday } from '@coaster/common';
@@ -12,14 +12,13 @@ export interface WorkdayEntryItem {
   time: string;
   typeLabel: string;
   manual: boolean;
-  requestedTime: string | null;
   revisions: { label: string; detail: string }[];
 }
 
 @Component({
   selector: 'coaster-workday-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButton, MatIcon, MatIconButton, MatTooltip, TranslatePipe],
+  imports: [MatIcon, MatIconButton, MatTooltip, TranslatePipe],
   host: { class: 'block' },
   template: `
     <article class="flex flex-col gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container p-4">
@@ -81,29 +80,7 @@ export interface WorkdayEntryItem {
                     {{ 'roster.time_tracking.badge_voided' | translate }}
                   </span>
                 }
-                @if (item.requestedTime; as requested) {
-                  <span class="rounded-full bg-secondary/15 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-secondary">
-                    {{ 'roster.time_tracking.badge_pending' | translate: { time: requested } }}
-                  </span>
-                }
               </div>
-
-              @if (item.entry.pendingRequest; as request) {
-                <p class="mt-2 rounded-lg bg-surface-container-highest px-2 py-1.5 text-xs leading-tight text-on-surface-variant">
-                  {{ request.reason }}
-                </p>
-
-                @if (canManage()) {
-                  <div class="mt-2 flex flex-wrap gap-2">
-                    <button mat-stroked-button type="button" [disabled]="disabled()" (click)="approve.emit(item.entry)">
-                      {{ 'roster.time_tracking.approve' | translate }}
-                    </button>
-                    <button mat-stroked-button type="button" [disabled]="disabled()" (click)="reject.emit(item.entry)">
-                      {{ 'roster.time_tracking.reject' | translate }}
-                    </button>
-                  </div>
-                }
-              }
 
               @if (item.revisions.length > 1) {
                 <details class="mt-2">
@@ -122,21 +99,7 @@ export interface WorkdayEntryItem {
               }
             </div>
 
-            @if (canRequest() && !canManage() && !item.entry.voided && !item.entry.pendingRequest) {
-              <button
-                mat-icon-button
-                type="button"
-                class="shrink-0"
-                [disabled]="disabled()"
-                [matTooltip]="'roster.time_tracking.request' | translate"
-                [attr.aria-label]="'roster.time_tracking.request' | translate"
-                (click)="request.emit(item.entry)"
-              >
-                <mat-icon>edit_calendar</mat-icon>
-              </button>
-            }
-
-            @if (canManage() && !item.entry.voided) {
+            @if (!item.entry.voided && (canManage() || canAmend())) {
               <div class="flex shrink-0 gap-1">
                 <button
                   mat-icon-button
@@ -148,16 +111,19 @@ export interface WorkdayEntryItem {
                 >
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="disabled()"
-                  [matTooltip]="'roster.time_tracking.void' | translate"
-                  [attr.aria-label]="'roster.time_tracking.void' | translate"
-                  (click)="voidEntry.emit(item.entry)"
-                >
-                  <mat-icon>block</mat-icon>
-                </button>
+
+                @if (canManage()) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [disabled]="disabled()"
+                    [matTooltip]="'roster.time_tracking.void' | translate"
+                    [attr.aria-label]="'roster.time_tracking.void' | translate"
+                    (click)="voidEntry.emit(item.entry)"
+                  >
+                    <mat-icon>block</mat-icon>
+                  </button>
+                }
               </div>
             }
           </li>
@@ -175,14 +141,11 @@ export class WorkdayCard {
 
   public readonly workday = input.required<Workday>();
   public readonly canManage = input(false);
-  public readonly canRequest = input(false);
+  public readonly canAmend = input(false);
   public readonly disabled = input(false);
 
   public readonly amend = output<TimeEntry>();
   public readonly voidEntry = output<TimeEntry>();
-  public readonly request = output<TimeEntry>();
-  public readonly approve = output<TimeEntry>();
-  public readonly reject = output<TimeEntry>();
 
   protected readonly workedLabel = computed(() => this.#dateFormatter.formatDuration(this.workday().workedMinutes));
 
@@ -197,7 +160,6 @@ export class WorkdayCard {
       time: this.#dateFormatter.formatTime(entry.occurredAt),
       typeLabel: `roster.time_tracking.type_${entry.type.toLowerCase()}`,
       manual: entry.source === TimeEntrySource.MANUAL,
-      requestedTime: entry.pendingRequest ? this.#dateFormatter.formatTime(entry.pendingRequest.occurredAt) : null,
       revisions: entry.revisions.map((revision) => ({
         label: `roster.time_tracking.action_${revision.action.toLowerCase()}`,
         detail: this.#revisionDetail(revision.action, revision.occurredAt, revision.actorName, revision.reason),

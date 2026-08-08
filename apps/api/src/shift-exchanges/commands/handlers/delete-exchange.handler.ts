@@ -20,20 +20,22 @@ export class DeleteExchangeHandler implements ICommandHandler<DeleteExchangeComm
       throw new NotFoundException(ErrorCodes.EXCHANGE_NOT_FOUND);
     }
 
+    /*
+     * Only live offers can be withdrawn. A closed exchange is the record of who took whose shift,
+     * and deleting it undid nothing while losing that trace.
+     */
+    if (exchange.status !== ShiftExchangeStatus.PENDING) {
+      throw new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_CLOSED);
+    }
+
     const member = await this.readRepo.getBarMember(command.userId, command.barId);
 
     if (!member || !member.active) {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    if (member.role !== DbBarRole.OWNER) {
-      if (exchange.requesterId !== command.userId) {
-        throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
-      }
-
-      if (exchange.status !== ShiftExchangeStatus.PENDING) {
-        throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
-      }
+    if (member.role !== DbBarRole.OWNER && exchange.requesterId !== command.userId) {
+      throw new ForbiddenException(ErrorCodes.UNAUTHORIZED);
     }
 
     await this.writeRepo.deleteExchange(command.exchangeId);

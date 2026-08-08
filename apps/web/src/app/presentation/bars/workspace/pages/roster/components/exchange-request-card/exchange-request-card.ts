@@ -36,7 +36,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     </div>
 
     <div class="flex items-center gap-3 shrink-0">
-      @if (!isOwnRequest()) {
+      @if (!isOwnRequest() && !hasStarted()) {
         <button
           mat-flat-button
           [disabled]="disabled()"
@@ -83,6 +83,7 @@ export class ExchangeRequestCard {
   readonly offeredBy = input.required<string>();
   readonly disabled = input(false);
   readonly isOwnRequest = input(false);
+  readonly hasStarted = input(false);
   readonly canDelete = input(false);
   readonly accepted = output<void>();
   readonly delete = output<void>();

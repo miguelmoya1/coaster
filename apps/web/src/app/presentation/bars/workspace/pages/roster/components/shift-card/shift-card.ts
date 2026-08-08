@@ -1,12 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
 import { BarRole } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'coaster-shift-card',
-  imports: [TranslatePipe, MatButton, MatIcon, MatIconButton],
+  imports: [TranslatePipe, MatButton, MatIcon, MatIconButton, MatTooltip],
   template: `
     <div
       [class]="
@@ -60,19 +61,23 @@ import { TranslatePipe } from '@ngx-translate/core';
     </div>
 
     @if (compact()) {
-      @if (isOwn()) {
-        <span
-          class="text-xxs font-black text-tertiary bg-tertiary/10 px-2 py-0.5 rounded-full border border-tertiary/10 uppercase shrink-0"
-        >
-          {{ 'roster.exchanges.your_request' | translate }}
-        </span>
-      }
       @if (hasPendingExchange()) {
         <span
           class="text-xxs font-black text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/10 uppercase shrink-0"
         >
           {{ 'roster.exchange_pending' | translate }}
         </span>
+      } @else if (isOwn()) {
+        <button
+          mat-icon-button
+          class="shrink-0"
+          [disabled]="disabled() || isPast()"
+          [attr.aria-label]="'roster.offer_exchange' | translate"
+          [matTooltip]="'roster.offer_exchange' | translate"
+          (click)="offerExchange.emit(); $event.stopPropagation()"
+        >
+          <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">cached</mat-icon>
+        </button>
       }
     } @else {
       @if (isOwn()) {

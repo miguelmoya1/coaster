@@ -7,15 +7,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AmendTimeEntryCommand } from '../commands/impl/amend-time-entry.command';
 import { ClockCommand } from '../commands/impl/clock.command';
 import { CreateTimeEntryCommand } from '../commands/impl/create-time-entry.command';
-import { RequestTimeCorrectionCommand } from '../commands/impl/request-time-correction.command';
-import { ResolveTimeCorrectionCommand } from '../commands/impl/resolve-time-correction.command';
 import { VoidTimeEntryCommand } from '../commands/impl/void-time-entry.command';
 import { formatWorkdayDate, toWorkdayDate } from '../domain/workday';
 import { AmendTimeEntryDto } from '../dto/amend-time-entry.dto';
 import { ClockDto } from '../dto/clock.dto';
 import { CreateTimeEntryDto } from '../dto/create-time-entry.dto';
-import { RequestTimeCorrectionDto } from '../dto/request-time-correction.dto';
-import { ResolveTimeCorrectionDto } from '../dto/resolve-time-correction.dto';
 import { TimeSheetQueryDto } from '../dto/time-sheet-query.dto';
 import { VoidTimeEntryDto } from '../dto/void-time-entry.dto';
 import { GetTimeSheetIntegrityQuery } from '../queries/impl/get-time-sheet-integrity.query';
@@ -75,7 +71,7 @@ export class TimeEntriesController {
   }
 
   @Post(':entryId/amend')
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
+  @BarPermissions(BarPermission.BAR_AMEND_OWN_TIME_ENTRY)
   amend(
     @Param('barId') barId: BarId,
     @Param('entryId') entryId: TimeEntryId,
@@ -84,45 +80,6 @@ export class TimeEntriesController {
   ): Promise<TimeEntry> {
     return this._commandBus.execute<AmendTimeEntryCommand, TimeEntry>(
       new AmendTimeEntryCommand(barId, entryId, user, dto),
-    );
-  }
-
-  @Post(':entryId/request-correction')
-  @BarPermissions(BarPermission.BAR_REQUEST_TIME_CORRECTION)
-  requestCorrection(
-    @Param('barId') barId: BarId,
-    @Param('entryId') entryId: TimeEntryId,
-    @Body() dto: RequestTimeCorrectionDto,
-    @CurrentUser() user: User,
-  ): Promise<TimeEntry> {
-    return this._commandBus.execute<RequestTimeCorrectionCommand, TimeEntry>(
-      new RequestTimeCorrectionCommand(barId, entryId, user, dto),
-    );
-  }
-
-  @Post(':entryId/approve-correction')
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
-  approveCorrection(
-    @Param('barId') barId: BarId,
-    @Param('entryId') entryId: TimeEntryId,
-    @Body() dto: ResolveTimeCorrectionDto,
-    @CurrentUser() user: User,
-  ): Promise<TimeEntry> {
-    return this._commandBus.execute<ResolveTimeCorrectionCommand, TimeEntry>(
-      new ResolveTimeCorrectionCommand(barId, entryId, user, true, dto),
-    );
-  }
-
-  @Post(':entryId/reject-correction')
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
-  rejectCorrection(
-    @Param('barId') barId: BarId,
-    @Param('entryId') entryId: TimeEntryId,
-    @Body() dto: ResolveTimeCorrectionDto,
-    @CurrentUser() user: User,
-  ): Promise<TimeEntry> {
-    return this._commandBus.execute<ResolveTimeCorrectionCommand, TimeEntry>(
-      new ResolveTimeCorrectionCommand(barId, entryId, user, false, dto),
     );
   }
 

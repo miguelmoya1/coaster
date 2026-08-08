@@ -1,7 +1,8 @@
-import type { TimeEntry, TimeEntrySource, TimeEntryType } from '@coaster/common';
-import { ErrorCodes, TimeEntryAction, asUserId } from '@coaster/common';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { GetMembersQuery } from '@coaster/bar-members';
+import type { BarId, BarMember, TimeEntry, TimeEntrySource, TimeEntryType, UserId } from '@coaster/common';
+import { BarPermission, ErrorCodes, Role, TimeEntryAction, asUserId } from '@coaster/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import { TimeEntriesWriteRepository } from '../../data-access/time-entries.write.repository';
 import { replayClockState, toDatedMarks } from '../../domain/workday';
@@ -14,6 +15,7 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
   constructor(
     private readonly _readRepo: TimeEntriesReadRepository,
     private readonly _writeRepo: TimeEntriesWriteRepository,
+    private readonly _queryBus: QueryBus,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -28,6 +30,14 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
 
     if (current.supersededBy || current.action === TimeEntryAction.VOIDED) {
       throw new BadRequestException(ErrorCodes.TIME_ENTRY_NOT_CURRENT);
+    }
+
+    /*
+     * Everyone fixes their own hours; touching somebody else's is what needs the bar to trust you.
+     * The guard cannot tell whose mark it is, so the ownership half of the rule lives here.
+     */
+    if (current.userId !== actor.id && !(await this.#canManageOthers(barId, actor.id, actor.role))) {
+      throw new ForbiddenException(ErrorCodes.NOT_YOUR_TIME_ENTRY);
     }
 
     const occurredAt = new Date(dto.occurredAt);
@@ -69,5 +79,16 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
     );
 
     return entry;
+  }
+
+  async #canManageOthers(barId: BarId, userId: UserId, platformRole: Role): Promise<boolean> {
+    if (platformRole === Role.ADMIN) {
+      return true;
+    }
+
+    const members = await this._queryBus.execute<GetMembersQuery, BarMember[]>(new GetMembersQuery(barId));
+    const member = members.find((candidate) => candidate.userId === userId);
+
+    return member?.permissions.includes(BarPermission.BAR_MANAGE_TIME_ENTRIES) ?? false;
   }
 }

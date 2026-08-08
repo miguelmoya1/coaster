@@ -16,6 +16,7 @@ export * from './constants/subscription-plan.type';
 export * from './constants/subscription-status.type';
 export * from './constants/table-status.type';
 export * from './constants/time-entry.type';
+export * from './constants/time-zone.type';
 export * from './domain/permissions';
 export * from './domain/pricing';
 export * from './interfaces/admin.interface';

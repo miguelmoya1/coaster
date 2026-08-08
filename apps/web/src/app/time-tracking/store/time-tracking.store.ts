@@ -4,8 +4,6 @@ import type {
   AmendTimeEntryDto,
   BarId,
   CreateTimeEntryDto,
-  RequestTimeCorrectionDto,
-  ResolveTimeCorrectionDto,
   TimeEntryId,
   TimeEntryType,
   UserId,
@@ -101,16 +99,6 @@ export class TimeTrackingStore {
 
   public async voidEntry(entryId: TimeEntryId, dto: VoidTimeEntryDto) {
     await this.#repository.void(this.#requireBarId(), entryId, dto);
-    this.reload();
-  }
-
-  public async requestCorrection(entryId: TimeEntryId, dto: RequestTimeCorrectionDto) {
-    await this.#repository.requestCorrection(this.#requireBarId(), entryId, dto);
-    this.reload();
-  }
-
-  public async resolveCorrection(entryId: TimeEntryId, approved: boolean, dto: ResolveTimeCorrectionDto = {}) {
-    await this.#repository.resolveCorrection(this.#requireBarId(), entryId, approved, dto);
     this.reload();
   }
 

@@ -31,10 +31,15 @@ export async function setup() {
   process.env.DATABASE_URL = databaseUrl;
 
   console.log(`✅ Testcontainer started: ${databaseUrl}`);
-  console.log('⏳ Running Prisma db push...');
+  console.log('⏳ Applying Prisma migrations...');
 
+  /*
+   * Migrations, not `db push`: the schema alone leaves out everything written in raw SQL, such as
+   * the append-only triggers on TimeEntry and the partial unique index on ShiftExchange. Those are
+   * invariants the tests should be able to lean on, so e2e runs against what production runs.
+   */
   try {
-    execSync('npx prisma db push --accept-data-loss', {
+    execSync('npx prisma migrate deploy', {
       env: {
         ...process.env,
         DATABASE_URL: databaseUrl,
@@ -42,9 +47,9 @@ export async function setup() {
       cwd: path.resolve(__dirname, '..'),
       stdio: 'inherit',
     });
-    console.log('✅ Prisma schema applied successfully.');
+    console.log('✅ Prisma migrations applied successfully.');
   } catch (err) {
-    console.error('❌ Error applying Prisma schema:', err);
+    console.error('❌ Error applying Prisma migrations:', err);
     throw err;
   }
 }

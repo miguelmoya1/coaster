@@ -32,8 +32,8 @@ payload y le dice al asistente de IA que puede hacer el usuario. La autorizacion
 Jerarquia, verificada en `bar-permissions.spec.ts`: `STAFF ⊂ MANAGER ⊂ OWNER`.
 
 - **STAFF**: opera la sala. Pedidos, cobros, mesas, stock, sus turnos e intercambios, fichar su
-  propia jornada (`bar:clock-in`) y pedir correcciones sobre sus marcas
-  (`bar:request-time-correction`, que no las aplica: las deja pendientes de validacion).
+  propia jornada (`bar:clock-in`) y corregir sus propias marcas con un motivo
+  (`bar:amend-own-time-entry`; la pertenencia de la marca la comprueba el handler).
 - **MANAGER**: lo de STAFF mas catalogo, invitar miembros, turnos de otros, la impresora y el
   registro horario del equipo (`bar:view-time-entries`, `bar:manage-time-entries`).
 - **OWNER**: todo, incluida la facturacion, quitar miembros y **cambiar el rol de cualquiera**.

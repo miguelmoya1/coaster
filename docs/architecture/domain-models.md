@@ -25,6 +25,33 @@ de su entorno (Prisma y guards de Nest en la API; interceptores y servicios de s
 - Billing (Stripe y concesiones manuales)
 - Administracion de plataforma
 
+## Turnos e intercambios
+
+- ShiftExchange
+  - status: PENDING | APPROVED | REJECTED
+  - requesterId (siempre el dueno del turno) y targetId (opcional al ofrecer; al aceptar se
+    rellena con quien se lo queda)
+
+  Un turno puede intercambiarse **varias veces a lo largo de su vida**, pero solo puede tener una
+  oferta viva a la vez. Esa regla la sostiene un indice unico parcial
+  (`ShiftExchange_shiftId_pending_key`, sobre `shiftId` con `status = 'PENDING'`), no la aplicacion:
+  antes el unico era sobre `shiftId` a secas, de modo que el segundo intercambio de un mismo turno
+  fallaba con un error del driver.
+
+  Aceptar reclama la oferta y traspasa el turno en la misma transaccion, y solo si seguia pendiente
+  cuando la escritura aterrizo. Si dos personas aceptan a la vez, una se lleva el turno y la otra
+  recibe `INVALID_EXCHANGE`.
+
+  Reglas que cierran el ciclo:
+
+  - **No se traspasa un turno que ya ha empezado** (`EXCHANGE_SHIFT_ALREADY_STARTED`): esas horas
+    ya se estan trabajando. La interfaz tampoco ofrece el boton de aceptar.
+  - **No se borra un intercambio cerrado** (`EXCHANGE_ALREADY_CLOSED`), ni siquiera el owner:
+    borrarlo no deshacia nada y perdia el rastro de quien se quedo el turno. Las ofertas vivas si
+    las retira su autor, y el owner cualquiera.
+  - La lista de ofertas empieza en **el dia local del bar** (`BAR_TIME_ZONE`), no en el dia UTC: un
+    turno de madrugada dejaba de aparecer el mismo dia que ocurria.
+
 ## Billing
 
 - BarSubscription

@@ -1,7 +1,5 @@
 import type { TimeEntry } from '@coaster/common';
-import { ClockState, TimeEntryType } from '@coaster/common';
-
-export const WORKDAY_TIME_ZONE = 'Europe/Madrid';
+import { BAR_TIME_ZONE, ClockState, TimeEntryType } from '@coaster/common';
 
 export interface ClockMark {
   type: TimeEntryType;
@@ -75,7 +73,7 @@ export const replayClockState = (marks: ClockMark[]): ClockState | null =>
   summariseWorkday(marks, new Date())?.state ?? null;
 
 export const toWorkdayDate = (instant: Date): Date => {
-  const local = Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(WORKDAY_TIME_ZONE);
+  const local = Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(BAR_TIME_ZONE);
   return new Date(Date.UTC(local.year, local.month - 1, local.day));
 };
 

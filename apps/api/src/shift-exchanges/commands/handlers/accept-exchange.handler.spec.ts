@@ -1,5 +1,5 @@
-import { ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '@coaster/common';
-import { NotFoundException } from '@nestjs/common';
+import { ErrorCodes, ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '@coaster/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
@@ -11,7 +11,7 @@ describe('AcceptExchangeHandler', () => {
   let handler: AcceptExchangeHandler;
   const repository = {
     getExchangeById: vi.fn(),
-    acceptExchangeAndSwapShift: vi.fn(),
+    acceptExchangeAndSwapShift: vi.fn().mockResolvedValue(true),
   };
 
   beforeEach(async () => {
@@ -45,7 +45,7 @@ describe('AcceptExchangeHandler', () => {
       targetId: null,
       shiftId: 'shift-1',
       createdAt: new Date(),
-      shift: { barId: 'bar-1' },
+      shift: { barId: 'bar-1', startTime: new Date(Date.now() + 3600 * 1000) },
     });
 
     repository.acceptExchangeAndSwapShift.mockResolvedValue([
@@ -56,12 +56,40 @@ describe('AcceptExchangeHandler', () => {
         requesterId: 'user-1',
         targetId: null,
         createdAt: new Date(),
-        shift: { barId: 'bar-1' },
+        shift: { barId: 'bar-1', startTime: new Date(Date.now() + 3600 * 1000) },
       },
     ]);
 
     await handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')));
 
     expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith('exc-1', 'shift-1', 'acceptor');
+  });
+
+  it('should tell the loser of a race that the offer is gone instead of pretending it worked', async () => {
+    repository.acceptExchangeAndSwapShift.mockResolvedValue(false);
+
+    await expect(
+      handler.execute(new AcceptExchangeCommand(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'))),
+    ).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_EXCHANGE));
+  });
+
+  it('should refuse to hand over a shift that already started', async () => {
+    // The repository mock is shared across this file, so only calls from here on count.
+    repository.acceptExchangeAndSwapShift.mockClear();
+    repository.getExchangeById.mockResolvedValue({
+      id: 'exc-1',
+      status: ShiftExchangeStatus.PENDING,
+      requesterId: 'user-1',
+      targetId: null,
+      shiftId: 'shift-1',
+      createdAt: new Date(),
+      shift: { barId: 'bar-1', startTime: new Date(Date.now() - 60 * 1000) },
+    });
+
+    await expect(
+      handler.execute(new AcceptExchangeCommand(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'))),
+    ).rejects.toThrow(new BadRequestException(ErrorCodes.EXCHANGE_SHIFT_ALREADY_STARTED));
+
+    expect(repository.acceptExchangeAndSwapShift).not.toHaveBeenCalled();
   });
 });

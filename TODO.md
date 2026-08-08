@@ -15,7 +15,7 @@ firmadas con motivo, y la interfaz dentro de la pagina de Turnos. El detalle est
 
 - [x] Marcas de entrada, pausas y salida con hora de servidor y geolocalizacion opcional.
 - [x] Correccion y anulacion sin sobrescribir el original, con quien / cuando / que / por que.
-- [x] El trabajador pide correcciones con motivo y manager u owner las aprueban o rechazan.
+- [x] Cada uno corrige sus propias marcas con motivo; anular y tocar las de otro es de manager u owner.
 - [x] Historial visible para el trabajador y verificacion de integridad de la cadena.
 - [x] Export CSV para Inspeccion y auditoria en el backoffice cuando actua un admin.
 - [x] Interfaz Angular dentro de Turnos: fichaje del trabajador, registro del equipo, correcciones

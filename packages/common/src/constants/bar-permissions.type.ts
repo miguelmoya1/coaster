@@ -31,7 +31,7 @@ export const BarPermission = {
   BAR_CREATE_SHIFT: 'bar:create-shift',
   BAR_DELETE_SHIFT: 'bar:delete-shift',
   BAR_CLOCK_IN: 'bar:clock-in',
-  BAR_REQUEST_TIME_CORRECTION: 'bar:request-time-correction',
+  BAR_AMEND_OWN_TIME_ENTRY: 'bar:amend-own-time-entry',
   BAR_VIEW_TIME_ENTRIES: 'bar:view-time-entries',
   BAR_MANAGE_TIME_ENTRIES: 'bar:manage-time-entries',
   BAR_VIEW_EXCHANGES: 'bar:view-exchanges',
