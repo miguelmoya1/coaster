@@ -28,7 +28,7 @@ export interface WeeklyDayItem {
   selector: 'coaster-roster-weekly-grid',
   imports: [MatIcon, MatButton, MatIconButton, TranslatePipe, ShiftCard],
   template: `
-    @if (currentUserRole() === BarRole.OWNER) {
+    @if (canCreateShift()) {
       <div
         class="mb-6 bg-linear-to-r from-primary/8 via-primary/3 to-transparent border border-primary/15 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
@@ -83,7 +83,7 @@ export interface WeeklyDayItem {
               }
             </div>
 
-            @if (currentUserRole() === BarRole.OWNER) {
+            @if (canCreateShift()) {
               <button mat-icon-button (click)="quickCreate.emit(day.date)" title="{{ 'common.create' | translate }}">
                 <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">add</mat-icon>
               </button>
@@ -101,7 +101,7 @@ export interface WeeklyDayItem {
                 [isOwn]="shift.isOwn"
                 [hasPendingExchange]="shift.hasPendingExchange"
                 [isPast]="shift.isPast"
-                [showDelete]="currentUserRole() === BarRole.OWNER"
+                [showDelete]="canDeleteShift()"
                 [disabled]="isSubmitting()"
                 (delete)="deleteShift.emit(shift)"
               />
@@ -117,9 +117,9 @@ export interface WeeklyDayItem {
   `,
 })
 export class RosterWeeklyGrid {
-  protected readonly BarRole = BarRole;
   readonly weekDays = input.required<WeeklyDayItem[]>();
-  readonly currentUserRole = input.required<string | undefined>();
+  readonly canCreateShift = input(false);
+  readonly canDeleteShift = input(false);
   readonly isSubmitting = input<boolean>(false);
 
   readonly quickCreate = output<Date>();

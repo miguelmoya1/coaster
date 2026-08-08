@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MyMemberStore } from '@coaster/bar-members';
+import { ClockState } from '@coaster/common';
+import { TimeTrackingStore } from '@coaster/time-tracking';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/bar-members';
 import { ShiftsStore } from '@coaster/shifts';
@@ -38,6 +41,23 @@ describe('Roster', () => {
       value: vi.fn().mockReturnValue(undefined),
       hasValue: vi.fn().mockReturnValue(true),
     },
+    hasPermission: vi.fn().mockReturnValue(false),
+  };
+
+  const timeTrackingStoreMock = {
+    myWorkday: vi.fn().mockReturnValue(undefined),
+    clockState: vi.fn().mockReturnValue(ClockState.OUT),
+    teamWorkdays: {
+      value: vi.fn().mockReturnValue([]),
+      isLoading: vi.fn().mockReturnValue(false),
+      hasValue: vi.fn().mockReturnValue(true),
+    },
+    setBarId: vi.fn(),
+    setRange: vi.fn(),
+    setTeamEnabled: vi.fn(),
+    clock: vi.fn(),
+    exportCsv: vi.fn(),
+    verifyIntegrity: vi.fn(),
   };
 
   const exchangesMock = {
@@ -56,6 +76,10 @@ describe('Roster', () => {
     confirm: vi.fn(),
   };
 
+  const bottomSheetMock = {
+    open: vi.fn().mockReturnValue({ dismiss: vi.fn() }),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Roster],
@@ -67,6 +91,8 @@ describe('Roster', () => {
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ExchangesStore, useValue: exchangesMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
+        { provide: TimeTrackingStore, useValue: timeTrackingStoreMock },
+        { provide: MatBottomSheet, useValue: bottomSheetMock },
       ],
     }).compileComponents();
 
@@ -123,6 +149,22 @@ describe('Roster', () => {
 
     it('should return empty pending shift ids set', () => {
       expect(component.pendingShiftIds().size).toBe(0);
+    });
+  });
+
+  describe('time tracking sheets', () => {
+    it('should open the correction sheets with the page injector so the timepicker finds its date adapter', () => {
+      const entry = { id: 'entry-1', workdayDate: '2026-08-08' };
+
+      (component as any).handleCreateEntry();
+      (component as any).handleAmendEntry(entry);
+      (component as any).handleVoidEntry(entry);
+
+      expect(bottomSheetMock.open).toHaveBeenCalledTimes(3);
+
+      for (const [, config] of bottomSheetMock.open.mock.calls) {
+        expect(config.injector).toBeTruthy();
+      }
     });
   });
 

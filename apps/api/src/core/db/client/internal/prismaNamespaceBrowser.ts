@@ -67,6 +67,7 @@ export const ModelName = {
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
+  DbTimeEntry: 'DbTimeEntry',
   DbAdminAuditLog: 'DbAdminAuditLog',
   DbStripeWebhookEvent: 'DbStripeWebhookEvent'
 } as const
@@ -320,6 +321,32 @@ export const DbBarSubscriptionScalarFieldEnum = {
 } as const
 
 export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+
+
+export const DbTimeEntryScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  userId: 'userId',
+  userSnapshot: 'userSnapshot',
+  shiftId: 'shiftId',
+  type: 'type',
+  action: 'action',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  workdayDate: 'workdayDate',
+  source: 'source',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  rootId: 'rootId',
+  supersedesId: 'supersedesId',
+  actorId: 'actorId',
+  reason: 'reason',
+  sequence: 'sequence',
+  prevHash: 'prevHash',
+  hash: 'hash'
+} as const
+
+export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
 
 
 export const DbAdminAuditLogScalarFieldEnum = {

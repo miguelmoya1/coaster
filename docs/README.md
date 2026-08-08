@@ -13,6 +13,7 @@ Indice de documentacion tecnica del proyecto.
 ## Plataforma
 
 - [Backoffice de administracion](admin/backoffice.md)
+- [Fichaje y control horario](operations/time-tracking.md)
 - [Integracion Stripe SaaS](saas/stripe-integration.md)
 - [Stripe en local](saas/stripe-local-setup.md)
 

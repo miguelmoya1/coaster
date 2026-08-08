@@ -47,7 +47,8 @@ describe('RosterWeeklyGrid', () => {
 
   it('should create', () => {
     fixture.componentRef.setInput('weekDays', mockWeekDays);
-    fixture.componentRef.setInput('currentUserRole', BarRole.STAFF);
+    fixture.componentRef.setInput('canCreateShift', false);
+    fixture.componentRef.setInput('canDeleteShift', false);
     fixture.componentRef.setInput('isSubmitting', false);
     fixture.detectChanges();
     expect(component).toBeTruthy();
@@ -55,7 +56,8 @@ describe('RosterWeeklyGrid', () => {
 
   it('should render the day list and shifts', () => {
     fixture.componentRef.setInput('weekDays', mockWeekDays);
-    fixture.componentRef.setInput('currentUserRole', BarRole.STAFF);
+    fixture.componentRef.setInput('canCreateShift', false);
+    fixture.componentRef.setInput('canDeleteShift', false);
     fixture.componentRef.setInput('isSubmitting', false);
     fixture.detectChanges();
 
@@ -68,9 +70,10 @@ describe('RosterWeeklyGrid', () => {
     expect(staffName.textContent).toContain('John Staff');
   });
 
-  it('should not display replicate button or delete button if user is not OWNER', () => {
+  it('should hide the replicate and delete buttons from whoever cannot manage shifts', () => {
     fixture.componentRef.setInput('weekDays', mockWeekDays);
-    fixture.componentRef.setInput('currentUserRole', BarRole.STAFF);
+    fixture.componentRef.setInput('canCreateShift', false);
+    fixture.componentRef.setInput('canDeleteShift', false);
     fixture.componentRef.setInput('isSubmitting', false);
     fixture.detectChanges();
 
@@ -87,9 +90,10 @@ describe('RosterWeeklyGrid', () => {
     expect(replicateBtn).toBeUndefined();
   });
 
-  it('should display replicate button and delete button if user is OWNER', () => {
+  it('should show the replicate and delete buttons to whoever can manage shifts', () => {
     fixture.componentRef.setInput('weekDays', mockWeekDays);
-    fixture.componentRef.setInput('currentUserRole', BarRole.OWNER);
+    fixture.componentRef.setInput('canCreateShift', true);
+    fixture.componentRef.setInput('canDeleteShift', true);
     fixture.componentRef.setInput('isSubmitting', false);
     fixture.detectChanges();
 
@@ -99,7 +103,8 @@ describe('RosterWeeklyGrid', () => {
 
   it('should emit events on delete, quickCreate, and replication actions', () => {
     fixture.componentRef.setInput('weekDays', mockWeekDays);
-    fixture.componentRef.setInput('currentUserRole', BarRole.OWNER);
+    fixture.componentRef.setInput('canCreateShift', true);
+    fixture.componentRef.setInput('canDeleteShift', true);
     fixture.componentRef.setInput('isSubmitting', false);
     fixture.detectChanges();
 

@@ -43,6 +43,7 @@
       "@coaster/stripe": ["./src/stripe/index.ts"],
       "@coaster/tables": ["./src/tables/index.ts"],
       "@coaster/templates": ["./src/templates/index.ts"],
+      "@coaster/time-tracking": ["./src/time-tracking/index.ts"],
       "@coaster/users": ["./src/users/index.ts"],
       "@coaster/websockets": ["./src/websockets/index.ts"]
     }

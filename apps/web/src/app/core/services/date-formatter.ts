@@ -44,6 +44,15 @@ export class DateFormatterService {
     return format(date, 'MMM d');
   }
 
+  public formatTime(iso: string): string {
+    return format(new Date(iso), 'HH:mm');
+  }
+
+  public formatDuration(minutes: number): string {
+    const safe = Math.max(0, minutes);
+    return `${Math.floor(safe / 60)}h ${String(safe % 60).padStart(2, '0')}m`;
+  }
+
   public buildIso(date: Date, timeString: string): string {
     const [hours, minutes] = timeString.split(':').map(Number);
     const result = new Date(date);

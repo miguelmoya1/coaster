@@ -132,23 +132,26 @@ model DbUser {
   shiftRequests  DbShiftExchange[] @relation("Requester")
   shiftApprovals DbShiftExchange[] @relation("Target")
   auditLogs      DbAdminAuditLog[] @relation("AdminAuditActor")
+  timeEntries    DbTimeEntry[]     @relation("TimeEntrySubject")
+  timeEntryEdits DbTimeEntry[]     @relation("TimeEntryActor")
 
   @@map("User")
 }
 
 model DbBar {
-  id         String             @id @default(uuid())
-  name       String
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  members    DbBarMember[]
-  shifts     DbShift[]
-  categories DbCategory[]
-  tables     DbTable[]
-  orders     DbOrder[]
-  printer    DbPrinterConfig?
-  printJobs  DbPrintJob[]
-  billing    DbBarSubscription?
+  id          String             @id @default(uuid())
+  name        String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  members     DbBarMember[]
+  shifts      DbShift[]
+  categories  DbCategory[]
+  tables      DbTable[]
+  orders      DbOrder[]
+  printer     DbPrinterConfig?
+  printJobs   DbPrintJob[]
+  billing     DbBarSubscription?
+  timeEntries DbTimeEntry[]
 
   @@map("Bar")
 }
@@ -170,15 +173,16 @@ model DbBarMember {
 }
 
 model DbShift {
-  id        String           @id @default(uuid())
-  startTime DateTime
-  endTime   DateTime
-  userId    String
-  user      DbUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barId     String
-  bar       DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
-  notes     String?
-  exchange  DbShiftExchange?
+  id          String           @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime
+  userId      String
+  user        DbUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId       String
+  bar         DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
+  notes       String?
+  exchange    DbShiftExchange?
+  timeEntries DbTimeEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -362,21 +366,52 @@ model DbBarSubscription {
   currentPeriodEnd     DateTime?
   trialEndsAt          DateTime?
   canceledAt           DateTime?
-
-  // Access an admin handed out without Stripe. Kept apart from the Stripe columns above so a
-  // webhook arriving later overwrites the billing state without touching the grant.
   manualPlan           DbSubscriptionPlan?
   manualGrantExpiresAt DateTime?
   manualGrantReason    String?
   manualGrantedById    String?
   manualGrantedAt      DateTime?
-
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
 
   @@index([status])
   @@index([manualPlan])
   @@map("BarSubscription")
+}
+
+model DbTimeEntry {
+  id           String       @id
+  barId        String
+  bar          DbBar        @relation(fields: [barId], references: [id], onDelete: Restrict)
+  userId       String
+  user         DbUser       @relation("TimeEntrySubject", fields: [userId], references: [id], onDelete: Restrict)
+  userSnapshot Json
+  shiftId      String?
+  shift        DbShift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  type         String
+  action       String
+  occurredAt   DateTime
+  recordedAt   DateTime
+  workdayDate  DateTime     @db.Date
+  source       String
+  latitude     Float?
+  longitude    Float?
+  rootId       String
+  supersedesId String?      @unique
+  supersedes   DbTimeEntry? @relation("TimeEntryRevision", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy DbTimeEntry? @relation("TimeEntryRevision")
+  actorId      String
+  actor        DbUser       @relation("TimeEntryActor", fields: [actorId], references: [id], onDelete: Restrict)
+  reason       String?
+  sequence     BigInt
+  prevHash     String
+  hash         String
+
+  @@unique([barId, sequence])
+  @@index([rootId])
+  @@index([barId, userId, workdayDate])
+  @@index([barId, workdayDate])
+  @@map("TimeEntry")
 }
 
 model DbAdminAuditLog {

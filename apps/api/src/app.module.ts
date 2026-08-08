@@ -18,6 +18,7 @@ import { StatsModule } from '@coaster/stats';
 import { StripeModule } from '@coaster/stripe';
 import { TablesModule } from '@coaster/tables';
 import { TemplatesModule } from '@coaster/templates';
+import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
 import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
@@ -41,6 +42,7 @@ import { ConfigModule } from '@nestjs/config';
     ProductsModule,
     ShiftsModule,
     ShiftExchangesModule,
+    TimeTrackingModule,
     TemplatesModule,
     TablesModule,
     OrdersModule,

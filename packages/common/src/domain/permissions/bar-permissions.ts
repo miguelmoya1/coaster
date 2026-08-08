@@ -21,6 +21,7 @@ const STAFF_PERMISSIONS: BarPermission[] = [
   'bar:update-product-stock',
 
   'bar:view-shifts',
+  'bar:clock-in',
   'bar:view-exchanges',
   'bar:create-exchange',
   'bar:accept-exchange',
@@ -43,6 +44,9 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
 
     'bar:create-shift',
     'bar:delete-shift',
+
+    'bar:view-time-entries',
+    'bar:manage-time-entries',
 
     'bar:manage-printer',
 
@@ -82,6 +86,9 @@ export const getRolePermissions = (role: BarRole): BarPermission[] => {
 
       'bar:create-shift',
       'bar:delete-shift',
+
+      'bar:view-time-entries',
+      'bar:manage-time-entries',
 
       'bar:manage-printer',
 

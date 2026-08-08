@@ -15,6 +15,7 @@ import type { OrderAdjustmentId, OrderId, OrderItemId } from '../interfaces/orde
 import type { ProductId } from '../interfaces/product.interface';
 import type { ShiftExchangeId, ShiftId } from '../interfaces/shift.interface';
 import type { TableId } from '../interfaces/table.interface';
+import type { TimeEntryId } from '../interfaces/time-entry.interface';
 import type { UserId } from '../interfaces/user.interface';
 
 export const asBarId = (id: string): BarId => id as BarId;
@@ -27,6 +28,7 @@ export const asProductId = (id: string): ProductId => id as ProductId;
 export const asShiftId = (id: string): ShiftId => id as ShiftId;
 export const asShiftExchangeId = (id: string): ShiftExchangeId => id as ShiftExchangeId;
 export const asTableId = (id: string): TableId => id as TableId;
+export const asTimeEntryId = (id: string): TimeEntryId => id as TimeEntryId;
 export const asUserId = (id: string): UserId => id as UserId;
 
 export const asBarRole = (role: string): BarRole => {

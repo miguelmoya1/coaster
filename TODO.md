@@ -5,26 +5,25 @@ NestJS y la separacion por capas de Angular.
 
 El detalle tecnico vive en [`docs/`](docs/README.md); aqui solo esta el orden de trabajo.
 
----
-
-## ✅ Completado
-
-- **Infraestructura SaaS**: Stripe Checkout, Customer Portal y webhooks idempotentes.
-- **Backoffice de administracion**: panel `/admin` con metricas de plataforma, gestion de bares y
-  usuarios, concesion manual de PRO sin Stripe y registro de auditoria.
-- **Modelo de permisos unificado**: una sola tabla en `@coaster/common` para API y front.
-
----
-
 ## Fase 1: Operativa Interna y Cumplimiento Legal
 
 **Modulo:** Fichaje y Control Horario (Clock-in / Clock-out)
 
-- **Impacto en arquitectura:** extension del modelo de trabajadores o dominio separado para la
-  gestion de jornadas (`DbShift` / `DbTimeLog`).
-- **Flujo de trabajo:**
-  1. Registro de marcas de tiempo en tiempo real con geolocalizacion asincrona.
-  2. Logica de dominio para contrastar la planificacion teorica contra las marcas reales.
+Hecho: modulo `time-tracking` con `DbTimeEntry` append-only, cadena de hash por bar, correcciones
+firmadas con motivo, y la interfaz dentro de la pagina de Turnos. El detalle esta en
+[Fichaje y control horario](docs/operations/time-tracking.md).
+
+- [x] Marcas de entrada, pausas y salida con hora de servidor y geolocalizacion opcional.
+- [x] Correccion y anulacion sin sobrescribir el original, con quien / cuando / que / por que.
+- [x] Historial visible para el trabajador y verificacion de integridad de la cadena.
+- [x] Export CSV para Inspeccion y auditoria en el backoffice cuando actua un admin.
+- [x] Interfaz Angular dentro de Turnos: fichaje del trabajador, registro del equipo, correcciones
+      con motivo y descarga del CSV.
+- [ ] Rango libre de fechas para el registro y el export (hoy va por el dia seleccionado).
+- [ ] Export en PDF.
+- [ ] Sellado diario del hash cabeza de cadena.
+- [ ] Contraste de la planificacion (`DbShift`) contra las marcas reales mas alla de
+      `Workday.plannedMinutes`.
 
 ## Fase 2: Capa de Inteligencia y Valor Anadido
 

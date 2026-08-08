@@ -1,0 +1,77 @@
+import { randomUUID } from 'node:crypto';
+import type { BarId, ShiftId, TimeEntryAction, TimeEntrySource, TimeEntryType, UserId } from '@coaster/common';
+import { DbService } from '@coaster/core/db';
+import { Injectable } from '@nestjs/common';
+import { GENESIS_HASH, hashEntry } from '../domain/time-entry-chain';
+
+export interface AppendTimeEntryInput {
+  barId: BarId;
+  userId: UserId;
+  userSnapshot: { name: string; email: string };
+  type: TimeEntryType;
+  action: TimeEntryAction;
+  occurredAt: Date;
+  workdayDate: Date;
+  source: TimeEntrySource;
+  actorId: UserId;
+  rootId?: string;
+  supersedesId?: string;
+  reason?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  shiftId?: ShiftId | null;
+}
+
+const entrySelect = {
+  user: { select: { id: true, name: true } },
+  actor: { select: { id: true, name: true } },
+} as const;
+
+@Injectable()
+export class TimeEntriesWriteRepository {
+  constructor(private readonly _db: DbService) {}
+
+  public append(input: AppendTimeEntryInput) {
+    return this._db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.barId}))`;
+
+      const head = await tx.dbTimeEntry.findFirst({
+        where: { barId: input.barId },
+        orderBy: { sequence: 'desc' },
+        select: { sequence: true, hash: true },
+      });
+
+      const id = randomUUID();
+      const payload = {
+        id,
+        barId: input.barId,
+        userId: input.userId,
+        rootId: input.rootId ?? id,
+        type: input.type,
+        action: input.action,
+        occurredAt: input.occurredAt,
+        recordedAt: new Date(),
+        source: input.source,
+        supersedesId: input.supersedesId ?? null,
+        actorId: input.actorId,
+        reason: input.reason ?? null,
+        sequence: (head?.sequence ?? 0n) + 1n,
+      };
+      const prevHash = head?.hash ?? GENESIS_HASH;
+
+      return tx.dbTimeEntry.create({
+        data: {
+          ...payload,
+          userSnapshot: input.userSnapshot,
+          workdayDate: input.workdayDate,
+          latitude: input.latitude ?? null,
+          longitude: input.longitude ?? null,
+          shiftId: input.shiftId ?? null,
+          prevHash,
+          hash: hashEntry(payload, prevHash),
+        },
+        include: entrySelect,
+      });
+    });
+  }
+}
