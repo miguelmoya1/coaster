@@ -5,7 +5,6 @@ import type {
   AdminBarsQuery,
   AdminUsersQuery,
   BarId,
-  BarRole,
   GrantBarPlanDto,
   RenameBarDto,
   RevokeBarPlanDto,
@@ -38,7 +37,6 @@ export class AdminRepository {
     barDetail: (barId: BarId) => `/admin/bars/${barId}`,
     barPlan: (barId: BarId) => `/admin/bars/${barId}/plan`,
     revokeBarPlan: (barId: BarId) => `/admin/bars/${barId}/plan/revoke`,
-    barMember: (barId: BarId, userId: UserId) => `/admin/bars/${barId}/members/${userId}`,
     users: (query: AdminUsersQuery) => `/admin/users${toQueryString({ ...query })}`,
     userDetail: (userId: UserId) => `/admin/users/${userId}`,
   };
@@ -55,9 +53,6 @@ export class AdminRepository {
     await firstValueFrom(this.#http.patch<void>(this.routes.barDetail(barId), dto));
   }
 
-  public async updateBarMemberRole(barId: BarId, userId: UserId, role: BarRole): Promise<void> {
-    await firstValueFrom(this.#http.patch<void>(this.routes.barMember(barId, userId), { role }));
-  }
 
   public async updateUser(userId: UserId, dto: UpdateAdminUserDto): Promise<void> {
     await firstValueFrom(this.#http.patch<void>(this.routes.userDetail(userId), dto));

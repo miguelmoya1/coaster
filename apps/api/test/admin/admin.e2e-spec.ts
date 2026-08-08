@@ -1,4 +1,4 @@
-import { SubscriptionPlan } from '@coaster/common';
+import { BarRole, SubscriptionPlan } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DbBarRole, DbSubscriptionStatus } from '../../src/core/db';
@@ -13,6 +13,15 @@ describe('Admin backoffice (e2e)', () => {
   const becomeAdmin = async () => {
     await testSetup.prisma.dbUser.update({ where: { id: mockUser.id }, data: { role: 'ADMIN' } });
     mockUser.role = 'ADMIN';
+  };
+
+  const waitForAudit = async (): Promise<number> => {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const count = await testSetup.prisma.dbAdminAuditLog.count();
+      if (count > 0) return count;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    return 0;
   };
 
   beforeAll(async () => {
@@ -145,6 +154,49 @@ describe('Admin backoffice (e2e)', () => {
       expect(me.body.role).toBe(DbBarRole.OWNER);
 
       await request(http()).post(`/api/bars/${bar.id}/tables`).send({ name: 'T1' }).expect(201);
+    });
+
+    it('should audit a role change an admin makes through the ordinary member route', async () => {
+      await becomeAdmin();
+      const bar = await testSetup.createBar('Foreign bar', { ownerId: null });
+      await testSetup.prisma.dbUser.create({
+        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'USER', active: true },
+      });
+      const member = await testSetup.prisma.dbBarMember.create({
+        data: { barId: bar.id, userId: OTHER_USER_ID, role: DbBarRole.STAFF },
+      });
+
+      await request(http())
+        .patch(`/api/bars/${bar.id}/members/${member.id}`)
+        .send({ role: BarRole.MANAGER })
+        .expect(200);
+
+      expect(await waitForAudit()).toBe(1);
+
+      const audit = await request(http()).get('/api/admin/audit').expect(200);
+
+      expect(audit.body.items[0]).toMatchObject({
+        action: 'BAR_MEMBER_ROLE_CHANGED',
+        targetType: 'BAR',
+        targetId: bar.id,
+      });
+    });
+
+    it('should not audit a role change made by an ordinary owner', async () => {
+      const bar = await testSetup.createBar('My bar');
+      await testSetup.prisma.dbUser.create({
+        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'USER', active: true },
+      });
+      const member = await testSetup.prisma.dbBarMember.create({
+        data: { barId: bar.id, userId: OTHER_USER_ID, role: DbBarRole.STAFF },
+      });
+
+      await request(http())
+        .patch(`/api/bars/${bar.id}/members/${member.id}`)
+        .send({ role: BarRole.MANAGER })
+        .expect(200);
+
+      expect(await waitForAudit()).toBe(0);
     });
   });
 

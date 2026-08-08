@@ -33,7 +33,19 @@ Jerarquia, verificada en `bar-permissions.spec.ts`: `STAFF ⊂ MANAGER ⊂ OWNER
 
 - **STAFF**: opera la sala. Pedidos, cobros, mesas, stock, sus turnos e intercambios.
 - **MANAGER**: lo de STAFF mas catalogo, invitar miembros, turnos de otros y la impresora.
-- **OWNER**: todo, incluida la facturacion, borrar y quitar miembros.
+- **OWNER**: todo, incluida la facturacion, quitar miembros y **cambiar el rol de cualquiera**.
+
+`bar:update-member-role` es exclusivo de OWNER: el MANAGER lleva el dia a dia pero no reparte
+poder, igual que tampoco puede echar a nadie ni tocar la facturacion.
+
+Cambiar un rol tiene **una sola ruta**: `PATCH /bars/:barId/members/:memberId`. El backoffice no
+tiene la suya: `BarPermissionsGuard` ya deja pasar al `ADMIN` antes de mirar la pertenencia, asi que
+un admin usa exactamente el mismo endpoint que un dueno.
+
+La auditoria no se pierde por ello: `UpdateMemberRoleCommand` publica `MemberRoleChangedEvent` con
+quien actua y su rol de plataforma, y el modulo `admin` escucha ese evento y **registra solo si el
+actor era `ADMIN`**. Asi la regla de no dejar el bar sin OWNER vive en un unico sitio y la
+auditoria cuelga de un hecho, no de una ruta paralela.
 
 ## Los cuatro guards
 

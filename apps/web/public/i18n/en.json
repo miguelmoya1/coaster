@@ -217,7 +217,8 @@
     "logout": "Log Out",
     "role": {
       "owner": "Owner",
-      "staff": "Staff"
+      "staff": "Staff",
+      "manager": "Manager"
     },
     "save": "Save",
     "update": "Update",
@@ -299,12 +300,22 @@
     "leave_tooltip": "You are the only owner. To leave the bar, add another owner first.",
     "invite": {
       "title": "Invite to team",
-      "description": "Add a new member to the team using their email address."
+      "description": "Add a new member to the team using their email address.",
+      "role_label": "Role",
+      "role_hint_owner": "Full control of the bar, billing and members included.",
+      "role_hint_manager": "Runs catalog, shifts and the printer, but not billing or members.",
+      "role_hint_staff": "Works the floor: orders, payments, tables and stock."
     },
     "staff": {
       "description": "{{count}} team members",
       "no_members": "No members in the team",
       "title": "Staff Roster"
+    },
+    "change_role": "Change role",
+    "role_dialog": {
+      "title": "Change the role",
+      "message": "{{ name }} will become {{ role }} in this bar. Their permissions change straight away.",
+      "success": "Role updated"
     }
   },
   "nav": {

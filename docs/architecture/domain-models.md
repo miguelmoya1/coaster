@@ -60,3 +60,10 @@ de su entorno (Prisma y guards de Nest en la API; interceptores y servicios de s
 
 Los tres primeros se emiten al procesar webhooks; el cuarto, desde el backoffice. Todos acaban en
 el mismo handler de websockets, que avisa a los clientes del bar con `subscriptionUpdated`.
+
+## Eventos de dominio de miembros
+
+- MemberInvitedEvent
+- MemberRemovedEvent
+- MemberRoleChangedEvent — sale por socket como `memberRoleChanged`, para que la lista de equipo y
+  los permisos del propio afectado se refresquen sin recargar la pagina

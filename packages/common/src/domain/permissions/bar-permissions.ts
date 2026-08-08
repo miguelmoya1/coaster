@@ -64,6 +64,7 @@ export const getRolePermissions = (role: BarRole): BarPermission[] => {
 
       'bar:invite-member',
       'bar:remove-member',
+      'bar:update-member-role',
 
       'bar:create-table',
       'bar:update-table',

@@ -2,6 +2,7 @@ export const BarPermission = {
   BAR_VIEW_DASHBOARD: 'bar:view-dashboard',
   BAR_INVITE_MEMBER: 'bar:invite-member',
   BAR_REMOVE_MEMBER: 'bar:remove-member',
+  BAR_UPDATE_MEMBER_ROLE: 'bar:update-member-role',
   BAR_VIEW_MEMBERS: 'bar:view-members',
   BAR_OPEN_TABLE: 'bar:open-table',
   BAR_VIEW_TABLES: 'bar:view-tables',

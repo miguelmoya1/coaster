@@ -1,5 +1,5 @@
 import type { BarId, BarMemberId, UserId } from '@coaster/common';
-import { DbBarMemberUncheckedCreateInput, DbService } from '@coaster/core/db';
+import { DbBarMemberUncheckedCreateInput, DbBarRole, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
 type CreateBarMemberDto = Omit<DbBarMemberUncheckedCreateInput, 'id' | 'barId' | 'userId' | 'createdAt' | 'updatedAt'>;
@@ -30,6 +30,15 @@ export class BarMembersWriteRepository {
         bar: { select: { name: true } },
       },
     });
+  }
+
+  public async updateRole(barId: BarId, barMemberId: BarMemberId, role: DbBarRole) {
+    const updated = await this._db.dbBarMember.updateMany({
+      where: { id: barMemberId, barId, deletedAt: null },
+      data: { role },
+    });
+
+    return updated.count > 0;
   }
 
   public async delete(barId: BarId, barMemberId: BarMemberId) {

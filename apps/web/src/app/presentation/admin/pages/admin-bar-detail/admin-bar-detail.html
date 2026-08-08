@@ -195,7 +195,7 @@
 
             <mat-menu #roleMenu="matMenu">
               @for (role of assignableRoles; track role) {
-                <button mat-menu-item type="button" (click)="changeMemberRole(member.userId, role)">
+                <button mat-menu-item type="button" (click)="changeMemberRole(member.id, role)">
                   @if (role === member.role) {
                     <mat-icon>check</mat-icon>
                   }

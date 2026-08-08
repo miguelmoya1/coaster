@@ -9,6 +9,7 @@ import {
   AdminUserReadRepository,
   AdminWriteRepository,
 } from './data-access';
+import { EventHandlers } from './events';
 import { QueryHandlers } from './queries';
 
 @Module({
@@ -22,6 +23,7 @@ import { QueryHandlers } from './queries';
     AdminWriteRepository,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
 })
 export class AdminModule {}

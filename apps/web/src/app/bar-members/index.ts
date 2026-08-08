@@ -5,5 +5,6 @@ export { BarMembers } from './services/bar-members';
 export { InviteMember } from './services/invite-member';
 export { MyMember } from './services/my-member';
 export { RemoveMember } from './services/remove-member';
+export { UpdateMemberRole } from './services/update-member-role';
 export { MembersStore } from './store/members.store';
 export { MyMemberStore } from './store/my-member.store';

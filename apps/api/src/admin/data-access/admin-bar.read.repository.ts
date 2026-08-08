@@ -52,6 +52,7 @@ export class AdminBarReadRepository {
       where: { barId, deletedAt: null },
       orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
       select: {
+        id: true,
         role: true,
         active: true,
         createdAt: true,

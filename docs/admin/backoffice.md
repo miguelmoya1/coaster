@@ -60,6 +60,10 @@ con el antes y el despues. Se ve en `/admin/audit` y, filtrado, en la ficha de c
 Acciones registradas: `BAR_PLAN_GRANTED`, `BAR_PLAN_REVOKED`, `BAR_RENAMED`,
 `BAR_MEMBER_ROLE_CHANGED`, `USER_ROLE_CHANGED`, `USER_ACTIVATION_CHANGED`.
 
+`BAR_MEMBER_ROLE_CHANGED` es distinta de las demas: no nace de una ruta del backoffice sino de
+`MemberRoleChangedEvent`. El panel cambia roles con el mismo `PATCH /bars/:barId/members/:memberId`
+que usa un dueno, y la entrada se escribe solo cuando quien actua es `ADMIN`.
+
 ## Estructura del codigo
 
 Sigue el mismo reparto que el resto (ver [backend](../architecture/backend.md) y

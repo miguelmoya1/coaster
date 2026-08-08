@@ -7,12 +7,14 @@ import { memberArrayMapper } from '../mappers/member.mapper';
 import { BarMembers } from '../services/bar-members';
 import { InviteMember } from '../services/invite-member';
 import { RemoveMember } from '../services/remove-member';
+import { UpdateMemberRole } from '../services/update-member-role';
 
 @Service()
 export class MembersStore {
   readonly #members = inject(BarMembers);
   readonly #inviteMember = inject(InviteMember);
   readonly #removeMember = inject(RemoveMember);
+  readonly #updateMemberRole = inject(UpdateMemberRole);
   readonly #socketService = inject(Socket);
   readonly #currentBarId = signal<BarId | undefined>(undefined);
 
@@ -49,6 +51,13 @@ export class MembersStore {
         this.reload();
       }
     });
+
+    effect(() => {
+      const roleChanged = this.#socketService.memberRoleChanged();
+      if (roleChanged) {
+        this.reload();
+      }
+    });
   }
 
   public setBarId(barId: BarId | undefined) {
@@ -66,6 +75,16 @@ export class MembersStore {
     }
 
     await this.#inviteMember.execute(barId, inviteDto);
+    this.reload();
+  }
+
+  public async updateRole(memberId: BarMemberId, role: BarRole) {
+    const barId = this.#currentBarId();
+    if (!barId) {
+      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    }
+
+    await this.#updateMemberRole.execute(barId, memberId, role);
     this.reload();
   }
 

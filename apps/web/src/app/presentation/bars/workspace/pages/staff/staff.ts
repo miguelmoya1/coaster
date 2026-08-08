@@ -3,7 +3,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/bar-members';
 import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
-import type { BarId, BarMember } from '@coaster/common';
+import type { BarId, BarMember, BarRole } from '@coaster/common';
+import { BarPermission } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/bar-members';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -59,6 +60,9 @@ export default class Staff {
     return this.#myMemberStore.myMember.value();
   });
   protected readonly isOwner = this.#myMemberStore.isOwner;
+  protected readonly canChangeRole = computed(() =>
+    this.#myMemberStore.hasPermission(BarPermission.BAR_UPDATE_MEMBER_ROLE),
+  );
   protected readonly members = computed(() => {
     if (!this.#membersStore.list.hasValue()) {
       return [];
@@ -126,6 +130,28 @@ export default class Staff {
 
     try {
       await this.#membersStore.remove(member.id);
+    } catch (error) {
+      this.#feedback.error(error);
+    }
+  }
+
+  protected async handleRoleChange(member: MemberItem, role: BarRole) {
+    if (member.role === role) return;
+
+    const confirmed = await this.#confirmation.confirm({
+      title: this.#translate.instant('members.role_dialog.title'),
+      text: this.#translate.instant('members.role_dialog.message', {
+        name: member.userName,
+        role: this.#translate.instant(`common.role.${role.toLowerCase()}`),
+      }),
+      confirmLabel: 'common.update',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await this.#membersStore.updateRole(member.id, role);
+      this.#feedback.success(this.#translate.instant('members.role_dialog.success'));
     } catch (error) {
       this.#feedback.error(error);
     }

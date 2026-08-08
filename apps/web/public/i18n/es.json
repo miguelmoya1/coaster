@@ -217,7 +217,8 @@
     "logout": "Cerrar sesión",
     "role": {
       "owner": "Propietario",
-      "staff": "Staff"
+      "staff": "Staff",
+      "manager": "Encargado"
     },
     "save": "Guardar",
     "update": "Actualizar",
@@ -299,12 +300,22 @@
     "leave_tooltip": "Eres el único propietario. Para abandonar el bar, añade otro propietario primero.",
     "invite": {
       "title": "Invitar al equipo",
-      "description": "Añade un nuevo miembro a la plantilla mediante su correo electrónico."
+      "description": "Añade un nuevo miembro a la plantilla mediante su correo electrónico.",
+      "role_label": "Rol",
+      "role_hint_owner": "Control total del bar, incluida la facturación y los miembros.",
+      "role_hint_manager": "Gestiona catálogo, turnos e impresora, pero no la facturación ni los miembros.",
+      "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock."
     },
     "staff": {
       "description": "{{count}} miembros del equipo",
       "no_members": "No hay miembros en el equipo",
       "title": "Equipo"
+    },
+    "change_role": "Cambiar rol",
+    "role_dialog": {
+      "title": "Cambiar el rol",
+      "message": "{{ name }} pasará a ser {{ role }} en este bar. Sus permisos cambian de inmediato.",
+      "success": "Rol actualizado"
     }
   },
   "nav": {

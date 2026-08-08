@@ -45,7 +45,11 @@ describe('MembersStore', () => {
         provideZonelessChangeDetection(),
         {
           provide: Socket,
-          useValue: { memberRemoved: signal<any>(null), memberInvited: signal<any>(null) },
+          useValue: {
+            memberRemoved: signal<any>(null),
+            memberInvited: signal<any>(null),
+            memberRoleChanged: signal<any>(null),
+          },
         },
       ],
     });

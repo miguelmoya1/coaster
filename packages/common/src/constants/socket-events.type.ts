@@ -13,6 +13,7 @@ export const SocketEvents = {
   categoryDeleted: 'categoryDeleted',
   memberInvited: 'memberInvited',
   memberRemoved: 'memberRemoved',
+  memberRoleChanged: 'memberRoleChanged',
   tableStatusChanged: 'tableStatusChanged',
   tableCreated: 'tableCreated',
   tableUpdated: 'tableUpdated',

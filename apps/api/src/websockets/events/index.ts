@@ -3,6 +3,7 @@ import { CategoryDeletedHandler } from './handlers/category-deleted.handler';
 import { CategoryUpdatedHandler } from './handlers/category-updated.handler';
 import { MemberInvitedHandler } from './handlers/member-invited.handler';
 import { MemberRemovedHandler } from './handlers/member-removed.handler';
+import { MemberRoleChangedHandler } from './handlers/member-role-changed.handler';
 import { OrderAdjustmentsUpdatedHandler } from './handlers/order-adjustments-updated.handler';
 import { OrderCancelledHandler } from './handlers/order-cancelled.handler';
 import { OrderClosedHandler } from './handlers/order-closed.handler';
@@ -29,6 +30,7 @@ export * from './handlers/category-deleted.handler';
 export * from './handlers/category-updated.handler';
 export * from './handlers/member-invited.handler';
 export * from './handlers/member-removed.handler';
+export * from './handlers/member-role-changed.handler';
 export * from './handlers/order-adjustments-updated.handler';
 export * from './handlers/order-cancelled.handler';
 export * from './handlers/order-closed.handler';
@@ -56,6 +58,7 @@ export const WsEventHandlers = [
   CategoryUpdatedHandler,
   MemberInvitedHandler,
   MemberRemovedHandler,
+  MemberRoleChangedHandler,
   OrderCancelledHandler,
   OrderClosedHandler,
   OrderCreatedHandler,
