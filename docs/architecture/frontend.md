@@ -132,3 +132,15 @@ Dos cosas se cargan de forma diferida a proposito:
 `@coaster/common` se publica en doble formato (CommonJS para la API, ESM para el bundler) mediante
 el mapa `exports` de su `package.json`. Si solo emitiera CommonJS, Angular avisa de que no puede
 optimizar el modulo.
+
+**Al tocar `packages/common` hay que reconstruirlo y reiniciar la API**, porque las dos aplicaciones
+consumen su `dist`, no su codigo fuente:
+
+```bash
+npm run build -w @coaster/common && docker restart coaster-api-1
+```
+
+Nadie vigila ese paquete en desarrollo: el contenedor de la API monta el repo pero arranca
+`nest start -b swc -w`, que solo mira `apps/api/src`. Sin reconstruir, la API sigue con la version
+anterior en su cache de modulos; sin reiniciar, tampoco la recarga. El sintoma es raro y despista:
+lo que se anadio al paquete llega como `undefined` y revienta lejos de donde estaba el cambio.

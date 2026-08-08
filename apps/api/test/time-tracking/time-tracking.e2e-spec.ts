@@ -59,6 +59,28 @@ describe('Time tracking (e2e)', () => {
       expect(workday.entries.every((entry: { source: string }) => entry.source === TimeEntrySource.EMPLOYEE_DEVICE));
     });
 
+    it('should answer for a day nobody worked instead of blowing up', async () => {
+      const response = await request(server())
+        .get(`/api/bars/${barId}/time-entries/me?from=2026-08-10&to=2026-08-10`)
+        .set(workerHeaders)
+        .expect(200);
+
+      expect(response.body).toEqual([]);
+    });
+
+    it('should read back a day other than today', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      const [punch] = await entriesOf(worker.id);
+      const day = punch.workdayDate.toISOString().slice(0, 10);
+
+      const response = await request(server())
+        .get(`/api/bars/${barId}/time-entries?from=${day}&to=${day}`)
+        .expect(200);
+
+      expect(response.body[0].date).toBe(day);
+      expect(response.body[0].entries).toHaveLength(1);
+    });
+
     it('should refuse a punch that does not fit the day', async () => {
       const response = await clockAs(TimeEntryType.BREAK_START, workerHeaders).expect(400);
 

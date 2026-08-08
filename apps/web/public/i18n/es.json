@@ -22,15 +22,6 @@
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "Falta la firma del evento de facturación.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
   "email": "Introduce un email válido.",
-  "ERR_ADD_ITEMS": "Error de conexión al añadir productos, reintentando...",
-  "ERR_CANCEL_ORDER": "Error de red al cancelar, la acción se ha revertido.",
-  "ERR_CHECKOUT": "Error de red al cerrar la cuenta, la acción se ha revertido.",
-  "ERR_DELIVERY": "Error de red al entregar, la acción se ha revertido.",
-  "ERR_MERGE_TABLES": "Error de red al juntar mesas.",
-  "ERR_MOVE_TABLE": "Error de red al mover de mesa.",
-  "ERR_PAYMENT": "Error de red al cobrar, la acción se ha revertido.",
-  "ERR_PRINT_ORDER": "Error de conexión con la impresora local (localhost:8080).",
-  "ERR_REMOVE_ITEM": "Error de red al eliminar producto, la acción se ha revertido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",
   "INVALID_BAR_ID": "El identificador del bar suministrado no es válido.",
@@ -76,22 +67,7 @@
   "USER_ALREADY_MEMBER": "Este usuario ya es miembro de la plantilla.",
   "USER_CREATION_FAILED": "Hubo un error y no se pudo registrar al usuario.",
   "USER_NOT_FOUND": "No hay ningún usuario registrado con ese email.",
-  "admin_dashboard": {
-    "title": "Panel de Administrador",
-    "subtitle": "Zona de administración super controlada.",
-    "templates_title": "Editor de Plantillas",
-    "templates_desc": "Gestiona plantillas de bares estándar usadas durante la creación de un bar.",
-    "templates_btn": "Ir a Plantillas",
-    "search_title": "Buscar un Bar",
-    "search_desc": "Busca un bar específico por su ID o Nombre. Podrás entrar al bar con privilegios de dueño totales.",
-    "search_placeholder": "ID o Nombre del Bar...",
-    "search_btn": "Buscar",
-    "results": "Resultados ({{ count }})",
-    "no_results": "No se encontraron bares que coincidan con la búsqueda."
-  },
   "admin_templates": {
-    "back": "Volver",
-    "control_panel": "Panel de Control Admin",
     "description": "Gestiona, crea o sobrescribe de manera masiva las plantillas estándar del sistema que se ofrecen para importar a los nuevos locales.",
     "editor_title": "Editor JSON de Plantillas",
     "hint": "Asegúrate de que el JSON sea un array de categorías, donde cada categoría tenga un <strong>name</strong>, <strong>icon</strong> y una lista opcional de <strong>products</strong> (con <strong>name</strong> y <strong>price</strong> en céntimos).",
@@ -113,18 +89,13 @@
   },
   "ai_voice": {
     "title": "Asistente de Voz Coaster",
-    "placeholder": "Di un comando... Ej: \"Crear mesa Mesa 5\" o \"Añadir 2 cañas a la mesa 3\"",
-    "transcription": "Transcripción",
-    "ai_response": "Respuesta IA",
     "error": "Error",
-    "cancel": "Cancelar",
     "speak_again": "Hablar de nuevo",
     "reset_chat": "Limpiar historial",
     "empty_chat": "Empieza una conversación con el asistente...",
     "user": "Tú",
     "assistant": "Coaster IA",
     "send": "Enviar",
-    "processing": "Procesando...",
     "tooltip_open": "Asistente de Voz IA",
     "tooltip_close": "Cerrar Asistente de Voz",
     "status": {
@@ -141,13 +112,9 @@
       "recognition": "Error de reconocimiento de voz.",
       "mic_denied": "Permiso de micrófono denegado. Actívalo en tu navegador.",
       "network": "Error de red en el reconocimiento de voz.",
-      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde.",
-      "permission_denied": "No tienes permisos para esta acción",
-      "products_not_found": "Ninguno de los productos solicitados está disponible en el menú de este bar.",
-      "connection_failed": "No se pudo conectar con el asistente"
+      "ai_gateway_failed": "Lo siento, el servicio de Inteligencia Artificial no está disponible en este momento. Por favor, inténtalo de nuevo más tarde."
     },
     "toggle_mic": "Silenciar micrófono",
-    "hang_up": "Colgar",
     "type_placeholder": "Escribe o dicta tu orden…",
     "placeholder_listening": "Te escucho…",
     "stop_listening": "Dejar de escuchar",
@@ -175,27 +142,14 @@
       "badge": "Nuevo Bar",
       "description": "Crea un nuevo bar para gestionar tu equipo, pedidos e inventario. Solo necesitas introducir su nombre para comenzar.",
       "fields": {
-        "capacity": "Capacidad de Staff",
-        "capacity_placeholder": "00",
-        "location": "Ubicación / Dirección",
-        "location_placeholder": "Calle, Edificio, Número",
         "name": "Nombre del Bar",
         "name_placeholder": "Ej. The Obsidian Lounge"
-      },
-      "stats": {
-        "latency": "Latencia",
-        "nodes": "Nodos Activos"
       },
       "title": "Registrar Nuevo Bar"
     },
     "select": {
-      "admin_templates": "Administración de Plantillas",
       "empty": "No se encontraron bares activos. Crea uno para empezar.",
       "operational": "Operativo",
-      "stats": {
-        "area": "Área Total",
-        "staff": "Staff Activo Global"
-      },
       "subtitle": "Plataforma de Gestión de Hostelería",
       "title": "Selecciona tu Bar Activo"
     }
@@ -208,10 +162,6 @@
     "create": "Crear",
     "delete": "Eliminar",
     "download_printer": "Descargar Impresora",
-    "duty": {
-      "off": "Fuera de Servicio",
-      "on": "En Turno"
-    },
     "invite": "Invitar",
     "language": "Idioma",
     "logout": "Cerrar sesión",
@@ -223,13 +173,13 @@
     "save": "Guardar",
     "update": "Actualizar",
     "loading": "Cargando...",
-    "refresh": "Actualizar"
+    "refresh": "Actualizar",
+    "submitting": "Enviando"
   },
   "dashboard": {
     "overview": {
       "bar_staff": "PERSONAL BAR",
       "floor_leads": "RESPONSABLES",
-      "manage_staff": "GESTIONAR",
       "security": "SEGURIDAD"
     },
     "roster": {
@@ -248,7 +198,6 @@
       "yesterday": "Ayer",
       "weekly": "Esta Semana",
       "chart_title": "Distribución de Ventas Semanales",
-      "no_revenue": "Sin ingresos",
       "current_month": "Este Mes",
       "previous_month": "Mes Anterior",
       "previous_month_short": "mes ant.",
@@ -260,15 +209,11 @@
     "sections": {
       "financials": "Resumen Financiero",
       "monthly_yearly": "Análisis Mensual y Anual",
-      "overview": "Resumen de Personal",
-      "overview_stats": "{{clockedIn}} En Turno • {{assigned}} Asignados",
       "pantry": "Alertas Críticas de Despensa",
       "pantry_issues": "INCIDENCIAS",
       "roster": "Turnos de Hoy",
-      "roster_full": "HORARIO COMPLETO",
-      "subscription": "Suscripción del Local"
-    },
-    "title": "Panel de Control"
+      "roster_full": "HORARIO COMPLETO"
+    }
   },
   "history": {
     "avg_ticket": "Ticket Medio",
@@ -328,7 +273,6 @@
   "orders": {
     "add_items": "Añadir",
     "add_items_title": "Añadir al Pedido",
-    "all_categories": "Todos",
     "assign_table": "Asignar Mesa",
     "bar_order": "Pedido de Barra",
     "item_notes_placeholder": "Notas (ej. sin hielo)",
@@ -341,9 +285,6 @@
     "cancel_title": "Cancelar Pedido",
     "cart": "Pedido",
     "checkout": "Cobrar Todo",
-    "checkout_message": "Se cerrará el pedido y la mesa quedará libre. ¿Continuar?",
-    "checkout_title": "Cobrar Pedido",
-    "confirm_changes": "Confirmar cambios",
     "create_table": "Crear Mesa",
     "delete_table_message": "¿Estás seguro de que deseas eliminar la mesa \"{{name}}\"? Todos los datos asociados y pedidos se perderán permanentemente y esta acción no se puede deshacer.",
     "delete_table_title": "Eliminar Mesa",
@@ -359,7 +300,6 @@
     "merge_title": "Juntar Pedidos",
     "move": "Mover",
     "move_table_title": "Mover a Mesa",
-    "no_bar_orders": "No hay pedidos de barra abiertos",
     "no_free_tables": "No hay mesas libres disponibles.",
     "no_other_orders": "No hay otros pedidos abiertos.",
     "no_products": "No hay productos disponibles.",
@@ -370,10 +310,8 @@
     "order_not_found": "El pedido ya no está disponible o ha sido cerrado.",
     "paid": "Pagado",
     "paid_units": "Pagado: {{paid}}/{{total}}",
-    "partial": "Parcial",
     "partial_delivery": "Servido parcial",
     "partial_payment": "Pago parcial",
-    "pay_selected": "Pagar Seleccionados ({{amount}})",
     "print_ticket": "Imprimir Ticket",
     "pos_title": "Pedido Rápido",
     "payment_method_title": "Método de Pago",
@@ -381,8 +319,6 @@
     "payment_method_cash": "Efectivo",
     "payment_method_card": "Tarjeta",
     "total_to_pay": "Total a pagar",
-    "quantity_to_pay": "Pagar",
-    "quantity_to_serve": "Servir",
     "remove_item": "Eliminar artículo",
     "remove_item_message": "¿Eliminar este artículo del pedido?",
     "remove_item_title": "Eliminar Artículo",
@@ -392,10 +328,8 @@
     "selected_items_count": "{{count}} seleccionados",
     "selected_total_amount": "Total seleccionados",
     "send_order": "Enviar Pedido",
-    "serve_selected": "Servir Seleccionados ({{count}} u.)",
     "served": "Servido",
     "served_units": "Servido: {{served}}/{{total}}",
-    "start_order": "Iniciar Pedido",
     "table_free": "Libre",
     "table_name_placeholder": "Ej. Mesa 1",
     "table_occupied": "Ocupada",
@@ -403,10 +337,7 @@
     "to_serve_title": "Para servir",
     "all_served_title": "¡Todo servido!",
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
-    "consumption": "Consumo",
-    "total": "Total",
-    "unpay_unit": "Restar 1 pagado",
-    "unserve_unit": "Restar 1 servido"
+    "total": "Total"
   },
   "pantry": {
     "status": {
@@ -490,15 +421,13 @@
     "exchange_pending": "Pendiente",
     "exchanges": {
       "description": "Estos intercambios son propuestas globales publicadas por el equipo. Cualquier miembro con el rol adecuado puede aceptarlos.",
-      "offered_by": "Ofrecido por",
       "period_afternoon": "Turno de Tarde",
       "period_evening": "Turno de Noche",
       "period_morning": "Turno de Mañana",
       "title": "Intercambios Pendientes",
       "your_request": "Tu petición",
       "delete_title": "Eliminar intercambio",
-      "delete_confirm": "¿Estás seguro de que quieres eliminar esta oferta de intercambio?",
-      "delete": "Eliminar"
+      "delete_confirm": "¿Estás seguro de que quieres eliminar esta oferta de intercambio?"
     },
     "no_shifts": "No hay turnos seleccionados para este día",
     "offer_exchange": "Ofrecer",
@@ -700,9 +629,6 @@
     },
     "renews_on": "Se renovará el {{date}}",
     "cancels_on": "Se cancelará el {{date}}",
-    "trial_ends_on": "La prueba finaliza el {{date}}",
-    "trial_days_remaining": "{{days}} días de prueba restantes",
-    "past_due_warning": "El último intento de cobro ha fallado. Actualiza tu método de pago para evitar la interrupción del servicio.",
     "action_unavailable": "Acción no disponible: suscripción o prueba finalizada"
   },
   "landing": {
@@ -711,8 +637,6 @@
       "what_is_it_for": "¿Para qué sirve?",
       "pricing": "Planes y Precios",
       "faq": "Preguntas Frecuentes",
-      "status_ok": "Sistemas 100% OK",
-      "login": "Entrar",
       "try_free": "Probar Gratis"
     },
     "hero": {
@@ -768,8 +692,6 @@
       "title": "Precios transparentes. Cero sorpresas.",
       "subtitle": "Comienza gratis hoy mismo o elige el plan que mejor se adapte al volumen de tu bar.",
       "monthly": "Facturación Mensual",
-      "yearly": "Pago Anual",
-      "save_discount": "Ahorra 20%",
       "free_title": "Plan FREE",
       "free_badge": "Para Empezar",
       "free_desc": "Ideal para bares pequeños o locales que están iniciando actividad.",
@@ -787,9 +709,7 @@
       "pro_tag": "Completo",
       "pro_desc": "Para bares y restaurantes en crecimiento que exigen velocidad sin límites.",
       "pro_price_monthly": "29 €",
-      "pro_price_yearly": "23 €",
       "pro_subtext_monthly": "Sin compromiso de permanencia",
-      "pro_subtext_yearly": "Facturado anualmente (276 €/año)",
       "pro_feature1": "Comandas ILIMITADAS",
       "pro_feature2": "Conexión de impresoras ilimitadas",
       "pro_feature3": "Gestión de equipo, turnos y fichajes",
@@ -869,7 +789,10 @@
       "bar_renamed": "Bar renombrado",
       "bar_member_role_changed": "Rol de miembro cambiado",
       "user_role_changed": "Rol de usuario cambiado",
-      "user_activation_changed": "Estado de usuario cambiado"
+      "user_activation_changed": "Estado de usuario cambiado",
+      "time_entry_created": "Fichaje creado",
+      "time_entry_amended": "Fichaje corregido",
+      "time_entry_voided": "Fichaje anulado"
     },
     "pagination": {
       "range": "{{ from }}–{{ to }} de {{ total }}",
@@ -999,5 +922,9 @@
   "INVALID_CLOCK_SEQUENCE": "La marca no encaja en la jornada: revisa el orden de entradas, pausas y salidas",
   "NOT_YOUR_TIME_ENTRY": "Solo puedes pedir correcciones sobre tus propios fichajes",
   "EXCHANGE_SHIFT_ALREADY_STARTED": "Ese turno ya ha empezado y no se puede traspasar",
-  "EXCHANGE_ALREADY_CLOSED": "Ese intercambio ya se cerro y queda como registro"
+  "EXCHANGE_ALREADY_CLOSED": "Ese intercambio ya se cerro y queda como registro",
+  "PRINT_JOB_NOT_FOUND": "El trabajo de impresión solicitado no existe.",
+  "PRINT_JOB_FAILED": "No se pudo imprimir el ticket.",
+  "PRINT_JOB_TIMEOUT": "La impresora no respondió a tiempo.",
+  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "No se pudo cancelar la suscripción. Inténtalo de nuevo."
 }

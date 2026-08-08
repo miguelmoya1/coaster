@@ -22,15 +22,6 @@
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "The billing event signature is missing.",
   "SUBSCRIPTION_EXPIRED": "Your trial or subscription has ended. Activate Coaster Pro to continue.",
   "email": "Please enter a valid email.",
-  "ERR_ADD_ITEMS": "Network error adding items, retrying...",
-  "ERR_CANCEL_ORDER": "Network error cancelling order, action reverted.",
-  "ERR_CHECKOUT": "Network error during checkout, action reverted.",
-  "ERR_DELIVERY": "Network error processing delivery, action reverted.",
-  "ERR_MERGE_TABLES": "Network error merging tables.",
-  "ERR_MOVE_TABLE": "Network error moving table.",
-  "ERR_PAYMENT": "Network error processing payment, action reverted.",
-  "ERR_PRINT_ORDER": "Connection error with local printer (localhost:8080).",
-  "ERR_REMOVE_ITEM": "Network error removing item, action reverted.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "EXCHANGE_NOT_FOUND": "The specified exchange request does not exist.",
   "INVALID_BAR_ID": "The supplied bar ID is not valid.",
@@ -76,22 +67,7 @@
   "USER_ALREADY_MEMBER": "This user is already a member of the staff.",
   "USER_CREATION_FAILED": "An error occurred and the user could not be registered.",
   "USER_NOT_FOUND": "No user registered with that email address.",
-  "admin_dashboard": {
-    "title": "Admin Dashboard",
-    "subtitle": "Super controlled admin zone.",
-    "templates_title": "Templates Editor",
-    "templates_desc": "Manage standard bar templates used during bar creation.",
-    "templates_btn": "Go to Templates",
-    "search_title": "Find a Bar",
-    "search_desc": "Search for a specific bar by its ID or Name. You can enter the bar with full owner privileges.",
-    "search_placeholder": "Bar ID or Name...",
-    "search_btn": "Search",
-    "results": "Results ({{ count }})",
-    "no_results": "No bars found matching your search."
-  },
   "admin_templates": {
-    "back": "Back",
-    "control_panel": "Admin Control Panel",
     "description": "Manage, create, or bulk overwrite the standard system templates offered to new bars for import.",
     "editor_title": "Templates JSON Editor",
     "hint": "Make sure the JSON is an array of categories, where each category has a <strong>name</strong>, <strong>icon</strong>, and an optional list of <strong>products</strong> (with <strong>name</strong> and <strong>price</strong> in cents).",
@@ -113,18 +89,13 @@
   },
   "ai_voice": {
     "title": "Coaster Voice Assistant",
-    "placeholder": "Say a command... e.g. \"Create table Table 5\" or \"Add 2 beers to table 3\"",
-    "transcription": "Transcription",
-    "ai_response": "AI Response",
     "error": "Error",
-    "cancel": "Cancel",
     "speak_again": "Speak again",
     "reset_chat": "Reset chat",
     "empty_chat": "Start a conversation with the assistant...",
     "user": "You",
     "assistant": "Coaster AI",
     "send": "Send",
-    "processing": "Processing...",
     "tooltip_open": "AI Voice Assistant",
     "tooltip_close": "Close Voice Assistant",
     "status": {
@@ -141,13 +112,9 @@
       "recognition": "Speech recognition error.",
       "mic_denied": "Microphone permission denied. Please enable it in your browser.",
       "network": "Network error during speech recognition.",
-      "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later.",
-      "permission_denied": "You do not have permission for this action",
-      "products_not_found": "None of the requested products are available in this bar's menu.",
-      "connection_failed": "Could not connect to the assistant"
+      "ai_gateway_failed": "Sorry, the Artificial Intelligence service is currently unavailable. Please try again later."
     },
     "toggle_mic": "Mute microphone",
-    "hang_up": "Hang up",
     "type_placeholder": "Type or dictate your command…",
     "placeholder_listening": "I'm listening…",
     "stop_listening": "Stop listening",
@@ -175,27 +142,14 @@
       "badge": "New Bar",
       "description": "Create a new bar to manage your team, orders, and inventory. You only need to enter its name to get started.",
       "fields": {
-        "capacity": "Staff Capacity",
-        "capacity_placeholder": "00",
-        "location": "Location / Address",
-        "location_placeholder": "Street, Building, Suite No.",
         "name": "Bar Name",
         "name_placeholder": "e.g. The Obsidian Lounge"
-      },
-      "stats": {
-        "latency": "Latency",
-        "nodes": "Active Nodes"
       },
       "title": "Register New Bar"
     },
     "select": {
-      "admin_templates": "Template Administration",
       "empty": "No active bars found. Create one to get started.",
       "operational": "Operational",
-      "stats": {
-        "area": "Total Venue Area",
-        "staff": "Global Active Staff"
-      },
       "subtitle": "Hospitality Management Platform",
       "title": "Select Your Active Bar"
     }
@@ -208,10 +162,6 @@
     "create": "Create",
     "delete": "Delete",
     "download_printer": "Download Printer",
-    "duty": {
-      "off": "Off Duty",
-      "on": "On Duty"
-    },
     "invite": "Invite",
     "language": "Language",
     "logout": "Log Out",
@@ -223,13 +173,13 @@
     "save": "Save",
     "update": "Update",
     "loading": "Loading...",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "submitting": "Submitting"
   },
   "dashboard": {
     "overview": {
       "bar_staff": "BAR STAFF",
       "floor_leads": "FLOOR LEADS",
-      "manage_staff": "MANAGE STAFF",
       "security": "SECURITY"
     },
     "roster": {
@@ -248,7 +198,6 @@
       "yesterday": "Yesterday",
       "weekly": "This Week",
       "chart_title": "Weekly Sales Distribution",
-      "no_revenue": "No revenue",
       "current_month": "This Month",
       "previous_month": "Last Month",
       "previous_month_short": "prev. month",
@@ -260,15 +209,11 @@
     "sections": {
       "financials": "Financial Overview",
       "monthly_yearly": "Monthly & Yearly Analysis",
-      "overview": "Staff Overview",
-      "overview_stats": "{{clockedIn}} Clocked In • {{assigned}} Assigned",
       "pantry": "Critical Pantry Alerts",
       "pantry_issues": "{{count}} ISSUES",
       "roster": "Today's Roster",
-      "roster_full": "FULL SCHEDULE",
-      "subscription": "Venue Subscription"
-    },
-    "title": "Control Panel"
+      "roster_full": "FULL SCHEDULE"
+    }
   },
   "history": {
     "avg_ticket": "Avg. Ticket",
@@ -328,7 +273,6 @@
   "orders": {
     "add_items": "Add Items",
     "add_items_title": "Add Items to Order",
-    "all_categories": "All",
     "assign_table": "Assign Table",
     "bar_order": "Bar Order",
     "item_notes_placeholder": "Notes (e.g. no ice)",
@@ -341,9 +285,6 @@
     "cancel_title": "Cancel Order",
     "cart": "Order",
     "checkout": "Pay All",
-    "checkout_message": "This will close the order and free the table. Continue?",
-    "checkout_title": "Checkout Order",
-    "confirm_changes": "Confirm changes",
     "create_table": "Create Table",
     "delete_table_message": "Are you sure you want to delete the table \"{{name}}\"? All associated orders and data will be permanently lost and this action cannot be undone.",
     "delete_table_title": "Delete Table",
@@ -359,7 +300,6 @@
     "merge_title": "Merge Orders",
     "move": "Move",
     "move_table_title": "Move to Table",
-    "no_bar_orders": "No open bar orders",
     "no_free_tables": "No free tables available.",
     "no_other_orders": "No other open orders available.",
     "no_products": "No products available.",
@@ -370,10 +310,8 @@
     "order_not_found": "The order is no longer available or has been closed.",
     "paid": "Paid",
     "paid_units": "Paid: {{paid}}/{{total}}",
-    "partial": "Partial",
     "partial_delivery": "Partially served",
     "partial_payment": "Partial payment",
-    "pay_selected": "Pay Selected ({{amount}})",
     "print_ticket": "Print Receipt",
     "pos_title": "Quick Order",
     "payment_method_title": "Payment Method",
@@ -381,8 +319,6 @@
     "payment_method_cash": "Cash",
     "payment_method_card": "Card",
     "total_to_pay": "Total to pay",
-    "quantity_to_pay": "Pay",
-    "quantity_to_serve": "Serve",
     "remove_item": "Remove item",
     "remove_item_message": "Remove this item from the order?",
     "remove_item_title": "Remove Item",
@@ -392,10 +328,8 @@
     "selected_items_count": "{{count}} selected",
     "selected_total_amount": "Selected total",
     "send_order": "Send Order",
-    "serve_selected": "Serve Selected ({{count}} u.)",
     "served": "Served",
     "served_units": "Served: {{served}}/{{total}}",
-    "start_order": "Start Order",
     "table_free": "Free",
     "table_name_placeholder": "e.g. Table 1",
     "table_occupied": "Occupied",
@@ -403,10 +337,7 @@
     "to_serve_title": "To serve",
     "all_served_title": "All served!",
     "all_served_desc": "There are no pending orders to serve at the bar right now.",
-    "consumption": "Consumption",
-    "total": "Total",
-    "unpay_unit": "Subtract 1 paid",
-    "unserve_unit": "Subtract 1 served"
+    "total": "Total"
   },
   "pantry": {
     "status": {
@@ -490,15 +421,13 @@
     "exchange_pending": "Pending",
     "exchanges": {
       "description": "These exchanges are global proposals published by the team. Any member with the appropriate role can accept them.",
-      "offered_by": "Offered by",
       "period_afternoon": "Afternoon Shift",
       "period_evening": "Evening Shift",
       "period_morning": "Morning Shift",
       "title": "Pending Exchanges",
       "your_request": "Your request",
       "delete_title": "Delete Exchange",
-      "delete_confirm": "Are you sure you want to delete this exchange offer?",
-      "delete": "Delete"
+      "delete_confirm": "Are you sure you want to delete this exchange offer?"
     },
     "no_shifts": "No shifts selected for this day",
     "offer_exchange": "Offer",
@@ -700,9 +629,6 @@
     },
     "renews_on": "Renews on {{date}}",
     "cancels_on": "Cancels on {{date}}",
-    "trial_ends_on": "Trial ends on {{date}}",
-    "trial_days_remaining": "{{days}} trial days remaining",
-    "past_due_warning": "Your last payment failed. Please update your payment method to prevent service interruption.",
     "action_unavailable": "Action unavailable: subscription or trial has ended"
   },
   "landing": {
@@ -711,8 +637,6 @@
       "what_is_it_for": "What it's for",
       "pricing": "Plans & Pricing",
       "faq": "FAQ",
-      "status_ok": "Systems 100% OK",
-      "login": "Sign In",
       "try_free": "Try Free"
     },
     "hero": {
@@ -768,8 +692,6 @@
       "title": "Transparent pricing. Zero surprises.",
       "subtitle": "Start free today or choose the plan that best fits your business volume.",
       "monthly": "Monthly Billing",
-      "yearly": "Annual Billing",
-      "save_discount": "Save 20%",
       "free_title": "FREE Plan",
       "free_badge": "Getting Started",
       "free_desc": "Ideal for small bars or venues launching operations.",
@@ -787,9 +709,7 @@
       "pro_tag": "Full Suite",
       "pro_desc": "For growing bars and restaurants requiring unlimited speed.",
       "pro_price_monthly": "29 €",
-      "pro_price_yearly": "23 €",
       "pro_subtext_monthly": "No long-term commitment",
-      "pro_subtext_yearly": "Billed annually (276 €/year)",
       "pro_feature1": "UNLIMITED Orders",
       "pro_feature2": "Unlimited kitchen printer connections",
       "pro_feature3": "Team, shift, and clock-in management",
@@ -869,7 +789,10 @@
       "bar_renamed": "Bar renamed",
       "bar_member_role_changed": "Member role changed",
       "user_role_changed": "User role changed",
-      "user_activation_changed": "User activation changed"
+      "user_activation_changed": "User activation changed",
+      "time_entry_created": "Punch created",
+      "time_entry_amended": "Punch corrected",
+      "time_entry_voided": "Punch voided"
     },
     "pagination": {
       "range": "{{ from }}–{{ to }} of {{ total }}",
@@ -999,5 +922,9 @@
   "INVALID_CLOCK_SEQUENCE": "The punch does not fit the workday: check the order of clock ins, breaks and clock outs",
   "NOT_YOUR_TIME_ENTRY": "You can only request corrections on your own punches",
   "EXCHANGE_SHIFT_ALREADY_STARTED": "That shift has already started and cannot be handed over",
-  "EXCHANGE_ALREADY_CLOSED": "That exchange is closed and stays on record"
+  "EXCHANGE_ALREADY_CLOSED": "That exchange is closed and stays on record",
+  "PRINT_JOB_NOT_FOUND": "The requested print job does not exist.",
+  "PRINT_JOB_FAILED": "The ticket could not be printed.",
+  "PRINT_JOB_TIMEOUT": "The printer did not respond in time.",
+  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "The subscription could not be cancelled. Please try again."
 }
