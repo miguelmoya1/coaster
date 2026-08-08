@@ -46,7 +46,6 @@ export class AdminWriteRepository {
     return this._db.dbBar.update({ where: { id: barId }, data: { name } });
   }
 
-
   public updateUser(userId: UserId, data: { role?: DbRole; active?: boolean }) {
     return this._db.dbUser.update({ where: { id: userId }, data });
   }

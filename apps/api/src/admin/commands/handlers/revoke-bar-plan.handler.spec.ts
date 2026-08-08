@@ -1,4 +1,5 @@
 import { SubscriptionOverriddenEvent } from '@coaster/bar-subscription';
+import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { AdminAuditAction, ErrorCodes, SubscriptionPlan, asBarId, asUserId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -27,23 +28,24 @@ describe('RevokeBarPlanHandler', () => {
   let handler: RevokeBarPlanHandler;
   let readRepo: { findBarById: ReturnType<typeof vi.fn> };
   let writeRepo: { revokePlan: ReturnType<typeof vi.fn> };
-  let auditRepo: { record: ReturnType<typeof vi.fn> };
   let eventBus: { publish: ReturnType<typeof vi.fn> };
+
+  const published = <T>(type: new (...args: never[]) => T): T | undefined =>
+    eventBus.publish.mock.calls.map(([event]) => event).find((event) => event instanceof type);
 
   beforeEach(() => {
     readRepo = { findBarById: vi.fn().mockResolvedValue(grantedBar) };
     writeRepo = { revokePlan: vi.fn().mockResolvedValue(undefined) };
-    auditRepo = { record: vi.fn().mockResolvedValue(undefined) };
     eventBus = { publish: vi.fn() };
 
-    handler = new RevokeBarPlanHandler(readRepo as any, writeRepo as any, auditRepo as any, eventBus as any);
+    handler = new RevokeBarPlanHandler(readRepo as any, writeRepo as any, eventBus as any);
   });
 
   it('should clear the grant, record what was removed and notify the bar', async () => {
     await handler.execute(new RevokeBarPlanCommand(asBarId('bar-1'), { reason: 'Trial over' }, actor));
 
     expect(writeRepo.revokePlan).toHaveBeenCalledWith('bar-1');
-    expect(auditRepo.record).toHaveBeenCalledWith(
+    expect(published(AdminActionEvent)?.entry).toMatchObject(
       expect.objectContaining({
         action: AdminAuditAction.BAR_PLAN_REVOKED,
         reason: 'Trial over',

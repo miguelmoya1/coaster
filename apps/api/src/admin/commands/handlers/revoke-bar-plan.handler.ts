@@ -2,7 +2,7 @@ import { SubscriptionOverriddenEvent } from '@coaster/bar-subscription';
 import { AdminAuditAction, AdminAuditTargetType, ErrorCodes } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { AdminAuditRepository } from '../../data-access/admin-audit.repository';
+import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { AdminBarReadRepository } from '../../data-access/admin-bar.read.repository';
 import { AdminWriteRepository } from '../../data-access/admin.write.repository';
 import { RevokeBarPlanCommand } from '../impl/revoke-bar-plan.command';
@@ -12,7 +12,6 @@ export class RevokeBarPlanHandler implements ICommandHandler<RevokeBarPlanComman
   constructor(
     private readonly _readRepo: AdminBarReadRepository,
     private readonly _writeRepo: AdminWriteRepository,
-    private readonly _auditRepo: AdminAuditRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -35,15 +34,17 @@ export class RevokeBarPlanHandler implements ICommandHandler<RevokeBarPlanComman
 
     await this._writeRepo.revokePlan(barId);
 
-    await this._auditRepo.record({
-      actorId: actor.id,
-      action: AdminAuditAction.BAR_PLAN_REVOKED,
-      targetType: AdminAuditTargetType.BAR,
-      targetId: barId,
-      targetLabel: bar.name,
-      reason: dto.reason?.trim() || null,
-      metadata: revoked,
-    });
+    this._eventBus.publish(
+      new AdminActionEvent({
+        actorId: actor.id,
+        action: AdminAuditAction.BAR_PLAN_REVOKED,
+        targetType: AdminAuditTargetType.BAR,
+        targetId: barId,
+        targetLabel: bar.name,
+        reason: dto.reason?.trim() || null,
+        metadata: revoked,
+      }),
+    );
 
     this._eventBus.publish(new SubscriptionOverriddenEvent(barId));
   }

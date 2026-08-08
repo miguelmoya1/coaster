@@ -3,7 +3,7 @@ import { AdminAuditAction, AdminAuditTargetType, ErrorCodes } from '@coaster/com
 import type { DbSubscriptionPlan } from '@coaster/core/db';
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { AdminAuditRepository } from '../../data-access/admin-audit.repository';
+import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { AdminBarReadRepository } from '../../data-access/admin-bar.read.repository';
 import { AdminWriteRepository } from '../../data-access/admin.write.repository';
 import { daysFromNow } from '../../utils/pagination';
@@ -14,7 +14,6 @@ export class GrantBarPlanHandler implements ICommandHandler<GrantBarPlanCommand,
   constructor(
     private readonly _readRepo: AdminBarReadRepository,
     private readonly _writeRepo: AdminWriteRepository,
-    private readonly _auditRepo: AdminAuditRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -35,19 +34,21 @@ export class GrantBarPlanHandler implements ICommandHandler<GrantBarPlanCommand,
       grantedById: actor.id,
     });
 
-    await this._auditRepo.record({
-      actorId: actor.id,
-      action: AdminAuditAction.BAR_PLAN_GRANTED,
-      targetType: AdminAuditTargetType.BAR,
-      targetId: barId,
-      targetLabel: bar.name,
-      reason: dto.reason?.trim() || null,
-      metadata: {
-        plan: dto.plan,
-        durationDays: dto.durationDays ?? null,
-        expiresAt: expiresAt?.toISOString() ?? null,
-      },
-    });
+    this._eventBus.publish(
+      new AdminActionEvent({
+        actorId: actor.id,
+        action: AdminAuditAction.BAR_PLAN_GRANTED,
+        targetType: AdminAuditTargetType.BAR,
+        targetId: barId,
+        targetLabel: bar.name,
+        reason: dto.reason?.trim() || null,
+        metadata: {
+          plan: dto.plan,
+          durationDays: dto.durationDays ?? null,
+          expiresAt: expiresAt?.toISOString() ?? null,
+        },
+      }),
+    );
 
     this._eventBus.publish(new SubscriptionOverriddenEvent(barId));
   }

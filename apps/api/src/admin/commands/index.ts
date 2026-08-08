@@ -8,9 +8,4 @@ export { RenameBarCommand } from './impl/rename-bar.command';
 export { RevokeBarPlanCommand } from './impl/revoke-bar-plan.command';
 export { UpdateAdminUserCommand } from './impl/update-admin-user.command';
 
-export const CommandHandlers = [
-  GrantBarPlanHandler,
-  RevokeBarPlanHandler,
-  RenameBarHandler,
-  UpdateAdminUserHandler,
-];
+export const CommandHandlers = [GrantBarPlanHandler, RevokeBarPlanHandler, RenameBarHandler, UpdateAdminUserHandler];

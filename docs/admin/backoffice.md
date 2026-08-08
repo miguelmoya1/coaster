@@ -60,9 +60,29 @@ con el antes y el despues. Se ve en `/admin/audit` y, filtrado, en la ficha de c
 Acciones registradas: `BAR_PLAN_GRANTED`, `BAR_PLAN_REVOKED`, `BAR_RENAMED`,
 `BAR_MEMBER_ROLE_CHANGED`, `USER_ROLE_CHANGED`, `USER_ACTIVATION_CHANGED`.
 
-`BAR_MEMBER_ROLE_CHANGED` es distinta de las demas: no nace de una ruta del backoffice sino de
-`MemberRoleChangedEvent`. El panel cambia roles con el mismo `PATCH /bars/:barId/members/:memberId`
-que usa un dueno, y la entrada se escribe solo cuando quien actua es `ADMIN`.
+### Como se registra
+
+Ningun handler escribe en el repositorio de auditoria. Todos publican **un unico evento**,
+`AdminActionEvent`, que lleva la entrada ya montada; `RecordAdminActionHandler` es el unico
+suscriptor y el unico que escribe.
+
+```text
+handler de comando ─┐
+                    ├─► AdminActionEvent ─► RecordAdminActionHandler ─► AdminAuditLog
+MemberRoleChangedEvent (si el actor es ADMIN) ─┘
+```
+
+Un evento por accion habria significado seis handlers identicos: la entrada de auditoria ya tiene
+la misma forma para todas, asi que el evento la transporta tal cual.
+
+Dos consecuencias que conviene tener presentes:
+
+- El registro es **asincrono**. Ya lo era de facto (la escritura nunca compartio transaccion con la
+  accion), pero ahora un fallo del handler no revienta la peticion: se registra como `error` en el
+  log con el detalle de que accion quedo sin auditar.
+- `BAR_MEMBER_ROLE_CHANGED` no nace de una ruta del backoffice. El panel cambia roles con el mismo
+  `PATCH /bars/:barId/members/:memberId` que usa un dueno, y la entrada se escribe solo cuando quien
+  actua es `ADMIN`.
 
 ## Estructura del codigo
 

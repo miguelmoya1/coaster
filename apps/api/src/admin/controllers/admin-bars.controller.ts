@@ -49,5 +49,4 @@ export class AdminBarsController {
   ): Promise<void> {
     await this._commandBus.execute(new RevokeBarPlanCommand(barId, dto, user));
   }
-
 }

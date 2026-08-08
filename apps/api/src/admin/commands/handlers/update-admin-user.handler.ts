@@ -1,8 +1,8 @@
 import { AdminAuditAction, AdminAuditTargetType, ErrorCodes, Role } from '@coaster/common';
 import type { DbRole } from '@coaster/core/db';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AdminAuditRepository } from '../../data-access/admin-audit.repository';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { AdminUserReadRepository } from '../../data-access/admin-user.read.repository';
 import { AdminWriteRepository } from '../../data-access/admin.write.repository';
 import { UpdateAdminUserCommand } from '../impl/update-admin-user.command';
@@ -12,7 +12,7 @@ export class UpdateAdminUserHandler implements ICommandHandler<UpdateAdminUserCo
   constructor(
     private readonly _readRepo: AdminUserReadRepository,
     private readonly _writeRepo: AdminWriteRepository,
-    private readonly _auditRepo: AdminAuditRepository,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateAdminUserCommand): Promise<void> {
@@ -46,25 +46,29 @@ export class UpdateAdminUserHandler implements ICommandHandler<UpdateAdminUserCo
     });
 
     if (dto.role && dto.role !== user.role) {
-      await this._auditRepo.record({
-        actorId: actor.id,
-        action: AdminAuditAction.USER_ROLE_CHANGED,
-        targetType: AdminAuditTargetType.USER,
-        targetId: userId,
-        targetLabel: user.email,
-        metadata: { from: user.role, to: dto.role },
-      });
+      this._eventBus.publish(
+        new AdminActionEvent({
+          actorId: actor.id,
+          action: AdminAuditAction.USER_ROLE_CHANGED,
+          targetType: AdminAuditTargetType.USER,
+          targetId: userId,
+          targetLabel: user.email,
+          metadata: { from: user.role, to: dto.role },
+        }),
+      );
     }
 
     if (dto.active !== undefined && dto.active !== user.active) {
-      await this._auditRepo.record({
-        actorId: actor.id,
-        action: AdminAuditAction.USER_ACTIVATION_CHANGED,
-        targetType: AdminAuditTargetType.USER,
-        targetId: userId,
-        targetLabel: user.email,
-        metadata: { active: dto.active },
-      });
+      this._eventBus.publish(
+        new AdminActionEvent({
+          actorId: actor.id,
+          action: AdminAuditAction.USER_ACTIVATION_CHANGED,
+          targetType: AdminAuditTargetType.USER,
+          targetId: userId,
+          targetLabel: user.email,
+          metadata: { active: dto.active },
+        }),
+      );
     }
   }
 }

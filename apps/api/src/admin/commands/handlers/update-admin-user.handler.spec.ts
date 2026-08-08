@@ -25,7 +25,7 @@ describe('UpdateAdminUserHandler', () => {
   let handler: UpdateAdminUserHandler;
   let readRepo: { findUserById: ReturnType<typeof vi.fn>; countAdmins: ReturnType<typeof vi.fn> };
   let writeRepo: { updateUser: ReturnType<typeof vi.fn> };
-  let auditRepo: { record: ReturnType<typeof vi.fn> };
+  let eventBus: { publish: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     readRepo = {
@@ -33,19 +33,21 @@ describe('UpdateAdminUserHandler', () => {
       countAdmins: vi.fn().mockResolvedValue(3),
     };
     writeRepo = { updateUser: vi.fn().mockResolvedValue(undefined) };
-    auditRepo = { record: vi.fn().mockResolvedValue(undefined) };
+    eventBus = { publish: vi.fn() };
 
-    handler = new UpdateAdminUserHandler(readRepo as any, writeRepo as any, auditRepo as any);
+    handler = new UpdateAdminUserHandler(readRepo as any, writeRepo as any, eventBus as any);
   });
 
   it('should promote a user and record the role change', async () => {
     await handler.execute(new UpdateAdminUserCommand(asUserId('user-2'), { role: Role.ADMIN }, actor));
 
     expect(writeRepo.updateUser).toHaveBeenCalledWith('user-2', { role: Role.ADMIN, active: undefined });
-    expect(auditRepo.record).toHaveBeenCalledWith(
+    expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        action: AdminAuditAction.USER_ROLE_CHANGED,
-        metadata: { from: Role.USER, to: Role.ADMIN },
+        entry: expect.objectContaining({
+          action: AdminAuditAction.USER_ROLE_CHANGED,
+          metadata: { from: Role.USER, to: Role.ADMIN },
+        }),
       }),
     );
   });
@@ -53,11 +55,13 @@ describe('UpdateAdminUserHandler', () => {
   it('should record an activation change on its own entry', async () => {
     await handler.execute(new UpdateAdminUserCommand(asUserId('user-2'), { active: false }, actor));
 
-    expect(auditRepo.record).toHaveBeenCalledTimes(1);
-    expect(auditRepo.record).toHaveBeenCalledWith(
+    expect(eventBus.publish).toHaveBeenCalledTimes(1);
+    expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        action: AdminAuditAction.USER_ACTIVATION_CHANGED,
-        metadata: { active: false },
+        entry: expect.objectContaining({
+          action: AdminAuditAction.USER_ACTIVATION_CHANGED,
+          metadata: { active: false },
+        }),
       }),
     );
   });
@@ -94,7 +98,7 @@ describe('UpdateAdminUserHandler', () => {
     await handler.execute(new UpdateAdminUserCommand(asUserId('user-2'), { role: Role.USER, active: true }, actor));
 
     expect(writeRepo.updateUser).not.toHaveBeenCalled();
-    expect(auditRepo.record).not.toHaveBeenCalled();
+    expect(eventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should reject a user that does not exist', async () => {
