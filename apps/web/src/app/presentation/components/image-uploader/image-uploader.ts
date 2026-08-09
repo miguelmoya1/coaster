@@ -148,9 +148,9 @@ export class ImageUploader {
       });
 
       if (response && response.length > 0) {
-        const { uploadUrl, publicUrl } = response[0];
+        const { uploadUrl, publicUrl, uploadHeaders } = response[0];
 
-        await this.mediaRepo.uploadFile(uploadUrl, file);
+        await this.mediaRepo.uploadFile(uploadUrl, file, uploadHeaders);
 
         this.value.set(publicUrl);
         this.clearLocalPreview();

@@ -35,7 +35,7 @@ describe('StatsReadRepository', () => {
     it('should call dbOrder.findMany with correct parameters', async () => {
       const barId = asBarId('bar-1');
       const startOfPrevYear = new Date('2023-01-01');
-      const expectedResult = [{ totalAmount: 100, createdAt: new Date() }];
+      const expectedResult = [{ amountPaidCash: 100, amountPaidCard: 0, tipAmount: 0, createdAt: new Date() }];
       vi.mocked(dbService.dbOrder.findMany).mockResolvedValue(expectedResult as any);
 
       const result = await repository.findClosedOrdersForStats(barId, startOfPrevYear);
@@ -47,7 +47,9 @@ describe('StatsReadRepository', () => {
           createdAt: { gte: startOfPrevYear },
         },
         select: {
-          totalAmount: true,
+          amountPaidCash: true,
+          amountPaidCard: true,
+          tipAmount: true,
           createdAt: true,
         },
         orderBy: {

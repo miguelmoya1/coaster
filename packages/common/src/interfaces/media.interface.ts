@@ -11,4 +11,5 @@ export interface GenerateUploadUrlsDto {
 export interface MediaUploadResponse {
   uploadUrl: string;
   publicUrl: string;
+  uploadHeaders: Record<string, string>;
 }

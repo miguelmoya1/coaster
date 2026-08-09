@@ -54,6 +54,7 @@
   "PRINTER_NOT_CONNECTED": "La impresora no está conectada.",
   "required": "Este campo es obligatorio.",
   "REQUIRED": "Este campo es completamente obligatorio.",
+  "INVALID_SHIFT_RANGE": "El turno tiene que terminar después de empezar.",
   "SHIFT_NOT_FOUND": "El turno de trabajo solicitado no existe.",
   "TABLE_ALREADY_OCCUPIED": "No se puede iniciar pedido en esta mesa porque ya está ocupada.",
   "TABLE_NOT_FOUND": "La mesa de bar seleccionada no existe.",

@@ -67,6 +67,39 @@ describe('ShiftsController (e2e)', () => {
         })
         .expect(400);
     });
+
+    it('should refuse to schedule somebody who does not work at this bar', async () => {
+      const stranger = await testSetup.prisma.dbUser.create({
+        data: { email: 'stranger@elsewhere.com', name: 'Stranger', role: 'USER', active: true },
+      });
+      const now = new Date();
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/shifts`)
+        .send({
+          userId: stranger.id,
+          startTime: now.toISOString(),
+          endTime: new Date(now.getTime() + 3600_000).toISOString(),
+        })
+        .expect(404);
+
+      expect(await testSetup.prisma.dbShift.count({ where: { barId } })).toBe(0);
+    });
+
+    it('should refuse a shift that ends before it starts', async () => {
+      const now = new Date();
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/shifts`)
+        .send({
+          userId,
+          startTime: now.toISOString(),
+          endTime: new Date(now.getTime() - 3600_000).toISOString(),
+        })
+        .expect(400);
+
+      expect(await testSetup.prisma.dbShift.count({ where: { barId } })).toBe(0);
+    });
   });
 
   describe('GET /api/bars/:barId/shifts', () => {

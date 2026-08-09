@@ -2,6 +2,7 @@ import { ErrorCodes } from '@coaster/common';
 import { StripeWebhookGuard, StripeWebhookWriteRepository, type FastifyStripeRequest } from '@coaster/stripe';
 import { Controller, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { Event as StripeEvent } from 'stripe';
 import {
   HandleCheckoutCompletedCommand,
@@ -11,6 +12,7 @@ import {
 } from '../commands';
 
 @Controller('stripe')
+@SkipThrottle()
 export class StripeWebhookController {
   private readonly _logger = new Logger(StripeWebhookController.name);
 

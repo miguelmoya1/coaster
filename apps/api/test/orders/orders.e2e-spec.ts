@@ -265,6 +265,137 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
+  describe('POST /api/bars/:barId/orders/merge', () => {
+    it('should carry payments, tips and discounts over to the surviving order', async () => {
+      const first = await testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 10,
+          amountPaidCash: 400,
+          tipAmount: 50,
+          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 5 }] },
+          adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
+        },
+      });
+
+      const second = await testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 3,
+          amountPaidCard: 200,
+          tipAmount: 25,
+          items: { create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3 }] },
+        },
+      });
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders/merge`)
+        .send({ orderIds: [first.id, second.id] })
+        .expect(201);
+
+      const orders = await testSetup.prisma.dbOrder.findMany({
+        where: { barId },
+        include: { items: true, adjustments: true },
+      });
+
+      const survivor = orders.find((order) => order.status === OrderStatus.OPEN);
+      const cancelled = orders.filter((order) => order.status === OrderStatus.CANCELLED);
+
+      expect(cancelled).toHaveLength(1);
+      expect(survivor?.items).toHaveLength(2);
+      expect(survivor?.totalAmount).toBe(13);
+      expect(survivor?.amountPaidCash).toBe(400);
+      expect(survivor?.amountPaidCard).toBe(200);
+      expect(survivor?.tipAmount).toBe(75);
+      expect(survivor?.paymentMethod).toBe(PaymentMethod.MIXED);
+      expect(survivor?.adjustments).toHaveLength(1);
+    });
+
+    it('should keep a percentage discount worth the same euros it was worth before', async () => {
+      const discounted = await testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 1000,
+          items: { create: [{ productId: product1Id, quantity: 200, priceAtPurchase: 5 }] },
+          adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
+        },
+      });
+
+      const plain = await testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 3,
+          items: { create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3 }] },
+        },
+      });
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders/merge`)
+        .send({ orderIds: [discounted.id, plain.id] })
+        .expect(201);
+
+      const adjustments = await testSetup.prisma.dbOrderAdjustment.findMany();
+
+      expect(adjustments).toHaveLength(1);
+      expect(adjustments[0].type).toBe('FIXED_AMOUNT');
+      expect(adjustments[0].value).toBe(100);
+    });
+  });
+
+  describe('an order that is already closed', () => {
+    const closedOrder = async () =>
+      testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.CLOSED,
+          totalAmount: 10,
+          amountPaidCash: 10,
+          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 5, paidQuantity: 2 }] },
+          adjustments: { create: [{ target: 'ORDER', type: 'PERCENTAGE', value: 10 }] },
+        },
+        include: { adjustments: true },
+      });
+
+    it('should refuse a new discount', async () => {
+      const order = await closedOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders/${order.id}/adjustments`)
+        .send({ target: 'ORDER', type: 'PERCENTAGE', value: 50 })
+        .expect(400);
+
+      const adjustments = await testSetup.prisma.dbOrderAdjustment.findMany({ where: { orderId: order.id } });
+      expect(adjustments).toHaveLength(1);
+    });
+
+    it('should refuse removing a discount it was closed with', async () => {
+      const order = await closedOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .delete(`/api/bars/${barId}/orders/${order.id}/adjustments/${order.adjustments[0].id}`)
+        .expect(400);
+
+      const adjustments = await testSetup.prisma.dbOrderAdjustment.findMany({ where: { orderId: order.id } });
+      expect(adjustments).toHaveLength(1);
+    });
+
+    it('should refuse changing the tip', async () => {
+      const order = await closedOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .patch(`/api/bars/${barId}/orders/${order.id}/tip`)
+        .send({ tipAmount: 500 })
+        .expect(400);
+
+      const unchanged = await testSetup.prisma.dbOrder.findUnique({ where: { id: order.id } });
+      expect(unchanged?.tipAmount).toBe(0);
+    });
+  });
+
   describe('DELETE /api/bars/:barId/orders/:orderId', () => {
     it('should delete an order', async () => {
       const order = await testSetup.prisma.dbOrder.create({

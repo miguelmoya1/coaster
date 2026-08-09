@@ -21,9 +21,13 @@ async function bootstrap() {
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-    logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({ trustProxy: process.env.TRUST_PROXY === 'true' }),
+    {
+      logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
+    },
+  );
 
   app.useWebSocketAdapter(new IoAdapter(app));
 
@@ -72,15 +76,17 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
 
-  const config = new DocumentBuilder()
-    .setTitle('BarTeam API')
-    .setDescription('API Multi-Tenant para la gestión de bares y turnos')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  if (!isProduction) {
+    const config = new DocumentBuilder()
+      .setTitle('BarTeam API')
+      .setDescription('API Multi-Tenant para la gestión de bares y turnos')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, documentFactory);
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, documentFactory);
+  }
 
   await app.listen(port, '0.0.0.0');
 

@@ -54,6 +54,7 @@
   "PRINTER_NOT_CONNECTED": "The printer is not connected.",
   "required": "This field is required.",
   "REQUIRED": "This field is fully required.",
+  "INVALID_SHIFT_RANGE": "The shift has to end after it starts.",
   "SHIFT_NOT_FOUND": "The requested work shift does not exist.",
   "TABLE_ALREADY_OCCUPIED": "Cannot start an order on this table because it is already occupied.",
   "TABLE_NOT_FOUND": "The selected bar table does not exist.",

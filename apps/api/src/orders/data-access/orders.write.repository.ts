@@ -10,6 +10,8 @@ import type {
 } from '@coaster/common';
 import { AddOrderAdjustmentDto, OrderPricingEngine, PaymentMethod } from '@coaster/common';
 import {
+  DbAdjustmentTarget,
+  DbAdjustmentType,
   DbDeliveryStatus,
   DbOrderStatus,
   DbPaymentMethod,
@@ -384,7 +386,56 @@ export class OrdersWriteRepository {
     primaryOrderTableName: string | null,
   ) {
     return this._db.$transaction(async (tx) => {
+      const freezeOrderDiscounts = async (orderId: OrderId, moveTo?: OrderId) => {
+        const order = await tx.dbOrder.findUnique({
+          where: { id: orderId },
+          include: { items: true, adjustments: true },
+        });
+
+        if (!order) {
+          return { amountPaidCash: 0, amountPaidCard: 0, tipAmount: 0 };
+        }
+
+        const itemsSubtotal = order.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+        for (const adjustment of order.adjustments) {
+          const isOrderPercentage =
+            adjustment.target === DbAdjustmentTarget.ORDER && adjustment.type === DbAdjustmentType.PERCENTAGE;
+
+          if (!isOrderPercentage && !moveTo) {
+            continue;
+          }
+
+          await tx.dbOrderAdjustment.update({
+            where: { id: adjustment.id },
+            data: {
+              ...(moveTo ? { orderId: moveTo } : {}),
+              ...(isOrderPercentage
+                ? {
+                    type: DbAdjustmentType.FIXED_AMOUNT,
+                    value: Math.round((itemsSubtotal * adjustment.value) / 100),
+                  }
+                : {}),
+            },
+          });
+        }
+
+        return order;
+      };
+
+      const primaryBeforeMerge = await freezeOrderDiscounts(primaryOrderId);
+
+      let carriedCash = 0;
+      let carriedCard = 0;
+      let carriedTip = 0;
+
       for (const source of sourceOrdersData) {
+        const sourceOrder = await freezeOrderDiscounts(source.id, primaryOrderId);
+
+        carriedCash += sourceOrder.amountPaidCash;
+        carriedCard += sourceOrder.amountPaidCard;
+        carriedTip += sourceOrder.tipAmount;
+
         await tx.dbOrderItem.updateMany({
           where: { orderId: source.id },
           data: { orderId: primaryOrderId },
@@ -392,7 +443,7 @@ export class OrdersWriteRepository {
 
         await tx.dbOrder.update({
           where: { id: source.id },
-          data: { status: DbOrderStatus.CANCELLED },
+          data: { status: DbOrderStatus.CANCELLED, amountPaidCash: 0, amountPaidCard: 0, tipAmount: 0 },
         });
 
         if (source.tableId) {
@@ -426,12 +477,28 @@ export class OrdersWriteRepository {
         mergedTableName = targetTable?.name ?? mergedTableName;
       }
 
+      const amountPaidCash = primaryBeforeMerge.amountPaidCash + carriedCash;
+      const amountPaidCard = primaryBeforeMerge.amountPaidCard + carriedCard;
+
+      let paymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
+      if (amountPaidCash > 0 && amountPaidCard > 0) {
+        paymentMethod = DbPaymentMethod.MIXED;
+      } else if (amountPaidCard > 0) {
+        paymentMethod = DbPaymentMethod.CARD;
+      } else if (amountPaidCash > 0) {
+        paymentMethod = DbPaymentMethod.CASH;
+      }
+
       return tx.dbOrder.update({
         where: { id: primaryOrderId },
         data: {
           totalAmount,
           tableId: targetTableId ?? primaryOrderTableId,
           tableName: mergedTableName,
+          amountPaidCash,
+          amountPaidCard,
+          paymentMethod,
+          tipAmount: primaryBeforeMerge.tipAmount + carriedTip,
         },
         include: {
           items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },

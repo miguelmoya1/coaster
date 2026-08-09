@@ -85,6 +85,7 @@ export class OrdersReadRepository {
         adjustments: true,
         table: true,
       },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
   }
 }

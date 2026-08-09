@@ -120,11 +120,12 @@ describe('OrdersReadRepository', () => {
   });
 
   describe('findOrdersByIds', () => {
-    it('should call dbOrder.findMany', async () => {
+    it('should return them oldest first so a merge always keeps the same order', async () => {
       await repository.findOrdersByIds([asOrderId('order-1')]);
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
         where: { id: { in: ['order-1'] } },
         include: expect.any(Object),
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       });
     });
   });

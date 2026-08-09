@@ -3,11 +3,13 @@ import type { AiMessage, AiResponse, BarId, User } from '@coaster/common';
 import { BarPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { Throttle, seconds } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
 import { ExecuteAiCommand } from '../commands';
 
 @Controller('bars/:barId/ai')
 @UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Throttle({ default: { ttl: seconds(60), limit: 20 } })
 export class AiController {
   private readonly _logger = new Logger(AiController.name);
 

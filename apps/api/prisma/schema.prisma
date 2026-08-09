@@ -113,6 +113,8 @@ model DbOrderAdjustment {
   reason    String?
   createdAt DateTime           @default(now())
 
+  @@index([orderId])
+  @@index([itemId])
   @@map("OrderAdjustment")
 }
 
@@ -169,6 +171,7 @@ model DbBarMember {
   deletedAt DateTime?
 
   @@unique([userId, barId])
+  @@index([barId, deletedAt])
   @@map("BarMember")
 }
 
@@ -187,6 +190,8 @@ model DbShift {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([barId, startTime])
+  @@index([userId, startTime])
   @@map("Shift")
 }
 
@@ -202,6 +207,8 @@ model DbShiftExchange {
   createdAt   DateTime @default(now())
 
   @@index([shiftId])
+  @@index([requesterId])
+  @@index([targetId])
   @@map("ShiftExchange")
 }
 
@@ -214,6 +221,7 @@ model DbCategory {
   products  DbProduct[]
   deletedAt DateTime?
 
+  @@index([barId, deletedAt])
   @@map("Category")
 }
 
@@ -231,6 +239,7 @@ model DbProduct {
   deletedAt     DateTime?
   orderItems    DbOrderItem[]
 
+  @@index([categoryId, deletedAt])
   @@map("Product")
 }
 
@@ -290,6 +299,9 @@ model DbOrder {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
+  @@index([barId, status])
+  @@index([barId, createdAt])
+  @@index([tableId])
   @@map("Order")
 }
 
@@ -313,6 +325,8 @@ model DbOrderItem {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
+  @@index([orderId])
+  @@index([productId])
   @@map("OrderItem")
 }
 

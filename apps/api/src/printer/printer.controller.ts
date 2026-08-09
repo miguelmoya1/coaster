@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
 import { RegisterPrinterIpCommand, ReportPrintJobResultCommand } from './commands';
 import { PrintJobResultDto } from './dto/print-job-result.dto';
@@ -55,6 +56,7 @@ export class PrinterController {
   }
 
   @Get('jobs/next')
+  @SkipThrottle()
   @ApiOperation({ summary: 'Claim the next queued print job (called by the bridge)' })
   @ApiQuery({ name: 'barId', required: true })
   async nextJob(
