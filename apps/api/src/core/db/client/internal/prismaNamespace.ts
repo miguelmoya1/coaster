@@ -401,7 +401,6 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbTimeEntry: 'DbTimeEntry',
-  DbTimeEntrySeal: 'DbTimeEntrySeal',
   DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
 
@@ -418,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbTimeEntry" | "dbTimeEntrySeal" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1680,80 +1679,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DbTimeEntrySeal: {
-      payload: Prisma.$DbTimeEntrySealPayload<ExtArgs>
-      fields: Prisma.DbTimeEntrySealFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DbTimeEntrySealFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DbTimeEntrySealFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        findFirst: {
-          args: Prisma.DbTimeEntrySealFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DbTimeEntrySealFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        findMany: {
-          args: Prisma.DbTimeEntrySealFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>[]
-        }
-        create: {
-          args: Prisma.DbTimeEntrySealCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        createMany: {
-          args: Prisma.DbTimeEntrySealCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DbTimeEntrySealCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>[]
-        }
-        delete: {
-          args: Prisma.DbTimeEntrySealDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        update: {
-          args: Prisma.DbTimeEntrySealUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        deleteMany: {
-          args: Prisma.DbTimeEntrySealDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DbTimeEntrySealUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DbTimeEntrySealUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>[]
-        }
-        upsert: {
-          args: Prisma.DbTimeEntrySealUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbTimeEntrySealPayload>
-        }
-        aggregate: {
-          args: Prisma.DbTimeEntrySealAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbTimeEntrySeal>
-        }
-        groupBy: {
-          args: Prisma.DbTimeEntrySealGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbTimeEntrySealGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DbTimeEntrySealCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbTimeEntrySealCountAggregateOutputType> | number
-        }
-      }
-    }
     DbAdminAuditLog: {
       payload: Prisma.$DbAdminAuditLogPayload<ExtArgs>
       fields: Prisma.DbAdminAuditLogFieldRefs
@@ -2126,18 +2051,6 @@ export const DbTimeEntryScalarFieldEnum = {
 } as const
 
 export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
-
-
-export const DbTimeEntrySealScalarFieldEnum = {
-  id: 'id',
-  barId: 'barId',
-  sealedDate: 'sealedDate',
-  sequence: 'sequence',
-  headHash: 'headHash',
-  createdAt: 'createdAt'
-} as const
-
-export type DbTimeEntrySealScalarFieldEnum = (typeof DbTimeEntrySealScalarFieldEnum)[keyof typeof DbTimeEntrySealScalarFieldEnum]
 
 
 export const DbAdminAuditLogScalarFieldEnum = {
@@ -2594,7 +2507,6 @@ export type GlobalOmitConfig = {
   dbPrintJob?: Prisma.DbPrintJobOmit
   dbBarSubscription?: Prisma.DbBarSubscriptionOmit
   dbTimeEntry?: Prisma.DbTimeEntryOmit
-  dbTimeEntrySeal?: Prisma.DbTimeEntrySealOmit
   dbAdminAuditLog?: Prisma.DbAdminAuditLogOmit
 }
 

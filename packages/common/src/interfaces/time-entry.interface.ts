@@ -91,7 +91,4 @@ export interface TimeSheetIntegrity {
   checkedEntries: number;
   valid: boolean;
   brokenAt: TimeEntryId | null;
-  checkedSeals: number;
-  sealsValid: boolean;
-  brokenSealDate: string | null;
 }

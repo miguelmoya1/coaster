@@ -1,22 +1,26 @@
-# Coaster Docs
+# Coaster docs
 
-Indice de documentacion tecnica del proyecto.
+Technical documentation index.
 
-## Arquitectura
+Start with [backend](architecture/backend.md) and [frontend](architecture/frontend.md) for how the
+code is laid out, and [access model](architecture/permissions.md) for who is allowed to do what —
+that one carries the most rules per line and is the easiest to get wrong.
 
-- [Arquitectura del backend](architecture/backend.md)
-- [Arquitectura del frontend](architecture/frontend.md)
-- [Modelo de acceso](architecture/permissions.md) — roles, guards y concesiones de plan
-- [Modelos de dominio](architecture/domain-models.md)
-- [Puente de impresion](architecture/printing-bridge.md)
+## Architecture
 
-## Plataforma
+- [Backend architecture](architecture/backend.md) — NestJS modules, aliases, layering, runtime
+- [Frontend architecture](architecture/frontend.md) — Angular layers, stores, bundle
+- [Access model](architecture/permissions.md) — roles, guards, plan grants
+- [Domain models](architecture/domain-models.md) — what each context owns
+- [Printing bridge](architecture/printing-bridge.md) — the Go service on the venue's network
 
-- [Backoffice de administracion](admin/backoffice.md)
-- [Fichaje y control horario](operations/time-tracking.md)
-- [Integracion Stripe SaaS](saas/stripe-integration.md)
-- [Stripe en local](saas/stripe-local-setup.md)
+## Platform
 
-## Producto
+- [Admin backoffice](admin/backoffice.md)
+- [Time tracking](operations/time-tracking.md) — the legal working-time register
+- [Stripe integration](saas/stripe-integration.md)
+- [Stripe locally](saas/stripe-local-setup.md)
+
+## Product
 
 - [Roadmap](roadmap.md)

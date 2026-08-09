@@ -246,4 +246,49 @@ describe('AiAssistantPanel', () => {
       expect(micButton).toBeUndefined();
     });
   });
+
+  describe('the message box', () => {
+    const box = (): HTMLTextAreaElement => fixture.nativeElement.querySelector('form textarea');
+
+    const pressEnter = (shiftKey: boolean) => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter', shiftKey, cancelable: true });
+      component['onComposerKeydown'](event);
+      return event;
+    };
+
+    it('should be a textarea so a long order does not run off the side', () => {
+      expect(box()).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('form input[name="draft"]')).toBeNull();
+    });
+
+    it('should grow with the text instead of scrolling', () => {
+      expect(box().classList.contains('cdk-textarea-autosize')).toBe(true);
+    });
+
+    it('should send on Enter', () => {
+      component['draft'].set('dos cañas para la mesa cinco');
+
+      const event = pressEnter(false);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(aiVoiceServiceMock.send).toHaveBeenCalledWith(asBarId('bar-1'));
+    });
+
+    it('should break the line on Shift+Enter instead of sending', () => {
+      component['draft'].set('primera linea');
+
+      const event = pressEnter(true);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(aiVoiceServiceMock.send).not.toHaveBeenCalled();
+    });
+
+    it('should ignore any other key', () => {
+      component['draft'].set('hola');
+
+      component['onComposerKeydown'](new KeyboardEvent('keydown', { key: 'a', cancelable: true }));
+
+      expect(aiVoiceServiceMock.send).not.toHaveBeenCalled();
+    });
+  });
 });

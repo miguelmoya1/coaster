@@ -154,7 +154,6 @@ model DbBar {
   printJobs   DbPrintJob[]
   billing     DbBarSubscription?
   timeEntries DbTimeEntry[]
-  timeSeals   DbTimeEntrySeal[]
 
   @@map("Bar")
 }
@@ -428,20 +427,6 @@ model DbTimeEntry {
   @@index([barId, userId, workdayDate])
   @@index([barId, workdayDate])
   @@map("TimeEntry")
-}
-
-model DbTimeEntrySeal {
-  id         String   @id @default(uuid())
-  barId      String
-  bar        DbBar    @relation(fields: [barId], references: [id], onDelete: Restrict)
-  sealedDate DateTime @db.Date
-  sequence   BigInt
-  headHash   String
-  createdAt  DateTime @default(now())
-
-  @@unique([barId, sealedDate])
-  @@index([barId, sealedDate])
-  @@map("TimeEntrySeal")
 }
 
 model DbAdminAuditLog {

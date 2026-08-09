@@ -173,7 +173,7 @@ export class OrdersWriteRepository {
     }[],
   ) {
     return this._db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT id FROM "Order" WHERE id = ${orderId}::uuid FOR UPDATE`;
+      await tx.$executeRaw`SELECT id FROM "Order" WHERE id = ${orderId} FOR UPDATE`;
 
       const stillOpen = await tx.dbOrder.count({ where: { id: orderId, status: DbOrderStatus.OPEN } });
 

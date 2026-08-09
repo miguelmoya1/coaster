@@ -1,38 +1,46 @@
-# Roadmap de Coaster
+# Product roadmap
 
-## Hecho
+## Done
 
-### Infraestructura SaaS y comercializacion
+### SaaS infrastructure and monetisation
 
-- Landing comercial en raiz y aplicacion en `/bars`.
-- Monetizacion con Stripe Checkout, Customer Portal y webhooks idempotentes.
-- Publicacion de eventos internos de dominio desde los webhooks para desacoplar efectos.
-- `SubscriptionActiveGuard`: el impago corta la escritura pero **no la lectura**, para que un bar
-  conserve el acceso a su historico.
+- Marketing landing at the root, application under `/bars`.
+- Stripe Checkout, Customer Portal and webhooks.
+- Internal domain events published from webhook handlers, so side effects stay decoupled.
+- `SubscriptionActiveGuard`: an unpaid venue loses writes but **keeps reads**, so it never loses
+  access to its own history.
 
-### Backoffice de administracion
+### Admin backoffice
 
-- Panel en `/admin` con resumen de plataforma, bares, usuarios y auditoria.
-- Concesion manual de PRO sin pasar por Stripe, con caducidad y motivo.
-- Registro de auditoria de toda accion de admin.
-- Modelo de permisos unificado en `@coaster/common`, con la jerarquia OWNER / MANAGER / STAFF
-  cubierta por tests.
+- `/admin` panel with platform metrics, bars, users and an audit log.
+- Manual PRO grants without going through Stripe, with expiry and reason.
+- Every admin action recorded.
+- Single permission table in `@coaster/common`, with the OWNER / MANAGER / STAFF hierarchy covered
+  by tests.
 
-Ver [backoffice](admin/backoffice.md) y [modelo de acceso](architecture/permissions.md).
+See [backoffice](admin/backoffice.md) and [access model](architecture/permissions.md).
 
-## Siguiente
+### Time tracking and legal compliance
 
-### Operativa interna y cumplimiento legal
+The working-time register required by art. 34.9 of the Spanish Workers' Statute:
 
-- Fichaje y control horario (clock-in y clock-out) con geolocalizacion asincrona.
-- Contraste entre planificacion teorica y marcas reales.
+- Append-only marks, enforced by database triggers rather than by convention.
+- Corrections that never overwrite the original, carrying who, when, what and why.
+- Per-bar hash chain over every mark.
+- Free date range for both the on-screen register and the CSV export for labour inspections.
+- The rota contrasted against what was actually worked (no-show, off-rota, late, early, overtime).
 
-### Capa de inteligencia
+See [time tracking](operations/time-tracking.md).
 
-- Recomendaciones de ventas, inventario y RRHH sobre el historico acumulado.
-- Procesamiento asincrono con jobs programados.
+## Next
 
-## Por plantear
+### Intelligence layer
 
-- Sistema de reserva de mesas.
-- Carta publica consultable por el cliente final.
+- Sales, inventory and staffing recommendations over accumulated history.
+- Asynchronous processing on a schedule. Cloud Run stops idle containers, so this needs an external
+  trigger rather than an in-process cron.
+
+## Not scheduled
+
+- Table reservations.
+- Public menu customers can browse.

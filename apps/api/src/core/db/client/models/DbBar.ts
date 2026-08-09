@@ -183,7 +183,6 @@ export type DbBarWhereInput = {
   printJobs?: Prisma.DbPrintJobListRelationFilter
   billing?: Prisma.XOR<Prisma.DbBarSubscriptionNullableScalarRelationFilter, Prisma.DbBarSubscriptionWhereInput> | null
   timeEntries?: Prisma.DbTimeEntryListRelationFilter
-  timeSeals?: Prisma.DbTimeEntrySealListRelationFilter
 }
 
 export type DbBarOrderByWithRelationInput = {
@@ -200,7 +199,6 @@ export type DbBarOrderByWithRelationInput = {
   printJobs?: Prisma.DbPrintJobOrderByRelationAggregateInput
   billing?: Prisma.DbBarSubscriptionOrderByWithRelationInput
   timeEntries?: Prisma.DbTimeEntryOrderByRelationAggregateInput
-  timeSeals?: Prisma.DbTimeEntrySealOrderByRelationAggregateInput
 }
 
 export type DbBarWhereUniqueInput = Prisma.AtLeast<{
@@ -220,7 +218,6 @@ export type DbBarWhereUniqueInput = Prisma.AtLeast<{
   printJobs?: Prisma.DbPrintJobListRelationFilter
   billing?: Prisma.XOR<Prisma.DbBarSubscriptionNullableScalarRelationFilter, Prisma.DbBarSubscriptionWhereInput> | null
   timeEntries?: Prisma.DbTimeEntryListRelationFilter
-  timeSeals?: Prisma.DbTimeEntrySealListRelationFilter
 }, "id">
 
 export type DbBarOrderByWithAggregationInput = {
@@ -257,7 +254,6 @@ export type DbBarCreateInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateInput = {
@@ -274,7 +270,6 @@ export type DbBarUncheckedCreateInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUpdateInput = {
@@ -291,7 +286,6 @@ export type DbBarUpdateInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateInput = {
@@ -308,7 +302,6 @@ export type DbBarUncheckedUpdateInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateManyInput = {
@@ -484,20 +477,6 @@ export type DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbBarUpdateToOneWithWhereWithoutTimeEntriesInput, Prisma.DbBarUpdateWithoutTimeEntriesInput>, Prisma.DbBarUncheckedUpdateWithoutTimeEntriesInput>
 }
 
-export type DbBarCreateNestedOneWithoutTimeSealsInput = {
-  create?: Prisma.XOR<Prisma.DbBarCreateWithoutTimeSealsInput, Prisma.DbBarUncheckedCreateWithoutTimeSealsInput>
-  connectOrCreate?: Prisma.DbBarCreateOrConnectWithoutTimeSealsInput
-  connect?: Prisma.DbBarWhereUniqueInput
-}
-
-export type DbBarUpdateOneRequiredWithoutTimeSealsNestedInput = {
-  create?: Prisma.XOR<Prisma.DbBarCreateWithoutTimeSealsInput, Prisma.DbBarUncheckedCreateWithoutTimeSealsInput>
-  connectOrCreate?: Prisma.DbBarCreateOrConnectWithoutTimeSealsInput
-  upsert?: Prisma.DbBarUpsertWithoutTimeSealsInput
-  connect?: Prisma.DbBarWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbBarUpdateToOneWithWhereWithoutTimeSealsInput, Prisma.DbBarUpdateWithoutTimeSealsInput>, Prisma.DbBarUncheckedUpdateWithoutTimeSealsInput>
-}
-
 export type DbBarCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -511,7 +490,6 @@ export type DbBarCreateWithoutMembersInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutMembersInput = {
@@ -527,7 +505,6 @@ export type DbBarUncheckedCreateWithoutMembersInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutMembersInput = {
@@ -559,7 +536,6 @@ export type DbBarUpdateWithoutMembersInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutMembersInput = {
@@ -575,7 +551,6 @@ export type DbBarUncheckedUpdateWithoutMembersInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutShiftsInput = {
@@ -591,7 +566,6 @@ export type DbBarCreateWithoutShiftsInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutShiftsInput = {
@@ -607,7 +581,6 @@ export type DbBarUncheckedCreateWithoutShiftsInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutShiftsInput = {
@@ -639,7 +612,6 @@ export type DbBarUpdateWithoutShiftsInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutShiftsInput = {
@@ -655,7 +627,6 @@ export type DbBarUncheckedUpdateWithoutShiftsInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutCategoriesInput = {
@@ -671,7 +642,6 @@ export type DbBarCreateWithoutCategoriesInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutCategoriesInput = {
@@ -687,7 +657,6 @@ export type DbBarUncheckedCreateWithoutCategoriesInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutCategoriesInput = {
@@ -719,7 +688,6 @@ export type DbBarUpdateWithoutCategoriesInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutCategoriesInput = {
@@ -735,7 +703,6 @@ export type DbBarUncheckedUpdateWithoutCategoriesInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutTablesInput = {
@@ -751,7 +718,6 @@ export type DbBarCreateWithoutTablesInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutTablesInput = {
@@ -767,7 +733,6 @@ export type DbBarUncheckedCreateWithoutTablesInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutTablesInput = {
@@ -799,7 +764,6 @@ export type DbBarUpdateWithoutTablesInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutTablesInput = {
@@ -815,7 +779,6 @@ export type DbBarUncheckedUpdateWithoutTablesInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutOrdersInput = {
@@ -831,7 +794,6 @@ export type DbBarCreateWithoutOrdersInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutOrdersInput = {
@@ -847,7 +809,6 @@ export type DbBarUncheckedCreateWithoutOrdersInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutOrdersInput = {
@@ -879,7 +840,6 @@ export type DbBarUpdateWithoutOrdersInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutOrdersInput = {
@@ -895,7 +855,6 @@ export type DbBarUncheckedUpdateWithoutOrdersInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutPrinterInput = {
@@ -911,7 +870,6 @@ export type DbBarCreateWithoutPrinterInput = {
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutPrinterInput = {
@@ -927,7 +885,6 @@ export type DbBarUncheckedCreateWithoutPrinterInput = {
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutPrinterInput = {
@@ -959,7 +916,6 @@ export type DbBarUpdateWithoutPrinterInput = {
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutPrinterInput = {
@@ -975,7 +931,6 @@ export type DbBarUncheckedUpdateWithoutPrinterInput = {
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutPrintJobsInput = {
@@ -991,7 +946,6 @@ export type DbBarCreateWithoutPrintJobsInput = {
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutPrintJobsInput = {
@@ -1007,7 +961,6 @@ export type DbBarUncheckedCreateWithoutPrintJobsInput = {
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutPrintJobsInput = {
@@ -1039,7 +992,6 @@ export type DbBarUpdateWithoutPrintJobsInput = {
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutPrintJobsInput = {
@@ -1055,7 +1007,6 @@ export type DbBarUncheckedUpdateWithoutPrintJobsInput = {
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutBillingInput = {
@@ -1071,7 +1022,6 @@ export type DbBarCreateWithoutBillingInput = {
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutBillingInput = {
@@ -1087,7 +1037,6 @@ export type DbBarUncheckedCreateWithoutBillingInput = {
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutBillingInput = {
@@ -1119,7 +1068,6 @@ export type DbBarUpdateWithoutBillingInput = {
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutBillingInput = {
@@ -1135,7 +1083,6 @@ export type DbBarUncheckedUpdateWithoutBillingInput = {
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarCreateWithoutTimeEntriesInput = {
@@ -1151,7 +1098,6 @@ export type DbBarCreateWithoutTimeEntriesInput = {
   printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
   printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealCreateNestedManyWithoutBarInput
 }
 
 export type DbBarUncheckedCreateWithoutTimeEntriesInput = {
@@ -1167,7 +1113,6 @@ export type DbBarUncheckedCreateWithoutTimeEntriesInput = {
   printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
   printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
   billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedCreateNestedManyWithoutBarInput
 }
 
 export type DbBarCreateOrConnectWithoutTimeEntriesInput = {
@@ -1199,7 +1144,6 @@ export type DbBarUpdateWithoutTimeEntriesInput = {
   printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
   printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUpdateManyWithoutBarNestedInput
 }
 
 export type DbBarUncheckedUpdateWithoutTimeEntriesInput = {
@@ -1215,87 +1159,6 @@ export type DbBarUncheckedUpdateWithoutTimeEntriesInput = {
   printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
   printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
   billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
-  timeSeals?: Prisma.DbTimeEntrySealUncheckedUpdateManyWithoutBarNestedInput
-}
-
-export type DbBarCreateWithoutTimeSealsInput = {
-  id?: string
-  name: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  members?: Prisma.DbBarMemberCreateNestedManyWithoutBarInput
-  shifts?: Prisma.DbShiftCreateNestedManyWithoutBarInput
-  categories?: Prisma.DbCategoryCreateNestedManyWithoutBarInput
-  tables?: Prisma.DbTableCreateNestedManyWithoutBarInput
-  orders?: Prisma.DbOrderCreateNestedManyWithoutBarInput
-  printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutBarInput
-  printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutBarInput
-  billing?: Prisma.DbBarSubscriptionCreateNestedOneWithoutBarInput
-  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutBarInput
-}
-
-export type DbBarUncheckedCreateWithoutTimeSealsInput = {
-  id?: string
-  name: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  members?: Prisma.DbBarMemberUncheckedCreateNestedManyWithoutBarInput
-  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutBarInput
-  categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutBarInput
-  tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutBarInput
-  orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutBarInput
-  printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput
-  printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutBarInput
-  billing?: Prisma.DbBarSubscriptionUncheckedCreateNestedOneWithoutBarInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutBarInput
-}
-
-export type DbBarCreateOrConnectWithoutTimeSealsInput = {
-  where: Prisma.DbBarWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbBarCreateWithoutTimeSealsInput, Prisma.DbBarUncheckedCreateWithoutTimeSealsInput>
-}
-
-export type DbBarUpsertWithoutTimeSealsInput = {
-  update: Prisma.XOR<Prisma.DbBarUpdateWithoutTimeSealsInput, Prisma.DbBarUncheckedUpdateWithoutTimeSealsInput>
-  create: Prisma.XOR<Prisma.DbBarCreateWithoutTimeSealsInput, Prisma.DbBarUncheckedCreateWithoutTimeSealsInput>
-  where?: Prisma.DbBarWhereInput
-}
-
-export type DbBarUpdateToOneWithWhereWithoutTimeSealsInput = {
-  where?: Prisma.DbBarWhereInput
-  data: Prisma.XOR<Prisma.DbBarUpdateWithoutTimeSealsInput, Prisma.DbBarUncheckedUpdateWithoutTimeSealsInput>
-}
-
-export type DbBarUpdateWithoutTimeSealsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  members?: Prisma.DbBarMemberUpdateManyWithoutBarNestedInput
-  shifts?: Prisma.DbShiftUpdateManyWithoutBarNestedInput
-  categories?: Prisma.DbCategoryUpdateManyWithoutBarNestedInput
-  tables?: Prisma.DbTableUpdateManyWithoutBarNestedInput
-  orders?: Prisma.DbOrderUpdateManyWithoutBarNestedInput
-  printer?: Prisma.DbPrinterConfigUpdateOneWithoutBarNestedInput
-  printJobs?: Prisma.DbPrintJobUpdateManyWithoutBarNestedInput
-  billing?: Prisma.DbBarSubscriptionUpdateOneWithoutBarNestedInput
-  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutBarNestedInput
-}
-
-export type DbBarUncheckedUpdateWithoutTimeSealsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  members?: Prisma.DbBarMemberUncheckedUpdateManyWithoutBarNestedInput
-  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutBarNestedInput
-  categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutBarNestedInput
-  tables?: Prisma.DbTableUncheckedUpdateManyWithoutBarNestedInput
-  orders?: Prisma.DbOrderUncheckedUpdateManyWithoutBarNestedInput
-  printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput
-  printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutBarNestedInput
-  billing?: Prisma.DbBarSubscriptionUncheckedUpdateOneWithoutBarNestedInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput
 }
 
 
@@ -1311,7 +1174,6 @@ export type DbBarCountOutputType = {
   orders: number
   printJobs: number
   timeEntries: number
-  timeSeals: number
 }
 
 export type DbBarCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1322,7 +1184,6 @@ export type DbBarCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   orders?: boolean | DbBarCountOutputTypeCountOrdersArgs
   printJobs?: boolean | DbBarCountOutputTypeCountPrintJobsArgs
   timeEntries?: boolean | DbBarCountOutputTypeCountTimeEntriesArgs
-  timeSeals?: boolean | DbBarCountOutputTypeCountTimeSealsArgs
 }
 
 /**
@@ -1384,13 +1245,6 @@ export type DbBarCountOutputTypeCountTimeEntriesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DbTimeEntryWhereInput
 }
 
-/**
- * DbBarCountOutputType without action
- */
-export type DbBarCountOutputTypeCountTimeSealsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DbTimeEntrySealWhereInput
-}
-
 
 export type DbBarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1406,7 +1260,6 @@ export type DbBarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   printJobs?: boolean | Prisma.DbBar$printJobsArgs<ExtArgs>
   billing?: boolean | Prisma.DbBar$billingArgs<ExtArgs>
   timeEntries?: boolean | Prisma.DbBar$timeEntriesArgs<ExtArgs>
-  timeSeals?: boolean | Prisma.DbBar$timeSealsArgs<ExtArgs>
   _count?: boolean | Prisma.DbBarCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbBar"]>
 
@@ -1442,7 +1295,6 @@ export type DbBarInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   printJobs?: boolean | Prisma.DbBar$printJobsArgs<ExtArgs>
   billing?: boolean | Prisma.DbBar$billingArgs<ExtArgs>
   timeEntries?: boolean | Prisma.DbBar$timeEntriesArgs<ExtArgs>
-  timeSeals?: boolean | Prisma.DbBar$timeSealsArgs<ExtArgs>
   _count?: boolean | Prisma.DbBarCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbBarIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1460,7 +1312,6 @@ export type $DbBarPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     printJobs: Prisma.$DbPrintJobPayload<ExtArgs>[]
     billing: Prisma.$DbBarSubscriptionPayload<ExtArgs> | null
     timeEntries: Prisma.$DbTimeEntryPayload<ExtArgs>[]
-    timeSeals: Prisma.$DbTimeEntrySealPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1870,7 +1721,6 @@ export interface Prisma__DbBarClient<T, Null = never, ExtArgs extends runtime.Ty
   printJobs<T extends Prisma.DbBar$printJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$printJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbPrintJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   billing<T extends Prisma.DbBar$billingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$billingArgs<ExtArgs>>): Prisma.Prisma__DbBarSubscriptionClient<runtime.Types.Result.GetResult<Prisma.$DbBarSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   timeEntries<T extends Prisma.DbBar$timeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$timeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  timeSeals<T extends Prisma.DbBar$timeSealsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBar$timeSealsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntrySealPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2500,30 +2350,6 @@ export type DbBar$timeEntriesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DbTimeEntryScalarFieldEnum | Prisma.DbTimeEntryScalarFieldEnum[]
-}
-
-/**
- * DbBar.timeSeals
- */
-export type DbBar$timeSealsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DbTimeEntrySeal
-   */
-  select?: Prisma.DbTimeEntrySealSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the DbTimeEntrySeal
-   */
-  omit?: Prisma.DbTimeEntrySealOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DbTimeEntrySealInclude<ExtArgs> | null
-  where?: Prisma.DbTimeEntrySealWhereInput
-  orderBy?: Prisma.DbTimeEntrySealOrderByWithRelationInput | Prisma.DbTimeEntrySealOrderByWithRelationInput[]
-  cursor?: Prisma.DbTimeEntrySealWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DbTimeEntrySealScalarFieldEnum | Prisma.DbTimeEntrySealScalarFieldEnum[]
 }
 
 /**

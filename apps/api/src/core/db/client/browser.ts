@@ -103,11 +103,6 @@ export type DbBarSubscription = Prisma.DbBarSubscriptionModel
  */
 export type DbTimeEntry = Prisma.DbTimeEntryModel
 /**
- * Model DbTimeEntrySeal
- * 
- */
-export type DbTimeEntrySeal = Prisma.DbTimeEntrySealModel
-/**
  * Model DbAdminAuditLog
  * 
  */

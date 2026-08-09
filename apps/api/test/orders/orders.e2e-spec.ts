@@ -346,6 +346,68 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
+  describe('PATCH /api/bars/:barId/orders/:orderId/items/bulk', () => {
+    const openOrder = async () =>
+      testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 1000,
+          items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 500 }] },
+        },
+        include: { items: true },
+      });
+
+    it('should mark an item as served', async () => {
+      const order = await openOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .send({ items: [{ itemId: order.items[0].id, servedQuantity: 2 }] })
+        .expect(200);
+
+      const item = await testSetup.prisma.dbOrderItem.findUniqueOrThrow({ where: { id: order.items[0].id } });
+      expect(item.servedQuantity).toBe(2);
+      expect(item.deliveryStatus).toBe('SERVED');
+    });
+
+    it('should take payment for part of an item', async () => {
+      const order = await openOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .send({ items: [{ itemId: order.items[0].id, paidQuantity: 1, paymentMethod: PaymentMethod.CARD }] })
+        .expect(200);
+
+      const item = await testSetup.prisma.dbOrderItem.findUniqueOrThrow({ where: { id: order.items[0].id } });
+      expect(item.paidQuantity).toBe(1);
+      expect(item.paidQuantityCard).toBe(1);
+      expect(item.paymentStatus).toBe('PARTIAL');
+
+      const updated = await testSetup.prisma.dbOrder.findUniqueOrThrow({ where: { id: order.id } });
+      expect(updated.amountPaidCard).toBe(500);
+    });
+
+    it('should refuse to serve more units than the order has', async () => {
+      const order = await openOrder();
+
+      await request(testSetup.app.getHttpServer())
+        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .send({ items: [{ itemId: order.items[0].id, servedQuantity: 5 }] })
+        .expect(400);
+    });
+
+    it('should refuse to touch a closed order', async () => {
+      const order = await openOrder();
+      await testSetup.prisma.dbOrder.update({ where: { id: order.id }, data: { status: OrderStatus.CLOSED } });
+
+      await request(testSetup.app.getHttpServer())
+        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .send({ items: [{ itemId: order.items[0].id, servedQuantity: 1 }] })
+        .expect(400);
+    });
+  });
+
   describe('two people closing the same order at once', () => {
     it('should take the money once and turn the other attempt down', async () => {
       const order = await testSetup.prisma.dbOrder.create({
