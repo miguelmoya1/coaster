@@ -342,8 +342,7 @@ export const DbTimeEntryScalarFieldEnum = {
   reason: 'reason',
   sequence: 'sequence',
   prevHash: 'prevHash',
-  hash: 'hash',
-  hashVersion: 'hashVersion'
+  hash: 'hash'
 } as const
 
 export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]

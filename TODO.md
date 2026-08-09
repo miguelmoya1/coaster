@@ -20,7 +20,9 @@ firmadas con motivo, y la interfaz dentro de la pagina de Turnos. El detalle est
 - [x] Export CSV para Inspeccion y auditoria en el backoffice cuando actua un admin.
 - [x] Interfaz Angular dentro de Turnos: fichaje del trabajador, registro del equipo, correcciones
       con motivo y descarga del CSV.
-- [ ] Rango libre de fechas para el registro y el export (hoy va por el dia seleccionado).
+- [ ] Rango libre de fechas para el registro y el export. La API (`from`/`to`) y el store
+      (`setRange`) ya lo aceptan; lo que falta es el selector en la pagina de Turnos, que hoy llama
+      a `setRange(day, day)`.
 - [ ] Export en PDF.
 - [ ] Sellado diario del hash cabeza de cadena.
 - [ ] Contraste de la planificacion (`DbShift`) contra las marcas reales mas alla de
@@ -48,5 +50,5 @@ firmadas con motivo, y la interfaz dentro de la pagina de Turnos. El detalle est
 
 - **Acciones destructivas en el backoffice**: borrar bares y usuarios se dejo fuera a proposito.
   Si se anaden, deben pedir confirmacion escribiendo el nombre y quedar en auditoria.
-- **`AdminGuard` falla abierto** sin el decorador `@Admin()`. Hay un test que lo cubre
-  (`admin-controllers.security.spec.ts`), pero conviene invertirlo cuando se pueda.
+- **CORS abierto** (`origin: '*'`) en la API y en el gateway de websockets, a la espera de fijar el
+  dominio definitivo. Cambiar a una lista blanca antes de tener clientes.

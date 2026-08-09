@@ -35,7 +35,7 @@ del backoffice: alli una auditoria perdida es un fallo de registro, aqui seria u
 Cada fila lleva `sequence` (monotonico por bar), `prevHash` y `hash`:
 
 ```text
-hash = sha256(prevHash + "id|barId|userId|rootId|type|action|occurredAt|recordedAt|source|supersedesId|actorId|reason|sequence")
+hash = sha256(prevHash + "id|barId|userId|rootId|type|action|occurredAt|recordedAt|workdayDate|userName|userEmail|source|supersedesId|actorId|reason|sequence")
 ```
 
 La insercion toma `pg_advisory_xact_lock(hashtext(barId))` para que dos fichajes simultaneos del
@@ -44,6 +44,11 @@ datos, porque entra en el hash y hay que conocerlo antes del `INSERT`.
 
 `recordedAt` (reloj del servidor) va dentro del hash junto a `occurredAt`, asi que la cadena sella
 tanto la hora fichada como la fecha en que se registro o se corrigio.
+
+`workdayDate` y el `userSnapshot` tambien entran: sin ellos se podia mover una marca a otro dia o
+reasignarla a otra persona sin romper la cadena. Los triggers `BEFORE UPDATE`/`BEFORE DELETE` ya
+rechazan ambas cosas; el hash es el respaldo para cuando quien manipula tiene privilegios para
+desactivarlos o restaura un volcado retocado.
 
 `GET /bars/:barId/time-entries/integrity` recalcula la cadena entera del bar y responde si es
 valida y, si no, en que fila se rompe. Un `UPDATE` a pelo en base de datos —tras eliminar el

@@ -36,6 +36,7 @@ services:
     environment:
       - DATABASE_URL=postgres://admin:admin@db:5432/coaster
       - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
+      - TRUST_PROXY_HOPS=0
     depends_on:
       db:
         condition: service_healthy

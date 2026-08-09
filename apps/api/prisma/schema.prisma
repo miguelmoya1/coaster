@@ -421,7 +421,6 @@ model DbTimeEntry {
   sequence     BigInt
   prevHash     String
   hash         String
-  hashVersion  Int          @default(1)
 
   @@unique([barId, sequence])
   @@index([rootId])

@@ -51,6 +51,17 @@ Los alias de TypeScript son de compilacion. El builder SWC de Nest los resuelve 
 `dist` no queda ningun `require("@coaster/...")` sin resolver, asi que `node dist/main` funciona
 sin `tsconfig-paths` ni ningun cargador extra.
 
+### Proxies delante de la API
+
+`TRUST_PROXY_HOPS` dice cuantos proxies hay por delante. Por defecto **1**, que es lo que pone
+Cloud Run, asi que alli no hay que declarar nada; `compose.yaml` lo baja a `0` en local.
+
+El numero importa porque de el sale `req.ip`, y de `req.ip` sale el cubo del rate limit. Fastify
+recorre `X-Forwarded-For` de derecha a izquierda saltandose los saltos de confianza, asi que con el
+numero correcto se queda con la direccion que anadio el proxy. Confiar en mas saltos de los que hay
+—o en todos, con `trustProxy: true`— le da la entrada de mas a la izquierda, que la escribe quien
+llama: rotandola en cada peticion el rate limit deja de existir.
+
 ## Tests
 
 `vitest.config.ts` y `vitest.config.e2e.ts` leen los `paths` de `tsconfig.json` y construyen sus

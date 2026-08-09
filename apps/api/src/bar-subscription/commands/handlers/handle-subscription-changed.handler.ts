@@ -39,8 +39,10 @@ export class HandleSubscriptionChangedHandler implements ICommandHandler<HandleS
     const barId = (existing?.barId || subscription.metadata?.barId) as BarId | undefined;
 
     if (!barId) {
-      this._logger.error(`Cannot process subscription ${subscription.id}: barId missing`);
-      throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING);
+      this._logger.debug(
+        `Subscription ${subscription.id} ignored: it belongs to no bar of this platform, so there is nothing to project`,
+      );
+      return;
     }
 
     const trackedSubscriptionId = existing?.stripeSubscriptionId;

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { BarId, ShiftId, TimeEntryAction, TimeEntrySource, TimeEntryType, UserId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { CURRENT_HASH_VERSION, GENESIS_HASH, hashEntry } from '../domain/time-entry-chain';
+import { GENESIS_HASH, hashEntry } from '../domain/time-entry-chain';
 
 export interface AppendTimeEntryInput {
   barId: BarId;
@@ -68,8 +68,7 @@ export class TimeEntriesWriteRepository {
           longitude: input.longitude ?? null,
           shiftId: input.shiftId ?? null,
           prevHash,
-          hash: hashEntry(payload, prevHash, CURRENT_HASH_VERSION),
-          hashVersion: CURRENT_HASH_VERSION,
+          hash: hashEntry(payload, prevHash),
         },
         include: entrySelect,
       });

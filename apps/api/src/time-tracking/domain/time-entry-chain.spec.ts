@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ChainedEntry, ChainPayload, CURRENT_HASH_VERSION, GENESIS_HASH, hashEntry, verifyChain } from './time-entry-chain';
+import { ChainedEntry, ChainPayload, GENESIS_HASH, hashEntry, verifyChain } from './time-entry-chain';
 
 const payload = (overrides: Partial<ChainPayload> = {}): ChainPayload => ({
   id: 'entry-1',
@@ -20,11 +20,10 @@ const payload = (overrides: Partial<ChainPayload> = {}): ChainPayload => ({
   ...overrides,
 });
 
-const link = (input: ChainPayload, prevHash: string, version = CURRENT_HASH_VERSION): ChainedEntry => ({
+const link = (input: ChainPayload, prevHash: string): ChainedEntry => ({
   ...input,
   prevHash,
-  hash: hashEntry(input, prevHash, version),
-  hashVersion: version,
+  hash: hashEntry(input, prevHash),
 });
 
 const chainOf = (...payloads: ChainPayload[]): ChainedEntry[] => {
@@ -64,6 +63,20 @@ describe('time entry chain', () => {
     expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
   });
 
+  it('should catch a mark moved to another workday', () => {
+    const chain = chainOf(payload());
+    chain[0].workdayDate = new Date('2026-08-07T00:00:00.000Z');
+
+    expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
+  });
+
+  it('should catch a mark reassigned to somebody else', () => {
+    const chain = chainOf(payload());
+    chain[0].userSnapshot = { name: 'Luis', email: 'luis@bar.com' };
+
+    expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
+  });
+
   it('should catch a row deleted from the middle of the chain', () => {
     const chain = chainOf(
       payload(),
@@ -76,55 +89,5 @@ describe('time entry chain', () => {
 
   it('should count an empty chain as valid', () => {
     expect(verifyChain([])).toEqual({ valid: true, brokenAt: null, checked: 0 });
-  });
-
-  describe('what v2 added to the digest', () => {
-    it('should catch a mark moved to another day', () => {
-      const chain = chainOf(payload());
-      chain[0].workdayDate = new Date('2026-08-07T00:00:00.000Z');
-
-      expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
-    });
-
-    it('should catch a mark reassigned to somebody else', () => {
-      const chain = chainOf(payload());
-      chain[0].userSnapshot = { name: 'Luis', email: 'luis@bar.com' };
-
-      expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
-    });
-  });
-
-  describe('entries signed before v2 existed', () => {
-    const legacyChain = (): ChainedEntry[] => {
-      const first = link(payload(), GENESIS_HASH, 1);
-      const second = link(payload({ id: 'entry-2', rootId: 'entry-2', sequence: 2n }), first.hash, 1);
-
-      return [first, second];
-    };
-
-    it('should still verify with the version they were signed with', () => {
-      expect(verifyChain(legacyChain())).toEqual({ valid: true, brokenAt: null, checked: 2 });
-    });
-
-    it('should still catch an hour edited on them', () => {
-      const chain = legacyChain();
-      chain[1].occurredAt = new Date('2026-08-08T06:00:00.000Z');
-
-      expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-2' });
-    });
-
-    it('should keep verifying once v2 entries are appended after them', () => {
-      const legacy = legacyChain();
-      const fresh = link(payload({ id: 'entry-3', rootId: 'entry-3', sequence: 3n }), legacy[1].hash);
-
-      expect(verifyChain([...legacy, fresh])).toEqual({ valid: true, brokenAt: null, checked: 3 });
-    });
-
-    it('should not accept a v1 entry relabelled as v2 to dodge the stronger digest', () => {
-      const chain = legacyChain();
-      chain[0].hashVersion = CURRENT_HASH_VERSION;
-
-      expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
-    });
   });
 });

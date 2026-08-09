@@ -11,16 +11,12 @@ direccion de dependencia: `bar-subscription` -> `stripe`.
 - `StripeApi`: unico punto del codigo que llama a `stripe.*`. Normaliza los errores de Stripe
   (`resource_missing` -> `null`, resto -> `ErrorCodes` de aplicacion).
 - `StripeWebhookGuard`: verifica la firma y adjunta el evento a la request.
-- `StripeWebhookController` + `StripeWebhookWriteRepository`: recibe, reclama (idempotencia) y
-  marca el resultado del evento.
-- `StripeWebhookDispatcher`: entrega `StripeCheckoutCompletedEvent`,
-  `StripeSubscriptionChangedEvent`, `StripeInvoicePaidEvent` y `StripeInvoicePaymentFailedEvent`
-  a los consumidores registrados, **esperandolos**.
 
 **`bar-subscription/`** — dominio. Contiene las reglas de negocio.
 
-- `BarSubscriptionWebhookConsumer`: se registra en el dispatcher y traduce cada evento de Stripe
-  a un comando del dominio, con `await`.
+- `StripeWebhookController`: recibe el evento ya verificado y lo rutea al comando que le toca,
+  con `await`. No hay dispatcher ni consumidores registrados en medio: eran una indireccion que
+  solo reenviaba.
 - Handlers de proyeccion que escriben el read model `BarSubscription`.
 - Casos de uso (`CreateCheckoutSessionCommand`, `CreateCustomerPortalSessionCommand`) que aplican
   las reglas (suscripcion ya existente, cancelacion pendiente, customer obsoleto) y delegan en
@@ -48,12 +44,13 @@ estado local del bar, y moverlas alli crearia una dependencia circular entre amb
 
 - Verificacion de firma con STRIPE_WEBHOOK_SECRET.
 - Lectura de raw body para validacion criptografica.
-- Idempotencia por stripeEventId.
-- Estado persistente de procesamiento, intentos y último error para permitir reintentos seguros.
+- Idempotencia **por construccion**, no por registro: los cuatro handlers fijan el estado de la
+  suscripcion a partir del payload en vez de acumular, asi que recibir el mismo evento dos veces
+  aterriza en la misma fila. No se guarda copia local de los eventos; Stripe ya los conserva y
+  muestra cada intento de entrega en su panel.
 - Entrega **sincrona**: el webhook solo responde 2xx cuando la proyeccion se ha aplicado. Si un
-  handler falla, el evento queda `FAILED` con el motivo, la API responde 5xx y Stripe reintenta;
-  el reintento vuelve a reclamar el evento e incrementa `attempts`. No se usa saga ni event bus
-  para esto precisamente porque ninguno de los dos espera al handler.
+  handler falla, la API responde 5xx y Stripe reintenta. No se usa saga ni event bus para esto
+  precisamente porque ninguno de los dos espera al handler.
 - `BarSubscription` es un read model local: Customer, Subscription, plan, estado y periodos solo se escriben desde webhooks.
 
 ## Variables de entorno

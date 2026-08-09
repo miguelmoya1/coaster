@@ -85,14 +85,12 @@ describe('HandleSubscriptionChangedHandler (bar-subscription)', () => {
     expect(writeRepoMock.upsert).not.toHaveBeenCalled();
   });
 
-  it('should fail if barId cannot be resolved from the existing record or metadata', async () => {
+  it('should acknowledge a subscription that belongs to no bar instead of making Stripe retry it', async () => {
     const subscription = { id: 'sub_123', customer: 'cus_123', items: { data: [] } } as any;
     readRepoMock.findByStripeSubscriptionId.mockResolvedValue(null);
     readRepoMock.findByStripeCustomerId.mockResolvedValue(null);
 
-    await expect(handler.execute(new HandleSubscriptionChangedCommand(subscription))).rejects.toEqual(
-      new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_BAR_ID_MISSING),
-    );
+    await expect(handler.execute(new HandleSubscriptionChangedCommand(subscription))).resolves.toBeUndefined();
     expect(writeRepoMock.upsert).not.toHaveBeenCalled();
   });
 

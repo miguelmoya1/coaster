@@ -40,8 +40,20 @@ describe('AdminGuard', () => {
     expect(guard).toBeDefined();
   });
 
-  it('should return true if no admin role is required', async () => {
+  it('should still demand an admin on a route that forgot the decorator', async () => {
     (reflector.getAllAndOverride as Mock).mockReturnValue(undefined);
+
+    const context = {
+      getHandler: vi.fn(),
+      getClass: vi.fn(),
+      switchToHttp: () => ({ getRequest: () => ({}) }),
+    } as unknown as ExecutionContext;
+
+    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+  });
+
+  it('should let a route opt out on purpose', async () => {
+    (reflector.getAllAndOverride as Mock).mockReturnValue(false);
 
     const context = {
       getHandler: vi.fn(),
@@ -49,9 +61,7 @@ describe('AdminGuard', () => {
       switchToHttp: vi.fn(),
     } as unknown as ExecutionContext;
 
-    const result = await guard.canActivate(context);
-
-    expect(result).toBe(true);
+    await expect(guard.canActivate(context)).resolves.toBe(true);
   });
 
   it('should throw ForbiddenException if user is not present in request', async () => {

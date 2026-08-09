@@ -17,12 +17,10 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isAdminRequired = this._reflector.getAllAndOverride<boolean>(ADMIN_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const optedOut =
+      this._reflector.getAllAndOverride<boolean>(ADMIN_KEY, [context.getHandler(), context.getClass()]) === false;
 
-    if (!isAdminRequired) {
+    if (optedOut) {
       return true;
     }
 
