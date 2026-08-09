@@ -42,6 +42,8 @@ COPY --from=builder /app/apps/api/prisma.config.ts ./apps/api/prisma.config.ts
 
 COPY --from=builder /app/apps/api/public ./apps/api/public
 
+USER node
+
 EXPOSE 8080
 
 CMD ["node", "apps/api/dist/main.js"]

@@ -1,4 +1,5 @@
 export * from './mappers/common.mapper';
+export * from './mappers/users.mapper';
 export * from './permissions/manual-grant';
 export * from './security/data-access/security.repository';
 export * from './security/decorators/admin.decorator';
@@ -8,5 +9,6 @@ export * from './security/guards/admin.guard';
 export * from './security/guards/bar-permissions.guard';
 export * from './security/guards/subscription-active.guard';
 export * from './security/security.module';
+export * from './security/services/firebase-token.service';
 export * from './utils/prisma-errors';
 export * from './utils/public-assets';

@@ -30,12 +30,14 @@ export type DbTimeEntryAvgAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   sequence: number | null
+  hashVersion: number | null
 }
 
 export type DbTimeEntrySumAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   sequence: bigint | null
+  hashVersion: number | null
 }
 
 export type DbTimeEntryMinAggregateOutputType = {
@@ -58,6 +60,7 @@ export type DbTimeEntryMinAggregateOutputType = {
   sequence: bigint | null
   prevHash: string | null
   hash: string | null
+  hashVersion: number | null
 }
 
 export type DbTimeEntryMaxAggregateOutputType = {
@@ -80,6 +83,7 @@ export type DbTimeEntryMaxAggregateOutputType = {
   sequence: bigint | null
   prevHash: string | null
   hash: string | null
+  hashVersion: number | null
 }
 
 export type DbTimeEntryCountAggregateOutputType = {
@@ -103,6 +107,7 @@ export type DbTimeEntryCountAggregateOutputType = {
   sequence: number
   prevHash: number
   hash: number
+  hashVersion: number
   _all: number
 }
 
@@ -111,12 +116,14 @@ export type DbTimeEntryAvgAggregateInputType = {
   latitude?: true
   longitude?: true
   sequence?: true
+  hashVersion?: true
 }
 
 export type DbTimeEntrySumAggregateInputType = {
   latitude?: true
   longitude?: true
   sequence?: true
+  hashVersion?: true
 }
 
 export type DbTimeEntryMinAggregateInputType = {
@@ -139,6 +146,7 @@ export type DbTimeEntryMinAggregateInputType = {
   sequence?: true
   prevHash?: true
   hash?: true
+  hashVersion?: true
 }
 
 export type DbTimeEntryMaxAggregateInputType = {
@@ -161,6 +169,7 @@ export type DbTimeEntryMaxAggregateInputType = {
   sequence?: true
   prevHash?: true
   hash?: true
+  hashVersion?: true
 }
 
 export type DbTimeEntryCountAggregateInputType = {
@@ -184,6 +193,7 @@ export type DbTimeEntryCountAggregateInputType = {
   sequence?: true
   prevHash?: true
   hash?: true
+  hashVersion?: true
   _all?: true
 }
 
@@ -294,6 +304,7 @@ export type DbTimeEntryGroupByOutputType = {
   sequence: bigint
   prevHash: string
   hash: string
+  hashVersion: number
   _count: DbTimeEntryCountAggregateOutputType | null
   _avg: DbTimeEntryAvgAggregateOutputType | null
   _sum: DbTimeEntrySumAggregateOutputType | null
@@ -340,6 +351,7 @@ export type DbTimeEntryWhereInput = {
   sequence?: Prisma.BigIntFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringFilter<"DbTimeEntry"> | string
+  hashVersion?: Prisma.IntFilter<"DbTimeEntry"> | number
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   shift?: Prisma.XOR<Prisma.DbShiftNullableScalarRelationFilter, Prisma.DbShiftWhereInput> | null
@@ -369,6 +381,7 @@ export type DbTimeEntryOrderByWithRelationInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
   bar?: Prisma.DbBarOrderByWithRelationInput
   user?: Prisma.DbUserOrderByWithRelationInput
   shift?: Prisma.DbShiftOrderByWithRelationInput
@@ -402,6 +415,7 @@ export type DbTimeEntryWhereUniqueInput = Prisma.AtLeast<{
   sequence?: Prisma.BigIntFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringFilter<"DbTimeEntry"> | string
+  hashVersion?: Prisma.IntFilter<"DbTimeEntry"> | number
   bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   shift?: Prisma.XOR<Prisma.DbShiftNullableScalarRelationFilter, Prisma.DbShiftWhereInput> | null
@@ -431,6 +445,7 @@ export type DbTimeEntryOrderByWithAggregationInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
   _count?: Prisma.DbTimeEntryCountOrderByAggregateInput
   _avg?: Prisma.DbTimeEntryAvgOrderByAggregateInput
   _max?: Prisma.DbTimeEntryMaxOrderByAggregateInput
@@ -462,6 +477,7 @@ export type DbTimeEntryScalarWhereWithAggregatesInput = {
   sequence?: Prisma.BigIntWithAggregatesFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
+  hashVersion?: Prisma.IntWithAggregatesFilter<"DbTimeEntry"> | number
 }
 
 export type DbTimeEntryCreateInput = {
@@ -480,6 +496,7 @@ export type DbTimeEntryCreateInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
@@ -509,6 +526,7 @@ export type DbTimeEntryUncheckedCreateInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -528,6 +546,7 @@ export type DbTimeEntryUpdateInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
@@ -557,6 +576,7 @@ export type DbTimeEntryUncheckedUpdateInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -581,6 +601,7 @@ export type DbTimeEntryCreateManyInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryUpdateManyMutationInput = {
@@ -599,6 +620,7 @@ export type DbTimeEntryUpdateManyMutationInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryUncheckedUpdateManyInput = {
@@ -622,6 +644,7 @@ export type DbTimeEntryUncheckedUpdateManyInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryListRelationFilter = {
@@ -665,12 +688,14 @@ export type DbTimeEntryCountOrderByAggregateInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
 }
 
 export type DbTimeEntryAvgOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
 }
 
 export type DbTimeEntryMaxOrderByAggregateInput = {
@@ -693,6 +718,7 @@ export type DbTimeEntryMaxOrderByAggregateInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
 }
 
 export type DbTimeEntryMinOrderByAggregateInput = {
@@ -715,12 +741,14 @@ export type DbTimeEntryMinOrderByAggregateInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
 }
 
 export type DbTimeEntrySumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
+  hashVersion?: Prisma.SortOrder
 }
 
 export type DbTimeEntryCreateNestedManyWithoutUserInput = {
@@ -971,6 +999,7 @@ export type DbTimeEntryCreateWithoutUserInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -998,6 +1027,7 @@ export type DbTimeEntryUncheckedCreateWithoutUserInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -1027,6 +1057,7 @@ export type DbTimeEntryCreateWithoutActorInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
@@ -1054,6 +1085,7 @@ export type DbTimeEntryUncheckedCreateWithoutActorInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -1107,6 +1139,7 @@ export type DbTimeEntryScalarWhereInput = {
   sequence?: Prisma.BigIntFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringFilter<"DbTimeEntry"> | string
+  hashVersion?: Prisma.IntFilter<"DbTimeEntry"> | number
 }
 
 export type DbTimeEntryUpsertWithWhereUniqueWithoutActorInput = {
@@ -1141,6 +1174,7 @@ export type DbTimeEntryCreateWithoutBarInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -1168,6 +1202,7 @@ export type DbTimeEntryUncheckedCreateWithoutBarInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -1213,6 +1248,7 @@ export type DbTimeEntryCreateWithoutShiftInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -1240,6 +1276,7 @@ export type DbTimeEntryUncheckedCreateWithoutShiftInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -1285,6 +1322,7 @@ export type DbTimeEntryCreateWithoutSupersededByInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
@@ -1313,6 +1351,7 @@ export type DbTimeEntryUncheckedCreateWithoutSupersededByInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryCreateOrConnectWithoutSupersededByInput = {
@@ -1336,6 +1375,7 @@ export type DbTimeEntryCreateWithoutSupersedesInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
@@ -1363,6 +1403,7 @@ export type DbTimeEntryUncheckedCreateWithoutSupersedesInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
@@ -1398,6 +1439,7 @@ export type DbTimeEntryUpdateWithoutSupersededByInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
@@ -1426,6 +1468,7 @@ export type DbTimeEntryUncheckedUpdateWithoutSupersededByInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryUpsertWithoutSupersedesInput = {
@@ -1455,6 +1498,7 @@ export type DbTimeEntryUpdateWithoutSupersedesInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
@@ -1482,6 +1526,7 @@ export type DbTimeEntryUncheckedUpdateWithoutSupersedesInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -1505,6 +1550,7 @@ export type DbTimeEntryCreateManyUserInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryCreateManyActorInput = {
@@ -1527,6 +1573,7 @@ export type DbTimeEntryCreateManyActorInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryUpdateWithoutUserInput = {
@@ -1545,6 +1592,7 @@ export type DbTimeEntryUpdateWithoutUserInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -1572,6 +1620,7 @@ export type DbTimeEntryUncheckedUpdateWithoutUserInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -1595,6 +1644,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutUserInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryUpdateWithoutActorInput = {
@@ -1613,6 +1663,7 @@ export type DbTimeEntryUpdateWithoutActorInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
@@ -1640,6 +1691,7 @@ export type DbTimeEntryUncheckedUpdateWithoutActorInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -1663,6 +1715,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutActorInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryCreateManyBarInput = {
@@ -1685,6 +1738,7 @@ export type DbTimeEntryCreateManyBarInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryUpdateWithoutBarInput = {
@@ -1703,6 +1757,7 @@ export type DbTimeEntryUpdateWithoutBarInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -1730,6 +1785,7 @@ export type DbTimeEntryUncheckedUpdateWithoutBarInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -1753,6 +1809,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutBarInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DbTimeEntryCreateManyShiftInput = {
@@ -1775,6 +1832,7 @@ export type DbTimeEntryCreateManyShiftInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
+  hashVersion?: number
 }
 
 export type DbTimeEntryUpdateWithoutShiftInput = {
@@ -1793,6 +1851,7 @@ export type DbTimeEntryUpdateWithoutShiftInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -1820,6 +1879,7 @@ export type DbTimeEntryUncheckedUpdateWithoutShiftInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
@@ -1843,6 +1903,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutShiftInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
+  hashVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -1868,6 +1929,7 @@ export type DbTimeEntrySelect<ExtArgs extends runtime.Types.Extensions.InternalA
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
+  hashVersion?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
@@ -1897,6 +1959,7 @@ export type DbTimeEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
+  hashVersion?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
@@ -1925,6 +1988,7 @@ export type DbTimeEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
+  hashVersion?: boolean
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
@@ -1953,9 +2017,10 @@ export type DbTimeEntrySelectScalar = {
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
+  hashVersion?: boolean
 }
 
-export type DbTimeEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "userId" | "userSnapshot" | "shiftId" | "type" | "action" | "occurredAt" | "recordedAt" | "workdayDate" | "source" | "latitude" | "longitude" | "rootId" | "supersedesId" | "actorId" | "reason" | "sequence" | "prevHash" | "hash", ExtArgs["result"]["dbTimeEntry"]>
+export type DbTimeEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "userId" | "userSnapshot" | "shiftId" | "type" | "action" | "occurredAt" | "recordedAt" | "workdayDate" | "source" | "latitude" | "longitude" | "rootId" | "supersedesId" | "actorId" | "reason" | "sequence" | "prevHash" | "hash" | "hashVersion", ExtArgs["result"]["dbTimeEntry"]>
 export type DbTimeEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
@@ -2010,6 +2075,7 @@ export type $DbTimeEntryPayload<ExtArgs extends runtime.Types.Extensions.Interna
     sequence: bigint
     prevHash: string
     hash: string
+    hashVersion: number
   }, ExtArgs["result"]["dbTimeEntry"]>
   composites: {}
 }
@@ -2459,6 +2525,7 @@ export interface DbTimeEntryFieldRefs {
   readonly sequence: Prisma.FieldRef<"DbTimeEntry", 'BigInt'>
   readonly prevHash: Prisma.FieldRef<"DbTimeEntry", 'String'>
   readonly hash: Prisma.FieldRef<"DbTimeEntry", 'String'>
+  readonly hashVersion: Prisma.FieldRef<"DbTimeEntry", 'Int'>
 }
     
 

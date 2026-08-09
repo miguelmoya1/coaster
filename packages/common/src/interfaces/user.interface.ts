@@ -7,7 +7,6 @@ export interface User {
   id: UserId;
   email: string;
   name: string;
-  googleId?: string;
   active: boolean;
   photoUrl?: string;
   role: Role;

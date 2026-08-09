@@ -2,6 +2,7 @@ import { ExecutionContext, HttpException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DbRole, DbSubscriptionStatus } from '../../db';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
+import { FirebaseTokenService } from '../services/firebase-token.service';
 
 const verifyIdToken = vi.fn();
 
@@ -29,7 +30,7 @@ describe('SubscriptionActiveGuard', () => {
       dbBarSubscription: { findUnique: vi.fn() },
     };
 
-    guard = new SubscriptionActiveGuard(reflector as any, dbService as any);
+    guard = new SubscriptionActiveGuard(reflector as any, dbService as any, new FirebaseTokenService(dbService as any));
   });
 
   const createMockContext = (method: string, url: string, barId?: string, userId?: string): ExecutionContext => {
@@ -182,7 +183,6 @@ describe('SubscriptionActiveGuard', () => {
       await expect(guard.canActivate(context)).resolves.toBe(true);
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-admin' },
-        select: { role: true },
       });
     });
 

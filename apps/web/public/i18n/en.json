@@ -26,6 +26,8 @@
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "EXCHANGE_NOT_FOUND": "The specified exchange request does not exist.",
   "INVALID_BAR_ID": "The supplied bar ID is not valid.",
+  "EMAIL_ALREADY_LINKED": "That email already belongs to another sign-in account. Use the one you registered with.",
+  "EMAIL_NOT_VERIFIED": "Verify your email address before signing in.",
   "INVALID_CREDENTIALS": "The email or password entered is incorrect.",
   "INVALID_DATE": "The entered date does not have a valid format.",
   "INVALID_EMAIL": "The email address has an incorrect format.",

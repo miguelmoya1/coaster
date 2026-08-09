@@ -221,6 +221,50 @@ describe('Time tracking (e2e)', () => {
       expect(response.body).toMatchObject({ valid: true, brokenAt: null, checkedEntries: 2 });
     });
 
+    describe('when somebody with enough privileges turns the append-only triggers off', () => {
+      const withTriggersOff = async (statement: string) => {
+        await testSetup.prisma.$executeRawUnsafe(`ALTER TABLE "TimeEntry" DISABLE TRIGGER USER`);
+        await testSetup.prisma.$executeRawUnsafe(statement);
+        await testSetup.prisma.$executeRawUnsafe(`ALTER TABLE "TimeEntry" ENABLE TRIGGER USER`);
+      };
+
+      const integrity = async () =>
+        (await request(server()).get(`/api/bars/${barId}/time-entries/integrity`).expect(200)).body;
+
+      it('should catch a mark moved to another workday', async () => {
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+        const [punch] = await entriesOf(worker.id);
+
+        await withTriggersOff(
+          `UPDATE "TimeEntry" SET "workdayDate" = "workdayDate" - INTERVAL '1 day' WHERE id = '${punch.id}'`,
+        );
+
+        expect(await integrity()).toMatchObject({ valid: false, brokenAt: punch.id });
+      });
+
+      it('should catch a mark reassigned to somebody else', async () => {
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+        const [punch] = await entriesOf(worker.id);
+
+        await withTriggersOff(
+          `UPDATE "TimeEntry" SET "userSnapshot" = '{"name":"Otro","email":"otro@bar.com"}'::jsonb WHERE id = '${punch.id}'`,
+        );
+
+        expect(await integrity()).toMatchObject({ valid: false, brokenAt: punch.id });
+      });
+
+      it('should catch an hour edited on the mark', async () => {
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+        const [punch] = await entriesOf(worker.id);
+
+        await withTriggersOff(
+          `UPDATE "TimeEntry" SET "occurredAt" = "occurredAt" - INTERVAL '1 hour' WHERE id = '${punch.id}'`,
+        );
+
+        expect(await integrity()).toMatchObject({ valid: false, brokenAt: punch.id });
+      });
+    });
+
     it('should hand the inspector a CSV with one row per revision', async () => {
       await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
       const [punch] = await entriesOf(worker.id);

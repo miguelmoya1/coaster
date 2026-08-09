@@ -1,5 +1,5 @@
 import { ErrorCodes } from '@coaster/common';
-import type { FastifyStripeRequest, StripeWebhookWriteRepository } from '@coaster/stripe';
+import type { FastifyStripeRequest } from '@coaster/stripe';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
 import type { CommandBus } from '@nestjs/cqrs';
 import type Stripe from 'stripe';
@@ -15,11 +15,6 @@ import { StripeWebhookController } from './stripe-webhook.controller';
 describe('StripeWebhookController', () => {
   let controller: StripeWebhookController;
   let commandBusMock: { execute: ReturnType<typeof vi.fn> };
-  let webhookRepoMock: {
-    claim: ReturnType<typeof vi.fn>;
-    markProcessed: ReturnType<typeof vi.fn>;
-    markFailed: ReturnType<typeof vi.fn>;
-  };
 
   const buildEvent = (type: string, object: unknown): Stripe.Event =>
     ({ id: 'evt_test_123', type, data: { object } }) as Stripe.Event;
@@ -30,16 +25,8 @@ describe('StripeWebhookController', () => {
     vi.clearAllMocks();
 
     commandBusMock = { execute: vi.fn().mockResolvedValue(undefined) };
-    webhookRepoMock = {
-      claim: vi.fn().mockResolvedValue(true),
-      markProcessed: vi.fn().mockResolvedValue(undefined),
-      markFailed: vi.fn().mockResolvedValue(undefined),
-    };
 
-    controller = new StripeWebhookController(
-      commandBusMock as unknown as CommandBus,
-      webhookRepoMock as unknown as StripeWebhookWriteRepository,
-    );
+    controller = new StripeWebhookController(commandBusMock as unknown as CommandBus);
 
     vi.spyOn(Logger.prototype, 'debug').mockReturnValue(undefined);
     vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
@@ -51,7 +38,6 @@ describe('StripeWebhookController', () => {
     const result = await controller.handleWebhook(requestFor(buildEvent('checkout.session.completed', session)));
 
     expect(commandBusMock.execute).toHaveBeenCalledWith(new HandleCheckoutCompletedCommand(session as never));
-    expect(webhookRepoMock.markProcessed).toHaveBeenCalledWith('evt_test_123');
     expect(result).toEqual({ received: true });
   });
 
@@ -85,33 +71,30 @@ describe('StripeWebhookController', () => {
     expect(commandBusMock.execute).toHaveBeenCalledWith(new HandleInvoicePaymentFailedCommand(invoice as never));
   });
 
-  it('should mark an unhandled event type as processed without executing any command', async () => {
+  it('should acknowledge an unhandled event type without executing any command', async () => {
     const result = await controller.handleWebhook(requestFor(buildEvent('customer.created', { id: 'cus_1' })));
 
     expect(commandBusMock.execute).not.toHaveBeenCalled();
-    expect(webhookRepoMock.markProcessed).toHaveBeenCalledWith('evt_test_123');
     expect(result).toEqual({ received: true });
   });
 
-  it('should skip processing when the event was already claimed', async () => {
-    webhookRepoMock.claim.mockResolvedValue(false);
+  it('should land on the same state when Stripe delivers the same event twice', async () => {
+    const invoice = { id: 'in_1' };
+    const request = requestFor(buildEvent('invoice.paid', invoice));
 
-    const result = await controller.handleWebhook(requestFor(buildEvent('invoice.paid', { id: 'in_1' })));
+    await controller.handleWebhook(request);
+    await controller.handleWebhook(request);
 
-    expect(commandBusMock.execute).not.toHaveBeenCalled();
-    expect(webhookRepoMock.markProcessed).not.toHaveBeenCalled();
-    expect(result).toEqual({ received: true });
+    expect(commandBusMock.execute).toHaveBeenCalledTimes(2);
+    expect(commandBusMock.execute).toHaveBeenNthCalledWith(2, new HandleInvoicePaidCommand(invoice as never));
   });
 
-  it('should mark the event as failed and rethrow so Stripe retries the delivery', async () => {
+  it('should rethrow so Stripe retries the delivery', async () => {
     const failure = new Error('projection blew up');
     commandBusMock.execute.mockRejectedValue(failure);
     const request = requestFor(buildEvent('invoice.paid', { id: 'in_1' }));
 
     await expect(controller.handleWebhook(request)).rejects.toThrow(failure);
-
-    expect(webhookRepoMock.markFailed).toHaveBeenCalledWith('evt_test_123', failure);
-    expect(webhookRepoMock.markProcessed).not.toHaveBeenCalled();
   });
 
   it('should throw InternalServerErrorException when stripeEvent is missing on request', async () => {
@@ -121,6 +104,5 @@ describe('StripeWebhookController', () => {
       new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_EVENT_MISSING),
     );
     expect(commandBusMock.execute).not.toHaveBeenCalled();
-    expect(webhookRepoMock.claim).not.toHaveBeenCalled();
   });
 });

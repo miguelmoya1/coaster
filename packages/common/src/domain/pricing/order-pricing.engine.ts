@@ -6,7 +6,6 @@ export interface PricingItemInput {
   priceAtPurchase: number;
   quantity: number;
   paidQuantity: number;
-  taxRate?: number;
 }
 
 export interface PricingAdjustmentInput {
@@ -31,8 +30,6 @@ export interface PricingItemOutput {
   discountsAmount: number;
   finalTotal: number;
   paidQuantity: number;
-  taxRate?: number;
-  taxAmount?: number;
 }
 
 export interface PricingOutput {
@@ -48,9 +45,6 @@ export interface PricingOutput {
   amountPaidCard: number;
   pendingAmount: number;
   isFullyPaid: boolean;
-
-  taxBaseTotal?: number;
-  taxTotal?: number;
 }
 
 export class OrderPricingEngine {
@@ -85,7 +79,6 @@ export class OrderPricingEngine {
         discountsAmount,
         finalTotal: baseTotal - discountsAmount,
         paidQuantity: item.paidQuantity,
-        taxRate: item.taxRate,
       });
     }
 

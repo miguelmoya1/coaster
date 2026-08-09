@@ -1,7 +1,7 @@
 import type { User } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UserReadRepository } from '../../data-access/user.read.repository';
-import { UsersMapper } from '../../mappers/users.mapper';
+import { UsersMapper } from '@coaster/core';
 import { GetUserByIdQuery } from '../impl/get-user-by-id.query';
 
 @QueryHandler(GetUserByIdQuery)

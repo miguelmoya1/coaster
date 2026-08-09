@@ -26,6 +26,8 @@
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",
   "INVALID_BAR_ID": "El identificador del bar suministrado no es válido.",
+  "EMAIL_ALREADY_LINKED": "Ese correo ya está asociado a otra cuenta de acceso. Entra con la cuenta con la que te registraste.",
+  "EMAIL_NOT_VERIFIED": "Verifica tu correo antes de entrar.",
   "INVALID_CREDENTIALS": "El correo o contraseña ingresados son incorrectos.",
   "INVALID_DATE": "La fecha ingresada no tiene un formato válido.",
   "INVALID_EMAIL": "El correo electrónico tiene un formato incorrecto.",

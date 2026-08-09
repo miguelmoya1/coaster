@@ -1,6 +1,7 @@
 import type { BarId, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
+import { ORDER_RELATIONS } from './order-relations';
 
 @Injectable()
 export class OrdersReadRepository {
@@ -12,11 +13,7 @@ export class OrdersReadRepository {
         barId,
         ...(status ? { status } : {}),
       },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -39,11 +36,7 @@ export class OrdersReadRepository {
         barId,
         createdAt: { gte: start, lte: end },
       },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -51,11 +44,7 @@ export class OrdersReadRepository {
   public async findById(orderId: OrderId) {
     return this._db.dbOrder.findUnique({
       where: { id: orderId },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
     });
   }
 
@@ -80,11 +69,7 @@ export class OrdersReadRepository {
   public async findOrdersByIds(orderIds: OrderId[]) {
     return this._db.dbOrder.findMany({
       where: { id: { in: orderIds } },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
   }

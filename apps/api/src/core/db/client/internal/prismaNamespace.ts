@@ -401,8 +401,7 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbTimeEntry: 'DbTimeEntry',
-  DbAdminAuditLog: 'DbAdminAuditLog',
-  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
+  DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbTimeEntry" | "dbAdminAuditLog" | "dbStripeWebhookEvent"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1754,80 +1753,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DbStripeWebhookEvent: {
-      payload: Prisma.$DbStripeWebhookEventPayload<ExtArgs>
-      fields: Prisma.DbStripeWebhookEventFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DbStripeWebhookEventFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DbStripeWebhookEventFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        findFirst: {
-          args: Prisma.DbStripeWebhookEventFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DbStripeWebhookEventFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        findMany: {
-          args: Prisma.DbStripeWebhookEventFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
-        }
-        create: {
-          args: Prisma.DbStripeWebhookEventCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        createMany: {
-          args: Prisma.DbStripeWebhookEventCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DbStripeWebhookEventCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
-        }
-        delete: {
-          args: Prisma.DbStripeWebhookEventDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        update: {
-          args: Prisma.DbStripeWebhookEventUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        deleteMany: {
-          args: Prisma.DbStripeWebhookEventDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DbStripeWebhookEventUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DbStripeWebhookEventUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>[]
-        }
-        upsert: {
-          args: Prisma.DbStripeWebhookEventUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbStripeWebhookEventPayload>
-        }
-        aggregate: {
-          args: Prisma.DbStripeWebhookEventAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbStripeWebhookEvent>
-        }
-        groupBy: {
-          args: Prisma.DbStripeWebhookEventGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbStripeWebhookEventGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DbStripeWebhookEventCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbStripeWebhookEventCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -2122,7 +2047,8 @@ export const DbTimeEntryScalarFieldEnum = {
   reason: 'reason',
   sequence: 'sequence',
   prevHash: 'prevHash',
-  hash: 'hash'
+  hash: 'hash',
+  hashVersion: 'hashVersion'
 } as const
 
 export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
@@ -2141,22 +2067,6 @@ export const DbAdminAuditLogScalarFieldEnum = {
 } as const
 
 export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
-
-
-export const DbStripeWebhookEventScalarFieldEnum = {
-  id: 'id',
-  stripeEventId: 'stripeEventId',
-  type: 'type',
-  payload: 'payload',
-  processingStatus: 'processingStatus',
-  attempts: 'attempts',
-  lastError: 'lastError',
-  receivedAt: 'receivedAt',
-  processedAt: 'processedAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2599,7 +2509,6 @@ export type GlobalOmitConfig = {
   dbBarSubscription?: Prisma.DbBarSubscriptionOmit
   dbTimeEntry?: Prisma.DbTimeEntryOmit
   dbAdminAuditLog?: Prisma.DbAdminAuditLogOmit
-  dbStripeWebhookEvent?: Prisma.DbStripeWebhookEventOmit
 }
 
 /* Types for Logging */

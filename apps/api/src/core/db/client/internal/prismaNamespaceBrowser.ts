@@ -68,8 +68,7 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbTimeEntry: 'DbTimeEntry',
-  DbAdminAuditLog: 'DbAdminAuditLog',
-  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
+  DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -343,7 +342,8 @@ export const DbTimeEntryScalarFieldEnum = {
   reason: 'reason',
   sequence: 'sequence',
   prevHash: 'prevHash',
-  hash: 'hash'
+  hash: 'hash',
+  hashVersion: 'hashVersion'
 } as const
 
 export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
@@ -362,22 +362,6 @@ export const DbAdminAuditLogScalarFieldEnum = {
 } as const
 
 export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
-
-
-export const DbStripeWebhookEventScalarFieldEnum = {
-  id: 'id',
-  stripeEventId: 'stripeEventId',
-  type: 'type',
-  payload: 'payload',
-  processingStatus: 'processingStatus',
-  attempts: 'attempts',
-  lastError: 'lastError',
-  receivedAt: 'receivedAt',
-  processedAt: 'processedAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {

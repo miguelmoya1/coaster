@@ -346,6 +346,47 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
+  describe('two people closing the same order at once', () => {
+    it('should take the money once and turn the other attempt down', async () => {
+      const order = await testSetup.prisma.dbOrder.create({
+        data: {
+          barId,
+          status: OrderStatus.OPEN,
+          totalAmount: 1000,
+          items: { create: [{ productId: product1Id, quantity: 1, priceAtPurchase: 1000 }] },
+        },
+      });
+
+      const checkout = () =>
+        request(testSetup.app.getHttpServer())
+          .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+          .send({ paymentMethod: PaymentMethod.CASH });
+
+      const results = await Promise.all([checkout(), checkout()]);
+      const statuses = results.map((response) => response.status).sort();
+
+      expect(statuses).toEqual([201, 400]);
+
+      const closed = await testSetup.prisma.dbOrder.findUnique({ where: { id: order.id } });
+      expect(closed?.status).toBe(OrderStatus.CLOSED);
+      expect(closed?.amountPaidCash).toBe(1000);
+    });
+
+    it('should refuse a payment method that says nothing about how it was paid', async () => {
+      const order = await testSetup.prisma.dbOrder.create({
+        data: { barId, status: OrderStatus.OPEN, totalAmount: 500 },
+      });
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+        .send({ paymentMethod: PaymentMethod.NONE })
+        .expect(400);
+
+      const untouched = await testSetup.prisma.dbOrder.findUnique({ where: { id: order.id } });
+      expect(untouched?.status).toBe(OrderStatus.OPEN);
+    });
+  });
+
   describe('an order that is already closed', () => {
     const closedOrder = async () =>
       testSetup.prisma.dbOrder.create({

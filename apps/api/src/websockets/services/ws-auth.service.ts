@@ -1,7 +1,6 @@
-import { SecurityRepository } from '@coaster/core';
-import { DbRole, DbService } from '@coaster/core/db';
+import { FirebaseTokenService, SecurityRepository } from '@coaster/core';
+import { DbRole } from '@coaster/core/db';
 import { Injectable, Logger } from '@nestjs/common';
-import { getAuth } from 'firebase-admin/auth';
 import type { Socket } from 'socket.io';
 
 @Injectable()
@@ -9,7 +8,7 @@ export class WsAuthService {
   private readonly _logger = new Logger(WsAuthService.name);
 
   constructor(
-    private readonly _db: DbService,
+    private readonly _tokens: FirebaseTokenService,
     private readonly _securityRepository: SecurityRepository,
   ) {}
 
@@ -37,33 +36,24 @@ export class WsAuthService {
       return null;
     }
 
-    try {
-      const decodedToken = await getAuth().verifyIdToken(token);
+    const caller = await this._tokens.resolve(token);
 
-      if (!decodedToken?.sub) {
-        return null;
-      }
-
-      const user = await this._db.dbUser.findUnique({
-        where: { googleId: decodedToken.sub },
-        select: { id: true, active: true },
-      });
-
-      if (!user) {
-        this._logger.warn(`Socket ${client.id} presented a token for an unknown user`);
-        return null;
-      }
-
-      if (!user.active) {
-        this._logger.warn(`Socket ${client.id} presented a token for a deactivated user`);
-        return null;
-      }
-
-      return user.id;
-    } catch {
+    if (!caller) {
       this._logger.warn(`Socket ${client.id} presented an invalid token`);
       return null;
     }
+
+    if (!caller.user) {
+      this._logger.warn(`Socket ${client.id} presented a token for an unknown user`);
+      return null;
+    }
+
+    if (!caller.user.active) {
+      this._logger.warn(`Socket ${client.id} presented a token for a deactivated user`);
+      return null;
+    }
+
+    return caller.user.id;
   }
 
   public async canAccessBar(userId: string, barId: string): Promise<boolean> {

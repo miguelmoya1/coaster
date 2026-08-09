@@ -131,8 +131,3 @@ export type DbTimeEntry = Prisma.DbTimeEntryModel
  * 
  */
 export type DbAdminAuditLog = Prisma.DbAdminAuditLogModel
-/**
- * Model DbStripeWebhookEvent
- * 
- */
-export type DbStripeWebhookEvent = Prisma.DbStripeWebhookEventModel

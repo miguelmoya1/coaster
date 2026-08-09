@@ -13,10 +13,7 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, v
 
   constructor(
     private readonly writeRepo: OrdersWriteRepository,
-
     private readonly readRepo: OrdersReadRepository,
-
-    private readonly _ordersRepository: OrdersWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
