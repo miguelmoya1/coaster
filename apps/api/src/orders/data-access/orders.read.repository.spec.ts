@@ -107,10 +107,14 @@ describe('OrdersReadRepository', () => {
   });
 
   describe('findProductsByIds', () => {
-    it('should call dbProduct.findMany', async () => {
-      await repository.findProductsByIds(['prod-1']);
+    it('should only look at live products of the bar making the order', async () => {
+      await repository.findProductsByIds(asBarId('bar-1'), ['prod-1']);
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
-        where: { id: { in: ['prod-1'] } },
+        where: {
+          id: { in: ['prod-1'] },
+          deletedAt: null,
+          category: { barId: 'bar-1', deletedAt: null },
+        },
       });
     });
   });

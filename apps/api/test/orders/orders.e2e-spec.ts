@@ -97,6 +97,56 @@ describe('OrdersController (e2e)', () => {
     it('should reject invalid payloads', async () => {
       await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send({ items: [] }).expect(400);
     });
+
+    it('should refuse a product that belongs to another bar, leaving its stock alone', async () => {
+      const otherBar = await testSetup.createBar('Other Bar', { ownerId: null });
+      const otherCategory = await testSetup.prisma.dbCategory.create({
+        data: { name: 'Their drinks', barId: otherBar.id },
+      });
+      const theirProduct = await testSetup.prisma.dbProduct.create({
+        data: { name: 'Their beer', price: 5, currentStock: 10, categoryId: otherCategory.id },
+      });
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders`)
+        .send({ items: [{ productId: theirProduct.id, quantity: 4 }] })
+        .expect(404);
+
+      expect(await testSetup.prisma.dbOrder.count({ where: { barId } })).toBe(0);
+
+      const untouched = await testSetup.prisma.dbProduct.findUnique({ where: { id: theirProduct.id } });
+      expect(untouched?.currentStock).toBe(10);
+    });
+
+    it('should refuse a product that was deleted from the menu', async () => {
+      await testSetup.prisma.dbProduct.update({
+        where: { id: product1Id },
+        data: { deletedAt: new Date() },
+      });
+
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders`)
+        .send({ items: [{ productId: product1Id, quantity: 1 }] })
+        .expect(404);
+    });
+
+    it('should accept the same product on two separate lines', async () => {
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/bars/${barId}/orders`)
+        .send({
+          items: [
+            { productId: product1Id, quantity: 2 },
+            { productId: product1Id, quantity: 1, notes: 'sin hielo' },
+          ],
+        })
+        .expect(201);
+
+      const orders = await testSetup.prisma.dbOrder.findMany({ where: { barId }, include: { items: true } });
+
+      expect(orders).toHaveLength(1);
+      expect(orders[0].items).toHaveLength(2);
+      expect(orders[0].totalAmount).toBe(15);
+    });
   });
 
   describe('GET /api/bars/:barId/orders', () => {

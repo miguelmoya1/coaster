@@ -22,8 +22,8 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
   async execute(command: CreateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this.readRepo.findProductsByIds(productIds);
-    if (products.length !== productIds.length) {
+    const products = await this.readRepo.findProductsByIds(command.barId, productIds);
+    if (products.length !== new Set(productIds).size) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 

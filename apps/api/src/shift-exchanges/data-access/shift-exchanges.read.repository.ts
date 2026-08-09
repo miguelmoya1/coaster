@@ -29,7 +29,6 @@ export class ShiftExchangesReadRepository {
   }
 
   public async findPendingByBarId(barId: BarId) {
-    // The day starts when it starts for the bar; in UTC a shift at 01:00 local looked like yesterday.
     const startInstant = Temporal.Now.zonedDateTimeISO(BAR_TIME_ZONE).startOfDay().toInstant();
     const today = new Date(startInstant.epochMilliseconds);
 
@@ -56,6 +55,7 @@ export class ShiftExchangesReadRepository {
           userId,
           barId,
         },
+        deletedAt: null,
       },
       select: { role: true, active: true },
     });

@@ -71,9 +71,9 @@ export class OrdersReadRepository {
     });
   }
 
-  public async findProductsByIds(productIds: string[]) {
+  public async findProductsByIds(barId: BarId, productIds: string[]) {
     return this._db.dbProduct.findMany({
-      where: { id: { in: productIds } },
+      where: { id: { in: productIds }, deletedAt: null, category: { barId, deletedAt: null } },
     });
   }
 

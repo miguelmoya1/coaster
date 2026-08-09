@@ -1,5 +1,6 @@
 {
   "BAR_NOT_FOUND": "The requested bar does not exist in the database.",
+  "CANNOT_GRANT_OWNER_ROLE": "Only an owner can invite somebody as an owner.",
   "CANNOT_REMOVE_LAST_OWNER": "Cannot remove the last owner. Transfer ownership first.",
   "CATEGORY_NOT_FOUND": "The requested category does not exist.",
   "INVALID_SUBSCRIPTION_PLAN": "The selected subscription plan is not available.",

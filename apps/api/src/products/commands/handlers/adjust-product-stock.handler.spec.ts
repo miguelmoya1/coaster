@@ -1,8 +1,10 @@
 import type { Product } from '@coaster/common';
 import { asBarId, asProductId } from '@coaster/common';
+import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ProductsReadRepository } from '../../data-access/products.read.repository';
 import { ProductsWriteRepository } from '../../data-access/products.write.repository';
 import { ProductStockChangedEvent } from '../../events';
 import { AdjustProductStockCommand } from '../impl/adjust-product-stock.command';
@@ -10,6 +12,9 @@ import { AdjustProductStockHandler } from './adjust-product-stock.handler';
 
 describe('AdjustProductStockHandler', () => {
   let handler: AdjustProductStockHandler;
+  const readRepository = {
+    checkProductBelongsToBar: vi.fn(),
+  };
   const repository = {
     update: vi.fn(),
   };
@@ -18,9 +23,11 @@ describe('AdjustProductStockHandler', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AdjustProductStockHandler,
+        { provide: ProductsReadRepository, useValue: readRepository },
         { provide: ProductsWriteRepository, useValue: repository },
         { provide: EventBus, useValue: eventBus },
       ],
@@ -29,11 +36,23 @@ describe('AdjustProductStockHandler', () => {
     handler = module.get<AdjustProductStockHandler>(AdjustProductStockHandler);
   });
 
+  it('should refuse to touch the stock of a product from another bar', async () => {
+    readRepository.checkProductBelongsToBar.mockResolvedValue(false);
+
+    await expect(
+      handler.execute(new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-of-bar-2'), -3)),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(eventBus.publish).not.toHaveBeenCalled();
+  });
+
   it('should adjust stock and publish event', async () => {
     const barId = asBarId('bar-1');
     const productId = asProductId('prod-1');
     const delta = -3;
 
+    readRepository.checkProductBelongsToBar.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',
       categoryId: 'cat-1',

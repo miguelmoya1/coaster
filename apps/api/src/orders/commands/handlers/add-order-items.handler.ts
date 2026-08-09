@@ -28,8 +28,8 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     }
 
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this.readRepo.findProductsByIds(productIds);
-    if (products.length !== productIds.length) {
+    const products = await this.readRepo.findProductsByIds(command.barId, productIds);
+    if (products.length !== new Set(productIds).size) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
