@@ -1,5 +1,5 @@
 import type { TimeEntry } from '@coaster/common';
-import { BAR_TIME_ZONE, ClockState, TimeEntryType } from '@coaster/common';
+import { BAR_TIME_ZONE, ClockState, TimeEntryType, WorkdayDiscrepancy } from '@coaster/common';
 
 export interface ClockMark {
   type: TimeEntryType;
@@ -114,3 +114,46 @@ export const toDatedMarks = (entries: TimeEntry[]): DatedMark[] =>
       occurredAt: new Date(entry.occurredAt),
       workdayDate: entry.workdayDate,
     }));
+
+export interface PlannedShift {
+  startsAt: Date;
+  endsAt: Date;
+  minutes: number;
+}
+
+const TOLERANCE_MINUTES = 10;
+
+const minutesBetween = (from: Date, to: Date): number => (to.getTime() - from.getTime()) / 60_000;
+
+export const findDiscrepancies = (
+  marks: DatedMark[],
+  planned: PlannedShift | null,
+  workedMinutes: number,
+): WorkdayDiscrepancy[] => {
+  const worked = [...marks].sort(byOccurredAt);
+  const found: WorkdayDiscrepancy[] = [];
+
+  if (!planned) {
+    return worked.length > 0 ? [WorkdayDiscrepancy.UNPLANNED] : [];
+  }
+
+  if (worked.length === 0) {
+    return [WorkdayDiscrepancy.NO_SHOW];
+  }
+
+  if (minutesBetween(planned.startsAt, worked[0].occurredAt) > TOLERANCE_MINUTES) {
+    found.push(WorkdayDiscrepancy.LATE_START);
+  }
+
+  const lastOut = [...worked].reverse().find((mark) => mark.type === TimeEntryType.CLOCK_OUT);
+
+  if (lastOut && minutesBetween(lastOut.occurredAt, planned.endsAt) > TOLERANCE_MINUTES) {
+    found.push(WorkdayDiscrepancy.EARLY_FINISH);
+  }
+
+  if (workedMinutes - planned.minutes > TOLERANCE_MINUTES) {
+    found.push(WorkdayDiscrepancy.OVERTIME);
+  }
+
+  return found;
+};

@@ -24,6 +24,7 @@ import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
 
 @Module({
@@ -31,6 +32,7 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
     }),

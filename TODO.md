@@ -5,28 +5,15 @@ NestJS y la separacion por capas de Angular.
 
 El detalle tecnico vive en [`docs/`](docs/README.md); aqui solo esta el orden de trabajo.
 
-## Fase 1: Operativa Interna y Cumplimiento Legal
+## Fase 1: Operativa Interna y Cumplimiento Legal — HECHA
 
-**Modulo:** Fichaje y Control Horario (Clock-in / Clock-out)
-
-Hecho: modulo `time-tracking` con `DbTimeEntry` append-only, cadena de hash por bar, correcciones
-firmadas con motivo, y la interfaz dentro de la pagina de Turnos. El detalle esta en
+Modulo `time-tracking` cerrado: marcas append-only con cadena de hash por bar y sellado diario,
+correcciones firmadas sin sobrescribir el original, rango libre de fechas para el registro y el
+export CSV, y contraste de la planificacion contra lo realmente trabajado. El detalle esta en
 [Fichaje y control horario](docs/operations/time-tracking.md).
 
-- [x] Marcas de entrada, pausas y salida con hora de servidor y geolocalizacion opcional.
-- [x] Correccion y anulacion sin sobrescribir el original, con quien / cuando / que / por que.
-- [x] Cada uno corrige sus propias marcas con motivo; anular y tocar las de otro es de manager u owner.
-- [x] Historial visible para el trabajador y verificacion de integridad de la cadena.
-- [x] Export CSV para Inspeccion y auditoria en el backoffice cuando actua un admin.
-- [x] Interfaz Angular dentro de Turnos: fichaje del trabajador, registro del equipo, correcciones
-      con motivo y descarga del CSV.
-- [ ] Rango libre de fechas para el registro y el export. La API (`from`/`to`) y el store
-      (`setRange`) ya lo aceptan; lo que falta es el selector en la pagina de Turnos, que hoy llama
-      a `setRange(day, day)`.
-- [ ] Export en PDF.
-- [ ] Sellado diario del hash cabeza de cadena.
-- [ ] Contraste de la planificacion (`DbShift`) contra las marcas reales mas alla de
-      `Workday.plannedMinutes`.
+Queda fuera a proposito el export en PDF: el RD-ley 8/2019 obliga a llevar el registro y tenerlo a
+disposicion, pero no impone formato, y el CSV ya cumple.
 
 ## Fase 2: Capa de Inteligencia y Valor Anadido
 

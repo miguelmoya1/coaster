@@ -1,6 +1,7 @@
 import { BarRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { ChainSealService } from '../../src/time-tracking/services/chain-seal.service';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 const HOUR = 60 * 60 * 1000;
@@ -280,6 +281,117 @@ describe('Time tracking (e2e)', () => {
       expect(rows[0]).toContain('dia;empleado;marca;hora');
       expect(rows).toHaveLength(3);
       expect(rows[2]).toContain('Olvido fichar');
+    });
+  });
+
+  describe('the daily seal', () => {
+    const sealer = () => testSetup.app.get(ChainSealService);
+
+    const integrity = async () =>
+      (await request(server()).get(`/api/bars/${barId}/time-entries/integrity`).expect(200)).body;
+
+    it('should record where the chain ended', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+      expect(await sealer().sealAll()).toBe(1);
+
+      const [seal] = await testSetup.prisma.dbTimeEntrySeal.findMany({ where: { barId } });
+      expect(seal.sequence).toBe(2n);
+      expect(await integrity()).toMatchObject({ valid: true, sealsValid: true, checkedSeals: 1 });
+    });
+
+    it('should seal a bar only once a day', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      expect(await sealer().sealAll()).toBe(1);
+      expect(await sealer().sealAll()).toBe(0);
+
+      expect(await testSetup.prisma.dbTimeEntrySeal.count({ where: { barId } })).toBe(1);
+    });
+
+    it('should catch a chain rebuilt from scratch, which the chain alone cannot', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await sealer().sealAll();
+
+      const [punch] = await entriesOf(worker.id);
+      const rebuilt = await testSetup.prisma.$queryRawUnsafe<{ hash: string }[]>(
+        `SELECT hash FROM "TimeEntry" WHERE id = '${punch.id}'`,
+      );
+
+      await testSetup.prisma.$executeRawUnsafe(`ALTER TABLE "TimeEntry" DISABLE TRIGGER USER`);
+      await testSetup.prisma.$executeRawUnsafe(
+        `UPDATE "TimeEntry" SET "occurredAt" = "occurredAt" - INTERVAL '1 hour', hash = '${'f'.repeat(64)}' WHERE id = '${punch.id}'`,
+      );
+      await testSetup.prisma.$executeRawUnsafe(`ALTER TABLE "TimeEntry" ENABLE TRIGGER USER`);
+
+      const result = await integrity();
+
+      expect(rebuilt[0].hash).not.toBe('f'.repeat(64));
+      expect(result.sealsValid).toBe(false);
+      expect(result.valid).toBe(false);
+    });
+
+    it('should refuse an UPDATE on a seal even straight against the database', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await sealer().sealAll();
+
+      await expect(
+        testSetup.prisma.$executeRawUnsafe(`UPDATE "TimeEntrySeal" SET "headHash" = 'x' WHERE "barId" = '${barId}'`),
+      ).rejects.toThrow(/append-only/);
+    });
+  });
+
+  describe('the rota against what was really worked', () => {
+    const today = () => new Date().toISOString().slice(0, 10);
+
+    const scheduleToday = (startHour: number, endHour: number) => {
+      const start = new Date(`${today()}T00:00:00.000Z`);
+      start.setUTCHours(startHour);
+      const end = new Date(`${today()}T00:00:00.000Z`);
+      end.setUTCHours(endHour);
+
+      return testSetup.prisma.dbShift.create({
+        data: { barId, userId: worker.id, startTime: start, endTime: end },
+      });
+    };
+
+    const workdaysToday = async () =>
+      (
+        await request(server())
+          .get(`/api/bars/${barId}/time-entries`)
+          .query({ from: today(), to: today() })
+          .expect(200)
+      ).body as { userId: string; discrepancies: string[]; plannedMinutes: number | null }[];
+
+    it('should show a scheduled day nobody clocked into', async () => {
+      await scheduleToday(8, 16);
+
+      const [day] = await workdaysToday();
+
+      expect(day.userId).toBe(worker.id);
+      expect(day.discrepancies).toEqual(['NO_SHOW']);
+      expect(day.plannedMinutes).toBe(480);
+    });
+
+    it('should flag a day worked with nothing on the rota', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      const [day] = await workdaysToday();
+
+      expect(day.discrepancies).toEqual(['UNPLANNED']);
+      expect(day.plannedMinutes).toBeNull();
+    });
+
+    it('should carry the planned window alongside the marks', async () => {
+      await scheduleToday(8, 16);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      const [day] = await workdaysToday();
+
+      expect(day.plannedMinutes).toBe(480);
+      expect(day).toHaveProperty('plannedStart');
+      expect(day).toHaveProperty('plannedEnd');
     });
   });
 

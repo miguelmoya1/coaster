@@ -11,6 +11,7 @@ import {
   SubscriptionStatus,
   TimeEntryAction,
   TimeEntryType,
+  WorkdayDiscrepancy,
 } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 
@@ -43,6 +44,11 @@ const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] =
   { prefix: 'roster.time_tracking.type_', values: Object.values(TimeEntryType), builtIn: 'workday-card' },
   { prefix: 'roster.time_tracking.action_', values: Object.values(TimeEntryAction), builtIn: 'workday-card' },
   { prefix: 'roster.time_tracking.state_', values: Object.values(ClockState), builtIn: 'clock-card' },
+  {
+    prefix: 'roster.time_tracking.discrepancy_',
+    values: Object.values(WorkdayDiscrepancy),
+    builtIn: 'workday-card',
+  },
 ];
 
 describe('translations', () => {

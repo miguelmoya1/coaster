@@ -26,6 +26,30 @@ describe('RosterStateService', () => {
     expect(service.viewMode()).toBe('month');
   });
 
+  describe('timeSheetRange', () => {
+    beforeEach(() => {
+      service.setDate(new Date(2026, 7, 12));
+    });
+
+    it('should cover just the day in day view', () => {
+      service.setViewMode('day');
+
+      expect(service.timeSheetRange()).toEqual({ from: '2026-08-12', to: '2026-08-12' });
+    });
+
+    it('should cover the whole week in week view', () => {
+      service.setViewMode('week');
+
+      expect(service.timeSheetRange()).toEqual({ from: '2026-08-10', to: '2026-08-16' });
+    });
+
+    it('should cover the whole month in month view', () => {
+      service.setViewMode('month');
+
+      expect(service.timeSheetRange()).toEqual({ from: '2026-08-01', to: '2026-08-31' });
+    });
+  });
+
   it('should update selectedDate when setDate is called', () => {
     const testDate = new Date(2026, 4, 15);
     service.setDate(testDate);

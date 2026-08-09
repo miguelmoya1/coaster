@@ -68,6 +68,7 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
   DbTimeEntry: 'DbTimeEntry',
+  DbTimeEntrySeal: 'DbTimeEntrySeal',
   DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
 
@@ -346,6 +347,18 @@ export const DbTimeEntryScalarFieldEnum = {
 } as const
 
 export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
+
+
+export const DbTimeEntrySealScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  sealedDate: 'sealedDate',
+  sequence: 'sequence',
+  headHash: 'headHash',
+  createdAt: 'createdAt'
+} as const
+
+export type DbTimeEntrySealScalarFieldEnum = (typeof DbTimeEntrySealScalarFieldEnum)[keyof typeof DbTimeEntrySealScalarFieldEnum]
 
 
 export const DbAdminAuditLogScalarFieldEnum = {

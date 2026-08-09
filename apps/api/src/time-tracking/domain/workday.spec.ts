@@ -1,6 +1,14 @@
-import { ClockState, TimeEntryType } from '@coaster/common';
+import { ClockState, TimeEntryType, WorkdayDiscrepancy } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
-import { DatedMark, formatWorkdayDate, planMark, summariseWorkday, toWorkdayDate } from './workday';
+import {
+  DatedMark,
+  findDiscrepancies,
+  formatWorkdayDate,
+  planMark,
+  PlannedShift,
+  summariseWorkday,
+  toWorkdayDate,
+} from './workday';
 
 const at = (iso: string) => new Date(iso);
 
@@ -116,5 +124,79 @@ describe('planMark', () => {
     const workday = planMark(TimeEntryType.CLOCK_IN, at('2026-08-09T08:00:00Z'), closed);
 
     expect(workday && formatWorkdayDate(workday)).toBe('2026-08-09');
+  });
+});
+
+describe('findDiscrepancies', () => {
+  const shift = (startIso: string, endIso: string): PlannedShift => ({
+    startsAt: at(startIso),
+    endsAt: at(endIso),
+    minutes: Math.round((at(endIso).getTime() - at(startIso).getTime()) / 60_000),
+  });
+
+  const morning = () => shift('2026-08-08T08:00:00Z', '2026-08-08T16:00:00Z');
+
+  const workedDay = (inIso: string, outIso: string) => [
+    mark(TimeEntryType.CLOCK_IN, inIso),
+    mark(TimeEntryType.CLOCK_OUT, outIso),
+  ];
+
+  it('should say nothing when the day matches the rota', () => {
+    const marks = workedDay('2026-08-08T08:00:00Z', '2026-08-08T16:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 480)).toEqual([]);
+  });
+
+  it('should flag a scheduled day nobody clocked into', () => {
+    expect(findDiscrepancies([], morning(), 0)).toEqual([WorkdayDiscrepancy.NO_SHOW]);
+  });
+
+  it('should flag a day worked with no shift on the rota', () => {
+    const marks = workedDay('2026-08-08T08:00:00Z', '2026-08-08T16:00:00Z');
+
+    expect(findDiscrepancies(marks, null, 480)).toEqual([WorkdayDiscrepancy.UNPLANNED]);
+  });
+
+  it('should say nothing about a day with neither rota nor marks', () => {
+    expect(findDiscrepancies([], null, 0)).toEqual([]);
+  });
+
+  it('should flag arriving well after the shift started', () => {
+    const marks = workedDay('2026-08-08T09:00:00Z', '2026-08-08T16:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 420)).toContain(WorkdayDiscrepancy.LATE_START);
+  });
+
+  it('should forgive a few minutes late', () => {
+    const marks = workedDay('2026-08-08T08:05:00Z', '2026-08-08T16:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 475)).toEqual([]);
+  });
+
+  it('should flag leaving well before the shift ended', () => {
+    const marks = workedDay('2026-08-08T08:00:00Z', '2026-08-08T14:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 360)).toContain(WorkdayDiscrepancy.EARLY_FINISH);
+  });
+
+  it('should not call it an early finish while the shift is still open', () => {
+    const marks = [mark(TimeEntryType.CLOCK_IN, '2026-08-08T08:00:00Z')];
+
+    expect(findDiscrepancies(marks, morning(), 120)).toEqual([]);
+  });
+
+  it('should flag working noticeably longer than the rota said', () => {
+    const marks = workedDay('2026-08-08T08:00:00Z', '2026-08-08T18:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 600)).toContain(WorkdayDiscrepancy.OVERTIME);
+  });
+
+  it('should report every discrepancy a day carries at once', () => {
+    const marks = workedDay('2026-08-08T10:00:00Z', '2026-08-08T14:00:00Z');
+
+    expect(findDiscrepancies(marks, morning(), 240)).toEqual([
+      WorkdayDiscrepancy.LATE_START,
+      WorkdayDiscrepancy.EARLY_FINISH,
+    ]);
   });
 });

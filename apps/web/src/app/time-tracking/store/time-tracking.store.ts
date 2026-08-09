@@ -106,9 +106,9 @@ export class TimeTrackingStore {
     return this.#repository.integrity(this.#requireBarId());
   }
 
-  public exportCsv() {
-    const from = this.#from();
-    const to = this.#to();
+  public exportCsv(range?: { from: string; to: string }) {
+    const from = range?.from ?? this.#from();
+    const to = range?.to ?? this.#to();
 
     if (!from || !to) {
       throw new Error(ErrorCodes.INVALID_DATE);

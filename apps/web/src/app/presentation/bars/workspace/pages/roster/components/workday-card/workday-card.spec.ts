@@ -53,6 +53,9 @@ const workday = (entries: TimeEntry[], plannedMinutes: number | null = 480): Wor
   workedMinutes: 125,
   breakMinutes: 20,
   plannedMinutes,
+  plannedStart: null,
+  plannedEnd: null,
+  discrepancies: [],
   entries,
 });
 

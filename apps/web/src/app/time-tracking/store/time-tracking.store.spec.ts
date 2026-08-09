@@ -14,6 +14,9 @@ const workday = (state: ClockState = ClockState.IN) => ({
   workedMinutes: 120,
   breakMinutes: 15,
   plannedMinutes: 480,
+  plannedStart: null,
+  plannedEnd: null,
+  discrepancies: [],
   entries: [],
 });
 

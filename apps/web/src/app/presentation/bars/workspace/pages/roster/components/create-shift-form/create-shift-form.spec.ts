@@ -59,6 +59,12 @@ describe('CreateShiftForm', () => {
     fixture.detectChanges();
   });
 
+  it('should show the clock buttons that open the time pickers', () => {
+    const toggles = (fixture.nativeElement as HTMLElement).querySelectorAll('mat-timepicker-toggle button');
+
+    expect(toggles).toHaveLength(2);
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

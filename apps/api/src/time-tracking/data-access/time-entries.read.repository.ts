@@ -57,4 +57,11 @@ export class TimeEntriesReadRepository {
       orderBy: { sequence: 'asc' },
     });
   }
+
+  public findSeals(barId: BarId) {
+    return this._db.dbTimeEntrySeal.findMany({
+      where: { barId },
+      orderBy: { sealedDate: 'asc' },
+    });
+  }
 }

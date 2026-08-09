@@ -50,9 +50,21 @@ reasignarla a otra persona sin romper la cadena. Los triggers `BEFORE UPDATE`/`B
 rechazan ambas cosas; el hash es el respaldo para cuando quien manipula tiene privilegios para
 desactivarlos o restaura un volcado retocado.
 
-`GET /bars/:barId/time-entries/integrity` recalcula la cadena entera del bar y responde si es
-valida y, si no, en que fila se rompe. Un `UPDATE` a pelo en base de datos —tras eliminar el
-trigger— invalida esa fila y todas las siguientes.
+## Sellado diario
+
+Una cadena reconstruida entera es tan consistente consigo misma como la original, asi que el hash
+por si solo no distingue una reescritura completa. `ChainSealService` corre cada dia a las 3:00 y
+guarda en `TimeEntrySeal` donde acabo la cadena de cada bar: `sequence` + `headHash` de ese momento.
+La tabla lleva los mismos triggers append-only que las marcas.
+
+Verificar un sello es buscar esa `sequence` en la cadena y comprobar que sigue llevando el hash que
+se sello. Una reescritura tiene que contradecir un sello para pasar desapercibida, y con los sellos
+en copias de seguridad diarias eso ya no depende solo del estado actual de la base.
+
+`GET /bars/:barId/time-entries/integrity` recalcula la cadena entera del bar y los sellos, y responde
+si es valida y, si no, en que fila (`brokenAt`) o en que sello (`brokenSealDate`) se rompe. Un
+`UPDATE` a pelo en base de datos —tras desactivar el trigger— invalida esa fila y todas las
+siguientes.
 
 ## Jornada
 
@@ -87,8 +99,8 @@ moverle la hora, y queda igualmente registrado.
 | `POST /clock`                  | `bar:clock-in`                | Fichar uno mismo (entrada, pausas, salida)     |
 | `GET /me`                      | ser miembro del bar           | Mi jornada con su historial de modificaciones  |
 | `GET /`                        | `bar:view-time-entries`       | Jornadas del equipo, filtrando por persona     |
-| `GET /export`                  | `bar:view-time-entries`       | CSV con una fila por revision, para Inspeccion |
-| `GET /integrity`               | `bar:manage-time-entries`     | Verificacion de la cadena de hash              |
+| `GET /export`                  | `bar:view-time-entries`       | CSV con una fila por revision, para Inspeccion (rango libre `from`/`to`) |
+| `GET /integrity`               | `bar:manage-time-entries`     | Verificacion de la cadena de hash y los sellos |
 | `POST /`                       | `bar:manage-time-entries`     | Alta manual de una marca olvidada              |
 | `POST /:id/amend`              | `bar:amend-own-time-entry`    | Corregir la hora (la propia, o cualquiera con `bar:manage-time-entries`) |
 | `POST /:id/void`               | `bar:manage-time-entries`     | Anular una marca                               |
@@ -153,6 +165,5 @@ no ensucia el log del panel; una correccion suya sobre la jornada de otro, si.
 ## Pendiente
 
 - Export en PDF: hoy solo hay CSV, que ya sirve para entregar a Inspeccion.
-- Sellado diario del `hash` cabeza de cadena para anclar la fecha ante terceros.
 - Rango libre de fechas en la interfaz: hoy el registro y el export van por el dia seleccionado en
   el calendario de turnos.

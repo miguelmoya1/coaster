@@ -41,6 +41,7 @@ import { RosterWeeklyGrid } from './components/roster-weekly-grid/roster-weekly-
 import { ShiftCard } from './components/shift-card/shift-card';
 import { TimeEntryForm } from './components/time-entry-form/time-entry-form';
 import { VoidEntryForm } from './components/void-entry-form/void-entry-form';
+import { ExportTimesheetForm } from './components/export-timesheet-form/export-timesheet-form';
 import { WorkdayCard } from './components/workday-card/workday-card';
 
 export type DailyShiftItem = Shift & {
@@ -314,9 +315,9 @@ export default class Roster {
     });
 
     effect(() => {
-      const day = this.selectedDayId();
+      const { from, to } = this.#state.timeSheetRange();
 
-      this.#timeTrackingStore.setRange(day, day);
+      this.#timeTrackingStore.setRange(from, to);
     });
 
     effect(() => {
@@ -588,12 +589,32 @@ export default class Roster {
     });
   }
 
-  protected async handleDownloadTimeSheet() {
+  protected handleDownloadTimeSheet() {
+    const { from, to } = this.#state.timeSheetRange();
+
+    const sheetRef = this.#bottomSheet.open(ExportTimesheetForm, {
+      injector: this.#injector,
+      bindings: [
+        inputBinding('from', () => from),
+        inputBinding('to', () => to),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding<{ from: string; to: string }>('confirmed', (range) => {
+          sheetRef.dismiss();
+          void this.#downloadTimeSheet(range);
+        }),
+      ],
+    });
+  }
+
+  async #downloadTimeSheet(range: { from: string; to: string }) {
     this.isSubmitting.set(true);
 
     try {
-      const blob = await this.#timeTrackingStore.exportCsv();
-      this.#download(blob, `registro-horario-${this.selectedDayId()}.csv`);
+      const blob = await this.#timeTrackingStore.exportCsv(range);
+      const suffix = range.from === range.to ? range.from : `${range.from}_${range.to}`;
+      this.#download(blob, `registro-horario-${suffix}.csv`);
     } catch (error) {
       this.#feedback.error(error);
     } finally {

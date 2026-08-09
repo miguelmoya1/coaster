@@ -3,7 +3,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import type { TimeEntry, Workday } from '@coaster/common';
-import { TimeEntryAction, TimeEntrySource } from '@coaster/common';
+import { TimeEntryAction, TimeEntrySource, WorkdayDiscrepancy } from '@coaster/common';
 import { DateFormatterService } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -47,6 +47,19 @@ export interface WorkdayEntryItem {
           }
         </div>
       </header>
+
+      @if (workday().discrepancies.length > 0) {
+        <div class="flex flex-wrap gap-1.5 mb-2">
+          @for (discrepancy of workday().discrepancies; track discrepancy) {
+            <span
+              class="rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wider"
+              [class]="badgeClass(discrepancy)"
+            >
+              {{ 'roster.time_tracking.discrepancy_' + discrepancy.toLowerCase() | translate }}
+            </span>
+          }
+        </div>
+      }
 
       <ul class="flex flex-col gap-2">
         @for (item of items(); track item.entry.id) {
@@ -148,6 +161,12 @@ export class WorkdayCard {
   public readonly voidEntry = output<TimeEntry>();
 
   protected readonly workedLabel = computed(() => this.#dateFormatter.formatDuration(this.workday().workedMinutes));
+
+  protected badgeClass(discrepancy: WorkdayDiscrepancy): string {
+    return discrepancy === WorkdayDiscrepancy.OVERTIME
+      ? 'bg-primary/15 text-primary'
+      : 'bg-secondary/15 text-secondary';
+  }
 
   protected readonly plannedLabel = computed(() => {
     const planned = this.workday().plannedMinutes;

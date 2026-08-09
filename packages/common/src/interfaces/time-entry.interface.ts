@@ -1,4 +1,10 @@
-import { ClockState, TimeEntryAction, TimeEntrySource, TimeEntryType } from '../constants/time-entry.type';
+import {
+  ClockState,
+  TimeEntryAction,
+  TimeEntrySource,
+  TimeEntryType,
+  WorkdayDiscrepancy,
+} from '../constants/time-entry.type';
 import { BarId } from './bar.interface';
 import { Brand } from './brand.type';
 import { ShiftId } from './shift.interface';
@@ -46,6 +52,9 @@ export interface Workday {
   workedMinutes: number;
   breakMinutes: number;
   plannedMinutes: number | null;
+  plannedStart: string | null;
+  plannedEnd: string | null;
+  discrepancies: WorkdayDiscrepancy[];
   entries: TimeEntry[];
 }
 
@@ -82,4 +91,7 @@ export interface TimeSheetIntegrity {
   checkedEntries: number;
   valid: boolean;
   brokenAt: TimeEntryId | null;
+  checkedSeals: number;
+  sealsValid: boolean;
+  brokenSealDate: string | null;
 }

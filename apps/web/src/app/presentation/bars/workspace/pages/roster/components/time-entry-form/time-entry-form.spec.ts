@@ -83,6 +83,12 @@ describe('TimeEntryForm', () => {
     fixture.detectChanges();
   };
 
+  it('should show the clock button that opens the time picker', () => {
+    renderAmend();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('mat-timepicker-toggle button')).not.toBeNull();
+  });
+
   it('should start from the hour the mark already has', () => {
     renderAmend();
 

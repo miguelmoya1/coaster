@@ -1,30 +1,47 @@
-import type { Shift, TimeEntry, Workday } from '@coaster/common';
+import type { Shift, TimeEntry, UserId, Workday } from '@coaster/common';
 import { ClockState, ErrorCodes } from '@coaster/common';
 import { GetShiftsQuery } from '@coaster/shifts';
 import { BadRequestException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import {
+  findDiscrepancies,
   formatWorkdayDate,
   parseWorkdayDate,
   shiftWorkdayDate,
   summariseWorkday,
+  type PlannedShift,
   toDatedMarks,
   toWorkdayDate,
 } from '../../domain/workday';
 import { TimeEntriesMapper } from '../../mappers/time-entries.mapper';
 import { GetWorkdaysQuery } from '../impl/get-workdays.query';
 
-const plannedMinutesByDay = (shifts: Shift[]): Map<string, number> => {
-  const planned = new Map<string, number>();
+interface PlannedDay extends PlannedShift {
+  userId: UserId;
+  userName: string;
+  date: string;
+}
+
+const plannedByDay = (shifts: Shift[]): Map<string, PlannedDay> => {
+  const planned = new Map<string, PlannedDay>();
 
   for (const shift of shifts) {
-    const start = new Date(shift.startTime);
-    const end = new Date(shift.endTime);
-    const key = `${shift.userId}|${formatWorkdayDate(toWorkdayDate(start))}`;
-    const minutes = Math.max(0, Math.round((end.getTime() - start.getTime()) / 60_000));
+    const startsAt = new Date(shift.startTime);
+    const endsAt = new Date(shift.endTime);
+    const date = formatWorkdayDate(toWorkdayDate(startsAt));
+    const key = `${shift.userId}|${date}`;
+    const minutes = Math.max(0, Math.round((endsAt.getTime() - startsAt.getTime()) / 60_000));
+    const current = planned.get(key);
 
-    planned.set(key, (planned.get(key) ?? 0) + minutes);
+    planned.set(key, {
+      userId: shift.userId,
+      userName: shift.userName,
+      date,
+      startsAt: current && current.startsAt < startsAt ? current.startsAt : startsAt,
+      endsAt: current && current.endsAt > endsAt ? current.endsAt : endsAt,
+      minutes: (current?.minutes ?? 0) + minutes,
+    });
   }
 
   return planned;
@@ -49,7 +66,7 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
     const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(
       new GetShiftsQuery(query.barId, from.toISOString(), shiftWorkdayDate(to, 1).toISOString()),
     );
-    const planned = plannedMinutesByDay(shifts);
+    const planned = plannedByDay(shifts);
 
     const days = new Map<string, TimeEntry[]>();
 
@@ -64,20 +81,36 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
       }
     }
 
+    /*
+     * A rota entry nobody clocked into leaves no marks, so it would never reach the list built from
+     * them. Seeding those keys is what makes an absence visible next to the days that were worked.
+     */
+    for (const [key, shift] of planned) {
+      if (!days.has(key) && shift.date >= query.from && shift.date <= query.to) {
+        days.set(key, []);
+      }
+    }
+
     const now = new Date();
 
     return [...days.entries()]
       .map(([key, entries]) => {
-        const totals = summariseWorkday(toDatedMarks(entries), now);
+        const marks = toDatedMarks(entries);
+        const totals = summariseWorkday(marks, now);
+        const shift = planned.get(key) ?? null;
+        const workedMinutes = totals?.workedMinutes ?? 0;
 
         return {
-          date: entries[0].workdayDate,
-          userId: entries[0].userId,
-          userName: entries[0].userName,
+          date: entries[0]?.workdayDate ?? shift!.date,
+          userId: entries[0]?.userId ?? shift!.userId,
+          userName: entries[0]?.userName ?? shift!.userName,
           state: totals?.state ?? ClockState.OUT,
-          workedMinutes: totals?.workedMinutes ?? 0,
+          workedMinutes,
           breakMinutes: totals?.breakMinutes ?? 0,
-          plannedMinutes: planned.get(key) ?? null,
+          plannedMinutes: shift?.minutes ?? null,
+          plannedStart: shift?.startsAt.toISOString() ?? null,
+          plannedEnd: shift?.endsAt.toISOString() ?? null,
+          discrepancies: findDiscrepancies(marks, shift, workedMinutes),
           entries,
         };
       })

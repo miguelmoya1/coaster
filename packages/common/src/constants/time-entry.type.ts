@@ -29,3 +29,13 @@ export const ClockState = {
 } as const;
 
 export type ClockState = (typeof ClockState)[keyof typeof ClockState];
+
+export const WorkdayDiscrepancy = {
+  NO_SHOW: 'NO_SHOW',
+  UNPLANNED: 'UNPLANNED',
+  LATE_START: 'LATE_START',
+  EARLY_FINISH: 'EARLY_FINISH',
+  OVERTIME: 'OVERTIME',
+} as const;
+
+export type WorkdayDiscrepancy = (typeof WorkdayDiscrepancy)[keyof typeof WorkdayDiscrepancy];
