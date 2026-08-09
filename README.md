@@ -25,6 +25,15 @@ admin backoffice.
 - **Shift Marketplace:** staff can drop a shift for someone else to pick up.
 - **Staff Management:** three roles per venue — `OWNER`, `MANAGER` and `STAFF`.
 
+### ⏱️ Time Tracking (Legal Working-Time Register)
+
+The register required by art. 34.9 of the Spanish Workers' Statute: append-only marks enforced by
+database triggers, corrections that never overwrite the original and carry who/when/what/why, a
+per-bar hash chain, CSV export over any date range for labour inspections, and the rota contrasted
+against what was actually worked.
+
+See [time tracking](docs/operations/time-tracking.md).
+
 ### 📦 Logistics & Inventory Module (The Pantry)
 
 - **Visual Catalog:** large icons for fast use on touch screens.
@@ -103,12 +112,27 @@ npm run dev:web
 > `postgres:18-alpine`. A `postgres_data` volume created by 16 will not start under 18, so drop it
 > once (`docker compose down -v db`) and let the migrations rebuild your local database.
 
-> **Deleting a file breaks the web watcher.** The containerised `ng serve` keeps stale contents in
-> memory and every rebuild fails afterwards. Run `docker compose restart web`.
-
 To exercise Stripe locally you also need its CLI forwarding events to the API. `docker compose up`
 starts a `stripe` service that does it, or run it yourself — see
-[Stripe integration](docs/saas/stripe-integration.md).
+[Stripe setup](docs/saas/stripe-local-setup.md).
+
+### When a change does not seem to apply
+
+Three container traps, all of which look like broken code. Check
+`docker compose logs web` first: a failed build leaves the browser on the last good bundle.
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| The UI ignores your change | The `ng serve` watcher kept stale contents after a file was added or deleted | `docker compose restart web` |
+| `does not provide an export named '...'` | Vite's pre-bundled deps are cached in a **named** volume that survives restarts | `docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web` |
+| `Cannot find module '@nestjs/...'` | `node_modules` are anonymous volumes, so a host install is invisible inside | `docker compose exec api npm install` |
+
+After changing `packages/common`, rebuild it and restart the API — both apps consume its `dist`, not
+its source:
+
+```sh
+npm run build -w @coaster/common && docker compose restart api
+```
 
 ### Build for Production
 
@@ -127,10 +151,31 @@ npm run build
 - Generate Prisma Client: `npm run db:generate`
 - Apply Migrations: `npm run db:migrate`
 
+### Deploying
+
+The web app goes to Vercel, the API to Google Cloud Run, the database is Neon.
+
+Environment variables that are easy to get wrong:
+
+| Variable | Where | Why it matters |
+| --- | --- | --- |
+| `PRODUCTION` | web build | The build refuses to run without it, so a production bundle can never be silently built as a development one |
+| `USE_EMULATORS` | web build | Must be `false` in production; the build refuses the combination |
+| `TRUST_PROXY_HOPS` | API | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
+| `PUBLIC_URL` | API | Where printer bridges download updates from; `localhost` reaches no venue |
+| `STRIPE_WEBHOOK_SECRET` | API | Without it every webhook is rejected and subscriptions never activate |
+
+Migrations are not run by the image. Apply them with `prisma migrate deploy` before or during the
+release.
+
 ## 📚 Documentation
 
 - [Access model](docs/architecture/permissions.md) — roles, guards and plan grants
 - [Backend architecture](docs/architecture/backend.md)
 - [Frontend architecture](docs/architecture/frontend.md)
+- [Domain models](docs/architecture/domain-models.md)
+- [Time tracking](docs/operations/time-tracking.md)
+- [Printing bridge](docs/architecture/printing-bridge.md)
+- [Stripe integration](docs/saas/stripe-integration.md) · [Stripe setup](docs/saas/stripe-local-setup.md)
 - [Admin backoffice](docs/admin/backoffice.md)
 - [Roadmap](docs/roadmap.md)

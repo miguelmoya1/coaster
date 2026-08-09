@@ -1,157 +1,193 @@
-# Fichaje y control horario
+# Time tracking
 
-Registro de jornada del art. 34.9 del Estatuto de los Trabajadores. La ley pide tres cosas que
-condicionan el diseno: que el fichaje original no se pueda sobrescribir, que toda correccion deje
-rastro de quien, cuando, que y por que, y que el trabajador pueda consultar su jornada y las
-modificaciones hechas sobre ella.
+The working-time register required by art. 34.9 of the Spanish Workers' Statute (as amended by
+RD-ley 8/2019). The law asks for three things, and they drive the whole design: the original
+clock-in must not be overwritable, every correction must record who / when / what / why, and the
+worker must be able to see their own day and any changes made to it. Records must be kept for four
+years and be available to workers, their representatives and the labour inspectorate.
 
-El modulo vive en `apps/api/src/time-tracking` y cuelga de `bars/:barId/time-entries`.
+The law does **not** prescribe a format. Paper is compliant. That is worth knowing before adding
+machinery: CSV export satisfies "make it available", and cryptographic anchoring is an engineering
+choice, not an obligation.
 
-## La tabla es el rastro
+The module lives in `apps/api/src/time-tracking` and hangs off `bars/:barId/time-entries`.
 
-`TimeEntry` es **append-only**. No hay `UPDATE` ni `DELETE`: la base de datos los rechaza con un
-trigger (`time_entry_append_only`). Corregir una marca significa insertar una fila nueva que
-apunta a la anterior por `supersedesId`.
+## The table is the audit trail
+
+`TimeEntry` is **append-only**. There is no `UPDATE` and no `DELETE`: the database refuses them with
+a trigger (`time_entry_append_only`). Correcting a mark means inserting a new row that points at the
+previous one through `supersedesId`.
 
 ```text
-entry-1  RECORDED  08:00  (fichaje del trabajador)
-entry-2  AMENDED   07:30  supersedes entry-1  motivo: "entre antes pero fiche tarde"
-entry-3  VOIDED    07:30  supersedes entry-2  motivo: "marca duplicada"
+entry-1  RECORDED  08:00  (worker clocked in)
+entry-2  AMENDED   07:30  supersedes entry-1  reason: "came in earlier, clocked in late"
+entry-3  VOIDED    07:30  supersedes entry-2  reason: "duplicate mark"
 ```
 
-Las tres filas comparten `rootId = entry-1`. De ahi sale todo:
+All three rows share `rootId = entry-1`. Everything derives from that:
 
-- **estado actual** de una marca: la fila del grupo con `sequence` mas alta (nadie la supersede);
-- **historial**: el grupo entero, ordenado, que es lo que se devuelve en `TimeEntry.revisions`;
-- **marca anulada**: el grupo cuya cabeza es `VOIDED`. No se borra ni se esconde, se muestra
-  marcada; no cuenta para los totales.
+- **current state** of a mark: the row in the group with the highest `sequence` (nothing supersedes
+  it);
+- **history**: the whole group in order, which is what `TimeEntry.revisions` returns;
+- **voided mark**: a group whose head is `VOIDED`. It is neither deleted nor hidden, it is shown
+  struck through, and it does not count towards totals.
 
-Como no hay estado mutable, no existe la posibilidad de que el dato y su auditoria se separen: son
-la misma fila. Por eso la traza **no** se escribe en un manejador de evento aparte, a diferencia
-del backoffice: alli una auditoria perdida es un fallo de registro, aqui seria una sancion.
+Because there is no mutable state, the data and its audit trail cannot drift apart: they are the
+same row. That is why the trail is **not** written by a separate event handler, unlike the
+backoffice: there, a lost audit entry is a logging bug; here it would be a fine.
 
-## Cadena de hash
+## Hash chain
 
-Cada fila lleva `sequence` (monotonico por bar), `prevHash` y `hash`:
+Every row carries `sequence` (monotonic per bar), `prevHash` and `hash`:
 
 ```text
 hash = sha256(prevHash + "id|barId|userId|rootId|type|action|occurredAt|recordedAt|workdayDate|userName|userEmail|source|supersedesId|actorId|reason|sequence")
 ```
 
-La insercion toma `pg_advisory_xact_lock(hashtext(barId))` para que dos fichajes simultaneos del
-mismo bar no bifurquen la cadena. El `id` es un UUID generado en el repositorio, no por la base de
-datos, porque entra en el hash y hay que conocerlo antes del `INSERT`.
+Inserting takes `pg_advisory_xact_lock(hashtext(barId))` so two simultaneous clock-ins at the same
+bar cannot fork the chain. The `id` is a UUID generated in the repository, not by the database,
+because it goes into the hash and has to be known before the `INSERT`.
 
-`recordedAt` (reloj del servidor) va dentro del hash junto a `occurredAt`, asi que la cadena sella
-tanto la hora fichada como la fecha en que se registro o se corrigio.
+`recordedAt` (the server clock) is inside the hash alongside `occurredAt`, so the chain seals both
+the hour worked and the moment it was recorded or corrected.
 
-`workdayDate` y el `userSnapshot` tambien entran: sin ellos se podia mover una marca a otro dia o
-reasignarla a otra persona sin romper la cadena. Los triggers `BEFORE UPDATE`/`BEFORE DELETE` ya
-rechazan ambas cosas; el hash es el respaldo para cuando quien manipula tiene privilegios para
-desactivarlos o restaura un volcado retocado.
+`workdayDate` and `userSnapshot` are in there too: without them a mark could be moved to another day
+or reassigned to somebody else without breaking the chain. The `BEFORE UPDATE` / `BEFORE DELETE`
+triggers already refuse both; the hash is the backstop for somebody with enough privileges to
+disable them or restore a doctored dump.
 
-`GET /bars/:barId/time-entries/integrity` recalcula la cadena entera del bar y responde si es valida
-y, si no, en que fila se rompe. Un `UPDATE` a pelo en base de datos —tras desactivar el trigger—
-invalida esa fila y todas las siguientes.
+`GET /bars/:barId/time-entries/integrity` recomputes the whole chain for a bar and reports whether
+it is valid and, if not, which row breaks it.
 
-## Jornada
+The chain proves internal consistency, not age. Somebody with SQL access who rewrites every row and
+recomputes every hash produces a chain that verifies. Defending against that would need daily seals
+published or timestamped externally; it was built, then deliberately removed, because nothing in the
+regulation asks for it and the triggers already stop everything short of privileged database access.
 
-Una marca es de tipo `CLOCK_IN`, `BREAK_START`, `BREAK_END` o `CLOCK_OUT`, y solo se admite si la
-maquina de estados la acepta: fuera → dentro → pausa → dentro → fuera. Las pausas son marcas de
-pleno derecho y se corrigen igual que la entrada y la salida.
+## The workday
 
-`workdayDate` agrupa la jornada, no el dia natural: un turno que entra a las 22:00 y sale a las
-03:00 pertenece entero al dia en que empezo. La zona horaria es `Europe/Madrid`
-(`WORKDAY_TIME_ZONE`).
+A mark is one of `CLOCK_IN`, `BREAK_START`, `BREAK_END` or `CLOCK_OUT`, and is only accepted if the
+state machine allows it: out → in → break → in → out. Breaks are first-class marks and are corrected
+the same way as clock-in and clock-out.
 
-Los fichajes del propio trabajador usan **la hora del servidor**; el cliente no la envia. Las horas
-que llegan del cliente solo existen en las correcciones, que exigen motivo y quedan firmadas.
+`workdayDate` groups the shift, not the calendar day: a shift that starts at 22:00 and ends at 03:00
+belongs entirely to the day it started. The timezone is `Europe/Madrid` (`BAR_TIME_ZONE`).
 
-## Quien corrige que
+There is **no restriction on the hour**. A 05:00 clock-in for kitchen prep is fine; only the
+sequence is validated.
 
-Cada uno corrige sus propias marcas (`bar:amend-own-time-entry`, que tiene todo el mundo) indicando
-el motivo. Tocar las de otro exige `bar:manage-time-entries`. No hay aprobaciones ni estados
-intermedios: el cambio entra al momento y lo que da garantias es el historial, que guarda la hora
-anterior, la nueva, quien la cambio, cuando y por que.
+A worker's own marks use **the server clock**; the client never sends a time. Client-supplied times
+only exist in corrections, which require a reason and are signed.
 
-El guard no puede saber de quien es la marca, asi que la mitad de la regla que depende del dueno se
-comprueba en `AmendTimeEntryHandler`, que responde `NOT_YOUR_TIME_ENTRY`.
+### Contrast against the rota
 
-Anular sigue siendo cosa de `MANAGER` y `OWNER`: borrar una marca del recuento pesa mas que
-moverle la hora, y queda igualmente registrado.
+`Workday` is derived, not stored, and carries `plannedMinutes`, `plannedStart`, `plannedEnd` and a
+list of discrepancies:
+
+| Discrepancy    | Meaning                                               |
+| -------------- | ----------------------------------------------------- |
+| `NO_SHOW`      | a shift was scheduled and there are no marks at all    |
+| `UNPLANNED`    | somebody worked with nothing on the rota               |
+| `LATE_START`   | first mark more than 10 minutes after the shift began  |
+| `EARLY_FINISH` | `CLOCK_OUT` more than 10 minutes before it ended       |
+| `OVERTIME`     | worked noticeably longer than planned                  |
+
+Ten minutes of tolerance, so arriving two minutes late is not flagged. `EARLY_FINISH` is only
+considered once there is a `CLOCK_OUT`: somebody still clocked in has not left early, they simply
+have not left.
+
+Days are seeded from the rota as well as from the marks. Built only from marks, a scheduled day
+nobody clocked into produced no group and therefore no row — the absence, which is exactly what a
+manager wants to see, was invisible.
+
+## Who corrects what
+
+Everyone corrects their own marks (`bar:amend-own-time-entry`, which everybody has) with a reason.
+Touching somebody else's requires `bar:manage-time-entries`. There are no approvals and no
+intermediate states: the change takes effect immediately, and what provides the guarantee is the
+history, which keeps the previous time, the new one, who changed it, when and why.
+
+The guard cannot know whose mark it is, so the half of the rule that depends on ownership is checked
+in `AmendTimeEntryHandler`, which answers `NOT_YOUR_TIME_ENTRY`.
+
+Voiding stays with `MANAGER` and `OWNER`: removing a mark from the count weighs more than moving its
+time, and it is recorded just the same.
 
 ## Endpoints
 
-| Metodo y ruta                  | Permiso                       | Para que                                       |
-| ------------------------------ | ----------------------------- | ---------------------------------------------- |
-| `POST /clock`                  | `bar:clock-in`                | Fichar uno mismo (entrada, pausas, salida)     |
-| `GET /me`                      | ser miembro del bar           | Mi jornada con su historial de modificaciones  |
-| `GET /`                        | `bar:view-time-entries`       | Jornadas del equipo, filtrando por persona     |
-| `GET /export`                  | `bar:view-time-entries`       | CSV con una fila por revision, para Inspeccion (rango libre `from`/`to`) |
-| `GET /integrity`               | `bar:manage-time-entries`     | Verificacion de la cadena de hash              |
-| `POST /`                       | `bar:manage-time-entries`     | Alta manual de una marca olvidada              |
-| `POST /:id/amend`              | `bar:amend-own-time-entry`    | Corregir la hora (la propia, o cualquiera con `bar:manage-time-entries`) |
-| `POST /:id/void`               | `bar:manage-time-entries`     | Anular una marca                               |
+| Method and route  | Permission                 | For what                                                         |
+| ----------------- | -------------------------- | ---------------------------------------------------------------- |
+| `POST /clock`     | `bar:clock-in`             | Clock yourself in or out, and breaks                             |
+| `GET /me`         | membership                 | My workday with its history of changes                           |
+| `GET /`           | `bar:view-time-entries`    | The team's workdays, filterable by person                        |
+| `GET /export`     | `bar:view-time-entries`    | CSV, one row per revision, free `from`/`to` range                |
+| `GET /integrity`  | `bar:manage-time-entries`  | Hash chain verification                                          |
+| `POST /`          | `bar:manage-time-entries`  | Manually add a forgotten mark                                    |
+| `POST /:id/amend` | `bar:amend-own-time-entry` | Correct a time (own, or anyone's with `bar:manage-time-entries`) |
+| `POST /:id/void`  | `bar:manage-time-entries`  | Void a mark                                                      |
 
-`bar:clock-in` y `bar:amend-own-time-entry` los tiene todo el mundo; el resto, `MANAGER` y `OWNER`. Corregir y anular
-exigen motivo (minimo 5 caracteres) y se rechazan si dejarian la jornada descuadrada
-(`INVALID_CLOCK_SEQUENCE`), por ejemplo anular una entrada y dejar la salida huerfana.
+`bar:clock-in` and `bar:amend-own-time-entry` are held by everyone; the rest by `MANAGER` and
+`OWNER`. Correcting and voiding require a reason of at least 5 characters and are refused if they
+would leave the day inconsistent (`INVALID_CLOCK_SEQUENCE`) — for example voiding a clock-in and
+orphaning the clock-out.
 
-`GET /me` no lleva permiso: cualquier miembro ve sus propios fichajes y las correcciones que le
-hayan hecho, que es justo lo que exige la ley.
+`GET /me` carries no permission: any member sees their own marks and any corrections made to them,
+which is exactly what the law requires.
 
-`POST /clock` lleva `@SkipSubscriptionCheck()`. Un bar que deja de pagar pierde la escritura, pero
-no puede perder el registro de jornada de sus trabajadores: la obligacion legal no depende de que
-la suscripcion este al dia. Corregir y dar de alta marcas si exigen suscripcion viva.
+`POST /clock` carries `@SkipSubscriptionCheck()`. A venue that stops paying loses writes, but it
+cannot lose its workers' time register: the legal obligation does not depend on the subscription
+being current. Corrections and manual entries do require a live subscription.
 
-## Conservacion
+## Retention
 
-Las claves ajenas de `TimeEntry` son `RESTRICT`, no `CASCADE`: borrar un usuario o un bar con
-fichajes falla. Ademas cada fila guarda `userSnapshot` con el nombre y el email del trabajador en
-el momento del fichaje, para que el registro se sostenga aunque la cuenta cambie. Los cuatro anos
-de custodia legal son una politica de borrado, no una limpieza automatica: hoy no hay ninguna.
+`TimeEntry`'s foreign keys are `RESTRICT`, not `CASCADE`: deleting a user or a bar that has marks
+fails. Each row also stores `userSnapshot` with the worker's name and email at the moment of the
+mark, so the register stands even if the account changes. The four-year legal custody is a deletion
+policy, not an automatic cleanup: there is none today.
 
-## Interfaz
+## Interface
 
-El fichaje **no tiene seccion propia** en la barra inferior: vive dentro de **Turnos**
-(`presentation/bars/workspace/pages/roster`), en la vista de dia, porque es donde el trabajador ya
-va a ver su turno. Toda la gestion se hace desde ahi.
+Clocking has **no section of its own** in the bottom bar: it lives inside **Shifts**
+(`presentation/bars/workspace/pages/roster`), because that is where the worker already goes to see
+their shift. Everything is managed from there.
 
-- **Tarjeta de fichaje** (`clock-card`): estado actual, tiempo trabajado y de pausa, y solo los
-  botones que la jornada admite en ese momento. La ve quien tenga `bar:clock-in`, o sea todos.
-- **Mi jornada** (`workday-card`): las marcas del dia con sus insignias —manual, modificada,
-  anulada— y un desplegable con el historial de revisiones (hora anterior, quien y por que). Una
-  marca anulada no desaparece: sale tachada.
-- **Registro del equipo**: la misma tarjeta por cada trabajador, para quien tenga
-  `bar:view-time-entries`, con **Descargar CSV**. Con `bar:manage-time-entries` aparecen ademas
-  corregir, anular, anadir marca y verificar integridad.
-- **Correcciones**: hojas inferiores (`time-entry-form`, `void-entry-form`) que exigen motivo de al
-  menos 5 caracteres; el boton de guardar no se habilita sin el. El trabajador ve el lapiz en sus
-  propias marcas; anular solo aparece con `bar:manage-time-entries`.
+- **Clock card** (`clock-card`): current state, time worked and on break, and only the buttons the
+  day allows at that moment. Visible to anyone with `bar:clock-in`, which is everyone.
+- **My workday** (`workday-card`): the day's marks with their badges — manual, amended, voided —
+  discrepancy chips, and an expandable revision history (previous time, who, why). A voided mark
+  does not disappear: it is struck through.
+- **Team register**: the same card per worker, for anyone with `bar:view-time-entries`, plus
+  **Download CSV**. With `bar:manage-time-entries` the correct, void, add-mark and verify-integrity
+  actions appear too.
+- **Corrections**: bottom sheets (`time-entry-form`, `void-entry-form`) requiring a reason of at
+  least 5 characters; the save button stays disabled without one.
+- **Export**: opens a date-range picker preloaded with whatever period is on screen, so an
+  inspection covering several months can be produced in one file.
 
-**Fichar solo se ofrece en el dia de hoy.** Un fichaje siempre lleva el reloj del servidor, asi que
-por la API es imposible marcar en pasado; ensenar los botones en otro dia solo invitaba a
-intentarlo. Los dias anteriores se arreglan con correcciones y altas manuales, que piden motivo.
+The register follows the view: day, week or month, from the same selector already at the top of the
+Shifts page.
 
-La geolocalizacion se pide al fichar y es opcional: si el navegador la deniega o tarda mas de 3
-segundos, el fichaje sale igual sin coordenadas.
+**Clocking is only offered on today.** A clock-in always carries the server clock, so marking in the
+past is impossible through the API anyway; showing the buttons on another day only invited people to
+try. Earlier days are fixed with corrections and manual entries, which require a reason.
 
-### Permisos, no roles
+Geolocation is requested when clocking and is optional: if the browser denies it or takes longer
+than 3 seconds, the mark is recorded without coordinates.
 
-De paso, la pagina de turnos dejo de mirar `BarRole.OWNER` para decidir que ensena. Crear turnos,
-el bloque de replicacion semanal y el boton de borrar se gobiernan ahora por `bar:create-shift` y
-`bar:delete-shift`. Antes un `MANAGER` tenia los permisos en la API pero la interfaz le escondia
-los botones.
+### Permissions, not roles
 
-## Auditoria en el backoffice
+The shifts page does not look at `BarRole.OWNER` to decide what to show. Creating shifts, the weekly
+replication block and the delete button are governed by `bar:create-shift` and `bar:delete-shift`.
+Before that, a `MANAGER` had the permissions in the API but the interface hid the buttons.
 
-`AuditTimeEntryChangedHandler` escucha `TimeEntryRecordedEvent`, `TimeEntryAmendedEvent` y
-`TimeEntryVoidedEvent`, y solo cuando el actor es un admin de plataforma publica `AdminActionEvent`
-con `TIME_ENTRY_CREATED`, `TIME_ENTRY_AMENDED` o `TIME_ENTRY_VOIDED`. Un fichaje normal de un admin
-no ensucia el log del panel; una correccion suya sobre la jornada de otro, si.
+## Backoffice auditing
 
-## Pendiente
+`AuditTimeEntryChangedHandler` listens for `TimeEntryRecordedEvent`, `TimeEntryAmendedEvent` and
+`TimeEntryVoidedEvent`, and only when the actor is a platform admin does it publish
+`AdminActionEvent` with `TIME_ENTRY_CREATED`, `TIME_ENTRY_AMENDED` or `TIME_ENTRY_VOIDED`. An admin
+clocking their own day does not clutter the panel log; an admin correcting somebody else's does.
 
-- Export en PDF: hoy solo hay CSV, que ya sirve para entregar a Inspeccion.
-- Rango libre de fechas en la interfaz: hoy el registro y el export van por el dia seleccionado en
-  el calendario de turnos.
+## Not done
+
+- **PDF export.** Only CSV today, which is enough to hand to an inspection since the regulation
+  imposes no format.

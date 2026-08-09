@@ -1,100 +1,107 @@
-# Backoffice de administracion
+# Admin backoffice
 
-Panel interno en `/admin`, solo para usuarios con `User.role = ADMIN`. Sirve para operar la
-plataforma sin entrar en la base de datos a mano.
+Internal panel at `/admin`, for users with `User.role = ADMIN` only. It exists so the platform can be
+operated without opening the database by hand.
 
-El control de acceso completo esta en [Modelo de acceso](../architecture/permissions.md).
+The full access story is in [access model](../architecture/permissions.md).
 
-## Secciones
+## Sections
 
-| Ruta               | Para que                                                                     |
-| ------------------ | ---------------------------------------------------------------------------- |
-| `/admin/overview`  | Bares, usuarios, cuantos tienen acceso y por que via, facturacion a 30 dias   |
-| `/admin/bars`      | Listado con busqueda y filtros; ficha con acciones sobre el plan y el equipo  |
-| `/admin/users`     | Buscar personas, promover o quitar admin, activar y desactivar                |
-| `/admin/audit`     | Todo lo que se ha hecho desde el panel                                        |
-| `/admin/templates` | Plantillas estandar de catalogo que se ofrecen al crear un bar                |
+| Route              | For what                                                                  |
+| ------------------ | ------------------------------------------------------------------------- |
+| `/admin/overview`  | Bars, users, how many have access and by which route, 30-day billing       |
+| `/admin/bars`      | Searchable list with filters; detail page with plan and team actions       |
+| `/admin/users`     | Find people, promote or demote admins, activate and deactivate             |
+| `/admin/audit`     | Everything done from the panel                                             |
+| `/admin/templates` | Standard menu templates offered when creating a bar                        |
 
-## Conceder PRO sin Stripe
+## Granting PRO without Stripe
 
-Desde la ficha de un bar: **Conceder PRO**, con duracion (7, 30, 90, 365 dias o indefinido) y un
-motivo opcional.
+From a bar's detail page: **Grant PRO**, with a duration (7, 30, 90, 365 days or indefinite) and an
+optional reason.
 
-Se escribe en las columnas `manual*` de `BarSubscription` sin tocar las de Stripe. Consecuencias:
+It writes to the `manual*` columns on `BarSubscription` without touching the Stripe ones.
+Consequences:
 
-- El bar escribe con normalidad aunque no tenga suscripcion ni cliente en Stripe.
-- Un webhook posterior actualiza la facturacion sin borrar la concesion.
-- Al retirarla, el bar vuelve a lo que diga Stripe; si ahi no hay nada vivo, queda en solo lectura.
-- Una concesion caducada equivale a no tener ninguna: no hace falta limpiarla.
+- The bar writes normally even with no Stripe subscription or customer.
+- A later webhook updates billing without erasing the grant.
+- Revoking it drops the bar back to whatever Stripe says; if nothing there is live, it becomes read
+  only.
+- An expired grant is equivalent to no grant: there is nothing to clean up.
 
-Retirar exige que haya una concesion; si no la hay responde `NO_MANUAL_GRANT` en vez de fingir
-exito sobre una suscripcion de Stripe que el panel no gestiona.
+Revoking requires a grant to exist; otherwise it answers `NO_MANUAL_GRANT` rather than faking success
+against a Stripe subscription the panel does not manage.
 
-Conceder y retirar publican `SubscriptionOverriddenEvent`, que sale por websocket como
-`subscriptionUpdated`, de modo que los clientes de ese bar se refrescan al instante.
+Granting and revoking both publish `SubscriptionOverriddenEvent`, which goes out over the websocket
+as `subscriptionUpdated`, so that bar's clients refresh immediately.
 
-## Origen de facturacion
+## Billing source
 
-Cada bar se clasifica en uno de tres estados, excluyentes y en este orden de prioridad:
+Each bar falls into one of three states, mutually exclusive and in this order of priority:
 
-- **MANUAL** — concesion de admin vigente.
-- **STRIPE** — suscripcion de Stripe viva y sin concesion por encima.
-- **NONE** — ni una cosa ni la otra: el bar esta en solo lectura.
+- **MANUAL** — a live admin grant.
+- **STRIPE** — a live Stripe subscription with no grant on top.
+- **NONE** — neither: the bar is read only.
 
-El calculo (`AdminMapper`) replica el de `SubscriptionActiveGuard` a proposito, para que el panel
-nunca muestre acceso que la API vaya a rechazar.
+The calculation (`AdminMapper`) deliberately mirrors `SubscriptionActiveGuard`, so the panel never
+shows access the API is about to refuse.
 
-## Reglas que el panel no deja saltarse
+## Rules the panel will not let you break
 
-- No puedes editar tu propia cuenta de admin: surtiria efecto en la peticion siguiente y no
-  quedaria pantalla desde la que deshacerlo.
-- No puedes quitar ni desactivar al ultimo admin activo.
-- No puedes dejar un bar sin `OWNER`.
-- Las acciones destructivas (borrar bares o usuarios) no existen todavia, por decision explicita.
+- You cannot edit your own admin account: it would take effect on the next request and leave no
+  screen from which to undo it.
+- You cannot demote or deactivate the last active admin.
+- You cannot leave a bar without an `OWNER`.
+- Destructive actions (deleting bars or users) do not exist yet, by explicit decision.
 
-## Auditoria
+## Auditing
 
-Cada accion escribe en `AdminAuditLog` el actor, la accion, el objetivo, el motivo y un `metadata`
-con el antes y el despues. Se ve en `/admin/audit` y, filtrado, en la ficha de cada bar y usuario.
+Every action writes the actor, the action, the target, the reason and a `metadata` with before and
+after into `AdminAuditLog`. It is visible at `/admin/audit` and, filtered, on each bar and user page.
 
-Acciones registradas: `BAR_PLAN_GRANTED`, `BAR_PLAN_REVOKED`, `BAR_RENAMED`,
-`BAR_MEMBER_ROLE_CHANGED`, `USER_ROLE_CHANGED`, `USER_ACTIVATION_CHANGED`.
+Recorded actions: `BAR_PLAN_GRANTED`, `BAR_PLAN_REVOKED`, `BAR_RENAMED`, `BAR_MEMBER_ROLE_CHANGED`,
+`USER_ROLE_CHANGED`, `USER_ACTIVATION_CHANGED`, `TIME_ENTRY_CREATED`, `TIME_ENTRY_AMENDED`,
+`TIME_ENTRY_VOIDED`.
 
-### Como se registra
+### How it is recorded
 
-Ningun handler escribe en el repositorio de auditoria. Todos publican **un unico evento**,
-`AdminActionEvent`, que lleva la entrada ya montada; `RecordAdminActionHandler` es el unico
-suscriptor y el unico que escribe.
+No handler writes to the audit repository. They all publish **a single event**, `AdminActionEvent`,
+carrying the entry already assembled; `RecordAdminActionHandler` is the only subscriber and the only
+writer.
 
 ```text
-handler de comando ─┐
-                    ├─► AdminActionEvent ─► RecordAdminActionHandler ─► AdminAuditLog
-MemberRoleChangedEvent (si el actor es ADMIN) ─┘
+command handler ─┐
+                 ├─► AdminActionEvent ─► RecordAdminActionHandler ─► AdminAuditLog
+MemberRoleChangedEvent (when the actor is ADMIN) ─┘
 ```
 
-Un evento por accion habria significado seis handlers identicos: la entrada de auditoria ya tiene
-la misma forma para todas, asi que el evento la transporta tal cual.
+One event per action would have meant several identical handlers: the audit entry already has the
+same shape for all of them, so the event carries it as is.
 
-Dos consecuencias que conviene tener presentes:
+Two consequences worth keeping in mind:
 
-- El registro es **asincrono**. Ya lo era de facto (la escritura nunca compartio transaccion con la
-  accion), pero ahora un fallo del handler no revienta la peticion: se registra como `error` en el
-  log con el detalle de que accion quedo sin auditar.
-- `BAR_MEMBER_ROLE_CHANGED` no nace de una ruta del backoffice. El panel cambia roles con el mismo
-  `PATCH /bars/:barId/members/:memberId` que usa un dueno, y la entrada se escribe solo cuando quien
-  actua es `ADMIN`.
+- Recording is **asynchronous**. It effectively already was — the write never shared a transaction
+  with the action — but now a handler failure does not break the request: it is logged as an error
+  with which action went unaudited.
+- `BAR_MEMBER_ROLE_CHANGED` does not come from a backoffice route. The panel changes roles with the
+  same `PATCH /bars/:barId/members/:memberId` an owner uses, and the entry is written only when the
+  actor is an `ADMIN`.
 
-## Estructura del codigo
+## Code layout
 
-Sigue el mismo reparto que el resto (ver [backend](../architecture/backend.md) y
+Same split as everywhere else (see [backend](../architecture/backend.md) and
 [frontend](../architecture/frontend.md)):
 
 ```text
-apps/api/src/admin/          modulo CQRS: controllers, commands, queries, data-access, dto
-apps/web/src/app/admin/      dominio: repositorio HTTP, stores con signals, mappers
-apps/web/src/app/presentation/admin/   layout, paginas y componentes
+apps/api/src/admin/                     CQRS module: controllers, commands, queries, data-access, dto
+apps/web/src/app/admin/                 domain: HTTP repository, signal stores, mappers
+apps/web/src/app/presentation/admin/    layout, pages and components
 ```
 
-La API expone todo bajo `/api/v1/admin`. Las rutas de bares llevan `@SkipSubscriptionCheck()`:
-tienen `barId`, y sin el, el guard global bloquearia las escrituras justo sobre los bares
-caducados que el admin viene a arreglar.
+The API exposes everything under `/api/v1/admin`. The bar routes carry `@SkipSubscriptionCheck()`:
+they have a `barId`, and without it the global guard would block writes on exactly the lapsed bars
+the admin came to fix.
+
+`admin-controllers.security.spec.ts` walks every admin controller and fails if one loses its
+`@Admin()`, its guards, or their order — the panel's routes are the ones where a missing decorator
+costs the most.
