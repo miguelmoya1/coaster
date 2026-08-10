@@ -833,6 +833,7 @@
       "establishment_plan_revoked": "Plan revoked",
       "establishment_renamed": "Establishment renamed",
       "establishment_member_role_changed": "Member role changed",
+      "establishment_modules_changed": "Modules changed",
       "user_role_changed": "User role changed",
       "user_activation_changed": "User activation changed",
       "time_entry_created": "Punch created",

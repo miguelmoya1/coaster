@@ -17,5 +17,6 @@ import { QueryHandlers } from './queries';
     ...CommandHandlers,
     ...QueryHandlers,
   ],
+  exports: [EstablishmentSettingsRepository],
 })
 export class EstablishmentsModule {}

@@ -3,18 +3,25 @@ import type {
   AdminEstablishmentDetail,
   AdminEstablishmentSummary,
   EstablishmentId,
+  EstablishmentSettings,
   Paginated,
   User,
 } from '@coaster/common';
 import { Admin, AdminGuard, SkipSubscriptionCheck } from '@coaster/core';
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GrantEstablishmentPlanCommand, RenameEstablishmentCommand, RevokeEstablishmentPlanCommand } from '../commands';
+import {
+  GrantEstablishmentPlanCommand,
+  RenameEstablishmentCommand,
+  RevokeEstablishmentPlanCommand,
+  UpdateEstablishmentModulesCommand,
+} from '../commands';
 import {
   AdminEstablishmentsQueryDto,
   GrantEstablishmentPlanDto,
   RenameEstablishmentDto,
   RevokeEstablishmentPlanDto,
+  UpdateEstablishmentModulesDto,
 } from '../dto';
 import { GetAdminEstablishmentDetailQuery, ListAdminEstablishmentsQuery } from '../queries';
 
@@ -47,6 +54,17 @@ export class AdminEstablishmentsController {
     @CurrentUser() user: User,
   ): Promise<void> {
     await this._commandBus.execute(new RenameEstablishmentCommand(establishmentId, dto.name, user));
+  }
+
+  @Patch(':establishmentId/modules')
+  async updateModules(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: UpdateEstablishmentModulesDto,
+    @CurrentUser() actor: User,
+  ): Promise<EstablishmentSettings> {
+    return this._commandBus.execute<UpdateEstablishmentModulesCommand, EstablishmentSettings>(
+      new UpdateEstablishmentModulesCommand(establishmentId, dto.modules, actor),
+    );
   }
 
   @Post(':establishmentId/plan')

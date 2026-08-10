@@ -13,7 +13,7 @@ export class EstablishmentSettingsRepository {
 
   /**
    * Answering the questions is what marks an establishment as configured, so the first write also
-   * closes the onboarding. Later ones leave the original timestamp alone.
+   * closes the onboarding.
    */
   public update(establishmentId: EstablishmentId, modules: EstablishmentModule[]) {
     const resolved = resolveModules(modules) as DbEstablishmentModule[];
@@ -22,6 +22,20 @@ export class EstablishmentSettingsRepository {
       where: { establishmentId },
       create: { establishmentId, modules: resolved, configuredAt: new Date() },
       update: { modules: resolved, configuredAt: { set: new Date() } },
+    });
+  }
+
+  /**
+   * Support changing a module is not the owner answering the onboarding, so this deliberately
+   * leaves configuredAt alone: an establishment nobody has set up yet still gets its welcome.
+   */
+  public updateAsAdmin(establishmentId: EstablishmentId, modules: EstablishmentModule[]) {
+    const resolved = resolveModules(modules) as DbEstablishmentModule[];
+
+    return this._db.dbEstablishmentSettings.upsert({
+      where: { establishmentId },
+      create: { establishmentId, modules: resolved },
+      update: { modules: resolved },
     });
   }
 }

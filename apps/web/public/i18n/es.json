@@ -833,6 +833,7 @@
       "establishment_plan_revoked": "Plan retirado",
       "establishment_renamed": "Establecimiento renombrado",
       "establishment_member_role_changed": "Rol de miembro cambiado",
+      "establishment_modules_changed": "Módulos cambiados",
       "user_role_changed": "Rol de usuario cambiado",
       "user_activation_changed": "Estado de usuario cambiado",
       "time_entry_created": "Fichaje creado",
