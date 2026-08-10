@@ -1,5 +1,6 @@
 import { computed, inject, InjectionToken, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '@coaster/env';
 import { Language } from '@ngx-translate/core';
 import {
   Auth as FirebaseAuth,
@@ -78,7 +79,7 @@ export class Auth {
       }
     });
 
-    if (typeof window !== 'undefined' && !(window as unknown as { _production: boolean })._production) {
+    if (typeof window !== 'undefined' && !environment.production) {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
         async (token = 'fake-jwt-token', targetRoute = '/bars') => {
           this.#isTestMode = true;

@@ -1,17 +1,19 @@
+import type { User } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { DbService, DbUser } from '@coaster/core/db';
+import { UsersMapper } from '@coaster/core';
+import { DbService } from '@coaster/core/db';
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { getAuth } from 'firebase-admin/auth';
 import { SyncUserCommand } from '../impl/sync-user.command';
 
 @CommandHandler(SyncUserCommand)
-export class SyncUserHandler implements ICommandHandler<SyncUserCommand, DbUser> {
+export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
   private readonly logger = new Logger(SyncUserHandler.name);
 
   constructor(private readonly _db: DbService) {}
 
-  async execute(command: SyncUserCommand): Promise<DbUser> {
+  async execute(command: SyncUserCommand): Promise<User> {
     try {
       const decodedToken = await getAuth().verifyIdToken(command.token);
 
@@ -43,7 +45,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, DbUser>
           }
         }
 
-        return user;
+        return UsersMapper.toDomain(user);
       }
 
       user = await this._db.dbUser.findUnique({
@@ -51,10 +53,22 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, DbUser>
       });
 
       if (user) {
-        return await this._db.dbUser.update({
-          where: { id: user.id },
-          data: { googleId: decodedToken.sub },
-        });
+        if (user.googleId) {
+          this.logger.warn(`Refusing to move ${decodedToken.email} onto a different sign-in account`);
+          throw new UnauthorizedException(ErrorCodes.EMAIL_ALREADY_LINKED);
+        }
+
+        if (decodedToken.email_verified !== true) {
+          this.logger.warn(`Refusing to claim ${decodedToken.email} from a token that does not vouch for the address`);
+          throw new UnauthorizedException(ErrorCodes.EMAIL_NOT_VERIFIED);
+        }
+
+        return UsersMapper.toDomain(
+          await this._db.dbUser.update({
+            where: { id: user.id },
+            data: { googleId: decodedToken.sub },
+          }),
+        );
       }
 
       try {
@@ -66,13 +80,13 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, DbUser>
             photoUrl: decodedToken.picture || null,
           },
         });
-        return user;
+        return UsersMapper.toDomain(user);
       } catch (error: any) {
         if (error?.code === 'P2002') {
           user = await this._db.dbUser.findUnique({
             where: { email: decodedToken.email },
           });
-          if (user) return user;
+          if (user) return UsersMapper.toDomain(user);
         }
         throw error;
       }

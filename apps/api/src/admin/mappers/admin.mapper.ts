@@ -7,6 +7,7 @@ import type {
   AdminUserBarMembership,
   AdminUserSummary,
   BarId,
+  BarMemberId,
   UserId,
 } from '@coaster/common';
 import { BarBillingSource, BarRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
@@ -28,6 +29,7 @@ interface AuditRow {
 }
 
 interface MemberRow {
+  id: string;
   role: string;
   active: boolean;
   createdAt: Date;
@@ -111,6 +113,7 @@ export const AdminMapper = {
 
   toBarMember(row: MemberRow): AdminBarMember {
     return {
+      id: row.id as BarMemberId,
       userId: row.user.id as UserId,
       name: row.user.name,
       email: row.user.email,

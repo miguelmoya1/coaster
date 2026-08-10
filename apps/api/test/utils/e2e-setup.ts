@@ -28,10 +28,22 @@ export class MockWsAuthService {
   }
 }
 
+/** Tests that need a second person send `x-e2e-user-id`; everything else stays as `mockUser`. */
 export class MockAuthGuard implements CanActivate {
+  static readonly users = new Map<string, { id: string; email: string; name: string; role: string }>();
+
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    request.user = { ...mockUser };
+    const request = context.switchToHttp().getRequest<{
+      headers?: Record<string, string | string[] | undefined>;
+      user?: unknown;
+    }>();
+    const header = request.headers?.['x-e2e-user-id'];
+    const impersonated = typeof header === 'string' ? header : undefined;
+
+    request.user = impersonated
+      ? (MockAuthGuard.users.get(impersonated) ?? { ...mockUser, id: impersonated })
+      : { ...mockUser };
+
     return true;
   }
 }
@@ -90,6 +102,13 @@ export class E2eTestSetup {
         },
       },
     });
+  }
+
+  /** Registers a user the tests can act as with the `x-e2e-user-id` header. */
+  actAs(user: { id: string; email: string; name: string; role?: string }) {
+    MockAuthGuard.users.set(user.id, { role: 'USER', ...user });
+
+    return { 'x-e2e-user-id': user.id };
   }
 
   async teardown() {

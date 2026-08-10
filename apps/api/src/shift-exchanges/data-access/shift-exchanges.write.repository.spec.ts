@@ -18,12 +18,13 @@ describe('ShiftExchangesWriteRepository', () => {
             dbShiftExchange: {
               create: vi.fn(),
               update: vi.fn(),
+              updateMany: vi.fn().mockResolvedValue({ count: 1 }),
               delete: vi.fn(),
             },
             dbShift: {
               update: vi.fn(),
             },
-            $transaction: vi.fn((ops) => Promise.all(ops)),
+            $transaction: vi.fn((run: (tx: unknown) => unknown) => run(dbService)),
           },
         },
       ],
@@ -80,23 +81,36 @@ describe('ShiftExchangesWriteRepository', () => {
   });
 
   describe('acceptExchangeAndSwapShift', () => {
-    it('should call db.$transaction with update exchange and update shift', async () => {
+    it('should claim the offer and hand the shift over in one transaction', async () => {
       const exchangeId = asShiftExchangeId('exc-1');
       const shiftId = asShiftId('shift-1');
       const newUserId = asUserId('user-2');
 
-      await repository.acceptExchangeAndSwapShift(exchangeId, shiftId, newUserId);
+      const claimed = await repository.acceptExchangeAndSwapShift(exchangeId, shiftId, newUserId);
 
+      expect(claimed).toBe(true);
       expect(dbService.$transaction).toHaveBeenCalled();
-      expect(dbService.dbShiftExchange.update).toHaveBeenCalledWith({
-        where: { id: exchangeId },
+      expect(dbService.dbShiftExchange.updateMany).toHaveBeenCalledWith({
+        where: { id: exchangeId, status: ShiftExchangeStatus.PENDING },
         data: { status: ShiftExchangeStatus.APPROVED, targetId: newUserId },
-        include: { shift: true, requester: { select: { id: true, name: true } } },
       });
       expect(dbService.dbShift.update).toHaveBeenCalledWith({
         where: { id: shiftId },
         data: { userId: newUserId },
       });
+    });
+
+    it('should leave the shift alone when somebody else claimed the offer first', async () => {
+      (dbService.dbShiftExchange.updateMany as ReturnType<typeof vi.fn>).mockResolvedValue({ count: 0 });
+
+      const claimed = await repository.acceptExchangeAndSwapShift(
+        asShiftExchangeId('exc-1'),
+        asShiftId('shift-1'),
+        asUserId('user-2'),
+      );
+
+      expect(claimed).toBe(false);
+      expect(dbService.dbShift.update).not.toHaveBeenCalled();
     });
   });
 

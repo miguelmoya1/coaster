@@ -21,6 +21,7 @@ export class SecurityRepository {
           userId,
           barId,
         },
+        deletedAt: null,
       },
       select: { role: true, active: true },
     });

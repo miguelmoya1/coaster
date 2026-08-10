@@ -16,7 +16,10 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
 
     const startOfPrevYear = new Date(currentYear - 1, 0, 1);
 
-    const closedOrders = await this.readRepo.findClosedOrdersForStats(query.barId, startOfPrevYear);
+    const closedOrders = (await this.readRepo.findClosedOrdersForStats(query.barId, startOfPrevYear)).map((order) => ({
+      createdAt: order.createdAt,
+      revenue: order.amountPaidCash + order.amountPaidCard - order.tipAmount,
+    }));
 
     const formatDate = (date: Date) => {
       const y = date.getFullYear();
@@ -79,34 +82,34 @@ export class GetBarStatsHandler implements IQueryHandler<GetBarStatsQuery, BarSt
       const orderDateStr = formatDate(orderDate);
 
       if (orderDateStr === todayStr) {
-        todayRevenue += order.totalAmount;
+        todayRevenue += order.revenue;
       }
       if (orderDateStr === yesterdayStr) {
-        yesterdayRevenue += order.totalAmount;
+        yesterdayRevenue += order.revenue;
       }
       if (orderDate >= startOfWeek) {
-        weeklyRevenue += order.totalAmount;
+        weeklyRevenue += order.revenue;
       }
 
       const dayIndex = dailyRevenues.findIndex((dr) => dr.dateStr === orderDateStr);
       if (dayIndex !== -1) {
-        dailyRevenues[dayIndex].amount += order.totalAmount;
+        dailyRevenues[dayIndex].amount += order.revenue;
       }
 
       const orderYear = orderDate.getFullYear();
       const orderMonth = orderDate.getMonth();
 
       if (orderYear === currentYear) {
-        yearlyRevenue += order.totalAmount;
-        monthlyBreakdown[orderMonth].amount += order.totalAmount;
+        yearlyRevenue += order.revenue;
+        monthlyBreakdown[orderMonth].amount += order.revenue;
 
         if (orderMonth === currentMonth) {
-          currentMonthRevenue += order.totalAmount;
+          currentMonthRevenue += order.revenue;
         }
       }
 
       if (orderYear === prevMonthYear && orderMonth === prevMonth) {
-        previousMonthRevenue += order.totalAmount;
+        previousMonthRevenue += order.revenue;
       }
     });
 

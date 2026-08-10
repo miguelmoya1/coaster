@@ -5,9 +5,7 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     heading: 'You have been invited! 🎉',
     greeting: 'Hello,',
     body1_start: '',
-    body1_inviter: '{{inviterName}}',
     body1_mid: ' has invited you to join the team at ',
-    body1_bar: '{{barName}}',
     body1_end: ' on our platform.',
     body2:
       'With Coaster you can see your shifts, manage the pantry and communicate with your team directly from your mobile phone, without needing complicated passwords.',
@@ -21,9 +19,7 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     heading: '¡Has sido invitado! 🎉',
     greeting: 'Hola,',
     body1_start: '',
-    body1_inviter: '{{inviterName}}',
     body1_mid: ' te ha invitado a unirte al equipo de ',
-    body1_bar: '{{barName}}',
     body1_end: ' en nuestra plataforma.',
     body2:
       'Con Coaster podrás ver tus turnos, gestionar la despensa y comunicarte con tu equipo directamente desde tu móvil, sin necesidad de contraseñas complicadas.',
@@ -94,7 +90,7 @@ export const InviteEmailTemplate = `
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">{{greeting}}</p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">
-                  {{body1_start}}<strong style="color: #0e0e0e;">{{body1_inviter}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{body1_bar}}</strong>{{body1_end}}
+                  {{body1_start}}<strong style="color: #0e0e0e;">{{inviterName}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{barName}}</strong>{{body1_end}}
                 </p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 32px 0;">

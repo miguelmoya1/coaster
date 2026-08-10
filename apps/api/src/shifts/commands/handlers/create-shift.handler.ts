@@ -1,7 +1,7 @@
 import { ErrorCodes } from '@coaster/common';
-import { BadRequestException, Logger } from '@nestjs/common';
+import { SecurityRepository } from '@coaster/core';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
 import { ShiftsWriteRepository } from '../../data-access/shifts.write.repository';
 import { ShiftCreatedEvent } from '../../events';
 import { ShiftsMapper } from '../../mappers/shifts.mapper';
@@ -12,7 +12,7 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
   readonly #logger = new Logger(CreateShiftHandler.name);
 
   constructor(
-    private readonly readRepo: ShiftsReadRepository,
+    private readonly security: SecurityRepository,
     private readonly writeRepo: ShiftsWriteRepository,
     private readonly _eventBus: EventBus,
   ) {}
@@ -22,6 +22,16 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
 
     if (!(startTime instanceof Temporal.Instant) || !(endTime instanceof Temporal.Instant)) {
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
+    }
+
+    if (Temporal.Instant.compare(endTime, startTime) <= 0) {
+      throw new BadRequestException(ErrorCodes.INVALID_SHIFT_RANGE);
+    }
+
+    const membership = await this.security.getBarMemberRole(userId, command.barId);
+
+    if (!membership?.active) {
+      throw new NotFoundException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
     const created = await this.writeRepo.create(command.barId, userId, {

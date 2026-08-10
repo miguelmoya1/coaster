@@ -1,17 +1,29 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, input, inputBinding, outputBinding, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Injector,
+  input,
+  inputBinding,
+  outputBinding,
+  signal,
+} from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, createUrlTreeFromSnapshot, isActive, Router, RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/bar-members';
 import { RequireSubscriptionDirective } from '@coaster/bar-subscription';
-import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { BarRole } from '@coaster/common';
+import type { BarId, Shift, ShiftExchange, ShiftExchangeId, ShiftId, TimeEntry, TimeEntryType } from '@coaster/common';
+import { BarPermission, BarRole } from '@coaster/common';
 import { ActionFeedback, DateFormatterService } from '@coaster/core';
 import { ExchangesStore } from '@coaster/exchanges';
 import { MembersStore } from '@coaster/bar-members';
 import { RosterStateService } from '@coaster/roster';
 import { ShiftsStore } from '@coaster/shifts';
+import { TimeTrackingStore } from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
 import { firstValueFrom } from 'rxjs';
@@ -20,12 +32,17 @@ import { Loading } from '../../../../components/loading/loading';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
 import { Fab } from '../../components/fab/fab';
+import { ClockCard } from './components/clock-card/clock-card';
 import { CreateShiftForm } from './components/create-shift-form/create-shift-form';
 import { ExchangeRequestCard } from './components/exchange-request-card/exchange-request-card';
 import { RosterMonthlyGrid } from './components/roster-monthly-grid/roster-monthly-grid';
 import { RosterNavigation } from './components/roster-navigation/roster-navigation';
 import { RosterWeeklyGrid } from './components/roster-weekly-grid/roster-weekly-grid';
 import { ShiftCard } from './components/shift-card/shift-card';
+import { TimeEntryForm } from './components/time-entry-form/time-entry-form';
+import { VoidEntryForm } from './components/void-entry-form/void-entry-form';
+import { ExportTimesheetForm } from './components/export-timesheet-form/export-timesheet-form';
+import { WorkdayCard } from './components/workday-card/workday-card';
 
 export type DailyShiftItem = Shift & {
   timeRange: string;
@@ -42,6 +59,7 @@ export type PendingExchangeItem = ShiftExchange & {
   timeRange: string;
   roleName: BarRole;
   isOwnRequest: boolean;
+  hasStarted: boolean;
 };
 
 const toDailyShiftItem = (
@@ -75,6 +93,9 @@ const toDailyShiftItem = (
     PageContainer,
     PageHeader,
     RequireSubscriptionDirective,
+    ClockCard,
+    WorkdayCard,
+    MatButton,
   ],
   providers: [RosterStateService],
   host: {
@@ -94,16 +115,36 @@ export default class Roster {
   readonly #membersStore = inject(MembersStore);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #exchangesStore = inject(ExchangesStore);
+  readonly #timeTrackingStore = inject(TimeTrackingStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
   readonly #http = inject(HttpClient);
   readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
+  readonly #injector = inject(Injector);
 
   readonly #translate = inject(TranslateService);
   readonly #feedback = inject(ActionFeedback);
 
   readonly shifts = this.#shiftsStore.shifts;
+  readonly myWorkday = this.#timeTrackingStore.myWorkday;
+  readonly clockState = this.#timeTrackingStore.clockState;
+  readonly teamWorkdays = this.#timeTrackingStore.teamWorkdays;
+
+  readonly canClockIn = computed(() => this.#hasPermission(BarPermission.BAR_CLOCK_IN));
+  readonly canCreateShift = computed(() => this.#hasPermission(BarPermission.BAR_CREATE_SHIFT));
+  readonly canDeleteShift = computed(() => this.#hasPermission(BarPermission.BAR_DELETE_SHIFT));
+  readonly canAmendOwnEntries = computed(() => this.#hasPermission(BarPermission.BAR_AMEND_OWN_TIME_ENTRY));
+  readonly canViewTimeEntries = computed(() => this.#hasPermission(BarPermission.BAR_VIEW_TIME_ENTRIES));
+  readonly canManageTimeEntries = computed(() => this.#hasPermission(BarPermission.BAR_MANAGE_TIME_ENTRIES));
+
+  readonly teamWorkdaysList = computed(() => {
+    if (!this.teamWorkdays.hasValue()) {
+      return [];
+    }
+
+    return this.teamWorkdays.value() ?? [];
+  });
   readonly pendingExchanges = this.#exchangesStore.exchanges;
   readonly displayMonthYear = this.#state.displayMonthYear;
   readonly displaySelectedDate = computed(() => {
@@ -134,6 +175,12 @@ export default class Roster {
   });
 
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
+
+  /*
+   * Clocking in always stamps the server clock, so a punch can only ever be "now". Offering the
+   * buttons on another day would just invite people to try; those days are fixed with marks.
+   */
+  readonly isViewingToday = computed(() => isSameDay(this.#state.selectedDate(), new Date()));
 
   readonly currentUserRole = computed(() => {
     if (!this.#myMemberStore.myMember.hasValue()) {
@@ -230,6 +277,8 @@ export default class Roster {
       timeRange: this.#dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime),
       roleName: BarRole.STAFF as BarRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
+      // Nobody can take over a shift that is already being worked, so do not offer it.
+      hasStarted: new Date(exchange.shiftStartTime) <= new Date(),
     }));
   });
 
@@ -262,6 +311,17 @@ export default class Roster {
       this.#exchangesStore.setBarId(barId);
       this.#shiftsStore.setBarId(barId);
       this.#membersStore.setBarId(barId);
+      this.#timeTrackingStore.setBarId(barId);
+    });
+
+    effect(() => {
+      const { from, to } = this.#state.timeSheetRange();
+
+      this.#timeTrackingStore.setRange(from, to);
+    });
+
+    effect(() => {
+      this.#timeTrackingStore.setTeamEnabled(this.canViewTimeEntries());
     });
 
     effect(() => {
@@ -270,6 +330,7 @@ export default class Roster {
       if (isCreateMode) {
         const bottomSheetRef = this.#bottomSheet.open(CreateShiftForm, {
           disableClose: true,
+          injector: this.#injector,
           bindings: [
             inputBinding('members', () => this.membersList()),
             outputBinding('canceled', () => {
@@ -463,5 +524,144 @@ export default class Roster {
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  protected async handleClock(type: TimeEntryType) {
+    this.isSubmitting.set(true);
+
+    try {
+      await this.#timeTrackingStore.clock(type, await this.#currentPosition());
+      this.#feedback.success(this.#translate.instant('roster.time_tracking.clock_saved'));
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  protected handleAmendEntry(entry: TimeEntry) {
+    const sheetRef = this.#bottomSheet.open(TimeEntryForm, {
+      disableClose: true,
+      injector: this.#injector,
+      bindings: [
+        inputBinding('entry', () => entry),
+        inputBinding('workdayDate', () => entry.workdayDate),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding('saved', () => {
+          sheetRef.dismiss();
+        }),
+      ],
+    });
+  }
+
+  protected handleVoidEntry(entry: TimeEntry) {
+    const sheetRef = this.#bottomSheet.open(VoidEntryForm, {
+      disableClose: true,
+      injector: this.#injector,
+      bindings: [
+        inputBinding('entry', () => entry),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding('voided', () => {
+          sheetRef.dismiss();
+        }),
+      ],
+    });
+  }
+
+  protected handleCreateEntry() {
+    const sheetRef = this.#bottomSheet.open(TimeEntryForm, {
+      disableClose: true,
+      injector: this.#injector,
+      bindings: [
+        inputBinding('members', () => this.membersList()),
+        inputBinding('workdayDate', () => this.selectedDayId()),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding('saved', () => {
+          sheetRef.dismiss();
+        }),
+      ],
+    });
+  }
+
+  protected handleDownloadTimeSheet() {
+    const { from, to } = this.#state.timeSheetRange();
+
+    const sheetRef = this.#bottomSheet.open(ExportTimesheetForm, {
+      injector: this.#injector,
+      bindings: [
+        inputBinding('from', () => from),
+        inputBinding('to', () => to),
+        outputBinding('canceled', () => {
+          sheetRef.dismiss();
+        }),
+        outputBinding<{ from: string; to: string }>('confirmed', (range) => {
+          sheetRef.dismiss();
+          void this.#downloadTimeSheet(range);
+        }),
+      ],
+    });
+  }
+
+  async #downloadTimeSheet(range: { from: string; to: string }) {
+    this.isSubmitting.set(true);
+
+    try {
+      const blob = await this.#timeTrackingStore.exportCsv(range);
+      const suffix = range.from === range.to ? range.from : `${range.from}_${range.to}`;
+      this.#download(blob, `registro-horario-${suffix}.csv`);
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  protected async handleVerifyIntegrity() {
+    this.isSubmitting.set(true);
+
+    try {
+      const integrity = await this.#timeTrackingStore.verifyIntegrity();
+      const key = integrity.valid ? 'roster.time_tracking.integrity_ok' : 'roster.time_tracking.integrity_broken';
+
+      this.#feedback.info(this.#translate.instant(key, { entries: integrity.checkedEntries }));
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  #hasPermission(permission: BarPermission): boolean {
+    return this.#myMemberStore.hasPermission(permission);
+  }
+
+  #download(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async #currentPosition(): Promise<{ latitude: number; longitude: number } | undefined> {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      return undefined;
+    }
+
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+        () => resolve(undefined),
+        { timeout: 3000, maximumAge: 60_000 },
+      );
+    });
   }
 }

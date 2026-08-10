@@ -8,6 +8,6 @@ export class InviteBarMemberDto implements IInviteBarMemberDto {
   email!: string;
 
   @IsOptional()
-  @IsIn([BarRole.OWNER, BarRole.STAFF])
+  @IsIn([BarRole.OWNER, BarRole.MANAGER, BarRole.STAFF], { message: ErrorCodes.INVALID_ROLE })
   role?: BarRole;
 }

@@ -1,11 +1,6 @@
 import type { AdminBarsQuery, BarId } from '@coaster/common';
 import { BarBillingSource } from '@coaster/common';
-import type {
-  DbBarGetPayload,
-  DbBarInclude,
-  DbBarSubscriptionWhereInput,
-  DbBarWhereInput,
-} from '@coaster/core/db';
+import type { DbBarGetPayload, DbBarInclude, DbBarSubscriptionWhereInput, DbBarWhereInput } from '@coaster/core/db';
 import { DbBarRole, DbOrderStatus, DbService, DbSubscriptionStatus } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -52,6 +47,7 @@ export class AdminBarReadRepository {
       where: { barId, deletedAt: null },
       orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
       select: {
+        id: true,
         role: true,
         active: true,
         createdAt: true,

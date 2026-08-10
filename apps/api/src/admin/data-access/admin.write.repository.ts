@@ -1,5 +1,5 @@
 import type { BarId, UserId } from '@coaster/common';
-import { DbBarRole, DbRole, DbService, DbSubscriptionPlan } from '@coaster/core/db';
+import { DbRole, DbService, DbSubscriptionPlan } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
 export interface ManualGrantInput {
@@ -44,13 +44,6 @@ export class AdminWriteRepository {
 
   public renameBar(barId: BarId, name: string) {
     return this._db.dbBar.update({ where: { id: barId }, data: { name } });
-  }
-
-  public updateBarMemberRole(barId: BarId, userId: UserId, role: DbBarRole) {
-    return this._db.dbBarMember.update({
-      where: { userId_barId: { userId, barId } },
-      data: { role },
-    });
   }
 
   public updateUser(userId: UserId, data: { role?: DbRole; active?: boolean }) {

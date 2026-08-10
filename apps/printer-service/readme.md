@@ -1,96 +1,98 @@
-# Print bridge (servicio de impresión)
+# Print bridge
 
-Servicio en Go que se instala en un ordenador del bar y saca los tickets por la impresora
-térmica, ya esté conectada por USB, por red o por Bluetooth.
+A Go service installed on a computer at the venue that pushes tickets to the thermal printer,
+whether it is connected over USB, network or Bluetooth.
 
-## Cómo llega un ticket a la impresora
+How it fits the rest of the platform is in [printing bridge](../../docs/architecture/printing-bridge.md).
 
-El navegador **no puede** hablar directamente con este servicio: la app se sirve por HTTPS y el
-bridge solo tiene una dirección `http://` en la red local, lo que todos los navegadores bloquean
-como *mixed content*. Por eso el bridge llama hacia fuera y nunca al revés:
+## How a ticket reaches the printer
 
-```
-Camarero (app)  ──POST /bars/:id/printer/jobs──►  API  ──┐
-                                                          │  cola en Postgres
-Bridge (este servicio)  ──GET /printer/jobs/next──────────┘
-        │  (long-poll: la API mantiene abierta la petición hasta 25s)
+The browser **cannot** talk to this service directly: the app is served over HTTPS and the bridge
+only has an `http://` address on the local network, which every browser blocks as mixed content. So
+the bridge calls outwards and is never called in:
+
+```text
+Waiter (app)  ──POST /bars/:id/printer/jobs──►  API  ──┐
+                                                        │  queue in Postgres
+Bridge (this service)  ──GET /printer/jobs/next─────────┘
+        │  long-poll: the API holds the request open for up to 25s
         ▼
-   Impresora térmica
+   Thermal printer
         │
-        └──POST /printer/jobs/:id/result──►  API  ──►  el camarero ve si salió el ticket
+        └──POST /printer/jobs/:id/result──►  API  ──►  the waiter sees whether it printed
 ```
 
-Consecuencias prácticas: no hay que abrir ningún puerto en el router, no hace falta regla de
-firewall, y se puede imprimir desde fuera del wifi del bar.
+Practical consequences: no router port to open, no firewall rule, and printing works from outside
+the venue's wifi.
 
-El endpoint local `POST /print` sigue existiendo para pruebas y como respaldo en la LAN, pero
-está **cerrado por defecto**: necesita `-jwt-secret`, o `-insecure` para aceptar peticiones sin
-autenticar.
+The local `POST /print` endpoint still exists for testing and as a LAN fallback, but it is **closed
+by default**: it needs `-jwt-secret`, or `-insecure` to accept unauthenticated requests.
 
-## Requisitos
+## Requirements
 
-- Go 1.26 o superior (solo para compilar).
+- Go 1.26 or newer (only to build).
 
-## Puesta en marcha en un bar
+## Setting up a venue
 
-1. En la app, con permiso de gestión de impresora, genera la **device key** del bar.
-   Se muestra una sola vez; si se pierde, vuelve a generarla (la anterior deja de valer).
-2. Arranca el bridge en el ordenador del bar:
+1. In the app, with printer management permission, generate the bar's **device key**. It is shown
+   once; if it is lost, generate it again (the previous one stops working).
+2. Start the bridge on the venue's computer:
 
 ```bash
-./printer-service --bar-id=<ID_DEL_BAR> --device-key=<DEVICE_KEY> --print-width=48
+./printer-service --bar-id=<BAR_ID> --device-key=<DEVICE_KEY> --print-width=48
 ```
 
-Comprueba que está vivo:
+Check it is alive:
 
 ```bash
 curl http://localhost:8080/health
 ```
 
-Y qué impresoras ve (USB, serie, Bluetooth y barrido de la red local buscando el puerto 9100):
+And what printers it can see (USB, serial, Bluetooth, and a scan of the local network for port
+9100):
 
 ```bash
 curl http://localhost:8080/printers
 ```
 
-## Opciones
+## Options
 
-| Flag | Por defecto | Para qué sirve |
-| --- | --- | --- |
-| `-bar-id` | — | Bar al que pertenece el bridge. Sin él no recoge tickets de la cola. |
-| `-device-key` | — | Clave que emite la API. También por env `PRINTER_DEVICE_KEY`. |
-| `-printer-type` | `usb` | `usb` o `network`. |
-| `-printer-path` | — | Ruta (`/dev/usb/lp0`), nombre de cola de Windows, o `IP[:puerto]`. Vacío = autodetección. |
-| `-print-width` | `32` | Caracteres por línea: **32 para papel de 58 mm, 48 para 80 mm**. |
-| `-code-page` | `cp858` | Tabla de caracteres: `cp858`, `cp850`, `cp437`, `cp1252`. |
-| `-port` | `8080` | Puerto del servidor local. Se registra en la API junto con la IP. |
-| `-jwt-secret` | — | Habilita `POST /print`. Debe coincidir con `PRINTER_JWT_SECRET` de la API. |
-| `-insecure` | `false` | Abre `POST /print` sin autenticación. Solo para depurar. |
-| `-update-interval` | `6h` | Cada cuánto busca versión nueva. `0` = solo al arrancar. |
-| `-local` | `false` | Apunta a `http://localhost:3000` en vez de a producción. |
+| Flag               | Default  | What it does                                                                        |
+| ------------------ | -------- | ----------------------------------------------------------------------------------- |
+| `-bar-id`          | —        | Which bar the bridge belongs to. Without it, it picks up no tickets.                 |
+| `-device-key`      | —        | Key issued by the API. Also read from `PRINTER_DEVICE_KEY`.                           |
+| `-printer-type`    | `usb`    | `usb` or `network`.                                                                  |
+| `-printer-path`    | —        | Path (`/dev/usb/lp0`), Windows queue name, or `IP[:port]`. Empty means autodetect.   |
+| `-print-width`     | `32`     | Characters per line: **32 for 58 mm paper, 48 for 80 mm**.                            |
+| `-code-page`       | `cp858`  | Character table: `cp858`, `cp850`, `cp437`, `cp1252`.                                 |
+| `-port`            | `8080`   | Local server port. Registered with the API alongside the IP.                          |
+| `-jwt-secret`      | —        | Enables `POST /print`. Must match the API's `PRINTER_JWT_SECRET`.                     |
+| `-insecure`        | `false`  | Opens `POST /print` with no authentication. Debugging only.                           |
+| `-update-interval` | `6h`     | How often to check for a new version. `0` means only at startup.                      |
+| `-local`           | `false`  | Points at `http://localhost:3000` instead of production.                              |
 
-### Acentos y euro
+### Accents and the euro sign
 
-Las impresoras térmicas son de un byte por carácter. El servicio selecciona la tabla con `ESC t`
-y transcodifica el texto: con el valor por defecto (`cp858`) salen bien `ñ á é í ó ú ü ç` y `€`.
-Si tu impresora imprime basura donde hay acentos, prueba `-code-page=cp437` o `-code-page=cp850`.
+Thermal printers are one byte per character. The service selects the table with `ESC t` and
+transcodes the text: with the default (`cp858`), `ñ á é í ó ú ü ç` and `€` all come out right. If
+your printer prints garbage where accents should be, try `-code-page=cp437` or `-code-page=cp850`.
 
-## Desarrollo
+## Development
 
 ```bash
 go run ./cmd/server --local --insecure
 go test ./...
 ```
 
-## Publicar una versión nueva
+## Publishing a new version
 
-La versión está en **dos sitios que tienen que coincidir**, porque el bridge se niega a reintentar
-una actualización que no cuajó (si no, entraría en bucle de descarga y reinicio):
+The version lives in **two places that have to match**, because the bridge refuses to retry an
+update that did not take (otherwise it would loop downloading and restarting):
 
 1. `internal/updater/version.go` → `CurrentVersion`
 2. `apps/api/src/printer/services/printer-release.service.ts` → `PRINTER_BRIDGE_VERSION`
 
-Sube ambas y compila los binarios en la carpeta que sirve la API:
+Bump both and build the binaries into the folder the API serves:
 
 ```bash
 cd apps/printer-service
@@ -98,26 +100,26 @@ GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/dow
 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../api/public/downloads/printer-service-windows.exe ./cmd/server
 ```
 
-Comprueba que la API anuncia la versión y el checksum correctos:
+Check the API advertises the right version and checksum:
 
 ```bash
 curl "http://localhost:3000/api/v1/printer/check-version?os=linux"
 ```
 
-La API calcula el SHA-256 del binario que tiene en disco y lo publica; el bridge **no escribe
-nada** que no cuadre con ese checksum, así que una descarga cortada o una página de error no
-pueden reemplazar un binario que funciona. Si el binario no está publicado, `check-version`
-responde 400 en vez de anunciar una URL que daría 404.
+The API computes the SHA-256 of the binary it has on disk and publishes it; the bridge **writes
+nothing** that does not match that checksum, so a truncated download or an error page cannot replace
+a working binary. If the binary is not published, `check-version` answers 400 rather than advertising
+a URL that would 404.
 
-En producción `PUBLIC_URL` tiene que apuntar a una dirección alcanzable desde el bar; con el
-valor por defecto (`localhost`) ningún ordenador podría descargar la actualización.
+In production `PUBLIC_URL` has to point at an address reachable from the venue; with the default
+(`localhost`) no computer could download the update.
 
-## Estructura
+## Layout
 
-- `cmd/server` — arranque, rutas y apagado ordenado.
-- `internal/config` — flags, variables de entorno y validación.
-- `internal/escpos` — render del ticket, tablas de caracteres y comandos ESC/POS.
-- `internal/infrastructure/printer` — drivers USB/red/Windows y descubrimiento.
-- `internal/relay` — bucle que recoge tickets de la API.
-- `internal/registration` — latido con la IP y el puerto del bridge.
-- `internal/updater` — auto-actualización verificada por checksum.
+- `cmd/server` — startup, routes and graceful shutdown.
+- `internal/config` — flags, environment variables and validation.
+- `internal/escpos` — ticket rendering, character tables and ESC/POS commands.
+- `internal/infrastructure/printer` — USB/network/Windows drivers and discovery.
+- `internal/relay` — the loop that collects tickets from the API.
+- `internal/registration` — heartbeat carrying the bridge's IP and port.
+- `internal/updater` — checksum-verified self-update.

@@ -5,6 +5,8 @@ import { Resend } from 'resend';
 import * as Handlebars from 'handlebars';
 import { InviteEmailTemplate, InviteEmailTranslations } from './templates/invite-email.template';
 
+const renderInvite = Handlebars.compile(InviteEmailTemplate);
+
 @Injectable()
 export class EmailService {
   #resend: Resend;
@@ -16,10 +18,9 @@ export class EmailService {
 
   async sendInviteEmail(to: string, barName: string, inviterName: string, lang = 'es') {
     try {
-      const template = Handlebars.compile(InviteEmailTemplate);
       const translations = InviteEmailTranslations[lang] || InviteEmailTranslations['es'];
 
-      const html = template({
+      const html = renderInvite({
         ...translations,
         lang,
         barName,

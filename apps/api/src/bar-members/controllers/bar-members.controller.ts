@@ -2,10 +2,11 @@ import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
 import type { BarId, BarMember, BarMemberId, User } from '@coaster/common';
 import { BarPermission } from '@coaster/common';
 import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { InviteMemberCommand, RemoveMemberCommand } from '../commands';
+import { InviteMemberCommand, RemoveMemberCommand, UpdateMemberRoleCommand } from '../commands';
 import { InviteBarMemberDto } from '../dto/invite-bar-member.dto';
+import { UpdateMemberRoleDto } from '../dto/update-member-role.dto';
 import { BarMembersMapper } from '../mappers/bar-members.mapper';
 import { GetMemberMeQuery, GetMembersQuery } from '../queries';
 
@@ -34,6 +35,17 @@ export class BarMembersController {
   @BarPermissions(BarPermission.BAR_INVITE_MEMBER)
   async inviteMember(@Param('barId') barId: BarId, @Body() dto: InviteBarMemberDto, @CurrentUser() user: User) {
     await this._commandBus.execute(new InviteMemberCommand(barId, dto.email, user, dto.role));
+  }
+
+  @Patch(':memberId')
+  @BarPermissions(BarPermission.BAR_UPDATE_MEMBER_ROLE)
+  async updateMemberRole(
+    @Param('barId') barId: BarId,
+    @Param('memberId') memberId: BarMemberId,
+    @Body() dto: UpdateMemberRoleDto,
+    @CurrentUser() user: User,
+  ) {
+    await this._commandBus.execute(new UpdateMemberRoleCommand(barId, memberId, dto.role, user));
   }
 
   @Delete(':memberId')

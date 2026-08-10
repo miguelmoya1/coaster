@@ -22,18 +22,26 @@ export class ShiftExchangesWriteRepository {
     });
   }
 
+  /**
+   * Claiming the offer and handing over the shift happen together, and only if the offer is still
+   * pending when the write lands. Two people tapping accept at once used to end with both of them
+   * told they got the shift.
+   */
   public async acceptExchangeAndSwapShift(exchangeId: ShiftExchangeId, shiftId: ShiftId, newUserId: UserId) {
-    return this._db.$transaction([
-      this._db.dbShiftExchange.update({
-        where: { id: exchangeId },
+    return this._db.$transaction(async (tx) => {
+      const claimed = await tx.dbShiftExchange.updateMany({
+        where: { id: exchangeId, status: ShiftExchangeStatus.PENDING },
         data: { status: ShiftExchangeStatus.APPROVED, targetId: newUserId },
-        include: { shift: true, requester: { select: { id: true, name: true } } },
-      }),
-      this._db.dbShift.update({
-        where: { id: shiftId },
-        data: { userId: newUserId },
-      }),
-    ]);
+      });
+
+      if (claimed.count === 0) {
+        return false;
+      }
+
+      await tx.dbShift.update({ where: { id: shiftId }, data: { userId: newUserId } });
+
+      return true;
+    });
   }
 
   public async deleteExchange(exchangeId: ShiftExchangeId) {

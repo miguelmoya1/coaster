@@ -3,7 +3,8 @@ import { email, form, FormField, FormRoot, maxLength, minLength, required } from
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import type { InviteBarMemberDto } from '@coaster/common';
+import type { BarRole as BarRoleType, InviteBarMemberDto } from '@coaster/common';
+import { BarRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { MembersStore } from '@coaster/bar-members';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -29,6 +30,34 @@ import { TranslatePipe } from '@ngx-translate/core';
           }}</mat-error>
         }
       </mat-form-field>
+
+      <fieldset class="border-0 p-0 m-0 mt-2">
+        <legend class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
+          {{ 'members.invite.role_label' | translate }}
+        </legend>
+
+        <div class="flex flex-wrap gap-2">
+          @for (role of assignableRoles; track role) {
+            <button
+              type="button"
+              class="px-3 py-1.5 rounded-full text-sm border transition-colors"
+              [class]="
+                selectedRole() === role
+                  ? 'border-primary bg-primary/10 text-primary font-semibold'
+                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+              "
+              [attr.aria-pressed]="selectedRole() === role"
+              (click)="selectedRole.set(role)"
+            >
+              {{ 'common.role.' + role.toLowerCase() | translate }}
+            </button>
+          }
+        </div>
+
+        <p class="text-xs text-on-surface-variant mt-2">
+          {{ 'members.invite.role_hint_' + selectedRole().toLowerCase() | translate }}
+        </p>
+      </fieldset>
 
       @if (form().errors().length > 0) {
         <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
@@ -61,6 +90,9 @@ export class InviteMemberForm {
   public readonly invited = output<void>();
 
   readonly #membersStore = inject(MembersStore);
+
+  protected readonly assignableRoles = Object.values(BarRole);
+  protected readonly selectedRole = signal<BarRoleType>(BarRole.STAFF);
   readonly #formBase = signal<InviteBarMemberDto>({
     email: '',
   });
@@ -76,7 +108,7 @@ export class InviteMemberForm {
     {
       submission: {
         action: async (form) => {
-          const payload = form().value();
+          const payload = { ...form().value(), role: this.selectedRole() };
 
           try {
             await this.#membersStore.invite(payload);

@@ -43,6 +43,43 @@ describe('CreateOrderHandler', () => {
     await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(NotFoundException);
   });
 
+  it('should look products up within the bar taking the order', async () => {
+    repository.findProductsByIds.mockResolvedValue([]);
+
+    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(NotFoundException);
+
+    expect(repository.findProductsByIds).toHaveBeenCalledWith(barId, [asProductId('prod-1')]);
+  });
+
+  it('should accept the same product on two lines of the order', async () => {
+    const twoLines = {
+      items: [
+        { productId: asProductId('prod-1'), quantity: 2 },
+        { productId: asProductId('prod-1'), quantity: 1 },
+      ],
+    };
+    repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
+    repository.createOrder.mockResolvedValue({
+      id: 'order-1',
+      barId: 'bar-1',
+      status: OrderStatus.OPEN,
+      totalAmount: 6,
+      tableId: null,
+      tableName: null,
+      items: [],
+      adjustments: [],
+      table: null,
+      tipAmount: 0,
+      amountPaidCash: 0,
+      amountPaidCard: 0,
+      paymentMethod: 'NONE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await expect(handler.execute(new CreateOrderCommand(barId, twoLines))).resolves.toBeUndefined();
+  });
+
   it('should throw BadRequestException if table is occupied', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
     repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: TableStatus.OCCUPIED });

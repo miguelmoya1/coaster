@@ -1,4 +1,5 @@
 import { SubscriptionOverriddenEvent } from '@coaster/bar-subscription';
+import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { AdminAuditAction, AdminAuditTargetType, SubscriptionPlan, asBarId, asUserId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -20,8 +21,10 @@ describe('GrantBarPlanHandler', () => {
   let handler: GrantBarPlanHandler;
   let readRepo: { findBarById: ReturnType<typeof vi.fn> };
   let writeRepo: { grantPlan: ReturnType<typeof vi.fn> };
-  let auditRepo: { record: ReturnType<typeof vi.fn> };
   let eventBus: { publish: ReturnType<typeof vi.fn> };
+
+  const published = <T>(type: new (...args: never[]) => T): T | undefined =>
+    eventBus.publish.mock.calls.map(([event]) => event).find((event) => event instanceof type);
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -29,10 +32,9 @@ describe('GrantBarPlanHandler', () => {
 
     readRepo = { findBarById: vi.fn().mockResolvedValue({ id: 'bar-1', name: 'El Bar' }) };
     writeRepo = { grantPlan: vi.fn().mockResolvedValue(undefined) };
-    auditRepo = { record: vi.fn().mockResolvedValue(undefined) };
     eventBus = { publish: vi.fn() };
 
-    handler = new GrantBarPlanHandler(readRepo as any, writeRepo as any, auditRepo as any, eventBus as any);
+    handler = new GrantBarPlanHandler(readRepo as any, writeRepo as any, eventBus as any);
   });
 
   afterEach(() => {
@@ -70,7 +72,7 @@ describe('GrantBarPlanHandler', () => {
       ),
     );
 
-    expect(auditRepo.record).toHaveBeenCalledWith(
+    expect(published(AdminActionEvent)?.entry).toMatchObject(
       expect.objectContaining({
         actorId: 'admin-1',
         action: AdminAuditAction.BAR_PLAN_GRANTED,
@@ -91,6 +93,6 @@ describe('GrantBarPlanHandler', () => {
     ).rejects.toThrow(NotFoundException);
 
     expect(writeRepo.grantPlan).not.toHaveBeenCalled();
-    expect(auditRepo.record).not.toHaveBeenCalled();
+    expect(published(AdminActionEvent)).toBeUndefined();
   });
 });

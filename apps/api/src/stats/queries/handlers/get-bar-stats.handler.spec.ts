@@ -51,9 +51,9 @@ describe('GetBarStatsHandler', () => {
     const prevMonthDate = new Date('2026-05-15T12:00:00Z');
 
     repository.findClosedOrdersForStats.mockResolvedValue([
-      { totalAmount: 100, createdAt: today },
-      { totalAmount: 50, createdAt: yesterday },
-      { totalAmount: 200, createdAt: prevMonthDate },
+      { amountPaidCash: 100, amountPaidCard: 0, tipAmount: 0, createdAt: today },
+      { amountPaidCash: 0, amountPaidCard: 50, tipAmount: 0, createdAt: yesterday },
+      { amountPaidCash: 200, amountPaidCard: 0, tipAmount: 0, createdAt: prevMonthDate },
     ]);
 
     const result = await handler.execute(new GetBarStatsQuery(asBarId('bar-1')));
@@ -69,10 +69,35 @@ describe('GetBarStatsHandler', () => {
     expect(result.isPositiveChange).toBe(false);
   });
 
+  it('should count what was actually taken, not the price before the discount', async () => {
+    const today = new Date('2026-06-17T10:00:00Z');
+
+    repository.findClosedOrdersForStats.mockResolvedValue([
+      { amountPaidCash: 900, amountPaidCard: 0, tipAmount: 0, createdAt: today },
+    ]);
+
+    const result = await handler.execute(new GetBarStatsQuery(asBarId('bar-1')));
+
+    expect(result.todayRevenue).toBe(900);
+  });
+
+  it('should leave tips out of the revenue', async () => {
+    const today = new Date('2026-06-17T10:00:00Z');
+
+    repository.findClosedOrdersForStats.mockResolvedValue([
+      { amountPaidCash: 1000, amountPaidCard: 200, tipAmount: 200, createdAt: today },
+    ]);
+
+    const result = await handler.execute(new GetBarStatsQuery(asBarId('bar-1')));
+
+    expect(result.todayRevenue).toBe(1000);
+    expect(result.weeklyRevenue).toBe(1000);
+  });
+
   it('should handle positive trend and 100% change boundary case', async () => {
     const today = new Date('2026-06-17T10:00:00Z');
 
-    repository.findClosedOrdersForStats.mockResolvedValue([{ totalAmount: 150, createdAt: today }]);
+    repository.findClosedOrdersForStats.mockResolvedValue([{ amountPaidCash: 150, amountPaidCard: 0, tipAmount: 0, createdAt: today }]);
 
     const result = await handler.execute(new GetBarStatsQuery(asBarId('bar-1')));
 

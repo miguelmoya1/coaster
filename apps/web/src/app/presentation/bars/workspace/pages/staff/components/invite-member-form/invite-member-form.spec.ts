@@ -16,7 +16,11 @@ describe('InviteMemberForm', () => {
         provideTranslateService(),
         {
           provide: Socket,
-          useValue: { memberRemoved: signal<any>(null), memberInvited: signal<any>(null) },
+          useValue: {
+            memberRemoved: signal<any>(null),
+            memberInvited: signal<any>(null),
+            memberRoleChanged: signal<any>(null),
+          },
         },
       ],
     }).compileComponents();
@@ -33,7 +37,8 @@ describe('InviteMemberForm', () => {
   describe('actions', () => {
     it('should emit canceled when cancel button is clicked', () => {
       const spy = vi.spyOn(component.canceled, 'emit');
-      const cancelButton = fixture.nativeElement.querySelectorAll('button')[0];
+      const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
+      const cancelButton = buttons.find((button) => button.textContent?.trim().toLowerCase().includes('cancel'))!;
 
       cancelButton.click();
 

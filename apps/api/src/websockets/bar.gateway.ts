@@ -75,6 +75,17 @@ export class BarGateway implements OnGatewayInit, OnGatewayConnection {
     return { event: SocketEvents.joined, data: barId };
   }
 
+  async evictFromBar(barId: string, userId: string) {
+    const sockets = await this.server.in(barId).fetchSockets();
+
+    for (const socket of sockets) {
+      if ((socket.data as { userId?: string }).userId === userId) {
+        await socket.leave(barId);
+        this._logger.debug(`Usuario ${userId} sacado de la sala del bar ${barId} tras perder el acceso`);
+      }
+    }
+  }
+
   @SubscribeMessage(SocketEvents.leaveBar)
   async handleLeaveBar(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() barId: string) {
     if (!barId || typeof barId !== 'string' || barId.trim().length === 0) {

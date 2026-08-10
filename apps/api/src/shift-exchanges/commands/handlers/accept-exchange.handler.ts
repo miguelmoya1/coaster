@@ -35,10 +35,19 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
-    await this.writeRepo.acceptExchangeAndSwapShift(
+    // Taking over a shift that is already running helps nobody: the hours are already being worked.
+    if (exchange.shift.startTime.getTime() <= Date.now()) {
+      throw new BadRequestException(ErrorCodes.EXCHANGE_SHIFT_ALREADY_STARTED);
+    }
+
+    const claimed = await this.writeRepo.acceptExchangeAndSwapShift(
       command.exchangeId,
       asShiftId(exchange.shiftId),
       command.acceptingUserId,
     );
+
+    if (!claimed) {
+      throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
+    }
   }
 }

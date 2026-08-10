@@ -1,57 +1,66 @@
-# Arquitectura del frontend (Angular)
+# Frontend architecture (Angular)
 
-## Capas
+Angular 22, standalone components, signals, zoneless change detection, Material and Tailwind.
 
-El codigo de `apps/web/src/app` esta dividido en tres capas. Las dependencias van **siempre en
-una direccion**:
+## Layers
+
+The code in `apps/web/src/app` is split into three layers. Dependencies always point **one way**:
 
 ```text
-core  <--  dominios  <--  presentation
+core  <--  domains  <--  presentation
 ```
 
-### `core/` — capa base
+### `core/` — base layer
 
-Infraestructura transversal: utilidades, mappers, errores, servicios de sesion (`Auth`,
-`Socket`, `Toast`), guards genericos e interceptores HTTP.
+Cross-cutting infrastructure: utilities, mappers, errors, session services (`Auth`, `Socket`,
+`Toast`), generic guards and HTTP interceptors.
 
-No conoce ningun dominio ni ninguna pantalla. **No puede importar `@coaster/<dominio>` ni nada de
-`presentation/`.** Un import asi rompe el lint.
+It knows no domain and no screen. **It cannot import `@coaster/<domain>` or anything from
+`presentation/`.** Lint fails on such an import.
 
-Cuando `core` necesita comportamiento que vive mas arriba, se invierte la dependencia con un
-`InjectionToken`. Ejemplo real: `errorInterceptor` abre el dialogo de planes al recibir un 402,
-pero no conoce `PlanDialogService`; depende de `PAYWALL_HANDLER`, que `app.config.ts` resuelve
-con `useExisting: PlanDialogService`.
+When `core` needs behaviour that lives higher up, the dependency is inverted with an
+`InjectionToken`. A real example: `errorInterceptor` opens the plan dialog on a 402, but does not
+know `PlanDialogService`; it depends on `PAYWALL_HANDLER`, which `app.config.ts` resolves.
 
-### Dominios — `bars/`, `bar-members/`, `bar-subscription/`, `admin/`, `orders/`, ...
+The interceptor chain is `[urlInterceptor, idTokenInterceptor, errorInterceptor,
+unauthorizedInterceptor]`, and the order matters. `urlInterceptor` turns relative URLs into absolute
+API URLs first; `idTokenInterceptor` then attaches the Firebase token **only** to relative URLs or
+URLs under `environment.apiUrl`. That condition is not decorative: image uploads `PUT` straight to
+`storage.googleapis.com` through the same `HttpClient`, and without it the user's token was being
+sent to a third-party host on every upload.
 
-Los dominios espejan los modulos del backend (`apps/api/src`), de forma que un `bar-subscription`
-del front se corresponde con el `bar-subscription` de la API. Cada dominio agrupa todo lo suyo:
-`data-access/` (repositorios HTTP), `store/` (estado con signals), `services/`, `mappers/` y, si
-aplica, `guards/`, `directives/` y `dialogs/`.
+### Domains — `bars/`, `bar-members/`, `bar-subscription/`, `admin/`, `orders/`, ...
 
-El reparto alrededor de un bar es:
+Domains mirror the backend modules (`apps/api/src`), so the front end's `bar-subscription`
+corresponds to the API's. Each domain groups everything of its own: `data-access/` (HTTP
+repositories), `store/` (signal state), `services/`, `mappers/` and, where relevant, `guards/`,
+`directives/` and `dialogs/`.
 
-| Dominio            | Contiene                                                                   |
-| ------------------ | -------------------------------------------------------------------------- |
-| `bars`             | alta y listado de bares, bar actual                                        |
-| `bar-members`      | miembros, invitaciones, mi pertenencia y `permissionGuard`                 |
-| `bar-subscription` | suscripcion, checkout, portal de cliente, dialogo de planes y su directiva |
-| `admin`            | backoffice de plataforma (bares, usuarios, metricas, auditoria) y `adminGuard` |
+Around a bar the split is:
 
-`permissionGuard` vive en `bar-members` (no en `bars`) porque depende de `MyMemberStore`; si
-estuviera en `bars` se formaria un ciclo `bars -> bar-members -> bars`.
+| Domain             | Contains                                                                    |
+| ------------------ | --------------------------------------------------------------------------- |
+| `bars`             | creating and listing bars, current bar                                      |
+| `bar-members`      | members, invitations, my own membership and `permissionGuard`               |
+| `bar-subscription` | subscription, checkout, customer portal, plan dialog and its directive      |
+| `admin`            | platform backoffice (bars, users, metrics, audit) and `adminGuard`          |
+| `time-tracking`    | clocking: own workday, team register, corrections and export                |
+| `roster`           | `RosterStateService`: selected date, view mode and the ranges derived from them |
 
-Un dominio puede importar `@coaster/core` y otros dominios por su alias. **No puede importar de
-`presentation/`**: si un servicio de dominio abre un dialogo, el componente de ese dialogo vive
-en el propio dominio (ver `bar-subscription/dialogs/select-plan-dialog/`).
+`permissionGuard` lives in `bar-members` (not `bars`) because it depends on `MyMemberStore`; in
+`bars` it would form a `bars -> bar-members -> bars` cycle.
 
-Cada dominio expone su API publica en su `index.ts` y se consume por alias (`@coaster/bars`),
-nunca con rutas relativas que crucen carpetas.
+A domain may import `@coaster/core` and other domains by alias. **It cannot import from
+`presentation/`**: if a domain service opens a dialog, that dialog's component lives in the domain
+itself (see `bar-subscription/dialogs/select-plan-dialog/`).
+
+Each domain declares its public API in its `index.ts` and is consumed by alias (`@coaster/bars`),
+never through relative paths that cross folders.
 
 #### Stores
 
-Un store **nunca inyecta otro store**. Los que dependen de un bar guardan la id en un signal
-propio y la exponen con `setBarId()`:
+A store **never injects another store**. Those that depend on a bar hold the id in their own signal
+and expose `setBarId()`:
 
 ```ts
 readonly #currentBarId = signal<BarId | undefined>(undefined);
@@ -60,74 +69,133 @@ public readonly currentBarId = this.#currentBarId.asReadonly();
 public setBarId(barId: BarId | undefined) { this.#currentBarId.set(barId); }
 ```
 
-Quien decide cual es el bar activo es la capa de presentacion:
-`presentation/bars/workspace/layouts/workspace-layout.ts` tiene un `effect` que reparte la id a
-todos los stores del workspace y la limpia en el `cleanup`. `permissionGuard` hace lo propio con
-`MyMemberStore` antes de que exista el layout.
+The presentation layer decides which bar is active:
+`presentation/bars/workspace/layouts/workspace-layout.ts` has an `effect` that hands the id to every
+workspace store and clears it on cleanup. `permissionGuard` does the same for `MyMemberStore` before
+the layout exists.
 
-Encadenar stores creaba acoplamiento invisible (un store dejaba de cargar si otro no se habia
-inicializado) y ciclos entre dominios.
+Chaining stores created invisible coupling (a store stopped loading if another had not been
+initialised) and cycles between domains.
 
-### `presentation/` — capa de pantallas
+### `presentation/` — screens
 
-Componentes, paginas, layouts y ficheros de rutas. Puede importar de todo lo anterior. Nadie
-importa de `presentation/`.
+Components, pages, layouts and route files. It may import from everything above. Nothing imports
+from it.
 
-## Por que importa
+## Why the layering matters
 
-Cuando `core` dependia de `bars`, cualquier fichero de `bars` que quisiera algo de `core` tenia
-que esquivar el barril con rutas relativas (`../../core/...`) para no crear un ciclo. El
-resultado era que importar una utilidad hoja arrastraba guards, stores y repositorios HTTP
-enteros. Al cortar esa dependencia, los alias funcionan en todas partes y el grafo es aciclico.
+When `core` depended on `bars`, any file in `bars` that wanted something from `core` had to dodge
+the barrel with relative paths (`../../core/...`) to avoid a cycle. The result was that importing one
+leaf utility dragged in guards, stores and whole HTTP repositories. Cutting that dependency made the
+aliases work everywhere and the graph acyclic.
 
-## Como se protege
+## How it is enforced
 
-`apps/web/eslint.config.js` incluye reglas `no-restricted-imports` que fallan el lint si:
+`apps/web/eslint.config.js` includes `no-restricted-imports` rules that fail lint if:
 
-- un fichero de `core/` importa un dominio o `presentation/`;
-- un fichero de dominio importa `presentation/`;
-- un fichero de dominio cruza a otra carpeta con ruta relativa en vez de usar el alias.
+- a file in `core/` imports a domain or `presentation/`;
+- a domain file imports `presentation/`;
+- a domain file crosses into another folder with a relative path instead of the alias.
+
+## Material directives that fail silently
+
+Angular reports unknown elements and unknown property bindings, but a **plain attribute** that
+matches no imported directive is simply inert. Material's prefixes and suffixes are attribute
+directives, and `MatFormField` collects them with `contentChildren(MatSuffix)` rather than
+`<ng-content>` — so forgetting the import does not misplace the element, it stops it rendering at
+all.
+
+That is how a search icon and two time pickers were missing from shipped screens without any error.
+The attributes to watch: `matSuffix` / `matIconSuffix` need `MatSuffix`, `matPrefix` /
+`matIconPrefix` need `MatPrefix`, and likewise `matInput`, `matTooltip`, `matBadge`, `matRipple`,
+`matStartDate` and `matEndDate`.
 
 ## Typecheck
 
-`apps/web/tsconfig.json` es un _solution config_: tiene `"files": []` y solo referencias. Por
-eso `tsc -p tsconfig.json` **no comprueba nada**. Para validar tipos de verdad:
+`apps/web/tsconfig.json` is a _solution config_: it has `"files": []` and only references. So
+`tsc -p tsconfig.json` **checks nothing**. To really validate types:
 
 ```bash
 npx tsc --noEmit -p tsconfig.app.json
 npx tsc --noEmit -p tsconfig.spec.json
 ```
 
-## Alias
+In practice `npm test -w @coaster/web` is the better signal, because the Angular compiler catches
+template errors that raw `tsc` does not.
 
-Los alias `@coaster/*` se declaran **solo** en `tsconfig.json`. `vitest.config.ts` los lee de ahi
-en tiempo de arranque, asi que no hay que mantener dos listas: al anadir un dominio basta con
-declarar su path y crear su `index.ts`.
+## Aliases
 
-Dos ausencias son deliberadas:
+The `@coaster/*` aliases are declared **only** in `tsconfig.json`. `vitest.config.ts` reads them from
+there at startup, so there are no two lists to maintain: adding a domain means declaring its path and
+creating its `index.ts`.
 
-- **`presentation` no tiene alias.** Es la capa mas alta: nadie debe importar de ella. No darle
-  alias es la forma mas simple de que no ocurra.
-- **`@coaster/env`** apunta a `src/environments/environment.ts`, no a un `index.ts`, porque no es
-  un dominio sino la configuracion que el build sustituye por entorno.
+Two absences are deliberate:
 
-Las reglas de lint se generan leyendo las carpetas de `src/app`, asi que un dominio nuevo queda
-cubierto sin tocar `eslint.config.js`.
+- **`presentation` has no alias.** It is the topmost layer: nobody should import from it. Not giving
+  it an alias is the simplest way to make that true.
+- **`@coaster/env`** points at `src/environments/environment.ts`, not an `index.ts`, because it is
+  not a domain but the per-environment configuration the build substitutes.
+
+Lint rules are generated by reading the folders under `src/app`, so a new domain is covered without
+touching `eslint.config.js`.
+
+## Environment and builds
+
+`environment.ts` is **generated** by `set-env.ts` from environment variables and is gitignored. An
+unset `PRODUCTION` warns and falls back to development, so a fresh checkout and CI both work without
+a `.env`; `PRODUCTION=true` together with `USE_EMULATORS=true` is refused outright, because it
+produces a bundle that looks fine and talks to the Firebase emulator.
+
+The guarantee that actually matters is checked on the artefact, not on the inputs: CI builds the web
+with `PRODUCTION=true` and fails if `__TEST_LOGIN__` appears anywhere in `dist/`. A precondition can
+be skipped by whoever forgets to set it; the postcondition cannot.
+
+`environment.production` also gates the test-login backdoor (`window.__TEST_LOGIN__`), which the
+Playwright suite relies on and which the production build tree-shakes away entirely.
 
 ## Bundle
 
-El presupuesto de `initial` esta en 880 kB de aviso y 1 MB de error, no en los 500 kB por defecto
-de Angular. El suelo del framework ya son ~600 kB (Angular core y router, CDK y Material, Firebase
-Auth) y el codigo propio son ~27 kB. El valor esta puesto para que una regresion real salte, no
-para silenciar el aviso.
+The `initial` budget is 880 kB warning / 1 MB error, not Angular's default 500 kB. The framework
+floor alone is ~600 kB (Angular core and router, CDK and Material, Firebase Auth) and application
+code is ~27 kB. The value is set so a real regression trips it, not to silence the warning.
 
-Dos cosas se cargan de forma diferida a proposito:
+Two things are deliberately lazy:
 
-- `provideNativeDateAdapter()` se declara en las rutas que usan datepicker (historial y cuadrante),
-  no en `app.config.ts`.
-- `PAYWALL_HANDLER` resuelve `PlanDialogService` con un `import()` dinamico, para que el dialogo de
-  planes y `MatDialog` no entren en el bundle inicial.
+- `provideNativeDateAdapter()` is declared on the routes that use a datepicker (history and rota),
+  not in `app.config.ts`.
+- `PAYWALL_HANDLER` resolves `PlanDialogService` through a dynamic `import()`, so the plan dialog and
+  `MatDialog` stay out of the initial bundle.
 
-`@coaster/common` se publica en doble formato (CommonJS para la API, ESM para el bundler) mediante
-el mapa `exports` de su `package.json`. Si solo emitiera CommonJS, Angular avisa de que no puede
-optimizar el modulo.
+`@coaster/common` ships in both formats (CommonJS for the API, ESM for the bundler) through the
+`exports` map in its `package.json`. Emitting only CommonJS makes Angular warn that it cannot
+optimise the module.
+
+## Working with the containers
+
+**After touching `packages/common`, rebuild it and restart the API**, because both applications
+consume its `dist`, not its source:
+
+```bash
+npm run build -w @coaster/common && docker compose restart api
+```
+
+Nothing watches that package in development: the API container mounts the repo but runs
+`nest start -b swc -w`, which only watches `apps/api/src`. Without rebuilding, the API keeps the old
+version in its module cache; without restarting, it does not reload either. The symptom is
+misleading: whatever was added to the package arrives as `undefined` and blows up far from the
+change.
+
+Two more container traps, both of which look like "my change did not apply":
+
+- **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
+  invisible inside the container. Run `docker compose exec api npm install` (or `web`).
+- **Adding or removing an export in `@coaster/common`.** Vite pre-bundles dependencies into
+  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts. The
+  browser then reports `does not provide an export named '...'`. Clear it:
+
+  ```bash
+  docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web
+  ```
+
+When something in the UI does not react at all, check `docker compose logs web` first. A failed
+build leaves the browser running the last good bundle, which looks exactly like a broken feature.

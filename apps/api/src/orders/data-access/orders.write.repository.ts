@@ -8,8 +8,10 @@ import type {
   OrderItemId,
   TableId,
 } from '@coaster/common';
-import { AddOrderAdjustmentDto, OrderPricingEngine, PaymentMethod } from '@coaster/common';
+import { AddOrderAdjustmentDto, ErrorCodes, OrderPricingEngine, PaymentMethod } from '@coaster/common';
 import {
+  DbAdjustmentTarget,
+  DbAdjustmentType,
   DbDeliveryStatus,
   DbOrderStatus,
   DbPaymentMethod,
@@ -17,7 +19,8 @@ import {
   DbService,
   DbTableStatus,
 } from '@coaster/core/db';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ORDER_RELATIONS, paymentMethodFor } from './order-relations';
 
 @Injectable()
 export class OrdersWriteRepository {
@@ -39,11 +42,7 @@ export class OrdersWriteRepository {
       return tx.dbOrder.update({
         where: { id: orderId },
         data: { totalAmount },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
     });
   }
@@ -55,11 +54,7 @@ export class OrdersWriteRepository {
       const updated = await tx.dbOrder.update({
         where: { id: orderId },
         data: { status: DbOrderStatus.CANCELLED, totalAmount: 0 },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
 
       if (tableId) {
@@ -110,11 +105,7 @@ export class OrdersWriteRepository {
           tipAmount: dto.tipAmount ?? 0,
           notes: dto.notes?.substring(0, 500) || null,
         },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
 
       if (dto.tableId) {
@@ -152,11 +143,7 @@ export class OrdersWriteRepository {
           totalAmount: currentTotalAmount + additionalAmount,
           ...(dto.notes !== undefined ? { notes: dto.notes?.substring(0, 500) || null } : {}),
         },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
     });
   }
@@ -186,6 +173,14 @@ export class OrdersWriteRepository {
     }[],
   ) {
     return this._db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT id FROM "Order" WHERE id = ${orderId} FOR UPDATE`;
+
+      const stillOpen = await tx.dbOrder.count({ where: { id: orderId, status: DbOrderStatus.OPEN } });
+
+      if (stillOpen === 0) {
+        throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+      }
+
       for (const update of updates) {
         const item = await tx.dbOrderItem.findUnique({ where: { id: update.itemId } });
         if (!item || item.orderId !== orderId) {
@@ -233,15 +228,7 @@ export class OrdersWriteRepository {
           dataToUpdate.paidQuantityCard = newCard;
           dataToUpdate.paidQuantityCash = newCash;
 
-          if (newCard > 0 && newCash > 0) {
-            dataToUpdate.paymentMethod = DbPaymentMethod.MIXED;
-          } else if (newCard > 0) {
-            dataToUpdate.paymentMethod = DbPaymentMethod.CARD;
-          } else if (newCash > 0) {
-            dataToUpdate.paymentMethod = DbPaymentMethod.CASH;
-          } else {
-            dataToUpdate.paymentMethod = DbPaymentMethod.NONE;
-          }
+          dataToUpdate.paymentMethod = paymentMethodFor(newCash, newCard);
         }
 
         if (update.servedQuantity !== undefined) {
@@ -302,14 +289,7 @@ export class OrdersWriteRepository {
         }
       }
 
-      let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
-      if (amountPaidCash > 0 && amountPaidCard > 0) {
-        orderPaymentMethod = DbPaymentMethod.MIXED;
-      } else if (amountPaidCard > 0) {
-        orderPaymentMethod = DbPaymentMethod.CARD;
-      } else if (amountPaidCash > 0) {
-        orderPaymentMethod = DbPaymentMethod.CASH;
-      }
+      const orderPaymentMethod = paymentMethodFor(amountPaidCash, amountPaidCard);
 
       return tx.dbOrder.update({
         where: { id: orderId },
@@ -318,11 +298,7 @@ export class OrdersWriteRepository {
           amountPaidCash,
           amountPaidCard,
         },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
     });
   }
@@ -332,11 +308,7 @@ export class OrdersWriteRepository {
       const cancelled = await tx.dbOrder.update({
         where: { id: orderId },
         data: { status: DbOrderStatus.CANCELLED },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
 
       if (tableId) {
@@ -367,11 +339,7 @@ export class OrdersWriteRepository {
       return tx.dbOrder.update({
         where: { id: orderId },
         data: { tableId: newTableId, tableName: newTableName },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
     });
   }
@@ -384,7 +352,56 @@ export class OrdersWriteRepository {
     primaryOrderTableName: string | null,
   ) {
     return this._db.$transaction(async (tx) => {
+      const freezeOrderDiscounts = async (orderId: OrderId, moveTo?: OrderId) => {
+        const order = await tx.dbOrder.findUnique({
+          where: { id: orderId },
+          include: { items: true, adjustments: true },
+        });
+
+        if (!order) {
+          return { amountPaidCash: 0, amountPaidCard: 0, tipAmount: 0 };
+        }
+
+        const itemsSubtotal = order.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+        for (const adjustment of order.adjustments) {
+          const isOrderPercentage =
+            adjustment.target === DbAdjustmentTarget.ORDER && adjustment.type === DbAdjustmentType.PERCENTAGE;
+
+          if (!isOrderPercentage && !moveTo) {
+            continue;
+          }
+
+          await tx.dbOrderAdjustment.update({
+            where: { id: adjustment.id },
+            data: {
+              ...(moveTo ? { orderId: moveTo } : {}),
+              ...(isOrderPercentage
+                ? {
+                    type: DbAdjustmentType.FIXED_AMOUNT,
+                    value: Math.round((itemsSubtotal * adjustment.value) / 100),
+                  }
+                : {}),
+            },
+          });
+        }
+
+        return order;
+      };
+
+      const primaryBeforeMerge = await freezeOrderDiscounts(primaryOrderId);
+
+      let carriedCash = 0;
+      let carriedCard = 0;
+      let carriedTip = 0;
+
       for (const source of sourceOrdersData) {
+        const sourceOrder = await freezeOrderDiscounts(source.id, primaryOrderId);
+
+        carriedCash += sourceOrder.amountPaidCash;
+        carriedCard += sourceOrder.amountPaidCard;
+        carriedTip += sourceOrder.tipAmount;
+
         await tx.dbOrderItem.updateMany({
           where: { orderId: source.id },
           data: { orderId: primaryOrderId },
@@ -392,7 +409,7 @@ export class OrdersWriteRepository {
 
         await tx.dbOrder.update({
           where: { id: source.id },
-          data: { status: DbOrderStatus.CANCELLED },
+          data: { status: DbOrderStatus.CANCELLED, amountPaidCash: 0, amountPaidCard: 0, tipAmount: 0 },
         });
 
         if (source.tableId) {
@@ -426,24 +443,38 @@ export class OrdersWriteRepository {
         mergedTableName = targetTable?.name ?? mergedTableName;
       }
 
+      const amountPaidCash = primaryBeforeMerge.amountPaidCash + carriedCash;
+      const amountPaidCard = primaryBeforeMerge.amountPaidCard + carriedCard;
+
+      const paymentMethod = paymentMethodFor(amountPaidCash, amountPaidCard);
+
       return tx.dbOrder.update({
         where: { id: primaryOrderId },
         data: {
           totalAmount,
           tableId: targetTableId ?? primaryOrderTableId,
           tableName: mergedTableName,
+          amountPaidCash,
+          amountPaidCard,
+          paymentMethod,
+          tipAmount: primaryBeforeMerge.tipAmount + carriedTip,
         },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
     });
   }
 
   async checkoutOrder(orderId: OrderId, tableId: string | null, paymentMethod: PaymentMethod) {
     return this._db.$transaction(async (tx) => {
+      const claimed = await tx.dbOrder.updateMany({
+        where: { id: orderId, status: DbOrderStatus.OPEN },
+        data: { status: DbOrderStatus.CLOSED },
+      });
+
+      if (claimed.count === 0) {
+        throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
+      }
+
       const unpaidItems = await tx.dbOrderItem.findMany({
         where: {
           orderId,
@@ -461,14 +492,7 @@ export class OrdersWriteRepository {
           newCash += unpaid;
         }
 
-        let newItemPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
-        if (newCard > 0 && newCash > 0) {
-          newItemPaymentMethod = DbPaymentMethod.MIXED;
-        } else if (newCard > 0) {
-          newItemPaymentMethod = DbPaymentMethod.CARD;
-        } else if (newCash > 0) {
-          newItemPaymentMethod = DbPaymentMethod.CASH;
-        }
+        const newItemPaymentMethod = paymentMethodFor(newCash, newCard);
 
         await tx.dbOrderItem.update({
           where: { id: item.id },
@@ -525,14 +549,7 @@ export class OrdersWriteRepository {
         }
       }
 
-      let orderPaymentMethod: DbPaymentMethod = DbPaymentMethod.NONE;
-      if (amountPaidCash > 0 && amountPaidCard > 0) {
-        orderPaymentMethod = DbPaymentMethod.MIXED;
-      } else if (amountPaidCard > 0) {
-        orderPaymentMethod = DbPaymentMethod.CARD;
-      } else if (amountPaidCash > 0) {
-        orderPaymentMethod = DbPaymentMethod.CASH;
-      }
+      const orderPaymentMethod = paymentMethodFor(amountPaidCash, amountPaidCard);
 
       const closed = await tx.dbOrder.update({
         where: { id: orderId },
@@ -543,11 +560,7 @@ export class OrdersWriteRepository {
           amountPaidCash,
           amountPaidCard,
         },
-        include: {
-          items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-          adjustments: true,
-          table: true,
-        },
+        include: ORDER_RELATIONS,
       });
 
       if (tableId) {
@@ -565,11 +578,7 @@ export class OrdersWriteRepository {
     return this._db.dbOrder.update({
       where: { id: orderId },
       data: { tipAmount },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
     });
   }
 
@@ -587,11 +596,7 @@ export class OrdersWriteRepository {
           },
         },
       },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
     });
   }
 
@@ -603,11 +608,7 @@ export class OrdersWriteRepository {
           delete: { id: adjustmentId },
         },
       },
-      include: {
-        items: { include: { product: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] },
-        adjustments: true,
-        table: true,
-      },
+      include: ORDER_RELATIONS,
     });
   }
 }

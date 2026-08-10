@@ -21,7 +21,16 @@ async function bootstrap() {
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
+
+  /*
+   * Cloud Run appends the caller's address to whatever `X-Forwarded-For` arrived, so the real client
+   * is one hop from the right. Trusting every hop instead would hand `req.ip` the leftmost entry,
+   * which the caller writes themselves and can rotate to walk straight past the rate limit.
+   */
+  const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
+  const trustProxy = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : false;
+
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({ trustProxy }), {
     logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
@@ -72,15 +81,17 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
 
-  const config = new DocumentBuilder()
-    .setTitle('BarTeam API')
-    .setDescription('API Multi-Tenant para la gestión de bares y turnos')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  if (!isProduction) {
+    const config = new DocumentBuilder()
+      .setTitle('BarTeam API')
+      .setDescription('API Multi-Tenant para la gestión de bares y turnos')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, documentFactory);
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, documentFactory);
+  }
 
   await app.listen(port, '0.0.0.0');
 

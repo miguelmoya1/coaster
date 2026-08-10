@@ -1,4 +1,4 @@
-import type { SecurityRepository } from '@coaster/core';
+import { FirebaseTokenService, type SecurityRepository } from '@coaster/core';
 import { DbRole, type DbService } from '@coaster/core/db';
 import { Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
@@ -24,7 +24,10 @@ describe('WsAuthService', () => {
     dbMock = { dbUser: { findUnique: vi.fn() } };
     securityRepoMock = { getUserRole: vi.fn(), getBarMemberRole: vi.fn() };
 
-    service = new WsAuthService(dbMock as unknown as DbService, securityRepoMock as unknown as SecurityRepository);
+    service = new WsAuthService(
+      new FirebaseTokenService(dbMock as unknown as DbService),
+      securityRepoMock as unknown as SecurityRepository,
+    );
 
     vi.spyOn(Logger.prototype, 'warn').mockReturnValue(undefined);
   });
@@ -63,7 +66,6 @@ describe('WsAuthService', () => {
       expect(verifyIdToken).toHaveBeenCalledWith('tok_123');
       expect(dbMock.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-1' },
-        select: { id: true, active: true },
       });
       expect(userId).toBe('user-1');
     });

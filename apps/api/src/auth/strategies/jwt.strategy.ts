@@ -1,40 +1,31 @@
 import { ErrorCodes } from '@coaster/common';
-import { DbService } from '@coaster/core/db';
+import { FirebaseTokenService } from '@coaster/core';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { getAuth } from 'firebase-admin/auth';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
   private readonly logger = new Logger(JwtStrategy.name);
 
-  constructor(private readonly _db: DbService) {
+  constructor(private readonly _tokens: FirebaseTokenService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
   }
 
   public async validate(token: string) {
-    try {
-      const decodedToken = await getAuth().verifyIdToken(token);
+    const caller = await this._tokens.resolve(token);
 
-      if (!decodedToken?.sub || !decodedToken?.email) {
-        throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
-      }
-
-      const user = await this._db.dbUser.findUnique({
-        where: { googleId: decodedToken.sub },
-      });
-
-      if (!user || !user.active) {
-        throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
-      }
-
-      return user;
-    } catch (error) {
-      this.logger.error('Error validating Firebase JWT token:', error);
+    if (!caller?.decoded.email) {
+      this.logger.warn('Rejected a token that does not identify a known user');
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
+
+    if (!caller.user || !caller.user.active) {
+      throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
+    }
+
+    return caller.user;
   }
 }

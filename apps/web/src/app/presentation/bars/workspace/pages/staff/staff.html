@@ -18,7 +18,9 @@
         [showDeleteButton]="member.showDeleteButton"
         [isCurrentUser]="member.isCurrentUser"
         [isOnlyOwner]="member.isOnlyOwner"
+        [canChangeRole]="canChangeRole() && !member.isCurrentUser"
         (deleteClicked)="handleClickDeleteMember(member)"
+        (roleChanged)="handleRoleChange(member, $event)"
       />
     } @empty {
       <p

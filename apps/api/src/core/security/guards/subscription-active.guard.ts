@@ -1,9 +1,9 @@
 import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { getAuth } from 'firebase-admin/auth';
 import { DbRole, DbService, DbSubscriptionPlan, DbSubscriptionStatus } from '../../db';
 import { isManualGrantActive } from '../../permissions/manual-grant';
+import { FirebaseTokenService } from '../services/firebase-token.service';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
 
 interface RequestWithParams {
@@ -41,6 +41,7 @@ export class SubscriptionActiveGuard implements CanActivate {
   constructor(
     private readonly _reflector: Reflector,
     private readonly _db: DbService,
+    private readonly _tokens: FirebaseTokenService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -142,37 +143,8 @@ export class SubscriptionActiveGuard implements CanActivate {
       return user?.role === DbRole.ADMIN;
     }
 
-    const token = this.#extractBearerToken(request);
+    const caller = await this._tokens.resolve(request.headers?.authorization);
 
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const decodedToken = await getAuth().verifyIdToken(token);
-
-      if (!decodedToken?.sub) {
-        return false;
-      }
-
-      const user = await this._db.dbUser.findUnique({
-        where: { googleId: decodedToken.sub },
-        select: { role: true },
-      });
-
-      return user?.role === DbRole.ADMIN;
-    } catch {
-      return false;
-    }
-  }
-
-  #extractBearerToken(request: RequestWithParams): string | null {
-    const header = request.headers?.authorization;
-
-    if (typeof header !== 'string' || header.length === 0) {
-      return null;
-    }
-
-    return header.replace(/^Bearer\s+/i, '');
+    return caller?.user?.role === DbRole.ADMIN;
   }
 }

@@ -58,13 +58,30 @@ describe('DeleteExchangeHandler', () => {
 
   it('should throw ForbiddenException if member does not exist or is inactive', async () => {
     const command = new DeleteExchangeCommand(barId, exchangeId, userId);
-    vi.mocked(readRepo.getExchangeById).mockResolvedValue({ shift: { barId: 'bar-1' } } as any);
+    vi.mocked(readRepo.getExchangeById).mockResolvedValue({
+      shift: { barId: 'bar-1' },
+      status: ShiftExchangeStatus.PENDING,
+    } as any);
     vi.mocked(readRepo.getBarMember).mockResolvedValue(null as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND));
   });
 
-  it('should allow OWNER to delete exchange regardless of status or requester', async () => {
+  it('should let the OWNER withdraw an offer somebody else published', async () => {
+    const command = new DeleteExchangeCommand(barId, exchangeId, userId);
+    vi.mocked(readRepo.getExchangeById).mockResolvedValue({
+      shift: { barId: 'bar-1' },
+      requesterId: 'other-user',
+      status: ShiftExchangeStatus.PENDING,
+    } as any);
+    vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.OWNER });
+
+    await handler.execute(command);
+
+    expect(writeRepo.deleteExchange).toHaveBeenCalledWith(exchangeId);
+  });
+
+  it('should refuse to erase a closed exchange, even for the OWNER', async () => {
     const command = new DeleteExchangeCommand(barId, exchangeId, userId);
     vi.mocked(readRepo.getExchangeById).mockResolvedValue({
       shift: { barId: 'bar-1' },
@@ -73,9 +90,10 @@ describe('DeleteExchangeHandler', () => {
     } as any);
     vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.OWNER });
 
-    await handler.execute(command);
-
-    expect(writeRepo.deleteExchange).toHaveBeenCalledWith(exchangeId);
+    await expect(handler.execute(command)).rejects.toThrow(
+      new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_CLOSED),
+    );
+    expect(writeRepo.deleteExchange).not.toHaveBeenCalled();
   });
 
   it('should throw ForbiddenException if non-OWNER tries to delete someone else exchange', async () => {
@@ -90,7 +108,7 @@ describe('DeleteExchangeHandler', () => {
     await expect(handler.execute(command)).rejects.toThrow(new ForbiddenException(ErrorCodes.UNAUTHORIZED));
   });
 
-  it('should throw BadRequestException if non-OWNER tries to delete non-PENDING exchange', async () => {
+  it('should refuse to erase a closed exchange for anybody else either', async () => {
     const command = new DeleteExchangeCommand(barId, exchangeId, userId);
     vi.mocked(readRepo.getExchangeById).mockResolvedValue({
       shift: { barId: 'bar-1' },
@@ -99,7 +117,9 @@ describe('DeleteExchangeHandler', () => {
     } as any);
     vi.mocked(readRepo.getBarMember).mockResolvedValue({ active: true, role: DbBarRole.STAFF });
 
-    await expect(handler.execute(command)).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_EXCHANGE));
+    await expect(handler.execute(command)).rejects.toThrow(
+      new BadRequestException(ErrorCodes.EXCHANGE_ALREADY_CLOSED),
+    );
   });
 
   it('should allow non-OWNER to delete their own PENDING exchange', async () => {

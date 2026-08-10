@@ -209,10 +209,10 @@ export type DbShiftExchangeOrderByWithRelationInput = {
 
 export type DbShiftExchangeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  shiftId?: string
   AND?: Prisma.DbShiftExchangeWhereInput | Prisma.DbShiftExchangeWhereInput[]
   OR?: Prisma.DbShiftExchangeWhereInput[]
   NOT?: Prisma.DbShiftExchangeWhereInput | Prisma.DbShiftExchangeWhereInput[]
+  shiftId?: Prisma.StringFilter<"DbShiftExchange"> | string
   requesterId?: Prisma.StringFilter<"DbShiftExchange"> | string
   targetId?: Prisma.StringNullableFilter<"DbShiftExchange"> | string | null
   status?: Prisma.StringFilter<"DbShiftExchange"> | string
@@ -220,7 +220,7 @@ export type DbShiftExchangeWhereUniqueInput = Prisma.AtLeast<{
   shift?: Prisma.XOR<Prisma.DbShiftScalarRelationFilter, Prisma.DbShiftWhereInput>
   requester?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   target?: Prisma.XOR<Prisma.DbUserNullableScalarRelationFilter, Prisma.DbUserWhereInput> | null
-}, "id" | "shiftId">
+}, "id">
 
 export type DbShiftExchangeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -250,7 +250,7 @@ export type DbShiftExchangeCreateInput = {
   id?: string
   status?: string
   createdAt?: Date | string
-  shift: Prisma.DbShiftCreateNestedOneWithoutExchangeInput
+  shift: Prisma.DbShiftCreateNestedOneWithoutExchangesInput
   requester: Prisma.DbUserCreateNestedOneWithoutShiftRequestsInput
   target?: Prisma.DbUserCreateNestedOneWithoutShiftApprovalsInput
 }
@@ -268,7 +268,7 @@ export type DbShiftExchangeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangeNestedInput
+  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangesNestedInput
   requester?: Prisma.DbUserUpdateOneRequiredWithoutShiftRequestsNestedInput
   target?: Prisma.DbUserUpdateOneWithoutShiftApprovalsNestedInput
 }
@@ -314,11 +314,6 @@ export type DbShiftExchangeListRelationFilter = {
 
 export type DbShiftExchangeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type DbShiftExchangeNullableScalarRelationFilter = {
-  is?: Prisma.DbShiftExchangeWhereInput | null
-  isNot?: Prisma.DbShiftExchangeWhereInput | null
 }
 
 export type DbShiftExchangeCountOrderByAggregateInput = {
@@ -432,43 +427,53 @@ export type DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput = {
   deleteMany?: Prisma.DbShiftExchangeScalarWhereInput | Prisma.DbShiftExchangeScalarWhereInput[]
 }
 
-export type DbShiftExchangeCreateNestedOneWithoutShiftInput = {
-  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
-  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput
-  connect?: Prisma.DbShiftExchangeWhereUniqueInput
+export type DbShiftExchangeCreateNestedManyWithoutShiftInput = {
+  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput> | Prisma.DbShiftExchangeCreateWithoutShiftInput[] | Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput[]
+  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput | Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput[]
+  createMany?: Prisma.DbShiftExchangeCreateManyShiftInputEnvelope
+  connect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
 }
 
-export type DbShiftExchangeUncheckedCreateNestedOneWithoutShiftInput = {
-  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
-  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput
-  connect?: Prisma.DbShiftExchangeWhereUniqueInput
+export type DbShiftExchangeUncheckedCreateNestedManyWithoutShiftInput = {
+  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput> | Prisma.DbShiftExchangeCreateWithoutShiftInput[] | Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput[]
+  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput | Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput[]
+  createMany?: Prisma.DbShiftExchangeCreateManyShiftInputEnvelope
+  connect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
 }
 
-export type DbShiftExchangeUpdateOneWithoutShiftNestedInput = {
-  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
-  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput
-  upsert?: Prisma.DbShiftExchangeUpsertWithoutShiftInput
-  disconnect?: Prisma.DbShiftExchangeWhereInput | boolean
-  delete?: Prisma.DbShiftExchangeWhereInput | boolean
-  connect?: Prisma.DbShiftExchangeWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbShiftExchangeUpdateToOneWithWhereWithoutShiftInput, Prisma.DbShiftExchangeUpdateWithoutShiftInput>, Prisma.DbShiftExchangeUncheckedUpdateWithoutShiftInput>
+export type DbShiftExchangeUpdateManyWithoutShiftNestedInput = {
+  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput> | Prisma.DbShiftExchangeCreateWithoutShiftInput[] | Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput[]
+  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput | Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput[]
+  upsert?: Prisma.DbShiftExchangeUpsertWithWhereUniqueWithoutShiftInput | Prisma.DbShiftExchangeUpsertWithWhereUniqueWithoutShiftInput[]
+  createMany?: Prisma.DbShiftExchangeCreateManyShiftInputEnvelope
+  set?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  disconnect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  delete?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  connect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  update?: Prisma.DbShiftExchangeUpdateWithWhereUniqueWithoutShiftInput | Prisma.DbShiftExchangeUpdateWithWhereUniqueWithoutShiftInput[]
+  updateMany?: Prisma.DbShiftExchangeUpdateManyWithWhereWithoutShiftInput | Prisma.DbShiftExchangeUpdateManyWithWhereWithoutShiftInput[]
+  deleteMany?: Prisma.DbShiftExchangeScalarWhereInput | Prisma.DbShiftExchangeScalarWhereInput[]
 }
 
-export type DbShiftExchangeUncheckedUpdateOneWithoutShiftNestedInput = {
-  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
-  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput
-  upsert?: Prisma.DbShiftExchangeUpsertWithoutShiftInput
-  disconnect?: Prisma.DbShiftExchangeWhereInput | boolean
-  delete?: Prisma.DbShiftExchangeWhereInput | boolean
-  connect?: Prisma.DbShiftExchangeWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbShiftExchangeUpdateToOneWithWhereWithoutShiftInput, Prisma.DbShiftExchangeUpdateWithoutShiftInput>, Prisma.DbShiftExchangeUncheckedUpdateWithoutShiftInput>
+export type DbShiftExchangeUncheckedUpdateManyWithoutShiftNestedInput = {
+  create?: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput> | Prisma.DbShiftExchangeCreateWithoutShiftInput[] | Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput[]
+  connectOrCreate?: Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput | Prisma.DbShiftExchangeCreateOrConnectWithoutShiftInput[]
+  upsert?: Prisma.DbShiftExchangeUpsertWithWhereUniqueWithoutShiftInput | Prisma.DbShiftExchangeUpsertWithWhereUniqueWithoutShiftInput[]
+  createMany?: Prisma.DbShiftExchangeCreateManyShiftInputEnvelope
+  set?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  disconnect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  delete?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  connect?: Prisma.DbShiftExchangeWhereUniqueInput | Prisma.DbShiftExchangeWhereUniqueInput[]
+  update?: Prisma.DbShiftExchangeUpdateWithWhereUniqueWithoutShiftInput | Prisma.DbShiftExchangeUpdateWithWhereUniqueWithoutShiftInput[]
+  updateMany?: Prisma.DbShiftExchangeUpdateManyWithWhereWithoutShiftInput | Prisma.DbShiftExchangeUpdateManyWithWhereWithoutShiftInput[]
+  deleteMany?: Prisma.DbShiftExchangeScalarWhereInput | Prisma.DbShiftExchangeScalarWhereInput[]
 }
 
 export type DbShiftExchangeCreateWithoutRequesterInput = {
   id?: string
   status?: string
   createdAt?: Date | string
-  shift: Prisma.DbShiftCreateNestedOneWithoutExchangeInput
+  shift: Prisma.DbShiftCreateNestedOneWithoutExchangesInput
   target?: Prisma.DbUserCreateNestedOneWithoutShiftApprovalsInput
 }
 
@@ -494,7 +499,7 @@ export type DbShiftExchangeCreateWithoutTargetInput = {
   id?: string
   status?: string
   createdAt?: Date | string
-  shift: Prisma.DbShiftCreateNestedOneWithoutExchangeInput
+  shift: Prisma.DbShiftCreateNestedOneWithoutExchangesInput
   requester: Prisma.DbUserCreateNestedOneWithoutShiftRequestsInput
 }
 
@@ -581,31 +586,25 @@ export type DbShiftExchangeCreateOrConnectWithoutShiftInput = {
   create: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
 }
 
-export type DbShiftExchangeUpsertWithoutShiftInput = {
-  update: Prisma.XOR<Prisma.DbShiftExchangeUpdateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedUpdateWithoutShiftInput>
-  create: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
-  where?: Prisma.DbShiftExchangeWhereInput
+export type DbShiftExchangeCreateManyShiftInputEnvelope = {
+  data: Prisma.DbShiftExchangeCreateManyShiftInput | Prisma.DbShiftExchangeCreateManyShiftInput[]
+  skipDuplicates?: boolean
 }
 
-export type DbShiftExchangeUpdateToOneWithWhereWithoutShiftInput = {
-  where?: Prisma.DbShiftExchangeWhereInput
+export type DbShiftExchangeUpsertWithWhereUniqueWithoutShiftInput = {
+  where: Prisma.DbShiftExchangeWhereUniqueInput
+  update: Prisma.XOR<Prisma.DbShiftExchangeUpdateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedUpdateWithoutShiftInput>
+  create: Prisma.XOR<Prisma.DbShiftExchangeCreateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedCreateWithoutShiftInput>
+}
+
+export type DbShiftExchangeUpdateWithWhereUniqueWithoutShiftInput = {
+  where: Prisma.DbShiftExchangeWhereUniqueInput
   data: Prisma.XOR<Prisma.DbShiftExchangeUpdateWithoutShiftInput, Prisma.DbShiftExchangeUncheckedUpdateWithoutShiftInput>
 }
 
-export type DbShiftExchangeUpdateWithoutShiftInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  requester?: Prisma.DbUserUpdateOneRequiredWithoutShiftRequestsNestedInput
-  target?: Prisma.DbUserUpdateOneWithoutShiftApprovalsNestedInput
-}
-
-export type DbShiftExchangeUncheckedUpdateWithoutShiftInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  requesterId?: Prisma.StringFieldUpdateOperationsInput | string
-  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type DbShiftExchangeUpdateManyWithWhereWithoutShiftInput = {
+  where: Prisma.DbShiftExchangeScalarWhereInput
+  data: Prisma.XOR<Prisma.DbShiftExchangeUpdateManyMutationInput, Prisma.DbShiftExchangeUncheckedUpdateManyWithoutShiftInput>
 }
 
 export type DbShiftExchangeCreateManyRequesterInput = {
@@ -628,7 +627,7 @@ export type DbShiftExchangeUpdateWithoutRequesterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangeNestedInput
+  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangesNestedInput
   target?: Prisma.DbUserUpdateOneWithoutShiftApprovalsNestedInput
 }
 
@@ -652,7 +651,7 @@ export type DbShiftExchangeUpdateWithoutTargetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangeNestedInput
+  shift?: Prisma.DbShiftUpdateOneRequiredWithoutExchangesNestedInput
   requester?: Prisma.DbUserUpdateOneRequiredWithoutShiftRequestsNestedInput
 }
 
@@ -668,6 +667,38 @@ export type DbShiftExchangeUncheckedUpdateManyWithoutTargetInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   shiftId?: Prisma.StringFieldUpdateOperationsInput | string
   requesterId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DbShiftExchangeCreateManyShiftInput = {
+  id?: string
+  requesterId: string
+  targetId?: string | null
+  status?: string
+  createdAt?: Date | string
+}
+
+export type DbShiftExchangeUpdateWithoutShiftInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requester?: Prisma.DbUserUpdateOneRequiredWithoutShiftRequestsNestedInput
+  target?: Prisma.DbUserUpdateOneWithoutShiftApprovalsNestedInput
+}
+
+export type DbShiftExchangeUncheckedUpdateWithoutShiftInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterId?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DbShiftExchangeUncheckedUpdateManyWithoutShiftInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterId?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }

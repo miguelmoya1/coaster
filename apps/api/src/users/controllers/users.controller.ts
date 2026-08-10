@@ -4,7 +4,7 @@ import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateUserCommand } from '../commands';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { UsersMapper } from '../mappers/users.mapper';
+import { UsersMapper } from '@coaster/core';
 
 @Controller('users')
 export class UsersController {

@@ -113,6 +113,8 @@ model DbOrderAdjustment {
   reason    String?
   createdAt DateTime           @default(now())
 
+  @@index([orderId])
+  @@index([itemId])
   @@map("OrderAdjustment")
 }
 
@@ -132,23 +134,26 @@ model DbUser {
   shiftRequests  DbShiftExchange[] @relation("Requester")
   shiftApprovals DbShiftExchange[] @relation("Target")
   auditLogs      DbAdminAuditLog[] @relation("AdminAuditActor")
+  timeEntries    DbTimeEntry[]     @relation("TimeEntrySubject")
+  timeEntryEdits DbTimeEntry[]     @relation("TimeEntryActor")
 
   @@map("User")
 }
 
 model DbBar {
-  id         String             @id @default(uuid())
-  name       String
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  members    DbBarMember[]
-  shifts     DbShift[]
-  categories DbCategory[]
-  tables     DbTable[]
-  orders     DbOrder[]
-  printer    DbPrinterConfig?
-  printJobs  DbPrintJob[]
-  billing    DbBarSubscription?
+  id          String             @id @default(uuid())
+  name        String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  members     DbBarMember[]
+  shifts      DbShift[]
+  categories  DbCategory[]
+  tables      DbTable[]
+  orders      DbOrder[]
+  printer     DbPrinterConfig?
+  printJobs   DbPrintJob[]
+  billing     DbBarSubscription?
+  timeEntries DbTimeEntry[]
 
   @@map("Bar")
 }
@@ -166,29 +171,33 @@ model DbBarMember {
   deletedAt DateTime?
 
   @@unique([userId, barId])
+  @@index([barId, deletedAt])
   @@map("BarMember")
 }
 
 model DbShift {
-  id        String           @id @default(uuid())
-  startTime DateTime
-  endTime   DateTime
-  userId    String
-  user      DbUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barId     String
-  bar       DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
-  notes     String?
-  exchange  DbShiftExchange?
+  id          String            @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime
+  userId      String
+  user        DbUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId       String
+  bar         DbBar             @relation(fields: [barId], references: [id], onDelete: Cascade)
+  notes       String?
+  exchanges   DbShiftExchange[]
+  timeEntries DbTimeEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([barId, startTime])
+  @@index([userId, startTime])
   @@map("Shift")
 }
 
 model DbShiftExchange {
   id          String   @id @default(uuid())
-  shiftId     String   @unique
+  shiftId     String
   shift       DbShift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   requesterId String
   requester   DbUser   @relation("Requester", fields: [requesterId], references: [id])
@@ -197,6 +206,9 @@ model DbShiftExchange {
   status      String   @default("PENDING")
   createdAt   DateTime @default(now())
 
+  @@index([shiftId])
+  @@index([requesterId])
+  @@index([targetId])
   @@map("ShiftExchange")
 }
 
@@ -209,6 +221,7 @@ model DbCategory {
   products  DbProduct[]
   deletedAt DateTime?
 
+  @@index([barId, deletedAt])
   @@map("Category")
 }
 
@@ -226,6 +239,7 @@ model DbProduct {
   deletedAt     DateTime?
   orderItems    DbOrderItem[]
 
+  @@index([categoryId, deletedAt])
   @@map("Product")
 }
 
@@ -285,6 +299,9 @@ model DbOrder {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
+  @@index([barId, status])
+  @@index([barId, createdAt])
+  @@index([tableId])
   @@map("Order")
 }
 
@@ -308,6 +325,8 @@ model DbOrderItem {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
+  @@index([orderId])
+  @@index([productId])
   @@map("OrderItem")
 }
 
@@ -362,21 +381,52 @@ model DbBarSubscription {
   currentPeriodEnd     DateTime?
   trialEndsAt          DateTime?
   canceledAt           DateTime?
-
-  // Access an admin handed out without Stripe. Kept apart from the Stripe columns above so a
-  // webhook arriving later overwrites the billing state without touching the grant.
   manualPlan           DbSubscriptionPlan?
   manualGrantExpiresAt DateTime?
   manualGrantReason    String?
   manualGrantedById    String?
   manualGrantedAt      DateTime?
-
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
 
   @@index([status])
   @@index([manualPlan])
   @@map("BarSubscription")
+}
+
+model DbTimeEntry {
+  id           String       @id
+  barId        String
+  bar          DbBar        @relation(fields: [barId], references: [id], onDelete: Restrict)
+  userId       String
+  user         DbUser       @relation("TimeEntrySubject", fields: [userId], references: [id], onDelete: Restrict)
+  userSnapshot Json
+  shiftId      String?
+  shift        DbShift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  type         String
+  action       String
+  occurredAt   DateTime
+  recordedAt   DateTime
+  workdayDate  DateTime     @db.Date
+  source       String
+  latitude     Float?
+  longitude    Float?
+  rootId       String
+  supersedesId String?      @unique
+  supersedes   DbTimeEntry? @relation("TimeEntryRevision", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy DbTimeEntry? @relation("TimeEntryRevision")
+  actorId      String
+  actor        DbUser       @relation("TimeEntryActor", fields: [actorId], references: [id], onDelete: Restrict)
+  reason       String?
+  sequence     BigInt
+  prevHash     String
+  hash         String
+
+  @@unique([barId, sequence])
+  @@index([rootId])
+  @@index([barId, userId, workdayDate])
+  @@index([barId, workdayDate])
+  @@map("TimeEntry")
 }
 
 model DbAdminAuditLog {
@@ -394,19 +444,4 @@ model DbAdminAuditLog {
   @@index([createdAt])
   @@index([targetType, targetId, createdAt])
   @@map("AdminAuditLog")
-}
-
-model DbStripeWebhookEvent {
-  id               String    @id @default(uuid())
-  stripeEventId    String    @unique
-  type             String
-  payload          Json
-  processingStatus String    @default("PROCESSED")
-  attempts         Int       @default(0)
-  lastError        String?
-  receivedAt       DateTime  @default(now())
-  processedAt      DateTime?
-  updatedAt        DateTime  @updatedAt
-
-  @@map("StripeWebhookEvent")
 }

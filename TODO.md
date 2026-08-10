@@ -1,52 +1,36 @@
-# 📋 Plan de Ruta de Coaster
+# Coaster roadmap
 
-Estrategia de desarrollo secuencial para lo que queda. Respeta la arquitectura DDD/CQRS del core de
-NestJS y la separacion por capas de Angular.
+What is left, in the order it should be built. Technical detail lives in [`docs/`](docs/README.md);
+this file is only the running order.
 
-El detalle tecnico vive en [`docs/`](docs/README.md); aqui solo esta el orden de trabajo.
+Phase 1 (time tracking and legal compliance) is closed — see
+[Time tracking](docs/operations/time-tracking.md).
 
----
+## Phase 2: intelligence layer
 
-## ✅ Completado
+**Module:** AI recommendations (sales, inventory, staffing)
 
-- **Infraestructura SaaS**: Stripe Checkout, Customer Portal y webhooks idempotentes.
-- **Backoffice de administracion**: panel `/admin` con metricas de plataforma, gestion de bares y
-  usuarios, concesion manual de PRO sin Stripe y registro de auditoria.
-- **Modelo de permisos unificado**: una sola tabla en `@coaster/common` para API y front.
+- **Architectural impact:** reads accumulated history from a scheduled job that persists into
+  `DbAiRecommendation`. Note that Cloud Run stops the container when idle, so an in-process cron
+  will not fire — this needs Cloud Scheduler hitting an endpoint, or work driven by traffic.
+- **Flow:**
+  1. **Sales:** best and worst performing products.
+  2. **Inventory:** price adjustments for stagnant stock and dead rotation.
+  3. **Staffing:** rota suggestions from historical load.
 
----
+## Not scheduled
 
-## Fase 1: Operativa Interna y Cumplimiento Legal
+- Table reservations.
+- Public menu for customers.
 
-**Modulo:** Fichaje y Control Horario (Clock-in / Clock-out)
+## Known debt
 
-- **Impacto en arquitectura:** extension del modelo de trabajadores o dominio separado para la
-  gestion de jornadas (`DbShift` / `DbTimeLog`).
-- **Flujo de trabajo:**
-  1. Registro de marcas de tiempo en tiempo real con geolocalizacion asincrona.
-  2. Logica de dominio para contrastar la planificacion teorica contra las marcas reales.
-
-## Fase 2: Capa de Inteligencia y Valor Anadido
-
-**Modulo:** IA de Recomendaciones (Ventas, Inventario, RRHH)
-
-- **Impacto en arquitectura:** consumo de historico mediante un servicio asincrono (`CronJob`) que
-  persiste en `DbAiRecommendation`.
-- **Flujo de trabajo:**
-  1. **Ventas:** analisis de los productos con mayor y menor rendimiento.
-  2. **Inventario:** sugerencia de ajustes de precio segun stock estancado y rotacion nula.
-  3. **RRHH:** optimizacion de turnos segun la carga historica del bar.
-
----
-
-## Por plantear
-
-- Sistema de reserva de mesas.
-- Visualizacion publica de la carta.
-
-## Deuda conocida
-
-- **Acciones destructivas en el backoffice**: borrar bares y usuarios se dejo fuera a proposito.
-  Si se anaden, deben pedir confirmacion escribiendo el nombre y quedar en auditoria.
-- **`AdminGuard` falla abierto** sin el decorador `@Admin()`. Hay un test que lo cubre
-  (`admin-controllers.security.spec.ts`), pero conviene invertirlo cuando se pueda.
+- **Open CORS** (`origin: '*'`) on both the API and the websocket gateway, pending a decision on
+  the production domain. Narrow it to an allowlist before onboarding real venues.
+- **Destructive backoffice actions**: deleting bars and users was deliberately left out. If they
+  are added, they must require typing the name to confirm and must land in the audit log.
+- **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
+  methods directly; dispatched DOM events do not reach Angular listeners in that setup, so keyboard
+  and click wiring is only ever verified by hand in a browser.
+- **Browser e2e run against mocked HTTP.** The Playwright suite stubs every API response, so no
+  automated test exercises browser → API → database end to end.

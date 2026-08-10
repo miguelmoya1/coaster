@@ -103,6 +103,21 @@ export class RosterStateService {
     }
   });
 
+  readonly timeSheetRange = computed(() => {
+    const selected = this.selectedDate();
+    const view = this.viewMode();
+
+    if (view === 'day') {
+      const day = this.#dateFormatter.formatDayId(selected);
+      return { from: day, to: day };
+    }
+
+    const start = view === 'month' ? startOfMonth(selected) : startOfWeek(selected, { weekStartsOn: 1 });
+    const end = view === 'month' ? endOfMonth(selected) : endOfWeek(selected, { weekStartsOn: 1 });
+
+    return { from: this.#dateFormatter.formatDayId(start), to: this.#dateFormatter.formatDayId(end) };
+  });
+
   readonly displayMonthYear = computed(() => {
     return this.#dateFormatter.formatMonthYear(this.selectedDate());
   });

@@ -1,15 +1,10 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
-import type { AdminBarDetail, AdminBarSummary, BarId, Paginated, User, UserId } from '@coaster/common';
+import type { AdminBarDetail, AdminBarSummary, BarId, Paginated, User } from '@coaster/common';
 import { Admin, AdminGuard, SkipSubscriptionCheck } from '@coaster/core';
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  GrantBarPlanCommand,
-  RenameBarCommand,
-  RevokeBarPlanCommand,
-  UpdateBarMemberRoleCommand,
-} from '../commands';
-import { AdminBarsQueryDto, GrantBarPlanDto, RenameBarDto, RevokeBarPlanDto, UpdateBarMemberRoleDto } from '../dto';
+import { GrantBarPlanCommand, RenameBarCommand, RevokeBarPlanCommand } from '../commands';
+import { AdminBarsQueryDto, GrantBarPlanDto, RenameBarDto, RevokeBarPlanDto } from '../dto';
 import { GetAdminBarDetailQuery, ListAdminBarsQuery } from '../queries';
 
 @Controller('admin/bars')
@@ -53,15 +48,5 @@ export class AdminBarsController {
     @CurrentUser() user: User,
   ): Promise<void> {
     await this._commandBus.execute(new RevokeBarPlanCommand(barId, dto, user));
-  }
-
-  @Patch(':barId/members/:userId')
-  async updateMemberRole(
-    @Param('barId') barId: BarId,
-    @Param('userId') userId: UserId,
-    @Body() dto: UpdateBarMemberRoleDto,
-    @CurrentUser() user: User,
-  ): Promise<void> {
-    await this._commandBus.execute(new UpdateBarMemberRoleCommand(barId, userId, dto.role, user));
   }
 }

@@ -15,10 +15,10 @@ export class MediaRepository {
     return firstValueFrom(this.#http.post<MediaUploadResponse[]>(this.routes.generateUploadUrls(barId), dto));
   }
 
-  public async uploadFile(uploadUrl: string, file: File): Promise<void> {
+  public async uploadFile(uploadUrl: string, file: File, uploadHeaders: Record<string, string> = {}): Promise<void> {
     await firstValueFrom(
       this.#http.put(uploadUrl, file, {
-        headers: { 'Content-Type': file.type },
+        headers: { ...uploadHeaders, 'Content-Type': file.type },
       }),
     );
   }

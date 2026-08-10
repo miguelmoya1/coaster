@@ -7,7 +7,7 @@ import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AdminBarDetailStore } from '@coaster/admin';
-import type { BarId, UserId } from '@coaster/common';
+import type { BarId, BarMemberId } from '@coaster/common';
 import { BarRole, SubscriptionPlan } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -19,8 +19,6 @@ import { AuditList } from '../../components/audit-list/audit-list';
 import { BillingBadge } from '../../components/billing-badge/billing-badge';
 import { GrantPlanDialogService } from '../../components/grant-plan-dialog/grant-plan-dialog.service';
 import { StatusChip } from '../../components/status-chip/status-chip';
-
-const ASSIGNABLE_ROLES: BarRole[] = [BarRole.OWNER, BarRole.MANAGER, BarRole.STAFF];
 
 @Component({
   selector: 'coaster-admin-bar-detail',
@@ -66,7 +64,7 @@ export default class AdminBarDetail {
   protected readonly isLoading = this.#store.isLoading;
   protected readonly isSaving = this.#store.isSaving;
 
-  protected readonly assignableRoles = ASSIGNABLE_ROLES;
+  protected readonly assignableRoles = Object.values(BarRole);
   protected readonly isRenaming = signal(false);
   protected readonly renameValue = signal('');
 
@@ -156,9 +154,9 @@ export default class AdminBarDetail {
     }
   }
 
-  protected async changeMemberRole(userId: UserId, role: BarRole) {
+  protected async changeMemberRole(memberId: BarMemberId, role: BarRole) {
     try {
-      await this.#store.updateMemberRole(userId, role);
+      await this.#store.updateMemberRole(memberId, role);
       this.#feedback.success(this.#translate.instant('admin.bar_detail.member_role_success'));
     } catch (error) {
       this.#feedback.error(error);

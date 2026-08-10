@@ -21,12 +21,31 @@ const STAFF_PERMISSIONS: BarPermission[] = [
   'bar:update-product-stock',
 
   'bar:view-shifts',
+  'bar:clock-in',
+  'bar:amend-own-time-entry',
   'bar:view-exchanges',
   'bar:create-exchange',
   'bar:accept-exchange',
   'bar:delete-exchange',
 
   'bar:view-printer',
+];
+
+const OWNER_ONLY_PERMISSIONS: BarPermission[] = [
+  'bar:remove-member',
+  'bar:update-member-role',
+
+  'bar:create-table',
+  'bar:update-table',
+  'bar:delete-table',
+
+  'bar:delete-order',
+
+  'bar:delete-category',
+  'bar:delete-product',
+  'bar:import-templates',
+
+  'bar:manage-billing',
 ];
 
 export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
@@ -44,6 +63,9 @@ export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
     'bar:create-shift',
     'bar:delete-shift',
 
+    'bar:view-time-entries',
+    'bar:manage-time-entries',
+
     'bar:manage-printer',
 
     ...STAFF_PERMISSIONS,
@@ -59,36 +81,9 @@ export const hasPermission = (role: BarRole, permission: BarPermission): boolean
 
 export const getRolePermissions = (role: BarRole): BarPermission[] => {
   if (role === BarRole.OWNER) {
-    return [
-      'bar:view-dashboard',
-
-      'bar:invite-member',
-      'bar:remove-member',
-
-      'bar:create-table',
-      'bar:update-table',
-      'bar:delete-table',
-
-      'bar:delete-order',
-
-      'bar:create-category',
-      'bar:update-category',
-      'bar:delete-category',
-      'bar:create-product',
-      'bar:update-product',
-      'bar:delete-product',
-      'bar:import-templates',
-
-      'bar:create-shift',
-      'bar:delete-shift',
-
-      'bar:manage-printer',
-
-      'bar:manage-billing',
-
-      ...STAFF_PERMISSIONS,
-    ];
+    return [...ROLE_PERMISSIONS[BarRole.MANAGER], ...OWNER_ONLY_PERMISSIONS];
   }
+
   const permissions = ROLE_PERMISSIONS[role];
   return permissions ? [...permissions] : [];
 };

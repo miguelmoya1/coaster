@@ -98,12 +98,12 @@ export type DbPrintJob = Prisma.DbPrintJobModel
  */
 export type DbBarSubscription = Prisma.DbBarSubscriptionModel
 /**
+ * Model DbTimeEntry
+ * 
+ */
+export type DbTimeEntry = Prisma.DbTimeEntryModel
+/**
  * Model DbAdminAuditLog
  * 
  */
 export type DbAdminAuditLog = Prisma.DbAdminAuditLogModel
-/**
- * Model DbStripeWebhookEvent
- * 
- */
-export type DbStripeWebhookEvent = Prisma.DbStripeWebhookEventModel

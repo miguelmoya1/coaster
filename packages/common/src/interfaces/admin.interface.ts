@@ -3,6 +3,7 @@ import { BarRole } from '../constants/bar-role.type';
 import { Role } from '../constants/role.type';
 import { SubscriptionPlan } from '../constants/subscription-plan.type';
 import { SubscriptionStatus } from '../constants/subscription-status.type';
+import { BarMemberId } from './bar-member.interface';
 import { BarId } from './bar.interface';
 import { AdminBarSubscription } from './bar-subscription.interface';
 import { UserId } from './user.interface';
@@ -37,6 +38,7 @@ export interface AdminBarSummary {
 }
 
 export interface AdminBarMember {
+  id: BarMemberId;
   userId: UserId;
   name: string;
   email: string;
@@ -140,10 +142,6 @@ export interface RevokeBarPlanDto {
 
 export interface RenameBarDto {
   name: string;
-}
-
-export interface UpdateBarMemberRoleDto {
-  role: BarRole;
 }
 
 export interface UpdateAdminUserDto {

@@ -10,10 +10,12 @@ export class MemberRemovedHandler implements IEventHandler<MemberRemovedEvent> {
 
   constructor(private readonly _barGateway: BarGateway) {}
 
-  handle(event: MemberRemovedEvent) {
+  async handle(event: MemberRemovedEvent) {
     this.#logger.debug(`Catching MemberRemovedEvent...`);
-    const { barId, memberId } = event;
+    const { barId, memberId, userId } = event;
 
     this._barGateway.server.to(barId).emit(SocketEvents.memberRemoved, { id: memberId });
+
+    await this._barGateway.evictFromBar(barId, userId);
   }
 }

@@ -32,8 +32,9 @@ describe('ShiftExchangesController (e2e)', () => {
       data: {
         userId: mockUser.id,
         barId,
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 3600 * 1000),
+        // A shift somebody could still take over: offering one that is already running is refused.
+        startTime: new Date(Date.now() + 3600 * 1000),
+        endTime: new Date(Date.now() + 5 * 3600 * 1000),
       },
     });
     shiftId = shift.id;

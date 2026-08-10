@@ -25,3 +25,7 @@ export interface InviteBarMemberDto {
   email: string;
   role?: BarRole;
 }
+
+export interface UpdateBarMemberRoleDto {
+  role: BarRole;
+}

@@ -41,6 +41,12 @@ describe('bar permissions', () => {
     it('should list billing among its permissions', () => {
       expect(getRolePermissions(BarRole.OWNER)).toContain(BarPermission.BAR_MANAGE_BILLING);
     });
+
+    it('should list exactly what hasPermission grants it, so a new permission cannot go missing', () => {
+      const listed = getRolePermissions(BarRole.OWNER);
+
+      expect([...listed].sort()).toEqual([...ALL_PERMISSIONS].sort());
+    });
   });
 
   describe('MANAGER', () => {

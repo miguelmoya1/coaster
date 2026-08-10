@@ -1,7 +1,8 @@
 import { ErrorCodes } from '@coaster/common';
-import { StripeWebhookGuard, StripeWebhookWriteRepository, type FastifyStripeRequest } from '@coaster/stripe';
+import { StripeWebhookGuard, type FastifyStripeRequest } from '@coaster/stripe';
 import { Controller, InternalServerErrorException, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { Event as StripeEvent } from 'stripe';
 import {
   HandleCheckoutCompletedCommand,
@@ -11,13 +12,11 @@ import {
 } from '../commands';
 
 @Controller('stripe')
+@SkipThrottle()
 export class StripeWebhookController {
   private readonly _logger = new Logger(StripeWebhookController.name);
 
-  constructor(
-    private readonly _commandBus: CommandBus,
-    private readonly _webhookRepo: StripeWebhookWriteRepository,
-  ) {}
+  constructor(private readonly _commandBus: CommandBus) {}
 
   @Post('webhook')
   @UseGuards(StripeWebhookGuard)
@@ -29,22 +28,9 @@ export class StripeWebhookController {
       throw new InternalServerErrorException(ErrorCodes.STRIPE_WEBHOOK_EVENT_MISSING);
     }
 
-    const shouldProcess = await this._webhookRepo.claim(event);
-
-    if (!shouldProcess) {
-      this._logger.debug(`Webhook event ${event.id} is already processed or currently being processed`);
-      return { received: true };
-    }
-
     this._logger.debug(`Receiving webhook and routing event type: ${event.type}`);
 
-    try {
-      await this.#route(event);
-      await this._webhookRepo.markProcessed(event.id);
-    } catch (error) {
-      await this._webhookRepo.markFailed(event.id, error);
-      throw error;
-    }
+    await this.#route(event);
 
     return { received: true };
   }

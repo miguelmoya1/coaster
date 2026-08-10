@@ -18,15 +18,21 @@ import { StatsModule } from '@coaster/stats';
 import { StripeModule } from '@coaster/stripe';
 import { TablesModule } from '@coaster/tables';
 import { TemplatesModule } from '@coaster/templates';
+import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
 import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
     }),
     DbModule,
     StripeModule,
@@ -41,6 +47,7 @@ import { ConfigModule } from '@nestjs/config';
     ProductsModule,
     ShiftsModule,
     ShiftExchangesModule,
+    TimeTrackingModule,
     TemplatesModule,
     TablesModule,
     OrdersModule,
@@ -50,6 +57,12 @@ import { ConfigModule } from '@nestjs/config';
     AiModule,
     MediaModule,
     AdminModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

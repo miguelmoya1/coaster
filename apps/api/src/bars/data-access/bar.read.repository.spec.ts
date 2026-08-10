@@ -33,7 +33,7 @@ describe('BarReadRepository', () => {
   });
 
   describe('findByUserId', () => {
-    it('should call dbBar.findMany with correct parameters', async () => {
+    it('should only list bars where the membership is still live', async () => {
       const userId = asUserId('user-1');
       const expectedResult = [{ id: 'bar-1', name: 'Bar 1' }];
       vi.mocked(dbService.dbBar.findMany).mockResolvedValue(expectedResult as any);
@@ -41,7 +41,7 @@ describe('BarReadRepository', () => {
       const result = await repository.findByUserId(userId);
 
       expect(dbService.dbBar.findMany).toHaveBeenCalledWith({
-        where: { members: { some: { userId } } },
+        where: { members: { some: { userId, active: true, deletedAt: null } } },
       });
       expect(result).toEqual(expectedResult);
     });

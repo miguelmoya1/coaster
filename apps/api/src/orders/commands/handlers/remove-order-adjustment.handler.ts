@@ -1,5 +1,5 @@
-import { ErrorCodes } from '@coaster/common';
-import { Logger, NotFoundException } from '@nestjs/common';
+import { ErrorCodes, OrderStatus } from '@coaster/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
 import { OrdersWriteRepository } from '../../data-access/orders.write.repository';
@@ -23,6 +23,10 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
     const orderDb = await this.readRepo.findById(command.orderId);
     if (!orderDb || orderDb.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+
+    if (orderDb.status !== OrderStatus.OPEN) {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
     const adjustmentExists = orderDb.adjustments.some((a) => a.id === command.adjustmentId);

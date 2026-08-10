@@ -1,5 +1,5 @@
+import type { User } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { DbUser } from '@coaster/core/db';
 import { Controller, Headers, Post, UnauthorizedException } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -15,13 +15,13 @@ export class AuthController {
   @ApiHeader({ name: 'Authorization', description: 'Bearer <firebase_token>' })
   @ApiResponse({ status: 200, description: 'User synchronized successfully' })
   @ApiResponse({ status: 401, description: 'Invalid or missing token' })
-  async login(@Headers('authorization') authHeader: string): Promise<DbUser> {
+  async login(@Headers('authorization') authHeader: string): Promise<User> {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException(ErrorCodes.UNAUTHORIZED);
     }
 
     const token = authHeader.split(' ')[1];
 
-    return this.commandBus.execute(new SyncUserCommand(token));
+    return this.commandBus.execute<SyncUserCommand, User>(new SyncUserCommand(token));
   }
 }

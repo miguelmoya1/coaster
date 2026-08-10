@@ -48,7 +48,6 @@ describe('GetUserByEmailHandler', () => {
       id: asUserId('user-1'),
       email: 'test@mail.com',
       name: 'Test',
-      googleId: 'g-123',
       photoUrl: 'http://photo.com/1',
       active: true,
       role: DbRole.USER,

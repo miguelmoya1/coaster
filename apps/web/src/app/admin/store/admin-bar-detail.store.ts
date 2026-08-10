@@ -1,12 +1,14 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
-import type { BarId, BarRole, GrantBarPlanDto, RevokeBarPlanDto, UserId } from '@coaster/common';
+import type { BarId, BarMemberId, BarRole, GrantBarPlanDto, RevokeBarPlanDto } from '@coaster/common';
+import { UpdateMemberRole } from '@coaster/bar-members';
 import { AdminRepository } from '../data-access/admin-repository';
 import { adminBarDetailMapper } from '../mappers/admin.mapper';
 
 @Service()
 export class AdminBarDetailStore {
   readonly #repository = inject(AdminRepository);
+  readonly #updateMemberRole = inject(UpdateMemberRole);
   readonly #barId = signal<BarId | undefined>(undefined);
   readonly #isSaving = signal(false);
 
@@ -48,8 +50,8 @@ export class AdminBarDetailStore {
     return this.#mutate((barId) => this.#repository.renameBar(barId, { name }));
   }
 
-  public updateMemberRole(userId: UserId, role: BarRole) {
-    return this.#mutate((barId) => this.#repository.updateBarMemberRole(barId, userId, role));
+  public updateMemberRole(memberId: BarMemberId, role: BarRole) {
+    return this.#mutate((barId) => this.#updateMemberRole.execute(barId, memberId, role));
   }
 
   async #mutate(action: (barId: BarId) => Promise<void>): Promise<void> {

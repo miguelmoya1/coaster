@@ -67,8 +67,8 @@ export const ModelName = {
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbBarSubscription: 'DbBarSubscription',
-  DbAdminAuditLog: 'DbAdminAuditLog',
-  DbStripeWebhookEvent: 'DbStripeWebhookEvent'
+  DbTimeEntry: 'DbTimeEntry',
+  DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -322,6 +322,32 @@ export const DbBarSubscriptionScalarFieldEnum = {
 export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
 
 
+export const DbTimeEntryScalarFieldEnum = {
+  id: 'id',
+  barId: 'barId',
+  userId: 'userId',
+  userSnapshot: 'userSnapshot',
+  shiftId: 'shiftId',
+  type: 'type',
+  action: 'action',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  workdayDate: 'workdayDate',
+  source: 'source',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  rootId: 'rootId',
+  supersedesId: 'supersedesId',
+  actorId: 'actorId',
+  reason: 'reason',
+  sequence: 'sequence',
+  prevHash: 'prevHash',
+  hash: 'hash'
+} as const
+
+export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
+
+
 export const DbAdminAuditLogScalarFieldEnum = {
   id: 'id',
   actorId: 'actorId',
@@ -335,22 +361,6 @@ export const DbAdminAuditLogScalarFieldEnum = {
 } as const
 
 export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
-
-
-export const DbStripeWebhookEventScalarFieldEnum = {
-  id: 'id',
-  stripeEventId: 'stripeEventId',
-  type: 'type',
-  payload: 'payload',
-  processingStatus: 'processingStatus',
-  attempts: 'attempts',
-  lastError: 'lastError',
-  receivedAt: 'receivedAt',
-  processedAt: 'processedAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbStripeWebhookEventScalarFieldEnum = (typeof DbStripeWebhookEventScalarFieldEnum)[keyof typeof DbStripeWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {

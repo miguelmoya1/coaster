@@ -4,6 +4,14 @@ import type { Environment } from './src/environments/environment.interface';
 
 config();
 
+if (process.env.PRODUCTION === undefined) {
+  console.warn('⚠️  PRODUCTION is not set; building as development. Set it to "true" for a release bundle.');
+}
+
+if (process.env.PRODUCTION === 'true' && process.env.USE_EMULATORS === 'true') {
+  throw new Error('USE_EMULATORS is on in a production build: the app would talk to the Firebase emulator.');
+}
+
 const envConfig: Environment = {
   production: process.env.PRODUCTION === 'true',
   useEmulators: process.env.USE_EMULATORS === 'true',

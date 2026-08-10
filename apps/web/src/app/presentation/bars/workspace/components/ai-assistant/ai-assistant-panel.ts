@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, ElementRef, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { MatFormField, MatHint, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -32,6 +33,7 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
     MatPrefix,
     MatSuffix,
     MatHint,
+    CdkTextareaAutosize,
     MarkdownMessage,
     TranslatePipe,
   ],
@@ -225,18 +227,22 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
               </button>
             }
 
-            <input
+            <textarea
               matInput
-              type="text"
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="6"
               name="draft"
               autocomplete="off"
+              class="resize-none"
               [value]="draft()"
               (input)="onDraftInput($event)"
+              (keydown)="onComposerKeydown($event)"
               [disabled]="service.status() === 'processing'"
               [placeholder]="
                 (isListening() ? 'ai_voice.placeholder_listening' : 'ai_voice.type_placeholder') | translate
               "
-            />
+            ></textarea>
 
             <button
               matSuffix
@@ -515,6 +521,16 @@ export class AiAssistantPanel {
   }
 
   protected submitDraft(event: Event) {
+    event.preventDefault();
+    this.#dispatch();
+  }
+
+  /** Enter envia, Mayus+Enter parte la linea: es lo que espera cualquiera que venga de un chat. */
+  protected onComposerKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+
     event.preventDefault();
     this.#dispatch();
   }

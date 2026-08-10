@@ -10,7 +10,7 @@ export class BarReadRepository {
     return await this._db.dbBar.findMany({
       where: {
         members: {
-          some: { userId },
+          some: { userId, active: true, deletedAt: null },
         },
       },
     });

@@ -1,4 +1,4 @@
-import { ErrorCodes } from '@coaster/common';
+import { ErrorCodes, OrderStatus } from '@coaster/common';
 import { Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
@@ -23,6 +23,10 @@ export class AddOrderAdjustmentHandler implements ICommandHandler<AddOrderAdjust
     const orderDb = await this.readRepo.findById(command.orderId);
     if (!orderDb || orderDb.barId !== command.barId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
+    }
+
+    if (orderDb.status !== OrderStatus.OPEN) {
+      throw new BadRequestException(ErrorCodes.ORDER_NOT_OPEN);
     }
 
     if (command.dto.target === 'ITEM') {

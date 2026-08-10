@@ -13,19 +13,19 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
 
   constructor(
     private readonly writeRepo: OrdersWriteRepository,
-
     private readonly readRepo: OrdersReadRepository,
-
     private readonly _eventBus: EventBus,
   ) {}
 
   async execute(command: CreateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this.readRepo.findProductsByIds(productIds);
-    if (products.length !== productIds.length) {
+    const products = await this.readRepo.findProductsByIds(command.barId, productIds);
+    if (products.length !== new Set(productIds).size) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
+
+    let resolvedTableName: string | null = null;
 
     if (command.dto.tableId) {
       const table = await this.readRepo.findTableById(asTableId(command.dto.tableId));
@@ -35,6 +35,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       if (table.status === TableStatus.OCCUPIED) {
         throw new BadRequestException(ErrorCodes.TABLE_ALREADY_OCCUPIED);
       }
+      resolvedTableName = table.name;
     }
 
     const priceMap = new Map<string, number>(products.map((p) => [p.id, p.price]));
@@ -42,12 +43,6 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       (sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity,
       0,
     );
-
-    let resolvedTableName: string | null = null;
-    if (command.dto.tableId) {
-      const table = await this.readRepo.findTableById(asTableId(command.dto.tableId));
-      resolvedTableName = table?.name ?? null;
-    }
 
     const order = await this.writeRepo.createOrder(
       command.barId,

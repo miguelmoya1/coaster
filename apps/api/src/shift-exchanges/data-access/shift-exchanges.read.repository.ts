@@ -1,5 +1,5 @@
 import type { BarId, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { ShiftExchangeStatus } from '@coaster/common';
+import { BAR_TIME_ZONE, ShiftExchangeStatus } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -29,7 +29,7 @@ export class ShiftExchangesReadRepository {
   }
 
   public async findPendingByBarId(barId: BarId) {
-    const startInstant = Temporal.Now.zonedDateTimeISO('UTC').startOfDay().toInstant();
+    const startInstant = Temporal.Now.zonedDateTimeISO(BAR_TIME_ZONE).startOfDay().toInstant();
     const today = new Date(startInstant.epochMilliseconds);
 
     return this._db.dbShiftExchange.findMany({
@@ -55,6 +55,7 @@ export class ShiftExchangesReadRepository {
           userId,
           barId,
         },
+        deletedAt: null,
       },
       select: { role: true, active: true },
     });

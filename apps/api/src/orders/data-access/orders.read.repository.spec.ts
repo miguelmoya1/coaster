@@ -107,20 +107,25 @@ describe('OrdersReadRepository', () => {
   });
 
   describe('findProductsByIds', () => {
-    it('should call dbProduct.findMany', async () => {
-      await repository.findProductsByIds(['prod-1']);
+    it('should only look at live products of the bar making the order', async () => {
+      await repository.findProductsByIds(asBarId('bar-1'), ['prod-1']);
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
-        where: { id: { in: ['prod-1'] } },
+        where: {
+          id: { in: ['prod-1'] },
+          deletedAt: null,
+          category: { barId: 'bar-1', deletedAt: null },
+        },
       });
     });
   });
 
   describe('findOrdersByIds', () => {
-    it('should call dbOrder.findMany', async () => {
+    it('should return them oldest first so a merge always keeps the same order', async () => {
       await repository.findOrdersByIds([asOrderId('order-1')]);
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
         where: { id: { in: ['order-1'] } },
         include: expect.any(Object),
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       });
     });
   });

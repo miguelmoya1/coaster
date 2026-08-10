@@ -30,6 +30,7 @@ describe('Staff', () => {
       hasValue: signal(true),
     },
     isOwner: signal(false),
+    hasPermission: vi.fn().mockReturnValue(false),
   };
 
   const confirmationDialogMock = {

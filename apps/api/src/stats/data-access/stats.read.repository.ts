@@ -14,7 +14,9 @@ export class StatsReadRepository {
         createdAt: { gte: startOfPrevYear },
       },
       select: {
-        totalAmount: true,
+        amountPaidCash: true,
+        amountPaidCard: true,
+        tipAmount: true,
         createdAt: true,
       },
       orderBy: {

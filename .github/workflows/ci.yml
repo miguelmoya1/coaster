@@ -44,6 +44,20 @@ jobs:
           npm run build -w @coaster/api
           npm run build -w @coaster/web
 
+      - name: 🔒 Production bundle must not ship the test backdoor
+        working-directory: apps/web
+        env:
+          PRODUCTION: 'true'
+          USE_EMULATORS: 'false'
+        run: |
+          node set-env.ts
+          npx ng build
+          if grep -rq "__TEST_LOGIN__" dist/; then
+            echo "::error::__TEST_LOGIN__ is present in the production bundle"
+            exit 1
+          fi
+          echo "✅ backdoor absent from the production bundle"
+
       - name: 🧹 Lint
         run: npm run lint
 
