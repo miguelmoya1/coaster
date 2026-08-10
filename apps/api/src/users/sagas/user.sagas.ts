@@ -1,4 +1,4 @@
-import { InviteMemberRequestedEvent } from '@coaster/bar-members';
+import { InviteMemberRequestedEvent } from '@coaster/establishment-members';
 import { Injectable, Logger } from '@nestjs/common';
 import { ofType, Saga } from '@nestjs/cqrs';
 import { map, Observable } from 'rxjs';
@@ -15,7 +15,7 @@ export class UserSagas {
       map((event) => {
         this.#logger.debug(`Catching InviteMemberRequestedEvent...`);
         return new PrepareUserForInviteCommand(event.email, {
-          barId: event.barId,
+          establishmentId: event.establishmentId,
           role: event.role,
           inviterLanguage: event.inviterLanguage,
         });

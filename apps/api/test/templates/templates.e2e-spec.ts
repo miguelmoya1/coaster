@@ -5,7 +5,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('TemplatesController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
 
   beforeAll(async () => {
     mockUser.role = 'ADMIN';
@@ -25,8 +25,8 @@ describe('TemplatesController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
   });
 
   afterAll(async () => {
@@ -110,7 +110,7 @@ describe('TemplatesController (e2e)', () => {
   });
 
   describe('Import Templates', () => {
-    it('should import templates into a bar', async () => {
+    it('should import templates into an establishment', async () => {
       const cat = await testSetup.prisma.dbCategoryTemplate.create({
         data: { name: 'Drinks', icon: 'beer' },
       });
@@ -120,17 +120,19 @@ describe('TemplatesController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/templates/bar/${barId}`)
+        .post(`/api/templates/establishment/${establishmentId}`)
         .send({ categoryTemplateIds: [cat.id] })
         .expect(201);
 
-      const barCategories = await testSetup.prisma.dbCategory.findMany({ where: { barId } });
-      expect(barCategories).toHaveLength(1);
-      expect(barCategories[0].name).toBe('Drinks');
+      const establishmentCategories = await testSetup.prisma.dbCategory.findMany({ where: { establishmentId } });
+      expect(establishmentCategories).toHaveLength(1);
+      expect(establishmentCategories[0].name).toBe('Drinks');
 
-      const barProducts = await testSetup.prisma.dbProduct.findMany({ where: { categoryId: barCategories[0].id } });
-      expect(barProducts).toHaveLength(1);
-      expect(barProducts[0].name).toBe('Beer');
+      const establishmentProducts = await testSetup.prisma.dbProduct.findMany({
+        where: { categoryId: establishmentCategories[0].id },
+      });
+      expect(establishmentProducts).toHaveLength(1);
+      expect(establishmentProducts[0].name).toBe('Beer');
     });
   });
 });

@@ -159,7 +159,7 @@ describe('TemplatesWriteRepository', () => {
 
   describe('createManyCategories', () => {
     it('should call dbCategory.createMany', async () => {
-      const data = [{ barId: '1', name: 'Test', icon: 'icon' }];
+      const data = [{ establishmentId: '1', name: 'Test', icon: 'icon' }];
       await repository.createManyCategories(data);
       expect(dbService.dbCategory.createMany).toHaveBeenCalledWith({ data, skipDuplicates: true });
     });

@@ -13,7 +13,7 @@ vi.mock('ai', async (importOriginal) => {
 describe('AiController (e2e)', () => {
   const testSetup = new E2eTestSetup();
 
-  let barId: string;
+  let establishmentId: string;
 
   beforeAll(async () => {
     await testSetup.setup();
@@ -29,18 +29,18 @@ describe('AiController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
   });
 
   afterAll(async () => {
     await testSetup.teardown();
   });
 
-  describe('POST /api/bars/:barId/ai', () => {
-    it('should be guarded by authentication and bar permissions', async () => {
+  describe('POST /api/establishments/:establishmentId/ai', () => {
+    it('should be guarded by authentication and establishment permissions', async () => {
       const response = await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/ai`)
+        .post(`/api/establishments/${establishmentId}/ai`)
         .send({ prompt: 'Suggest me a drink' });
 
       expect(response.status === 201 || response.status === 500).toBeTruthy();

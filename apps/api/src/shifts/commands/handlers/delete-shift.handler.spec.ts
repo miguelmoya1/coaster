@@ -1,4 +1,4 @@
-import { ErrorCodes, asBarId, asShiftId } from '@coaster/common';
+import { ErrorCodes, asEstablishmentId, asShiftId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -47,26 +47,26 @@ describe('DeleteShiftHandler', () => {
   });
 
   it('should throw NotFoundException if shift does not exist', async () => {
-    const command = new DeleteShiftCommand(asBarId('bar-1'), asShiftId('shift-1'));
+    const command = new DeleteShiftCommand(asEstablishmentId('establishment-1'), asShiftId('shift-1'));
     vi.mocked(readRepo.findById).mockResolvedValue(null as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND));
   });
 
-  it('should throw NotFoundException if shift belongs to another bar', async () => {
-    const command = new DeleteShiftCommand(asBarId('bar-1'), asShiftId('shift-1'));
-    vi.mocked(readRepo.findById).mockResolvedValue({ id: 'shift-1', barId: 'bar-2' } as any);
+  it('should throw NotFoundException if shift belongs to another establishment', async () => {
+    const command = new DeleteShiftCommand(asEstablishmentId('establishment-1'), asShiftId('shift-1'));
+    vi.mocked(readRepo.findById).mockResolvedValue({ id: 'shift-1', establishmentId: 'establishment-2' } as any);
 
     await expect(handler.execute(command)).rejects.toThrow(new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND));
   });
 
   it('should delete shift and publish ShiftDeletedEvent', async () => {
-    const command = new DeleteShiftCommand(asBarId('bar-1'), asShiftId('shift-1'));
-    vi.mocked(readRepo.findById).mockResolvedValue({ id: 'shift-1', barId: 'bar-1' } as any);
+    const command = new DeleteShiftCommand(asEstablishmentId('establishment-1'), asShiftId('shift-1'));
+    vi.mocked(readRepo.findById).mockResolvedValue({ id: 'shift-1', establishmentId: 'establishment-1' } as any);
 
     await handler.execute(command);
 
     expect(writeRepo.delete).toHaveBeenCalledWith(command.shiftId);
-    expect(eventBus.publish).toHaveBeenCalledWith(new ShiftDeletedEvent(command.barId, command.shiftId));
+    expect(eventBus.publish).toHaveBeenCalledWith(new ShiftDeletedEvent(command.establishmentId, command.shiftId));
   });
 });

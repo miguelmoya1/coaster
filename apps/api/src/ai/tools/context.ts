@@ -1,4 +1,13 @@
-import type { BarId, BarPermission, BarRole, Category, Order, Product, Table, User } from '@coaster/common';
+import type {
+  EstablishmentId,
+  EstablishmentPermission,
+  EstablishmentRole,
+  Category,
+  Order,
+  Product,
+  Table,
+  User,
+} from '@coaster/common';
 import { ErrorCodes, hasPermission } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import type { CommandBus, ICommand, IQuery, QueryBus } from '@nestjs/cqrs';
@@ -6,10 +15,10 @@ import type { CommandBus, ICommand, IQuery, QueryBus } from '@nestjs/cqrs';
 const logger = new Logger('AiTools');
 
 export interface AiToolsContext {
-  barId: BarId;
+  establishmentId: EstablishmentId;
   user: User;
   isAdmin: boolean;
-  barRole: BarRole;
+  establishmentRole: EstablishmentRole;
   commandBus: CommandBus;
   queryBus: QueryBus;
   products: Product[];
@@ -33,24 +42,25 @@ export interface Confirmation {
 
 export interface AiToolRunner {
   /** Runs a write command through the CommandBus once the permission (and confirmation) checks pass. */
-  execute(permission: BarPermission, command: ICommand, confirmation?: Confirmation): Promise<ToolResult>;
+  execute(permission: EstablishmentPermission, command: ICommand, confirmation?: Confirmation): Promise<ToolResult>;
   /** Runs a read query through the QueryBus once the permission check passes. */
-  query<T>(permission: BarPermission, query: IQuery, project?: (value: T) => unknown): Promise<ToolResult>;
+  query<T>(permission: EstablishmentPermission, query: IQuery, project?: (value: T) => unknown): Promise<ToolResult>;
 }
 
 /** Rejects a tool call the assistant got wrong, without ever reaching the bus. */
 export const failed = (message: string): ToolResult => ({ status: 'error', message });
 
 export const createToolRunner = (context: AiToolsContext): AiToolRunner => {
-  const { barId, user, isAdmin, barRole, commandBus, queryBus } = context;
+  const { establishmentId, user, isAdmin, establishmentRole, commandBus, queryBus } = context;
 
-  const allows = (permission: BarPermission): boolean => isAdmin || hasPermission(barRole, permission);
+  const allows = (permission: EstablishmentPermission): boolean =>
+    isAdmin || hasPermission(establishmentRole, permission);
 
-  const denied = (permission: BarPermission): ToolResult => {
-    logger.warn(`User ${user.id} denied permission "${permission}" in bar "${barId}"`);
+  const denied = (permission: EstablishmentPermission): ToolResult => {
+    logger.warn(`User ${user.id} denied permission "${permission}" in establishment "${establishmentId}"`);
     return {
       status: 'denied',
-      message: `The user's role (${isAdmin ? 'ADMIN' : barRole}) does not allow this action. It requires the '${permission}' permission. Tell the user they lack permission and do not retry.`,
+      message: `The user's role (${isAdmin ? 'ADMIN' : establishmentRole}) does not allow this action. It requires the '${permission}' permission. Tell the user they lack permission and do not retry.`,
     };
   };
 
@@ -84,7 +94,7 @@ export const createToolRunner = (context: AiToolsContext): AiToolRunner => {
       }
     },
 
-    async query<T>(permission: BarPermission, query: IQuery, project?: (value: T) => unknown) {
+    async query<T>(permission: EstablishmentPermission, query: IQuery, project?: (value: T) => unknown) {
       if (!allows(permission)) {
         return denied(permission);
       }

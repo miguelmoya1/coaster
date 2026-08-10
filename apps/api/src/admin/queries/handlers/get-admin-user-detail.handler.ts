@@ -30,7 +30,7 @@ export class GetAdminUserDetailHandler implements IQueryHandler<GetAdminUserDeta
 
     return {
       user: AdminMapper.toUserSummary(user),
-      bars: memberships.map((membership) => AdminMapper.toUserBarMembership(membership)),
+      establishments: memberships.map((membership) => AdminMapper.toUserEstablishmentMembership(membership)),
       recentActivity: recentActivity.map((entry) => AdminMapper.toAuditEntry(entry)),
     };
   }

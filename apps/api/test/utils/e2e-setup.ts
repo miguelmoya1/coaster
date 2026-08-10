@@ -4,7 +4,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
-import { DbService, DbBarRole, DbSubscriptionPlan, DbSubscriptionStatus } from '../../src/core/db';
+import { DbService, DbEstablishmentRole, DbSubscriptionPlan, DbSubscriptionStatus } from '../../src/core/db';
 import { WsAuthService } from '../../src/websockets/services';
 
 const TRIAL_DAYS = 14;
@@ -23,7 +23,7 @@ export class MockWsAuthService {
     return Promise.resolve(typeof token === 'string' && token.length > 0 ? mockUser.id : null);
   }
 
-  canAccessBar(): Promise<boolean> {
+  canAccessEstablishment(): Promise<boolean> {
     return Promise.resolve(true);
   }
 }
@@ -85,11 +85,14 @@ export class E2eTestSetup {
     this.prisma = this.app.get(DbService);
   }
 
-  async createBar(name = 'Test Bar', options: { ownerId?: string | null; role?: DbBarRole } = {}) {
+  async createEstablishment(
+    name = 'Test Establishment',
+    options: { ownerId?: string | null; role?: DbEstablishmentRole } = {},
+  ) {
     const ownerId = options.ownerId === undefined ? mockUser.id : options.ownerId;
-    const role = options.role ?? DbBarRole.OWNER;
+    const role = options.role ?? DbEstablishmentRole.OWNER;
 
-    return this.prisma.dbBar.create({
+    return this.prisma.dbEstablishment.create({
       data: {
         name,
         ...(ownerId ? { members: { create: { userId: ownerId, role } } } : {}),

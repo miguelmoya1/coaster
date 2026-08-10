@@ -17,13 +17,13 @@ export class PrinterTokenService {
     this.secretKey = secret;
   }
 
-  public generateToken(barId: string): string {
+  public generateToken(establishmentId: string): string {
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
 
     const now = Math.floor(Date.now() / 1000);
     const payload = Buffer.from(
       JSON.stringify({
-        barId,
+        establishmentId,
         iat: now,
         exp: now + 8 * 24 * 60 * 60,
       }),

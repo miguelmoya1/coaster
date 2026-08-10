@@ -28,32 +28,36 @@ describe('MediaService', () => {
     service = module.get<MediaService>(MediaService);
   });
 
-  it('should keep the object inside the folder of the bar that asked for it', async () => {
-    await service.generateUploadUrls('bar-1', 'products', [{ filename: 'beer.png', contentType: 'image/png' }]);
+  it('should keep the object inside the folder of the establishment that asked for it', async () => {
+    await service.generateUploadUrls('establishment-1', 'products', [
+      { filename: 'beer.png', contentType: 'image/png' },
+    ]);
 
-    expect(pathOfLastUpload()).toMatch(/^bars\/bar-1\/products\/[0-9a-f-]+\.png$/);
+    expect(pathOfLastUpload()).toMatch(/^establishments\/establishment-1\/products\/[0-9a-f-]+\.png$/);
   });
 
   it('should not let a filename walk out of that folder', async () => {
-    await service.generateUploadUrls('bar-1', 'products', [
-      { filename: '../../../other-bar/evil.png', contentType: 'image/png' },
+    await service.generateUploadUrls('establishment-1', 'products', [
+      { filename: '../../../other-establishment/evil.png', contentType: 'image/png' },
     ]);
 
     const path = pathOfLastUpload();
 
-    expect(path).toMatch(/^bars\/bar-1\/products\//);
+    expect(path).toMatch(/^establishments\/establishment-1\/products\//);
     expect(path).not.toContain('..');
-    expect(path).not.toContain('other-bar');
+    expect(path).not.toContain('other-establishment');
   });
 
   it('should drop an extension it does not recognise', async () => {
-    await service.generateUploadUrls('bar-1', 'products', [{ filename: 'payload.html', contentType: 'image/png' }]);
+    await service.generateUploadUrls('establishment-1', 'products', [
+      { filename: 'payload.html', contentType: 'image/png' },
+    ]);
 
     expect(pathOfLastUpload()).not.toContain('.html');
   });
 
   it('should sign the url for the declared content type and a bounded size', async () => {
-    const [response] = await service.generateUploadUrls('bar-1', 'products', [
+    const [response] = await service.generateUploadUrls('establishment-1', 'products', [
       { filename: 'beer.webp', contentType: 'image/webp' },
     ]);
 
@@ -69,7 +73,7 @@ describe('MediaService', () => {
   });
 
   it('should point the public url at the same object it signed', async () => {
-    const [response] = await service.generateUploadUrls('bar-1', 'products', [
+    const [response] = await service.generateUploadUrls('establishment-1', 'products', [
       { filename: 'beer.png', contentType: 'image/png' },
     ]);
 

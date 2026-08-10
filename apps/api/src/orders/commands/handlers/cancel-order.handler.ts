@@ -20,7 +20,7 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, v
   async execute(command: CancelOrderCommand): Promise<void> {
     this.#logger.debug(`Executing cancelOrder...`);
     const existingOrder = await this.readRepo.findById(command.orderId);
-    if (!existingOrder || existingOrder.barId !== command.barId) {
+    if (!existingOrder || existingOrder.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (existingOrder.status !== OrderStatus.OPEN) {
@@ -31,7 +31,11 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrderCommand, v
     const mapped = OrdersMapper.toDomain(order);
     this.#logger.debug(`Publishing OrderCancelledEvent...`);
     this._eventBus.publish(
-      new OrderCancelledEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
+      new OrderCancelledEvent(
+        command.establishmentId,
+        mapped,
+        existingOrder.tableId ? asTableId(existingOrder.tableId) : null,
+      ),
     );
   }
 }

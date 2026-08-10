@@ -93,7 +93,7 @@ export class TemplatesWriteRepository {
   }
 
   public async createManyCategories(
-    data: { barId: string; name: string; icon: string | null }[],
+    data: { establishmentId: string; name: string; icon: string | null }[],
     skipDuplicates = true,
   ) {
     return this._db.dbCategory.createMany({

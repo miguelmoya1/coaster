@@ -22,7 +22,7 @@ describe('SyncUserHandler', () => {
 
   const invitedUser = {
     id: 'user-1',
-    email: 'invited@bar.com',
+    email: 'invited@establishment.com',
     googleId: null,
     name: 'Invited',
     active: true,
@@ -49,7 +49,7 @@ describe('SyncUserHandler', () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(invitedUser);
     dbUser.update.mockResolvedValue({ ...invitedUser, googleId: 'google-sub', active: true, role: 'USER' });
 
-    await signIn({ sub: 'google-sub', email: 'invited@bar.com', email_verified: true });
+    await signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: true });
 
     expect(dbUser.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
@@ -60,9 +60,9 @@ describe('SyncUserHandler', () => {
   it('should refuse to claim an account from a token that does not vouch for the address', async () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(invitedUser);
 
-    await expect(signIn({ sub: 'google-sub', email: 'invited@bar.com', email_verified: false })).rejects.toThrow(
-      new UnauthorizedException(ErrorCodes.EMAIL_NOT_VERIFIED),
-    );
+    await expect(
+      signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: false }),
+    ).rejects.toThrow(new UnauthorizedException(ErrorCodes.EMAIL_NOT_VERIFIED));
 
     expect(dbUser.update).not.toHaveBeenCalled();
   });
@@ -70,9 +70,9 @@ describe('SyncUserHandler', () => {
   it('should refuse to move an account already linked to another sign-in', async () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({ ...invitedUser, googleId: 'other-sub' });
 
-    await expect(signIn({ sub: 'google-sub', email: 'invited@bar.com', email_verified: true })).rejects.toThrow(
-      new UnauthorizedException(ErrorCodes.EMAIL_ALREADY_LINKED),
-    );
+    await expect(
+      signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: true }),
+    ).rejects.toThrow(new UnauthorizedException(ErrorCodes.EMAIL_ALREADY_LINKED));
 
     expect(dbUser.update).not.toHaveBeenCalled();
   });
@@ -80,7 +80,7 @@ describe('SyncUserHandler', () => {
   it('should return the user matched by their sign-in id without touching the email path', async () => {
     const existing = {
       id: 'user-1',
-      email: 'known@bar.com',
+      email: 'known@establishment.com',
       googleId: 'google-sub',
       name: 'Known',
       photoUrl: null,
@@ -90,11 +90,16 @@ describe('SyncUserHandler', () => {
     };
     dbUser.findUnique.mockResolvedValueOnce(existing);
 
-    const result = await signIn({ sub: 'google-sub', email: 'known@bar.com', name: 'Known', email_verified: true });
+    const result = await signIn({
+      sub: 'google-sub',
+      email: 'known@establishment.com',
+      name: 'Known',
+      email_verified: true,
+    });
 
     expect(result).toEqual({
       id: 'user-1',
-      email: 'known@bar.com',
+      email: 'known@establishment.com',
       name: 'Known',
       photoUrl: undefined,
       active: true,
@@ -106,12 +111,18 @@ describe('SyncUserHandler', () => {
 
   it('should create a brand new user when nothing matches', async () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
-    dbUser.create.mockResolvedValue({ id: 'user-2', email: 'new@bar.com', name: 'new', active: true, role: 'USER' });
+    dbUser.create.mockResolvedValue({
+      id: 'user-2',
+      email: 'new@establishment.com',
+      name: 'new',
+      active: true,
+      role: 'USER',
+    });
 
-    await signIn({ sub: 'new-sub', email: 'new@bar.com', email_verified: true });
+    await signIn({ sub: 'new-sub', email: 'new@establishment.com', email_verified: true });
 
     expect(dbUser.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ email: 'new@bar.com', googleId: 'new-sub' }),
+      data: expect.objectContaining({ email: 'new@establishment.com', googleId: 'new-sub' }),
     });
   });
 

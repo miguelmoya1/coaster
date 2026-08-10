@@ -1,8 +1,8 @@
-import { MemberInvitedEvent } from '@coaster/bar-members';
-import { SocketEvents, asBarId, asBarMemberId } from '@coaster/common';
+import { MemberInvitedEvent } from '@coaster/establishment-members';
+import { SocketEvents, asEstablishmentId, asEstablishmentMemberId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { MemberInvitedHandler } from './member-invited.handler';
 
 describe('MemberInvitedHandler', () => {
@@ -16,7 +16,7 @@ describe('MemberInvitedHandler', () => {
       providers: [
         MemberInvitedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -30,18 +30,18 @@ describe('MemberInvitedHandler', () => {
     vi.clearAllMocks();
   });
 
-  it('should emit MEMBER_INVITED event to the correct bar room', () => {
+  it('should emit MEMBER_INVITED event to the correct establishment room', () => {
     const event = new MemberInvitedEvent(
-      asBarId('bar-1'),
-      asBarMemberId('mem-1'),
+      asEstablishmentId('establishment-1'),
+      asEstablishmentMemberId('mem-1'),
       'new@test.com',
-      'Test Bar',
+      'Test Establishment',
       'User',
       'en',
     );
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.memberInvited, { id: 'mem-1' });
   });
 });

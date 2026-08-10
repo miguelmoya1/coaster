@@ -1,8 +1,8 @@
-import type { BarId, Order, ProductId } from '@coaster/common';
+import type { EstablishmentId, Order, ProductId } from '@coaster/common';
 
 export class OrderItemRemovedEvent {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly order: Order,
     public readonly removedItem: { productId: ProductId; quantity: number },
   ) {}

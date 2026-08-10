@@ -150,17 +150,17 @@ describe('TemplatesReadRepository', () => {
     });
   });
 
-  describe('findCategoriesByBarIdAndNames', () => {
+  describe('findCategoriesByEstablishmentIdAndNames', () => {
     it('should call dbCategory.findMany', async () => {
-      const barId = 'bar-1';
+      const establishmentId = 'establishment-1';
       const names = ['Cat 1'];
       const expectedResult = [{ id: '1' }];
       vi.mocked(dbService.dbCategory.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findCategoriesByBarIdAndNames(barId, names);
+      const result = await repository.findCategoriesByEstablishmentIdAndNames(establishmentId, names);
 
       expect(dbService.dbCategory.findMany).toHaveBeenCalledWith({
-        where: { barId, name: { in: names } },
+        where: { establishmentId, name: { in: names } },
       });
       expect(result).toEqual(expectedResult);
     });

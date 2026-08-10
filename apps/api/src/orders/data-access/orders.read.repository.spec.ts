@@ -1,4 +1,4 @@
-import { asBarId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -41,34 +41,34 @@ describe('OrdersReadRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('findByBarId', () => {
+  describe('findByEstablishmentId', () => {
     it('should call dbOrder.findMany', async () => {
-      const barId = asBarId('bar-1');
-      await repository.findByBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      await repository.findByEstablishmentId(establishmentId);
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
-        where: { barId },
+        where: { establishmentId },
         include: expect.any(Object),
         orderBy: { createdAt: 'desc' },
       });
     });
 
     it('should call dbOrder.findMany with status', async () => {
-      const barId = asBarId('bar-1');
-      await repository.findByBarId(barId, DbOrderStatus.OPEN);
+      const establishmentId = asEstablishmentId('establishment-1');
+      await repository.findByEstablishmentId(establishmentId, DbOrderStatus.OPEN);
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
-        where: { barId, status: DbOrderStatus.OPEN },
+        where: { establishmentId, status: DbOrderStatus.OPEN },
         include: expect.any(Object),
         orderBy: { createdAt: 'desc' },
       });
     });
   });
 
-  describe('findByBarIdAndDate', () => {
+  describe('findByEstablishmentIdAndDate', () => {
     it('should call dbOrder.findMany with date range', async () => {
-      const barId = asBarId('bar-1');
-      await repository.findByBarIdAndDate(barId, '2023-01-01');
+      const establishmentId = asEstablishmentId('establishment-1');
+      await repository.findByEstablishmentIdAndDate(establishmentId, '2023-01-01');
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
-        where: { barId, createdAt: { gte: expect.any(Date), lte: expect.any(Date) } },
+        where: { establishmentId, createdAt: { gte: expect.any(Date), lte: expect.any(Date) } },
         include: expect.any(Object),
         orderBy: { createdAt: 'desc' },
       });
@@ -107,13 +107,13 @@ describe('OrdersReadRepository', () => {
   });
 
   describe('findProductsByIds', () => {
-    it('should only look at live products of the bar making the order', async () => {
-      await repository.findProductsByIds(asBarId('bar-1'), ['prod-1']);
+    it('should only look at live products of the establishment making the order', async () => {
+      await repository.findProductsByIds(asEstablishmentId('establishment-1'), ['prod-1']);
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
         where: {
           id: { in: ['prod-1'] },
           deletedAt: null,
-          category: { barId: 'bar-1', deletedAt: null },
+          category: { establishmentId: 'establishment-1', deletedAt: null },
         },
       });
     });

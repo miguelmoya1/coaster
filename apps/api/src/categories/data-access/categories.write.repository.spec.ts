@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,16 +35,16 @@ describe('CategoriesWriteRepository', () => {
 
   describe('create', () => {
     it('should call dbCategory.create with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const createCategoryDto = { name: 'Category 1' };
-      const expectedResult = { id: 'cat-1', barId, ...createCategoryDto };
+      const expectedResult = { id: 'cat-1', establishmentId, ...createCategoryDto };
       vi.mocked(dbService.dbCategory.create).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.create(barId, createCategoryDto as any);
+      const result = await repository.create(establishmentId, createCategoryDto as any);
 
       expect(dbService.dbCategory.create).toHaveBeenCalledWith({
         data: {
-          barId,
+          establishmentId,
           ...createCategoryDto,
         },
       });
@@ -54,16 +54,16 @@ describe('CategoriesWriteRepository', () => {
 
   describe('update', () => {
     it('should call dbCategory.update with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const categoryId = asCategoryId('cat-1');
       const updateData = { name: 'Updated Category 1' };
       const expectedResult = { id: 'cat-1', ...updateData };
       vi.mocked(dbService.dbCategory.update).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.update(barId, categoryId, updateData as any);
+      const result = await repository.update(establishmentId, categoryId, updateData as any);
 
       expect(dbService.dbCategory.update).toHaveBeenCalledWith({
-        where: { id: categoryId, barId },
+        where: { id: categoryId, establishmentId },
         data: updateData,
       });
       expect(result).toEqual(expectedResult);
@@ -71,16 +71,16 @@ describe('CategoriesWriteRepository', () => {
   });
 
   describe('delete', () => {
-    it('should scope the soft delete to the owning bar', async () => {
-      const barId = asBarId('bar-1');
+    it('should scope the soft delete to the owning establishment', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
       const categoryId = asCategoryId('cat-1');
       const expectedResult = { id: 'cat-1' };
       vi.mocked(dbService.dbCategory.update).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.delete(barId, categoryId);
+      const result = await repository.delete(establishmentId, categoryId);
 
       expect(dbService.dbCategory.update).toHaveBeenCalledWith({
-        where: { id: categoryId, barId },
+        where: { id: categoryId, establishmentId },
         data: { deletedAt: expect.any(Date) },
       });
       expect(result).toEqual(expectedResult);

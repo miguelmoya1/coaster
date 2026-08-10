@@ -56,14 +56,14 @@ export class WsAuthService {
     return caller.user.id;
   }
 
-  public async canAccessBar(userId: string, barId: string): Promise<boolean> {
+  public async canAccessEstablishment(userId: string, establishmentId: string): Promise<boolean> {
     const role = await this._securityRepository.getUserRole(userId);
 
     if (role === DbRole.ADMIN) {
       return true;
     }
 
-    const membership = await this._securityRepository.getBarMemberRole(userId, barId);
+    const membership = await this._securityRepository.getEstablishmentMemberRole(userId, establishmentId);
 
     return Boolean(membership?.active);
   }

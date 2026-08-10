@@ -2,19 +2,25 @@ import type {
   AdminAuditAction,
   AdminAuditLogEntry,
   AdminAuditTargetType,
-  AdminBarMember,
-  AdminBarSummary,
-  AdminUserBarMembership,
+  AdminEstablishmentMember,
+  AdminEstablishmentSummary,
+  AdminUserEstablishmentMembership,
   AdminUserSummary,
-  BarId,
-  BarMemberId,
+  EstablishmentId,
+  EstablishmentMemberId,
   UserId,
 } from '@coaster/common';
-import { BarBillingSource, BarRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import {
+  EstablishmentBillingSource,
+  EstablishmentRole,
+  Role,
+  SubscriptionPlan,
+  SubscriptionStatus,
+} from '@coaster/common';
 import { isManualGrantActive } from '@coaster/core';
 import { DbSubscriptionStatus } from '@coaster/core/db';
-import { BarSubscriptionMapper } from '@coaster/bar-subscription';
-import type { DbBarListRow } from '../data-access/admin-bar.read.repository';
+import { EstablishmentSubscriptionMapper } from '@coaster/establishment-subscription';
+import type { DbEstablishmentListRow } from '../data-access/admin-establishment.read.repository';
 
 interface AuditRow {
   id: string;
@@ -40,7 +46,7 @@ interface MembershipRow {
   role: string;
   active: boolean;
   createdAt: Date;
-  bar: { id: string; name: string };
+  establishment: { id: string; name: string };
 }
 
 interface UserRow {
@@ -55,7 +61,7 @@ interface UserRow {
   _count: { memberships: number };
 }
 
-const hasStripeAccess = (billing: DbBarListRow['billing'], now: Date): boolean => {
+const hasStripeAccess = (billing: DbEstablishmentListRow['billing'], now: Date): boolean => {
   if (!billing) {
     return false;
   }
@@ -81,21 +87,21 @@ const hasStripeAccess = (billing: DbBarListRow['billing'], now: Date): boolean =
 };
 
 export const AdminMapper = {
-  toBarSummary(row: DbBarListRow, now = new Date()): AdminBarSummary {
+  toEstablishmentSummary(row: DbEstablishmentListRow, now = new Date()): AdminEstablishmentSummary {
     const billing = row.billing;
     const owner = row.members[0]?.user ?? null;
     const grantIsLive = isManualGrantActive(billing, now);
-    const subscription = billing ? BarSubscriptionMapper.toDomain(billing) : null;
+    const subscription = billing ? EstablishmentSubscriptionMapper.toDomain(billing) : null;
     const stripeAccess = hasStripeAccess(billing, now);
 
     const billingSource = grantIsLive
-      ? BarBillingSource.MANUAL
+      ? EstablishmentBillingSource.MANUAL
       : stripeAccess
-        ? BarBillingSource.STRIPE
-        : BarBillingSource.NONE;
+        ? EstablishmentBillingSource.STRIPE
+        : EstablishmentBillingSource.NONE;
 
     return {
-      id: row.id as BarId,
+      id: row.id as EstablishmentId,
       name: row.name,
       createdAt: row.createdAt.toISOString(),
       memberCount: row._count.members,
@@ -111,14 +117,14 @@ export const AdminMapper = {
     };
   },
 
-  toBarMember(row: MemberRow): AdminBarMember {
+  toEstablishmentMember(row: MemberRow): AdminEstablishmentMember {
     return {
-      id: row.id as BarMemberId,
+      id: row.id as EstablishmentMemberId,
       userId: row.user.id as UserId,
       name: row.user.name,
       email: row.user.email,
       photoUrl: row.user.photoUrl,
-      role: row.role as BarRole,
+      role: row.role as EstablishmentRole,
       active: row.active,
       joinedAt: row.createdAt.toISOString(),
     };
@@ -134,15 +140,15 @@ export const AdminMapper = {
       active: row.active,
       language: row.language,
       createdAt: row.createdAt.toISOString(),
-      barCount: row._count.memberships,
+      establishmentCount: row._count.memberships,
     };
   },
 
-  toUserBarMembership(row: MembershipRow): AdminUserBarMembership {
+  toUserEstablishmentMembership(row: MembershipRow): AdminUserEstablishmentMembership {
     return {
-      barId: row.bar.id as BarId,
-      barName: row.bar.name,
-      role: row.role as BarRole,
+      establishmentId: row.establishment.id as EstablishmentId,
+      establishmentName: row.establishment.name,
+      role: row.role as EstablishmentRole,
       active: row.active,
       joinedAt: row.createdAt.toISOString(),
     };

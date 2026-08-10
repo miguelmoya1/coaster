@@ -1,4 +1,4 @@
-import { ShiftExchangeStatus, asBarId, asShiftId, asUserId } from '@coaster/common';
+import { ShiftExchangeStatus, asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -27,7 +27,7 @@ describe('RequestExchangeHandler', () => {
     handler = module.get<RequestExchangeHandler>(RequestExchangeHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const shiftId = asShiftId('shift-1');
   const requesterId = asUserId('requester-1');
   const dto = { targetId: asUserId('target-id') };
@@ -35,7 +35,7 @@ describe('RequestExchangeHandler', () => {
   it('should fail if requesting someone else shift', async () => {
     repository.getShiftById.mockResolvedValue({
       id: 'shift-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       userId: 'otro-usuario',
       createdAt: new Date(),
       endTime: new Date(),
@@ -44,15 +44,15 @@ describe('RequestExchangeHandler', () => {
       updatedAt: new Date(),
     });
 
-    await expect(handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto))).rejects.toThrow(
-      ForbiddenException,
-    );
+    await expect(
+      handler.execute(new RequestExchangeCommand(establishmentId, shiftId, requesterId, dto)),
+    ).rejects.toThrow(ForbiddenException);
   });
 
   it('should create the exchange correctly if all rules validate', async () => {
     repository.getShiftById.mockResolvedValue({
       id: 'shift-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       userId: 'requester-1',
       createdAt: new Date(),
       endTime: new Date(),
@@ -70,7 +70,7 @@ describe('RequestExchangeHandler', () => {
       status: ShiftExchangeStatus.PENDING,
     });
 
-    await handler.execute(new RequestExchangeCommand(barId, shiftId, requesterId, dto));
+    await handler.execute(new RequestExchangeCommand(establishmentId, shiftId, requesterId, dto));
 
     expect(repository.createExchange).toHaveBeenCalledWith('shift-1', 'requester-1', 'target-id');
   });

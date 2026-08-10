@@ -20,15 +20,21 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
   async execute(command: UpdateProductCommand): Promise<void> {
     this.#logger.debug(`Executing updateProduct...`);
 
-    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+    const belongsToEstablishment = await this.readRepo.checkProductBelongsToEstablishment(
+      command.productId,
+      command.establishmentId,
+    );
 
-    if (!belongsToBar) {
+    if (!belongsToEstablishment) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
     if (command.dto.categoryId) {
       const validCategoryId = asCategoryId(command.dto.categoryId);
-      const isValidCategory = await this.readRepo.checkCategoryBelongsToBar(validCategoryId, command.barId);
+      const isValidCategory = await this.readRepo.checkCategoryBelongsToEstablishment(
+        validCategoryId,
+        command.establishmentId,
+      );
 
       if (!isValidCategory) {
         throw new ForbiddenException(ErrorCodes.CATEGORY_NOT_FOUND);
@@ -38,6 +44,6 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
     const product = await this.writeRepo.update(command.productId, command.dto);
     const mapped = ProductsMapper.toDomain(product);
     this.#logger.debug(`Publishing ProductUpdatedEvent...`);
-    this._eventBus.publish(new ProductUpdatedEvent(command.barId, mapped));
+    this._eventBus.publish(new ProductUpdatedEvent(command.establishmentId, mapped));
   }
 }

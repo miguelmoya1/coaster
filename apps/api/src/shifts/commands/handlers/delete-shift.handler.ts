@@ -1,4 +1,4 @@
-import { ErrorCodes, asBarId, asShiftId } from '@coaster/common';
+import { ErrorCodes, asEstablishmentId, asShiftId } from '@coaster/common';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ShiftsReadRepository } from '../../data-access/shifts.read.repository';
@@ -19,12 +19,12 @@ export class DeleteShiftHandler implements ICommandHandler<DeleteShiftCommand, v
   async execute(command: DeleteShiftCommand): Promise<void> {
     const shift = await this.readRepo.findById(command.shiftId);
 
-    if (!shift || shift.barId !== command.barId) {
+    if (!shift || shift.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND);
     }
 
     await this.writeRepo.delete(command.shiftId);
     this.#logger.debug(`Publishing ShiftDeletedEvent...`);
-    this._eventBus.publish(new ShiftDeletedEvent(asBarId(shift.barId), asShiftId(command.shiftId)));
+    this._eventBus.publish(new ShiftDeletedEvent(asEstablishmentId(shift.establishmentId), asShiftId(command.shiftId)));
   }
 }

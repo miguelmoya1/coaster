@@ -17,13 +17,13 @@ export class GetPrinterConnectionHandler implements IQueryHandler<
   ) {}
 
   async execute(query: GetPrinterConnectionQuery): Promise<PrinterConnectionDetailsDto> {
-    const config = await this.readRepo.findByBarId(query.barId);
+    const config = await this.readRepo.findByEstablishmentId(query.establishmentId);
 
     if (!config?.ipAddress) {
       throw new NotFoundException(ErrorCodes.PRINTER_NOT_CONNECTED);
     }
 
-    const token = this.tokenService.generateToken(query.barId);
+    const token = this.tokenService.generateToken(query.establishmentId);
 
     return {
       ipAddress: config.ipAddress,

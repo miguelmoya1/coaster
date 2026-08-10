@@ -16,13 +16,13 @@ export class EnqueuePrintJobHandler implements ICommandHandler<EnqueuePrintJobCo
   ) {}
 
   async execute(command: EnqueuePrintJobCommand): Promise<EnqueuePrintJobResponseDto> {
-    const config = await this.readRepo.findByBarId(command.barId);
+    const config = await this.readRepo.findByEstablishmentId(command.establishmentId);
     if (!config) {
       throw new NotFoundException(ErrorCodes.PRINTER_NOT_CONFIGURED);
     }
 
-    const job = await this.jobRepo.enqueue(command.barId, command.payload);
-    this.#logger.log(`Queued print job ${job.id} for bar ${command.barId}`);
+    const job = await this.jobRepo.enqueue(command.establishmentId, command.payload);
+    this.#logger.log(`Queued print job ${job.id} for establishment ${command.establishmentId}`);
 
     return { jobId: job.id };
   }

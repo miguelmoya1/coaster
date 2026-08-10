@@ -1,5 +1,5 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 
 export class GetPrinterConnectionQuery {
-  constructor(public readonly barId: BarId) {}
+  constructor(public readonly establishmentId: EstablishmentId) {}
 }

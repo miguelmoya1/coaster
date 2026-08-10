@@ -20,41 +20,42 @@ ALTER TABLE "Shift" RENAME COLUMN "barId" TO "establishmentId";
 ALTER TABLE "Table" RENAME COLUMN "barId" TO "establishmentId";
 ALTER TABLE "TimeEntry" RENAME COLUMN "barId" TO "establishmentId";
 
--- Constraints
-ALTER TABLE "Bar" RENAME CONSTRAINT "Bar_createdAt_not_null" TO "Establishment_createdAt_not_null";
-ALTER TABLE "Bar" RENAME CONSTRAINT "Bar_id_not_null" TO "Establishment_id_not_null";
-ALTER TABLE "Bar" RENAME CONSTRAINT "Bar_name_not_null" TO "Establishment_name_not_null";
-ALTER TABLE "Bar" RENAME CONSTRAINT "Bar_updatedAt_not_null" TO "Establishment_updatedAt_not_null";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_active_not_null" TO "EstablishmentMember_active_not_null";
+-- Foreign keys
 ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_barId_fkey" TO "EstablishmentMember_establishmentId_fkey";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_barId_not_null" TO "EstablishmentMember_establishmentId_not_null";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_createdAt_not_null" TO "EstablishmentMember_createdAt_not_null";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_id_not_null" TO "EstablishmentMember_id_not_null";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_role_not_null" TO "EstablishmentMember_role_not_null";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_updatedAt_not_null" TO "EstablishmentMember_updatedAt_not_null";
 ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_userId_fkey" TO "EstablishmentMember_userId_fkey";
-ALTER TABLE "BarMember" RENAME CONSTRAINT "BarMember_userId_not_null" TO "EstablishmentMember_userId_not_null";
 ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_barId_fkey" TO "EstablishmentSubscription_establishmentId_fkey";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_barId_not_null" TO "EstablishmentSubscription_establishmentId_not_null";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_createdAt_not_null" TO "EstablishmentSubscription_createdAt_not_null";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_id_not_null" TO "EstablishmentSubscription_id_not_null";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_plan_not_null" TO "EstablishmentSubscription_plan_not_null";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_status_not_null" TO "EstablishmentSubscription_status_not_null";
-ALTER TABLE "BarSubscription" RENAME CONSTRAINT "BarSubscription_updatedAt_not_null" TO "EstablishmentSubscription_updatedAt_not_null";
 ALTER TABLE "Category" RENAME CONSTRAINT "Category_barId_fkey" TO "Category_establishmentId_fkey";
-ALTER TABLE "Category" RENAME CONSTRAINT "Category_barId_not_null" TO "Category_establishmentId_not_null";
 ALTER TABLE "Order" RENAME CONSTRAINT "Order_barId_fkey" TO "Order_establishmentId_fkey";
-ALTER TABLE "Order" RENAME CONSTRAINT "Order_barId_not_null" TO "Order_establishmentId_not_null";
 ALTER TABLE "PrintJob" RENAME CONSTRAINT "PrintJob_barId_fkey" TO "PrintJob_establishmentId_fkey";
-ALTER TABLE "PrintJob" RENAME CONSTRAINT "PrintJob_barId_not_null" TO "PrintJob_establishmentId_not_null";
 ALTER TABLE "PrinterConfig" RENAME CONSTRAINT "PrinterConfig_barId_fkey" TO "PrinterConfig_establishmentId_fkey";
-ALTER TABLE "PrinterConfig" RENAME CONSTRAINT "PrinterConfig_barId_not_null" TO "PrinterConfig_establishmentId_not_null";
 ALTER TABLE "Shift" RENAME CONSTRAINT "Shift_barId_fkey" TO "Shift_establishmentId_fkey";
-ALTER TABLE "Shift" RENAME CONSTRAINT "Shift_barId_not_null" TO "Shift_establishmentId_not_null";
 ALTER TABLE "Table" RENAME CONSTRAINT "Table_barId_fkey" TO "Table_establishmentId_fkey";
-ALTER TABLE "Table" RENAME CONSTRAINT "Table_barId_not_null" TO "Table_establishmentId_not_null";
 ALTER TABLE "TimeEntry" RENAME CONSTRAINT "TimeEntry_barId_fkey" TO "TimeEntry_establishmentId_fkey";
-ALTER TABLE "TimeEntry" RENAME CONSTRAINT "TimeEntry_barId_not_null" TO "TimeEntry_establishmentId_not_null";
+
+-- NOT NULL constraints. Postgres 17 and up give these catalogue names of their own; older versions
+-- do not have them at all. Local development and production run 18, the e2e testcontainer runs 16,
+-- and naming them outright fails on the latter. Renaming whatever the catalogue actually holds
+-- keeps one file correct on both: on 16 the loop simply finds nothing.
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN
+    SELECT t.relname AS table_name, c.conname AS constraint_name
+    FROM pg_constraint c
+    JOIN pg_class t ON t.oid = c.conrelid
+    JOIN pg_namespace n ON n.oid = t.relnamespace
+    WHERE n.nspname = current_schema()
+      AND c.contype = 'n'
+      AND (c.conname LIKE 'Bar%' OR c.conname LIKE '%\_barId\_%')
+  LOOP
+    EXECUTE format(
+      'ALTER TABLE %I RENAME CONSTRAINT %I TO %I',
+      r.table_name,
+      r.constraint_name,
+      regexp_replace(regexp_replace(r.constraint_name, '^Bar', 'Establishment'), '_barId_', '_establishmentId_')
+    );
+  END LOOP;
+END $$;
 
 -- Indexes (renaming a primary key or unique index renames its constraint with it)
 ALTER INDEX "Bar_pkey" RENAME TO "Establishment_pkey";

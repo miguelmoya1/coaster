@@ -20,7 +20,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
   async execute(command: MoveOrderTableCommand): Promise<void> {
     this.#logger.debug(`Executing moveOrderTable...`);
     const existingOrder = await this.readRepo.findById(command.orderId);
-    if (!existingOrder || existingOrder.barId !== command.barId) {
+    if (!existingOrder || existingOrder.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (existingOrder.status !== OrderStatus.OPEN) {
@@ -28,7 +28,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
     }
 
     const newTable = await this.readRepo.findTableById(asTableId(command.dto.tableId));
-    if (!newTable || newTable.barId !== command.barId) {
+    if (!newTable || newTable.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
     if (newTable.status === TableStatus.OCCUPIED) {
@@ -45,7 +45,7 @@ export class MoveOrderTableHandler implements ICommandHandler<MoveOrderTableComm
     this.#logger.debug(`Publishing OrderTableMovedEvent...`);
     this._eventBus.publish(
       new OrderTableMovedEvent(
-        command.barId,
+        command.establishmentId,
         mapped,
         existingOrder.tableId ? asTableId(existingOrder.tableId) : null,
         asTableId(command.dto.tableId),

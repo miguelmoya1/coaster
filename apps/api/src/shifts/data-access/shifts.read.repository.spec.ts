@@ -1,4 +1,4 @@
-import { asBarId, asShiftId } from '@coaster/common';
+import { asEstablishmentId, asShiftId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,7 +15,7 @@ describe('ShiftsReadRepository', () => {
         {
           provide: DbService,
           useValue: {
-            dbBarMember: {
+            dbEstablishmentMember: {
               findUnique: vi.fn(),
             },
             dbShift: {
@@ -35,16 +35,16 @@ describe('ShiftsReadRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('findByBarId', () => {
+  describe('findByEstablishmentId', () => {
     it('should call dbShift.findMany without dates', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const expectedResult = [{ id: 'shift-1' }];
       vi.mocked(dbService.dbShift.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findByBarId(barId);
+      const result = await repository.findByEstablishmentId(establishmentId);
 
       expect(dbService.dbShift.findMany).toHaveBeenCalledWith({
-        where: { barId },
+        where: { establishmentId },
         include: { user: { select: { id: true, name: true, photoUrl: true } } },
         orderBy: { startTime: 'asc' },
       });
@@ -52,16 +52,16 @@ describe('ShiftsReadRepository', () => {
     });
 
     it('should call dbShift.findMany with dates', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const startDate = new Date();
       const endDate = new Date();
       const expectedResult = [{ id: 'shift-1' }];
       vi.mocked(dbService.dbShift.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findByBarId(barId, startDate, endDate);
+      const result = await repository.findByEstablishmentId(establishmentId, startDate, endDate);
 
       expect(dbService.dbShift.findMany).toHaveBeenCalledWith({
-        where: { barId, startTime: { gte: startDate, lte: endDate } },
+        where: { establishmentId, startTime: { gte: startDate, lte: endDate } },
         include: { user: { select: { id: true, name: true, photoUrl: true } } },
         orderBy: { startTime: 'asc' },
       });

@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -29,23 +29,23 @@ describe('CreateCategoryHandler', () => {
   });
 
   it('should create category', async () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const dto = { name: 'Comida' };
     repository.create.mockResolvedValue({
       id: 'cat-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       name: 'Comida',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(new CreateCategoryCommand(barId, dto));
+    const result = await handler.execute(new CreateCategoryCommand(establishmentId, dto));
 
-    expect(repository.create).toHaveBeenCalledWith(barId, dto);
+    expect(repository.create).toHaveBeenCalledWith(establishmentId, dto);
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new CategoryCreatedEvent(barId, {
+      new CategoryCreatedEvent(establishmentId, {
         id: asCategoryId('cat-1'),
-        barId: barId,
+        establishmentId: establishmentId,
         name: 'Comida',
         icon: undefined,
       }),

@@ -1,4 +1,4 @@
-import { ShiftExchangeStatus, asBarId, asShiftExchangeId, asShiftId } from '@coaster/common';
+import { ShiftExchangeStatus, asEstablishmentId, asShiftExchangeId, asShiftId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -67,15 +67,15 @@ describe('ShiftExchangesReadRepository', () => {
     });
   });
 
-  describe('findPendingByBarId', () => {
+  describe('findPendingByEstablishmentId', () => {
     it('should call dbShiftExchange.findMany with current date constraints', async () => {
-      const barId = asBarId('bar-1');
-      await repository.findPendingByBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      await repository.findPendingByEstablishmentId(establishmentId);
       expect(dbService.dbShiftExchange.findMany).toHaveBeenCalledWith({
         where: {
           status: ShiftExchangeStatus.PENDING,
           shift: {
-            barId,
+            establishmentId,
             startTime: { gte: expect.any(Date) },
           },
         },

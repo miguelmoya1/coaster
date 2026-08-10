@@ -1,4 +1,4 @@
-import { OrderStatus, asBarId, asOrderId, asOrderItemId } from '@coaster/common';
+import { OrderStatus, asEstablishmentId, asOrderId, asOrderItemId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -31,13 +31,20 @@ describe('BulkUpdateOrderHandler', () => {
     handler = module.get<BulkUpdateOrderHandler>(BulkUpdateOrderHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const orderId = asOrderId('order-1');
   const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
 
   it('should throw NotFoundException if order item not found', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: OrderStatus.OPEN, items: [] });
+    repository.findById.mockResolvedValue({
+      id: 'order-1',
+      establishmentId: 'establishment-1',
+      status: OrderStatus.OPEN,
+      items: [],
+    });
 
-    await expect(handler.execute(new BulkUpdateOrderCommand(barId, orderId, dto))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new BulkUpdateOrderCommand(establishmentId, orderId, dto))).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

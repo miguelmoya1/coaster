@@ -2,16 +2,16 @@ import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ProductCreatedEvent } from '@coaster/products';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 
 @EventsHandler(ProductCreatedEvent)
 export class ProductCreatedHandler implements IEventHandler<ProductCreatedEvent> {
   readonly #logger = new Logger(ProductCreatedHandler.name);
 
-  constructor(private readonly _barGateway: BarGateway) {}
+  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
 
   handle(event: ProductCreatedEvent) {
     this.#logger.debug(`Catching ProductCreatedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.productCreated, event.product);
+    this._establishmentGateway.server.to(event.establishmentId).emit(SocketEvents.productCreated, event.product);
   }
 }

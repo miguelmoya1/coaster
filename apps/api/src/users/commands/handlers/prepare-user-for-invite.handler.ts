@@ -18,7 +18,7 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
     this.#logger.debug(`Executing prepareUserForInvite...`);
     const {
       email,
-      extraData: { barId, role },
+      extraData: { establishmentId, role },
     } = command;
 
     const name = email.split('@').at(0) ?? 'User';
@@ -29,7 +29,7 @@ export class PrepareUserForInviteHandler implements ICommandHandler<PrepareUserF
 
     this.#logger.debug(`Publishing UserPreparedForInviteEvent...`);
     this.eventBus.publish(
-      new UserPreparedForInviteEvent(userDomain.id, barId, role, command.extraData.inviterLanguage),
+      new UserPreparedForInviteEvent(userDomain.id, establishmentId, role, command.extraData.inviterLanguage),
     );
   }
 }

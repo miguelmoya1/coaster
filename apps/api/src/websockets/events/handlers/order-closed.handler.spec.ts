@@ -1,14 +1,14 @@
 import type { Order } from '@coaster/common';
-import { asBarId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
 import { OrderClosedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { OrderClosedHandler } from './order-closed.handler';
 
 describe('OrderClosedHandler', () => {
   let handler: OrderClosedHandler;
-  const barGateway = {
+  const establishmentGateway = {
     server: {
       to: vi.fn().mockReturnThis(),
       emit: vi.fn(),
@@ -18,37 +18,40 @@ describe('OrderClosedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrderClosedHandler, { provide: BarGateway, useValue: barGateway }],
+      providers: [OrderClosedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
     }).compile();
 
     handler = module.get<OrderClosedHandler>(OrderClosedHandler);
   });
 
   it('should emit ORDER_CLOSED event and set table status to FREE if table exists', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const order = { id: 'order-1' } as unknown as Order;
     const tableId = asTableId('table-1');
-    const event = new OrderClosedEvent(barId, order, tableId);
+    const event = new OrderClosedEvent(establishmentId, order, tableId);
 
     handler.handle(event);
 
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderClosed, order);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
+    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderClosed, order);
+    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
       id: tableId,
       status: TableStatus.FREE,
     });
   });
 
   it('should only emit ORDER_CLOSED event if no table exists', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const order = { id: 'order-1' } as unknown as Order;
-    const event = new OrderClosedEvent(barId, order, null);
+    const event = new OrderClosedEvent(establishmentId, order, null);
 
     handler.handle(event);
 
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderClosed, order);
-    expect(barGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.tableStatusChanged, expect.any(Object));
+    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
+    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderClosed, order);
+    expect(establishmentGateway.server.emit).not.toHaveBeenCalledWith(
+      SocketEvents.tableStatusChanged,
+      expect.any(Object),
+    );
   });
 });

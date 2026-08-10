@@ -38,7 +38,7 @@ export class AuditTimeEntryChangedHandler implements IEventHandler<TimeEntryEven
         targetLabel: `${entry.userName} · ${entry.workdayDate}`,
         reason: event.reason,
         metadata: {
-          barId: event.barId,
+          establishmentId: event.establishmentId,
           userId: entry.userId,
           type: entry.type,
           occurredAt: entry.occurredAt,

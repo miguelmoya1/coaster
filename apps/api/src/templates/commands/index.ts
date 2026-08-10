@@ -3,7 +3,7 @@ import { CreateCategoryTemplateHandler } from './handlers/create-category-templa
 import { CreateProductTemplateHandler } from './handlers/create-product-template.handler';
 import { DeleteCategoryTemplateHandler } from './handlers/delete-category-template.handler';
 import { DeleteProductTemplateHandler } from './handlers/delete-product-template.handler';
-import { ImportTemplatesToBarHandler } from './handlers/import-templates-to-bar.handler';
+import { ImportTemplatesToEstablishmentHandler } from './handlers/import-templates-to-establishment.handler';
 import { UpdateCategoryTemplateHandler } from './handlers/update-category-template.handler';
 import { UpdateProductTemplateHandler } from './handlers/update-product-template.handler';
 
@@ -13,7 +13,7 @@ export { CreateCategoryTemplateCommand } from './impl/create-category-template.c
 export { CreateProductTemplateCommand } from './impl/create-product-template.command';
 export { DeleteCategoryTemplateCommand } from './impl/delete-category-template.command';
 export { DeleteProductTemplateCommand } from './impl/delete-product-template.command';
-export { ImportTemplatesToBarCommand } from './impl/import-templates-to-bar.command';
+export { ImportTemplatesToEstablishmentCommand } from './impl/import-templates-to-establishment.command';
 export { UpdateCategoryTemplateCommand } from './impl/update-category-template.command';
 export { UpdateProductTemplateCommand } from './impl/update-product-template.command';
 
@@ -23,7 +23,7 @@ export const CommandHandlers = [
   CreateProductTemplateHandler,
   DeleteCategoryTemplateHandler,
   DeleteProductTemplateHandler,
-  ImportTemplatesToBarHandler,
+  ImportTemplatesToEstablishmentHandler,
   UpdateCategoryTemplateHandler,
   UpdateProductTemplateHandler,
 ];

@@ -4,7 +4,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('ProductsController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let categoryId: string;
 
   beforeAll(async () => {
@@ -24,13 +24,13 @@ describe('ProductsController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
 
     const category = await testSetup.prisma.dbCategory.create({
       data: {
         name: 'Drinks',
-        barId,
+        establishmentId,
       },
     });
     categoryId = category.id;
@@ -40,7 +40,7 @@ describe('ProductsController (e2e)', () => {
     await testSetup.teardown();
   });
 
-  describe('POST /api/bars/:barId/products', () => {
+  describe('POST /api/establishments/:establishmentId/products', () => {
     it('should create a product', async () => {
       const dto = {
         name: 'Beer',
@@ -50,7 +50,10 @@ describe('ProductsController (e2e)', () => {
         minStockAlert: 10,
       };
 
-      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/products`).send(dto).expect(201);
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/products`)
+        .send(dto)
+        .expect(201);
 
       const products = await testSetup.prisma.dbProduct.findMany({
         where: { categoryId },
@@ -64,11 +67,14 @@ describe('ProductsController (e2e)', () => {
     });
 
     it('should reject invalid payload (missing name)', async () => {
-      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/products`).send({ categoryId }).expect(400);
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/products`)
+        .send({ categoryId })
+        .expect(400);
     });
   });
 
-  describe('GET /api/bars/:barId/products', () => {
+  describe('GET /api/establishments/:establishmentId/products', () => {
     it('should return a list of products', async () => {
       const product = await testSetup.prisma.dbProduct.create({
         data: {
@@ -78,7 +84,9 @@ describe('ProductsController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/products`).expect(200);
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/establishments/${establishmentId}/products`)
+        .expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(product.id);
@@ -87,7 +95,7 @@ describe('ProductsController (e2e)', () => {
     });
   });
 
-  describe('PATCH /api/bars/:barId/products/:productId', () => {
+  describe('PATCH /api/establishments/:establishmentId/products/:productId', () => {
     it('should update a product', async () => {
       const product = await testSetup.prisma.dbProduct.create({
         data: {
@@ -97,7 +105,7 @@ describe('ProductsController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/products/${product.id}`)
+        .patch(`/api/establishments/${establishmentId}/products/${product.id}`)
         .send({ name: 'New Name', price: 10 })
         .expect(200);
 
@@ -109,7 +117,7 @@ describe('ProductsController (e2e)', () => {
     });
   });
 
-  describe('PATCH /api/bars/:barId/products/:productId/stock', () => {
+  describe('PATCH /api/establishments/:establishmentId/products/:productId/stock', () => {
     it('should update product stock', async () => {
       const product = await testSetup.prisma.dbProduct.create({
         data: {
@@ -120,7 +128,7 @@ describe('ProductsController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/products/${product.id}/stock`)
+        .patch(`/api/establishments/${establishmentId}/products/${product.id}/stock`)
         .send({ currentStock: 5 })
         .expect(200);
 
@@ -131,7 +139,7 @@ describe('ProductsController (e2e)', () => {
     });
   });
 
-  describe('DELETE /api/bars/:barId/products/:productId', () => {
+  describe('DELETE /api/establishments/:establishmentId/products/:productId', () => {
     it('should soft delete a product', async () => {
       const product = await testSetup.prisma.dbProduct.create({
         data: {
@@ -140,7 +148,9 @@ describe('ProductsController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/products/${product.id}`).expect(200);
+      await request(testSetup.app.getHttpServer())
+        .delete(`/api/establishments/${establishmentId}/products/${product.id}`)
+        .expect(200);
 
       const deleted = await testSetup.prisma.dbProduct.findUnique({
         where: { id: product.id },

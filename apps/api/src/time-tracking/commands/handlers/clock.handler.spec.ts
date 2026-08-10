@@ -1,15 +1,23 @@
 import type { User } from '@coaster/common';
-import { ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType, asUserId, Role, asBarId } from '@coaster/common';
+import {
+  ErrorCodes,
+  TimeEntryAction,
+  TimeEntrySource,
+  TimeEntryType,
+  asUserId,
+  Role,
+  asEstablishmentId,
+} from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TimeEntryRecordedEvent } from '../../events/impl/time-entry-recorded.event';
 import { ClockCommand } from '../impl/clock.command';
 import { ClockHandler } from './clock.handler';
 
-const barId = asBarId('bar-1');
+const establishmentId = asEstablishmentId('establishment-1');
 const actor: User = {
   id: asUserId('user-1'),
-  email: 'luis@bar.com',
+  email: 'luis@establishment.com',
   name: 'Luis',
   active: true,
   role: Role.USER,
@@ -19,9 +27,9 @@ const actor: User = {
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: 'entry-1',
   rootId: 'entry-1',
-  barId: 'bar-1',
+  establishmentId: 'establishment-1',
   userId: 'user-1',
-  userSnapshot: { name: 'Luis', email: 'luis@bar.com' },
+  userSnapshot: { name: 'Luis', email: 'luis@establishment.com' },
   shiftId: null,
   type: TimeEntryType.CLOCK_IN,
   action: TimeEntryAction.RECORDED,
@@ -63,7 +71,7 @@ describe('ClockHandler', () => {
   });
 
   it('should stamp the mark with the server clock, not with anything the client sends', async () => {
-    await handler.execute(new ClockCommand(barId, actor, { type: TimeEntryType.CLOCK_IN }));
+    await handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_IN }));
 
     expect(writeRepo.append).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -79,7 +87,7 @@ describe('ClockHandler', () => {
   it('should keep a night shift on the workday it started', async () => {
     readRepo.findByWorkdayRange.mockResolvedValue([row()]);
 
-    await handler.execute(new ClockCommand(barId, actor, { type: TimeEntryType.CLOCK_OUT }));
+    await handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_OUT }));
 
     expect(writeRepo.append).toHaveBeenCalledWith(
       expect.objectContaining({ workdayDate: new Date('2026-08-08T00:00:00Z') }),
@@ -87,22 +95,22 @@ describe('ClockHandler', () => {
   });
 
   it('should refuse a break from someone who never clocked in', async () => {
-    await expect(handler.execute(new ClockCommand(barId, actor, { type: TimeEntryType.BREAK_START }))).rejects.toThrow(
-      new BadRequestException(ErrorCodes.INVALID_CLOCK_SEQUENCE),
-    );
+    await expect(
+      handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.BREAK_START })),
+    ).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_CLOCK_SEQUENCE));
     expect(writeRepo.append).not.toHaveBeenCalled();
   });
 
   it('should store the geolocation the device reported', async () => {
     await handler.execute(
-      new ClockCommand(barId, actor, { type: TimeEntryType.CLOCK_IN, latitude: 40.41, longitude: -3.7 }),
+      new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_IN, latitude: 40.41, longitude: -3.7 }),
     );
 
     expect(writeRepo.append).toHaveBeenCalledWith(expect.objectContaining({ latitude: 40.41, longitude: -3.7 }));
   });
 
   it('should announce the punch so the audit trail can pick it up', async () => {
-    await handler.execute(new ClockCommand(barId, actor, { type: TimeEntryType.CLOCK_IN }));
+    await handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_IN }));
 
     expect(eventBus.publish.mock.calls[0][0]).toBeInstanceOf(TimeEntryRecordedEvent);
   });

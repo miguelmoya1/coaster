@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
-import { BarGateway } from './bar.gateway';
+import { EstablishmentGateway } from './establishment.gateway';
 import { WsEventHandlers } from './events';
 import { WsAuthService } from './services';
 
 @Global()
 @Module({
-  providers: [BarGateway, WsAuthService, ...WsEventHandlers],
-  exports: [BarGateway],
+  providers: [EstablishmentGateway, WsAuthService, ...WsEventHandlers],
+  exports: [EstablishmentGateway],
 })
 export class WebsocketsModule {}

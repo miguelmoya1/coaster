@@ -1,7 +1,7 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import type { BarId, Product, ProductId } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { BarPermissions, BarPermissionsGuard, commonMapper } from '@coaster/core';
+import type { EstablishmentId, Product, ProductId } from '@coaster/common';
+import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermissions, EstablishmentPermissionsGuard, commonMapper } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -14,10 +14,10 @@ import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductStockDto } from '../dto/update-product-stock.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { ProductsMapper } from '../mappers/products.mapper';
-import { GetProductsByBarIdQuery } from '../queries';
+import { GetProductsByEstablishmentIdQuery } from '../queries';
 
-@Controller('bars/:barId/products')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/products')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
 export class ProductsController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -25,48 +25,56 @@ export class ProductsController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.BAR_VIEW_PRODUCTS)
-  async getProducts(@Param('barId') barId: BarId) {
-    const products = await this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(
-      new GetProductsByBarIdQuery(barId),
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)
+  async getProducts(@Param('establishmentId') establishmentId: EstablishmentId) {
+    const products = await this._queryBus.execute<GetProductsByEstablishmentIdQuery, Product[]>(
+      new GetProductsByEstablishmentIdQuery(establishmentId),
     );
     return products.map((p) => ProductsMapper.toDto(p));
   }
 
   @Post()
-  @BarPermissions(BarPermission.BAR_CREATE_PRODUCT)
-  async createProduct(@Param('barId') barId: BarId, @Body() dto: CreateProductDto): Promise<void> {
-    await this._commandBus.execute<CreateProductCommand, void>(new CreateProductCommand(barId, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CREATE_PRODUCT)
+  async createProduct(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: CreateProductDto,
+  ): Promise<void> {
+    await this._commandBus.execute<CreateProductCommand, void>(new CreateProductCommand(establishmentId, dto));
   }
 
   @Patch(':productId/stock')
-  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT_STOCK)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_PRODUCT_STOCK)
   async updateStock(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductStockDto,
   ) {
     await this._commandBus.execute<UpdateProductStockCommand, void>(
-      new UpdateProductStockCommand(barId, productId, dto),
+      new UpdateProductStockCommand(establishmentId, productId, dto),
     );
     return commonMapper.getSuccessResponse();
   }
 
   @Patch(':productId')
-  @BarPermissions(BarPermission.BAR_UPDATE_PRODUCT)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_PRODUCT)
   async updateProduct(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Param('productId') productId: ProductId,
     @Body() dto: UpdateProductDto,
   ) {
-    await this._commandBus.execute<UpdateProductCommand, void>(new UpdateProductCommand(barId, productId, dto));
+    await this._commandBus.execute<UpdateProductCommand, void>(
+      new UpdateProductCommand(establishmentId, productId, dto),
+    );
     return commonMapper.getSuccessResponse();
   }
 
   @Delete(':productId')
-  @BarPermissions(BarPermission.BAR_DELETE_PRODUCT)
-  async deleteProduct(@Param('barId') barId: BarId, @Param('productId') productId: ProductId) {
-    await this._commandBus.execute<DeleteProductCommand, void>(new DeleteProductCommand(barId, productId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_DELETE_PRODUCT)
+  async deleteProduct(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('productId') productId: ProductId,
+  ) {
+    await this._commandBus.execute<DeleteProductCommand, void>(new DeleteProductCommand(establishmentId, productId));
     return commonMapper.getSuccessResponse();
   }
 }

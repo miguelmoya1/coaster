@@ -18,18 +18,20 @@ export const createCategoryTools = (context: AiToolsContext) => {
 
   return {
     listCategories: tool({
-      description: 'List the menu categories of the bar with their UUID and icon.',
+      description: 'List the menu categories of the establishment with their UUID and icon.',
       inputSchema: zodSchema(z.object({})),
       execute: async (): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'listCategories' called`);
-        return runner.query<Category[]>('bar:view-categories', new GetCategoriesQuery(context.barId), (categories) =>
-          categories.map((category) => ({ id: category.id, name: category.name, icon: category.icon })),
+        return runner.query<Category[]>(
+          'establishment:view-categories',
+          new GetCategoriesQuery(context.establishmentId),
+          (categories) => categories.map((category) => ({ id: category.id, name: category.name, icon: category.icon })),
         );
       },
     }),
 
     createCategory: tool({
-      description: 'Create a new menu category in the bar, e.g. "Postres" or "Vinos".',
+      description: 'Create a new menu category in the establishment, e.g. "Postres" or "Vinos".',
       inputSchema: zodSchema(
         z.object({
           name: z.string().describe('Name of the new category.'),
@@ -41,12 +43,15 @@ export const createCategoryTools = (context: AiToolsContext) => {
       ),
       execute: async ({ name, icon }: { name: string; icon?: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'createCategory' called with name="${name}", icon="${icon}"`);
-        return runner.execute('bar:create-category', new CreateCategoryCommand(context.barId, { name, icon }));
+        return runner.execute(
+          'establishment:create-category',
+          new CreateCategoryCommand(context.establishmentId, { name, icon }),
+        );
       },
     }),
 
     updateCategory: tool({
-      description: 'Update details of an existing category in the bar, such as its name or icon.',
+      description: 'Update details of an existing category in the establishment, such as its name or icon.',
       inputSchema: zodSchema(
         z.object({
           categoryId: z.string().describe('The UUID of the category to update.'),
@@ -69,12 +74,12 @@ export const createCategoryTools = (context: AiToolsContext) => {
         const existingCategory = context.categories.find((category) => category.id === categoryId);
 
         if (!existingCategory) {
-          return failed('Category not found in this bar.');
+          return failed('Category not found in this establishment.');
         }
 
         return runner.execute(
-          'bar:update-category',
-          new UpdateCategoryCommand(context.barId, asCategoryId(categoryId), {
+          'establishment:update-category',
+          new UpdateCategoryCommand(context.establishmentId, asCategoryId(categoryId), {
             name: name ?? existingCategory.name,
             icon,
           }),
@@ -99,8 +104,8 @@ export const createCategoryTools = (context: AiToolsContext) => {
         const productCount = context.products.filter((product) => product.categoryId === categoryId).length;
 
         return runner.execute(
-          'bar:delete-category',
-          new DeleteCategoryCommand(context.barId, asCategoryId(categoryId)),
+          'establishment:delete-category',
+          new DeleteCategoryCommand(context.establishmentId, asCategoryId(categoryId)),
           {
             confirmed,
             summary: `permanently delete the category "${category?.name ?? categoryId}", which currently holds ${productCount} product(s)`,

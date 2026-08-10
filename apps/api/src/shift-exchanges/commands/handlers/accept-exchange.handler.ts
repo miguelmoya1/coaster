@@ -23,7 +23,7 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
 
-    if (exchange.shift.barId !== command.barId) {
+    if (exchange.shift.establishmentId !== command.establishmentId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 

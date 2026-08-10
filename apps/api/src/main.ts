@@ -84,7 +84,7 @@ async function bootstrap() {
   if (!isProduction) {
     const config = new DocumentBuilder()
       .setTitle('BarTeam API')
-      .setDescription('API Multi-Tenant para la gestión de bares y turnos')
+      .setDescription('API multi-tenant para la gestión de establecimientos y turnos')
       .setVersion('1.0')
       .addBearerAuth()
       .build();

@@ -1,5 +1,5 @@
 import type { Table } from '@coaster/common';
-import { asBarId, TableStatus } from '@coaster/common';
+import { asEstablishmentId, TableStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -30,11 +30,11 @@ describe('CreateTableHandler', () => {
   });
 
   it('should create the table and publish event', async () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const dto = { name: 'Mesa 1' };
     const dbTable = {
       id: 'table-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       name: 'Mesa 1',
       status: TableStatus.FREE,
       createdAt: new Date('2026-05-01T08:00:00Z'),
@@ -42,9 +42,11 @@ describe('CreateTableHandler', () => {
     };
     repository.create.mockResolvedValue(dbTable);
 
-    await handler.execute(new CreateTableCommand(barId, dto));
+    await handler.execute(new CreateTableCommand(establishmentId, dto));
 
-    expect(repository.create).toHaveBeenCalledWith(barId, { name: 'Mesa 1' });
-    expect(eventBus.publish).toHaveBeenCalledWith(new TableCreatedEvent(barId, expect.any(Object) as unknown as Table));
+    expect(repository.create).toHaveBeenCalledWith(establishmentId, { name: 'Mesa 1' });
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new TableCreatedEvent(establishmentId, expect.any(Object) as unknown as Table),
+    );
   });
 });

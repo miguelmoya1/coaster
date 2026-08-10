@@ -64,10 +64,10 @@ export class TemplatesReadRepository {
     });
   }
 
-  public async findCategoriesByBarIdAndNames(barId: string, names: string[]) {
+  public async findCategoriesByEstablishmentIdAndNames(establishmentId: string, names: string[]) {
     return this._db.dbCategory.findMany({
       where: {
-        barId,
+        establishmentId,
         name: {
           in: names,
         },

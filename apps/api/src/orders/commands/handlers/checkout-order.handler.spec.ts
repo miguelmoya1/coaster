@@ -1,5 +1,5 @@
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asOrderId, OrderStatus, PaymentMethod } from '@coaster/common';
+import { asEstablishmentId, asOrderId, OrderStatus, PaymentMethod } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,7 +35,7 @@ describe('CheckoutOrderHandler', () => {
   it('should checkout order and free table', async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       tableId: 'table-1',
       items: [],
@@ -44,7 +44,7 @@ describe('CheckoutOrderHandler', () => {
     });
     repository.checkoutOrder.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.CLOSED,
       tableId: 'table-1',
       items: [],
@@ -52,11 +52,13 @@ describe('CheckoutOrderHandler', () => {
       updatedAt: new Date(),
     });
 
-    await handler.execute(new CheckoutOrderCommand(asBarId('bar-1'), asOrderId('order-1'), PaymentMethod.CARD));
+    await handler.execute(
+      new CheckoutOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1'), PaymentMethod.CARD),
+    );
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       new OrderClosedEvent(
-        asBarId('bar-1'),
+        asEstablishmentId('establishment-1'),
         expect.any(Object) as unknown as Order,
         expect.any(String) as unknown as TableId,
       ),

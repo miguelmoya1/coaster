@@ -1,4 +1,4 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
@@ -8,12 +8,12 @@ import { PrinterReadRepository } from '../data-access/printer.read.repository';
 export class DeviceKeyService {
   constructor(private readonly _readRepo: PrinterReadRepository) {}
 
-  public async authenticate(barId: BarId, deviceKey: string | undefined): Promise<void> {
+  public async authenticate(establishmentId: EstablishmentId, deviceKey: string | undefined): Promise<void> {
     if (!deviceKey) {
       throw new UnauthorizedException('X-Device-Key header is required');
     }
 
-    const config = await this._readRepo.findByBarId(barId);
+    const config = await this._readRepo.findByEstablishmentId(establishmentId);
     if (!config) {
       throw new NotFoundException(ErrorCodes.PRINTER_NOT_CONFIGURED);
     }

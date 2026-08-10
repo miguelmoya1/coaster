@@ -1,4 +1,4 @@
-import { ErrorCodes, ShiftExchangeStatus, asBarId, asShiftExchangeId, asUserId } from '@coaster/common';
+import { ErrorCodes, ShiftExchangeStatus, asEstablishmentId, asShiftExchangeId, asUserId } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -26,15 +26,15 @@ describe('AcceptExchangeHandler', () => {
     handler = module.get<AcceptExchangeHandler>(AcceptExchangeHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const excId = asShiftExchangeId('exc-1');
 
   it('should fail if the exchange does not exist', async () => {
     repository.getExchangeById.mockResolvedValue(null);
 
-    await expect(handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')))).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      handler.execute(new AcceptExchangeCommand(establishmentId, excId, asUserId('acceptor'))),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should approve if everything is correct and swap the shift', async () => {
@@ -45,7 +45,7 @@ describe('AcceptExchangeHandler', () => {
       targetId: null,
       shiftId: 'shift-1',
       createdAt: new Date(),
-      shift: { barId: 'bar-1', startTime: new Date(Date.now() + 3600 * 1000) },
+      shift: { establishmentId: 'establishment-1', startTime: new Date(Date.now() + 3600 * 1000) },
     });
 
     repository.acceptExchangeAndSwapShift.mockResolvedValue([
@@ -56,11 +56,11 @@ describe('AcceptExchangeHandler', () => {
         requesterId: 'user-1',
         targetId: null,
         createdAt: new Date(),
-        shift: { barId: 'bar-1', startTime: new Date(Date.now() + 3600 * 1000) },
+        shift: { establishmentId: 'establishment-1', startTime: new Date(Date.now() + 3600 * 1000) },
       },
     ]);
 
-    await handler.execute(new AcceptExchangeCommand(barId, excId, asUserId('acceptor')));
+    await handler.execute(new AcceptExchangeCommand(establishmentId, excId, asUserId('acceptor')));
 
     expect(repository.acceptExchangeAndSwapShift).toHaveBeenCalledWith('exc-1', 'shift-1', 'acceptor');
   });
@@ -69,7 +69,13 @@ describe('AcceptExchangeHandler', () => {
     repository.acceptExchangeAndSwapShift.mockResolvedValue(false);
 
     await expect(
-      handler.execute(new AcceptExchangeCommand(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'))),
+      handler.execute(
+        new AcceptExchangeCommand(
+          asEstablishmentId('establishment-1'),
+          asShiftExchangeId('exc-1'),
+          asUserId('acceptor'),
+        ),
+      ),
     ).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_EXCHANGE));
   });
 
@@ -83,11 +89,17 @@ describe('AcceptExchangeHandler', () => {
       targetId: null,
       shiftId: 'shift-1',
       createdAt: new Date(),
-      shift: { barId: 'bar-1', startTime: new Date(Date.now() - 60 * 1000) },
+      shift: { establishmentId: 'establishment-1', startTime: new Date(Date.now() - 60 * 1000) },
     });
 
     await expect(
-      handler.execute(new AcceptExchangeCommand(asBarId('bar-1'), asShiftExchangeId('exc-1'), asUserId('acceptor'))),
+      handler.execute(
+        new AcceptExchangeCommand(
+          asEstablishmentId('establishment-1'),
+          asShiftExchangeId('exc-1'),
+          asUserId('acceptor'),
+        ),
+      ),
     ).rejects.toThrow(new BadRequestException(ErrorCodes.EXCHANGE_SHIFT_ALREADY_STARTED));
 
     expect(repository.acceptExchangeAndSwapShift).not.toHaveBeenCalled();

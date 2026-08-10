@@ -1,8 +1,8 @@
-import type { BarId, PrintTicketPayloadDto } from '@coaster/common';
+import type { EstablishmentId, PrintTicketPayloadDto } from '@coaster/common';
 
 export class EnqueuePrintJobCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly payload: PrintTicketPayloadDto,
   ) {}
 }

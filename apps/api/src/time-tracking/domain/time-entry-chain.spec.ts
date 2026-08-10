@@ -3,7 +3,7 @@ import { ChainedEntry, ChainPayload, GENESIS_HASH, hashEntry, verifyChain } from
 
 const payload = (overrides: Partial<ChainPayload> = {}): ChainPayload => ({
   id: 'entry-1',
-  barId: 'bar-1',
+  establishmentId: 'establishment-1',
   userId: 'user-1',
   rootId: 'entry-1',
   type: 'CLOCK_IN',
@@ -11,7 +11,7 @@ const payload = (overrides: Partial<ChainPayload> = {}): ChainPayload => ({
   occurredAt: new Date('2026-08-08T07:00:00.000Z'),
   recordedAt: new Date('2026-08-08T07:00:00.500Z'),
   workdayDate: new Date('2026-08-08T00:00:00.000Z'),
-  userSnapshot: { name: 'Ana', email: 'ana@bar.com' },
+  userSnapshot: { name: 'Ana', email: 'ana@establishment.com' },
   source: 'EMPLOYEE_DEVICE',
   supersedesId: null,
   actorId: 'user-1',
@@ -72,7 +72,7 @@ describe('time entry chain', () => {
 
   it('should catch a mark reassigned to somebody else', () => {
     const chain = chainOf(payload());
-    chain[0].userSnapshot = { name: 'Luis', email: 'luis@bar.com' };
+    chain[0].userSnapshot = { name: 'Luis', email: 'luis@establishment.com' };
 
     expect(verifyChain(chain)).toMatchObject({ valid: false, brokenAt: 'entry-1' });
   });

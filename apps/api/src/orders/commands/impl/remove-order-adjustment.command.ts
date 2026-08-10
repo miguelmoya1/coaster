@@ -1,8 +1,8 @@
-import type { BarId, OrderAdjustmentId, OrderId } from '@coaster/common';
+import type { EstablishmentId, OrderAdjustmentId, OrderId } from '@coaster/common';
 
 export class RemoveOrderAdjustmentCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly orderId: OrderId,
     public readonly adjustmentId: OrderAdjustmentId,
   ) {}

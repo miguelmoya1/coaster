@@ -1,6 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -29,7 +29,7 @@ describe('ShiftsController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -41,7 +41,7 @@ describe('ShiftsController', () => {
   it('getShifts should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getShifts(asBarId('bar-1'), '2026-05-01T00:00:00Z', '2026-05-01T23:59:59Z');
+    await controller.getShifts(asEstablishmentId('establishment-1'), '2026-05-01T00:00:00Z', '2026-05-01T23:59:59Z');
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetShiftsQuery));
   });
@@ -56,7 +56,7 @@ describe('ShiftsController', () => {
       role: 'staff',
     };
 
-    const result = await controller.createShift(asBarId('bar-1'), dto);
+    const result = await controller.createShift(asEstablishmentId('establishment-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateShiftCommand));
     expect(result).toBeUndefined();
@@ -65,7 +65,7 @@ describe('ShiftsController', () => {
   it('deleteShift should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.deleteShift(asBarId('bar-1'), asShiftId('shift-1'));
+    await controller.deleteShift(asEstablishmentId('establishment-1'), asShiftId('shift-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteShiftCommand));
   });

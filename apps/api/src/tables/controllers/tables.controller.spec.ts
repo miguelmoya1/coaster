@@ -1,12 +1,12 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { asBarId, asTableId } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { asEstablishmentId, asTableId } from '@coaster/common';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { CreateTableCommand, DeleteTableCommand, UpdateTableCommand } from '../commands';
-import { GetTablesByBarIdQuery } from '../queries';
+import { GetTablesByEstablishmentIdQuery } from '../queries';
 import { TablesController } from './tables.controller';
 
 describe('TablesController', () => {
@@ -29,7 +29,7 @@ describe('TablesController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -41,16 +41,16 @@ describe('TablesController', () => {
   it('getTables should delegate to the query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getTables(asBarId('bar-1'));
+    await controller.getTables(asEstablishmentId('establishment-1'));
 
-    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetTablesByBarIdQuery));
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetTablesByEstablishmentIdQuery));
   });
 
   it('createTable should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Mesa 1' };
 
-    await controller.createTable(asBarId('bar-1'), dto);
+    await controller.createTable(asEstablishmentId('establishment-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateTableCommand));
   });
@@ -59,7 +59,7 @@ describe('TablesController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Mesa 2' };
 
-    await controller.updateTable(asBarId('bar-1'), asTableId('table-1'), dto);
+    await controller.updateTable(asEstablishmentId('establishment-1'), asTableId('table-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateTableCommand));
   });
@@ -67,7 +67,7 @@ describe('TablesController', () => {
   it('deleteTable should delegate to the command bus and return success', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.deleteTable(asBarId('bar-1'), asTableId('table-1'));
+    const result = await controller.deleteTable(asEstablishmentId('establishment-1'), asTableId('table-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteTableCommand));
     expect(result).toEqual({ success: true });

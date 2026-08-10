@@ -1,6 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import { asCategoryId } from '@coaster/common';
-import { AdminGuard, BarPermissionsGuard } from '@coaster/core';
+import { AdminGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -11,7 +11,7 @@ import {
   CreateProductTemplateCommand,
   DeleteCategoryTemplateCommand,
   DeleteProductTemplateCommand,
-  ImportTemplatesToBarCommand,
+  ImportTemplatesToEstablishmentCommand,
   UpdateCategoryTemplateCommand,
   UpdateProductTemplateCommand,
 } from '../commands';
@@ -40,7 +40,7 @@ describe('TemplatesController', () => {
       .useValue(mockGuard)
       .overrideGuard(AdminGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -106,11 +106,11 @@ describe('TemplatesController', () => {
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteProductTemplateCommand));
   });
 
-  it('importTemplatesToBar should delegate to the command bus', async () => {
+  it('importTemplatesToEstablishment should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { categoryTemplateIds: ['cat-t1'], productTemplateIds: ['prod-t1'] };
-    await controller.importTemplatesToBar('bar-1', dto);
-    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ImportTemplatesToBarCommand));
+    await controller.importTemplatesToEstablishment('establishment-1', dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ImportTemplatesToEstablishmentCommand));
   });
 
   it('bulkUpsertTemplates should delegate to the command bus', async () => {

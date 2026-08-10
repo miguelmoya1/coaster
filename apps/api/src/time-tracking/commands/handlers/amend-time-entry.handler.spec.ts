@@ -1,6 +1,6 @@
 import type { User } from '@coaster/common';
 import {
-  BarPermission,
+  EstablishmentPermission,
   ErrorCodes,
   TimeEntryAction,
   TimeEntrySource,
@@ -8,7 +8,7 @@ import {
   asTimeEntryId,
   asUserId,
   Role,
-  asBarId,
+  asEstablishmentId,
 } from '@coaster/common';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,10 +16,10 @@ import { TimeEntryAmendedEvent } from '../../events/impl/time-entry-amended.even
 import { AmendTimeEntryCommand } from '../impl/amend-time-entry.command';
 import { AmendTimeEntryHandler } from './amend-time-entry.handler';
 
-const barId = asBarId('bar-1');
+const establishmentId = asEstablishmentId('establishment-1');
 const actor: User = {
   id: asUserId('manager-1'),
-  email: 'ana@bar.com',
+  email: 'ana@establishment.com',
   name: 'Ana',
   active: true,
   role: Role.USER,
@@ -29,9 +29,9 @@ const actor: User = {
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: 'entry-1',
   rootId: 'entry-1',
-  barId: 'bar-1',
+  establishmentId: 'establishment-1',
   userId: 'user-1',
-  userSnapshot: { name: 'Luis', email: 'luis@bar.com' },
+  userSnapshot: { name: 'Luis', email: 'luis@establishment.com' },
   shiftId: null,
   type: TimeEntryType.CLOCK_IN,
   action: TimeEntryAction.RECORDED,
@@ -54,7 +54,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 });
 
 const command = (occurredAt = '2026-08-08T09:00:00Z') =>
-  new AmendTimeEntryCommand(barId, asTimeEntryId('entry-1'), actor, {
+  new AmendTimeEntryCommand(establishmentId, asTimeEntryId('entry-1'), actor, {
     occurredAt,
     reason: 'El trabajador olvido fichar la entrada',
   });
@@ -90,15 +90,12 @@ describe('AmendTimeEntryHandler', () => {
     queryBus = {
       execute: vi
         .fn()
-        .mockResolvedValue([{ userId: 'manager-1', permissions: [BarPermission.BAR_MANAGE_TIME_ENTRIES] }]),
+        .mockResolvedValue([
+          { userId: 'manager-1', permissions: [EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES] },
+        ]),
     };
     eventBus = { publish: vi.fn() };
-    handler = new AmendTimeEntryHandler(
-      readRepo as never,
-      writeRepo as never,
-      queryBus as never,
-      eventBus as never,
-    );
+    handler = new AmendTimeEntryHandler(readRepo as never, writeRepo as never, queryBus as never, eventBus as never);
   });
 
   it('should append a new revision instead of rewriting the original mark', async () => {
@@ -178,11 +175,11 @@ describe('AmendTimeEntryHandler', () => {
   });
 
   it('should let a worker fix the hour on a mark of their own', async () => {
-    const worker: User = { ...actor, id: asUserId('user-1'), name: 'Luis', email: 'luis@bar.com' };
+    const worker: User = { ...actor, id: asUserId('user-1'), name: 'Luis', email: 'luis@establishment.com' };
     queryBus.execute.mockResolvedValue([{ userId: 'user-1', permissions: [] }]);
 
     await handler.execute(
-      new AmendTimeEntryCommand(barId, asTimeEntryId('entry-1'), worker, {
+      new AmendTimeEntryCommand(establishmentId, asTimeEntryId('entry-1'), worker, {
         occurredAt: '2026-08-08T09:00:00Z',
         reason: 'Entre antes pero fiche tarde',
       }),
@@ -194,12 +191,12 @@ describe('AmendTimeEntryHandler', () => {
   });
 
   it('should stop a worker from touching somebody elses hours', async () => {
-    const worker: User = { ...actor, id: asUserId('user-9'), name: 'Marta', email: 'marta@bar.com' };
+    const worker: User = { ...actor, id: asUserId('user-9'), name: 'Marta', email: 'marta@establishment.com' };
     queryBus.execute.mockResolvedValue([{ userId: 'user-9', permissions: [] }]);
 
     await expect(
       handler.execute(
-        new AmendTimeEntryCommand(barId, asTimeEntryId('entry-1'), worker, {
+        new AmendTimeEntryCommand(establishmentId, asTimeEntryId('entry-1'), worker, {
           occurredAt: '2026-08-08T09:00:00Z',
           reason: 'Le puse la hora que me dijo',
         }),
@@ -208,7 +205,7 @@ describe('AmendTimeEntryHandler', () => {
     expect(writeRepo.append).not.toHaveBeenCalled();
   });
 
-  it('should let whoever manages the bar fix anybody hours', async () => {
+  it('should let whoever manages the establishment fix anybody hours', async () => {
     await handler.execute(command());
 
     expect(writeRepo.append).toHaveBeenCalledWith(expect.objectContaining({ actorId: actor.id }));

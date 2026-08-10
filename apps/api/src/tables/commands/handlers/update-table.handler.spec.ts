@@ -1,5 +1,5 @@
 import type { Table } from '@coaster/common';
-import { asBarId, asTableId, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asTableId, TableStatus } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -33,29 +33,29 @@ describe('UpdateTableHandler', () => {
     handler = module.get<UpdateTableHandler>(UpdateTableHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const tableId = asTableId('table-1');
   const dto = { name: 'Mesa Actualizada' };
 
   it('should fail if the table does not exist', async () => {
     repository.findById.mockResolvedValue(null);
 
-    const cmd = new UpdateTableCommand(barId, tableId, dto);
+    const cmd = new UpdateTableCommand(establishmentId, tableId, dto);
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
   });
 
-  it('should fail if the table belongs to a different bar', async () => {
-    repository.findById.mockResolvedValue({ id: 'table-1', barId: 'bar-other' });
+  it('should fail if the table belongs to a different establishment', async () => {
+    repository.findById.mockResolvedValue({ id: 'table-1', establishmentId: 'establishment-other' });
 
-    const cmd = new UpdateTableCommand(barId, tableId, dto);
+    const cmd = new UpdateTableCommand(establishmentId, tableId, dto);
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
   });
 
   it('should update the table and publish event', async () => {
-    repository.findById.mockResolvedValue({ id: 'table-1', barId: 'bar-1' });
+    repository.findById.mockResolvedValue({ id: 'table-1', establishmentId: 'establishment-1' });
     const dbTable = {
       id: 'table-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       name: 'Mesa Actualizada',
       status: TableStatus.FREE,
       createdAt: new Date(),
@@ -63,10 +63,12 @@ describe('UpdateTableHandler', () => {
     };
     repository.update.mockResolvedValue(dbTable);
 
-    const cmd = new UpdateTableCommand(barId, tableId, dto);
+    const cmd = new UpdateTableCommand(establishmentId, tableId, dto);
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(tableId, dto);
-    expect(eventBus.publish).toHaveBeenCalledWith(new TableUpdatedEvent(barId, expect.any(Object) as unknown as Table));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new TableUpdatedEvent(establishmentId, expect.any(Object) as unknown as Table),
+    );
   });
 });

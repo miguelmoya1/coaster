@@ -14,12 +14,15 @@ export class SecurityRepository {
     return user?.role;
   }
 
-  async getBarMemberRole(userId: string, barId: string): Promise<{ role: string; active: boolean } | null> {
-    const membership = await this._db.dbBarMember.findUnique({
+  async getEstablishmentMemberRole(
+    userId: string,
+    establishmentId: string,
+  ): Promise<{ role: string; active: boolean } | null> {
+    const membership = await this._db.dbEstablishmentMember.findUnique({
       where: {
-        userId_barId: {
+        userId_establishmentId: {
           userId,
-          barId,
+          establishmentId,
         },
         deletedAt: null,
       },

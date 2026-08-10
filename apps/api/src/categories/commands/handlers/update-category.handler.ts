@@ -20,7 +20,7 @@ export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryComm
     this.#logger.debug(`Executing updateCategory...`);
 
     const updated = await this.repository
-      .update(command.barId, command.categoryId, command.dto)
+      .update(command.establishmentId, command.categoryId, command.dto)
       .catch((error: unknown) => {
         if (isRecordNotFoundError(error)) {
           throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
@@ -31,6 +31,6 @@ export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryComm
 
     const mapped = CategoriesMapper.toDomain(updated);
     this.#logger.debug(`Publishing CategoryUpdatedEvent...`);
-    this._eventBus.publish(new CategoryUpdatedEvent(command.barId, mapped));
+    this._eventBus.publish(new CategoryUpdatedEvent(command.establishmentId, mapped));
   }
 }

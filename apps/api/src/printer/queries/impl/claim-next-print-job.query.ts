@@ -1,8 +1,8 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 
 export class ClaimNextPrintJobQuery {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly deviceKey: string | undefined,
   ) {}
 }

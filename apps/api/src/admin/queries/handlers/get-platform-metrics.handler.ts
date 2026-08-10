@@ -27,10 +27,10 @@ export class GetPlatformMetricsHandler implements IQueryHandler<GetPlatformMetri
     }
 
     return {
-      bars: {
-        total: metrics.barsTotal,
-        createdLast7Days: metrics.barsLast7Days,
-        createdLast30Days: metrics.barsLast30Days,
+      establishments: {
+        total: metrics.establishmentsTotal,
+        createdLast7Days: metrics.establishmentsLast7Days,
+        createdLast30Days: metrics.establishmentsLast30Days,
       },
       users: {
         total: metrics.usersTotal,

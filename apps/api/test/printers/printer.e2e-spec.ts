@@ -4,7 +4,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('PrintersController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
 
   beforeAll(async () => {
     await testSetup.setup();
@@ -20,8 +20,8 @@ describe('PrintersController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
   });
 
   afterAll(async () => {
@@ -29,9 +29,9 @@ describe('PrintersController (e2e)', () => {
   });
 
   describe('Print Order', () => {
-    it('should be guarded by authentication and bar permissions', async () => {
+    it('should be guarded by authentication and establishment permissions', async () => {
       const response = await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/printers/print-order`)
+        .post(`/api/establishments/${establishmentId}/printers/print-order`)
         .send({ orderId: 'non-existing-order-id' });
 
       expect(response.status === 404 || response.status === 400 || response.status === 201).toBeTruthy();

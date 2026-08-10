@@ -50,10 +50,14 @@ describe('StripeApi', () => {
     it('should forward the idempotency key so a repeated purchase reuses the same session', async () => {
       clientMock.checkout.sessions.create.mockResolvedValue({ id: 'cs_1' });
 
-      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_1', 'checkout:bar-1:PRO:900');
+      await stripeApi.createCheckoutSession(
+        { mode: 'subscription' } as any,
+        'cus_1',
+        'checkout:establishment-1:PRO:900',
+      );
 
       expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(expect.anything(), {
-        idempotencyKey: 'checkout:bar-1:PRO:900',
+        idempotencyKey: 'checkout:establishment-1:PRO:900',
       });
     });
 
@@ -62,10 +66,14 @@ describe('StripeApi', () => {
         .mockRejectedValueOnce({ code: 'resource_missing', param: 'customer' })
         .mockResolvedValueOnce({ id: 'cs_retry' });
 
-      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_gone', 'checkout:bar-1:PRO:900');
+      await stripeApi.createCheckoutSession(
+        { mode: 'subscription' } as any,
+        'cus_gone',
+        'checkout:establishment-1:PRO:900',
+      );
 
       expect(clientMock.checkout.sessions.create).toHaveBeenLastCalledWith(expect.anything(), {
-        idempotencyKey: 'checkout:bar-1:PRO:900:no-customer',
+        idempotencyKey: 'checkout:establishment-1:PRO:900:no-customer',
       });
     });
 

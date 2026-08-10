@@ -1,5 +1,5 @@
 import type { AddOrderItemsDto } from '@coaster/common';
-import { asBarId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -33,26 +33,34 @@ describe('AddOrderItemsHandler', () => {
     handler = module.get<AddOrderItemsHandler>(AddOrderItemsHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const orderId = asOrderId('order-1');
   const dto = { items: [{ productId: asProductId('prod-1'), quantity: 1 }] };
 
   it('should throw NotFoundException if order not found', async () => {
     repository.findById.mockResolvedValue(null);
 
-    await expect(handler.execute(new AddOrderItemsCommand(barId, orderId, dto))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new AddOrderItemsCommand(establishmentId, orderId, dto))).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should throw BadRequestException if order is not open', async () => {
-    repository.findById.mockResolvedValue({ id: 'order-1', barId: 'bar-1', status: OrderStatus.CLOSED });
+    repository.findById.mockResolvedValue({
+      id: 'order-1',
+      establishmentId: 'establishment-1',
+      status: OrderStatus.CLOSED,
+    });
 
-    await expect(handler.execute(new AddOrderItemsCommand(barId, orderId, dto))).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new AddOrderItemsCommand(establishmentId, orderId, dto))).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should add items and publish OrderItemsAddedEvent', async () => {
     const order = {
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       totalAmount: 10,
       createdAt: new Date(),
@@ -82,12 +90,12 @@ describe('AddOrderItemsHandler', () => {
       ],
     });
 
-    const result = await handler.execute(new AddOrderItemsCommand(barId, orderId, dto as AddOrderItemsDto));
+    const result = await handler.execute(new AddOrderItemsCommand(establishmentId, orderId, dto as AddOrderItemsDto));
 
     expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        barId: 'bar-1',
+        establishmentId: 'establishment-1',
         addedItems: [{ productId: 'prod-1', quantity: 1 }],
       }),
     );

@@ -1,5 +1,5 @@
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asOrderId, OrderStatus } from '@coaster/common';
+import { asEstablishmentId, asOrderId, OrderStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,7 +35,7 @@ describe('CancelOrderHandler', () => {
   it('should cancel order and free table', async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       tableId: 'table-1',
       items: [],
@@ -44,7 +44,7 @@ describe('CancelOrderHandler', () => {
     });
     repository.cancelOrder.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.CANCELLED,
       tableId: 'table-1',
       items: [],
@@ -52,11 +52,11 @@ describe('CancelOrderHandler', () => {
       updatedAt: new Date(),
     });
 
-    await handler.execute(new CancelOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
+    await handler.execute(new CancelOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1')));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       new OrderCancelledEvent(
-        asBarId('bar-1'),
+        asEstablishmentId('establishment-1'),
         expect.any(Object) as unknown as Order,
         expect.any(String) as unknown as TableId,
       ),

@@ -90,7 +90,7 @@ export const InviteEmailTemplate = `
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">{{greeting}}</p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">
-                  {{body1_start}}<strong style="color: #0e0e0e;">{{inviterName}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{barName}}</strong>{{body1_end}}
+                  {{body1_start}}<strong style="color: #0e0e0e;">{{inviterName}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{establishmentName}}</strong>{{body1_end}}
                 </p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 32px 0;">

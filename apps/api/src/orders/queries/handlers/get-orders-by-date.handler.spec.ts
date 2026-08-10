@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersReadRepository } from '../../data-access/orders.read.repository';
@@ -8,7 +8,7 @@ import { GetOrdersByDateHandler } from './get-orders-by-date.handler';
 describe('GetOrdersByDateHandler', () => {
   let handler: GetOrdersByDateHandler;
   const repository = {
-    findByBarIdAndDate: vi.fn(),
+    findByEstablishmentIdAndDate: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,12 +20,12 @@ describe('GetOrdersByDateHandler', () => {
   });
 
   it('should return orders by date', async () => {
-    const barId = asBarId('bar-1');
-    repository.findByBarIdAndDate.mockResolvedValue([]);
+    const establishmentId = asEstablishmentId('establishment-1');
+    repository.findByEstablishmentIdAndDate.mockResolvedValue([]);
 
-    const result = await handler.execute(new GetOrdersByDateQuery(barId, '2026-05-01'));
+    const result = await handler.execute(new GetOrdersByDateQuery(establishmentId, '2026-05-01'));
 
-    expect(repository.findByBarIdAndDate).toHaveBeenCalledWith(barId, '2026-05-01');
+    expect(repository.findByEstablishmentIdAndDate).toHaveBeenCalledWith(establishmentId, '2026-05-01');
     expect(result).toEqual([]);
   });
 });

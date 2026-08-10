@@ -12,7 +12,7 @@ export class GetPrintJobHandler implements IQueryHandler<GetPrintJobQuery, Print
   async execute(query: GetPrintJobQuery): Promise<PrintJobDto> {
     const job = await this.jobRepo.findById(query.jobId);
 
-    if (!job || job.barId !== query.barId) {
+    if (!job || job.establishmentId !== query.establishmentId) {
       throw new NotFoundException(ErrorCodes.PRINT_JOB_NOT_FOUND);
     }
 

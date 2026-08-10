@@ -1,17 +1,23 @@
-import type { BarId, TableId } from '@coaster/common';
+import type { EstablishmentId, TableId } from '@coaster/common';
 import { DbService, DbTableUncheckedCreateInput, DbTableUncheckedUpdateInput } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
-type CreateTableDto = Omit<DbTableUncheckedCreateInput, 'id' | 'createdAt' | 'updatedAt' | 'barId' | 'orders'>;
-type UpdateTableDto = Omit<DbTableUncheckedUpdateInput, 'id' | 'createdAt' | 'updatedAt' | 'barId' | 'orders'>;
+type CreateTableDto = Omit<
+  DbTableUncheckedCreateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'establishmentId' | 'orders'
+>;
+type UpdateTableDto = Omit<
+  DbTableUncheckedUpdateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'establishmentId' | 'orders'
+>;
 
 @Injectable()
 export class TablesWriteRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async create(barId: BarId, data: CreateTableDto) {
+  public async create(establishmentId: EstablishmentId, data: CreateTableDto) {
     return this._db.dbTable.create({
-      data: { ...data, barId },
+      data: { ...data, establishmentId },
     });
   }
 

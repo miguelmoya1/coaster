@@ -1,4 +1,4 @@
-import { BarRole, ErrorCodes } from '@coaster/common';
+import { EstablishmentRole, ErrorCodes } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -7,7 +7,7 @@ const HOUR = 60 * 60 * 1000;
 
 describe('Shift exchange lifecycle (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let shiftId: string;
   let mate: { id: string; email: string; name: string };
   let mateHeaders: Record<string, string>;
@@ -18,7 +18,7 @@ describe('Shift exchange lifecycle (e2e)', () => {
     testSetup.prisma.dbShift.create({
       data: {
         userId,
-        barId,
+        establishmentId,
         startTime: new Date(Date.now() + startsIn),
         endTime: new Date(Date.now() + startsIn + 4 * HOUR),
       },
@@ -35,8 +35,8 @@ describe('Shift exchange lifecycle (e2e)', () => {
       data: { id: mockUser.id, email: mockUser.email, name: mockUser.name, role: 'USER', active: true },
     });
 
-    const bar = await testSetup.createBar('El Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('El Establishment');
+    establishmentId = establishment.id;
 
     const created = await testSetup.prisma.dbUser.create({
       data: { email: 'mate@example.com', name: 'Compañera' },
@@ -44,8 +44,8 @@ describe('Shift exchange lifecycle (e2e)', () => {
     mate = { id: created.id, email: created.email, name: created.name };
     mateHeaders = testSetup.actAs(mate);
 
-    await testSetup.prisma.dbBarMember.create({
-      data: { barId, userId: mate.id, role: BarRole.STAFF },
+    await testSetup.prisma.dbEstablishmentMember.create({
+      data: { establishmentId, userId: mate.id, role: EstablishmentRole.STAFF },
     });
 
     const shift = await createShift(mockUser.id, 24 * HOUR);
@@ -56,10 +56,11 @@ describe('Shift exchange lifecycle (e2e)', () => {
     await testSetup.teardown();
   });
 
-  const offer = () => request(server()).post(`/api/bars/${barId}/shifts/${shiftId}/exchanges`).send({});
+  const offer = () =>
+    request(server()).post(`/api/establishments/${establishmentId}/shifts/${shiftId}/exchanges`).send({});
 
   const acceptAs = (exchangeId: string, headers: Record<string, string>) =>
-    request(server()).patch(`/api/bars/${barId}/exchanges/${exchangeId}/accept`).set(headers);
+    request(server()).patch(`/api/establishments/${establishmentId}/exchanges/${exchangeId}/accept`).set(headers);
 
   it('should hand the shift to whoever takes the offer', async () => {
     await offer().expect(201);
@@ -81,7 +82,7 @@ describe('Shift exchange lifecycle (e2e)', () => {
     await acceptAs(first.id, mateHeaders).expect(200);
 
     await request(server())
-      .post(`/api/bars/${barId}/shifts/${shiftId}/exchanges`)
+      .post(`/api/establishments/${establishmentId}/shifts/${shiftId}/exchanges`)
       .set(mateHeaders)
       .send({})
       .expect(201);
@@ -109,7 +110,9 @@ describe('Shift exchange lifecycle (e2e)', () => {
     await acceptAs(exchange.id, mateHeaders).expect(200);
 
     const third = await testSetup.prisma.dbUser.create({ data: { email: 'third@example.com', name: 'Tercero' } });
-    await testSetup.prisma.dbBarMember.create({ data: { barId, userId: third.id, role: BarRole.STAFF } });
+    await testSetup.prisma.dbEstablishmentMember.create({
+      data: { establishmentId, userId: third.id, role: EstablishmentRole.STAFF },
+    });
 
     const response = await acceptAs(exchange.id, testSetup.actAs(third)).expect(400);
 
@@ -138,7 +141,9 @@ describe('Shift exchange lifecycle (e2e)', () => {
     const [exchange] = await testSetup.prisma.dbShiftExchange.findMany({ where: { shiftId } });
     await acceptAs(exchange.id, mateHeaders).expect(200);
 
-    const response = await request(server()).delete(`/api/bars/${barId}/exchanges/${exchange.id}`).expect(400);
+    const response = await request(server())
+      .delete(`/api/establishments/${establishmentId}/exchanges/${exchange.id}`)
+      .expect(400);
 
     expect(response.body.message).toContain(ErrorCodes.EXCHANGE_ALREADY_CLOSED);
     expect(await testSetup.prisma.dbShiftExchange.findUnique({ where: { id: exchange.id } })).not.toBeNull();
@@ -148,7 +153,7 @@ describe('Shift exchange lifecycle (e2e)', () => {
     await offer().expect(201);
     const [exchange] = await testSetup.prisma.dbShiftExchange.findMany({ where: { shiftId } });
 
-    await request(server()).delete(`/api/bars/${barId}/exchanges/${exchange.id}`).expect(200);
+    await request(server()).delete(`/api/establishments/${establishmentId}/exchanges/${exchange.id}`).expect(200);
 
     expect(await testSetup.prisma.dbShiftExchange.findUnique({ where: { id: exchange.id } })).toBeNull();
   });
@@ -158,13 +163,18 @@ describe('Shift exchange lifecycle (e2e)', () => {
     const earlyToday = new Date(localMidnight.add({ minutes: 30 }).toInstant().epochMilliseconds);
 
     const shift = await testSetup.prisma.dbShift.create({
-      data: { userId: mockUser.id, barId, startTime: earlyToday, endTime: new Date(earlyToday.getTime() + HOUR) },
+      data: {
+        userId: mockUser.id,
+        establishmentId,
+        startTime: earlyToday,
+        endTime: new Date(earlyToday.getTime() + HOUR),
+      },
     });
     await testSetup.prisma.dbShiftExchange.create({
       data: { shiftId: shift.id, requesterId: mockUser.id, status: 'PENDING' },
     });
 
-    const response = await request(server()).get(`/api/bars/${barId}/exchanges`).expect(200);
+    const response = await request(server()).get(`/api/establishments/${establishmentId}/exchanges`).expect(200);
 
     expect(response.body.map((exchange: { shiftId: string }) => exchange.shiftId)).toContain(shift.id);
   });

@@ -1,7 +1,15 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
-import type { BarId, TimeEntry, TimeEntryId, TimeSheetIntegrity, User, UserId, Workday } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { BarPermissions, BarPermissionsGuard, SkipSubscriptionCheck } from '@coaster/core';
+import type {
+  EstablishmentId,
+  TimeEntry,
+  TimeEntryId,
+  TimeSheetIntegrity,
+  User,
+  UserId,
+  Workday,
+} from '@coaster/common';
+import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermissions, EstablishmentPermissionsGuard, SkipSubscriptionCheck } from '@coaster/core';
 import { Body, Controller, Get, Header, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AmendTimeEntryCommand } from '../commands/impl/amend-time-entry.command';
@@ -18,8 +26,8 @@ import { GetTimeSheetIntegrityQuery } from '../queries/impl/get-time-sheet-integ
 import { GetWorkdaysQuery } from '../queries/impl/get-workdays.query';
 import { toTimeSheetCsv } from '../utils/time-sheet-csv';
 
-@Controller('bars/:barId/time-entries')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/time-entries')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
 export class TimeEntriesController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -28,79 +36,95 @@ export class TimeEntriesController {
 
   @Post('clock')
   @SkipSubscriptionCheck()
-  @BarPermissions(BarPermission.BAR_CLOCK_IN)
-  clock(@Param('barId') barId: BarId, @Body() dto: ClockDto, @CurrentUser() user: User): Promise<TimeEntry> {
-    return this._commandBus.execute<ClockCommand, TimeEntry>(new ClockCommand(barId, user, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN)
+  clock(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: ClockDto,
+    @CurrentUser() user: User,
+  ): Promise<TimeEntry> {
+    return this._commandBus.execute<ClockCommand, TimeEntry>(new ClockCommand(establishmentId, user, dto));
   }
 
   @Get('me')
   myWorkdays(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Query() query: TimeSheetQueryDto,
     @CurrentUser() user: User,
   ): Promise<Workday[]> {
-    return this.#workdays(barId, query, user.id);
+    return this.#workdays(establishmentId, query, user.id);
   }
 
   @Get()
-  @BarPermissions(BarPermission.BAR_VIEW_TIME_ENTRIES)
-  workdays(@Param('barId') barId: BarId, @Query() query: TimeSheetQueryDto): Promise<Workday[]> {
-    return this.#workdays(barId, query, query.userId);
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_TIME_ENTRIES)
+  workdays(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Query() query: TimeSheetQueryDto,
+  ): Promise<Workday[]> {
+    return this.#workdays(establishmentId, query, query.userId);
   }
 
   @Get('export')
-  @BarPermissions(BarPermission.BAR_VIEW_TIME_ENTRIES)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_TIME_ENTRIES)
   @Header('Content-Type', 'text/csv; charset=utf-8')
   @Header('Content-Disposition', 'attachment; filename="registro-horario.csv"')
-  async export(@Param('barId') barId: BarId, @Query() query: TimeSheetQueryDto): Promise<string> {
-    return toTimeSheetCsv(await this.#workdays(barId, query, query.userId));
+  async export(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Query() query: TimeSheetQueryDto,
+  ): Promise<string> {
+    return toTimeSheetCsv(await this.#workdays(establishmentId, query, query.userId));
   }
 
   @Get('integrity')
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
-  integrity(@Param('barId') barId: BarId): Promise<TimeSheetIntegrity> {
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES)
+  integrity(@Param('establishmentId') establishmentId: EstablishmentId): Promise<TimeSheetIntegrity> {
     return this._queryBus.execute<GetTimeSheetIntegrityQuery, TimeSheetIntegrity>(
-      new GetTimeSheetIntegrityQuery(barId),
+      new GetTimeSheetIntegrityQuery(establishmentId),
     );
   }
 
   @Post()
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
-  create(@Param('barId') barId: BarId, @Body() dto: CreateTimeEntryDto, @CurrentUser() user: User): Promise<TimeEntry> {
-    return this._commandBus.execute<CreateTimeEntryCommand, TimeEntry>(new CreateTimeEntryCommand(barId, user, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES)
+  create(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: CreateTimeEntryDto,
+    @CurrentUser() user: User,
+  ): Promise<TimeEntry> {
+    return this._commandBus.execute<CreateTimeEntryCommand, TimeEntry>(
+      new CreateTimeEntryCommand(establishmentId, user, dto),
+    );
   }
 
   @Post(':entryId/amend')
-  @BarPermissions(BarPermission.BAR_AMEND_OWN_TIME_ENTRY)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_AMEND_OWN_TIME_ENTRY)
   amend(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Param('entryId') entryId: TimeEntryId,
     @Body() dto: AmendTimeEntryDto,
     @CurrentUser() user: User,
   ): Promise<TimeEntry> {
     return this._commandBus.execute<AmendTimeEntryCommand, TimeEntry>(
-      new AmendTimeEntryCommand(barId, entryId, user, dto),
+      new AmendTimeEntryCommand(establishmentId, entryId, user, dto),
     );
   }
 
   @Post(':entryId/void')
-  @BarPermissions(BarPermission.BAR_MANAGE_TIME_ENTRIES)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES)
   voidEntry(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Param('entryId') entryId: TimeEntryId,
     @Body() dto: VoidTimeEntryDto,
     @CurrentUser() user: User,
   ): Promise<TimeEntry> {
     return this._commandBus.execute<VoidTimeEntryCommand, TimeEntry>(
-      new VoidTimeEntryCommand(barId, entryId, user, dto),
+      new VoidTimeEntryCommand(establishmentId, entryId, user, dto),
     );
   }
 
-  #workdays(barId: BarId, query: TimeSheetQueryDto, userId?: UserId): Promise<Workday[]> {
+  #workdays(establishmentId: EstablishmentId, query: TimeSheetQueryDto, userId?: UserId): Promise<Workday[]> {
     const today = formatWorkdayDate(toWorkdayDate(new Date()));
 
     return this._queryBus.execute<GetWorkdaysQuery, Workday[]>(
-      new GetWorkdaysQuery(barId, query.from ?? today, query.to ?? query.from ?? today, userId),
+      new GetWorkdaysQuery(establishmentId, query.from ?? today, query.to ?? query.from ?? today, userId),
     );
   }
 }

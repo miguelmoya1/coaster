@@ -37,18 +37,26 @@ export class OrdersSagas {
   }
 
   #handleOrderCreated(event: OrderCreatedEvent): ICommand[] {
-    return event.order.items.map((item) => new AdjustProductStockCommand(event.barId, item.productId, -item.quantity));
+    return event.order.items.map(
+      (item) => new AdjustProductStockCommand(event.establishmentId, item.productId, -item.quantity),
+    );
   }
 
   #handleOrderItemsAdded(event: OrderItemsAddedEvent): ICommand[] {
-    return event.addedItems.map((item) => new AdjustProductStockCommand(event.barId, item.productId, -item.quantity));
+    return event.addedItems.map(
+      (item) => new AdjustProductStockCommand(event.establishmentId, item.productId, -item.quantity),
+    );
   }
 
   #handleOrderItemRemoved(event: OrderItemRemovedEvent): ICommand[] {
-    return [new AdjustProductStockCommand(event.barId, event.removedItem.productId, event.removedItem.quantity)];
+    return [
+      new AdjustProductStockCommand(event.establishmentId, event.removedItem.productId, event.removedItem.quantity),
+    ];
   }
 
   #handleOrderCancelled(event: OrderCancelledEvent): ICommand[] {
-    return event.order.items.map((item) => new AdjustProductStockCommand(event.barId, item.productId, item.quantity));
+    return event.order.items.map(
+      (item) => new AdjustProductStockCommand(event.establishmentId, item.productId, item.quantity),
+    );
   }
 }

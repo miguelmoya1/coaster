@@ -17,10 +17,10 @@ export class ReportPrintJobResultHandler implements ICommandHandler<ReportPrintJ
   ) {}
 
   async execute(command: ReportPrintJobResultCommand): Promise<void> {
-    await this.deviceKey.authenticate(command.barId, command.deviceKey);
+    await this.deviceKey.authenticate(command.establishmentId, command.deviceKey);
 
     const job = await this.jobRepo.findById(command.jobId);
-    if (!job || job.barId !== command.barId) {
+    if (!job || job.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.PRINT_JOB_NOT_FOUND);
     }
 
@@ -33,6 +33,6 @@ export class ReportPrintJobResultHandler implements ICommandHandler<ReportPrintJ
       this.#logger.warn(`Print job ${job.id} failed: ${error}`);
     }
 
-    await this.writeRepo.updateLastSeen(command.barId);
+    await this.writeRepo.updateLastSeen(command.establishmentId);
   }
 }

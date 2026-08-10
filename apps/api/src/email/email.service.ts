@@ -16,14 +16,14 @@ export class EmailService {
     this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY') || 're_123_dummy');
   }
 
-  async sendInviteEmail(to: string, barName: string, inviterName: string, lang = 'es') {
+  async sendInviteEmail(to: string, establishmentName: string, inviterName: string, lang = 'es') {
     try {
       const translations = InviteEmailTranslations[lang] || InviteEmailTranslations['es'];
 
       const html = renderInvite({
         ...translations,
         lang,
-        barName,
+        establishmentName,
         inviterName,
       });
 

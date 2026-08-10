@@ -1,5 +1,5 @@
 import type { Order, TableId } from '@coaster/common';
-import { asBarId, asProductId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asProductId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -34,21 +34,21 @@ describe('CreateOrderHandler', () => {
     handler = module.get<CreateOrderHandler>(CreateOrderHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const dto = { items: [{ productId: asProductId('prod-1'), quantity: 2 }], tableId: asTableId('table-1') };
 
   it('should throw NotFoundException if products not found', async () => {
     repository.findProductsByIds.mockResolvedValue([]);
 
-    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new CreateOrderCommand(establishmentId, dto))).rejects.toThrow(NotFoundException);
   });
 
-  it('should look products up within the bar taking the order', async () => {
+  it('should look products up within the establishment taking the order', async () => {
     repository.findProductsByIds.mockResolvedValue([]);
 
-    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new CreateOrderCommand(establishmentId, dto))).rejects.toThrow(NotFoundException);
 
-    expect(repository.findProductsByIds).toHaveBeenCalledWith(barId, [asProductId('prod-1')]);
+    expect(repository.findProductsByIds).toHaveBeenCalledWith(establishmentId, [asProductId('prod-1')]);
   });
 
   it('should accept the same product on two lines of the order', async () => {
@@ -61,7 +61,7 @@ describe('CreateOrderHandler', () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
     repository.createOrder.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       totalAmount: 6,
       tableId: null,
@@ -77,27 +77,31 @@ describe('CreateOrderHandler', () => {
       updatedAt: new Date(),
     });
 
-    await expect(handler.execute(new CreateOrderCommand(barId, twoLines))).resolves.toBeUndefined();
+    await expect(handler.execute(new CreateOrderCommand(establishmentId, twoLines))).resolves.toBeUndefined();
   });
 
   it('should throw BadRequestException if table is occupied', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
-    repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: TableStatus.OCCUPIED });
+    repository.findTableById.mockResolvedValue({
+      id: 'table-1',
+      establishmentId: 'establishment-1',
+      status: TableStatus.OCCUPIED,
+    });
 
-    await expect(handler.execute(new CreateOrderCommand(barId, dto))).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(new CreateOrderCommand(establishmentId, dto))).rejects.toThrow(BadRequestException);
   });
 
   it('should create order and publish event', async () => {
     repository.findProductsByIds.mockResolvedValue([{ id: 'prod-1', price: 2 }]);
     repository.findTableById.mockResolvedValue({
       id: 'table-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: TableStatus.FREE,
       name: 'Mesa 1',
     });
     repository.createOrder.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       totalAmount: 4,
       tableId: 'table-1',
@@ -107,11 +111,15 @@ describe('CreateOrderHandler', () => {
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(new CreateOrderCommand(barId, dto));
+    const result = await handler.execute(new CreateOrderCommand(establishmentId, dto));
 
     expect(result).toBeUndefined();
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrderCreatedEvent(barId, expect.any(Object) as unknown as Order, expect.any(String) as unknown as TableId),
+      new OrderCreatedEvent(
+        establishmentId,
+        expect.any(Object) as unknown as Order,
+        expect.any(String) as unknown as TableId,
+      ),
     );
   });
 });

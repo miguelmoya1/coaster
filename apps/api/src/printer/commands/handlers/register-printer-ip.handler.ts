@@ -14,9 +14,11 @@ export class RegisterPrinterIpHandler implements ICommandHandler<RegisterPrinter
   ) {}
 
   async execute(command: RegisterPrinterIpCommand): Promise<void> {
-    await this.deviceKey.authenticate(command.barId, command.deviceKey);
+    await this.deviceKey.authenticate(command.establishmentId, command.deviceKey);
 
-    await this.writeRepo.upsertPrinterConfig(command.barId, command.ipAddress, command.port);
-    this.#logger.log(`Printer at ${command.ipAddress}:${command.port ?? 8080} registered for bar ${command.barId}`);
+    await this.writeRepo.upsertPrinterConfig(command.establishmentId, command.ipAddress, command.port);
+    this.#logger.log(
+      `Printer at ${command.ipAddress}:${command.port ?? 8080} registered for establishment ${command.establishmentId}`,
+    );
   }
 }

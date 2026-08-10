@@ -4,7 +4,7 @@ export const GENESIS_HASH = '0'.repeat(64);
 
 export interface ChainPayload {
   id: string;
-  barId: string;
+  establishmentId: string;
   userId: string;
   rootId: string;
   type: string;
@@ -34,7 +34,7 @@ export interface ChainVerification {
 const canonical = (payload: ChainPayload): string =>
   [
     payload.id,
-    payload.barId,
+    payload.establishmentId,
     payload.userId,
     payload.rootId,
     payload.type,

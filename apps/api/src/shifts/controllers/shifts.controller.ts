@@ -1,7 +1,7 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import type { BarId, Shift, ShiftId } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { BarPermissions, BarPermissionsGuard } from '@coaster/core';
+import type { EstablishmentId, Shift, ShiftId } from '@coaster/common';
+import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateShiftCommand, DeleteShiftCommand } from '../commands';
@@ -9,8 +9,8 @@ import { CreateShiftDto } from '../dto/create-shift.dto';
 import { ShiftsMapper } from '../mappers/shifts.mapper';
 import { GetShiftsQuery } from '../queries';
 
-@Controller('bars/:barId/shifts')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/shifts')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
 export class ShiftsController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -18,25 +18,33 @@ export class ShiftsController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.BAR_VIEW_SHIFTS)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS)
   async getShifts(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(new GetShiftsQuery(barId, startDate, endDate));
+    const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(
+      new GetShiftsQuery(establishmentId, startDate, endDate),
+    );
     return shifts.map((shift) => ShiftsMapper.toDto(shift));
   }
 
   @Post()
-  @BarPermissions(BarPermission.BAR_CREATE_SHIFT)
-  async createShift(@Param('barId') barId: BarId, @Body() dto: CreateShiftDto): Promise<void> {
-    await this._commandBus.execute<CreateShiftCommand, void>(new CreateShiftCommand(barId, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CREATE_SHIFT)
+  async createShift(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: CreateShiftDto,
+  ): Promise<void> {
+    await this._commandBus.execute<CreateShiftCommand, void>(new CreateShiftCommand(establishmentId, dto));
   }
 
   @Delete(':shiftId')
-  @BarPermissions(BarPermission.BAR_DELETE_SHIFT)
-  async deleteShift(@Param('barId') barId: BarId, @Param('shiftId') shiftId: ShiftId): Promise<void> {
-    await this._commandBus.execute(new DeleteShiftCommand(barId, shiftId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_DELETE_SHIFT)
+  async deleteShift(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('shiftId') shiftId: ShiftId,
+  ): Promise<void> {
+    await this._commandBus.execute(new DeleteShiftCommand(establishmentId, shiftId));
   }
 }

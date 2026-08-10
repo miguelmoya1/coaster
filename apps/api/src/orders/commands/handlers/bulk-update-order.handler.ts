@@ -20,7 +20,7 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
   async execute(command: BulkUpdateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing bulkUpdateOrder...`);
     const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.barId !== command.barId) {
+    if (!order || order.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (order.status !== OrderStatus.OPEN) {
@@ -60,6 +60,6 @@ export class BulkUpdateOrderHandler implements ICommandHandler<BulkUpdateOrderCo
     }
     const mapped = OrdersMapper.toDomain(updated);
     this.#logger.debug(`Publishing OrderUpdatedEvent...`);
-    this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
+    this._eventBus.publish(new OrderUpdatedEvent(command.establishmentId, mapped));
   }
 }

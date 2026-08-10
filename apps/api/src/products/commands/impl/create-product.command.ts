@@ -1,9 +1,9 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { CreateProductDto } from '../../dto/create-product.dto';
 
 export class CreateProductCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly dto: CreateProductDto,
   ) {}
 }

@@ -1,9 +1,0 @@
-export { BarMembersModule } from './bar-members.module';
-export { InviteMemberCommand } from './commands/impl/invite-member.command';
-export { RemoveMemberCommand } from './commands/impl/remove-member.command';
-export { UpdateMemberRoleCommand } from './commands/impl/update-member-role.command';
-export { InviteMemberRequestedEvent } from './events/impl/invite-member-requested.event';
-export { MemberInvitedEvent } from './events/impl/member-invited.event';
-export { MemberRemovedEvent } from './events/impl/member-removed.event';
-export { MemberRoleChangedEvent } from './events/impl/member-role-changed.event';
-export { GetMembersQuery } from './queries/impl/get-members.query';

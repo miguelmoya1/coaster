@@ -2,7 +2,7 @@ import type {
   AddOrderItemsDto,
   AdjustmentTarget,
   AdjustmentType,
-  BarId,
+  EstablishmentId,
   CreateOrderDto,
   OrderId,
   OrderItemId,
@@ -69,7 +69,7 @@ export class OrdersWriteRepository {
   }
 
   public async createOrder(
-    barId: BarId,
+    establishmentId: EstablishmentId,
     dto: CreateOrderDto,
     priceMap: Map<string, number>,
     totalAmount: number,
@@ -78,7 +78,7 @@ export class OrdersWriteRepository {
     return this._db.$transaction(async (tx) => {
       const created = await tx.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           tableId: dto.tableId ?? null,
           tableName: resolvedTableName,
           status: DbOrderStatus.OPEN,

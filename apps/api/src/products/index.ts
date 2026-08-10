@@ -8,4 +8,4 @@ export { ProductDeletedEvent } from './events/impl/product-deleted.event';
 export { ProductStockChangedEvent } from './events/impl/product-stock-changed.event';
 export { ProductUpdatedEvent } from './events/impl/product-updated.event';
 export { ProductsModule } from './products.module';
-export { GetProductsByBarIdQuery } from './queries/impl/get-products-by-bar-id.query';
+export { GetProductsByEstablishmentIdQuery } from './queries/impl/get-products-by-establishment-id.query';

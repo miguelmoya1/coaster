@@ -1,11 +1,18 @@
 import { randomUUID } from 'node:crypto';
-import type { BarId, ShiftId, TimeEntryAction, TimeEntrySource, TimeEntryType, UserId } from '@coaster/common';
+import type {
+  EstablishmentId,
+  ShiftId,
+  TimeEntryAction,
+  TimeEntrySource,
+  TimeEntryType,
+  UserId,
+} from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 import { GENESIS_HASH, hashEntry } from '../domain/time-entry-chain';
 
 export interface AppendTimeEntryInput {
-  barId: BarId;
+  establishmentId: EstablishmentId;
   userId: UserId;
   userSnapshot: { name: string; email: string };
   type: TimeEntryType;
@@ -33,10 +40,10 @@ export class TimeEntriesWriteRepository {
 
   public append(input: AppendTimeEntryInput) {
     return this._db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.barId}))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.establishmentId}))`;
 
       const head = await tx.dbTimeEntry.findFirst({
-        where: { barId: input.barId },
+        where: { establishmentId: input.establishmentId },
         orderBy: { sequence: 'desc' },
         select: { sequence: true, hash: true },
       });
@@ -44,7 +51,7 @@ export class TimeEntriesWriteRepository {
       const id = randomUUID();
       const payload = {
         id,
-        barId: input.barId,
+        establishmentId: input.establishmentId,
         userId: input.userId,
         rootId: input.rootId ?? id,
         type: input.type,

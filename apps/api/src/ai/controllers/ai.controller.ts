@@ -1,14 +1,14 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
-import type { AiMessage, AiResponse, BarId, User } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import type { AiMessage, AiResponse, EstablishmentId, User } from '@coaster/common';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Throttle, seconds } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
 import { ExecuteAiCommand } from '../commands';
 
-@Controller('bars/:barId/ai')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/ai')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
 @Throttle({ default: { ttl: seconds(60), limit: 20 } })
 export class AiController {
   private readonly _logger = new Logger(AiController.name);
@@ -17,19 +17,19 @@ export class AiController {
 
   @Post()
   async executeCommand(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Body('prompt') prompt: string,
     @CurrentUser() user: User,
     @Body('messages') messages?: any[],
   ) {
     return this._commandBus.execute<ExecuteAiCommand, { text: string }>(
-      new ExecuteAiCommand(barId, prompt, user, messages),
+      new ExecuteAiCommand(establishmentId, prompt, user, messages),
     );
   }
 
   @Post('stream')
   async streamCommand(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Body('prompt') prompt: string,
     @CurrentUser() user: User,
     @Res() reply: FastifyReply,
@@ -52,7 +52,7 @@ export class AiController {
 
     try {
       const result = await this._commandBus.execute<ExecuteAiCommand, AiResponse>(
-        new ExecuteAiCommand(barId, prompt, user, messages, (delta) => send('delta', { delta })),
+        new ExecuteAiCommand(establishmentId, prompt, user, messages, (delta) => send('delta', { delta })),
       );
 
       send('done', result);

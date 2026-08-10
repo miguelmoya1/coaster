@@ -1,6 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { asBarId, asCategoryId } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -29,7 +29,7 @@ describe('CategoriesController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -41,7 +41,7 @@ describe('CategoriesController', () => {
   it('getCategories should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getCategories(asBarId('bar-1'));
+    await controller.getCategories(asEstablishmentId('establishment-1'));
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetCategoriesQuery));
   });
@@ -50,7 +50,7 @@ describe('CategoriesController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Comida' };
 
-    await controller.createCategory(asBarId('bar-1'), dto);
+    await controller.createCategory(asEstablishmentId('establishment-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateCategoryCommand));
   });
@@ -59,7 +59,7 @@ describe('CategoriesController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Bebidas' };
 
-    await controller.updateCategory(asBarId('bar-1'), asCategoryId('cat-1'), dto);
+    await controller.updateCategory(asEstablishmentId('establishment-1'), asCategoryId('cat-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateCategoryCommand));
   });
@@ -67,7 +67,7 @@ describe('CategoriesController', () => {
   it('deleteCategory should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.deleteCategory(asBarId('bar-1'), asCategoryId('cat-1'));
+    await controller.deleteCategory(asEstablishmentId('establishment-1'), asCategoryId('cat-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteCategoryCommand));
   });

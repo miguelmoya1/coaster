@@ -9,7 +9,7 @@ export class GetOrdersByDateHandler implements IQueryHandler<GetOrdersByDateQuer
   constructor(private readonly readRepo: OrdersReadRepository) {}
 
   async execute(query: GetOrdersByDateQuery): Promise<Order[]> {
-    const orders = await this.readRepo.findByBarIdAndDate(query.barId, query.date);
+    const orders = await this.readRepo.findByEstablishmentIdAndDate(query.establishmentId, query.date);
     return orders.map((o) => OrdersMapper.toDomain(o));
   }
 }

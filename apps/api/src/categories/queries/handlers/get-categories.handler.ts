@@ -9,7 +9,7 @@ export class GetCategoriesHandler implements IQueryHandler<GetCategoriesQuery, C
   constructor(private readonly readRepo: CategoriesReadRepository) {}
 
   async execute(query: GetCategoriesQuery): Promise<Category[]> {
-    const categories = await this.readRepo.findByBarId(query.barId);
+    const categories = await this.readRepo.findByEstablishmentId(query.establishmentId);
     return categories.map((c) => CategoriesMapper.toDomain(c));
   }
 }

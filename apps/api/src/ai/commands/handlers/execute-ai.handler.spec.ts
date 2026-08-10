@@ -1,5 +1,5 @@
 import type { User } from '@coaster/common';
-import { asBarId, asUserId, BarRole } from '@coaster/common';
+import { asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
@@ -29,7 +29,7 @@ describe('ExecuteAiHandler', () => {
     const mockQueryBus = { execute: vi.fn() };
     const mockSecurityRepository = {
       getUserRole: vi.fn(),
-      getBarMemberRole: vi.fn(),
+      getEstablishmentMemberRole: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -51,14 +51,14 @@ describe('ExecuteAiHandler', () => {
   });
 
   describe('execute', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const user = { id: asUserId('user-1'), name: 'Juan Carlos', language: 'es' } as User;
     const prompt = 'Crea la mesa 3';
-    const command = new ExecuteAiCommand(barId, prompt, user);
+    const command = new ExecuteAiCommand(establishmentId, prompt, user);
 
-    it('should throw ForbiddenException if user is not a member of the bar and not an admin', async () => {
+    it('should throw ForbiddenException if user is not a member of the establishment and not an admin', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue(null);
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue(null);
 
       await expect(handler.execute(command)).rejects.toThrow(ForbiddenException);
     });
@@ -78,13 +78,13 @@ describe('ExecuteAiHandler', () => {
 
     it('should execute successfully for an active staff member', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue({ role: BarRole.STAFF, active: true });
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue({ role: EstablishmentRole.STAFF, active: true });
       queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'Mesa creada correctamente.' });
 
       const result = await handler.execute(command);
 
-      expect(securityRepository.getBarMemberRole).toHaveBeenCalledWith(user.id, barId);
+      expect(securityRepository.getEstablishmentMemberRole).toHaveBeenCalledWith(user.id, establishmentId);
       expect(generateText).toHaveBeenCalled();
       expect(result).toEqual({ text: 'Mesa creada correctamente.' });
     });
@@ -99,7 +99,7 @@ describe('ExecuteAiHandler', () => {
         { role: 'assistant' as const, content: 'Hola, ¿en qué puedo ayudarte?' },
         { role: 'user' as const, content: 'Crear mesa 3' },
       ];
-      const cmdWithMessages = new ExecuteAiCommand(barId, 'Crear mesa 3', user, customMessages);
+      const cmdWithMessages = new ExecuteAiCommand(establishmentId, 'Crear mesa 3', user, customMessages);
       const result = await handler.execute(cmdWithMessages);
 
       expect(generateText).toHaveBeenCalledWith(
@@ -124,7 +124,7 @@ describe('ExecuteAiHandler', () => {
         content: `mensaje ${index}`,
       }));
 
-      await handler.execute(new ExecuteAiCommand(barId, 'mensaje 29', user, longHistory));
+      await handler.execute(new ExecuteAiCommand(establishmentId, 'mensaje 29', user, longHistory));
 
       const sent = (generateText as any).mock.calls.at(-1)[0].messages;
       expect(sent).toHaveLength(10);
@@ -142,21 +142,21 @@ describe('ExecuteAiHandler', () => {
       const options = (generateText as any).mock.calls.at(-1)[0];
       expect(options.stopWhen).toBeDefined();
       expect(Object.keys(options.tools)).toEqual(
-        expect.arrayContaining(['createOrder', 'getBarStats', 'listMembers', 'listShifts', 'deleteProduct']),
+        expect.arrayContaining(['createOrder', 'getEstablishmentStats', 'listMembers', 'listShifts', 'deleteProduct']),
       );
     });
 
     it('should tell the model which permissions the role actually grants', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue({ role: BarRole.STAFF, active: true });
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue({ role: EstablishmentRole.STAFF, active: true });
       queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'ok' });
 
       await handler.execute(command);
 
       const { system } = (generateText as any).mock.calls.at(-1)[0];
-      expect(system).toContain('bar:create-order');
-      expect(system).not.toContain('bar:delete-product');
+      expect(system).toContain('establishment:create-order');
+      expect(system).not.toContain('establishment:delete-product');
     });
 
     it('should keep the streamed transcript as the final answer across multiple steps', async () => {
@@ -173,7 +173,7 @@ describe('ExecuteAiHandler', () => {
 
       const deltas: string[] = [];
       const result = await handler.execute(
-        new ExecuteAiCommand(barId, '¿cuánto llevamos hoy?', user, undefined, (delta) => deltas.push(delta)),
+        new ExecuteAiCommand(establishmentId, '¿cuánto llevamos hoy?', user, undefined, (delta) => deltas.push(delta)),
       );
 
       expect(deltas).toEqual(['Voy a mirarlo. ', 'Hoy llevas 240 €.']);

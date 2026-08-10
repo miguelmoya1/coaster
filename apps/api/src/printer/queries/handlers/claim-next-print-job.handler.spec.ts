@@ -15,7 +15,7 @@ describe('ClaimNextPrintJobHandler', () => {
     claimNext: ReturnType<typeof vi.fn>;
     requeueStaleClaims: ReturnType<typeof vi.fn>;
   };
-  let readRepo: { findByBarId: ReturnType<typeof vi.fn> };
+  let readRepo: { findByEstablishmentId: ReturnType<typeof vi.fn> };
   let writeRepo: { updateLastSeen: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
@@ -25,7 +25,9 @@ describe('ClaimNextPrintJobHandler', () => {
       claimNext: vi.fn().mockResolvedValue(null),
       requeueStaleClaims: vi.fn().mockResolvedValue(undefined),
     };
-    readRepo = { findByBarId: vi.fn().mockResolvedValue({ barId: 'bar-1', deviceKey: 'key-xyz' }) };
+    readRepo = {
+      findByEstablishmentId: vi.fn().mockResolvedValue({ establishmentId: 'establishment-1', deviceKey: 'key-xyz' }),
+    };
     writeRepo = { updateLastSeen: vi.fn().mockResolvedValue({}) };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +45,7 @@ describe('ClaimNextPrintJobHandler', () => {
 
   afterEach(() => vi.useRealTimers());
 
-  const query = (deviceKey?: string) => new ClaimNextPrintJobQuery('bar-1' as any, deviceKey ?? 'key-xyz');
+  const query = (deviceKey?: string) => new ClaimNextPrintJobQuery('establishment-1' as any, deviceKey ?? 'key-xyz');
 
   it('should return a waiting job straight away', async () => {
     jobRepo.claimNext.mockResolvedValue({
@@ -70,7 +72,7 @@ describe('ClaimNextPrintJobHandler', () => {
 
     await handler.execute(query());
 
-    expect(writeRepo.updateLastSeen).toHaveBeenCalledWith('bar-1');
+    expect(writeRepo.updateLastSeen).toHaveBeenCalledWith('establishment-1');
   });
 
   it('should recover jobs abandoned by a previous bridge', async () => {
@@ -78,7 +80,7 @@ describe('ClaimNextPrintJobHandler', () => {
 
     await handler.execute(query());
 
-    expect(jobRepo.requeueStaleClaims).toHaveBeenCalledWith('bar-1');
+    expect(jobRepo.requeueStaleClaims).toHaveBeenCalledWith('establishment-1');
   });
 
   it('should hold the request open and return null when nothing is queued', async () => {

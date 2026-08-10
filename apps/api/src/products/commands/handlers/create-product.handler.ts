@@ -20,7 +20,10 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
   async execute(command: CreateProductCommand): Promise<void> {
     this.#logger.debug(`Executing createProduct...`);
     const validCategoryId = asCategoryId(command.dto.categoryId);
-    const isValidCategory = await this.readRepo.checkCategoryBelongsToBar(validCategoryId, command.barId);
+    const isValidCategory = await this.readRepo.checkCategoryBelongsToEstablishment(
+      validCategoryId,
+      command.establishmentId,
+    );
 
     if (!isValidCategory) {
       throw new ForbiddenException(ErrorCodes.CATEGORY_NOT_FOUND);
@@ -38,6 +41,6 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
     const mapped = ProductsMapper.toDomain(product);
 
     this.#logger.debug(`Publishing ProductCreatedEvent...`);
-    this._eventBus.publish(new ProductCreatedEvent(command.barId, mapped));
+    this._eventBus.publish(new ProductCreatedEvent(command.establishmentId, mapped));
   }
 }

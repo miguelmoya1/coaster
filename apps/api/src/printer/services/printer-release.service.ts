@@ -49,7 +49,7 @@ export class PrinterReleaseService {
       return configured.replace(/\/+$/, '');
     }
 
-    this._logger.warn('PUBLIC_URL is not set; advertising downloads on localhost, which no bar can reach.');
+    this._logger.warn('PUBLIC_URL is not set; advertising downloads on localhost, which no establishment can reach.');
     return 'http://localhost:3000';
   }
 

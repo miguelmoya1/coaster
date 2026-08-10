@@ -1,4 +1,4 @@
-import type { BarId, CategoryId, ProductId } from '@coaster/common';
+import type { EstablishmentId, CategoryId, ProductId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 export class ProductsReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async checkCategoryBelongsToBar(categoryId: CategoryId, barId: BarId) {
+  public async checkCategoryBelongsToEstablishment(categoryId: CategoryId, establishmentId: EstablishmentId) {
     const category = await this._db.dbCategory.findUnique({
       where: { id: categoryId },
     });
@@ -14,21 +14,21 @@ export class ProductsReadRepository {
     if (!category) {
       return false;
     }
-    return category.barId === barId;
+    return category.establishmentId === establishmentId;
   }
 
-  public async checkProductBelongsToBar(productId: ProductId, barId: BarId) {
+  public async checkProductBelongsToEstablishment(productId: ProductId, establishmentId: EstablishmentId) {
     const product = await this._db.dbProduct.findFirst({
-      where: { id: productId, deletedAt: null, category: { barId } },
+      where: { id: productId, deletedAt: null, category: { establishmentId } },
       select: { id: true },
     });
 
     return product !== null;
   }
 
-  public async findByBarId(barId: BarId) {
+  public async findByEstablishmentId(establishmentId: EstablishmentId) {
     return this._db.dbProduct.findMany({
-      where: { category: { barId, deletedAt: null }, deletedAt: null },
+      where: { category: { establishmentId, deletedAt: null }, deletedAt: null },
       orderBy: { name: 'asc' },
     });
   }

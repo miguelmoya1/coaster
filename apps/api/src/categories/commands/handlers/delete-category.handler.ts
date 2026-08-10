@@ -19,7 +19,7 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
     this.#logger.debug(`Executing deleteCategory...`);
 
     try {
-      await this.repository.delete(command.barId, command.categoryId);
+      await this.repository.delete(command.establishmentId, command.categoryId);
     } catch (error) {
       if (isRecordNotFoundError(error)) {
         throw new NotFoundException(ErrorCodes.CATEGORY_NOT_FOUND);
@@ -29,6 +29,6 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
     }
 
     this.#logger.debug(`Publishing CategoryDeletedEvent...`);
-    this._eventBus.publish(new CategoryDeletedEvent(command.barId, command.categoryId));
+    this._eventBus.publish(new CategoryDeletedEvent(command.establishmentId, command.categoryId));
   }
 }

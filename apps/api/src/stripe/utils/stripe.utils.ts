@@ -83,7 +83,7 @@ export interface StripeSubscriptionSnapshot {
 }
 
 /**
- * The single reading of what a Stripe subscription means for a bar. Both the checkout webhook and
+ * The single reading of what a Stripe subscription means for an establishment. Both the checkout webhook and
  * the subscription webhook write the same row, so they have to agree on this or whichever arrives
  * last quietly overwrites the other with a different opinion.
  */

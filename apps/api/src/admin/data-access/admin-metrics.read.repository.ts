@@ -1,9 +1,9 @@
-import type { DbBarSubscriptionWhereInput } from '@coaster/core/db';
+import type { DbEstablishmentSubscriptionWhereInput } from '@coaster/core/db';
 import { DbOrderStatus, DbRole, DbService, DbSubscriptionStatus } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
-import { AdminBarReadRepository } from './admin-bar.read.repository';
+import { AdminEstablishmentReadRepository } from './admin-establishment.read.repository';
 
-const liveStripeWhere = (now: Date): DbBarSubscriptionWhereInput => ({
+const liveStripeWhere = (now: Date): DbEstablishmentSubscriptionWhereInput => ({
   OR: [
     {
       status: DbSubscriptionStatus.ACTIVE,
@@ -20,13 +20,13 @@ export class AdminMetricsReadRepository {
   constructor(private readonly _db: DbService) {}
 
   public async collect(now: Date, last7Days: Date, last30Days: Date) {
-    const liveGrant = AdminBarReadRepository.liveManualGrantWhere(now);
+    const liveGrant = AdminEstablishmentReadRepository.liveManualGrantWhere(now);
     const liveStripe = liveStripeWhere(now);
 
     const [
-      barsTotal,
-      barsLast7Days,
-      barsLast30Days,
+      establishmentsTotal,
+      establishmentsLast7Days,
+      establishmentsLast30Days,
       usersTotal,
       usersActive,
       admins,
@@ -39,18 +39,18 @@ export class AdminMetricsReadRepository {
       ordersLast30Days,
       revenueLast30Days,
     ] = await this._db.$transaction([
-      this._db.dbBar.count(),
-      this._db.dbBar.count({ where: { createdAt: { gte: last7Days } } }),
-      this._db.dbBar.count({ where: { createdAt: { gte: last30Days } } }),
+      this._db.dbEstablishment.count(),
+      this._db.dbEstablishment.count({ where: { createdAt: { gte: last7Days } } }),
+      this._db.dbEstablishment.count({ where: { createdAt: { gte: last30Days } } }),
       this._db.dbUser.count(),
       this._db.dbUser.count({ where: { active: true } }),
       this._db.dbUser.count({ where: { role: DbRole.ADMIN } }),
       this._db.dbUser.count({ where: { createdAt: { gte: last30Days } } }),
-      this._db.dbBarSubscription.groupBy({ by: ['status'], _count: { _all: true } }),
-      this._db.dbBarSubscription.groupBy({ by: ['plan'], _count: { _all: true } }),
-      this._db.dbBarSubscription.count({ where: liveGrant }),
-      this._db.dbBarSubscription.count({ where: { AND: [liveStripe, { NOT: liveGrant }] } }),
-      this._db.dbBarSubscription.count({ where: { OR: [liveGrant, liveStripe] } }),
+      this._db.dbEstablishmentSubscription.groupBy({ by: ['status'], _count: { _all: true } }),
+      this._db.dbEstablishmentSubscription.groupBy({ by: ['plan'], _count: { _all: true } }),
+      this._db.dbEstablishmentSubscription.count({ where: liveGrant }),
+      this._db.dbEstablishmentSubscription.count({ where: { AND: [liveStripe, { NOT: liveGrant }] } }),
+      this._db.dbEstablishmentSubscription.count({ where: { OR: [liveGrant, liveStripe] } }),
       this._db.dbOrder.count({ where: { createdAt: { gte: last30Days } } }),
       this._db.dbOrder.aggregate({
         where: { status: DbOrderStatus.CLOSED, createdAt: { gte: last30Days } },
@@ -59,9 +59,9 @@ export class AdminMetricsReadRepository {
     ]);
 
     return {
-      barsTotal,
-      barsLast7Days,
-      barsLast30Days,
+      establishmentsTotal,
+      establishmentsLast7Days,
+      establishmentsLast30Days,
       usersTotal,
       usersActive,
       admins,

@@ -1,4 +1,4 @@
-import type { BarId, TableId } from '@coaster/common';
+import type { EstablishmentId, TableId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -6,9 +6,9 @@ import { Injectable } from '@nestjs/common';
 export class TablesReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async findByBarId(barId: BarId) {
+  public async findByEstablishmentId(establishmentId: EstablishmentId) {
     return this._db.dbTable.findMany({
-      where: { barId },
+      where: { establishmentId },
       orderBy: { name: 'asc' },
     });
   }

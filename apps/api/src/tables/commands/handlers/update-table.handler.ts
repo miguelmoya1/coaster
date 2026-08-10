@@ -20,13 +20,13 @@ export class UpdateTableHandler implements ICommandHandler<UpdateTableCommand, v
   async execute(command: UpdateTableCommand): Promise<void> {
     this.#logger.debug(`Executing updateTable...`);
     const existing = await this.readRepo.findById(command.tableId);
-    if (!existing || existing.barId !== command.barId) {
+    if (!existing || existing.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
 
     const table = await this.writeRepo.update(command.tableId, command.dto);
     const mapped = TablesMapper.toDomain(table);
     this.#logger.debug(`Publishing TableUpdatedEvent...`);
-    this._eventBus.publish(new TableUpdatedEvent(command.barId, mapped));
+    this._eventBus.publish(new TableUpdatedEvent(command.establishmentId, mapped));
   }
 }

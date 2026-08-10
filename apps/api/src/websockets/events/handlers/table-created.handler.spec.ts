@@ -1,14 +1,14 @@
 import type { Table } from '@coaster/common';
-import { asBarId, SocketEvents } from '@coaster/common';
+import { asEstablishmentId, SocketEvents } from '@coaster/common';
 import { TableCreatedEvent } from '@coaster/tables';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { TableCreatedHandler } from './table-created.handler';
 
 describe('TableCreatedHandler', () => {
   let handler: TableCreatedHandler;
-  const barGateway = {
+  const establishmentGateway = {
     server: {
       to: vi.fn().mockReturnThis(),
       emit: vi.fn(),
@@ -18,20 +18,20 @@ describe('TableCreatedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TableCreatedHandler, { provide: BarGateway, useValue: barGateway }],
+      providers: [TableCreatedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
     }).compile();
 
     handler = module.get<TableCreatedHandler>(TableCreatedHandler);
   });
 
   it('should emit TABLE_CREATED event', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const table = { id: 'table-1', name: 'Table 1' } as unknown as Table;
-    const event = new TableCreatedEvent(barId, table);
+    const event = new TableCreatedEvent(establishmentId, table);
 
     handler.handle(event);
 
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableCreated, table);
+    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
+    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableCreated, table);
   });
 });

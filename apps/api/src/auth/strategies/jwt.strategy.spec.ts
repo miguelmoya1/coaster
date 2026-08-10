@@ -23,7 +23,7 @@ describe('JwtStrategy', () => {
     db = { dbUser: { findUnique: vi.fn() } };
     strategy = new JwtStrategy(new FirebaseTokenService(db as unknown as DbService));
 
-    verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@bar.com' });
+    verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@establishment.com' });
   });
 
   it('should resolve an active user', async () => {

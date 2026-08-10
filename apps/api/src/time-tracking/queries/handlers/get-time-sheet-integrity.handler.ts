@@ -10,14 +10,14 @@ export class GetTimeSheetIntegrityHandler implements IQueryHandler<GetTimeSheetI
   constructor(private readonly _readRepo: TimeEntriesReadRepository) {}
 
   async execute(query: GetTimeSheetIntegrityQuery): Promise<TimeSheetIntegrity> {
-    const chain = (await this._readRepo.findChain(query.barId)).map((entry) => ({
+    const chain = (await this._readRepo.findChain(query.establishmentId)).map((entry) => ({
       ...entry,
       userSnapshot: entry.userSnapshot as { name: string; email: string },
     }));
     const result = verifyChain(chain);
 
     return {
-      barId: query.barId,
+      establishmentId: query.establishmentId,
       checkedEntries: result.checked,
       valid: result.valid,
       brokenAt: result.brokenAt ? asTimeEntryId(result.brokenAt) : null,

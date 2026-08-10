@@ -28,19 +28,19 @@ export class CreateShiftHandler implements ICommandHandler<CreateShiftCommand, v
       throw new BadRequestException(ErrorCodes.INVALID_SHIFT_RANGE);
     }
 
-    const membership = await this.security.getBarMemberRole(userId, command.barId);
+    const membership = await this.security.getEstablishmentMemberRole(userId, command.establishmentId);
 
     if (!membership?.active) {
       throw new NotFoundException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
-    const created = await this.writeRepo.create(command.barId, userId, {
+    const created = await this.writeRepo.create(command.establishmentId, userId, {
       startTime: new Date(startTime.epochMilliseconds),
       endTime: new Date(endTime.epochMilliseconds),
       ...rest,
     });
     const mapped = ShiftsMapper.toDomain(created);
     this.#logger.debug(`Publishing ShiftCreatedEvent...`);
-    this._eventBus.publish(new ShiftCreatedEvent(command.barId, mapped));
+    this._eventBus.publish(new ShiftCreatedEvent(command.establishmentId, mapped));
   }
 }

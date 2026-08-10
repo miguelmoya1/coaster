@@ -37,7 +37,7 @@ export class PrintTicketDto implements PrintTicketPayloadDto {
   @IsOptional()
   @IsString()
   @MaxLength(60)
-  barName?: string;
+  establishmentName?: string;
 
   @IsOptional()
   @IsString()

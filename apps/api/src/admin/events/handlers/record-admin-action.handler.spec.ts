@@ -6,10 +6,10 @@ import { RecordAdminActionHandler } from './record-admin-action.handler';
 
 const entry = {
   actorId: asUserId('admin-1'),
-  action: AdminAuditAction.BAR_PLAN_GRANTED,
-  targetType: AdminAuditTargetType.BAR,
-  targetId: 'bar-1',
-  targetLabel: 'El Bar',
+  action: AdminAuditAction.ESTABLISHMENT_PLAN_GRANTED,
+  targetType: AdminAuditTargetType.ESTABLISHMENT,
+  targetId: 'establishment-1',
+  targetLabel: 'El Establishment',
 };
 
 describe('RecordAdminActionHandler', () => {

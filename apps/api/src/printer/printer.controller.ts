@@ -1,4 +1,4 @@
-import type { BarId, ClaimedPrintJobDto } from '@coaster/common';
+import type { EstablishmentId, ClaimedPrintJobDto } from '@coaster/common';
 import {
   BadRequestException,
   Body,
@@ -50,7 +50,9 @@ export class PrinterController {
       throw new UnauthorizedException('X-Device-Key header is required');
     }
 
-    await this._commandBus.execute(new RegisterPrinterIpCommand(body.barId, body.ipAddress, deviceKey, body.port));
+    await this._commandBus.execute(
+      new RegisterPrinterIpCommand(body.establishmentId, body.ipAddress, deviceKey, body.port),
+    );
 
     return { success: true };
   }
@@ -58,18 +60,18 @@ export class PrinterController {
   @Get('jobs/next')
   @SkipThrottle()
   @ApiOperation({ summary: 'Claim the next queued print job (called by the bridge)' })
-  @ApiQuery({ name: 'barId', required: true })
+  @ApiQuery({ name: 'establishmentId', required: true })
   async nextJob(
     @Headers('x-device-key') deviceKey: string | undefined,
-    @Query('barId') barId: BarId,
+    @Query('establishmentId') establishmentId: EstablishmentId,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<ClaimedPrintJobDto | undefined> {
-    if (!barId) {
-      throw new BadRequestException('barId is required');
+    if (!establishmentId) {
+      throw new BadRequestException('establishmentId is required');
     }
 
     const job = await this._queryBus.execute<ClaimNextPrintJobQuery, ClaimedPrintJobDto | null>(
-      new ClaimNextPrintJobQuery(barId, deviceKey),
+      new ClaimNextPrintJobQuery(establishmentId, deviceKey),
     );
 
     if (!job) {
@@ -83,17 +85,17 @@ export class PrinterController {
   @Post('jobs/:jobId/result')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Report whether a print job made it onto paper (called by the bridge)' })
-  @ApiQuery({ name: 'barId', required: true })
+  @ApiQuery({ name: 'establishmentId', required: true })
   async reportResult(
     @Headers('x-device-key') deviceKey: string | undefined,
-    @Query('barId') barId: BarId,
+    @Query('establishmentId') establishmentId: EstablishmentId,
     @Param('jobId') jobId: string,
     @Body() body: PrintJobResultDto,
   ): Promise<void> {
-    if (!barId) {
-      throw new BadRequestException('barId is required');
+    if (!establishmentId) {
+      throw new BadRequestException('establishmentId is required');
     }
 
-    await this._commandBus.execute(new ReportPrintJobResultCommand(barId, jobId, deviceKey, body));
+    await this._commandBus.execute(new ReportPrintJobResultCommand(establishmentId, jobId, deviceKey, body));
   }
 }

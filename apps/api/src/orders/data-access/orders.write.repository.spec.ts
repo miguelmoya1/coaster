@@ -1,4 +1,4 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asEstablishmentId, asOrderId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -56,12 +56,12 @@ describe('OrdersWriteRepository', () => {
 
   describe('createOrder', () => {
     it('should execute transaction successfully', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const dto = { tableId: 'table-1', items: [] };
       const priceMap = new Map();
       const totalAmount = 0;
 
-      await repository.createOrder(barId, dto as any, priceMap, totalAmount, 'Table 1');
+      await repository.createOrder(establishmentId, dto as any, priceMap, totalAmount, 'Table 1');
       expect(dbService.$transaction).toHaveBeenCalled();
     });
   });

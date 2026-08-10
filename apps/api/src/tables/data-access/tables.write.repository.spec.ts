@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,15 +35,15 @@ describe('TablesWriteRepository', () => {
 
   describe('create', () => {
     it('should call dbTable.create with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const data = { name: 'Table 1' };
-      const expectedResult = { id: 'table-1', barId, ...data };
+      const expectedResult = { id: 'table-1', establishmentId, ...data };
       vi.mocked(dbService.dbTable.create).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.create(barId, data);
+      const result = await repository.create(establishmentId, data);
 
       expect(dbService.dbTable.create).toHaveBeenCalledWith({
-        data: { ...data, barId },
+        data: { ...data, establishmentId },
       });
       expect(result).toEqual(expectedResult);
     });

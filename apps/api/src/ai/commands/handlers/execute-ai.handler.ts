@@ -1,11 +1,11 @@
 import { GetCategoriesQuery } from '@coaster/categories';
 import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
-import { asBarRole, BarRole, ErrorCodes, getRolePermissions, OrderStatus } from '@coaster/common';
+import { asEstablishmentRole, EstablishmentRole, ErrorCodes, getRolePermissions, OrderStatus } from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
-import { DbBarRole, DbRole } from '@coaster/core/db';
-import { GetOrdersByBarIdQuery } from '@coaster/orders';
-import { GetProductsByBarIdQuery } from '@coaster/products';
-import { GetTablesByBarIdQuery } from '@coaster/tables';
+import { DbEstablishmentRole, DbRole } from '@coaster/core/db';
+import { GetOrdersByEstablishmentIdQuery } from '@coaster/orders';
+import { GetProductsByEstablishmentIdQuery } from '@coaster/products';
+import { GetTablesByEstablishmentIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel, stepCountIs, streamText } from 'ai';
@@ -16,7 +16,7 @@ const MAX_HISTORY_MESSAGES = 10;
 
 /**
  * The assistant may chain tool calls (look something up, then act on it), so it needs more than one
- * step. The cap keeps a confused model from looping through the whole bar's data on a single prompt.
+ * step. The cap keeps a confused model from looping through the whole establishment's data on a single prompt.
  */
 const MAX_TOOL_STEPS = 8;
 
@@ -38,36 +38,42 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
   ) {}
 
   async execute(command: ExecuteAiCommand): Promise<AiResponse> {
-    const { barId, prompt, user, messages, onDelta } = command;
-    this.#logger.debug(`Executing AI command for user ${user.id} in bar ${barId}`);
+    const { establishmentId, prompt, user, messages, onDelta } = command;
+    this.#logger.debug(`Executing AI command for user ${user.id} in establishment ${establishmentId}`);
 
     const userRole = await this._securityRepository.getUserRole(user.id);
     const isAdmin = userRole === DbRole.ADMIN;
 
-    let userBarRole: BarRole = DbBarRole.OWNER;
+    let userEstablishmentRole: EstablishmentRole = DbEstablishmentRole.OWNER;
     if (!isAdmin) {
-      const membership = await this._securityRepository.getBarMemberRole(user.id, barId);
+      const membership = await this._securityRepository.getEstablishmentMemberRole(user.id, establishmentId);
 
       if (!membership || !membership.active) {
         throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
       }
 
-      userBarRole = asBarRole(membership.role);
+      userEstablishmentRole = asEstablishmentRole(membership.role);
     }
 
     const [tables, products, openOrders, categories] = await Promise.all([
-      this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId)),
-      this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(new GetProductsByBarIdQuery(barId)),
-      this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(new GetOrdersByBarIdQuery(barId, OrderStatus.OPEN)),
-      this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId)),
+      this._queryBus.execute<GetTablesByEstablishmentIdQuery, Table[]>(
+        new GetTablesByEstablishmentIdQuery(establishmentId),
+      ),
+      this._queryBus.execute<GetProductsByEstablishmentIdQuery, Product[]>(
+        new GetProductsByEstablishmentIdQuery(establishmentId),
+      ),
+      this._queryBus.execute<GetOrdersByEstablishmentIdQuery, Order[]>(
+        new GetOrdersByEstablishmentIdQuery(establishmentId, OrderStatus.OPEN),
+      ),
+      this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(establishmentId)),
     ]);
 
     const userLang = user.language || 'es';
     const systemPrompt = this.#buildSystemPrompt({
-      barId,
+      establishmentId,
       user,
       isAdmin,
-      userBarRole,
+      userEstablishmentRole,
       userLang,
       tables,
       products,
@@ -98,10 +104,10 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
         temperature: 0.1,
         stopWhen: stepCountIs(MAX_TOOL_STEPS),
         tools: getAiTools({
-          barId,
+          establishmentId,
           user,
           isAdmin,
-          barRole: userBarRole,
+          establishmentRole: userEstablishmentRole,
           commandBus: this._commandBus,
           queryBus: this._queryBus,
           products,
@@ -147,17 +153,27 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
   }
 
   #buildSystemPrompt(input: {
-    barId: string;
+    establishmentId: string;
     user: { id: string; name: string };
     isAdmin: boolean;
-    userBarRole: BarRole;
+    userEstablishmentRole: EstablishmentRole;
     userLang: string;
     tables: Table[];
     products: Product[];
     categories: Category[];
     openOrders: Order[];
   }): string {
-    const { barId, user, isAdmin, userBarRole, userLang, tables, products, categories, openOrders } = input;
+    const {
+      establishmentId,
+      user,
+      isAdmin,
+      userEstablishmentRole,
+      userLang,
+      tables,
+      products,
+      categories,
+      openOrders,
+    } = input;
 
     const productsList = products
       .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
@@ -184,18 +200,18 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
 
     const permissionsList = isAdmin
       ? '(ADMIN: every permission)'
-      : getRolePermissions(userBarRole)
+      : getRolePermissions(userEstablishmentRole)
           .map((permission) => `- ${permission}`)
           .join('\n');
 
     return `
-You are the Coaster Voice Assistant, a professional real-time management system for bars and restaurants.
-Current Bar ID: "${barId}".
-Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : userBarRole}".
+You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.
+Current Establishment ID: "${establishmentId}".
+Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : userEstablishmentRole}".
 Current date and time (UTC): ${new Date().toISOString()}.
 
 === AVAILABLE DATA ===
-Below is the list of products available in this bar (with their UUIDs, prices, and current stock):
+Below is the list of products available in this establishment (with their UUIDs, prices, and current stock):
 ${productsList || '(None)'}
 
 Below is the list of tables available (with their UUIDs and statuses):
@@ -222,7 +238,7 @@ that their role does not allow it instead of calling the tool.
    - For tables: Match names like "Mesa 1", "Mesa 5", "Terraza" to their corresponding Table UUID in the available tables list.
    - For categories: Match names like "bebidas", "comidas", "postres" to their corresponding Category UUID in the available categories list.
    - For orders: Match the requested table name or table/order ID to find the correct active order UUID.
-3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getBarStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.
+3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getEstablishmentStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.
 4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.
 5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a "confirmed" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.
 6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.

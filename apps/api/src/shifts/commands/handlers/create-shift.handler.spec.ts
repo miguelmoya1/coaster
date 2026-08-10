@@ -1,4 +1,4 @@
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
@@ -15,7 +15,7 @@ describe('CreateShiftHandler', () => {
     create: vi.fn(),
   };
   const security = {
-    getBarMemberRole: vi.fn(),
+    getEstablishmentMemberRole: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -23,7 +23,7 @@ describe('CreateShiftHandler', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    security.getBarMemberRole.mockResolvedValue({ role: 'STAFF', active: true });
+    security.getEstablishmentMemberRole.mockResolvedValue({ role: 'STAFF', active: true });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -47,7 +47,7 @@ describe('CreateShiftHandler', () => {
   it('should map the created shift correctly', async () => {
     repository.create.mockResolvedValue({
       id: 'shift-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       userId: 'user-id',
       startTime: new Date('2026-03-20T10:00:00.000Z'),
       endTime: new Date('2026-03-20T18:00:00.000Z'),
@@ -59,34 +59,34 @@ describe('CreateShiftHandler', () => {
       },
     });
 
-    await handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto));
+    await handler.execute(new CreateShiftCommand(asEstablishmentId('establishment-1'), createDto));
 
-    expect(security.getBarMemberRole).toHaveBeenCalledWith('user-id', 'bar-1');
-    expect(repository.create).toHaveBeenCalledWith('bar-1', 'user-id', {
+    expect(security.getEstablishmentMemberRole).toHaveBeenCalledWith('user-id', 'establishment-1');
+    expect(repository.create).toHaveBeenCalledWith('establishment-1', 'user-id', {
       startTime: new Date('2026-03-20T10:00:00.000Z'),
       endTime: new Date('2026-03-20T18:00:00.000Z'),
       notes: 'Test notes',
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new ShiftCreatedEvent(asBarId('bar-1'), {
+      new ShiftCreatedEvent(asEstablishmentId('establishment-1'), {
         id: asShiftId('shift-1'),
         startTime: '2026-03-20T10:00:00Z',
         endTime: '2026-03-20T18:00:00Z',
         userId: asUserId('user-id'),
         userName: 'User Name',
         userImage: 'https://photo.url/user.jpg',
-        barId: asBarId('bar-1'),
+        establishmentId: asEstablishmentId('establishment-1'),
         notes: 'Test notes',
       }),
     );
   });
 
-  it('should refuse to schedule somebody who does not work at the bar', async () => {
-    security.getBarMemberRole.mockResolvedValue(null);
+  it('should refuse to schedule somebody who does not work at the establishment', async () => {
+    security.getEstablishmentMemberRole.mockResolvedValue(null);
 
-    await expect(handler.execute(new CreateShiftCommand(asBarId('bar-1'), createDto))).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      handler.execute(new CreateShiftCommand(asEstablishmentId('establishment-1'), createDto)),
+    ).rejects.toThrow(NotFoundException);
 
     expect(repository.create).not.toHaveBeenCalled();
   });
@@ -98,9 +98,9 @@ describe('CreateShiftHandler', () => {
       endTime: Temporal.Instant.from('2026-03-20T10:00:00.000Z'),
     };
 
-    await expect(handler.execute(new CreateShiftCommand(asBarId('bar-1'), backwards))).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      handler.execute(new CreateShiftCommand(asEstablishmentId('establishment-1'), backwards)),
+    ).rejects.toThrow(BadRequestException);
 
     expect(repository.create).not.toHaveBeenCalled();
   });
@@ -108,8 +108,8 @@ describe('CreateShiftHandler', () => {
   it('should refuse a shift with no duration at all', async () => {
     const instant = { ...createDto, endTime: createDto.startTime };
 
-    await expect(handler.execute(new CreateShiftCommand(asBarId('bar-1'), instant))).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      handler.execute(new CreateShiftCommand(asEstablishmentId('establishment-1'), instant)),
+    ).rejects.toThrow(BadRequestException);
   });
 });

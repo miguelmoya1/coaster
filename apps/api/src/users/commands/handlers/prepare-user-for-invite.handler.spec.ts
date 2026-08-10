@@ -1,4 +1,4 @@
-import { BarRole, asBarId, asUserId } from '@coaster/common';
+import { EstablishmentRole, asEstablishmentId, asUserId } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -43,8 +43,8 @@ describe('PrepareUserForInviteHandler', () => {
 
     await handler.execute(
       new PrepareUserForInviteCommand('test@example.com', {
-        barId: asBarId('bar-1'),
-        role: BarRole.STAFF,
+        establishmentId: asEstablishmentId('establishment-1'),
+        role: EstablishmentRole.STAFF,
         inviterLanguage: 'en',
       }),
     );
@@ -54,7 +54,12 @@ describe('PrepareUserForInviteHandler', () => {
       email: 'test@example.com',
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new UserPreparedForInviteEvent(asUserId('user-1'), asBarId('bar-1'), BarRole.STAFF, 'en'),
+      new UserPreparedForInviteEvent(
+        asUserId('user-1'),
+        asEstablishmentId('establishment-1'),
+        EstablishmentRole.STAFF,
+        'en',
+      ),
     );
   });
 });

@@ -1,13 +1,13 @@
-import { MemberRoleChangedEvent } from '@coaster/bar-members';
+import { MemberRoleChangedEvent } from '@coaster/establishment-members';
 import { AdminAuditAction, AdminAuditTargetType, Role } from '@coaster/common';
 import { EventBus, EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { AdminBarReadRepository } from '../../data-access/admin-bar.read.repository';
+import { AdminEstablishmentReadRepository } from '../../data-access/admin-establishment.read.repository';
 import { AdminActionEvent } from '../impl/admin-action.event';
 
 @EventsHandler(MemberRoleChangedEvent)
 export class AuditMemberRoleChangedHandler implements IEventHandler<MemberRoleChangedEvent> {
   constructor(
-    private readonly _readRepo: AdminBarReadRepository,
+    private readonly _readRepo: AdminEstablishmentReadRepository,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -16,15 +16,15 @@ export class AuditMemberRoleChangedHandler implements IEventHandler<MemberRoleCh
       return;
     }
 
-    const bar = await this._readRepo.findBarById(event.barId);
+    const establishment = await this._readRepo.findEstablishmentById(event.establishmentId);
 
     this._eventBus.publish(
       new AdminActionEvent({
         actorId: event.actorId,
-        action: AdminAuditAction.BAR_MEMBER_ROLE_CHANGED,
-        targetType: AdminAuditTargetType.BAR,
-        targetId: event.barId,
-        targetLabel: bar?.name ?? null,
+        action: AdminAuditAction.ESTABLISHMENT_MEMBER_ROLE_CHANGED,
+        targetType: AdminAuditTargetType.ESTABLISHMENT,
+        targetId: event.establishmentId,
+        targetLabel: establishment?.name ?? null,
         metadata: {
           memberId: event.memberId,
           userId: event.userId,

@@ -1,2 +1,2 @@
 export * from './websockets.module';
-export * from './bar.gateway';
+export * from './establishment.gateway';

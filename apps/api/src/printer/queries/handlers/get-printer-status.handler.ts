@@ -10,11 +10,11 @@ export class GetPrinterStatusHandler implements IQueryHandler<GetPrinterStatusQu
   constructor(private readonly readRepo: PrinterReadRepository) {}
 
   async execute(query: GetPrinterStatusQuery): Promise<PrinterStatusDto> {
-    const config = await this.readRepo.findByBarId(query.barId);
+    const config = await this.readRepo.findByEstablishmentId(query.establishmentId);
 
     if (!config) {
       return {
-        barId: query.barId,
+        establishmentId: query.establishmentId,
         isOnline: false,
         ipAddress: null,
         port: 8080,
@@ -25,7 +25,7 @@ export class GetPrinterStatusHandler implements IQueryHandler<GetPrinterStatusQu
     const isOnline = !!config.lastSeenAt && Date.now() - config.lastSeenAt.getTime() < ONLINE_THRESHOLD_MS;
 
     return {
-      barId: query.barId,
+      establishmentId: query.establishmentId,
       isOnline,
       ipAddress: config.ipAddress,
       port: config.port,

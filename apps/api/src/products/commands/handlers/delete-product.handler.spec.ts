@@ -1,4 +1,4 @@
-import { asBarId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asProductId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -13,7 +13,7 @@ describe('DeleteProductHandler', () => {
   let handler: DeleteProductHandler;
   const repository = {
     delete: vi.fn(),
-    checkProductBelongsToBar: vi.fn(),
+    checkProductBelongsToEstablishment: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -35,25 +35,27 @@ describe('DeleteProductHandler', () => {
   });
 
   it('should delete product and publish event', async () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
 
-    repository.checkProductBelongsToBar.mockResolvedValue(true);
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
     repository.delete.mockResolvedValue(undefined);
 
-    const cmd = new DeleteProductCommand(barId, productId);
+    const cmd = new DeleteProductCommand(establishmentId, productId);
     await handler.execute(cmd);
 
     expect(repository.delete).toHaveBeenCalledWith(productId);
-    expect(eventBus.publish).toHaveBeenCalledWith(new ProductDeletedEvent(barId, productId));
+    expect(eventBus.publish).toHaveBeenCalledWith(new ProductDeletedEvent(establishmentId, productId));
   });
 
-  it('should refuse to delete a product owned by another bar', async () => {
-    const barId = asBarId('bar-1');
-    const productId = asProductId('prod-from-other-bar');
-    repository.checkProductBelongsToBar.mockResolvedValue(false);
+  it('should refuse to delete a product owned by another establishment', async () => {
+    const establishmentId = asEstablishmentId('establishment-1');
+    const productId = asProductId('prod-from-other-establishment');
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(false);
 
-    await expect(handler.execute(new DeleteProductCommand(barId, productId))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new DeleteProductCommand(establishmentId, productId))).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(repository.delete).not.toHaveBeenCalled();
     expect(eventBus.publish).not.toHaveBeenCalled();

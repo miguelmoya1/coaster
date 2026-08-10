@@ -93,7 +93,7 @@ describe('summariseWorkday', () => {
 });
 
 describe('toWorkdayDate', () => {
-  it('should use the bar local date, not the UTC one', () => {
+  it('should use the establishment local date, not the UTC one', () => {
     expect(formatWorkdayDate(toWorkdayDate(at('2026-08-08T23:30:00Z')))).toBe('2026-08-09');
   });
 });

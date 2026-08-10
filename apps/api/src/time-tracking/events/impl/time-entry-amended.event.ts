@@ -1,8 +1,8 @@
-import type { BarId, Role, TimeEntry, UserId } from '@coaster/common';
+import type { EstablishmentId, Role, TimeEntry, UserId } from '@coaster/common';
 
 export class TimeEntryAmendedEvent {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly entry: TimeEntry,
     public readonly previousOccurredAt: string,
     public readonly actorId: UserId,

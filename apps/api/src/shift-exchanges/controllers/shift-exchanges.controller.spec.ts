@@ -1,6 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { asEstablishmentId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -30,7 +30,7 @@ describe('ShiftExchangesController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -42,7 +42,7 @@ describe('ShiftExchangesController', () => {
   it('getExchanges should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getExchanges(asBarId('bar-1'));
+    await controller.getExchanges(asEstablishmentId('establishment-1'));
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetPendingExchangesQuery));
   });
@@ -59,7 +59,7 @@ describe('ShiftExchangesController', () => {
     };
     const dto = { targetId: asUserId('user-2') };
 
-    await controller.createExchange(asBarId('bar-1'), asShiftId('shift-1'), dto, user);
+    await controller.createExchange(asEstablishmentId('establishment-1'), asShiftId('shift-1'), dto, user);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RequestExchangeCommand));
   });
@@ -75,7 +75,7 @@ describe('ShiftExchangesController', () => {
       language: 'es',
     };
 
-    await controller.acceptExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
+    await controller.acceptExchange(asEstablishmentId('establishment-1'), asShiftExchangeId('exch-1'), user);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(AcceptExchangeCommand));
   });
@@ -91,7 +91,7 @@ describe('ShiftExchangesController', () => {
       language: 'es',
     };
 
-    await controller.deleteExchange(asBarId('bar-1'), asShiftExchangeId('exch-1'), user);
+    await controller.deleteExchange(asEstablishmentId('establishment-1'), asShiftExchangeId('exch-1'), user);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteExchangeCommand));
   });

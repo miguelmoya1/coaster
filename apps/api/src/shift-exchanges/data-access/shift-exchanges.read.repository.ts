@@ -1,5 +1,5 @@
-import type { BarId, ShiftExchangeId, ShiftId } from '@coaster/common';
-import { BAR_TIME_ZONE, ShiftExchangeStatus } from '@coaster/common';
+import type { EstablishmentId, ShiftExchangeId, ShiftId } from '@coaster/common';
+import { ESTABLISHMENT_TIME_ZONE, ShiftExchangeStatus } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -28,15 +28,15 @@ export class ShiftExchangesReadRepository {
     return count > 0;
   }
 
-  public async findPendingByBarId(barId: BarId) {
-    const startInstant = Temporal.Now.zonedDateTimeISO(BAR_TIME_ZONE).startOfDay().toInstant();
+  public async findPendingByEstablishmentId(establishmentId: EstablishmentId) {
+    const startInstant = Temporal.Now.zonedDateTimeISO(ESTABLISHMENT_TIME_ZONE).startOfDay().toInstant();
     const today = new Date(startInstant.epochMilliseconds);
 
     return this._db.dbShiftExchange.findMany({
       where: {
         status: ShiftExchangeStatus.PENDING,
         shift: {
-          barId: barId,
+          establishmentId: establishmentId,
           startTime: { gte: today },
         },
       },
@@ -48,12 +48,12 @@ export class ShiftExchangesReadRepository {
     });
   }
 
-  public async getBarMember(userId: string, barId: string) {
-    return this._db.dbBarMember.findUnique({
+  public async getEstablishmentMember(userId: string, establishmentId: string) {
+    return this._db.dbEstablishmentMember.findUnique({
       where: {
-        userId_barId: {
+        userId_establishmentId: {
           userId,
-          barId,
+          establishmentId,
         },
         deletedAt: null,
       },

@@ -20,7 +20,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
   async execute(command: CreateOrderCommand): Promise<void> {
     this.#logger.debug(`Executing createOrder...`);
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this.readRepo.findProductsByIds(command.barId, productIds);
+    const products = await this.readRepo.findProductsByIds(command.establishmentId, productIds);
     if (products.length !== new Set(productIds).size) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
@@ -29,7 +29,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
 
     if (command.dto.tableId) {
       const table = await this.readRepo.findTableById(asTableId(command.dto.tableId));
-      if (!table || table.barId !== command.barId) {
+      if (!table || table.establishmentId !== command.establishmentId) {
         throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
       }
       if (table.status === TableStatus.OCCUPIED) {
@@ -45,7 +45,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
     );
 
     const order = await this.writeRepo.createOrder(
-      command.barId,
+      command.establishmentId,
       command.dto,
       priceMap as Map<string, number>,
       totalAmount,
@@ -55,7 +55,11 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
 
     this.#logger.debug(`Publishing OrderCreatedEvent...`);
     this._eventBus.publish(
-      new OrderCreatedEvent(command.barId, mapped, command.dto.tableId ? asTableId(command.dto.tableId) : null),
+      new OrderCreatedEvent(
+        command.establishmentId,
+        mapped,
+        command.dto.tableId ? asTableId(command.dto.tableId) : null,
+      ),
     );
   }
 }

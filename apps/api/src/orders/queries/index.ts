@@ -1,9 +1,9 @@
 import { GetOrderByIdHandler } from './handlers/get-order-by-id.handler';
-import { GetOrdersByBarIdHandler } from './handlers/get-orders-by-bar-id.handler';
+import { GetOrdersByEstablishmentIdHandler } from './handlers/get-orders-by-establishment-id.handler';
 import { GetOrdersByDateHandler } from './handlers/get-orders-by-date.handler';
 
 export { GetOrderByIdQuery } from './impl/get-order-by-id.query';
-export { GetOrdersByBarIdQuery } from './impl/get-orders-by-bar-id.query';
+export { GetOrdersByEstablishmentIdQuery } from './impl/get-orders-by-establishment-id.query';
 export { GetOrdersByDateQuery } from './impl/get-orders-by-date.query';
 
-export const QueryHandlers = [GetOrderByIdHandler, GetOrdersByBarIdHandler, GetOrdersByDateHandler];
+export const QueryHandlers = [GetOrderByIdHandler, GetOrdersByEstablishmentIdHandler, GetOrdersByDateHandler];

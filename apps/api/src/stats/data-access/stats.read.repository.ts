@@ -1,4 +1,4 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -6,10 +6,10 @@ import { Injectable } from '@nestjs/common';
 export class StatsReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async findClosedOrdersForStats(barId: BarId, startOfPrevYear: Date) {
+  public async findClosedOrdersForStats(establishmentId: EstablishmentId, startOfPrevYear: Date) {
     return this._db.dbOrder.findMany({
       where: {
-        barId,
+        establishmentId,
         status: DbOrderStatus.CLOSED,
         createdAt: { gte: startOfPrevYear },
       },

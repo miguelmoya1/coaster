@@ -13,7 +13,7 @@ export class GetOrderByIdHandler implements IQueryHandler<GetOrderByIdQuery, Ord
   async execute(query: GetOrderByIdQuery): Promise<Order> {
     const order = await this.readRepo.findById(query.orderId);
 
-    if (!order || order.barId !== query.barId) {
+    if (!order || order.establishmentId !== query.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 

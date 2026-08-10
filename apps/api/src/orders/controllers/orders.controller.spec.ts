@@ -1,8 +1,8 @@
-import { asBarId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -22,7 +22,7 @@ import { AddOrderItemsDto } from '../dto/add-order-items.dto';
 import { BulkUpdateDto } from '../dto/bulk-update.dto';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { MergeOrdersDto } from '../dto/merge-orders.dto';
-import { GetOrderByIdQuery, GetOrdersByBarIdQuery, GetOrdersByDateQuery } from '../queries';
+import { GetOrderByIdQuery, GetOrdersByEstablishmentIdQuery, GetOrdersByDateQuery } from '../queries';
 import { OrdersController } from './orders.controller';
 
 describe('OrdersController', () => {
@@ -45,7 +45,7 @@ describe('OrdersController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -54,18 +54,18 @@ describe('OrdersController', () => {
     queryBus = module.get(QueryBus);
   });
 
-  it('getOrders should delegate to query bus for bar ID when no date is provided', async () => {
+  it('getOrders should delegate to query bus for establishment ID when no date is provided', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getOrders(asBarId('bar-1'), OrderStatus.OPEN);
+    await controller.getOrders(asEstablishmentId('establishment-1'), OrderStatus.OPEN);
 
-    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByBarIdQuery));
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByEstablishmentIdQuery));
   });
 
   it('getOrders should delegate to query bus for date when date is provided', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getOrders(asBarId('bar-1'), undefined, '2026-05-01');
+    await controller.getOrders(asEstablishmentId('establishment-1'), undefined, '2026-05-01');
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrdersByDateQuery));
   });
@@ -73,7 +73,7 @@ describe('OrdersController', () => {
   it('getOrder should delegate to query bus', async () => {
     queryBus.execute.mockResolvedValue({} as Order);
 
-    await controller.getOrder(asBarId('bar-1'), asOrderId('order-1'));
+    await controller.getOrder(asEstablishmentId('establishment-1'), asOrderId('order-1'));
 
     expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetOrderByIdQuery));
   });
@@ -82,7 +82,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
-    const result = await controller.createOrder(asBarId('bar-1'), dto as unknown as CreateOrderDto);
+    const result = await controller.createOrder(asEstablishmentId('establishment-1'), dto as unknown as CreateOrderDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateOrderCommand));
     expect(result).toBeUndefined();
@@ -93,7 +93,7 @@ describe('OrdersController', () => {
     const dto = { items: [{ productId: 'prod-1', quantity: 1 }] };
 
     const result = await controller.addItems(
-      asBarId('bar-1'),
+      asEstablishmentId('establishment-1'),
       asOrderId('order-1'),
       dto as unknown as AddOrderItemsDto,
     );
@@ -106,7 +106,11 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ itemId: 'item-1', paidQuantity: 2, servedQuantity: 1 }] };
 
-    const result = await controller.bulkUpdate(asBarId('bar-1'), asOrderId('order-1'), dto as unknown as BulkUpdateDto);
+    const result = await controller.bulkUpdate(
+      asEstablishmentId('establishment-1'),
+      asOrderId('order-1'),
+      dto as unknown as BulkUpdateDto,
+    );
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(BulkUpdateOrderCommand));
     expect(result).toBeUndefined();
@@ -115,7 +119,7 @@ describe('OrdersController', () => {
   it('checkout should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.checkout(asBarId('bar-1'), asOrderId('order-1'), {
+    const result = await controller.checkout(asEstablishmentId('establishment-1'), asOrderId('order-1'), {
       paymentMethod: PaymentMethod.CARD,
     });
 
@@ -126,7 +130,7 @@ describe('OrdersController', () => {
   it('cancelOrder should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.cancelOrder(asBarId('bar-1'), asOrderId('order-1'));
+    const result = await controller.cancelOrder(asEstablishmentId('establishment-1'), asOrderId('order-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CancelOrderCommand));
     expect(result).toBeUndefined();
@@ -136,7 +140,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { tableId: asTableId('table-2') };
 
-    const result = await controller.moveTable(asBarId('bar-1'), asOrderId('order-1'), dto);
+    const result = await controller.moveTable(asEstablishmentId('establishment-1'), asOrderId('order-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MoveOrderTableCommand));
     expect(result).toBeUndefined();
@@ -145,7 +149,11 @@ describe('OrdersController', () => {
   it('removeItem should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.removeItem(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1'));
+    const result = await controller.removeItem(
+      asEstablishmentId('establishment-1'),
+      asOrderId('order-1'),
+      asOrderItemId('item-1'),
+    );
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(RemoveOrderItemCommand));
     expect(result).toBeUndefined();
@@ -155,7 +163,7 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { orderIds: ['order-1', 'order-2'] };
 
-    const result = await controller.mergeOrders(asBarId('bar-1'), dto as unknown as MergeOrdersDto);
+    const result = await controller.mergeOrders(asEstablishmentId('establishment-1'), dto as unknown as MergeOrdersDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(MergeOrdersCommand));
     expect(result).toBeUndefined();
@@ -164,7 +172,7 @@ describe('OrdersController', () => {
   it('deleteOrder should delegate to command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    const result = await controller.deleteOrder(asBarId('bar-1'), asOrderId('order-1'));
+    const result = await controller.deleteOrder(asEstablishmentId('establishment-1'), asOrderId('order-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteOrderCommand));
     expect(result).toBeUndefined();

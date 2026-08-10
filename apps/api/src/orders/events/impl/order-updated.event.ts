@@ -1,8 +1,8 @@
-import type { BarId, Order } from '@coaster/common';
+import type { EstablishmentId, Order } from '@coaster/common';
 
 export class OrderUpdatedEvent {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly order: Order,
   ) {}
 }

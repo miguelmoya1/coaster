@@ -1,8 +1,8 @@
-import { SocketEvents, asBarId, asOrderId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId, asOrderId } from '@coaster/common';
 import { OrderDeletedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { OrderDeletedHandler } from './order-deleted.handler';
 
 describe('OrderDeletedHandler', () => {
@@ -16,7 +16,7 @@ describe('OrderDeletedHandler', () => {
       providers: [
         OrderDeletedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -30,13 +30,13 @@ describe('OrderDeletedHandler', () => {
     vi.clearAllMocks();
   });
 
-  it('should emit ORDER_DELETED event to the correct bar room', () => {
-    const barId = asBarId('bar-1');
+  it('should emit ORDER_DELETED event to the correct establishment room', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
     const orderId = asOrderId('order-1');
-    const event = new OrderDeletedEvent(barId, orderId);
+    const event = new OrderDeletedEvent(establishmentId, orderId);
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.orderDeleted, { id: orderId });
   });
 });

@@ -1,4 +1,4 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -6,16 +6,16 @@ import { Injectable } from '@nestjs/common';
 export class PrinterWriteRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async upsertPrinterConfig(barId: BarId, ipAddress: string, port?: number) {
+  public async upsertPrinterConfig(establishmentId: EstablishmentId, ipAddress: string, port?: number) {
     return this._db.dbPrinterConfig.upsert({
-      where: { barId },
+      where: { establishmentId },
       update: {
         ipAddress,
         lastSeenAt: new Date(),
         ...(port === undefined ? {} : { port }),
       },
       create: {
-        barId,
+        establishmentId,
         ipAddress,
         lastSeenAt: new Date(),
         ...(port === undefined ? {} : { port }),
@@ -23,22 +23,22 @@ export class PrinterWriteRepository {
     });
   }
 
-  public async createPrinterConfig(barId: BarId) {
+  public async createPrinterConfig(establishmentId: EstablishmentId) {
     return this._db.dbPrinterConfig.create({
-      data: { barId },
+      data: { establishmentId },
     });
   }
 
-  public async rotateDeviceKey(barId: BarId, deviceKey: string) {
+  public async rotateDeviceKey(establishmentId: EstablishmentId, deviceKey: string) {
     return this._db.dbPrinterConfig.update({
-      where: { barId },
+      where: { establishmentId },
       data: { deviceKey },
     });
   }
 
-  public async updateLastSeen(barId: BarId) {
+  public async updateLastSeen(establishmentId: EstablishmentId) {
     return this._db.dbPrinterConfig.update({
-      where: { barId },
+      where: { establishmentId },
       data: { lastSeenAt: new Date() },
     });
   }

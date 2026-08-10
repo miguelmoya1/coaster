@@ -1,7 +1,7 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { Admin, AdminGuard, BarPermissions, BarPermissionsGuard } from '@coaster/core';
+import { EstablishmentPermission } from '@coaster/common';
+import { Admin, AdminGuard, EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -11,7 +11,7 @@ import {
   CreateProductTemplateCommand,
   DeleteCategoryTemplateCommand,
   DeleteProductTemplateCommand,
-  ImportTemplatesToBarCommand,
+  ImportTemplatesToEstablishmentCommand,
   UpdateCategoryTemplateCommand,
   UpdateProductTemplateCommand,
 } from '../commands';
@@ -98,12 +98,15 @@ export class TemplatesController {
     await this._commandBus.execute<DeleteProductTemplateCommand, void>(new DeleteProductTemplateCommand(id));
   }
 
-  @Post('bar/:barId')
-  @BarPermissions(BarPermission.BAR_IMPORT_TEMPLATES)
-  @UseGuards(BarPermissionsGuard)
-  async importTemplatesToBar(@Param('barId') barId: string, @Body() importDto: ImportTemplatesDto): Promise<void> {
-    await this._commandBus.execute<ImportTemplatesToBarCommand, void>(
-      new ImportTemplatesToBarCommand(barId, importDto),
+  @Post('establishment/:establishmentId')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_IMPORT_TEMPLATES)
+  @UseGuards(EstablishmentPermissionsGuard)
+  async importTemplatesToEstablishment(
+    @Param('establishmentId') establishmentId: string,
+    @Body() importDto: ImportTemplatesDto,
+  ): Promise<void> {
+    await this._commandBus.execute<ImportTemplatesToEstablishmentCommand, void>(
+      new ImportTemplatesToEstablishmentCommand(establishmentId, importDto),
     );
   }
 

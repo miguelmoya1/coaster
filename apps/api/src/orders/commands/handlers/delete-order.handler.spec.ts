@@ -1,4 +1,4 @@
-import { OrderStatus, asBarId, asOrderId } from '@coaster/common';
+import { OrderStatus, asEstablishmentId, asOrderId } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -35,29 +35,31 @@ describe('DeleteOrderHandler', () => {
   it('should throw BadRequestException if order is open', async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    await expect(handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')))).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      handler.execute(new DeleteOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1'))),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it("should delete today's closed order successfully", async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.CLOSED,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    await handler.execute(new DeleteOrderCommand(asBarId('bar-1'), asOrderId('order-1')));
+    await handler.execute(new DeleteOrderCommand(asEstablishmentId('establishment-1'), asOrderId('order-1')));
 
     expect(repository.deleteOrder).toHaveBeenCalledWith(asOrderId('order-1'));
-    expect(eventBus.publish).toHaveBeenCalledWith(new OrderDeletedEvent(asBarId('bar-1'), asOrderId('order-1')));
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      new OrderDeletedEvent(asEstablishmentId('establishment-1'), asOrderId('order-1')),
+    );
   });
 });

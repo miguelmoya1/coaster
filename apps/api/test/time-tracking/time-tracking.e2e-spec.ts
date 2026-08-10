@@ -1,4 +1,4 @@
-import { BarRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
+import { EstablishmentRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -7,14 +7,14 @@ const HOUR = 60 * 60 * 1000;
 
 describe('Time tracking (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let worker: { id: string; email: string; name: string };
   let workerHeaders: Record<string, string>;
 
   const server = () => testSetup.app.getHttpServer();
 
   const clockAs = (type: TimeEntryType, headers: Record<string, string> = {}) =>
-    request(server()).post(`/api/bars/${barId}/time-entries/clock`).set(headers).send({ type });
+    request(server()).post(`/api/establishments/${establishmentId}/time-entries/clock`).set(headers).send({ type });
 
   const entriesOf = (userId: string) =>
     testSetup.prisma.dbTimeEntry.findMany({ where: { userId }, orderBy: { sequence: 'asc' } });
@@ -30,14 +30,16 @@ describe('Time tracking (e2e)', () => {
       data: { id: mockUser.id, email: mockUser.email, name: mockUser.name, role: 'USER', active: true },
     });
 
-    const bar = await testSetup.createBar('El Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('El Establishment');
+    establishmentId = establishment.id;
 
     const created = await testSetup.prisma.dbUser.create({ data: { email: 'luis@example.com', name: 'Luis' } });
     worker = { id: created.id, email: created.email, name: created.name };
     workerHeaders = testSetup.actAs(worker);
 
-    await testSetup.prisma.dbBarMember.create({ data: { barId, userId: worker.id, role: BarRole.STAFF } });
+    await testSetup.prisma.dbEstablishmentMember.create({
+      data: { establishmentId, userId: worker.id, role: EstablishmentRole.STAFF },
+    });
   });
 
   afterAll(async () => {
@@ -51,7 +53,10 @@ describe('Time tracking (e2e)', () => {
       await clockAs(TimeEntryType.BREAK_END, workerHeaders).expect(201);
       await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries/me`).set(workerHeaders).expect(200);
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me`)
+        .set(workerHeaders)
+        .expect(200);
       const [workday] = response.body;
 
       expect(workday.state).toBe('OUT');
@@ -61,7 +66,7 @@ describe('Time tracking (e2e)', () => {
 
     it('should answer for a day nobody worked instead of blowing up', async () => {
       const response = await request(server())
-        .get(`/api/bars/${barId}/time-entries/me?from=2026-08-10&to=2026-08-10`)
+        .get(`/api/establishments/${establishmentId}/time-entries/me?from=2026-08-10&to=2026-08-10`)
         .set(workerHeaders)
         .expect(200);
 
@@ -74,7 +79,7 @@ describe('Time tracking (e2e)', () => {
       const day = punch.workdayDate.toISOString().slice(0, 10);
 
       const response = await request(server())
-        .get(`/api/bars/${barId}/time-entries?from=${day}&to=${day}`)
+        .get(`/api/establishments/${establishmentId}/time-entries?from=${day}&to=${day}`)
         .expect(200);
 
       expect(response.body[0].date).toBe(day);
@@ -103,7 +108,7 @@ describe('Time tracking (e2e)', () => {
   describe('corrections', () => {
     const amend = (entryId: string, headers: Record<string, string>, occurredAt: string) =>
       request(server())
-        .post(`/api/bars/${barId}/time-entries/${entryId}/amend`)
+        .post(`/api/establishments/${establishmentId}/time-entries/${entryId}/amend`)
         .set(headers)
         .send({ occurredAt, reason: 'Entre antes pero fiche tarde' });
 
@@ -131,7 +136,10 @@ describe('Time tracking (e2e)', () => {
       const [original] = await entriesOf(worker.id);
       await amend(original.id, workerHeaders, new Date(original.occurredAt.getTime() - HOUR).toISOString()).expect(201);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries/me`).set(workerHeaders).expect(200);
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me`)
+        .set(workerHeaders)
+        .expect(200);
       const [entry] = response.body[0].entries;
 
       expect(entry.amended).toBe(true);
@@ -153,7 +161,7 @@ describe('Time tracking (e2e)', () => {
       expect(await entriesOf(mockUser.id)).toHaveLength(1);
     });
 
-    it('should let whoever runs the bar fix anybody hours', async () => {
+    it('should let whoever runs the establishment fix anybody hours', async () => {
       await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
       const [punch] = await entriesOf(worker.id);
 
@@ -169,7 +177,7 @@ describe('Time tracking (e2e)', () => {
       const [punch] = await entriesOf(worker.id);
 
       await request(server())
-        .post(`/api/bars/${barId}/time-entries/${punch.id}/amend`)
+        .post(`/api/establishments/${establishmentId}/time-entries/${punch.id}/amend`)
         .set(workerHeaders)
         .send({ occurredAt: punch.occurredAt.toISOString(), reason: 'ok' })
         .expect(400);
@@ -180,7 +188,7 @@ describe('Time tracking (e2e)', () => {
       const [punch] = await entriesOf(worker.id);
 
       await request(server())
-        .post(`/api/bars/${barId}/time-entries/${punch.id}/void`)
+        .post(`/api/establishments/${establishmentId}/time-entries/${punch.id}/void`)
         .send({ reason: 'Marca duplicada del terminal' })
         .expect(201);
 
@@ -188,7 +196,10 @@ describe('Time tracking (e2e)', () => {
       expect(entries).toHaveLength(2);
       expect(entries[1].action).toBe(TimeEntryAction.VOIDED);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries/me`).set(workerHeaders).expect(200);
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me`)
+        .set(workerHeaders)
+        .expect(200);
       expect(response.body[0].entries[0].voided).toBe(true);
     });
   });
@@ -216,7 +227,9 @@ describe('Time tracking (e2e)', () => {
       await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
       await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries/integrity`).expect(200);
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/integrity`)
+        .expect(200);
 
       expect(response.body).toMatchObject({ valid: true, brokenAt: null, checkedEntries: 2 });
     });
@@ -229,7 +242,7 @@ describe('Time tracking (e2e)', () => {
       };
 
       const integrity = async () =>
-        (await request(server()).get(`/api/bars/${barId}/time-entries/integrity`).expect(200)).body;
+        (await request(server()).get(`/api/establishments/${establishmentId}/time-entries/integrity`).expect(200)).body;
 
       it('should catch a mark moved to another workday', async () => {
         await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
@@ -247,7 +260,7 @@ describe('Time tracking (e2e)', () => {
         const [punch] = await entriesOf(worker.id);
 
         await withTriggersOff(
-          `UPDATE "TimeEntry" SET "userSnapshot" = '{"name":"Otro","email":"otro@bar.com"}'::jsonb WHERE id = '${punch.id}'`,
+          `UPDATE "TimeEntry" SET "userSnapshot" = '{"name":"Otro","email":"otro@establishment.com"}'::jsonb WHERE id = '${punch.id}'`,
         );
 
         expect(await integrity()).toMatchObject({ valid: false, brokenAt: punch.id });
@@ -269,11 +282,13 @@ describe('Time tracking (e2e)', () => {
       await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
       const [punch] = await entriesOf(worker.id);
       await request(server())
-        .post(`/api/bars/${barId}/time-entries/${punch.id}/amend`)
+        .post(`/api/establishments/${establishmentId}/time-entries/${punch.id}/amend`)
         .send({ occurredAt: new Date(punch.occurredAt.getTime() - HOUR).toISOString(), reason: 'Olvido fichar' })
         .expect(201);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries/export`).expect(200);
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/export`)
+        .expect(200);
       const rows = response.text.trim().split('\n');
 
       expect(response.headers['content-type']).toContain('text/csv');
@@ -293,14 +308,14 @@ describe('Time tracking (e2e)', () => {
       end.setUTCHours(endHour);
 
       return testSetup.prisma.dbShift.create({
-        data: { barId, userId: worker.id, startTime: start, endTime: end },
+        data: { establishmentId, userId: worker.id, startTime: start, endTime: end },
       });
     };
 
     const workdaysToday = async () =>
       (
         await request(server())
-          .get(`/api/bars/${barId}/time-entries`)
+          .get(`/api/establishments/${establishmentId}/time-entries`)
           .query({ from: today(), to: today() })
           .expect(200)
       ).body as { userId: string; discrepancies: string[]; plannedMinutes: number | null }[];
@@ -338,13 +353,13 @@ describe('Time tracking (e2e)', () => {
 
   describe('who may look', () => {
     it('should not let a worker read the whole team timesheet', async () => {
-      await request(server()).get(`/api/bars/${barId}/time-entries`).set(workerHeaders).expect(403);
+      await request(server()).get(`/api/establishments/${establishmentId}/time-entries`).set(workerHeaders).expect(403);
     });
 
-    it('should let whoever runs the bar read it', async () => {
+    it('should let whoever runs the establishment read it', async () => {
       await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
 
-      const response = await request(server()).get(`/api/bars/${barId}/time-entries`).expect(200);
+      const response = await request(server()).get(`/api/establishments/${establishmentId}/time-entries`).expect(200);
 
       expect(response.body[0].userId).toBe(worker.id);
     });
