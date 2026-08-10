@@ -32,7 +32,6 @@ export type DbUserMinAggregateOutputType = {
   photoUrl: string | null
   active: boolean | null
   role: $Enums.DbRole | null
-  language: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -45,7 +44,6 @@ export type DbUserMaxAggregateOutputType = {
   photoUrl: string | null
   active: boolean | null
   role: $Enums.DbRole | null
-  language: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,7 +56,6 @@ export type DbUserCountAggregateOutputType = {
   photoUrl: number
   active: number
   role: number
-  language: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -73,7 +70,6 @@ export type DbUserMinAggregateInputType = {
   photoUrl?: true
   active?: true
   role?: true
-  language?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -86,7 +82,6 @@ export type DbUserMaxAggregateInputType = {
   photoUrl?: true
   active?: true
   role?: true
-  language?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -99,7 +94,6 @@ export type DbUserCountAggregateInputType = {
   photoUrl?: true
   active?: true
   role?: true
-  language?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -185,7 +179,6 @@ export type DbUserGroupByOutputType = {
   photoUrl: string | null
   active: boolean
   role: $Enums.DbRole
-  language: string
   createdAt: Date
   updatedAt: Date
   _count: DbUserCountAggregateOutputType | null
@@ -219,9 +212,9 @@ export type DbUserWhereInput = {
   photoUrl?: Prisma.StringNullableFilter<"DbUser"> | string | null
   active?: Prisma.BoolFilter<"DbUser"> | boolean
   role?: Prisma.EnumDbRoleFilter<"DbUser"> | $Enums.DbRole
-  language?: Prisma.StringFilter<"DbUser"> | string
   createdAt?: Prisma.DateTimeFilter<"DbUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbUser"> | Date | string
+  preferences?: Prisma.XOR<Prisma.DbUserPreferencesNullableScalarRelationFilter, Prisma.DbUserPreferencesWhereInput> | null
   memberships?: Prisma.DbEstablishmentMemberListRelationFilter
   shifts?: Prisma.DbShiftListRelationFilter
   shiftRequests?: Prisma.DbShiftExchangeListRelationFilter
@@ -239,9 +232,9 @@ export type DbUserOrderByWithRelationInput = {
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferences?: Prisma.DbUserPreferencesOrderByWithRelationInput
   memberships?: Prisma.DbEstablishmentMemberOrderByRelationAggregateInput
   shifts?: Prisma.DbShiftOrderByRelationAggregateInput
   shiftRequests?: Prisma.DbShiftExchangeOrderByRelationAggregateInput
@@ -262,9 +255,9 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   photoUrl?: Prisma.StringNullableFilter<"DbUser"> | string | null
   active?: Prisma.BoolFilter<"DbUser"> | boolean
   role?: Prisma.EnumDbRoleFilter<"DbUser"> | $Enums.DbRole
-  language?: Prisma.StringFilter<"DbUser"> | string
   createdAt?: Prisma.DateTimeFilter<"DbUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbUser"> | Date | string
+  preferences?: Prisma.XOR<Prisma.DbUserPreferencesNullableScalarRelationFilter, Prisma.DbUserPreferencesWhereInput> | null
   memberships?: Prisma.DbEstablishmentMemberListRelationFilter
   shifts?: Prisma.DbShiftListRelationFilter
   shiftRequests?: Prisma.DbShiftExchangeListRelationFilter
@@ -282,7 +275,6 @@ export type DbUserOrderByWithAggregationInput = {
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbUserCountOrderByAggregateInput
@@ -301,7 +293,6 @@ export type DbUserScalarWhereWithAggregatesInput = {
   photoUrl?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"DbUser"> | boolean
   role?: Prisma.EnumDbRoleWithAggregatesFilter<"DbUser"> | $Enums.DbRole
-  language?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbUser"> | Date | string
 }
@@ -314,9 +305,9 @@ export type DbUserCreateInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
@@ -334,9 +325,9 @@ export type DbUserUncheckedCreateInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
@@ -354,9 +345,9 @@ export type DbUserUpdateInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
@@ -374,9 +365,9 @@ export type DbUserUncheckedUpdateInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
@@ -394,7 +385,6 @@ export type DbUserCreateManyInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -407,7 +397,6 @@ export type DbUserUpdateManyMutationInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -420,7 +409,6 @@ export type DbUserUncheckedUpdateManyInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -433,7 +421,6 @@ export type DbUserCountOrderByAggregateInput = {
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -446,7 +433,6 @@ export type DbUserMaxOrderByAggregateInput = {
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -459,7 +445,6 @@ export type DbUserMinOrderByAggregateInput = {
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -480,6 +465,20 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type EnumDbRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbRole
+}
+
+export type DbUserCreateNestedOneWithoutPreferencesInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutPreferencesInput, Prisma.DbUserUncheckedCreateWithoutPreferencesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutPreferencesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+}
+
+export type DbUserUpdateOneRequiredWithoutPreferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.DbUserCreateWithoutPreferencesInput, Prisma.DbUserUncheckedCreateWithoutPreferencesInput>
+  connectOrCreate?: Prisma.DbUserCreateOrConnectWithoutPreferencesInput
+  upsert?: Prisma.DbUserUpsertWithoutPreferencesInput
+  connect?: Prisma.DbUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutPreferencesInput, Prisma.DbUserUpdateWithoutPreferencesInput>, Prisma.DbUserUncheckedUpdateWithoutPreferencesInput>
 }
 
 export type DbUserCreateNestedOneWithoutMembershipsInput = {
@@ -582,6 +581,98 @@ export type DbUserUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbUserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.DbUserUpdateWithoutAuditLogsInput>, Prisma.DbUserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type DbUserCreateWithoutPreferencesInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryCreateNestedManyWithoutActorInput
+}
+
+export type DbUserUncheckedCreateWithoutPreferencesInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  name: string
+  photoUrl?: string | null
+  active?: boolean
+  role?: $Enums.DbRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutUserInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type DbUserCreateOrConnectWithoutPreferencesInput = {
+  where: Prisma.DbUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutPreferencesInput, Prisma.DbUserUncheckedCreateWithoutPreferencesInput>
+}
+
+export type DbUserUpsertWithoutPreferencesInput = {
+  update: Prisma.XOR<Prisma.DbUserUpdateWithoutPreferencesInput, Prisma.DbUserUncheckedUpdateWithoutPreferencesInput>
+  create: Prisma.XOR<Prisma.DbUserCreateWithoutPreferencesInput, Prisma.DbUserUncheckedCreateWithoutPreferencesInput>
+  where?: Prisma.DbUserWhereInput
+}
+
+export type DbUserUpdateToOneWithWhereWithoutPreferencesInput = {
+  where?: Prisma.DbUserWhereInput
+  data: Prisma.XOR<Prisma.DbUserUpdateWithoutPreferencesInput, Prisma.DbUserUncheckedUpdateWithoutPreferencesInput>
+}
+
+export type DbUserUpdateWithoutPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUpdateManyWithoutActorNestedInput
+}
+
+export type DbUserUncheckedUpdateWithoutPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
+  shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
+  shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
+  auditLogs?: Prisma.DbAdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  timeEntryEdits?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput
+}
+
 export type DbUserCreateWithoutMembershipsInput = {
   id?: string
   email: string
@@ -590,9 +681,9 @@ export type DbUserCreateWithoutMembershipsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
@@ -609,9 +700,9 @@ export type DbUserUncheckedCreateWithoutMembershipsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
@@ -644,9 +735,9 @@ export type DbUserUpdateWithoutMembershipsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
@@ -663,9 +754,9 @@ export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
@@ -682,9 +773,9 @@ export type DbUserCreateWithoutShiftsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
@@ -701,9 +792,9 @@ export type DbUserUncheckedCreateWithoutShiftsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
@@ -736,9 +827,9 @@ export type DbUserUpdateWithoutShiftsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
@@ -755,9 +846,9 @@ export type DbUserUncheckedUpdateWithoutShiftsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
@@ -774,9 +865,9 @@ export type DbUserCreateWithoutShiftRequestsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftApprovals?: Prisma.DbShiftExchangeCreateNestedManyWithoutTargetInput
@@ -793,9 +884,9 @@ export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutTargetInput
@@ -817,9 +908,9 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
@@ -836,9 +927,9 @@ export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
@@ -871,9 +962,9 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUpdateManyWithoutTargetNestedInput
@@ -890,9 +981,9 @@ export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftApprovals?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutTargetNestedInput
@@ -920,9 +1011,9 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
@@ -939,9 +1030,9 @@ export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
@@ -958,9 +1049,9 @@ export type DbUserCreateWithoutTimeEntriesInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
@@ -977,9 +1068,9 @@ export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
@@ -1001,9 +1092,9 @@ export type DbUserCreateWithoutTimeEntryEditsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
@@ -1020,9 +1111,9 @@ export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
@@ -1055,9 +1146,9 @@ export type DbUserUpdateWithoutTimeEntriesInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
@@ -1074,9 +1165,9 @@ export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
@@ -1104,9 +1195,9 @@ export type DbUserUpdateWithoutTimeEntryEditsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
@@ -1123,9 +1214,9 @@ export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
@@ -1142,9 +1233,9 @@ export type DbUserCreateWithoutAuditLogsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeCreateNestedManyWithoutRequesterInput
@@ -1161,9 +1252,9 @@ export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   photoUrl?: string | null
   active?: boolean
   role?: $Enums.DbRole
-  language?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutUserInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutRequesterInput
@@ -1196,9 +1287,9 @@ export type DbUserUpdateWithoutAuditLogsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUpdateManyWithoutRequesterNestedInput
@@ -1215,9 +1306,9 @@ export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumDbRoleFieldUpdateOperationsInput | $Enums.DbRole
-  language?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferences?: Prisma.DbUserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutUserNestedInput
   shiftRequests?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutRequesterNestedInput
@@ -1319,9 +1410,9 @@ export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   photoUrl?: boolean
   active?: boolean
   role?: boolean
-  language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferences?: boolean | Prisma.DbUser$preferencesArgs<ExtArgs>
   memberships?: boolean | Prisma.DbUser$membershipsArgs<ExtArgs>
   shifts?: boolean | Prisma.DbUser$shiftsArgs<ExtArgs>
   shiftRequests?: boolean | Prisma.DbUser$shiftRequestsArgs<ExtArgs>
@@ -1340,7 +1431,6 @@ export type DbUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   photoUrl?: boolean
   active?: boolean
   role?: boolean
-  language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dbUser"]>
@@ -1353,7 +1443,6 @@ export type DbUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   photoUrl?: boolean
   active?: boolean
   role?: boolean
-  language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dbUser"]>
@@ -1366,13 +1455,13 @@ export type DbUserSelectScalar = {
   photoUrl?: boolean
   active?: boolean
   role?: boolean
-  language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "name" | "photoUrl" | "active" | "role" | "language" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
+export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
 export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  preferences?: boolean | Prisma.DbUser$preferencesArgs<ExtArgs>
   memberships?: boolean | Prisma.DbUser$membershipsArgs<ExtArgs>
   shifts?: boolean | Prisma.DbUser$shiftsArgs<ExtArgs>
   shiftRequests?: boolean | Prisma.DbUser$shiftRequestsArgs<ExtArgs>
@@ -1388,6 +1477,7 @@ export type DbUserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbUser"
   objects: {
+    preferences: Prisma.$DbUserPreferencesPayload<ExtArgs> | null
     memberships: Prisma.$DbEstablishmentMemberPayload<ExtArgs>[]
     shifts: Prisma.$DbShiftPayload<ExtArgs>[]
     shiftRequests: Prisma.$DbShiftExchangePayload<ExtArgs>[]
@@ -1404,7 +1494,6 @@ export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     photoUrl: string | null
     active: boolean
     role: $Enums.DbRole
-    language: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dbUser"]>
@@ -1801,6 +1890,7 @@ readonly fields: DbUserFieldRefs;
  */
 export interface Prisma__DbUserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  preferences<T extends Prisma.DbUser$preferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$preferencesArgs<ExtArgs>>): Prisma.Prisma__DbUserPreferencesClient<runtime.Types.Result.GetResult<Prisma.$DbUserPreferencesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   memberships<T extends Prisma.DbUser$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shifts<T extends Prisma.DbUser$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shiftRequests<T extends Prisma.DbUser$shiftRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUser$shiftRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbShiftExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1844,7 +1934,6 @@ export interface DbUserFieldRefs {
   readonly photoUrl: Prisma.FieldRef<"DbUser", 'String'>
   readonly active: Prisma.FieldRef<"DbUser", 'Boolean'>
   readonly role: Prisma.FieldRef<"DbUser", 'DbRole'>
-  readonly language: Prisma.FieldRef<"DbUser", 'String'>
   readonly createdAt: Prisma.FieldRef<"DbUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbUser", 'DateTime'>
 }
@@ -2237,6 +2326,25 @@ export type DbUserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many DbUsers to delete.
    */
   limit?: number
+}
+
+/**
+ * DbUser.preferences
+ */
+export type DbUser$preferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbUserPreferences
+   */
+  select?: Prisma.DbUserPreferencesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbUserPreferences
+   */
+  omit?: Prisma.DbUserPreferencesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbUserPreferencesInclude<ExtArgs> | null
+  where?: Prisma.DbUserPreferencesWhereInput
 }
 
 /**

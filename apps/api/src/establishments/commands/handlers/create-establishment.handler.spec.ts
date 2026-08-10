@@ -1,4 +1,4 @@
-import { asUserId } from '@coaster/common';
+import { asUserId, DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
 import { DbRole } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,7 +39,7 @@ describe('CreateEstablishmentHandler', () => {
 
     const result = await handler.execute(new CreateEstablishmentCommand(dto, user));
 
-    expect(repository.create).toHaveBeenCalledWith(user.id, dto);
+    expect(repository.create).toHaveBeenCalledWith(user.id, dto, DEFAULT_ESTABLISHMENT_MODULES);
     expect(result).toBeUndefined();
   });
 });

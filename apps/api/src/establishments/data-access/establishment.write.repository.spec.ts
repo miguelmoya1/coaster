@@ -1,4 +1,4 @@
-import { asUserId } from '@coaster/common';
+import { asUserId, DEFAULT_ESTABLISHMENT_MODULES } from '@coaster/common';
 import { DbEstablishmentRole, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -38,7 +38,7 @@ describe('EstablishmentWriteRepository', () => {
       const expectedResult = { id: 'establishment-1', ...createEstablishmentDto };
       vi.mocked(dbService.dbEstablishment.create).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.create(userId, createEstablishmentDto as any);
+      const result = await repository.create(userId, createEstablishmentDto as any, DEFAULT_ESTABLISHMENT_MODULES);
 
       expect(dbService.dbEstablishment.create).toHaveBeenCalledWith({
         data: {
@@ -51,6 +51,7 @@ describe('EstablishmentWriteRepository', () => {
               trialEndsAt: expect.any(Date),
             },
           },
+          settings: { create: { modules: DEFAULT_ESTABLISHMENT_MODULES } },
         },
       });
       expect(result).toEqual(expectedResult);

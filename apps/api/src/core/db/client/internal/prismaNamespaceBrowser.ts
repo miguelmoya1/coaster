@@ -54,6 +54,8 @@ export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
   DbEstablishment: 'DbEstablishment',
+  DbEstablishmentSettings: 'DbEstablishmentSettings',
+  DbUserPreferences: 'DbUserPreferences',
   DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
@@ -109,7 +111,6 @@ export const DbUserScalarFieldEnum = {
   photoUrl: 'photoUrl',
   active: 'active',
   role: 'role',
-  language: 'language',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -125,6 +126,28 @@ export const DbEstablishmentScalarFieldEnum = {
 } as const
 
 export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
+
+
+export const DbEstablishmentSettingsScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  modules: 'modules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbEstablishmentSettingsScalarFieldEnum = (typeof DbEstablishmentSettingsScalarFieldEnum)[keyof typeof DbEstablishmentSettingsScalarFieldEnum]
+
+
+export const DbUserPreferencesScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  language: 'language',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbUserPreferencesScalarFieldEnum = (typeof DbUserPreferencesScalarFieldEnum)[keyof typeof DbUserPreferencesScalarFieldEnum]
 
 
 export const DbEstablishmentMemberScalarFieldEnum = {

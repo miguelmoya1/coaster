@@ -15,14 +15,18 @@ type UpdateUserDto = Omit<
 export class UserWriteRepository {
   constructor(private readonly db: DbService) {}
 
-  public async update(id: UserId, updateUserDto: UpdateUserDto) {
+  public async update(id: UserId, updateUserDto: UpdateUserDto, language?: string) {
     return this.db.dbUser.update({
       where: { id },
-      data: { ...updateUserDto },
+      data: {
+        ...updateUserDto,
+        ...(language && { preferences: { upsert: { create: { language }, update: { language } } } }),
+      },
+      include: { preferences: true },
     });
   }
 
-  public async upsert(email: string, data: CreateUserDto) {
+  public async upsert(email: string, data: CreateUserDto, language?: string) {
     return this.db.dbUser.upsert({
       where: { email },
       update: {
@@ -30,9 +34,10 @@ export class UserWriteRepository {
         name: data.name,
         photoUrl: data.photoUrl,
         active: data.active,
-        language: data.language,
+        ...(language && { preferences: { upsert: { create: { language }, update: { language } } } }),
       },
-      create: data,
+      create: { ...data, preferences: { create: language ? { language } : {} } },
+      include: { preferences: true },
     });
   }
 }

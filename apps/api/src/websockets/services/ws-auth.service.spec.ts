@@ -66,6 +66,7 @@ describe('WsAuthService', () => {
       expect(verifyIdToken).toHaveBeenCalledWith('tok_123');
       expect(dbMock.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-1' },
+        include: { preferences: true },
       });
       expect(userId).toBe('user-1');
     });

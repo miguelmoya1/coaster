@@ -197,6 +197,7 @@ describe('SubscriptionActiveGuard', () => {
       await expect(guard.canActivate(context)).resolves.toBe(true);
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-admin' },
+        include: { preferences: true },
       });
     });
 

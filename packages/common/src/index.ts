@@ -1,6 +1,7 @@
 export * from './constants/adjustment-target.type';
 export * from './constants/adjustment-type.type';
 export * from './constants/admin-audit-action.type';
+export * from './constants/establishment-module.type';
 export * from './constants/establishment-permissions.type';
 export * from './constants/establishment-role.type';
 export * from './constants/delivery-status.type';

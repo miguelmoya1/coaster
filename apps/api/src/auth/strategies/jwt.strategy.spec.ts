@@ -14,7 +14,16 @@ describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
   let db: { dbUser: { findUnique: ReturnType<typeof vi.fn> } };
 
-  const activeUser = { id: 'user-1', googleId: 'google-1', active: true, role: 'USER' };
+  const activeUser = {
+    id: 'user-1',
+    googleId: 'google-1',
+    email: 'user@establishment.com',
+    name: 'Test',
+    photoUrl: null,
+    active: true,
+    role: 'USER',
+    preferences: { language: 'en' },
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,10 +35,18 @@ describe('JwtStrategy', () => {
     verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@establishment.com' });
   });
 
-  it('should resolve an active user', async () => {
+  it('should resolve the domain user, so callers reading user.language get the preference', async () => {
     db.dbUser.findUnique.mockResolvedValue(activeUser);
 
-    await expect(strategy.validate('tok')).resolves.toEqual(activeUser);
+    await expect(strategy.validate('tok')).resolves.toEqual({
+      id: 'user-1',
+      email: 'user@establishment.com',
+      name: 'Test',
+      photoUrl: undefined,
+      active: true,
+      role: 'USER',
+      language: 'en',
+    });
   });
 
   it('should reject a user an admin has deactivated', async () => {

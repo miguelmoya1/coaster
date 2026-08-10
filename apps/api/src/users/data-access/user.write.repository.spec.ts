@@ -44,8 +44,25 @@ describe('UserWriteRepository', () => {
       expect(dbService.dbUser.update).toHaveBeenCalledWith({
         where: { id },
         data: { ...updateUserDto },
+        include: { preferences: true },
       });
       expect(result).toEqual(expectedResult);
+    });
+
+    it('should write the language into the preferences row rather than onto the user', async () => {
+      const id = asUserId('user-1');
+      vi.mocked(dbService.dbUser.update).mockResolvedValue({ id: 'user-1' } as any);
+
+      await repository.update(id, { name: 'Updated Name' }, 'en');
+
+      expect(dbService.dbUser.update).toHaveBeenCalledWith({
+        where: { id },
+        data: {
+          name: 'Updated Name',
+          preferences: { upsert: { create: { language: 'en' }, update: { language: 'en' } } },
+        },
+        include: { preferences: true },
+      });
     });
   });
 
@@ -73,9 +90,25 @@ describe('UserWriteRepository', () => {
           photoUrl: data.photoUrl,
           active: data.active,
         },
-        create: data,
+        create: { ...data, preferences: { create: {} } },
+        include: { preferences: true },
       });
       expect(result).toEqual(expectedResult);
+    });
+
+    it('should give a brand new user its preferences row so the language never has nowhere to live', async () => {
+      vi.mocked(dbService.dbUser.upsert).mockResolvedValue({ id: 'user-1' } as any);
+
+      await repository.upsert('test@test.com', { email: 'test@test.com', name: 'New User' }, 'en');
+
+      expect(dbService.dbUser.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({ preferences: { create: { language: 'en' } } }),
+          update: expect.objectContaining({
+            preferences: { upsert: { create: { language: 'en' }, update: { language: 'en' } } },
+          }),
+        }),
+      );
     });
   });
 });

@@ -82,9 +82,7 @@ describe('EstablishmentMembersController (e2e)', () => {
         .send({ email: 'other@example.com', role: EstablishmentRole.STAFF })
         .expect(201);
 
-      const members = await testSetup.prisma.dbEstablishmentMember.findMany({
-        where: { establishmentId },
-      });
+      const members = await testSetup.waitForMembers(establishmentId, 2);
       expect(members).toHaveLength(2);
       expect(members.some((m) => m.userId === otherUserId && m.role === EstablishmentRole.STAFF)).toBe(true);
     });

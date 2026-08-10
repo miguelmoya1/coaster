@@ -54,6 +54,7 @@ describe('SyncUserHandler', () => {
     expect(dbUser.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
       data: { googleId: 'google-sub' },
+      include: { preferences: true },
     });
   });
 
@@ -122,7 +123,12 @@ describe('SyncUserHandler', () => {
     await signIn({ sub: 'new-sub', email: 'new@establishment.com', email_verified: true });
 
     expect(dbUser.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ email: 'new@establishment.com', googleId: 'new-sub' }),
+      data: expect.objectContaining({
+        email: 'new@establishment.com',
+        googleId: 'new-sub',
+        preferences: { create: {} },
+      }),
+      include: { preferences: true },
     });
   });
 

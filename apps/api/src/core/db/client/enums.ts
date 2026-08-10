@@ -26,6 +26,15 @@ export const DbRole = {
 export type DbRole = (typeof DbRole)[keyof typeof DbRole]
 
 
+export const DbEstablishmentModule = {
+  TIME_TRACKING: 'TIME_TRACKING',
+  ORDERS: 'ORDERS',
+  INVENTORY: 'INVENTORY'
+} as const
+
+export type DbEstablishmentModule = (typeof DbEstablishmentModule)[keyof typeof DbEstablishmentModule]
+
+
 export const DbSubscriptionPlan = {
   FREE: 'FREE',
   PRO: 'PRO'

@@ -38,6 +38,7 @@ describe('GetUserByIdHandler', () => {
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      preferences: { language: 'en' },
     });
 
     const result = await handler.execute(new GetUserByIdQuery(asUserId('user-1')));
@@ -48,6 +49,7 @@ describe('GetUserByIdHandler', () => {
       name: 'Test',
       photoUrl: 'http://photo.com/1',
       active: true,
+      language: 'en',
     });
   });
 });

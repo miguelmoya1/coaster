@@ -10,7 +10,7 @@ const userListSelect = {
   photoUrl: true,
   role: true,
   active: true,
-  language: true,
+  preferences: { select: { language: true } },
   createdAt: true,
   _count: { select: { memberships: true } },
 } as const;

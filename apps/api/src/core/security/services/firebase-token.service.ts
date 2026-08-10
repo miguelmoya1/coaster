@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { getAuth } from 'firebase-admin/auth';
 import type { DecodedIdToken } from 'firebase-admin/auth';
-import { DbService, DbUser } from '../../db';
+import type { DbUserWithPreferences } from '../../mappers/users.mapper';
+import { DbService } from '../../db';
 
 export interface VerifiedCaller {
   decoded: DecodedIdToken;
-  user: DbUser | null;
+  user: DbUserWithPreferences | null;
 }
 
 export const stripBearer = (value: string | undefined | null): string | null => {
@@ -39,7 +40,10 @@ export class FirebaseTokenService {
       return null;
     }
 
-    const user = await this._db.dbUser.findUnique({ where: { googleId: decoded.sub } });
+    const user = await this._db.dbUser.findUnique({
+      where: { googleId: decoded.sub },
+      include: { preferences: true },
+    });
 
     return { decoded, user };
   }

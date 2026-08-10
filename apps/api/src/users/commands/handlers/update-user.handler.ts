@@ -25,10 +25,13 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, voi
       throw new NotFoundException(ErrorCodes.USER_NOT_FOUND);
     }
 
-    await this.writeRepo.update(id, {
-      name: updateUserDto.name,
-      photoUrl: updateUserDto.photoUrl,
-      language: updateUserDto.language,
-    });
+    await this.writeRepo.update(
+      id,
+      {
+        name: updateUserDto.name,
+        photoUrl: updateUserDto.photoUrl,
+      },
+      updateUserDto.language,
+    );
   }
 }

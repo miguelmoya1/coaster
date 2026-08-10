@@ -387,6 +387,8 @@ export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
   DbEstablishment: 'DbEstablishment',
+  DbEstablishmentSettings: 'DbEstablishmentSettings',
+  DbUserPreferences: 'DbUserPreferences',
   DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -640,6 +642,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbEstablishmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbEstablishmentSettings: {
+      payload: Prisma.$DbEstablishmentSettingsPayload<ExtArgs>
+      fields: Prisma.DbEstablishmentSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbEstablishmentSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbEstablishmentSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.DbEstablishmentSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbEstablishmentSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.DbEstablishmentSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.DbEstablishmentSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.DbEstablishmentSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbEstablishmentSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.DbEstablishmentSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        update: {
+          args: Prisma.DbEstablishmentSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbEstablishmentSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbEstablishmentSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbEstablishmentSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbEstablishmentSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.DbEstablishmentSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbEstablishmentSettings>
+        }
+        groupBy: {
+          args: Prisma.DbEstablishmentSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbEstablishmentSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbUserPreferences: {
+      payload: Prisma.$DbUserPreferencesPayload<ExtArgs>
+      fields: Prisma.DbUserPreferencesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbUserPreferencesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbUserPreferencesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        findFirst: {
+          args: Prisma.DbUserPreferencesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbUserPreferencesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        findMany: {
+          args: Prisma.DbUserPreferencesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>[]
+        }
+        create: {
+          args: Prisma.DbUserPreferencesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        createMany: {
+          args: Prisma.DbUserPreferencesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbUserPreferencesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>[]
+        }
+        delete: {
+          args: Prisma.DbUserPreferencesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        update: {
+          args: Prisma.DbUserPreferencesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbUserPreferencesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbUserPreferencesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbUserPreferencesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbUserPreferencesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbUserPreferencesPayload>
+        }
+        aggregate: {
+          args: Prisma.DbUserPreferencesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbUserPreferences>
+        }
+        groupBy: {
+          args: Prisma.DbUserPreferencesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbUserPreferencesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbUserPreferencesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbUserPreferencesCountAggregateOutputType> | number
         }
       }
     }
@@ -1814,7 +1964,6 @@ export const DbUserScalarFieldEnum = {
   photoUrl: 'photoUrl',
   active: 'active',
   role: 'role',
-  language: 'language',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1830,6 +1979,28 @@ export const DbEstablishmentScalarFieldEnum = {
 } as const
 
 export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
+
+
+export const DbEstablishmentSettingsScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  modules: 'modules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbEstablishmentSettingsScalarFieldEnum = (typeof DbEstablishmentSettingsScalarFieldEnum)[keyof typeof DbEstablishmentSettingsScalarFieldEnum]
+
+
+export const DbUserPreferencesScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  language: 'language',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbUserPreferencesScalarFieldEnum = (typeof DbUserPreferencesScalarFieldEnum)[keyof typeof DbUserPreferencesScalarFieldEnum]
 
 
 export const DbEstablishmentMemberScalarFieldEnum = {
@@ -2214,6 +2385,20 @@ export type ListEnumDbRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
+ * Reference to a field of type 'DbEstablishmentModule[]'
+ */
+export type ListEnumDbEstablishmentModuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentModule[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DbEstablishmentModule'
+ */
+export type EnumDbEstablishmentModuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentModule'>
+    
+
+
+/**
  * Reference to a field of type 'DbEstablishmentRole'
  */
 export type EnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentRole'>
@@ -2493,6 +2678,8 @@ export type GlobalOmitConfig = {
   dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
+  dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit
+  dbUserPreferences?: Prisma.DbUserPreferencesOmit
   dbEstablishmentMember?: Prisma.DbEstablishmentMemberOmit
   dbShift?: Prisma.DbShiftOmit
   dbShiftExchange?: Prisma.DbShiftExchangeOmit

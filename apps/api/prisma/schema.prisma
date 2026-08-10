@@ -28,6 +28,14 @@ enum DbRole {
   @@map("Role")
 }
 
+enum DbEstablishmentModule {
+  TIME_TRACKING
+  ORDERS
+  INVENTORY
+
+  @@map("EstablishmentModule")
+}
+
 enum DbSubscriptionPlan {
   FREE
   PRO
@@ -126,9 +134,9 @@ model DbUser {
   photoUrl       String?
   active         Boolean                 @default(true)
   role           DbRole                  @default(USER)
-  language       String                  @default("es")
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @updatedAt
+  preferences    DbUserPreferences?
   memberships    DbEstablishmentMember[]
   shifts         DbShift[]
   shiftRequests  DbShiftExchange[]       @relation("Requester")
@@ -153,9 +161,32 @@ model DbEstablishment {
   printer     DbPrinterConfig?
   printJobs   DbPrintJob[]
   billing     DbEstablishmentSubscription?
+  settings    DbEstablishmentSettings?
   timeEntries DbTimeEntry[]
 
   @@map("Establishment")
+}
+
+model DbEstablishmentSettings {
+  id              String                  @id @default(uuid())
+  establishmentId String                  @unique
+  establishment   DbEstablishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  modules         DbEstablishmentModule[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@map("EstablishmentSettings")
+}
+
+model DbUserPreferences {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      DbUser   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language  String   @default("es")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("UserPreferences")
 }
 
 model DbEstablishmentMember {

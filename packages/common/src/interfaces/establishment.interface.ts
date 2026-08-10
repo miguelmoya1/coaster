@@ -1,3 +1,4 @@
+import { EstablishmentModule } from '../constants/establishment-module.type';
 import { EstablishmentRole } from '../constants/establishment-role.type';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
@@ -11,6 +12,15 @@ export interface Establishment {
   updatedAt?: string;
 }
 
+export interface EstablishmentSettings {
+  establishmentId: EstablishmentId;
+  modules: EstablishmentModule[];
+}
+
 export interface CreateEstablishmentDto {
   name: string;
+}
+
+export interface UpdateEstablishmentSettingsDto {
+  modules: EstablishmentModule[];
 }

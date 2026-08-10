@@ -11,6 +11,8 @@
 export type * from './models/DbOrderAdjustment.js'
 export type * from './models/DbUser.js'
 export type * from './models/DbEstablishment.js'
+export type * from './models/DbEstablishmentSettings.js'
+export type * from './models/DbUserPreferences.js'
 export type * from './models/DbEstablishmentMember.js'
 export type * from './models/DbShift.js'
 export type * from './models/DbShiftExchange.js'

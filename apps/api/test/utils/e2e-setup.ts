@@ -114,6 +114,27 @@ export class E2eTestSetup {
     return { 'x-e2e-user-id': user.id };
   }
 
+  /**
+   * Inviting answers as soon as the command is accepted; the membership itself lands later, when the
+   * saga behind it has run. Tests that look at the row have to wait for it instead of assuming the
+   * response means it is there.
+   */
+  async waitForMembers(establishmentId: string, count: number) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const members = await this.prisma.dbEstablishmentMember.findMany({
+        where: { establishmentId, deletedAt: null },
+      });
+
+      if (members.length >= count) {
+        return members;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+
+    throw new Error(`Establishment ${establishmentId} never reached ${count} members`);
+  }
+
   async teardown() {
     if (this.app) {
       await this.app.close();

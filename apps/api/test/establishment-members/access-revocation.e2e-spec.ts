@@ -10,27 +10,6 @@ describe('Access revocation (e2e)', () => {
   const testSetup = new E2eTestSetup();
   const http = () => testSetup.app.getHttpServer();
 
-  /*
-   * Inviting answers as soon as the command is accepted; the membership itself lands later, when the
-   * saga behind it has run. Tests that look at the row have to wait for it instead of assuming the
-   * response means it is there.
-   */
-  const waitForMembers = async (establishmentId: string, count: number) => {
-    for (let attempt = 0; attempt < 50; attempt++) {
-      const members = await testSetup.prisma.dbEstablishmentMember.findMany({
-        where: { establishmentId, deletedAt: null },
-      });
-
-      if (members.length >= count) {
-        return members;
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    }
-
-    throw new Error(`Establishment ${establishmentId} never reached ${count} members`);
-  };
-
   beforeAll(async () => {
     await testSetup.setup();
   });
@@ -99,7 +78,7 @@ describe('Access revocation (e2e)', () => {
         .send({ email: 'removed@establishment.com', role: EstablishmentRole.STAFF })
         .expect(201);
 
-      await waitForMembers(establishment.id, 2);
+      await testSetup.waitForMembers(establishment.id, 2);
 
       await request(http()).get(`/api/establishments/${establishment.id}/orders`).set(asRemoved()).expect(200);
     });
@@ -128,7 +107,7 @@ describe('Access revocation (e2e)', () => {
         .send({ email: 'newstaff@establishment.com', role: EstablishmentRole.STAFF })
         .expect(201);
 
-      const members = await waitForMembers(establishment.id, 2);
+      const members = await testSetup.waitForMembers(establishment.id, 2);
       expect(members.some((member) => member.role === DbEstablishmentRole.STAFF)).toBe(true);
     });
 
@@ -140,7 +119,7 @@ describe('Access revocation (e2e)', () => {
         .send({ email: 'newowner@establishment.com', role: EstablishmentRole.OWNER })
         .expect(201);
 
-      const members = await waitForMembers(establishment.id, 2);
+      const members = await testSetup.waitForMembers(establishment.id, 2);
       expect(members.some((member) => member.role === DbEstablishmentRole.OWNER && member.userId !== mockUser.id)).toBe(
         true,
       );

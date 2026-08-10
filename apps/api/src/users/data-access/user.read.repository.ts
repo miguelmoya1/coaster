@@ -7,10 +7,10 @@ export class UserReadRepository {
   constructor(private readonly _db: DbService) {}
 
   public async findById(id: UserId) {
-    return this._db.dbUser.findUnique({ where: { id } });
+    return this._db.dbUser.findUnique({ where: { id }, include: { preferences: true } });
   }
 
   public async findByEmail(email: string) {
-    return this._db.dbUser.findUnique({ where: { email } });
+    return this._db.dbUser.findUnique({ where: { email }, include: { preferences: true } });
   }
 }

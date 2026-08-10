@@ -56,7 +56,7 @@ interface UserRow {
   photoUrl: string | null;
   role: string;
   active: boolean;
-  language: string;
+  preferences: { language: string } | null;
   createdAt: Date;
   _count: { memberships: number };
 }
@@ -138,7 +138,7 @@ export const AdminMapper = {
       photoUrl: row.photoUrl,
       role: row.role as Role,
       active: row.active,
-      language: row.language,
+      language: row.preferences?.language ?? 'es',
       createdAt: row.createdAt.toISOString(),
       establishmentCount: row._count.memberships,
     };

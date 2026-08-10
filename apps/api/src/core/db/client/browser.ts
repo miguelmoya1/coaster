@@ -33,6 +33,16 @@ export type DbUser = Prisma.DbUserModel
  */
 export type DbEstablishment = Prisma.DbEstablishmentModel
 /**
+ * Model DbEstablishmentSettings
+ * 
+ */
+export type DbEstablishmentSettings = Prisma.DbEstablishmentSettingsModel
+/**
+ * Model DbUserPreferences
+ * 
+ */
+export type DbUserPreferences = Prisma.DbUserPreferencesModel
+/**
  * Model DbEstablishmentMember
  * 
  */

@@ -1,5 +1,6 @@
-import type { UserId } from '@coaster/common';
+import type { EstablishmentModule, UserId } from '@coaster/common';
 import {
+  DbEstablishmentModule,
   DbEstablishmentRole,
   DbEstablishmentUncheckedCreateInput,
   DbService,
@@ -10,14 +11,24 @@ import { Injectable } from '@nestjs/common';
 
 type CreateEstablishmentDto = Omit<
   DbEstablishmentUncheckedCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'members' | 'shifts' | 'categories' | 'tables' | 'orders' | 'billing' | 'printer'
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'members'
+  | 'shifts'
+  | 'categories'
+  | 'tables'
+  | 'orders'
+  | 'billing'
+  | 'printer'
+  | 'settings'
 >;
 
 @Injectable()
 export class EstablishmentWriteRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async create(userId: UserId, createEstablishmentDto: CreateEstablishmentDto) {
+  public async create(userId: UserId, createEstablishmentDto: CreateEstablishmentDto, modules: EstablishmentModule[]) {
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
     return this._db.dbEstablishment.create({
@@ -31,6 +42,7 @@ export class EstablishmentWriteRepository {
             trialEndsAt,
           },
         },
+        settings: { create: { modules: modules as DbEstablishmentModule[] } },
       },
     });
   }
