@@ -42,6 +42,7 @@ export const EstablishmentPermission = {
   ESTABLISHMENT_VIEW_PRINTER: 'establishment:view-printer',
   ESTABLISHMENT_MANAGE_PRINTER: 'establishment:manage-printer',
   ESTABLISHMENT_MANAGE_BILLING: 'establishment:manage-billing',
+  ESTABLISHMENT_MANAGE_SETTINGS: 'establishment:manage-settings',
 } as const;
 
 export type EstablishmentPermission = (typeof EstablishmentPermission)[keyof typeof EstablishmentPermission];

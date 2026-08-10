@@ -46,6 +46,7 @@ const OWNER_ONLY_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:import-templates',
 
   'establishment:manage-billing',
+  'establishment:manage-settings',
 ];
 
 export const ROLE_PERMISSIONS: Record<EstablishmentRole, EstablishmentPermission[]> = {

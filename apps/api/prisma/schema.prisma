@@ -172,6 +172,7 @@ model DbEstablishmentSettings {
   establishmentId String                  @unique
   establishment   DbEstablishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   modules         DbEstablishmentModule[]
+  configuredAt    DateTime?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 

@@ -32,6 +32,11 @@ const mainRoutes: Routes = [
         canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS)],
       },
       {
+        path: 'settings',
+        loadComponent: () => import('./pages/settings/settings'),
+        canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS)],
+      },
+      {
         path: 'staff',
         loadChildren: () => import('./pages/staff/staff.routes'),
         canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_MEMBERS)],

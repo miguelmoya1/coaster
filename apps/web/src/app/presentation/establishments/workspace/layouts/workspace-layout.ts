@@ -1,6 +1,8 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, untracked } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
+import { OnboardingDialog } from '../components/onboarding/onboarding-dialog';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
@@ -53,6 +55,8 @@ export default class WorkspaceLayout {
   readonly #currentUser = inject(CurrentUser);
   readonly #currentEstablishmentStore = inject(CurrentEstablishmentStore);
   readonly #modulesStore = inject(ModulesStore);
+  readonly #dialog = inject(MatDialog);
+  #onboardingShown = false;
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #membersStore = inject(MembersStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
@@ -89,6 +93,31 @@ export default class WorkspaceLayout {
   });
 
   constructor() {
+    /*
+     * Only an owner can answer these questions, and only once: a brand new establishment has no
+     * configuredAt until somebody does. Everything backfilled from before this existed counts as
+     * configured, so no working venue is ever interrupted by it.
+     */
+    effect(() => {
+      const isConfigured = this.#modulesStore.isConfigured();
+      const establishment = this.currentEstablishment.hasValue() ? this.currentEstablishment.value() : undefined;
+
+      if (isConfigured !== false || !establishment || !this.isOwner() || this.#onboardingShown) {
+        return;
+      }
+
+      this.#onboardingShown = true;
+
+      untracked(() =>
+        this.#dialog.open(OnboardingDialog, {
+          data: { establishmentId: establishment.id, establishmentName: establishment.name },
+          disableClose: true,
+          width: '32rem',
+          maxWidth: '92vw',
+        }),
+      );
+    });
+
     effect((cleanup) => {
       const establishmentId = this.establishmentId();
       this.#currentEstablishmentStore.setEstablishmentId(establishmentId);

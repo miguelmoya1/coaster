@@ -479,10 +479,6 @@ export type EnumDbEstablishmentRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbEstablishmentRole
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type DbEstablishmentMemberCreateWithoutUserInput = {
   id?: string
   role?: $Enums.DbEstablishmentRole

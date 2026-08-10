@@ -27,6 +27,7 @@ export type AggregateDbEstablishmentSettings = {
 export type DbEstablishmentSettingsMinAggregateOutputType = {
   id: string | null
   establishmentId: string | null
+  configuredAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -34,6 +35,7 @@ export type DbEstablishmentSettingsMinAggregateOutputType = {
 export type DbEstablishmentSettingsMaxAggregateOutputType = {
   id: string | null
   establishmentId: string | null
+  configuredAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +44,7 @@ export type DbEstablishmentSettingsCountAggregateOutputType = {
   id: number
   establishmentId: number
   modules: number
+  configuredAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -51,6 +54,7 @@ export type DbEstablishmentSettingsCountAggregateOutputType = {
 export type DbEstablishmentSettingsMinAggregateInputType = {
   id?: true
   establishmentId?: true
+  configuredAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -58,6 +62,7 @@ export type DbEstablishmentSettingsMinAggregateInputType = {
 export type DbEstablishmentSettingsMaxAggregateInputType = {
   id?: true
   establishmentId?: true
+  configuredAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -66,6 +71,7 @@ export type DbEstablishmentSettingsCountAggregateInputType = {
   id?: true
   establishmentId?: true
   modules?: true
+  configuredAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -147,6 +153,7 @@ export type DbEstablishmentSettingsGroupByOutputType = {
   id: string
   establishmentId: string
   modules: $Enums.DbEstablishmentModule[]
+  configuredAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: DbEstablishmentSettingsCountAggregateOutputType | null
@@ -176,6 +183,7 @@ export type DbEstablishmentSettingsWhereInput = {
   id?: Prisma.StringFilter<"DbEstablishmentSettings"> | string
   establishmentId?: Prisma.StringFilter<"DbEstablishmentSettings"> | string
   modules?: Prisma.EnumDbEstablishmentModuleNullableListFilter<"DbEstablishmentSettings">
+  configuredAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSettings"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishmentSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishmentSettings"> | Date | string
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
@@ -185,6 +193,7 @@ export type DbEstablishmentSettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   modules?: Prisma.SortOrder
+  configuredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
@@ -197,6 +206,7 @@ export type DbEstablishmentSettingsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DbEstablishmentSettingsWhereInput[]
   NOT?: Prisma.DbEstablishmentSettingsWhereInput | Prisma.DbEstablishmentSettingsWhereInput[]
   modules?: Prisma.EnumDbEstablishmentModuleNullableListFilter<"DbEstablishmentSettings">
+  configuredAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSettings"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishmentSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishmentSettings"> | Date | string
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
@@ -206,6 +216,7 @@ export type DbEstablishmentSettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   modules?: Prisma.SortOrder
+  configuredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbEstablishmentSettingsCountOrderByAggregateInput
@@ -220,6 +231,7 @@ export type DbEstablishmentSettingsScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"DbEstablishmentSettings"> | string
   establishmentId?: Prisma.StringWithAggregatesFilter<"DbEstablishmentSettings"> | string
   modules?: Prisma.EnumDbEstablishmentModuleNullableListFilter<"DbEstablishmentSettings">
+  configuredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentSettings"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishmentSettings"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishmentSettings"> | Date | string
 }
@@ -227,6 +239,7 @@ export type DbEstablishmentSettingsScalarWhereWithAggregatesInput = {
 export type DbEstablishmentSettingsCreateInput = {
   id?: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutSettingsInput
@@ -236,6 +249,7 @@ export type DbEstablishmentSettingsUncheckedCreateInput = {
   id?: string
   establishmentId: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -243,6 +257,7 @@ export type DbEstablishmentSettingsUncheckedCreateInput = {
 export type DbEstablishmentSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutSettingsNestedInput
@@ -252,6 +267,7 @@ export type DbEstablishmentSettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -260,6 +276,7 @@ export type DbEstablishmentSettingsCreateManyInput = {
   id?: string
   establishmentId: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -267,6 +284,7 @@ export type DbEstablishmentSettingsCreateManyInput = {
 export type DbEstablishmentSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -275,6 +293,7 @@ export type DbEstablishmentSettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -296,6 +315,7 @@ export type DbEstablishmentSettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   modules?: Prisma.SortOrder
+  configuredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -303,6 +323,7 @@ export type DbEstablishmentSettingsCountOrderByAggregateInput = {
 export type DbEstablishmentSettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
+  configuredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -310,6 +331,7 @@ export type DbEstablishmentSettingsMaxOrderByAggregateInput = {
 export type DbEstablishmentSettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
+  configuredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -355,9 +377,14 @@ export type DbEstablishmentSettingsUpdatemodulesInput = {
   push?: $Enums.DbEstablishmentModule | $Enums.DbEstablishmentModule[]
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type DbEstablishmentSettingsCreateWithoutEstablishmentInput = {
   id?: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -365,6 +392,7 @@ export type DbEstablishmentSettingsCreateWithoutEstablishmentInput = {
 export type DbEstablishmentSettingsUncheckedCreateWithoutEstablishmentInput = {
   id?: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -388,6 +416,7 @@ export type DbEstablishmentSettingsUpdateToOneWithWhereWithoutEstablishmentInput
 export type DbEstablishmentSettingsUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -395,6 +424,7 @@ export type DbEstablishmentSettingsUpdateWithoutEstablishmentInput = {
 export type DbEstablishmentSettingsUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   modules?: Prisma.DbEstablishmentSettingsUpdatemodulesInput | $Enums.DbEstablishmentModule[]
+  configuredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +435,7 @@ export type DbEstablishmentSettingsSelect<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   establishmentId?: boolean
   modules?: boolean
+  configuredAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
@@ -414,6 +445,7 @@ export type DbEstablishmentSettingsSelectCreateManyAndReturn<ExtArgs extends run
   id?: boolean
   establishmentId?: boolean
   modules?: boolean
+  configuredAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
@@ -423,6 +455,7 @@ export type DbEstablishmentSettingsSelectUpdateManyAndReturn<ExtArgs extends run
   id?: boolean
   establishmentId?: boolean
   modules?: boolean
+  configuredAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
@@ -432,11 +465,12 @@ export type DbEstablishmentSettingsSelectScalar = {
   id?: boolean
   establishmentId?: boolean
   modules?: boolean
+  configuredAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbEstablishmentSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "modules" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishmentSettings"]>
+export type DbEstablishmentSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "modules" | "configuredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishmentSettings"]>
 export type DbEstablishmentSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
@@ -456,6 +490,7 @@ export type $DbEstablishmentSettingsPayload<ExtArgs extends runtime.Types.Extens
     id: string
     establishmentId: string
     modules: $Enums.DbEstablishmentModule[]
+    configuredAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dbEstablishmentSettings"]>
@@ -885,6 +920,7 @@ export interface DbEstablishmentSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"DbEstablishmentSettings", 'String'>
   readonly establishmentId: Prisma.FieldRef<"DbEstablishmentSettings", 'String'>
   readonly modules: Prisma.FieldRef<"DbEstablishmentSettings", 'DbEstablishmentModule[]'>
+  readonly configuredAt: Prisma.FieldRef<"DbEstablishmentSettings", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DbEstablishmentSettings", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbEstablishmentSettings", 'DateTime'>
 }

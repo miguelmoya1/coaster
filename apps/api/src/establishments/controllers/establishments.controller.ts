@@ -1,10 +1,12 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
 import type { Establishment, EstablishmentId, EstablishmentSettings, User } from '@coaster/common';
-import { EstablishmentPermissionsGuard } from '@coaster/core';
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateEstablishmentCommand } from '../commands';
+import { CreateEstablishmentCommand, UpdateEstablishmentSettingsCommand } from '../commands';
 import { CreateEstablishmentDto } from '../dto/create-establishment.dto';
+import { UpdateEstablishmentSettingsDto } from '../dto/update-establishment-settings.dto';
 import { EstablishmentsMapper } from '../mappers/establishments.mapper';
 import { GetEstablishmentByIdQuery, GetEstablishmentSettingsQuery, GetEstablishmentsForUserQuery } from '../queries';
 
@@ -38,6 +40,17 @@ export class EstablishmentsController {
   async getSettings(@Param('establishmentId') establishmentId: EstablishmentId): Promise<EstablishmentSettings> {
     return this._queryBus.execute<GetEstablishmentSettingsQuery, EstablishmentSettings>(
       new GetEstablishmentSettingsQuery(establishmentId),
+    );
+  }
+
+  @Patch(':establishmentId/settings')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS)
+  async updateSettings(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: UpdateEstablishmentSettingsDto,
+  ): Promise<EstablishmentSettings> {
+    return this._commandBus.execute<UpdateEstablishmentSettingsCommand, EstablishmentSettings>(
+      new UpdateEstablishmentSettingsCommand(establishmentId, dto.modules),
     );
   }
 

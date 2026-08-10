@@ -15,6 +15,8 @@ export interface Establishment {
 export interface EstablishmentSettings {
   establishmentId: EstablishmentId;
   modules: EstablishmentModule[];
+  /** Null until an owner has answered the onboarding questions for the first time. */
+  configuredAt: string | null;
 }
 
 export interface CreateEstablishmentDto {

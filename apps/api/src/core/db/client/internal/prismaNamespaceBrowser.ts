@@ -132,6 +132,7 @@ export const DbEstablishmentSettingsScalarFieldEnum = {
   id: 'id',
   establishmentId: 'establishmentId',
   modules: 'modules',
+  configuredAt: 'configuredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

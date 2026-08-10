@@ -83,6 +83,13 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
           <span>{{ 'common.change_establishment' | translate }}</span>
         </a>
 
+        @if (canManageSettings()) {
+          <a mat-menu-item [routerLink]="['/establishments', establishmentId(), 'settings']">
+            <mat-icon>tune</mat-icon>
+            <span>{{ 'settings.title' | translate }}</span>
+          </a>
+        }
+
         @if (canManageBilling() && showBillingAction()) {
           @if (billingAction() === BillingAction.MANAGE) {
             <button
@@ -185,6 +192,9 @@ export class TopAppBar {
   readonly currentLang = this.#translate.currentLang;
   readonly isAdmin = this.#currentUser.isAdmin;
   readonly apiUrl = environment.apiUrl;
+  readonly canManageSettings = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS),
+  );
   readonly canManageBilling = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING),
   );

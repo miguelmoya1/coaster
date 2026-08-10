@@ -86,6 +86,58 @@ describe('Module gating (e2e)', () => {
     });
   });
 
+  describe('changing the modules', () => {
+    it('should let an owner switch a module on and take effect straight away', async () => {
+      await request(http()).get(`/api/establishments/${timeTrackingOnlyId}/products`).expect(403);
+
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.INVENTORY] })
+        .expect(200);
+
+      await request(http()).get(`/api/establishments/${timeTrackingOnlyId}/products`).expect(200);
+    });
+
+    it('should refuse a member who is not an owner', async () => {
+      const staff = await testSetup.prisma.dbUser.create({
+        data: { email: 'staff@example.com', name: 'Staff', role: 'USER', active: true },
+      });
+      await testSetup.prisma.dbEstablishmentMember.create({
+        data: { userId: staff.id, establishmentId: timeTrackingOnlyId, role: 'STAFF' },
+      });
+
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .set(testSetup.actAs({ id: staff.id, email: 'staff@example.com', name: 'Staff' }))
+        .send({ modules: [EstablishmentModule.INVENTORY] })
+        .expect(403);
+    });
+
+    it('should refuse a module name it does not know', async () => {
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: ['RESERVATIONS'] })
+        .expect(400);
+    });
+
+    it('should mark the establishment configured, so the onboarding never asks twice', async () => {
+      const before = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: timeTrackingOnlyId },
+      });
+      expect(before?.configuredAt).toBeNull();
+
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(200);
+
+      const after = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: timeTrackingOnlyId },
+      });
+      expect(after?.configuredAt).not.toBeNull();
+    });
+  });
+
   it('should turn inventory on by itself when orders is asked for, or the till has nothing to sell', async () => {
     const shop = await testSetup.createEstablishment('Solo comandas', {
       modules: [EstablishmentModule.ORDERS],

@@ -159,6 +159,38 @@
       "title": "Select Your Active Establishment"
     }
   },
+  "settings": {
+    "title": "Set up your establishment",
+    "subtitle": "Pick what you need. You can change it whenever you like.",
+    "modules": "Modules",
+    "save": "Save",
+    "saved": "Settings saved",
+    "module_time_tracking": "Time tracking",
+    "module_time_tracking_desc": "Clocking and the rota. Required by law, so it cannot be turned off.",
+    "module_orders": "Orders",
+    "module_orders_desc": "Tables, orders, payments and ticket printing.",
+    "module_inventory": "Inventory",
+    "module_inventory_desc": "Categories, products and stock control.",
+    "orders_needs_inventory": "Orders need inventory, so it comes on with them."
+  },
+  "onboarding": {
+    "title": "Welcome to {{ name }}",
+    "subtitle": "Two quick questions and you are set.",
+    "question_type": "What kind of business is this?",
+    "type_hospitality": "Bar, restaurant or cafe",
+    "type_hospitality_desc": "Orders, inventory and time tracking.",
+    "type_retail": "Shop or retail",
+    "type_retail_desc": "Inventory and time tracking.",
+    "type_other": "Office or something else",
+    "type_other_desc": "Time tracking only.",
+    "question_import": "Shall we load a catalogue to start from?",
+    "import_yes": "Yes, load the standard catalogue",
+    "import_no": "No, I will build my own",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Get started",
+    "done": "All set"
+  },
   "common": {
     "accept": "Accept",
     "cancel": "Cancel",

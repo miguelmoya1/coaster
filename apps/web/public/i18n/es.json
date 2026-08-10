@@ -159,6 +159,38 @@
       "title": "Selecciona tu Establecimiento Activo"
     }
   },
+  "settings": {
+    "title": "Configura tu establecimiento",
+    "subtitle": "Elige qué necesitas. Podrás cambiarlo cuando quieras.",
+    "modules": "Módulos",
+    "save": "Guardar",
+    "saved": "Configuración guardada",
+    "module_time_tracking": "Control horario",
+    "module_time_tracking_desc": "Fichaje y cuadrante. Obligatorio por ley, no se puede desactivar.",
+    "module_orders": "Comandas",
+    "module_orders_desc": "Mesas, pedidos, cobros e impresión de tickets.",
+    "module_inventory": "Inventario",
+    "module_inventory_desc": "Categorías, productos y control de stock.",
+    "orders_needs_inventory": "Las comandas necesitan el inventario, así que se activa contigo."
+  },
+  "onboarding": {
+    "title": "Bienvenido a {{ name }}",
+    "subtitle": "Dos preguntas rápidas y lo dejamos listo.",
+    "question_type": "¿Qué tipo de negocio es?",
+    "type_hospitality": "Bar, restaurante o cafetería",
+    "type_hospitality_desc": "Comandas, inventario y control horario.",
+    "type_retail": "Tienda o comercio",
+    "type_retail_desc": "Inventario y control horario.",
+    "type_other": "Oficina u otro",
+    "type_other_desc": "Solo control horario.",
+    "question_import": "¿Cargamos un catálogo para empezar?",
+    "import_yes": "Sí, cargar catálogo estándar",
+    "import_no": "No, lo creo yo",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Empezar",
+    "done": "Todo listo"
+  },
   "common": {
     "accept": "Aceptar",
     "cancel": "Cancelar",

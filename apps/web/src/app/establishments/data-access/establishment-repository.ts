@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId, CreateEstablishmentDto } from '@coaster/common';
+import type {
+  CreateEstablishmentDto,
+  EstablishmentId,
+  EstablishmentSettings,
+  UpdateEstablishmentSettingsDto,
+} from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -16,5 +21,12 @@ export class EstablishmentRepository {
 
   public async create(createEstablishmentDto: CreateEstablishmentDto): Promise<void> {
     await firstValueFrom(this.#http.post<void>(this.routes.create, createEstablishmentDto));
+  }
+
+  public updateSettings(
+    establishmentId: EstablishmentId,
+    dto: UpdateEstablishmentSettingsDto,
+  ): Promise<EstablishmentSettings> {
+    return firstValueFrom(this.#http.patch<EstablishmentSettings>(this.routes.settings(establishmentId), dto));
   }
 }

@@ -1,0 +1,39 @@
+<coaster-page-container>
+  <coaster-page-header [title]="'settings.title' | translate" [subtitle]="'settings.subtitle' | translate" />
+
+  @if (settings.isLoading()) {
+    <coaster-loading />
+  } @else {
+    <section class="flex flex-col gap-3">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <mat-icon class="text-primary text-xl">tune</mat-icon>
+        {{ 'settings.modules' | translate }}
+      </h2>
+
+      @for (row of rows; track row.module) {
+        <div
+          class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant/20"
+        >
+          <div class="min-w-0">
+            <p class="font-bold text-on-surface">{{ row.labelKey | translate }}</p>
+            <p class="text-sm text-on-surface-variant">{{ row.descriptionKey | translate }}</p>
+            @if (isForcedByOrders(row.module)) {
+              <p class="text-xs text-primary mt-1">{{ 'settings.orders_needs_inventory' | translate }}</p>
+            }
+          </div>
+
+          <mat-slide-toggle
+            [checked]="isOn(row.module)"
+            [disabled]="row.locked || isForcedByOrders(row.module) || isSaving()"
+            (change)="toggle(row.module, $event.checked)"
+            [attr.aria-label]="row.labelKey | translate"
+          />
+        </div>
+      }
+
+      <button mat-flat-button class="self-end mt-2" [disabled]="isSaving()" (click)="save()">
+        {{ 'settings.save' | translate }}
+      </button>
+    </section>
+  }
+</coaster-page-container>

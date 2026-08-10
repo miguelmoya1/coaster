@@ -1,6 +1,7 @@
 import { EstablishmentRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { formatWorkdayDate, toWorkdayDate } from '../../src/time-tracking/domain/workday';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 const HOUR = 60 * 60 * 1000;
@@ -299,7 +300,12 @@ describe('Time tracking (e2e)', () => {
   });
 
   describe('the rota against what was really worked', () => {
-    const today = () => new Date().toISOString().slice(0, 10);
+    /*
+     * The establishment's day, not the UTC one. Between 22:00 and midnight UTC in summer these are
+     * already different dates, and a test that asks UTC for marks the domain filed under tomorrow
+     * finds nothing.
+     */
+    const today = () => formatWorkdayDate(toWorkdayDate(new Date()));
 
     const scheduleToday = (startHour: number, endHour: number) => {
       const start = new Date(`${today()}T00:00:00.000Z`);

@@ -6,6 +6,10 @@ this file is only the running order.
 Phase 1 (time tracking and legal compliance) is closed — see
 [Time tracking](docs/operations/time-tracking.md).
 
+Phase 2 is closed apart from 2.5. `Bar` is `Establishment` everywhere including the database, the
+modules are stored and enforced on both sides, and a new establishment is asked what it is before it
+is handed a menu it will never use.
+
 ## Phase 2: from bars to establishments
 
 The working-time register is a legal obligation for every Spanish employer, not only for hospitality.
@@ -85,9 +89,11 @@ instead. A dialog on first entry, a couple of questions, and it ends configured:
    runs the import that `admin_templates.load_standard` already does today, so the establishment
    lands with a menu instead of an empty pantry.
 
-What decides that an establishment is new is worth getting right: "has no `EstablishmentSettings`
-row" is the honest signal, and it is also what every establishment backfilled in 2.2 will _not_
-match, so none of them get the dialog.
+What decides that an establishment is new turned out not to be "has no `EstablishmentSettings` row",
+as this plan first said: 2.2 gives every establishment that row the moment it is created, so the
+signal was dead on arrival. It is a `configuredAt` timestamp on that row instead, null until an
+owner answers. The backfill set it for everything that already existed, so no working venue is ever
+interrupted by the dialog.
 
 ### 2.5 Rename the rota
 
