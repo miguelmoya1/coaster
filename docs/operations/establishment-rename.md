@@ -1,7 +1,7 @@
 # Renaming `Bar` to `Establishment`
 
 A runbook for step 2.1 of the [roadmap](../../TODO.md), not a description of the system. Delete it
-once the rename has shipped and the compatibility aliases are gone.
+once the rename has shipped and nothing in the repo still answers to the old name.
 
 The product is widening beyond hospitality, so the aggregate root stops being a bar. `barId` appears
 around 3.200 times: the work is mechanical, and the danger is concentrated in four places that a
@@ -11,8 +11,8 @@ find-and-replace will happily walk into.
 
 1. **The migration.** Left to itself, `prisma migrate dev` renders a rename as `DROP` + `CREATE` and
    takes the rows with it. The SQL is written by hand, as `ALTER TABLE ... RENAME`.
-2. **The print bridge.** It is already installed on venue machines and validates a `barId` JWT
-   claim. Switch the API first and every bridge stops printing until it self-updates.
+2. **The print bridge.** It shares four wire contracts with the API and no test spans both sides,
+   so a half-done rename breaks printing in silence rather than failing a build.
 3. **Enum values that are stored data.** `AdminAuditAction.BAR_PLAN_GRANTED` and
    `AdminAuditTargetType.BAR` are written into `AdminAuditLog.action` and `.targetType` as plain
    strings. Rename them in TypeScript alone and every audit row already on disk stops matching its
@@ -127,16 +127,22 @@ landing.
 
 ### 5. Print bridge
 
-The bridge reads `BAR_ID` / `--bar-id` (`internal/config/config.go:34`) and checks a `barId` claim
-(`internal/middleware/jwt.go:23`). It self-updates from `/printer/check-version`, but there is a
-window where a new token meets an old binary, and in that window nothing prints.
+The bridge and the API share four wire contracts, and **all four were cut over at once**, with no
+compatibility window. That was a deliberate call: nothing is deployed in the field yet, so the two
+releases the safe path would have needed buy nothing. If a bridge ever does turn out to be running
+an older binary, it stops printing until it self-updates from `/printer/check-version`.
 
-Two releases, in this order:
+Both sides have to move together, or printing breaks silently — no test spans the two:
 
-1. Ship a bridge that accepts **both** claim names and **both** environment variables. The `.env` and
-   service files live on other people's machines; we do not get to edit them.
-2. Then switch `PrinterTokenService.generateToken` in the API to emit `establishmentId`.
-3. Drop the aliases once no old version is reporting in.
+| Contract        | API                                                              | Bridge                                    |
+| --------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| JWT claim       | `PrinterTokenService.generateToken` signs `establishmentId`      | `JWTPayload.EstablishmentID` reads it     |
+| Job polling     | `@Query('establishmentId')` on `jobs/next` and `jobs/:id/result` | `relay.go` sends `?establishmentId=`      |
+| IP registration | `RegisterPrinterIpDto.establishmentId`                           | `ip_registrar.go` posts `establishmentId` |
+| Ticket payload  | `PrintTicketPayload.establishmentName`                           | `escpos.TicketPayload.EstablishmentName`  |
+
+The environment variable moved with them: `BAR_ID` is now `ESTABLISHMENT_ID`, and `--bar-id` is
+`--establishment-id`. Anyone with an existing bridge has to edit its `.env` or service file by hand.
 
 ### 6. Docs
 

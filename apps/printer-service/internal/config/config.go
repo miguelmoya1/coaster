@@ -25,20 +25,20 @@ const (
 )
 
 type Config struct {
-	APIURL         string
-	Port           string
-	PrinterType    PrinterType
-	PrinterPath    string
-	PrintWidth     int
-	CodePage       escpos.CodePage
-	BarID          string
-	DeviceKey      string
-	IPAddress      string
-	JWTSecret      string
-	AllowedOrigins []string
-	UpdateInterval time.Duration
-	PollInterval   time.Duration
-	Insecure       bool
+	APIURL          string
+	Port            string
+	PrinterType     PrinterType
+	PrinterPath     string
+	PrintWidth      int
+	CodePage        escpos.CodePage
+	EstablishmentID string
+	DeviceKey       string
+	IPAddress       string
+	JWTSecret       string
+	AllowedOrigins  []string
+	UpdateInterval  time.Duration
+	PollInterval    time.Duration
+	Insecure        bool
 }
 
 func Parse(args []string) (*Config, error) {
@@ -51,7 +51,7 @@ func Parse(args []string) (*Config, error) {
 	printerPath := fs.String("printer-path", "", "Device path, printer name or IP:port")
 	printWidth := fs.Int("print-width", escpos.Width58mm, "Characters per line: 32 for 58mm paper, 48 for 80mm")
 	codePage := fs.String("code-page", escpos.CP858.Name, "Printer character table (cp858, cp850, cp437, cp1252)")
-	barID := fs.String("bar-id", "", "ID of the bar this bridge belongs to")
+	establishmentID := fs.String("establishment-id", "", "ID of the establishment this bridge belongs to")
 	deviceKey := fs.String("device-key", "", "Device key issued by the Coaster API")
 	ipAddress := fs.String("ip-address", "", "Override the auto-detected local IP address")
 	jwtSecret := fs.String("jwt-secret", "", "Shared secret used to validate incoming print requests")
@@ -68,7 +68,7 @@ func Parse(args []string) (*Config, error) {
 		*apiURL = "http://localhost:3000/api/v1"
 	}
 
-	fallbackToEnv(barID, "BAR_ID")
+	fallbackToEnv(establishmentID, "ESTABLISHMENT_ID")
 	fallbackToEnv(deviceKey, "PRINTER_DEVICE_KEY")
 	fallbackToEnv(ipAddress, "PRINTER_IP_ADDRESS")
 	fallbackToEnv(jwtSecret, "PRINTER_JWT_SECRET")
@@ -92,25 +92,25 @@ func Parse(args []string) (*Config, error) {
 	}
 
 	return &Config{
-		APIURL:         strings.TrimRight(*apiURL, "/"),
-		Port:           *port,
-		PrinterType:    kind,
-		PrinterPath:    *printerPath,
-		PrintWidth:     *printWidth,
-		CodePage:       page,
-		BarID:          *barID,
-		DeviceKey:      *deviceKey,
-		IPAddress:      *ipAddress,
-		JWTSecret:      *jwtSecret,
-		AllowedOrigins: parseOrigins(*allowedOrigins),
-		UpdateInterval: *updateInterval,
-		PollInterval:   *pollInterval,
-		Insecure:       *insecure,
+		APIURL:          strings.TrimRight(*apiURL, "/"),
+		Port:            *port,
+		PrinterType:     kind,
+		PrinterPath:     *printerPath,
+		PrintWidth:      *printWidth,
+		CodePage:        page,
+		EstablishmentID: *establishmentID,
+		DeviceKey:       *deviceKey,
+		IPAddress:       *ipAddress,
+		JWTSecret:       *jwtSecret,
+		AllowedOrigins:  parseOrigins(*allowedOrigins),
+		UpdateInterval:  *updateInterval,
+		PollInterval:    *pollInterval,
+		Insecure:        *insecure,
 	}, nil
 }
 
 func (c *Config) RelayEnabled() bool {
-	return c.BarID != "" && c.DeviceKey != ""
+	return c.EstablishmentID != "" && c.DeviceKey != ""
 }
 
 func fallbackToEnv(value *string, name string) {

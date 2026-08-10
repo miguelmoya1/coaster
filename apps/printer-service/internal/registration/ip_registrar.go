@@ -79,9 +79,9 @@ func register(ctx context.Context, client *http.Client, cfg *config.Config) {
 	}
 
 	payload := map[string]any{
-		"barId":     cfg.BarID,
-		"ipAddress": ip,
-		"port":      port,
+		"establishmentId": cfg.EstablishmentID,
+		"ipAddress":       ip,
+		"port":            port,
 	}
 
 	body, err := json.Marshal(payload)
@@ -113,5 +113,5 @@ func register(ctx context.Context, client *http.Client, cfg *config.Config) {
 		return
 	}
 
-	log.Printf("Registered %s:%d for bar %s\n", ip, port, cfg.BarID)
+	log.Printf("Registered %s:%d for establishment %s\n", ip, port, cfg.EstablishmentID)
 }

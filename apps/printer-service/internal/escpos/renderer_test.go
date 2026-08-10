@@ -12,10 +12,10 @@ func newTestRenderer() *Renderer {
 
 func TestRender_OrderType(t *testing.T) {
 	payload := TicketPayload{
-		Type:    "order",
-		BarName: "Bar Central",
-		Table:   "5",
-		Date:    "2025-01-15 20:30",
+		Type:              "order",
+		EstablishmentName: "Establishment Central",
+		Table:             "5",
+		Date:              "2025-01-15 20:30",
 		Items: []TicketItem{
 			{Name: "Negroni", Quantity: 2, Price: "6.00", Total: "12.00"},
 			{Name: "Cerveza", Quantity: 1, Price: "3.50", Total: "3.50"},
@@ -34,7 +34,7 @@ func TestRender_OrderType(t *testing.T) {
 		t.Error("expected result to end with FeedAndCut command")
 	}
 
-	for _, want := range []string{"Bar Central", "Mesa: 5", "Fecha: 2025-01-15 20:30", "Negroni", "Cerveza", "TOTAL: 15.50 EUR", "Sin hielo", strings.Repeat("-", Width58mm)} {
+	for _, want := range []string{"Establishment Central", "Mesa: 5", "Fecha: 2025-01-15 20:30", "Negroni", "Cerveza", "TOTAL: 15.50 EUR", "Sin hielo", strings.Repeat("-", Width58mm)} {
 		if !bytes.Contains(result, []byte(want)) {
 			t.Errorf("expected result to contain %q", want)
 		}
@@ -49,7 +49,7 @@ func TestRender_OrderType(t *testing.T) {
 }
 
 func TestRender_SelectsCodePageAfterInit(t *testing.T) {
-	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Bar"})
+	result := newTestRenderer().Render(TicketPayload{Type: "order", EstablishmentName: "Establishment"})
 
 	want := append(append([]byte{}, Init...), SelectCodePage(CP858.Command)...)
 	if !bytes.HasPrefix(result, want) {
@@ -89,14 +89,14 @@ func TestRender_RawType(t *testing.T) {
 }
 
 func TestRender_DefaultCurrency(t *testing.T) {
-	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Test Bar", Total: "10.00"})
+	result := newTestRenderer().Render(TicketPayload{Type: "order", EstablishmentName: "Test Establishment", Total: "10.00"})
 	if !bytes.Contains(result, []byte("TOTAL: 10.00 EUR")) {
 		t.Error("expected default EUR currency")
 	}
 }
 
 func TestRender_NoTableNoDate(t *testing.T) {
-	result := newTestRenderer().Render(TicketPayload{Type: "order", BarName: "Test", Total: "0.00"})
+	result := newTestRenderer().Render(TicketPayload{Type: "order", EstablishmentName: "Test", Total: "0.00"})
 
 	if bytes.Contains(result, []byte("Mesa:")) {
 		t.Error("should not contain table when empty")
@@ -110,7 +110,7 @@ func TestRender_SkipsEmptyHeader(t *testing.T) {
 	result := newTestRenderer().Render(TicketPayload{Type: "order", Total: "0.00"})
 
 	if bytes.Contains(result, DoubleHeight) {
-		t.Error("expected no header block when the bar name is empty")
+		t.Error("expected no header block when the establishment name is empty")
 	}
 }
 
@@ -190,8 +190,8 @@ func TestTryParsePayload(t *testing.T) {
 		data string
 		want bool
 	}{
-		{"valid", `{"type":"order","barName":"Test","items":[],"total":"0.00"}`, true},
-		{"missing type", `{"barName":"Test"}`, false},
+		{"valid", `{"type":"order","establishmentName":"Test","items":[],"total":"0.00"}`, true},
+		{"missing type", `{"establishmentName":"Test"}`, false},
 		{"invalid json", `not json at all`, false},
 		{"plain text", "Hello, this is plain text content for the printer", false},
 	}

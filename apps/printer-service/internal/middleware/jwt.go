@@ -20,12 +20,12 @@ type JWTHeader struct {
 }
 
 type JWTPayload struct {
-	BarID string `json:"barId"`
-	Iat   int64  `json:"iat"`
-	Exp   int64  `json:"exp"`
+	EstablishmentID string `json:"establishmentId"`
+	Iat             int64  `json:"iat"`
+	Exp             int64  `json:"exp"`
 }
 
-func JWT(secret, barID string) func(http.Handler) http.Handler {
+func JWT(secret, establishmentID string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method == http.MethodOptions {
@@ -46,9 +46,9 @@ func JWT(secret, barID string) func(http.Handler) http.Handler {
 				return
 			}
 
-			if barID != "" && subtle.ConstantTimeCompare([]byte(payload.BarID), []byte(barID)) != 1 {
-				log.Printf("Rejected a token issued for bar %q on the bridge for bar %q\n", payload.BarID, barID)
-				deny(w, http.StatusForbidden, "Token was issued for a different bar")
+			if establishmentID != "" && subtle.ConstantTimeCompare([]byte(payload.EstablishmentID), []byte(establishmentID)) != 1 {
+				log.Printf("Rejected a token issued for establishment %q on the bridge for establishment %q\n", payload.EstablishmentID, establishmentID)
+				deny(w, http.StatusForbidden, "Token was issued for a different establishment")
 				return
 			}
 

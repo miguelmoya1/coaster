@@ -36,8 +36,11 @@ is where the four ways to lose data or stop printing are written down.
    themselves with.
 4. Web: the three `bars` libs, `presentation/bars`, the routes and the i18n keys. Keep a
    `bars → establishments` redirect so existing bookmarks survive.
-5. Print bridge: it validates a `barId` JWT claim. Ship a bridge that accepts both claims **before**
-   the API starts issuing the new one, or every already-installed bridge stops printing.
+5. Print bridge: it shares four wire contracts with the API — the JWT claim, the job-polling query
+   parameter, the IP registration body and the ticket payload. No test spans both sides, so they
+   move together or printing breaks in silence. Cut over in one go rather than through a
+   compatibility window, on the grounds that nothing is deployed yet; `BAR_ID` became
+   `ESTABLISHMENT_ID`, so any bridge already installed needs its `.env` edited by hand.
 
 ### 2.2 Configuration tables
 

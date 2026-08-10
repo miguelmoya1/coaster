@@ -73,7 +73,7 @@ func (s *service) routes() http.Handler {
 
 	mux := http.NewServeMux()
 	mux.Handle("/print", cors(s.printHandler()))
-	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.BarID, fmt.Sprint(s.device))))
+	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.EstablishmentID, fmt.Sprint(s.device))))
 	mux.Handle("/printers", cors(handler.NewDiscoveryHandler()))
 
 	return mux
@@ -81,7 +81,7 @@ func (s *service) routes() http.Handler {
 
 func (s *service) printHandler() http.Handler {
 	if s.cfg.JWTSecret != "" {
-		return middleware.JWT(s.cfg.JWTSecret, s.cfg.BarID)(handler.NewPrintHandler(s.printUC, s.renderer))
+		return middleware.JWT(s.cfg.JWTSecret, s.cfg.EstablishmentID)(handler.NewPrintHandler(s.printUC, s.renderer))
 	}
 
 	if s.cfg.Insecure {
@@ -108,7 +108,7 @@ func (s *service) run() error {
 		go registration.StartIPRegistration(ctx, s.cfg)
 		go relay.Run(ctx, s.cfg, s.printUC, s.renderer)
 	} else {
-		log.Println("No bar-id/device-key: printing only from the local network.")
+		log.Println("No establishment-id/device-key: printing only from the local network.")
 	}
 
 	errs := make(chan error, 1)
@@ -134,8 +134,8 @@ func (s *service) run() error {
 
 func (s *service) warnAboutConfiguration() {
 	if s.cfg.JWTSecret != "" {
-		if s.cfg.BarID == "" {
-			log.Println("WARNING: -bar-id is not set, so a token issued for any bar will be accepted.")
+		if s.cfg.EstablishmentID == "" {
+			log.Println("WARNING: -establishment-id is not set, so a token issued for any establishment will be accepted.")
 		}
 		return
 	}

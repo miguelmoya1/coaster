@@ -105,11 +105,11 @@ func TestPrintHandler_PassesRawBytesThroughOnRequest(t *testing.T) {
 func TestPrintHandler_JSONPayload(t *testing.T) {
 	printer := &testPrinter{}
 	body, _ := json.Marshal(escpos.TicketPayload{
-		Type:    "order",
-		BarName: "Test Bar",
-		Table:   "3",
-		Items:   []escpos.TicketItem{{Name: "Beer", Quantity: 2, Price: "4.00", Total: "8.00"}},
-		Total:   "8.00",
+		Type:              "order",
+		EstablishmentName: "Test Establishment",
+		Table:             "3",
+		Items:             []escpos.TicketItem{{Name: "Beer", Quantity: 2, Price: "4.00", Total: "8.00"}},
+		Total:             "8.00",
 	})
 
 	w := post(t, newHandler(printer), body, "application/json")
