@@ -7,8 +7,13 @@ import type {
   PrinterStatusDto,
   PrintJobDto,
 } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+} from '@coaster/core';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -18,7 +23,8 @@ import { GetPrinterConnectionQuery, GetPrinterStatusQuery, GetPrintJobQuery } fr
 
 @ApiTags('printer')
 @Controller('establishments/:establishmentId/printer')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.ORDERS)
 export class PrinterConnectionController {
   constructor(
     private readonly _queryBus: QueryBus,

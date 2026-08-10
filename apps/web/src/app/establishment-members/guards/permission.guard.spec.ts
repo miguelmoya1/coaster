@@ -1,3 +1,4 @@
+import { ModulesStore } from '@coaster/establishments';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
@@ -6,6 +7,13 @@ import { EstablishmentPermission } from '@coaster/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { permissionGuard } from './permission.guard';
+
+const modulesStoreMock = {
+  currentEstablishmentId: signal(undefined).asReadonly(),
+  settings: { isLoading: signal(false).asReadonly() },
+  setEstablishmentId: vi.fn(),
+  isModuleEnabled: vi.fn((): boolean => true),
+};
 
 describe('permissionGuard', () => {
   const isLoading = signal(false);
@@ -54,6 +62,7 @@ describe('permissionGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: MyMemberStore, useValue: myMemberStoreMock },
+        { provide: ModulesStore, useValue: modulesStoreMock },
         { provide: Router, useValue: routerMock },
       ],
     });
@@ -89,6 +98,26 @@ describe('permissionGuard', () => {
 
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/establishments', 'establishment-1', 'orders']);
     expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'orders']);
+  });
+
+  it('should not fall back to orders in an establishment that does not run that module', async () => {
+    hasPermissionMock.mockImplementation(
+      (perm?: EstablishmentPermission) =>
+        perm === EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS ||
+        perm === EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS,
+    );
+    modulesStoreMock.isModuleEnabled.mockImplementation(() => false);
+    const route = getMockRoute('establishment-1');
+
+    const result = await TestBed.runInInjectionContext(() => {
+      const guard = permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)(
+        route,
+        {} as unknown as RouterStateSnapshot,
+      );
+      return firstValueFrom(guard as Observable<boolean | UrlTree>);
+    });
+
+    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'roster']);
   });
 
   it('should redirect to select if user lacks permission and lacks orders permission', async () => {

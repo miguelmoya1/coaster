@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CurrentEstablishmentStore } from '@coaster/establishments';
+import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
@@ -52,6 +52,7 @@ export default class WorkspaceLayout {
 
   readonly #currentUser = inject(CurrentUser);
   readonly #currentEstablishmentStore = inject(CurrentEstablishmentStore);
+  readonly #modulesStore = inject(ModulesStore);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #membersStore = inject(MembersStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
@@ -91,6 +92,7 @@ export default class WorkspaceLayout {
     effect((cleanup) => {
       const establishmentId = this.establishmentId();
       this.#currentEstablishmentStore.setEstablishmentId(establishmentId);
+      this.#modulesStore.setEstablishmentId(establishmentId);
       this.#socketService.joinEstablishment(establishmentId);
       this.#membersStore.setEstablishmentId(establishmentId);
       this.#myMemberStore.setEstablishmentId(establishmentId);
@@ -98,6 +100,7 @@ export default class WorkspaceLayout {
 
       cleanup(() => {
         this.#currentEstablishmentStore.setEstablishmentId(undefined);
+        this.#modulesStore.setEstablishmentId(undefined);
         this.#socketService.leaveEstablishment(establishmentId);
         this.#membersStore.setEstablishmentId(undefined);
         this.#myMemberStore.setEstablishmentId(undefined);

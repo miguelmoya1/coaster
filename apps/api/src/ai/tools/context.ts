@@ -1,5 +1,6 @@
 import type {
   EstablishmentId,
+  EstablishmentModule,
   EstablishmentPermission,
   EstablishmentRole,
   Category,
@@ -16,6 +17,7 @@ const logger = new Logger('AiTools');
 
 export interface AiToolsContext {
   establishmentId: EstablishmentId;
+  modules: EstablishmentModule[];
   user: User;
   isAdmin: boolean;
   establishmentRole: EstablishmentRole;

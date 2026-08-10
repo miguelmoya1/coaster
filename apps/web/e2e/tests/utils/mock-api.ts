@@ -103,6 +103,32 @@ export async function setupMockApi(page: Page) {
   // Default global mocks for layout
   await mockApiResponse(page, '/establishments', 'GET', []);
 
+  // The workspace asks for its modules before it will render; without this the guards never resolve.
+  await page.route('**/api/v1/establishments/*/settings', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
+    } else if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({
+          establishmentId: route.request().url().split('/establishments/')[1].split('/')[0],
+          modules: ['TIME_TRACKING', 'ORDERS', 'INVENTORY'],
+        }),
+      });
+    } else {
+      await route.fallback();
+    }
+  });
+
   // Wildcard mock for any establishment member me request, to prevent 401s during layout loading
   await page.route('**/api/v1/establishments/*/members/me', async (route) => {
     if (route.request().method() === 'OPTIONS') {

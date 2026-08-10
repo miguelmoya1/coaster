@@ -10,6 +10,7 @@ export class EstablishmentRepository {
   public readonly routes = {
     myEstablishments: '/establishments',
     establishment: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}`,
+    settings: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/settings`,
     create: '/establishments',
   };
 

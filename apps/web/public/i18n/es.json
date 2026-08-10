@@ -43,6 +43,7 @@
   "MIN_LENGTH": "La longitud del texto ingresado es inferior al mínimo permitido.",
   "minLength": "Debe tener al menos {{ minLength }} caracteres.",
   "MISSING_ESTABLISHMENT_ID": "El identificador del establecimiento es obligatorio.",
+  "MODULE_NOT_ENABLED": "Este módulo no está activado en tu establecimiento. Puedes activarlo desde la configuración.",
   "NOT_YOUR_SHIFT": "No puedes modificar este turno porque no te pertenece.",
   "ORDER_ALREADY_PAID": "Este pedido ya ha sido cobrado.",
   "ORDER_ITEM_NOT_FOUND": "El producto solicitado no está en este pedido.",

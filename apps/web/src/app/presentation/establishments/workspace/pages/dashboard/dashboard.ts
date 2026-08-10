@@ -7,9 +7,10 @@ import { RouterLink } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentPermission, EstablishmentRole, ErrorCodes } from '@coaster/common';
+import { EstablishmentModule, EstablishmentPermission, EstablishmentRole, ErrorCodes } from '@coaster/common';
 import { ActionFeedback, ApiError } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
+import { ModulesStore } from '@coaster/establishments';
 import { ProductsStore } from '@coaster/products';
 import { ShiftsStore } from '@coaster/shifts';
 import { StatsStore } from '@coaster/stats';
@@ -54,12 +55,16 @@ export class Dashboard {
   readonly #membersStore = inject(MembersStore);
   readonly #shiftsStore = inject(ShiftsStore);
   readonly #statsStore = inject(StatsStore);
+  readonly #modulesStore = inject(ModulesStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #planDialogService = inject(PlanDialogService);
   readonly #actionFeedback = inject(ActionFeedback);
 
   public readonly stats = this.#statsStore.stats;
+
+  readonly hasOrders = computed(() => this.#modulesStore.isModuleEnabled(EstablishmentModule.ORDERS));
+  readonly hasInventory = computed(() => this.#modulesStore.isModuleEnabled(EstablishmentModule.INVENTORY));
 
   readonly canManageBilling = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING),

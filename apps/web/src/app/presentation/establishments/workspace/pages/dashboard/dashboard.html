@@ -64,318 +64,326 @@
       </mat-card>
     </section>
 
-    <section class="flex flex-col gap-4">
-      <header class="flex justify-between items-end">
-        <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-          <mat-icon class="text-primary text-xl">trending_up</mat-icon>
-          {{ 'dashboard.sections.financials' | translate }}
-        </h2>
-      </header>
+    @if (hasOrders()) {
+      <section class="flex flex-col gap-4">
+        <header class="flex justify-between items-end">
+          <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+            <mat-icon class="text-primary text-xl">trending_up</mat-icon>
+            {{ 'dashboard.sections.financials' | translate }}
+          </h2>
+        </header>
 
-      @if (stats.isLoading()) {
-        <coaster-loading
-          containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
-        />
-      }
-
-      @if (stats.hasValue()) {
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <coaster-stat-card
-            [label]="'dashboard.financials.today' | translate"
-            [value]="stats.value().todayRevenue | price"
+        @if (stats.isLoading()) {
+          <coaster-loading
+            containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
           />
-          <coaster-stat-card
-            [label]="'dashboard.financials.yesterday' | translate"
-            [value]="stats.value().yesterdayRevenue | price"
-            tone="secondary"
-          />
-          <coaster-stat-card
-            [label]="'dashboard.financials.weekly' | translate"
-            [value]="stats.value().weeklyRevenue | price"
-            tone="tertiary"
-          />
-        </div>
+        }
 
-        <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! overflow-hidden">
-          <mat-card-header class="flex justify-between items-center p-0">
-            <h3
-              class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
-            >
-              <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
-              {{ 'dashboard.financials.chart_title' | translate }}
-            </h3>
-            <span
-              class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-0.5 rounded-full uppercase"
-            >
-              {{ 'history.today' | translate }}
-            </span>
-          </mat-card-header>
+        @if (stats.hasValue()) {
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <coaster-stat-card
+              [label]="'dashboard.financials.today' | translate"
+              [value]="stats.value().todayRevenue | price"
+            />
+            <coaster-stat-card
+              [label]="'dashboard.financials.yesterday' | translate"
+              [value]="stats.value().yesterdayRevenue | price"
+              tone="secondary"
+            />
+            <coaster-stat-card
+              [label]="'dashboard.financials.weekly' | translate"
+              [value]="stats.value().weeklyRevenue | price"
+              tone="tertiary"
+            />
+          </div>
 
-          <mat-card-content class="relative w-full flex flex-col justify-end p-0">
-            <div class="relative w-full h-25">
-              <svg viewBox="0 0 380 110" class="w-full h-full" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
-                    <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                <line
-                  x1="0"
-                  y1="20"
-                  x2="380"
-                  y2="20"
-                  stroke="var(--color-border-ghost)"
-                  stroke-opacity="0.2"
-                  stroke-dasharray="3"
-                />
-                <line
-                  x1="0"
-                  y1="55"
-                  x2="380"
-                  y2="55"
-                  stroke="var(--color-border-ghost)"
-                  stroke-opacity="0.2"
-                  stroke-dasharray="3"
-                />
-                <line
-                  x1="0"
-                  y1="90"
-                  x2="380"
-                  y2="90"
-                  stroke="var(--color-border-ghost)"
-                  stroke-opacity="0.2"
-                  stroke-dasharray="3"
-                />
-
-                @if (chartPaths().points.length > 0) {
-                  <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
-
-                  <path
-                    [attr.d]="chartPaths().linePath"
-                    fill="none"
-                    stroke="var(--color-primary)"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke"
-                  />
-
-                  @for (pt of chartPaths().points; track pt.dayName) {
-                    <line
-                      [attr.x1]="pt.x"
-                      [attr.y1]="pt.y"
-                      [attr.x2]="pt.x"
-                      y2="100"
-                      stroke="var(--color-primary)"
-                      stroke-opacity="0.15"
-                      stroke-width="1.5"
-                      stroke-dasharray="2"
-                      vector-effect="non-scaling-stroke"
-                    />
-                  }
-                }
-              </svg>
-
-              @if (chartPaths().points.length > 0) {
-                <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
-                  @for (pt of chartPaths().points; track pt.dayName) {
-                    <div
-                      class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-auto"
-                      [style.left.%]="pt.xPct"
-                      [style.top.%]="pt.yPct"
-                    >
-                      @if (pt.amount > 0) {
-                        <span
-                          class="absolute bottom-full mb-1 text-on-surface text-[8px] font-black tracking-tighter whitespace-nowrap select-none"
-                          [class.left-0]="pt.isFirst"
-                          [class.right-0]="pt.isLast"
-                          [class.translate-x-0]="pt.isFirst || pt.isLast"
-                          [class.left-1/2]="!pt.isFirst && !pt.isLast"
-                          [class.-translate-x-1/2]="!pt.isFirst && !pt.isLast"
-                        >
-                          {{ pt.amount | price }}
-                        </span>
-                      }
-                      <div
-                        class="w-2.5 h-2.5 rounded-full bg-primary border-2 border-surface transition-transform hover:scale-150 cursor-pointer shadow-xs"
-                      ></div>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-
-            <div class="relative w-full h-4 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
-              @for (pt of chartPaths().points; track pt.dayName) {
-                <span class="absolute -translate-x-1/2 uppercase select-none text-center" [style.left.%]="pt.xPct">
-                  {{ pt.dayName }}
-                </span>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </section>
-
-    <section class="flex flex-col gap-4">
-      <header class="flex justify-between items-center">
-        <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
-          <mat-icon class="text-primary text-xl">trending_up</mat-icon>
-          {{ 'dashboard.sections.monthly_yearly' | translate }}
-        </h2>
-      </header>
-
-      @if (stats.isLoading()) {
-        <coaster-loading
-          containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
-        />
-      } @else if (stats.hasValue()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <mat-card
-            class="p-4 flex flex-col gap-2 border-l-4! border-primary hover:-translate-y-0.5 transition-all duration-200"
-          >
-            <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
-              {{ 'dashboard.financials.current_month' | translate }} ({{ currentMonthName() }})
-            </mat-card-subtitle>
-            <mat-card-title class="text-lg font-black text-on-surface tracking-tight m-0!">
-              {{ stats.value().currentMonthRevenue | price }}
-            </mat-card-title>
-            <mat-card-content class="p-0">
-              @if (stats.value().percentageChange > 0) {
-                <div class="flex items-center gap-1">
-                  <span
-                    class="text-[10px] font-black flex items-center gap-0.5"
-                    [class.text-success]="stats.value().isPositiveChange"
-                    [class.text-error]="!stats.value().isPositiveChange"
-                  >
-                    {{ stats.value().isPositiveChange ? '▲' : '▼' }}
-                    {{ stats.value().percentageChange }}%
-                  </span>
-                  <span class="text-xxs text-on-surface-variant"
-                    >vs {{ 'dashboard.financials.previous_month_short' | translate }}</span
-                  >
-                </div>
-              } @else {
-                <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.no_change' | translate }}</span>
-              }
-            </mat-card-content>
-          </mat-card>
-
-          <mat-card
-            class="p-4 flex flex-col gap-2 border-l-4! border-outline-variant hover:-translate-y-0.5 transition-all duration-200"
-          >
-            <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
-              {{ 'dashboard.financials.previous_month' | translate }} ({{ previousMonthName() }})
-            </mat-card-subtitle>
-            <mat-card-title class="text-lg font-black text-on-surface-variant tracking-tight m-0!">
-              {{ stats.value().previousMonthRevenue | price }}
-            </mat-card-title>
-            <mat-card-content class="p-0 text-xxs text-on-surface-variant">
-              {{ 'dashboard.financials.closed_revenue' | translate }}
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! relative overflow-hidden">
-          <div
-            class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"
-          ></div>
-
-          <mat-card-header class="flex justify-between items-center z-10 p-0">
-            <div class="flex flex-col">
+          <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! overflow-hidden">
+            <mat-card-header class="flex justify-between items-center p-0">
               <h3
                 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
               >
                 <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
-                {{ 'dashboard.financials.yearly' | translate }}
+                {{ 'dashboard.financials.chart_title' | translate }}
               </h3>
-              <mat-card-title class="text-2xl font-black text-on-surface tracking-tight mt-1 m-0!">
-                {{ stats.value().yearlyRevenue | price }}
-              </mat-card-title>
-            </div>
-            <span
-              class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-1 rounded-full uppercase self-start"
-            >
-              {{ currentYear() }}
-            </span>
-          </mat-card-header>
+              <span
+                class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-0.5 rounded-full uppercase"
+              >
+                {{ 'history.today' | translate }}
+              </span>
+            </mat-card-header>
 
-          <mat-card-content class="flex flex-col gap-2.5 mt-2 z-10 p-0">
-            <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
-              {{ 'dashboard.financials.yearly_progress' | translate }}
-            </span>
+            <mat-card-content class="relative w-full flex flex-col justify-end p-0">
+              <div class="relative w-full h-25">
+                <svg viewBox="0 0 380 110" class="w-full h-full" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.35" />
+                      <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
 
-            <div class="flex items-end justify-between h-20 pt-4 px-1 gap-1.5">
-              @for (m of stats.value().monthlyBreakdown; track m.monthIndex) {
-                <div class="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer relative">
-                  <div
-                    class="absolute bottom-full mb-2 bg-surface-container-high border border-outline-variant text-[10px] font-black text-on-surface px-2 py-1 rounded-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none whitespace-nowrap shadow-elevated z-20"
-                  >
-                    {{ m.amount | price }}
+                  <line
+                    x1="0"
+                    y1="20"
+                    x2="380"
+                    y2="20"
+                    stroke="var(--color-border-ghost)"
+                    stroke-opacity="0.2"
+                    stroke-dasharray="3"
+                  />
+                  <line
+                    x1="0"
+                    y1="55"
+                    x2="380"
+                    y2="55"
+                    stroke="var(--color-border-ghost)"
+                    stroke-opacity="0.2"
+                    stroke-dasharray="3"
+                  />
+                  <line
+                    x1="0"
+                    y1="90"
+                    x2="380"
+                    y2="90"
+                    stroke="var(--color-border-ghost)"
+                    stroke-opacity="0.2"
+                    stroke-dasharray="3"
+                  />
+
+                  @if (chartPaths().points.length > 0) {
+                    <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />
+
+                    <path
+                      [attr.d]="chartPaths().linePath"
+                      fill="none"
+                      stroke="var(--color-primary)"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      vector-effect="non-scaling-stroke"
+                    />
+
+                    @for (pt of chartPaths().points; track pt.dayName) {
+                      <line
+                        [attr.x1]="pt.x"
+                        [attr.y1]="pt.y"
+                        [attr.x2]="pt.x"
+                        y2="100"
+                        stroke="var(--color-primary)"
+                        stroke-opacity="0.15"
+                        stroke-width="1.5"
+                        stroke-dasharray="2"
+                        vector-effect="non-scaling-stroke"
+                      />
+                    }
+                  }
+                </svg>
+
+                @if (chartPaths().points.length > 0) {
+                  <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    @for (pt of chartPaths().points; track pt.dayName) {
+                      <div
+                        class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-auto"
+                        [style.left.%]="pt.xPct"
+                        [style.top.%]="pt.yPct"
+                      >
+                        @if (pt.amount > 0) {
+                          <span
+                            class="absolute bottom-full mb-1 text-on-surface text-[8px] font-black tracking-tighter whitespace-nowrap select-none"
+                            [class.left-0]="pt.isFirst"
+                            [class.right-0]="pt.isLast"
+                            [class.translate-x-0]="pt.isFirst || pt.isLast"
+                            [class.left-1/2]="!pt.isFirst && !pt.isLast"
+                            [class.-translate-x-1/2]="!pt.isFirst && !pt.isLast"
+                          >
+                            {{ pt.amount | price }}
+                          </span>
+                        }
+                        <div
+                          class="w-2.5 h-2.5 rounded-full bg-primary border-2 border-surface transition-transform hover:scale-150 cursor-pointer shadow-xs"
+                        ></div>
+                      </div>
+                    }
                   </div>
+                }
+              </div>
 
-                  <div
-                    class="w-full rounded-t-xs transition-all duration-300 group-hover:brightness-110"
-                    [style.height.%]="(m.amount / (stats.value().maxMonthRevenue || 1)) * 80 + 20"
-                    [class.bg-primary]="m.monthIndex === currentMonthIndex() && m.amount > 0"
-                    [class.bg-outline]="m.monthIndex === currentMonthIndex() && m.amount === 0"
-                    [class.bg-primary/40]="m.monthIndex !== currentMonthIndex() && m.amount > 0"
-                    [class.bg-outline-variant/20]="m.amount === 0"
-                    [class.border-t-2]="m.amount > 0"
-                    [class.border-primary]="m.amount > 0"
-                  ></div>
-
-                  <span
-                    class="text-[9px] font-black uppercase transition-colors"
-                    [class.text-primary]="m.monthIndex === currentMonthIndex()"
-                    [class.text-on-surface-variant]="m.monthIndex !== currentMonthIndex()"
-                  >
-                    {{ m.monthName.slice(0, 3) }}
+              <div class="relative w-full h-4 mt-3 text-[10px] font-black text-on-surface-variant tracking-wider">
+                @for (pt of chartPaths().points; track pt.dayName) {
+                  <span class="absolute -translate-x-1/2 uppercase select-none text-center" [style.left.%]="pt.xPct">
+                    {{ pt.dayName }}
                   </span>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </section>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </section>
+    }
 
-    <section class="flex flex-col gap-4">
-      <header class="flex justify-between items-center">
-        <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
-          <mat-icon class="text-primary text-xl">warning</mat-icon>
-          {{ 'dashboard.sections.pantry' | translate }}
-        </h2>
-        <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
-          {{ 'dashboard.sections.pantry_issues' | translate: { count: pantryAlerts().length } }}
-        </span>
-      </header>
+    @if (hasOrders()) {
+      <section class="flex flex-col gap-4">
+        <header class="flex justify-between items-center">
+          <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+            <mat-icon class="text-primary text-xl">trending_up</mat-icon>
+            {{ 'dashboard.sections.monthly_yearly' | translate }}
+          </h2>
+        </header>
 
-      <div class="flex flex-col gap-3">
-        @for (product of pantryAlertsSliced(); track product.id) {
-          <coaster-inventory-item-card
-            [establishmentId]="establishmentId()"
-            [itemName]="product.name"
-            [qty]="product.currentStock"
-            [statusLevel]="product.stockStatus"
-            [price]="product.price"
-            [routerLink]="['/establishments', establishmentId(), 'pantry']"
+        @if (stats.isLoading()) {
+          <coaster-loading
+            containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
           />
-        }
+        } @else if (stats.hasValue()) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <mat-card
+              class="p-4 flex flex-col gap-2 border-l-4! border-primary hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
+                {{ 'dashboard.financials.current_month' | translate }} ({{ currentMonthName() }})
+              </mat-card-subtitle>
+              <mat-card-title class="text-lg font-black text-on-surface tracking-tight m-0!">
+                {{ stats.value().currentMonthRevenue | price }}
+              </mat-card-title>
+              <mat-card-content class="p-0">
+                @if (stats.value().percentageChange > 0) {
+                  <div class="flex items-center gap-1">
+                    <span
+                      class="text-[10px] font-black flex items-center gap-0.5"
+                      [class.text-success]="stats.value().isPositiveChange"
+                      [class.text-error]="!stats.value().isPositiveChange"
+                    >
+                      {{ stats.value().isPositiveChange ? '▲' : '▼' }}
+                      {{ stats.value().percentageChange }}%
+                    </span>
+                    <span class="text-xxs text-on-surface-variant"
+                      >vs {{ 'dashboard.financials.previous_month_short' | translate }}</span
+                    >
+                  </div>
+                } @else {
+                  <span class="text-xxs text-on-surface-variant">{{
+                    'dashboard.financials.no_change' | translate
+                  }}</span>
+                }
+              </mat-card-content>
+            </mat-card>
 
-        @if (hasMorePantryAlerts()) {
-          <a
-            [routerLink]="['/establishments', establishmentId(), 'pantry']"
-            class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
-          >
-            <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
-            <mat-icon class="text-lg">chevron_right</mat-icon>
-          </a>
+            <mat-card
+              class="p-4 flex flex-col gap-2 border-l-4! border-outline-variant hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
+                {{ 'dashboard.financials.previous_month' | translate }} ({{ previousMonthName() }})
+              </mat-card-subtitle>
+              <mat-card-title class="text-lg font-black text-on-surface-variant tracking-tight m-0!">
+                {{ stats.value().previousMonthRevenue | price }}
+              </mat-card-title>
+              <mat-card-content class="p-0 text-xxs text-on-surface-variant">
+                {{ 'dashboard.financials.closed_revenue' | translate }}
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! relative overflow-hidden">
+            <div
+              class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"
+            ></div>
+
+            <mat-card-header class="flex justify-between items-center z-10 p-0">
+              <div class="flex flex-col">
+                <h3
+                  class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
+                >
+                  <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
+                  {{ 'dashboard.financials.yearly' | translate }}
+                </h3>
+                <mat-card-title class="text-2xl font-black text-on-surface tracking-tight mt-1 m-0!">
+                  {{ stats.value().yearlyRevenue | price }}
+                </mat-card-title>
+              </div>
+              <span
+                class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-1 rounded-full uppercase self-start"
+              >
+                {{ currentYear() }}
+              </span>
+            </mat-card-header>
+
+            <mat-card-content class="flex flex-col gap-2.5 mt-2 z-10 p-0">
+              <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
+                {{ 'dashboard.financials.yearly_progress' | translate }}
+              </span>
+
+              <div class="flex items-end justify-between h-20 pt-4 px-1 gap-1.5">
+                @for (m of stats.value().monthlyBreakdown; track m.monthIndex) {
+                  <div class="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer relative">
+                    <div
+                      class="absolute bottom-full mb-2 bg-surface-container-high border border-outline-variant text-[10px] font-black text-on-surface px-2 py-1 rounded-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none whitespace-nowrap shadow-elevated z-20"
+                    >
+                      {{ m.amount | price }}
+                    </div>
+
+                    <div
+                      class="w-full rounded-t-xs transition-all duration-300 group-hover:brightness-110"
+                      [style.height.%]="(m.amount / (stats.value().maxMonthRevenue || 1)) * 80 + 20"
+                      [class.bg-primary]="m.monthIndex === currentMonthIndex() && m.amount > 0"
+                      [class.bg-outline]="m.monthIndex === currentMonthIndex() && m.amount === 0"
+                      [class.bg-primary/40]="m.monthIndex !== currentMonthIndex() && m.amount > 0"
+                      [class.bg-outline-variant/20]="m.amount === 0"
+                      [class.border-t-2]="m.amount > 0"
+                      [class.border-primary]="m.amount > 0"
+                    ></div>
+
+                    <span
+                      class="text-[9px] font-black uppercase transition-colors"
+                      [class.text-primary]="m.monthIndex === currentMonthIndex()"
+                      [class.text-on-surface-variant]="m.monthIndex !== currentMonthIndex()"
+                    >
+                      {{ m.monthName.slice(0, 3) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
         }
-      </div>
-    </section>
+      </section>
+    }
+
+    @if (hasInventory()) {
+      <section class="flex flex-col gap-4">
+        <header class="flex justify-between items-center">
+          <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
+            <mat-icon class="text-primary text-xl">warning</mat-icon>
+            {{ 'dashboard.sections.pantry' | translate }}
+          </h2>
+          <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
+            {{ 'dashboard.sections.pantry_issues' | translate: { count: pantryAlerts().length } }}
+          </span>
+        </header>
+
+        <div class="flex flex-col gap-3">
+          @for (product of pantryAlertsSliced(); track product.id) {
+            <coaster-inventory-item-card
+              [establishmentId]="establishmentId()"
+              [itemName]="product.name"
+              [qty]="product.currentStock"
+              [statusLevel]="product.stockStatus"
+              [price]="product.price"
+              [routerLink]="['/establishments', establishmentId(), 'pantry']"
+            />
+          }
+
+          @if (hasMorePantryAlerts()) {
+            <a
+              [routerLink]="['/establishments', establishmentId(), 'pantry']"
+              class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
+            >
+              <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
+              <mat-icon class="text-lg">chevron_right</mat-icon>
+            </a>
+          }
+        </div>
+      </section>
+    }
 
     <section class="flex flex-col gap-4">
       <header class="flex justify-between items-center">

@@ -1,10 +1,17 @@
+import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
 import { CanActivate, ExecutionContext, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
-import { DbService, DbEstablishmentRole, DbSubscriptionPlan, DbSubscriptionStatus } from '../../src/core/db';
+import {
+  DbService,
+  DbEstablishmentModule,
+  DbEstablishmentRole,
+  DbSubscriptionPlan,
+  DbSubscriptionStatus,
+} from '../../src/core/db';
 import { WsAuthService } from '../../src/websockets/services';
 
 const TRIAL_DAYS = 14;
@@ -87,10 +94,11 @@ export class E2eTestSetup {
 
   async createEstablishment(
     name = 'Test Establishment',
-    options: { ownerId?: string | null; role?: DbEstablishmentRole } = {},
+    options: { ownerId?: string | null; role?: DbEstablishmentRole; modules?: EstablishmentModule[] } = {},
   ) {
     const ownerId = options.ownerId === undefined ? mockUser.id : options.ownerId;
     const role = options.role ?? DbEstablishmentRole.OWNER;
+    const modules = resolveModules(options.modules ?? DEFAULT_ESTABLISHMENT_MODULES);
 
     return this.prisma.dbEstablishment.create({
       data: {
@@ -103,6 +111,7 @@ export class E2eTestSetup {
             trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
         },
+        settings: { create: { modules: modules as DbEstablishmentModule[] } },
       },
     });
   }

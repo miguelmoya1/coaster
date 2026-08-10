@@ -3,7 +3,8 @@ import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentPermission, EstablishmentPermissionType } from '@coaster/common';
+import { EstablishmentModule, EstablishmentPermission, EstablishmentPermissionType } from '@coaster/common';
+import { ModulesStore } from '@coaster/establishments';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface NavItem {
@@ -12,6 +13,7 @@ interface NavItem {
   icon: string;
   labelKey: string;
   requiredPermission?: EstablishmentPermissionType;
+  requiredModule?: EstablishmentModule;
 }
 
 @Component({
@@ -43,6 +45,7 @@ interface NavItem {
 export class BottomNav {
   public readonly establishmentId = input.required<string>();
   readonly #myMemberStore = inject(MyMemberStore);
+  readonly #modulesStore = inject(ModulesStore);
 
   private readonly allNavItems = computed<NavItem[]>(() => [
     {
@@ -58,6 +61,7 @@ export class BottomNav {
       icon: 'assignment',
       labelKey: 'nav.orders',
       requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS,
+      requiredModule: EstablishmentModule.ORDERS,
     },
     {
       value: 'roster',
@@ -72,6 +76,7 @@ export class BottomNav {
       icon: 'inventory_2',
       labelKey: 'nav.pantry',
       requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS,
+      requiredModule: EstablishmentModule.INVENTORY,
     },
     {
       value: 'staff',
@@ -84,7 +89,9 @@ export class BottomNav {
 
   protected readonly visibleNavItems = computed(() =>
     this.allNavItems().filter(
-      (item) => !item.requiredPermission || this.#myMemberStore.hasPermission(item.requiredPermission),
+      (item) =>
+        (!item.requiredPermission || this.#myMemberStore.hasPermission(item.requiredPermission)) &&
+        (!item.requiredModule || this.#modulesStore.isModuleEnabled(item.requiredModule)),
     ),
   );
 }

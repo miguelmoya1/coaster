@@ -2,7 +2,7 @@ import { asEstablishmentId, asOrderId, asOrderItemId, asTableId } from '@coaster
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -46,6 +46,8 @@ describe('OrdersController', () => {
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
+      .useValue(mockGuard)
+      .overrideGuard(EstablishmentModulesGuard)
       .useValue(mockGuard)
       .compile();
 

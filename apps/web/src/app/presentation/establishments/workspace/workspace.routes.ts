@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { EstablishmentPermission } from '@coaster/common';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import { moduleGuard } from '@coaster/establishments';
 import { permissionGuard } from '@coaster/establishment-members';
 
 const mainRoutes: Routes = [
@@ -20,7 +21,10 @@ const mainRoutes: Routes = [
       {
         path: 'pantry',
         loadChildren: () => import('./pages/pantry/pantry.routes'),
-        canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS)],
+        canActivate: [
+          moduleGuard(EstablishmentModule.INVENTORY),
+          permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS),
+        ],
       },
       {
         path: 'roster',
@@ -35,7 +39,10 @@ const mainRoutes: Routes = [
       {
         path: 'orders',
         loadChildren: () => import('./orders/orders.routes'),
-        canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS)],
+        canActivate: [
+          moduleGuard(EstablishmentModule.ORDERS),
+          permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS),
+        ],
       },
       {
         path: '**',

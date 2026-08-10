@@ -1,7 +1,12 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Order, OrderAdjustmentId, OrderId, OrderItemId } from '@coaster/common';
-import { EstablishmentPermission, OrderStatus } from '@coaster/common';
-import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModule, EstablishmentPermission, OrderStatus } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -30,7 +35,8 @@ import { OrdersMapper } from '../mappers/orders.mapper';
 import { GetOrderByIdQuery, GetOrdersByEstablishmentIdQuery, GetOrdersByDateQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/orders')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.ORDERS)
 export class OrdersController {
   constructor(
     private readonly _queryBus: QueryBus,

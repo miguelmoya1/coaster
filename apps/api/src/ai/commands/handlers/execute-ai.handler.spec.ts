@@ -1,5 +1,5 @@
 import type { User } from '@coaster/common';
-import { asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES, asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
 import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
@@ -30,6 +30,7 @@ describe('ExecuteAiHandler', () => {
     const mockSecurityRepository = {
       getUserRole: vi.fn(),
       getEstablishmentMemberRole: vi.fn(),
+      getEnabledModules: vi.fn().mockResolvedValue(DEFAULT_ESTABLISHMENT_MODULES),
     };
 
     const module: TestingModule = await Test.createTestingModule({

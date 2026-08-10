@@ -1,7 +1,14 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { ICategoryTemplate, IProductTemplate } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { Admin, AdminGuard, EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  Admin,
+  AdminGuard,
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -100,7 +107,8 @@ export class TemplatesController {
 
   @Post('establishment/:establishmentId')
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_IMPORT_TEMPLATES)
-  @UseGuards(EstablishmentPermissionsGuard)
+  @RequiresModule(EstablishmentModule.INVENTORY)
+  @UseGuards(EstablishmentPermissionsGuard, EstablishmentModulesGuard)
   async importTemplatesToEstablishment(
     @Param('establishmentId') establishmentId: string,
     @Body() importDto: ImportTemplatesDto,

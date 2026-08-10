@@ -1,7 +1,13 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Table, TableId } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { EstablishmentPermissions, EstablishmentPermissionsGuard, commonMapper } from '@coaster/core';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+  commonMapper,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateTableCommand, DeleteTableCommand, UpdateTableCommand } from '../commands';
@@ -11,7 +17,8 @@ import { TablesMapper } from '../mappers/tables.mapper';
 import { GetTablesByEstablishmentIdQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/tables')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.ORDERS)
 export class TablesController {
   constructor(
     private readonly _queryBus: QueryBus,

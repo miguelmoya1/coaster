@@ -1,6 +1,6 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import { asCategoryId } from '@coaster/common';
-import { AdminGuard, EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModulesGuard, AdminGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -41,6 +41,8 @@ describe('TemplatesController', () => {
       .overrideGuard(AdminGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
+      .useValue(mockGuard)
+      .overrideGuard(EstablishmentModulesGuard)
       .useValue(mockGuard)
       .compile();
 

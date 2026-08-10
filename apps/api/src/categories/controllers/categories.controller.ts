@@ -1,7 +1,13 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { EstablishmentId, Category, CategoryId } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
-import { EstablishmentPermissions, EstablishmentPermissionsGuard, commonMapper } from '@coaster/core';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+  commonMapper,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCategoryCommand, DeleteCategoryCommand, UpdateCategoryCommand } from '../commands';
@@ -11,7 +17,8 @@ import { CategoriesMapper } from '../mappers/categories.mapper';
 import { GetCategoriesQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/categories')
-@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.INVENTORY)
 export class CategoriesController {
   constructor(
     private readonly _queryBus: QueryBus,

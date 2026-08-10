@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CurrentEstablishmentStore } from '@coaster/establishments';
+import { ModulesStore, CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
 import { EstablishmentId, EstablishmentPermission } from '@coaster/common';
@@ -12,6 +12,13 @@ import { StatsStore } from '@coaster/stats';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Dashboard from './dashboard';
+
+const modulesStoreMock = {
+  currentEstablishmentId: signal(undefined).asReadonly(),
+  settings: { isLoading: signal(false).asReadonly() },
+  setEstablishmentId: vi.fn(),
+  isModuleEnabled: vi.fn(() => true),
+};
 
 describe('Dashboard', () => {
   let component: Dashboard;
@@ -103,6 +110,7 @@ describe('Dashboard', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: MembersStore, useValue: membersStoreMock },
+        { provide: ModulesStore, useValue: modulesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
         { provide: ShiftsStore, useValue: shiftsStoreMock },
         { provide: StatsStore, useValue: statsStoreMock },

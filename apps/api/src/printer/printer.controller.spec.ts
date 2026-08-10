@@ -1,5 +1,5 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { EstablishmentPermissionsGuard } from '@coaster/core';
+import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import {
   BadRequestException,
   CanActivate,
@@ -40,6 +40,8 @@ describe('Printer Controllers', () => {
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
       .overrideGuard(EstablishmentPermissionsGuard)
+      .useValue(mockGuard)
+      .overrideGuard(EstablishmentModulesGuard)
       .useValue(mockGuard)
       .compile();
 

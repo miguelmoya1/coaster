@@ -1,6 +1,13 @@
 import { GetCategoriesQuery } from '@coaster/categories';
 import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
-import { asEstablishmentRole, EstablishmentRole, ErrorCodes, getRolePermissions, OrderStatus } from '@coaster/common';
+import {
+  asEstablishmentRole,
+  EstablishmentModule,
+  EstablishmentRole,
+  ErrorCodes,
+  getRolePermissions,
+  OrderStatus,
+} from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
 import { DbEstablishmentRole, DbRole } from '@coaster/core/db';
 import { GetOrdersByEstablishmentIdQuery } from '@coaster/orders';
@@ -55,22 +62,35 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       userEstablishmentRole = asEstablishmentRole(membership.role);
     }
 
+    const modules = await this._securityRepository.getEnabledModules(establishmentId);
+    const hasOrders = modules.includes(EstablishmentModule.ORDERS);
+    const hasInventory = modules.includes(EstablishmentModule.INVENTORY);
+
     const [tables, products, openOrders, categories] = await Promise.all([
-      this._queryBus.execute<GetTablesByEstablishmentIdQuery, Table[]>(
-        new GetTablesByEstablishmentIdQuery(establishmentId),
-      ),
-      this._queryBus.execute<GetProductsByEstablishmentIdQuery, Product[]>(
-        new GetProductsByEstablishmentIdQuery(establishmentId),
-      ),
-      this._queryBus.execute<GetOrdersByEstablishmentIdQuery, Order[]>(
-        new GetOrdersByEstablishmentIdQuery(establishmentId, OrderStatus.OPEN),
-      ),
-      this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(establishmentId)),
+      hasOrders
+        ? this._queryBus.execute<GetTablesByEstablishmentIdQuery, Table[]>(
+            new GetTablesByEstablishmentIdQuery(establishmentId),
+          )
+        : Promise.resolve<Table[]>([]),
+      hasInventory
+        ? this._queryBus.execute<GetProductsByEstablishmentIdQuery, Product[]>(
+            new GetProductsByEstablishmentIdQuery(establishmentId),
+          )
+        : Promise.resolve<Product[]>([]),
+      hasOrders
+        ? this._queryBus.execute<GetOrdersByEstablishmentIdQuery, Order[]>(
+            new GetOrdersByEstablishmentIdQuery(establishmentId, OrderStatus.OPEN),
+          )
+        : Promise.resolve<Order[]>([]),
+      hasInventory
+        ? this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(establishmentId))
+        : Promise.resolve<Category[]>([]),
     ]);
 
     const userLang = user.language || 'es';
     const systemPrompt = this.#buildSystemPrompt({
       establishmentId,
+      modules,
       user,
       isAdmin,
       userEstablishmentRole,
@@ -105,6 +125,7 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
         stopWhen: stepCountIs(MAX_TOOL_STEPS),
         tools: getAiTools({
           establishmentId,
+          modules,
           user,
           isAdmin,
           establishmentRole: userEstablishmentRole,
@@ -154,6 +175,7 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
 
   #buildSystemPrompt(input: {
     establishmentId: string;
+    modules: EstablishmentModule[];
     user: { id: string; name: string };
     isAdmin: boolean;
     userEstablishmentRole: EstablishmentRole;
@@ -165,6 +187,7 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
   }): string {
     const {
       establishmentId,
+      modules,
       user,
       isAdmin,
       userEstablishmentRole,
@@ -225,6 +248,11 @@ ${ordersList || '(None)'}
 
 This snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,
 shifts, staff, stock alerts) must be fetched with a read tool instead of guessed.
+
+=== MODULES THIS ESTABLISHMENT RUNS ===
+${modules.join(', ')}
+Only tools belonging to these modules exist in this conversation. If the user asks for something
+from a module that is off, say it is not enabled here rather than reaching for a tool.
 
 === THIS USER'S PERMISSIONS ===
 ${permissionsList}

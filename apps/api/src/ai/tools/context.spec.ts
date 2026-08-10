@@ -1,5 +1,5 @@
 import type { User } from '@coaster/common';
-import { asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES, asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
 import type { CommandBus, QueryBus } from '@nestjs/cqrs';
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +11,7 @@ describe('createToolRunner', () => {
 
   const buildContext = (overrides: Partial<AiToolsContext> = {}): AiToolsContext => ({
     establishmentId: asEstablishmentId('establishment-1'),
+    modules: DEFAULT_ESTABLISHMENT_MODULES,
     user: { id: asUserId('user-1'), name: 'Ana' } as User,
     isAdmin: false,
     establishmentRole: EstablishmentRole.STAFF,
