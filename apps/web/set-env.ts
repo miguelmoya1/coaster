@@ -5,10 +5,7 @@ import type { Environment } from './src/environments/environment.interface';
 config();
 
 if (process.env.PRODUCTION === undefined) {
-  throw new Error(
-    'PRODUCTION is not set. Define it as "true" or "false" in the environment (or in apps/web/.env) ' +
-      'so the bundle is not silently built as a development one.',
-  );
+  console.warn('⚠️  PRODUCTION is not set; building as development. Set it to "true" for a release bundle.');
 }
 
 if (process.env.PRODUCTION === 'true' && process.env.USE_EMULATORS === 'true') {

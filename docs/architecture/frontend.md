@@ -141,10 +141,14 @@ touching `eslint.config.js`.
 
 ## Environment and builds
 
-`environment.ts` is **generated** by `set-env.ts` from environment variables and is gitignored. The
-script refuses to run if `PRODUCTION` is undefined, and refuses a production build with
-`USE_EMULATORS=true` — both used to fail silently and produce a bundle that looked fine and pointed
-at the Firebase emulator.
+`environment.ts` is **generated** by `set-env.ts` from environment variables and is gitignored. An
+unset `PRODUCTION` warns and falls back to development, so a fresh checkout and CI both work without
+a `.env`; `PRODUCTION=true` together with `USE_EMULATORS=true` is refused outright, because it
+produces a bundle that looks fine and talks to the Firebase emulator.
+
+The guarantee that actually matters is checked on the artefact, not on the inputs: CI builds the web
+with `PRODUCTION=true` and fails if `__TEST_LOGIN__` appears anywhere in `dist/`. A precondition can
+be skipped by whoever forgets to set it; the postcondition cannot.
 
 `environment.production` also gates the test-login backdoor (`window.__TEST_LOGIN__`), which the
 Playwright suite relies on and which the production build tree-shakes away entirely.
