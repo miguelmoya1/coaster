@@ -7,7 +7,7 @@ import { EstablishmentPermission } from '@coaster/common';
 import type { EstablishmentId } from '@coaster/common';
 import { Auth, CurrentUser } from '@coaster/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiVoiceService } from '../ai-assistant/ai-voice.service';
 import { TopAppBar } from './top-app-bar';
 
@@ -160,6 +160,50 @@ describe('TopAppBar', () => {
       await component.logout();
       expect(authMock.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/login'], { replaceUrl: true });
+    });
+  });
+
+  describe('the way back to the establishment settings', () => {
+    /*
+     * hasPermission is a plain mock behind a computed, so the component caches whatever it answered
+     * first. The permission has to be in place before the component exists.
+     */
+    const renderWith = (allowed: boolean) => {
+      myMemberStoreMock.hasPermission.mockImplementation(
+        (perm: EstablishmentPermission) => allowed && perm === EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS,
+      );
+
+      const own = TestBed.createComponent(TopAppBar);
+      own.componentRef.setInput('label', 'Dashboard');
+      own.componentRef.setInput('image', 'https://photo.url/user.jpg');
+      own.componentRef.setInput('establishmentId', 'establishment-123' as EstablishmentId);
+      own.detectChanges();
+
+      own.nativeElement.querySelector('button[aria-label="Open menu"]').click();
+      own.detectChanges();
+
+      return own;
+    };
+
+    const settingsHrefs = () =>
+      Array.from(document.querySelectorAll('a.mat-mdc-menu-item'))
+        .map((item) => (item as HTMLAnchorElement).getAttribute('href'))
+        .filter((href) => href?.endsWith('/settings'));
+
+    afterEach(() => {
+      document.querySelectorAll('.cdk-overlay-container').forEach((overlay) => overlay.remove());
+    });
+
+    it('should offer an owner a way into the settings from the overflow menu', () => {
+      renderWith(true);
+
+      expect(settingsHrefs()).toEqual(['/establishments/establishment-123/settings']);
+    });
+
+    it('should keep it away from anyone who cannot change them', () => {
+      renderWith(false);
+
+      expect(settingsHrefs()).toEqual([]);
     });
   });
 
