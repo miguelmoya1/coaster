@@ -1,4 +1,4 @@
-import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { Order, PrintTicketPayloadDto } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
@@ -34,7 +34,7 @@ describe('PrintTicket', () => {
 
   const createMockOrder = (overrides: Partial<Order> = {}): Order => ({
     id: asOrderId('order-1'),
-    barId: asBarId('bar-100'),
+    establishmentId: asEstablishmentId('establishment-100'),
     status: OrderStatus.OPEN,
     totalAmount: 2550,
     amountPaidCash: 0,
@@ -79,12 +79,15 @@ describe('PrintTicket', () => {
     ...overrides,
   });
 
-  it('should call printerRepository.printTicket with the correct barId', async () => {
+  it('should call printerRepository.printTicket with the correct establishmentId', async () => {
     const order = createMockOrder();
     await service.execute(order);
 
     expect(printerRepositoryMock.printTicket).toHaveBeenCalledTimes(1);
-    expect(printerRepositoryMock.printTicket).toHaveBeenCalledWith(asBarId('bar-100'), expect.any(Object));
+    expect(printerRepositoryMock.printTicket).toHaveBeenCalledWith(
+      asEstablishmentId('establishment-100'),
+      expect.any(Object),
+    );
   });
 
   it('should build a structured ticket payload with type "order"', async () => {
@@ -170,10 +173,10 @@ describe('PrintTicket', () => {
     await expect(service.execute(createMockOrder())).rejects.toThrow('printer is out of paper');
   });
 
-  it('should pass the bar name through to the ticket header', async () => {
-    await service.execute(createMockOrder(), 'Bar Central');
+  it('should pass the establishment name through to the ticket header', async () => {
+    await service.execute(createMockOrder(), 'Establishment Central');
 
     const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
-    expect(payload.barName).toBe('Bar Central');
+    expect(payload.establishmentName).toBe('Establishment Central');
   });
 });

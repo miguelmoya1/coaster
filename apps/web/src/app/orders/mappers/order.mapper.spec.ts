@@ -1,4 +1,4 @@
-import { asBarId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coaster/common';
 import type { Order } from '@coaster/common';
 import { DeliveryStatus, OrderStatus, PaymentMethod, PaymentStatus } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
@@ -7,7 +7,7 @@ import { checkIsOrder, orderArrayMapper, orderMapper } from './order.mapper';
 describe('Order Mapper', () => {
   const validOrder: Order = {
     id: asOrderId('order-1'),
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
     status: OrderStatus.OPEN,
     totalAmount: 1500,
     amountPaidCash: 0,

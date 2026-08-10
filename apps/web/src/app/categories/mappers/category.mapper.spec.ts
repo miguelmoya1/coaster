@@ -1,12 +1,12 @@
 import type { Category } from '@coaster/common';
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { categoryArrayMapper, categoryMapper, checkIsCategory } from './category.mapper';
 
 describe('Category Mapper', () => {
   const validCategory: Category = {
     id: asCategoryId('cat-1'),
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
     name: 'Tapas',
   };
 

@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TableRepository } from '../data-access/table-repository';
@@ -26,13 +26,13 @@ describe('DeleteTable', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const tableId = asTableId('table-1');
       tableRepoMock['delete'].mockResolvedValue({ success: true });
 
-      const result = await service.execute(barId, tableId);
+      const result = await service.execute(establishmentId, tableId);
 
-      expect(tableRepoMock['delete']).toHaveBeenCalledWith(barId, tableId);
+      expect(tableRepoMock['delete']).toHaveBeenCalledWith(establishmentId, tableId);
       expect(result).toEqual({ success: true });
     });
   });

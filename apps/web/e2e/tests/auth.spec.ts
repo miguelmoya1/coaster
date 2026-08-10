@@ -18,15 +18,15 @@ test.describe('Auth Flow', () => {
     await expect(loginPage.googleSignInButton).toBeEnabled();
   });
 
-  test('should login using mocked auth and redirect to /bars/select', async ({ page }) => {
-    // Mock /bars so that the redirect works
-    await mockApiResponse(page, '/bars', 'GET', []);
+  test('should login using mocked auth and redirect to /establishments/select', async ({ page }) => {
+    // Mock /establishments so that the redirect works
+    await mockApiResponse(page, '/establishments', 'GET', []);
 
     // Perform login
     await loginAsTestUser(page);
 
-    // After login, the user should be redirected to /bars/select
-    await page.waitForURL('**/bars/select');
-    expect(page.url()).toContain('/bars/select');
+    // After login, the user should be redirected to /establishments/select
+    await page.waitForURL('**/establishments/select');
+    expect(page.url()).toContain('/establishments/select');
   });
 });

@@ -8,25 +8,28 @@ export class PrinterRepository {
   readonly #http = inject(HttpClient);
 
   public readonly routes = {
-    print: (barId: string) => `/bars/${barId}/printer/jobs`,
-    job: (barId: string, jobId: string) => `/bars/${barId}/printer/jobs/${jobId}`,
-    status: (barId: string) => `/bars/${barId}/printer/status`,
-    deviceKey: (barId: string) => `/bars/${barId}/printer/device-key`,
+    print: (establishmentId: string) => `/establishments/${establishmentId}/printer/jobs`,
+    job: (establishmentId: string, jobId: string) => `/establishments/${establishmentId}/printer/jobs/${jobId}`,
+    status: (establishmentId: string) => `/establishments/${establishmentId}/printer/status`,
+    deviceKey: (establishmentId: string) => `/establishments/${establishmentId}/printer/device-key`,
   };
 
-  public async printTicket(barId: string, payload: PrintTicketPayloadDto): Promise<EnqueuePrintJobResponseDto> {
-    return firstValueFrom(this.#http.post<EnqueuePrintJobResponseDto>(this.routes.print(barId), payload));
+  public async printTicket(
+    establishmentId: string,
+    payload: PrintTicketPayloadDto,
+  ): Promise<EnqueuePrintJobResponseDto> {
+    return firstValueFrom(this.#http.post<EnqueuePrintJobResponseDto>(this.routes.print(establishmentId), payload));
   }
 
-  public async getJob(barId: string, jobId: string): Promise<PrintJobDto> {
-    return firstValueFrom(this.#http.get<PrintJobDto>(this.routes.job(barId, jobId)));
+  public async getJob(establishmentId: string, jobId: string): Promise<PrintJobDto> {
+    return firstValueFrom(this.#http.get<PrintJobDto>(this.routes.job(establishmentId, jobId)));
   }
 
-  public async getStatus(barId: string): Promise<PrinterStatusDto> {
-    return firstValueFrom(this.#http.get<PrinterStatusDto>(this.routes.status(barId)));
+  public async getStatus(establishmentId: string): Promise<PrinterStatusDto> {
+    return firstValueFrom(this.#http.get<PrinterStatusDto>(this.routes.status(establishmentId)));
   }
 
-  public async generateDeviceKey(barId: string): Promise<{ deviceKey: string }> {
-    return firstValueFrom(this.#http.post<{ deviceKey: string }>(this.routes.deviceKey(barId), {}));
+  public async generateDeviceKey(establishmentId: string): Promise<{ deviceKey: string }> {
+    return firstValueFrom(this.#http.post<{ deviceKey: string }>(this.routes.deviceKey(establishmentId), {}));
   }
 }

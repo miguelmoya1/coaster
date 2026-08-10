@@ -6,10 +6,10 @@ Anything the API and the front end need to agree on lives in the shared package,
 both sides:
 
 - Domain interfaces and DTOs.
-- Enums and constants (`BarRole`, `Role`, `SubscriptionPlan`, `ErrorCodes`, ...).
+- Enums and constants (`EstablishmentRole`, `Role`, `SubscriptionPlan`, `ErrorCodes`, ...).
 - `domain/permissions` — the permission table and `hasPermission`.
 - `domain/pricing` — the order pricing engine.
-- `utils/brands` — branded-type constructors (`asBarId`, `asBarRole`, ...).
+- `utils/brands` — branded-type constructors (`asEstablishmentId`, `asEstablishmentRole`, ...).
 - `utils/stock` — stock status calculation.
 
 Rule: if the logic is identical on both sides, it goes here. Each `core` only keeps what belongs to
@@ -22,7 +22,7 @@ the raw key to a user.
 
 ## Contexts
 
-Bars and memberships · menu (categories and products) · tables and orders · shifts and exchanges ·
+Establishments and memberships · menu (categories and products) · tables and orders · shifts and exchanges ·
 time tracking · printing · billing (Stripe and manual grants) · platform administration.
 
 ## Orders and pricing
@@ -76,16 +76,16 @@ so the result does not depend on row ordering.
   - **A closed exchange is not deleted** (`EXCHANGE_ALREADY_CLOSED`), not even by the owner:
     deleting it undid nothing and lost the trace of who took the shift. Live offers can be withdrawn
     by their author, and any of them by the owner.
-  - The offer list starts at **the bar's local day** (`BAR_TIME_ZONE`), not the UTC day: an
+  - The offer list starts at **the establishment's local day** (`ESTABLISHMENT_TIME_ZONE`), not the UTC day: an
     early-hours shift used to disappear on the very day it happened.
 
-Creating a shift requires the assignee to be an active member of that bar, and the end to be after
+Creating a shift requires the assignee to be an active member of that establishment, and the end to be after
 the start. Without the membership check any platform user id was accepted, which put a stranger's
 name and photo into another venue's rota.
 
 ## Time tracking
 
-`TimeEntry` is append-only and hash-chained per bar. It has its own document —
+`TimeEntry` is append-only and hash-chained per establishment. It has its own document —
 [time tracking](../operations/time-tracking.md) — because it is the one context with a legal
 obligation attached.
 
@@ -96,7 +96,7 @@ all — otherwise an absence, which is exactly what you want to see, would be in
 
 ## Billing
 
-- BarSubscription
+- EstablishmentSubscription
   - plan: FREE | PRO
   - status: INACTIVE | TRIALING | ACTIVE | PAST_DUE | CANCELED | UNPAID | EXPIRED
   - stripeCustomerId / stripeSubscriptionId
@@ -126,19 +126,19 @@ why idempotency does not need one here.
 - SubscriptionOverriddenEvent — an admin granted or revoked a plan by hand
 
 The first three are emitted while processing webhooks; the fourth from the backoffice. All of them
-end at the same websocket handler, which tells the bar's clients with `subscriptionUpdated`.
+end at the same websocket handler, which tells the establishment's clients with `subscriptionUpdated`.
 
 ## Member domain events
 
 - MemberInvitedEvent
-- MemberRemovedEvent — also evicts that user from the bar's websocket room
+- MemberRemovedEvent — also evicts that user from the establishment's websocket room
 - MemberRoleChangedEvent — goes out over the socket as `memberRoleChanged`, so the team list and the
   affected person's own permissions refresh without a reload
 
 ## Indexing
 
 PostgreSQL does not index foreign keys on its own and Prisma does not add them. Every hot filter has
-an explicit index: `Order(barId, status)` and `Order(barId, createdAt)`, `OrderItem(orderId)`,
-`OrderAdjustment(orderId)`, `Shift(barId, startTime)`, `Category(barId, deletedAt)`,
-`Product(categoryId, deletedAt)`, `BarMember(barId, deletedAt)`. Without them the orders screen was
+an explicit index: `Order(establishmentId, status)` and `Order(establishmentId, createdAt)`, `OrderItem(orderId)`,
+`OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)`, `Category(establishmentId, deletedAt)`,
+`Product(categoryId, deletedAt)`, `EstablishmentMember(establishmentId, deletedAt)`. Without them the orders screen was
 a sequential scan of the whole table.

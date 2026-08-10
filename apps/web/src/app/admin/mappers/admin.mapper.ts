@@ -1,7 +1,7 @@
 import type {
   AdminAuditLogEntry,
-  AdminBarDetail,
-  AdminBarSummary,
+  AdminEstablishmentDetail,
+  AdminEstablishmentSummary,
   AdminPlatformMetrics,
   AdminUserDetail,
   AdminUserSummary,
@@ -23,8 +23,8 @@ const paginatedMapper = <T>(payload: unknown, what: string): Paginated<T> => {
   };
 };
 
-export const adminBarsMapper = (payload: unknown): Paginated<AdminBarSummary> =>
-  paginatedMapper<AdminBarSummary>(payload, 'AdminBars');
+export const adminEstablishmentsMapper = (payload: unknown): Paginated<AdminEstablishmentSummary> =>
+  paginatedMapper<AdminEstablishmentSummary>(payload, 'AdminEstablishments');
 
 export const adminUsersMapper = (payload: unknown): Paginated<AdminUserSummary> =>
   paginatedMapper<AdminUserSummary>(payload, 'AdminUsers');
@@ -32,12 +32,12 @@ export const adminUsersMapper = (payload: unknown): Paginated<AdminUserSummary> 
 export const adminAuditMapper = (payload: unknown): Paginated<AdminAuditLogEntry> =>
   paginatedMapper<AdminAuditLogEntry>(payload, 'AdminAudit');
 
-export const adminBarDetailMapper = (payload: unknown): AdminBarDetail => {
-  if (!isRecord(payload) || !isRecord(payload['bar']) || !isRecord(payload['subscription'])) {
-    throw new Error('Invalid AdminBarDetail payload');
+export const adminEstablishmentDetailMapper = (payload: unknown): AdminEstablishmentDetail => {
+  if (!isRecord(payload) || !isRecord(payload['establishment']) || !isRecord(payload['subscription'])) {
+    throw new Error('Invalid AdminEstablishmentDetail payload');
   }
 
-  return payload as unknown as AdminBarDetail;
+  return payload as unknown as AdminEstablishmentDetail;
 };
 
 export const adminUserDetailMapper = (payload: unknown): AdminUserDetail => {
@@ -49,7 +49,7 @@ export const adminUserDetailMapper = (payload: unknown): AdminUserDetail => {
 };
 
 export const adminMetricsMapper = (payload: unknown): AdminPlatformMetrics => {
-  if (!isRecord(payload) || !isRecord(payload['bars']) || !isRecord(payload['subscriptions'])) {
+  if (!isRecord(payload) || !isRecord(payload['establishments']) || !isRecord(payload['subscriptions'])) {
     throw new Error('Invalid AdminPlatformMetrics payload');
   }
 

@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { SubscriptionStatus } from '@coaster/common';
 import { AdminOverviewStore } from '@coaster/admin';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PricePipe } from '../../../bars/workspace/pipes/price/price';
+import { PricePipe } from '../../../establishments/workspace/pipes/price/price';
 import { Loading } from '../../../components/loading/loading';
 import { PageHeader } from '../../../components/page-header/page-header';
 import { AuditList } from '../../components/audit-list/audit-list';
@@ -40,7 +40,7 @@ export default class AdminOverview {
 
   protected readonly withoutAccess = computed(() => {
     const metrics = this.metrics();
-    return metrics ? Math.max(0, metrics.bars.total - metrics.subscriptions.withAccess) : 0;
+    return metrics ? Math.max(0, metrics.establishments.total - metrics.subscriptions.withAccess) : 0;
   });
 
   protected reload() {

@@ -13,7 +13,8 @@
     }
   },
   "scripts": {
-    "prebuild": "npm i -g typescript",
+    "prebuild": "npm i -g typescript && npm run clean",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.esm.tsbuildinfo",
     "build": "tsc && tsc -p tsconfig.esm.json && node ./scripts/write-esm-marker.mjs",
     "test": "vitest run"
   },

@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { CreateProductDto, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
@@ -27,30 +27,32 @@ describe('ProductRepository', () => {
 
   describe('routes', () => {
     it('should have the list route', () => {
-      expect(service.routes.list(asBarId('1'))).toBe('/bars/1/products');
+      expect(service.routes.list(asEstablishmentId('1'))).toBe('/establishments/1/products');
     });
 
     it('should have the create route', () => {
-      expect(service.routes.create(asBarId('1'))).toBe('/bars/1/products');
+      expect(service.routes.create(asEstablishmentId('1'))).toBe('/establishments/1/products');
     });
 
     it('should have the update route', () => {
-      expect(service.routes.update(asBarId('1'), asProductId('2'))).toBe('/bars/1/products/2');
+      expect(service.routes.update(asEstablishmentId('1'), asProductId('2'))).toBe('/establishments/1/products/2');
     });
 
     it('should have the updateStock route', () => {
-      expect(service.routes.updateStock(asBarId('1'), asProductId('2'))).toBe('/bars/1/products/2/stock');
+      expect(service.routes.updateStock(asEstablishmentId('1'), asProductId('2'))).toBe(
+        '/establishments/1/products/2/stock',
+      );
     });
   });
 
   describe('create', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const dto: CreateProductDto = { name: 'New Beer', categoryId: asCategoryId('cat-1'), minStockAlert: 5 };
 
     it('should call create product endpoint', async () => {
-      const promise = service.create(barId, dto);
+      const promise = service.create(establishmentId, dto);
 
-      const req = httpMock.expectOne(service.routes.create(barId));
+      const req = httpMock.expectOne(service.routes.create(establishmentId));
       expect(req.request.method).toBe('POST');
       req.flush(null);
 
@@ -58,22 +60,22 @@ describe('ProductRepository', () => {
     });
 
     it('should return product creation id response', async () => {
-      const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(null);
+      const res = service.create(establishmentId, dto);
+      httpMock.expectOne(service.routes.create(establishmentId)).flush(null);
 
       expect(await res).toBeNull();
     });
   });
 
   describe('update', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
     const dto: UpdateProductDto = { name: 'Updated Beer' };
 
     it('should call update product endpoint', async () => {
-      const promise = service.update(barId, productId, dto);
+      const promise = service.update(establishmentId, productId, dto);
 
-      const req = httpMock.expectOne(service.routes.update(barId, productId));
+      const req = httpMock.expectOne(service.routes.update(establishmentId, productId));
       expect(req.request.method).toBe('PATCH');
       req.flush({ success: true });
 
@@ -81,22 +83,22 @@ describe('ProductRepository', () => {
     });
 
     it('should return success response', async () => {
-      const res = service.update(barId, productId, dto);
-      httpMock.expectOne(service.routes.update(barId, productId)).flush({ success: true });
+      const res = service.update(establishmentId, productId, dto);
+      httpMock.expectOne(service.routes.update(establishmentId, productId)).flush({ success: true });
 
       expect(await res).toEqual({ success: true });
     });
   });
 
   describe('updateStock', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
     const dto: UpdateProductStockDto = { currentStock: 15 };
 
     it('should call updateStock product endpoint', async () => {
-      const promise = service.updateStock(barId, productId, dto);
+      const promise = service.updateStock(establishmentId, productId, dto);
 
-      const req = httpMock.expectOne(service.routes.updateStock(barId, productId));
+      const req = httpMock.expectOne(service.routes.updateStock(establishmentId, productId));
       expect(req.request.method).toBe('PATCH');
       req.flush({ success: true });
 
@@ -104,8 +106,8 @@ describe('ProductRepository', () => {
     });
 
     it('should return success response', async () => {
-      const res = service.updateStock(barId, productId, dto);
-      httpMock.expectOne(service.routes.updateStock(barId, productId)).flush({ success: true });
+      const res = service.updateStock(establishmentId, productId, dto);
+      httpMock.expectOne(service.routes.updateStock(establishmentId, productId)).flush({ success: true });
 
       expect(await res).toEqual({ success: true });
     });

@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { describe, beforeEach, it, expect, afterEach } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -44,12 +44,12 @@ describe('ShiftsStore', () => {
   });
 
   describe('list fetching', () => {
-    it('should fetch shifts when barId and dates are set', async () => {
-      service.setBarId(asBarId('bar-1'));
+    it('should fetch shifts when establishmentId and dates are set', async () => {
+      service.setEstablishmentId(asEstablishmentId('establishment-1'));
       service.setDateRange('2026-07-01', '2026-07-07');
       TestBed.tick();
 
-      const req = httpMock.expectOne('/bars/bar-1/shifts?startDate=2026-07-01&endDate=2026-07-07');
+      const req = httpMock.expectOne('/establishments/establishment-1/shifts?startDate=2026-07-01&endDate=2026-07-07');
       expect(req.request.method).toBe('GET');
       req.flush([{ id: 's-1', startTime: '2026-07-01T10:00:00Z', endTime: '2026-07-01T18:00:00Z', userName: 'Test' }]);
 
@@ -64,10 +64,10 @@ describe('ShiftsStore', () => {
 
   describe('create', () => {
     it('should create shift and reload', async () => {
-      service.setBarId(asBarId('bar-1'));
+      service.setEstablishmentId(asEstablishmentId('establishment-1'));
 
       const createPromise = service.create({} as any);
-      const req = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const req = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       expect(req.request.method).toBe('POST');
       req.flush({ id: 's-new' });
 
@@ -75,25 +75,25 @@ describe('ShiftsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      const reloadReq = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const reloadReq = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       reloadReq.flush([]);
 
       const result = await createPromise;
       expect(result).toBeUndefined();
     });
 
-    it('should return error if no barId', async () => {
-      service.setBarId(undefined);
-      await expect(service.create({} as any)).rejects.toThrow('MISSING_BAR_ID');
+    it('should return error if no establishmentId', async () => {
+      service.setEstablishmentId(undefined);
+      await expect(service.create({} as any)).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
     });
   });
 
   describe('delete', () => {
     it('should delete shift and reload', async () => {
-      service.setBarId(asBarId('bar-1'));
+      service.setEstablishmentId(asEstablishmentId('establishment-1'));
 
       const deletePromise = service.delete('s-1');
-      const req = httpMock.expectOne('/bars/bar-1/shifts/s-1');
+      const req = httpMock.expectOne('/establishments/establishment-1/shifts/s-1');
       expect(req.request.method).toBe('DELETE');
       req.flush({ success: true });
 
@@ -101,25 +101,25 @@ describe('ShiftsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      const reloadReq = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const reloadReq = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       reloadReq.flush([]);
 
       const result = await deletePromise;
       expect(result).toBeUndefined();
     });
 
-    it('should return error if no barId', async () => {
-      service.setBarId(undefined);
-      await expect(service.delete('s-1')).rejects.toThrow('MISSING_BAR_ID');
+    it('should return error if no establishmentId', async () => {
+      service.setEstablishmentId(undefined);
+      await expect(service.delete('s-1')).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
     });
   });
 
   describe('socket effects', () => {
     it('should reload on shiftCreated', async () => {
-      service.setBarId(asBarId('bar-1'));
+      service.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
 
-      const req1 = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const req1 = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       req1.flush([]);
 
       TestBed.tick();
@@ -129,15 +129,15 @@ describe('ShiftsStore', () => {
       mockSocket.shiftCreated.set({ id: 's-1' });
       TestBed.tick();
 
-      const req2 = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const req2 = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       req2.flush([{ id: 's-1' }]);
     });
 
     it('should update local list on shiftDeleted', async () => {
-      service.setBarId(asBarId('bar-1'));
+      service.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
 
-      const req1 = httpMock.expectOne((req) => req.url.includes('/bars/bar-1/shifts'));
+      const req1 = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
       req1.flush([{ id: 's-1', startTime: '2026-07-01T10:00:00Z', endTime: '2026-07-01T18:00:00Z', userName: 'Test' }]);
 
       TestBed.tick();

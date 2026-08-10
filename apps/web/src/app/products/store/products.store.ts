@@ -1,10 +1,16 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { BarId, CreateProductDto, ProductId, UpdateProductDto, UpdateProductStockDto } from '@coaster/common';
+import type {
+  EstablishmentId,
+  CreateProductDto,
+  ProductId,
+  UpdateProductDto,
+  UpdateProductStockDto,
+} from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
-import { BarProducts } from '../services/bar-products';
+import { EstablishmentProducts } from '../services/establishment-products';
 import { CreateProduct } from '../services/create-product';
 import { DeleteProduct } from '../services/delete-product';
 import { UpdateProduct } from '../services/update-product';
@@ -12,17 +18,17 @@ import { UpdateProductStock } from '../services/update-product-stock';
 
 @Service()
 export class ProductsStore {
-  readonly #barProducts = inject(BarProducts);
+  readonly #establishmentProducts = inject(EstablishmentProducts);
   readonly #createProduct = inject(CreateProduct);
   readonly #updateProduct = inject(UpdateProduct);
   readonly #updateProductStock = inject(UpdateProductStock);
   readonly #deleteProduct = inject(DeleteProduct);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | null>(null);
-  public readonly currentBarId = this.#currentBarId.asReadonly();
+  readonly #currentEstablishmentId = signal<EstablishmentId | null>(null);
+  public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
 
-  readonly #productsResource = httpResource(() => this.#barProducts.execute(this.#currentBarId()), {
+  readonly #productsResource = httpResource(() => this.#establishmentProducts.execute(this.#currentEstablishmentId()), {
     parse: (products) => productArrayMapper(products),
   });
 
@@ -82,8 +88,8 @@ export class ProductsStore {
     });
   }
 
-  public setBarId(barId: BarId | null) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | null) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public reloadProducts() {
@@ -115,22 +121,22 @@ export class ProductsStore {
   });
 
   public async create(createProductDto: CreateProductDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#createProduct.execute(barId, createProductDto);
+    await this.#createProduct.execute(establishmentId, createProductDto);
     this.reloadProducts();
   }
 
   public async update(productId: ProductId, updateProductDto: UpdateProductDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#updateProduct.execute(barId, productId, updateProductDto);
+    await this.#updateProduct.execute(establishmentId, productId, updateProductDto);
     this.#productsResource.update((products) => {
       if (!products) {
         return undefined;
@@ -140,12 +146,12 @@ export class ProductsStore {
   }
 
   public async updateStock(productId: ProductId, updateProductStockDto: UpdateProductStockDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#updateProductStock.execute(barId, productId, updateProductStockDto);
+    await this.#updateProductStock.execute(establishmentId, productId, updateProductStockDto);
     this.#productsResource.update((products) => {
       if (!products) {
         return undefined;
@@ -155,12 +161,12 @@ export class ProductsStore {
   }
 
   public async delete(productId: ProductId) {
-    const barId = this.#currentBarId();
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#deleteProduct.execute(barId, productId);
+    await this.#deleteProduct.execute(establishmentId, productId);
     this.#productsResource.update((products) => {
       if (!products) {
         return undefined;

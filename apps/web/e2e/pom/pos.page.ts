@@ -13,12 +13,16 @@ export class PosPage {
     this.confirmOrderButton = page.getByTestId('submit-order-btn');
   }
 
-  async goto(barId: string) {
-    await this.page.goto(`/bars/${barId}/orders/tables`);
+  async goto(establishmentId: string) {
+    await this.page.goto(`/establishments/${establishmentId}/orders/tables`);
   }
 
   async selectFirstAvailableTable() {
-    await this.page.getByTestId('table-card').filter({ hasText: /libre|available/i }).first().click();
+    await this.page
+      .getByTestId('table-card')
+      .filter({ hasText: /libre|available/i })
+      .first()
+      .click();
   }
 
   async openTable(tableName: string) {

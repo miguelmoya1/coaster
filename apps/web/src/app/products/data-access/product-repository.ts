@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
-  BarId,
+  EstablishmentId,
   CreateProductDto,
   DeleteResponse,
   ProductId,
@@ -16,35 +16,44 @@ export class ProductRepository {
   readonly #http = inject(HttpClient);
 
   public readonly routes = {
-    list: (barId: BarId) => `/bars/${barId}/products`,
-    create: (barId: BarId) => `/bars/${barId}/products`,
-    update: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
-    updateStock: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}/stock`,
-    delete: (barId: BarId, productId: ProductId) => `/bars/${barId}/products/${productId}`,
+    list: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/products`,
+    create: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/products`,
+    update: (establishmentId: EstablishmentId, productId: ProductId) =>
+      `/establishments/${establishmentId}/products/${productId}`,
+    updateStock: (establishmentId: EstablishmentId, productId: ProductId) =>
+      `/establishments/${establishmentId}/products/${productId}/stock`,
+    delete: (establishmentId: EstablishmentId, productId: ProductId) =>
+      `/establishments/${establishmentId}/products/${productId}`,
   };
 
-  public async create(barId: BarId, createProductDto: CreateProductDto): Promise<void> {
-    return firstValueFrom(this.#http.post<void>(this.routes.create(barId), createProductDto));
+  public async create(establishmentId: EstablishmentId, createProductDto: CreateProductDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.create(establishmentId), createProductDto));
   }
 
-  public async update(barId: BarId, productId: ProductId, updateProductDto: UpdateProductDto): Promise<DeleteResponse> {
-    return firstValueFrom(this.#http.patch<DeleteResponse>(this.routes.update(barId, productId), updateProductDto));
+  public async update(
+    establishmentId: EstablishmentId,
+    productId: ProductId,
+    updateProductDto: UpdateProductDto,
+  ): Promise<DeleteResponse> {
+    return firstValueFrom(
+      this.#http.patch<DeleteResponse>(this.routes.update(establishmentId, productId), updateProductDto),
+    );
   }
 
   public async updateStock(
-    barId: BarId,
+    establishmentId: EstablishmentId,
     productId: ProductId,
     updateProductStockDto: UpdateProductStockDto,
   ): Promise<DeleteResponse> {
     return firstValueFrom(
-      this.#http.patch<DeleteResponse>(this.routes.updateStock(barId, productId), updateProductStockDto),
+      this.#http.patch<DeleteResponse>(this.routes.updateStock(establishmentId, productId), updateProductStockDto),
     );
   }
 
-  public async delete(barId: BarId, productId: ProductId) {
+  public async delete(establishmentId: EstablishmentId, productId: ProductId) {
     return firstValueFrom(
       this.#http
-        .delete<DeleteResponse>(this.routes.delete(barId, productId))
+        .delete<DeleteResponse>(this.routes.delete(establishmentId, productId))
         .pipe(map((res) => deleteResponseMapper(res))),
     );
   }

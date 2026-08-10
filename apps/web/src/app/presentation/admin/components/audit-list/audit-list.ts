@@ -5,10 +5,10 @@ import type { AdminAuditLogEntry } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 const ACTION_ICONS: Record<string, string> = {
-  BAR_PLAN_GRANTED: 'workspace_premium',
-  BAR_PLAN_REVOKED: 'remove_moderator',
-  BAR_RENAMED: 'edit',
-  BAR_MEMBER_ROLE_CHANGED: 'manage_accounts',
+  ESTABLISHMENT_PLAN_GRANTED: 'workspace_premium',
+  ESTABLISHMENT_PLAN_REVOKED: 'remove_moderator',
+  ESTABLISHMENT_RENAMED: 'edit',
+  ESTABLISHMENT_MEMBER_ROLE_CHANGED: 'manage_accounts',
   USER_ROLE_CHANGED: 'shield_person',
   USER_ACTIVATION_CHANGED: 'toggle_on',
 };

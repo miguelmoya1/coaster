@@ -11,7 +11,7 @@
     @if (hasFilters()) {
       <button mat-stroked-button type="button" (click)="clearFilters()">
         <mat-icon>filter_alt_off</mat-icon>
-        {{ 'admin.bars.clear_filters' | translate }}
+        {{ 'admin.establishments.clear_filters' | translate }}
       </button>
     }
   </section>
@@ -63,10 +63,10 @@
               <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_user' | translate }}</th>
               <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_role' | translate }}</th>
               <th scope="col" class="px-4 py-3 font-medium hidden sm:table-cell">
-                {{ 'admin.users.col_bars' | translate }}
+                {{ 'admin.users.col_establishments' | translate }}
               </th>
               <th scope="col" class="px-4 py-3 font-medium text-right">
-                <span class="sr-only">{{ 'admin.bars.col_actions' | translate }}</span>
+                <span class="sr-only">{{ 'admin.establishments.col_actions' | translate }}</span>
               </th>
             </tr>
           </thead>
@@ -86,14 +86,18 @@
                     <span
                       class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
                       [class]="
-                        user.role === adminRole ? 'bg-tertiary/15 text-tertiary' : 'bg-on-surface/10 text-on-surface-variant'
+                        user.role === adminRole
+                          ? 'bg-tertiary/15 text-tertiary'
+                          : 'bg-on-surface/10 text-on-surface-variant'
                       "
                     >
                       {{ 'admin.user_role.' + user.role.toLowerCase() | translate }}
                     </span>
 
                     @if (!user.active) {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-error/10 text-error">
+                      <span
+                        class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-error/10 text-error"
+                      >
                         {{ 'admin.users.inactive' | translate }}
                       </span>
                     }
@@ -101,7 +105,7 @@
                 </td>
 
                 <td class="px-4 py-3 hidden sm:table-cell tabular-nums text-on-surface-variant">
-                  {{ user.barCount }}
+                  {{ user.establishmentCount }}
                 </td>
 
                 <td class="px-4 py-3 text-right">

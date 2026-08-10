@@ -29,48 +29,48 @@ URLs under `environment.apiUrl`. That condition is not decorative: image uploads
 `storage.googleapis.com` through the same `HttpClient`, and without it the user's token was being
 sent to a third-party host on every upload.
 
-### Domains — `bars/`, `bar-members/`, `bar-subscription/`, `admin/`, `orders/`, ...
+### Domains — `establishments/`, `establishment-members/`, `establishment-subscription/`, `admin/`, `orders/`, ...
 
-Domains mirror the backend modules (`apps/api/src`), so the front end's `bar-subscription`
+Domains mirror the backend modules (`apps/api/src`), so the front end's `establishment-subscription`
 corresponds to the API's. Each domain groups everything of its own: `data-access/` (HTTP
 repositories), `store/` (signal state), `services/`, `mappers/` and, where relevant, `guards/`,
 `directives/` and `dialogs/`.
 
-Around a bar the split is:
+Around an establishment the split is:
 
-| Domain             | Contains                                                                    |
-| ------------------ | --------------------------------------------------------------------------- |
-| `bars`             | creating and listing bars, current bar                                      |
-| `bar-members`      | members, invitations, my own membership and `permissionGuard`               |
-| `bar-subscription` | subscription, checkout, customer portal, plan dialog and its directive      |
-| `admin`            | platform backoffice (bars, users, metrics, audit) and `adminGuard`          |
-| `time-tracking`    | clocking: own workday, team register, corrections and export                |
-| `roster`           | `RosterStateService`: selected date, view mode and the ranges derived from them |
+| Domain                       | Contains                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `establishments`             | creating and listing establishments, current establishment                      |
+| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                   |
+| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive          |
+| `admin`                      | platform backoffice (establishments, users, metrics, audit) and `adminGuard`    |
+| `time-tracking`              | clocking: own workday, team register, corrections and export                    |
+| `roster`                     | `RosterStateService`: selected date, view mode and the ranges derived from them |
 
-`permissionGuard` lives in `bar-members` (not `bars`) because it depends on `MyMemberStore`; in
-`bars` it would form a `bars -> bar-members -> bars` cycle.
+`permissionGuard` lives in `establishment-members` (not `establishments`) because it depends on `MyMemberStore`; in
+`establishments` it would form a `establishments -> establishment-members -> establishments` cycle.
 
 A domain may import `@coaster/core` and other domains by alias. **It cannot import from
 `presentation/`**: if a domain service opens a dialog, that dialog's component lives in the domain
-itself (see `bar-subscription/dialogs/select-plan-dialog/`).
+itself (see `establishment-subscription/dialogs/select-plan-dialog/`).
 
-Each domain declares its public API in its `index.ts` and is consumed by alias (`@coaster/bars`),
+Each domain declares its public API in its `index.ts` and is consumed by alias (`@coaster/establishments`),
 never through relative paths that cross folders.
 
 #### Stores
 
-A store **never injects another store**. Those that depend on a bar hold the id in their own signal
-and expose `setBarId()`:
+A store **never injects another store**. Those that depend on an establishment hold the id in their own signal
+and expose `setEstablishmentId()`:
 
 ```ts
-readonly #currentBarId = signal<BarId | undefined>(undefined);
-readonly #resource = httpResource(() => this.#service.execute(this.#currentBarId()), { parse });
-public readonly currentBarId = this.#currentBarId.asReadonly();
-public setBarId(barId: BarId | undefined) { this.#currentBarId.set(barId); }
+readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
+readonly #resource = httpResource(() => this.#service.execute(this.#currentEstablishmentId()), { parse });
+public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
+public setEstablishmentId(establishmentId: EstablishmentId | undefined) { this.#currentEstablishmentId.set(establishmentId); }
 ```
 
-The presentation layer decides which bar is active:
-`presentation/bars/workspace/layouts/workspace-layout.ts` has an `effect` that hands the id to every
+The presentation layer decides which establishment is active:
+`presentation/establishments/workspace/layouts/workspace-layout.ts` has an `effect` that hands the id to every
 workspace store and clears it on cleanup. `permissionGuard` does the same for `MyMemberStore` before
 the layout exists.
 
@@ -84,7 +84,7 @@ from it.
 
 ## Why the layering matters
 
-When `core` depended on `bars`, any file in `bars` that wanted something from `core` had to dodge
+When `core` depended on `establishments`, any file in `establishments` that wanted something from `core` had to dodge
 the barrel with relative paths (`../../core/...`) to avoid a cycle. The result was that importing one
 leaf utility dragged in guards, stores and whole HTTP repositories. Cutting that dependency made the
 aliases work everywhere and the graph acyclic.

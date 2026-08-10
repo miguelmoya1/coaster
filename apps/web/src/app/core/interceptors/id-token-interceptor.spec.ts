@@ -52,16 +52,16 @@ describe('idTokenInterceptor', () => {
   it('should add Authorization header on absolute calls to our own API', () => {
     idToken.set('test-token');
 
-    httpClient.get(`${environment.apiUrl}/api/v1/bars`).subscribe();
+    httpClient.get(`${environment.apiUrl}/api/v1/establishments`).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/v1/bars`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/v1/establishments`);
     expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
   });
 
   it('should never hand the token to a third party host', () => {
     idToken.set('test-token');
 
-    const storageUrl = 'https://storage.googleapis.com/bucket/bars/1/products/file.png?X-Goog-Signature=abc';
+    const storageUrl = 'https://storage.googleapis.com/bucket/establishments/1/products/file.png?X-Goog-Signature=abc';
     httpClient.put(storageUrl, new Blob()).subscribe();
 
     const req = httpMock.expectOne(storageUrl);

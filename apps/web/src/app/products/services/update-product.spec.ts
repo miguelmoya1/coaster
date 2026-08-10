@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { Product, UpdateProductDto } from '@coaster/common';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
@@ -37,7 +37,7 @@ describe('UpdateProduct', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const productId = asProductId('prod-1');
       const dto: UpdateProductDto = {
         name: 'Beer Edited',
@@ -47,9 +47,9 @@ describe('UpdateProduct', () => {
       };
       productRepoMock['update'].mockResolvedValue({ ...mockProduct, ...dto });
 
-      const result = await service.execute(barId, productId, dto);
+      const result = await service.execute(establishmentId, productId, dto);
 
-      expect(productRepoMock['update']).toHaveBeenCalledWith(barId, productId, dto);
+      expect(productRepoMock['update']).toHaveBeenCalledWith(establishmentId, productId, dto);
       expect(result).toEqual({ ...mockProduct, ...dto });
     });
   });

@@ -1,4 +1,4 @@
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import type { Shift } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
@@ -6,7 +6,7 @@ import { checkIsShift, shiftArrayMapper, shiftMapper } from './shift.mapper';
 describe('ShiftMapper', () => {
   const validShift: Shift = {
     id: asShiftId('shift-1'),
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
     startTime: '2026-03-20T08:00:00Z',
     endTime: '2026-03-20T16:00:00Z',
     userId: asUserId('user-1'),

@@ -1,32 +1,35 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
-import type { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { EstablishmentId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 
 import { exchangeArrayMapper } from '../mappers/exchange.mapper';
 import { AcceptExchange } from '../services/accept-exchange';
-import { BarExchanges } from '../services/bar-exchanges';
+import { EstablishmentExchanges } from '../services/establishment-exchanges';
 import { DeleteExchange } from '../services/delete-exchange';
 import { RequestExchange } from '../services/request-exchange';
 
 @Service()
 export class ExchangesStore {
-  readonly #barExchanges = inject(BarExchanges);
+  readonly #establishmentExchanges = inject(EstablishmentExchanges);
   readonly #acceptExchange = inject(AcceptExchange);
   readonly #requestExchange = inject(RequestExchange);
   readonly #deleteExchange = inject(DeleteExchange);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
-  readonly #exchangesResource = httpResource(() => this.#barExchanges.execute(this.#currentBarId()), {
-    parse: exchangeArrayMapper,
-  });
+  readonly #exchangesResource = httpResource(
+    () => this.#establishmentExchanges.execute(this.#currentEstablishmentId()),
+    {
+      parse: exchangeArrayMapper,
+    },
+  );
 
-  public readonly currentBarId = this.#currentBarId.asReadonly();
+  public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
   public readonly exchanges = this.#exchangesResource.asReadonly();
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public reload() {
@@ -34,35 +37,35 @@ export class ExchangesStore {
   }
 
   public async accept(exchangeId: ShiftExchangeId) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reload();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#acceptExchange.execute(barId, exchangeId);
+    await this.#acceptExchange.execute(establishmentId, exchangeId);
     this.reload();
   }
 
   public async request(shiftId: ShiftId, dto: CreateShiftExchangeDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reload();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#requestExchange.execute(barId, shiftId, dto);
+    await this.#requestExchange.execute(establishmentId, shiftId, dto);
     this.reload();
   }
 
   public async delete(exchangeId: ShiftExchangeId) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reload();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#deleteExchange.execute(barId, exchangeId);
+    await this.#deleteExchange.execute(establishmentId, exchangeId);
     this.reload();
   }
 }

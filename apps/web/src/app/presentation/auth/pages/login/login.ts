@@ -83,7 +83,7 @@ export default class Login {
 
     try {
       await this.#auth.loginWithGoogle();
-      await this.#router.navigate(['/bars/select']);
+      await this.#router.navigate(['/establishments/select']);
     } finally {
       this.isLoading.set(false);
     }

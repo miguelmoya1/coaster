@@ -1,4 +1,4 @@
-import { asBarId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ProductRepository } from '../data-access/product-repository';
@@ -26,13 +26,13 @@ describe('DeleteProduct', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const productId = asProductId('prod-1');
       productRepoMock['delete'].mockResolvedValue({ success: true });
 
-      const result = await service.execute(barId, productId);
+      const result = await service.execute(establishmentId, productId);
 
-      expect(productRepoMock['delete']).toHaveBeenCalledWith(barId, productId);
+      expect(productRepoMock['delete']).toHaveBeenCalledWith(establishmentId, productId);
       expect(result).toEqual({ success: true });
     });
   });

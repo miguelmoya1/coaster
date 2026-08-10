@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
@@ -7,7 +7,7 @@ import { checkIsTable, tableArrayMapper, tableMapper } from './table.mapper';
 describe('Table Mapper', () => {
   const validTable: Table = {
     id: asTableId('table-1'),
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
     name: 'Mesa 1',
     status: TableStatus.FREE,
   };

@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TableRepository } from '../data-access/table-repository';
@@ -26,13 +26,13 @@ describe('CreateTable', () => {
 
   describe('execute', () => {
     it('should delegate to repository', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const dto = { name: 'Mesa 1' };
       tableRepoMock['create'].mockResolvedValue(undefined);
 
-      await service.execute(barId, dto);
+      await service.execute(establishmentId, dto);
 
-      expect(tableRepoMock['create']).toHaveBeenCalledWith(barId, dto);
+      expect(tableRepoMock['create']).toHaveBeenCalledWith(establishmentId, dto);
     });
   });
 });

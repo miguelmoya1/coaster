@@ -43,7 +43,7 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
 
     <mat-dialog-content class="min-w-[min(90vw,26rem)]">
       <p class="text-sm text-on-surface-variant mb-4">
-        {{ 'admin.grant_dialog.subtitle' | translate: { bar: barName() } }}
+        {{ 'admin.grant_dialog.subtitle' | translate: { establishment: establishmentName() } }}
       </p>
 
       <fieldset class="border-0 p-0 m-0 mb-4">
@@ -93,7 +93,7 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
   `,
 })
 export class GrantPlanDialog {
-  public readonly barName = input.required<string>();
+  public readonly establishmentName = input.required<string>();
   public readonly loading = input(false);
 
   public readonly confirmed = output<GrantPlanResult>();

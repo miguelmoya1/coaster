@@ -4,7 +4,7 @@
 
 ### SaaS infrastructure and monetisation
 
-- Marketing landing at the root, application under `/bars`.
+- Marketing landing at the root, application under `/establishments`.
 - Stripe Checkout, Customer Portal and webhooks.
 - Internal domain events published from webhook handlers, so side effects stay decoupled.
 - `SubscriptionActiveGuard`: an unpaid venue loses writes but **keeps reads**, so it never loses

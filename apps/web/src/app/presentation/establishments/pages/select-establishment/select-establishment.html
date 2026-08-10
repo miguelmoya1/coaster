@@ -1,0 +1,40 @@
+<coaster-page-container size="sm">
+  <coaster-page-header
+    [title]="'establishments.select.title' | translate"
+    [subtitle]="'establishments.select.subtitle' | translate"
+  >
+    <ng-container actions>
+      @if (isAdmin()) {
+        <a mat-stroked-button routerLink="/admin/overview" data-testid="admin-panel-btn">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>{{ 'admin.nav.open_panel' | translate }}</span>
+        </a>
+      }
+
+      <button mat-flat-button data-testid="create-establishment-btn" (click)="navigateToCreate()">
+        <mat-icon>add_circle</mat-icon>
+        <span>{{ 'common.create' | translate }}</span>
+      </button>
+    </ng-container>
+  </coaster-page-header>
+
+  @if (establishments.isLoading()) {
+    <coaster-loading />
+  }
+
+  @if (establishments.hasValue()) {
+    <div class="flex flex-col gap-3">
+      @for (establishment of establishments.value(); track establishment.id) {
+        <coaster-establishment-card [establishment]="establishment" (click)="selectEstablishment(establishment.id)" />
+      } @empty {
+        <div
+          class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-dashed border-outline-variant text-center gap-3"
+        >
+          <span data-testid="empty-establishments-message" class="text-on-surface-variant font-medium">
+            {{ 'establishments.select.empty' | translate }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+</coaster-page-container>

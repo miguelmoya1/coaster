@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
@@ -80,12 +80,12 @@ describe('ProductsStore', () => {
   });
 
   describe('list', () => {
-    it('should fetch products when barId is set', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+    it('should fetch products when establishmentId is set', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const req = httpMock.expectOne(`/bars/${barId}/products`);
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       expect(req.request.method).toBe('GET');
       req.flush(mockProductsRaw);
       TestBed.tick();
@@ -99,11 +99,11 @@ describe('ProductsStore', () => {
 
   describe('update', () => {
     it('should update the product in the list without duplicating it', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
@@ -116,7 +116,7 @@ describe('ProductsStore', () => {
         price: 1800,
       });
 
-      const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}`);
+      const patchReq = httpMock.expectOne(`/establishments/${establishmentId}/products/${mockProducts[0].id}`);
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
 
@@ -137,11 +137,11 @@ describe('ProductsStore', () => {
 
   describe('updateStock', () => {
     it('should update the product stock in the list without duplicating it', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
@@ -153,7 +153,7 @@ describe('ProductsStore', () => {
         currentStock: 15,
       });
 
-      const patchReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}/stock`);
+      const patchReq = httpMock.expectOne(`/establishments/${establishmentId}/products/${mockProducts[0].id}/stock`);
       expect(patchReq.request.method).toBe('PATCH');
       patchReq.flush({ success: true });
 
@@ -173,11 +173,11 @@ describe('ProductsStore', () => {
 
   describe('delete', () => {
     it('should delete the product from the list', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
@@ -185,7 +185,7 @@ describe('ProductsStore', () => {
 
       const deletePromise = store.delete(mockProducts[0].id);
 
-      const deleteReq = httpMock.expectOne(`/bars/${barId}/products/${mockProducts[0].id}`);
+      const deleteReq = httpMock.expectOne(`/establishments/${establishmentId}/products/${mockProducts[0].id}`);
       expect(deleteReq.request.method).toBe('DELETE');
       deleteReq.flush({ success: true });
 
@@ -200,19 +200,19 @@ describe('ProductsStore', () => {
       expect(list?.[0].id).toBe(mockProducts[1].id);
     });
 
-    it('should return error if no bar selected', async () => {
-      store.setBarId(null);
-      await expect(store.delete(mockProducts[0].id)).rejects.toThrow('MISSING_BAR_ID');
+    it('should return error if no establishment selected', async () => {
+      store.setEstablishmentId(null);
+      await expect(store.delete(mockProducts[0].id)).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
     });
   });
 
   describe('create', () => {
     it('should call create and reload', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
 
       const createPromise = store.create({ name: 'New', price: 100 } as any);
-      const createReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const createReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       expect(createReq.request.method).toBe('POST');
       createReq.flush({ id: 'new-1' });
 
@@ -220,25 +220,25 @@ describe('ProductsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      const reloadReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const reloadReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       reloadReq.flush(mockProductsRaw);
 
       await createPromise;
     });
 
-    it('should return error if no bar selected', async () => {
-      store.setBarId(null);
-      await expect(store.create({ name: 'New', price: 100 } as any)).rejects.toThrow('MISSING_BAR_ID');
+    it('should return error if no establishment selected', async () => {
+      store.setEstablishmentId(null);
+      await expect(store.create({ name: 'New', price: 100 } as any)).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
     });
   });
 
   describe('computed properties', () => {
     it('should compute total, lowStock, and criticalStock', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush([
         { ...mockProductsRaw[0], currentStock: 10, minStockAlert: 5 },
         { ...mockProductsRaw[1], currentStock: 5, minStockAlert: 5 },
@@ -256,11 +256,11 @@ describe('ProductsStore', () => {
 
   describe('socket effects', () => {
     it('should handle productCreated socket event', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();
@@ -273,11 +273,11 @@ describe('ProductsStore', () => {
     });
 
     it('should handle productDeleted socket event', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const getReq = httpMock.expectOne(`/bars/${barId}/products`);
+      const getReq = httpMock.expectOne(`/establishments/${establishmentId}/products`);
       getReq.flush(mockProductsRaw);
       TestBed.tick();
       await Promise.resolve();

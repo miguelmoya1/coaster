@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -25,18 +25,20 @@ describe('TemplatesRepository', () => {
     it('should have correct paths', () => {
       expect(service.routes.categories()).toBe('/templates/categories');
       expect(service.routes.products()).toBe('/templates/products');
-      expect(service.routes.import(asBarId('bar-123'))).toBe('/templates/bar/bar-123');
+      expect(service.routes.import(asEstablishmentId('establishment-123'))).toBe(
+        '/templates/establishment/establishment-123',
+      );
     });
   });
 
-  describe('importToBar', () => {
+  describe('importToEstablishment', () => {
     it('should make POST request with category template ids', async () => {
-      const barId = asBarId('bar-123');
+      const establishmentId = asEstablishmentId('establishment-123');
       const categoryTemplateIds = ['cat-1', 'cat-2'];
 
-      const promise = service.importToBar(barId, categoryTemplateIds);
+      const promise = service.importToEstablishment(establishmentId, categoryTemplateIds);
 
-      const req = httpMock.expectOne(service.routes.import(barId));
+      const req = httpMock.expectOne(service.routes.import(establishmentId));
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ categoryTemplateIds });
       req.flush(null);

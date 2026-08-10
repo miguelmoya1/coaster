@@ -5,13 +5,17 @@ import { loginAsTestUser } from './tests/utils/mock-auth';
 import { expect } from '@playwright/test';
 
 test('should load pantry page correctly', async ({ page }) => {
-  const barId = 'bar-123';
-  await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
-  await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', []);
-  await mockApiResponse(page, `/bars/${barId}/products`, 'GET', []);
+  const establishmentId = 'establishment-123';
+  await mockApiResponse(page, `/establishments/${establishmentId}`, 'GET', {
+    id: establishmentId,
+    name: 'My Establishment',
+    active: true,
+  });
+  await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'GET', []);
+  await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', []);
 
-  await loginAsTestUser(page, `/bars/${barId}/pantry`);
+  await loginAsTestUser(page, `/establishments/${establishmentId}/pantry`);
 
   // Verify that the navigation was successful
-  await expect(page).toHaveURL(new RegExp(`/bars/${barId}/pantry`));
+  await expect(page).toHaveURL(new RegExp(`/establishments/${establishmentId}/pantry`));
 });

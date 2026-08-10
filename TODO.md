@@ -133,3 +133,7 @@ because it is the only purely cosmetic step. `core/translations.spec.ts` spells 
   and click wiring is only ever verified by hand in a browser.
 - **Browser e2e run against mocked HTTP.** The Playwright suite stubs every API response, so no
   automated test exercises browser → API → database end to end.
+- **`member-roles.e2e-spec.ts` is flaky.** Seen failing once on the membership assertion and passing
+  on two immediate re-runs with nothing changed in between, which points at state leaking between
+  tests rather than at the code under test. It will read as a broken rename or a broken feature the
+  next time it fires, so it is worth pinning down before it wastes someone's afternoon.

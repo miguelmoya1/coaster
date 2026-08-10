@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, input, model, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
@@ -80,7 +80,7 @@ export class ImageUploader {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly value = model<string>('');
-  readonly barId = input.required<BarId>();
+  readonly establishmentId = input.required<EstablishmentId>();
   readonly entityType = input<string>('products');
   readonly label = input<string>('');
   readonly disabled = input<boolean>(false);
@@ -142,7 +142,7 @@ export class ImageUploader {
     this.uploading.set(true);
 
     try {
-      const response = await this.mediaRepo.generateUploadUrls(this.barId(), {
+      const response = await this.mediaRepo.generateUploadUrls(this.establishmentId(), {
         entityType: this.entityType(),
         files: [{ filename: file.name, contentType: file.type }],
       });

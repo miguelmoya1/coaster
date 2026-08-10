@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import type { BarBillingSource } from '@coaster/common';
+import type { EstablishmentBillingSource } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -18,7 +18,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   host: { class: 'inline-flex' },
 })
 export class BillingBadge {
-  public readonly source = input.required<BarBillingSource>();
+  public readonly source = input.required<EstablishmentBillingSource>();
 
   protected readonly icon = computed(() => {
     switch (this.source()) {

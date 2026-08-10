@@ -2,15 +2,15 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Socket } from '@coaster/core';
 import { OrderHistoryStore } from './order-history.store';
-import { BarOrderHistory } from '../services/bar-order-history';
-import { OrderStatus, asBarId } from '@coaster/common';
+import { EstablishmentOrderHistory } from '../services/establishment-order-history';
+import { OrderStatus, asEstablishmentId } from '@coaster/common';
 import type { Order } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('OrderHistoryStore', () => {
   let store: OrderHistoryStore;
 
-  const barOrderHistoryMock = {
+  const establishmentOrderHistoryMock = {
     execute: vi.fn().mockResolvedValue([]),
   };
 
@@ -36,7 +36,7 @@ describe('OrderHistoryStore', () => {
     TestBed.configureTestingModule({
       providers: [
         OrderHistoryStore,
-        { provide: BarOrderHistory, useValue: barOrderHistoryMock },
+        { provide: EstablishmentOrderHistory, useValue: establishmentOrderHistoryMock },
         { provide: Socket, useValue: socketMock },
       ],
     });
@@ -48,15 +48,15 @@ describe('OrderHistoryStore', () => {
     expect(store).toBeTruthy();
   });
 
-  describe('setBarId and setHistoryDate', () => {
-    it('should set currentBarId and historyDate and trigger history fetch', () => {
-      store.setBarId(asBarId('bar-1'));
+  describe('setEstablishmentId and setHistoryDate', () => {
+    it('should set currentEstablishmentId and historyDate and trigger history fetch', () => {
+      store.setEstablishmentId(asEstablishmentId('establishment-1'));
       store.setHistoryDate('2026-05-31');
 
       expect(store.selectedDate()).toBe('2026-05-31');
 
       TestBed.flushEffects();
-      expect(barOrderHistoryMock.execute).toHaveBeenCalledWith('bar-1', '2026-05-31');
+      expect(establishmentOrderHistoryMock.execute).toHaveBeenCalledWith('establishment-1', '2026-05-31');
     });
   });
 

@@ -13,7 +13,7 @@ every browser blocks as mixed content.
 So the bridge calls outwards and is never called in:
 
 ```text
-Waiter (app)  ──POST /bars/:id/printer/jobs──►  API  ──┐
+Waiter (app)  ──POST /establishments/:id/printer/jobs──►  API  ──┐
                                                         │  queue in Postgres (PrintJob)
 Bridge  ──GET /printer/jobs/next────────────────────────┘
      │  long-poll: the API holds the request open for up to 25s
@@ -29,21 +29,21 @@ the venue's wifi.
 ## Authentication
 
 The bridge is not a user, so it does not carry a Firebase token. Each venue has a **device key**
-stored in `PrinterConfig`, generated from the app by someone with `bar:manage-printer` and shown
+stored in `PrinterConfig`, generated from the app by someone with `establishment:manage-printer` and shown
 once. The bridge sends it in the `X-Device-Key` header, and `DeviceKeyService` compares it with
 `crypto.timingSafeEqual`.
 
 That is why the printer controller is the one API controller without `FirebaseAuthGuard`: it
-authenticates per device, per bar.
+authenticates per device, per establishment.
 
 The long-poll endpoint is exempt from rate limiting — it deliberately holds a connection open and
 reconnects immediately.
 
 ## Direct LAN printing
 
-`GET /bars/:barId/printer/connection` returns the bridge's local address plus a short-lived JWT
+`GET /establishments/:establishmentId/printer/connection` returns the bridge's local address plus a short-lived JWT
 signed with `PRINTER_JWT_SECRET`. The Go service verifies that token on its local `POST /print`
-endpoint, checking both the signature and that the token was issued for its own bar.
+endpoint, checking both the signature and that the token was issued for its own establishment.
 
 This path is a fallback for printing directly over the LAN; the normal route is the queue above.
 The local endpoint is closed unless the bridge is started with `-jwt-secret` (or `-insecure`).

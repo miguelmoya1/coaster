@@ -1,0 +1,231 @@
+@if (isLoading() && !establishment()) {
+  <coaster-loading [text]="'common.loading' | translate" containerClasses="min-h-[400px]" />
+} @else if (establishment(); as b) {
+  <coaster-page-header [title]="b.name" [subtitle]="b.id" backUrl="/admin/establishments">
+    <div actions class="flex items-center gap-2">
+      <button mat-stroked-button type="button" (click)="startRename()">
+        <mat-icon>edit</mat-icon>
+        <span class="hidden sm:inline">{{ 'admin.establishment_detail.rename' | translate }}</span>
+      </button>
+
+      <button mat-flat-button type="button" (click)="enterWorkspace()">
+        <mat-icon>login</mat-icon>
+        <span class="hidden sm:inline">{{ 'admin.establishment_detail.enter' | translate }}</span>
+      </button>
+    </div>
+  </coaster-page-header>
+
+  <div class="flex flex-col gap-6">
+    @if (isRenaming()) {
+      <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-3">
+        <h2 class="font-semibold">{{ 'admin.establishment_detail.rename' | translate }}</h2>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <mat-form-field appearance="outline" class="flex-1 -mb-[1.25em]">
+            <mat-label>{{ 'admin.establishment_detail.rename_label' | translate }}</mat-label>
+            <input matInput [value]="renameValue()" (input)="onRenameInput($event)" />
+          </mat-form-field>
+
+          <div class="flex items-center gap-2">
+            <button mat-button type="button" [disabled]="isSaving()" (click)="cancelRename()">
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button mat-flat-button type="button" [disabled]="isSaving()" (click)="saveRename()">
+              {{ 'common.save' | translate }}
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-4">
+      <header class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-primary">workspace_premium</mat-icon>
+          <h2 class="font-semibold text-base">{{ 'admin.establishment_detail.subscription_title' | translate }}</h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <coaster-billing-badge [source]="b.billingSource" />
+          <coaster-status-chip [status]="b.status" />
+        </div>
+      </header>
+
+      @if (manualGrant(); as grant) {
+        <div class="rounded-xl border border-tertiary/40 bg-tertiary/5 p-4 flex flex-col gap-1">
+          <p class="text-sm font-medium text-on-surface">
+            {{ 'admin.establishment_detail.grant_active' | translate: { plan: grant.plan } }}
+          </p>
+          <p class="text-sm text-on-surface-variant">
+            @if (grant.expiresAt) {
+              {{ 'admin.establishment_detail.grant_until' | translate: { date: grant.expiresAt | date: 'dd/MM/yyyy' } }}
+            } @else {
+              {{ 'admin.establishment_detail.grant_forever' | translate }}
+            }
+          </p>
+          @if (grant.grantedByName) {
+            <p class="text-xs text-on-surface-variant">
+              {{
+                'admin.establishment_detail.grant_by'
+                  | translate: { name: grant.grantedByName, date: grant.grantedAt | date: 'dd/MM/yyyy HH:mm' }
+              }}
+            </p>
+          }
+          @if (grant.reason) {
+            <p class="text-xs text-on-surface-variant italic">"{{ grant.reason }}"</p>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-on-surface-variant">
+          {{ 'admin.establishment_detail.no_grant' | translate }}
+        </p>
+      }
+
+      @if (subscription(); as sub) {
+        <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div>
+            <dt class="text-xs text-on-surface-variant">{{ 'admin.establishment_detail.plan' | translate }}</dt>
+            <dd class="font-medium">{{ sub.plan }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-on-surface-variant">{{ 'admin.establishment_detail.period_end' | translate }}</dt>
+            <dd class="font-medium">
+              {{ sub.currentPeriodEnd ? (sub.currentPeriodEnd | date: 'dd/MM/yyyy') : '—' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs text-on-surface-variant">{{ 'admin.establishment_detail.trial_ends' | translate }}</dt>
+            <dd class="font-medium">{{ sub.trialEndsAt ? (sub.trialEndsAt | date: 'dd/MM/yyyy') : '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-on-surface-variant">{{ 'admin.establishment_detail.stripe_id' | translate }}</dt>
+            <dd class="font-medium font-mono text-xs break-all">{{ sub.stripeSubscriptionId ?? '—' }}</dd>
+          </div>
+        </dl>
+      }
+
+      <div class="flex flex-wrap gap-2 pt-2 border-t border-outline-variant/40">
+        <button mat-flat-button type="button" [disabled]="isSaving()" (click)="grantPro()">
+          <mat-icon>add_moderator</mat-icon>
+          {{
+            (manualGrant() ? 'admin.establishment_detail.extend_pro' : 'admin.establishment_detail.grant_pro')
+              | translate
+          }}
+        </button>
+
+        @if (manualGrant()) {
+          <button mat-stroked-button type="button" class="warn" [disabled]="isSaving()" (click)="revokePro()">
+            <mat-icon>remove_moderator</mat-icon>
+            {{ 'admin.establishment_detail.revoke_pro' | translate }}
+          </button>
+        }
+      </div>
+    </section>
+
+    @if (counters(); as c) {
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4">
+          <span class="block text-xs uppercase tracking-wide text-on-surface-variant">
+            {{ 'admin.establishment_detail.products' | translate }}
+          </span>
+          <span class="block text-2xl font-bold tabular-nums">{{ c.products }}</span>
+          <span class="block text-xs text-on-surface-variant">
+            {{ 'admin.establishment_detail.categories' | translate: { count: c.categories } }}
+          </span>
+        </article>
+
+        <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4">
+          <span class="block text-xs uppercase tracking-wide text-on-surface-variant">
+            {{ 'admin.establishment_detail.tables' | translate }}
+          </span>
+          <span class="block text-2xl font-bold tabular-nums">{{ c.tables }}</span>
+        </article>
+
+        <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4">
+          <span class="block text-xs uppercase tracking-wide text-on-surface-variant">
+            {{ 'admin.establishment_detail.orders_30' | translate }}
+          </span>
+          <span class="block text-2xl font-bold tabular-nums">{{ c.ordersLast30Days }}</span>
+          <span class="block text-xs text-on-surface-variant">
+            {{ 'admin.establishment_detail.orders_total' | translate: { count: c.orders } }}
+          </span>
+        </article>
+
+        <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4">
+          <span class="block text-xs uppercase tracking-wide text-on-surface-variant">
+            {{ 'admin.establishment_detail.revenue_30' | translate }}
+          </span>
+          <span class="block text-2xl font-bold tabular-nums">{{ c.revenueLast30Days | price }}</span>
+        </article>
+      </section>
+    }
+
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-3">
+      <header class="flex items-center gap-2">
+        <mat-icon class="text-primary">group</mat-icon>
+        <h2 class="font-semibold text-base">
+          {{ 'admin.establishment_detail.members_title' | translate: { count: members().length } }}
+        </h2>
+      </header>
+
+      <ul class="flex flex-col divide-y divide-outline-variant/30">
+        @for (member of members(); track member.userId) {
+          <li class="flex items-center gap-3 py-3">
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-on-surface truncate">{{ member.name }}</p>
+              <p class="text-xs text-on-surface-variant truncate">{{ member.email }}</p>
+            </div>
+
+            <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ member.role }}
+            </span>
+
+            @if (!member.active) {
+              <span class="text-xs px-2 py-0.5 rounded-md bg-error/10 text-error">
+                {{ 'admin.establishment_detail.member_inactive' | translate }}
+              </span>
+            }
+
+            <button
+              mat-icon-button
+              type="button"
+              [matMenuTriggerFor]="roleMenu"
+              [disabled]="isSaving()"
+              [attr.aria-label]="'admin.establishment_detail.change_role' | translate"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #roleMenu="matMenu">
+              @for (role of assignableRoles; track role) {
+                <button mat-menu-item type="button" (click)="changeMemberRole(member.id, role)">
+                  @if (role === member.role) {
+                    <mat-icon>check</mat-icon>
+                  }
+                  <span>{{ role }}</span>
+                </button>
+              }
+            </mat-menu>
+          </li>
+        } @empty {
+          <li class="py-6 text-center text-sm text-on-surface-variant">
+            {{ 'admin.establishment_detail.no_members' | translate }}
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-3">
+      <header class="flex items-center gap-2">
+        <mat-icon class="text-primary">history</mat-icon>
+        <h2 class="font-semibold text-base">{{ 'admin.establishment_detail.activity_title' | translate }}</h2>
+      </header>
+
+      <coaster-audit-list [entries]="recentActivity()" />
+    </section>
+  </div>
+} @else {
+  <div class="p-8 text-center text-on-surface-variant border border-dashed border-outline-variant rounded-2xl">
+    {{ 'admin.establishment_detail.not_found' | translate }}
+  </div>
+}

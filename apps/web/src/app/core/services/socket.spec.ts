@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth } from './auth';
 import { Socket } from './socket';
 
-const JOIN_BAR_RETRY_MS = 1000;
+const JOIN_ESTABLISHMENT_RETRY_MS = 1000;
 
 const handlers = new Map<string, (payload?: unknown) => void>();
 const socketMock = {
@@ -35,7 +35,7 @@ describe('Socket', () => {
     TestBed.tick();
   };
 
-  const joinCalls = () => socketMock.emit.mock.calls.filter((call) => call[0] === 'joinBar');
+  const joinCalls = () => socketMock.emit.mock.calls.filter((call) => call[0] === 'joinEstablishment');
 
   const rejectLastJoin = () => {
     const ack = joinCalls().at(-1)?.[2] as ((response: unknown) => void) | undefined;
@@ -51,7 +51,7 @@ describe('Socket', () => {
       delay?: number,
       ...rest: unknown[]
     ) => {
-      if (delay === JOIN_BAR_RETRY_MS) {
+      if (delay === JOIN_ESTABLISHMENT_RETRY_MS) {
         scheduled.push({ delay, run: callback });
         return 0 as unknown as ReturnType<typeof setTimeout>;
       }
@@ -87,14 +87,14 @@ describe('Socket', () => {
     expect(socketMock.on).not.toHaveBeenCalled();
   });
 
-  it('should join the bar room once the token arrives after joinBar was requested', () => {
-    service.joinBar('bar-1');
+  it('should join the establishment room once the token arrives after joinEstablishment was requested', () => {
+    service.joinEstablishment('establishment-1');
 
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
 
-    expect(socketMock.emit).toHaveBeenCalledWith('joinBar', 'bar-1', expect.any(Function));
+    expect(socketMock.emit).toHaveBeenCalledWith('joinEstablishment', 'establishment-1', expect.any(Function));
   });
 
   it('should re-join the room after a reconnect', () => {
@@ -102,12 +102,12 @@ describe('Socket', () => {
     TestBed.tick();
     connectSocket();
 
-    service.joinBar('bar-1');
+    service.joinEstablishment('establishment-1');
     socketMock.emit.mockClear();
 
     connectSocket();
 
-    expect(socketMock.emit).toHaveBeenCalledWith('joinBar', 'bar-1', expect.any(Function));
+    expect(socketMock.emit).toHaveBeenCalledWith('joinEstablishment', 'establishment-1', expect.any(Function));
   });
 
   it('should forget the room once the user leaves it', () => {
@@ -115,28 +115,28 @@ describe('Socket', () => {
     TestBed.tick();
     connectSocket();
 
-    service.joinBar('bar-1');
-    service.leaveBar('bar-1');
+    service.joinEstablishment('establishment-1');
+    service.leaveEstablishment('establishment-1');
     socketMock.emit.mockClear();
 
     connectSocket();
 
-    expect(socketMock.emit).not.toHaveBeenCalledWith('joinBar', 'bar-1', expect.any(Function));
+    expect(socketMock.emit).not.toHaveBeenCalledWith('joinEstablishment', 'establishment-1', expect.any(Function));
   });
 
   it('should join even when the workspace asks before the socket exists', () => {
-    service.joinBar('bar-1');
+    service.joinEstablishment('establishment-1');
     expect(socketMock.emit).not.toHaveBeenCalled();
 
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
 
-    expect(socketMock.emit).toHaveBeenCalledWith('joinBar', 'bar-1', expect.any(Function));
+    expect(socketMock.emit).toHaveBeenCalledWith('joinEstablishment', 'establishment-1', expect.any(Function));
   });
 
   it('should retry a rejected join instead of silently staying out of the room', () => {
-    service.joinBar('bar-1');
+    service.joinEstablishment('establishment-1');
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
@@ -148,29 +148,29 @@ describe('Socket', () => {
 
     expect(consoleError).toHaveBeenCalled();
     expect(scheduled).toHaveLength(1);
-    expect(scheduled[0].delay).toBe(JOIN_BAR_RETRY_MS);
+    expect(scheduled[0].delay).toBe(JOIN_ESTABLISHMENT_RETRY_MS);
 
     scheduled[0].run();
 
     expect(joinCalls()).toHaveLength(2);
   });
 
-  it('should stop retrying a join once the workspace moved to another bar', () => {
-    service.joinBar('bar-1');
+  it('should stop retrying a join once the workspace moved to another establishment', () => {
+    service.joinEstablishment('establishment-1');
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();
 
     const scheduled = spyOnScheduling();
-    service.leaveBar('bar-1');
+    service.leaveEstablishment('establishment-1');
     rejectLastJoin();
 
     expect(scheduled).toHaveLength(0);
-    expect(joinCalls().filter((call) => call[1] === 'bar-1')).toHaveLength(1);
+    expect(joinCalls().filter((call) => call[1] === 'establishment-1')).toHaveLength(1);
   });
 
   it('should give up after a few rejected joins rather than retrying forever', () => {
-    service.joinBar('bar-1');
+    service.joinEstablishment('establishment-1');
     idToken.set('token-123');
     TestBed.tick();
     connectSocket();

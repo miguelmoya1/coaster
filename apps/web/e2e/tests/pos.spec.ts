@@ -1,19 +1,23 @@
-import { BarRole, OrderStatus, TableStatus } from '@coaster/common';
+import { EstablishmentRole, OrderStatus, TableStatus } from '@coaster/common';
 import { expect, test } from '@playwright/test';
 import { mockApiResponse } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';
 
 test.describe('POS Flow', () => {
-  const barId = 'bar-123';
+  const establishmentId = 'establishment-123';
 
   test('should open a table and add a product', async ({ page }) => {
-    // Mock the bar profile
-    await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
-    await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
+    // Mock the establishment profile
+    await mockApiResponse(page, `/establishments/${establishmentId}`, 'GET', {
+      id: establishmentId,
+      name: 'My Establishment',
+      active: true,
+    });
+    await mockApiResponse(page, `/establishments/${establishmentId}/members/me`, 'GET', {
       id: 'member-123',
       userId: 'test-user-123',
-      barId,
-      role: BarRole.OWNER,
+      establishmentId,
+      role: EstablishmentRole.OWNER,
       permissions: [],
       active: true,
       userName: 'Test User',
@@ -24,15 +28,15 @@ test.describe('POS Flow', () => {
     // Mock products and categories for POS
     const cat = { id: 'cat-1', name: 'Drinks', order: 1, active: true };
     const prod = { id: 'prod-1', name: 'Cola', price: 2.5, categoryId: 'cat-1', active: true };
-    await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', [cat]);
-    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', [prod]);
+    await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'GET', [cat]);
+    await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', [prod]);
 
     // Mock tables: 1 table available
-    const table = { id: 'table-1', barId, name: 'T1', status: TableStatus.FREE, active: true };
-    await mockApiResponse(page, `/bars/${barId}/tables`, 'GET', [table]);
+    const table = { id: 'table-1', establishmentId, name: 'T1', status: TableStatus.FREE, active: true };
+    await mockApiResponse(page, `/establishments/${establishmentId}/tables`, 'GET', [table]);
 
     // Mock shift: active shift
-    await mockApiResponse(page, `/bars/${barId}/shifts/active`, 'GET', {
+    await mockApiResponse(page, `/establishments/${establishmentId}/shifts/active`, 'GET', {
       id: 'shift-1',
       userId: 'test-user-123',
       status: 'ACTIVE',
@@ -40,16 +44,16 @@ test.describe('POS Flow', () => {
 
     // Mock POST order
     const order = { id: 'order-1', tableId: 'table-1', status: OrderStatus.OPEN, total: 2.5, items: [] };
-    await mockApiResponse(page, `/bars/${barId}/orders`, 'POST', order, 201);
+    await mockApiResponse(page, `/establishments/${establishmentId}/orders`, 'POST', order, 201);
 
     // Mock GET open orders (called by tables page)
-    await mockApiResponse(page, `/bars/${barId}/orders?status=OPEN`, 'GET', []);
-    await mockApiResponse(page, `/bars/${barId}/orders`, 'GET', []);
+    await mockApiResponse(page, `/establishments/${establishmentId}/orders?status=OPEN`, 'GET', []);
+    await mockApiResponse(page, `/establishments/${establishmentId}/orders`, 'GET', []);
 
     // After creating order, the app usually fetches the table again or the order
-    await mockApiResponse(page, `/bars/${barId}/orders/order-1`, 'GET', order);
+    await mockApiResponse(page, `/establishments/${establishmentId}/orders/order-1`, 'GET', order);
 
-    await loginAsTestUser(page, `/bars/${barId}/orders/tables`);
+    await loginAsTestUser(page, `/establishments/${establishmentId}/orders/tables`);
 
     // It should display the table T1
     await expect(page.getByTestId('table-card-name').filter({ hasText: 'T1' }).first()).toBeVisible();

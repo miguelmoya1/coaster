@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CategoryRepository } from './category-repository';
 
@@ -27,11 +27,15 @@ describe('CategoryRepository', () => {
     });
 
     it('should have the list route', () => {
-      expect(service.routes.list(asBarId('bar-1'))).toBe('/bars/bar-1/categories');
+      expect(service.routes.list(asEstablishmentId('establishment-1'))).toBe(
+        '/establishments/establishment-1/categories',
+      );
     });
 
     it('should have the create route', () => {
-      expect(service.routes.create(asBarId('bar-1'))).toBe('/bars/bar-1/categories');
+      expect(service.routes.create(asEstablishmentId('establishment-1'))).toBe(
+        '/establishments/establishment-1/categories',
+      );
     });
   });
 
@@ -41,10 +45,10 @@ describe('CategoryRepository', () => {
     });
 
     it('should call create category endpoint', async () => {
-      const barId = asBarId('bar-1');
-      const res = service.create(barId, { name: 'Test Category' });
+      const establishmentId = asEstablishmentId('establishment-1');
+      const res = service.create(establishmentId, { name: 'Test Category' });
 
-      const req = httpMock.expectOne(service.routes.create(barId));
+      const req = httpMock.expectOne(service.routes.create(establishmentId));
       req.flush(null);
       expect(req.request.method).toBe('POST');
 
@@ -58,11 +62,11 @@ describe('CategoryRepository', () => {
     });
 
     it('should call update category endpoint', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const categoryId = 'cat-1';
-      const res = service.update(barId, categoryId, { name: 'Updated Category' });
+      const res = service.update(establishmentId, categoryId, { name: 'Updated Category' });
 
-      const req = httpMock.expectOne(`/bars/bar-1/categories/${categoryId}`);
+      const req = httpMock.expectOne(`/establishments/establishment-1/categories/${categoryId}`);
       req.flush(null);
       expect(req.request.method).toBe('PATCH');
 

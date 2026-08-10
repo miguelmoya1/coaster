@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   AdminAuditAction,
-  BarBillingSource,
-  BarRole,
+  EstablishmentBillingSource,
+  EstablishmentRole,
   ClockState,
   ErrorCodes,
   Role,
@@ -37,10 +37,10 @@ const en = flatten(load('en'));
  */
 const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] = [
   { prefix: 'admin.audit_action.', values: Object.values(AdminAuditAction), builtIn: 'audit-list' },
-  { prefix: 'admin.billing_source.', values: Object.values(BarBillingSource), builtIn: 'billing-badge' },
+  { prefix: 'admin.billing_source.', values: Object.values(EstablishmentBillingSource), builtIn: 'billing-badge' },
   { prefix: 'admin.subscription_status.', values: Object.values(SubscriptionStatus), builtIn: 'status-chip' },
   { prefix: 'admin.user_role.', values: Object.values(Role), builtIn: 'admin-users' },
-  { prefix: 'common.role.', values: Object.values(BarRole), builtIn: 'staff-member-card' },
+  { prefix: 'common.role.', values: Object.values(EstablishmentRole), builtIn: 'staff-member-card' },
   { prefix: 'roster.time_tracking.type_', values: Object.values(TimeEntryType), builtIn: 'workday-card' },
   { prefix: 'roster.time_tracking.action_', values: Object.values(TimeEntryAction), builtIn: 'workday-card' },
   { prefix: 'roster.time_tracking.state_', values: Object.values(ClockState), builtIn: 'clock-card' },

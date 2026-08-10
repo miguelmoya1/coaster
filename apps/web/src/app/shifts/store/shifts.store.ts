@@ -1,27 +1,27 @@
 import { asShiftId } from '@coaster/common';
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
-import type { BarId, CreateShiftDto } from '@coaster/common';
+import type { EstablishmentId, CreateShiftDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
-import { BarShifts } from '../services/bar-shifts';
+import { EstablishmentShifts } from '../services/establishment-shifts';
 import { CreateShift } from '../services/create-shift';
 import { DeleteShift } from '../services/delete-shift';
 
 @Service()
 export class ShiftsStore {
-  readonly #barshifts = inject(BarShifts);
+  readonly #establishmentshifts = inject(EstablishmentShifts);
   readonly #createShift = inject(CreateShift);
   readonly #deleteShift = inject(DeleteShift);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #startDate = signal<string | undefined>(undefined);
   readonly #endDate = signal<string | undefined>(undefined);
 
   readonly #shiftsResource = httpResource(
-    () => this.#barshifts.execute(this.#currentBarId(), this.#startDate(), this.#endDate()),
+    () => this.#establishmentshifts.execute(this.#currentEstablishmentId(), this.#startDate(), this.#endDate()),
     {
       parse: shiftArrayMapper,
     },
@@ -50,8 +50,8 @@ export class ShiftsStore {
     });
   }
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public setDateRange(start: string | undefined, end: string | undefined) {
@@ -64,24 +64,24 @@ export class ShiftsStore {
   }
 
   public async create(createShiftDto: CreateShiftDto) {
-    const barId = this.#currentBarId();
+    const establishmentId = this.#currentEstablishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#createShift.execute(barId, createShiftDto);
+    await this.#createShift.execute(establishmentId, createShiftDto);
     this.reload();
   }
 
   public async delete(shiftId: string) {
-    const barId = this.#currentBarId();
+    const establishmentId = this.#currentEstablishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#deleteShift.execute(barId, asShiftId(shiftId));
+    await this.#deleteShift.execute(establishmentId, asShiftId(shiftId));
     this.reload();
   }
 }

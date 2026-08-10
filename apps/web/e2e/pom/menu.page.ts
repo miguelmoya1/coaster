@@ -27,8 +27,8 @@ export class MenuPage {
     this.confirmProductButton = page.getByTestId('submit-btn');
   }
 
-  async goto(barId: string) {
-    await this.page.goto(`/bars/${barId}/pantry`);
+  async goto(establishmentId: string) {
+    await this.page.goto(`/establishments/${establishmentId}/pantry`);
   }
 
   async createCategory(name: string) {

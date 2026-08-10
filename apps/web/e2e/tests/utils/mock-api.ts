@@ -1,4 +1,4 @@
-import { BarRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
+import { EstablishmentRole, Role, SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Page } from '@playwright/test';
 
 // Base API url to mock
@@ -101,10 +101,10 @@ export async function setupMockApi(page: Page) {
   });
 
   // Default global mocks for layout
-  await mockApiResponse(page, '/bars', 'GET', []);
+  await mockApiResponse(page, '/establishments', 'GET', []);
 
-  // Wildcard mock for any bar member me request, to prevent 401s during layout loading
-  await page.route('**/api/v1/bars/*/members/me', async (route) => {
+  // Wildcard mock for any establishment member me request, to prevent 401s during layout loading
+  await page.route('**/api/v1/establishments/*/members/me', async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -122,8 +122,8 @@ export async function setupMockApi(page: Page) {
         body: JSON.stringify({
           id: 'member-123',
           userId: 'test-user-123',
-          barId: 'bar-123',
-          role: BarRole.OWNER,
+          establishmentId: 'establishment-123',
+          role: EstablishmentRole.OWNER,
           permissions: ['VIEW_DASHBOARD', 'VIEW_PRODUCTS', 'VIEW_SHIFTS', 'VIEW_MEMBERS', 'VIEW_ORDERS'],
           active: true,
           userName: 'Test User',
@@ -135,8 +135,8 @@ export async function setupMockApi(page: Page) {
       await route.fallback();
     }
   });
-  // Wildcard mock for any bar members request
-  await page.route('**/api/v1/bars/*/members', async (route) => {
+  // Wildcard mock for any establishment members request
+  await page.route('**/api/v1/establishments/*/members', async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -158,7 +158,7 @@ export async function setupMockApi(page: Page) {
     }
   });
 
-  await page.route('**/api/v1/bars/*/bar-subscription', async (route) => {
+  await page.route('**/api/v1/establishments/*/establishment-subscription', async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -176,7 +176,7 @@ export async function setupMockApi(page: Page) {
         headers: { 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({
           id: 'sub-123',
-          barId: 'bar-123',
+          establishmentId: 'establishment-123',
           plan: SubscriptionPlan.PRO,
           status: SubscriptionStatus.ACTIVE,
           stripeCustomerId: 'cus_test',

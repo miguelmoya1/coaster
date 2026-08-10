@@ -28,7 +28,7 @@ export const adminGuard: CanActivateFn = () => {
           if (user && user.role === Role.ADMIN) {
             return true;
           }
-          return router.createUrlTree(['/bars/select']);
+          return router.createUrlTree(['/establishments/select']);
         }),
       );
     }),

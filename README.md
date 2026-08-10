@@ -29,7 +29,7 @@ admin backoffice.
 
 The register required by art. 34.9 of the Spanish Workers' Statute: append-only marks enforced by
 database triggers, corrections that never overwrite the original and carry who/when/what/why, a
-per-bar hash chain, CSV export over any date range for labour inspections, and the rota contrasted
+per-establishment hash chain, CSV export over any date range for labour inspections, and the rota contrasted
 against what was actually worked.
 
 See [time tracking](docs/operations/time-tracking.md).
@@ -63,11 +63,11 @@ propagate to everyone connected to the venue.
 
 Three independent axes, all of which a request must pass:
 
-| Axis             | Values                      |
-| ---------------- | --------------------------- |
-| Platform role    | `USER`, `ADMIN`             |
-| Venue role       | `OWNER`, `MANAGER`, `STAFF` |
-| Subscription     | Stripe, manual grant, none  |
+| Axis          | Values                      |
+| ------------- | --------------------------- |
+| Platform role | `USER`, `ADMIN`             |
+| Venue role    | `OWNER`, `MANAGER`, `STAFF` |
+| Subscription  | Stripe, manual grant, none  |
 
 An unpaid venue keeps **read** access to its history — it only loses writes. Full detail in
 [Access model](docs/architecture/permissions.md).
@@ -118,14 +118,16 @@ starts a `stripe` service that does it, or run it yourself — see
 
 ### When a change does not seem to apply
 
-Three container traps, all of which look like broken code. Check
+Five container traps, all of which look like broken code. Check
 `docker compose logs web` first: a failed build leaves the browser on the last good bundle.
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| The UI ignores your change | The `ng serve` watcher kept stale contents after a file was added or deleted | `docker compose restart web` |
-| `does not provide an export named '...'` | Vite's pre-bundled deps are cached in a **named** volume that survives restarts | `docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web` |
-| `Cannot find module '@nestjs/...'` | `node_modules` are anonymous volumes, so a host install is invisible inside | `docker compose exec api npm install` |
+| Symptom                                                                                               | Cause                                                                                                                                                                                                    | Fix                                                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The UI ignores your change                                                                            | The `ng serve` watcher kept stale contents after a file was added or deleted                                                                                                                             | `docker compose restart web`                                                                                                                                                                                                                             |
+| `does not provide an export named '...'`                                                              | Vite pre-bundles `@coaster/common` into `apps/web/.angular/cache`, and keys that bundle on the package's manifest rather than on its build output — so renaming an export leaves the old bundle in place | `rm -rf apps/web/.angular && docker compose restart web`, **from the host**: the same `rm` run inside the container comes back stale. Then open the page in a new tab, because the browser caches the ES module by URL and will keep serving the old one |
+| `Cannot find module '@nestjs/...'`                                                                    | `node_modules` are anonymous volumes, so a host install is invisible inside                                                                                                                              | `docker compose exec api npm install`                                                                                                                                                                                                                    |
+| The API container dies on `failed to load file`                                                       | Same watcher trap as the web one: swc keeps compiling paths that a rename or a delete moved out from under it                                                                                            | `docker compose restart api`                                                                                                                                                                                                                             |
+| Tests fail on `RangeError: Offset is outside the bounds of the DataView` inside `@prisma/param-graph` | The Prisma client was generated by the container, whose `node_modules` drifted from the host's, and the unit tests run on the **host**                                                                   | `cd apps/api && npx prisma generate` — `npm run db:generate` deliberately runs inside the container, for the container                                                                                                                                   |
 
 After changing `packages/common`, rebuild it and restart the API — both apps consume its `dist`, not
 its source:
@@ -157,13 +159,13 @@ The web app goes to Vercel, the API to Google Cloud Run, the database is Neon.
 
 Environment variables that are easy to get wrong:
 
-| Variable | Where | Why it matters |
-| --- | --- | --- |
-| `PRODUCTION` | web build | The build refuses to run without it, so a production bundle can never be silently built as a development one |
-| `USE_EMULATORS` | web build | Must be `false` in production; the build refuses the combination |
-| `TRUST_PROXY_HOPS` | API | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
-| `PUBLIC_URL` | API | Where printer bridges download updates from; `localhost` reaches no venue |
-| `STRIPE_WEBHOOK_SECRET` | API | Without it every webhook is rejected and subscriptions never activate |
+| Variable                | Where     | Why it matters                                                                                                                                        |
+| ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PRODUCTION`            | web build | The build refuses to run without it, so a production bundle can never be silently built as a development one                                          |
+| `USE_EMULATORS`         | web build | Must be `false` in production; the build refuses the combination                                                                                      |
+| `TRUST_PROXY_HOPS`      | API       | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
+| `PUBLIC_URL`            | API       | Where printer bridges download updates from; `localhost` reaches no venue                                                                             |
+| `STRIPE_WEBHOOK_SECRET` | API       | Without it every webhook is rejected and subscriptions never activate                                                                                 |
 
 Migrations are not run by the image. Apply them with `prisma migrate deploy` before or during the
 release.

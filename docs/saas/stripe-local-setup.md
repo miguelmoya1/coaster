@@ -59,7 +59,7 @@ With the front end, the API and `stripe listen` running:
 2. Pay with a test card (`4242 4242 4242 4242`, any future date, any CVC).
 3. Watch the `stripe listen` output: `checkout.session.completed` and
    `customer.subscription.created` arrive.
-4. The API links customer and subscription and projects the state onto `BarSubscription`.
+4. The API links customer and subscription and projects the state onto `EstablishmentSubscription`.
 
 You can also fire an event without going through the UI:
 
@@ -67,7 +67,7 @@ You can also fire an event without going through the UI:
 docker compose exec stripe stripe trigger customer.subscription.updated --api-key "$STRIPE_SECRET_KEY"
 ```
 
-Synthetic events like that belong to no bar, so the API acknowledges them with 201 and logs why —
+Synthetic events like that belong to no establishment, so the API acknowledges them with 201 and logs why —
 that is expected, not a failure.
 
 ## Production
@@ -116,8 +116,8 @@ FRONTEND_URL="https://<your-app-domain>"
 
 ## Local vs production
 
-| Concept          | Local                                         | Production                                  |
-| ---------------- | --------------------------------------------- | ------------------------------------------- |
-| Stripe mode      | Test (`sk_test_...`)                          | Live (`sk_live_...`)                        |
-| Webhook delivery | `stripe listen` forwards to the local API     | Stripe POSTs straight to your HTTPS domain  |
-| `whsec_...`      | Printed by the CLI, changes on each run       | Created once in the Dashboard               |
+| Concept          | Local                                     | Production                                 |
+| ---------------- | ----------------------------------------- | ------------------------------------------ |
+| Stripe mode      | Test (`sk_test_...`)                      | Live (`sk_live_...`)                       |
+| Webhook delivery | `stripe listen` forwards to the local API | Stripe POSTs straight to your HTTPS domain |
+| `whsec_...`      | Printed by the CLI, changes on each run   | Created once in the Dashboard              |

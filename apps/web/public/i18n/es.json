@@ -1,5 +1,5 @@
 {
-  "BAR_NOT_FOUND": "El bar solicitado no existe en la base de datos.",
+  "ESTABLISHMENT_NOT_FOUND": "El establecimiento solicitado no existe en la base de datos.",
   "CANNOT_GRANT_OWNER_ROLE": "Solo un propietario puede invitar a alguien como propietario.",
   "CANNOT_REMOVE_LAST_OWNER": "No se puede eliminar al último propietario. Transfiere la propiedad primero.",
   "CATEGORY_NOT_FOUND": "La categoría solicitada no existe.",
@@ -8,14 +8,14 @@
   "STRIPE_BILLING_PORTAL_FAILED": "No se pudo abrir la gestión de facturación. Inténtalo de nuevo.",
   "STRIPE_CHECKOUT_SESSION_FAILED": "No se pudo iniciar el pago. Inténtalo de nuevo.",
   "STRIPE_CONFIGURATION_INVALID": "La configuración de facturación no está disponible.",
-  "STRIPE_CUSTOMER_NOT_FOUND": "Todavía no hay un cliente de facturación asociado a este bar.",
+  "STRIPE_CUSTOMER_NOT_FOUND": "Todavía no hay un cliente de facturación asociado a este establecimiento.",
   "STRIPE_PRICE_NOT_CONFIGURED": "El precio de la suscripción no está configurado.",
   "STRIPE_SECRET_KEY_NOT_CONFIGURED": "La conexión con el proveedor de pagos no está configurada.",
   "STRIPE_SUBSCRIPTION_LOOKUP_FAILED": "No se pudo comprobar el estado de la suscripción. Inténtalo de nuevo.",
-  "STRIPE_SUBSCRIPTION_ALREADY_EXISTS": "Este bar ya tiene una suscripción. Gestiona los cambios desde Facturación.",
+  "STRIPE_SUBSCRIPTION_ALREADY_EXISTS": "Este establecimiento ya tiene una suscripción. Gestiona los cambios desde Facturación.",
   "STRIPE_SUBSCRIPTION_PENDING_CANCELLATION": "La suscripción sigue activa hasta el final del periodo contratado.",
   "STRIPE_WEBHOOK_EVENT_MISSING": "No se recibió un evento de facturación válido.",
-  "STRIPE_WEBHOOK_BAR_ID_MISSING": "El evento de facturación no se pudo vincular a un bar.",
+  "STRIPE_WEBHOOK_ESTABLISHMENT_ID_MISSING": "El evento de facturación no se pudo vincular a un establecimiento.",
   "STRIPE_WEBHOOK_CUSTOMER_MISSING": "El evento de facturación no contiene un cliente de Stripe.",
   "STRIPE_WEBHOOK_SUBSCRIPTION_MISSING": "El evento de facturación no contiene una suscripción de Stripe.",
   "STRIPE_WEBHOOK_SECRET_NOT_CONFIGURED": "La verificación de facturación no está configurada.",
@@ -25,7 +25,7 @@
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",
-  "INVALID_BAR_ID": "El identificador del bar suministrado no es válido.",
+  "INVALID_ESTABLISHMENT_ID": "El identificador del establecimiento suministrado no es válido.",
   "EMAIL_ALREADY_LINKED": "Ese correo ya está asociado a otra cuenta de acceso. Entra con la cuenta con la que te registraste.",
   "EMAIL_NOT_VERIFIED": "Verifica tu correo antes de entrar.",
   "INVALID_CREDENTIALS": "El correo o contraseña ingresados son incorrectos.",
@@ -42,7 +42,7 @@
   "min": "El valor mínimo es {{ min }}.",
   "MIN_LENGTH": "La longitud del texto ingresado es inferior al mínimo permitido.",
   "minLength": "Debe tener al menos {{ minLength }} caracteres.",
-  "MISSING_BAR_ID": "El identificador del bar es obligatorio.",
+  "MISSING_ESTABLISHMENT_ID": "El identificador del establecimiento es obligatorio.",
   "NOT_YOUR_SHIFT": "No puedes modificar este turno porque no te pertenece.",
   "ORDER_ALREADY_PAID": "Este pedido ya ha sido cobrado.",
   "ORDER_ITEM_NOT_FOUND": "El producto solicitado no está en este pedido.",
@@ -50,7 +50,7 @@
   "ORDER_NOT_OPEN": "No se pueden realizar cambios porque el pedido ya está cerrado.",
   "pattern": "Formato no válido.",
   "PRODUCT_NOT_FOUND": "El producto de inventario solicitado no existe.",
-  "PRINTER_ALREADY_CONFIGURED": "Ya hay una impresora configurada para este bar.",
+  "PRINTER_ALREADY_CONFIGURED": "Ya hay una impresora configurada para este establecimiento.",
   "PRINTER_INVALID_DEVICE_KEY": "La clave de dispositivo de la impresora no es válida.",
   "PRINTER_NOT_CONFIGURED": "No hay ninguna impresora configurada.",
   "PRINTER_NOT_CONNECTED": "La impresora no está conectada.",
@@ -59,8 +59,8 @@
   "INVALID_SHIFT_RANGE": "El turno tiene que terminar después de empezar.",
   "SHIFT_NOT_FOUND": "El turno de trabajo solicitado no existe.",
   "TABLE_ALREADY_OCCUPIED": "No se puede iniciar pedido en esta mesa porque ya está ocupada.",
-  "TABLE_NOT_FOUND": "La mesa de bar seleccionada no existe.",
-  "TABLE_NOT_OCCUPIED": "La mesa de bar seleccionada se encuentra libre.",
+  "TABLE_NOT_FOUND": "La mesa de establecimiento seleccionada no existe.",
+  "TABLE_NOT_OCCUPIED": "La mesa de establecimiento seleccionada se encuentra libre.",
   "UNAUTHORIZED": "No tienes permisos para realizar esta acción.",
   "UNAUTHORIZED_SHIFT_ACTION": "No estás autorizado para gestionar este turno de trabajo.",
   "UNEXPECTED_ERROR": "Ocurrió un error inesperado",
@@ -75,7 +75,7 @@
     "description": "Gestiona, crea o sobrescribe de manera masiva las plantillas estándar del sistema que se ofrecen para importar a los nuevos locales.",
     "editor_title": "Editor JSON de Plantillas",
     "hint": "Asegúrate de que el JSON sea un array de categorías, donde cada categoría tenga un <strong>name</strong>, <strong>icon</strong> y una lista opcional de <strong>products</strong> (con <strong>name</strong> y <strong>price</strong> en céntimos).",
-    "load_standard": "Cargar Plantilla Estándar del Bar",
+    "load_standard": "Cargar Plantilla Estándar del Establecimiento",
     "placeholder": "[\n  {\n    \"name\": \"Categoría\",\n    \"icon\": \"coffee\",\n    \"products\": [\n      { \"name\": \"Producto\", \"price\": 100 }\n    ]\n  }\n]",
     "processing": "Procesando...",
     "submit": "Upsert de Plantillas",
@@ -138,30 +138,30 @@
       "google_button": "Iniciar sesión con Google",
       "heading": "Acceso Seguro",
       "subtitle": "Accede a tu panel de control de Coaster.",
-      "tagline": "Plataforma inteligente para la gestión moderna de bares"
+      "tagline": "Plataforma inteligente para la gestión moderna de establecimientos"
     }
   },
-  "bars": {
+  "establishments": {
     "create": {
-      "badge": "Nuevo Bar",
-      "description": "Crea un nuevo bar para gestionar tu equipo, pedidos e inventario. Solo necesitas introducir su nombre para comenzar.",
+      "badge": "Nuevo Establecimiento",
+      "description": "Crea un nuevo establecimiento para gestionar tu equipo, pedidos e inventario. Solo necesitas introducir su nombre para comenzar.",
       "fields": {
-        "name": "Nombre del Bar",
+        "name": "Nombre del Establecimiento",
         "name_placeholder": "Ej. The Obsidian Lounge"
       },
-      "title": "Registrar Nuevo Bar"
+      "title": "Registrar Nuevo Establecimiento"
     },
     "select": {
-      "empty": "No se encontraron bares activos. Crea uno para empezar.",
+      "empty": "No se encontraron establecimientos activos. Crea uno para empezar.",
       "operational": "Operativo",
       "subtitle": "Plataforma de Gestión de Hostelería",
-      "title": "Selecciona tu Bar Activo"
+      "title": "Selecciona tu Establecimiento Activo"
     }
   },
   "common": {
     "accept": "Aceptar",
     "cancel": "Cancelar",
-    "change_bar": "Cambiar de bar",
+    "change_establishment": "Cambiar de establecimiento",
     "confirm": "Confirmar",
     "create": "Crear",
     "delete": "Eliminar",
@@ -182,7 +182,7 @@
   },
   "dashboard": {
     "overview": {
-      "bar_staff": "PERSONAL BAR",
+      "establishment_staff": "PERSONAL BAR",
       "floor_leads": "RESPONSABLES",
       "security": "SEGURIDAD"
     },
@@ -238,20 +238,20 @@
   },
   "members": {
     "delete": {
-      "message": "¿Estás seguro de que quieres eliminar a \"{{name}}\" del equipo? Ya no tendrá acceso al bar.",
+      "message": "¿Estás seguro de que quieres eliminar a \"{{name}}\" del equipo? Ya no tendrá acceso al establecimiento.",
       "title": "Eliminar Miembro"
     },
-    "leave": "Abandonar Bar",
+    "leave": "Abandonar Establecimiento",
     "leave_dialog": {
-      "message": "¿Estás seguro de que quieres abandonar este bar? Perderás el acceso inmediatamente.",
-      "title": "Abandonar Bar"
+      "message": "¿Estás seguro de que quieres abandonar este establecimiento? Perderás el acceso inmediatamente.",
+      "title": "Abandonar Establecimiento"
     },
-    "leave_tooltip": "Eres el único propietario. Para abandonar el bar, añade otro propietario primero.",
+    "leave_tooltip": "Eres el único propietario. Para abandonar el establecimiento, añade otro propietario primero.",
     "invite": {
       "title": "Invitar al equipo",
       "description": "Añade un nuevo miembro a la plantilla mediante su correo electrónico.",
       "role_label": "Rol",
-      "role_hint_owner": "Control total del bar, incluida la facturación y los miembros.",
+      "role_hint_owner": "Control total del establecimiento, incluida la facturación y los miembros.",
       "role_hint_manager": "Gestiona catálogo, turnos e impresora, pero no la facturación ni los miembros.",
       "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock."
     },
@@ -263,7 +263,7 @@
     "change_role": "Cambiar rol",
     "role_dialog": {
       "title": "Cambiar el rol",
-      "message": "{{ name }} pasará a ser {{ role }} en este bar. Sus permisos cambian de inmediato.",
+      "message": "{{ name }} pasará a ser {{ role }} en este establecimiento. Sus permisos cambian de inmediato.",
       "success": "Rol actualizado"
     }
   },
@@ -774,7 +774,7 @@
   "admin": {
     "nav": {
       "overview": "Resumen",
-      "bars": "Bares",
+      "establishments": "Establecimientos",
       "users": "Usuarios",
       "audit": "Auditoría",
       "templates": "Plantillas",
@@ -799,10 +799,10 @@
       "user": "Usuario"
     },
     "audit_action": {
-      "bar_plan_granted": "Plan concedido",
-      "bar_plan_revoked": "Plan retirado",
-      "bar_renamed": "Bar renombrado",
-      "bar_member_role_changed": "Rol de miembro cambiado",
+      "establishment_plan_granted": "Plan concedido",
+      "establishment_plan_revoked": "Plan retirado",
+      "establishment_renamed": "Establecimiento renombrado",
+      "establishment_member_role_changed": "Rol de miembro cambiado",
       "user_role_changed": "Rol de usuario cambiado",
       "user_activation_changed": "Estado de usuario cambiado",
       "time_entry_created": "Fichaje creado",
@@ -816,8 +816,8 @@
     },
     "overview": {
       "title": "Resumen de la plataforma",
-      "subtitle": "Estado general de bares, usuarios y suscripciones.",
-      "total_bars": "Bares",
+      "subtitle": "Estado general de establecimientos, usuarios y suscripciones.",
+      "total_establishments": "Establecimientos",
       "new_last_7": "{{ count }} nuevos en 7 días",
       "with_access": "Con acceso",
       "without_access": "{{ count }} sin acceso",
@@ -832,32 +832,32 @@
       "see_all": "Ver todo",
       "load_error": "No se pudieron cargar las métricas."
     },
-    "bars": {
-      "title": "Bares",
+    "establishments": {
+      "title": "Establecimientos",
       "subtitle": "Busca por nombre, ID o email del dueño y gestiona su plan.",
       "search_placeholder": "Nombre, ID o email del dueño...",
       "clear_filters": "Limpiar filtros",
       "filter_all": "Todos",
-      "col_bar": "Bar",
+      "col_establishment": "Establecimiento",
       "col_owner": "Dueño",
       "col_access": "Acceso",
       "col_members": "Miembros",
       "col_actions": "Acciones",
-      "empty": "No hay bares que coincidan con la búsqueda."
+      "empty": "No hay establecimientos que coincidan con la búsqueda."
     },
-    "bar_detail": {
-      "not_found": "No se encontró el bar.",
+    "establishment_detail": {
+      "not_found": "No se encontró el establecimiento.",
       "rename": "Renombrar",
-      "rename_label": "Nombre del bar",
-      "rename_success": "Bar renombrado",
+      "rename_label": "Nombre del establecimiento",
+      "rename_success": "Establecimiento renombrado",
       "rename_too_short": "El nombre debe tener al menos 3 caracteres.",
-      "enter": "Entrar al bar",
+      "enter": "Entrar al establecimiento",
       "subscription_title": "Suscripción",
       "grant_active": "Plan {{ plan }} concedido manualmente",
       "grant_until": "Vigente hasta el {{ date }}",
       "grant_forever": "Sin fecha de caducidad",
       "grant_by": "Concedido por {{ name }} el {{ date }}",
-      "no_grant": "Este bar no tiene ningún plan concedido a mano. Su acceso depende de Stripe.",
+      "no_grant": "Este establecimiento no tiene ningún plan concedido a mano. Su acceso depende de Stripe.",
       "plan": "Plan",
       "period_end": "Fin de periodo",
       "trial_ends": "Fin de prueba",
@@ -867,7 +867,7 @@
       "revoke_pro": "Quitar PRO",
       "grant_success": "Plan concedido",
       "revoke_title": "Quitar el PRO concedido",
-      "revoke_text": "Se retirará el plan concedido a mano a \"{{ bar }}\". Si no tiene una suscripción de Stripe activa, el bar pasará a solo lectura.",
+      "revoke_text": "Se retirará el plan concedido a mano a \"{{ establecimiento }}\". Si no tiene una suscripción de Stripe activa, el establecimiento pasará a solo lectura.",
       "revoke_confirm": "Quitar PRO",
       "revoke_success": "Plan retirado",
       "products": "Productos",
@@ -880,12 +880,12 @@
       "member_inactive": "Inactivo",
       "change_role": "Cambiar rol",
       "member_role_success": "Rol actualizado",
-      "no_members": "Este bar no tiene miembros.",
+      "no_members": "Este establecimiento no tiene miembros.",
       "activity_title": "Actividad de admin"
     },
     "grant_dialog": {
       "title": "Conceder {{ plan }}",
-      "subtitle": "Se activará el plan en \"{{ bar }}\" sin pasar por Stripe.",
+      "subtitle": "Se activará el plan en \"{{ establecimiento }}\" sin pasar por Stripe.",
       "duration_label": "Duración",
       "duration_7": "7 días",
       "duration_30": "30 días",
@@ -897,12 +897,12 @@
     },
     "users": {
       "title": "Usuarios",
-      "subtitle": "Busca personas, revisa sus bares y gestiona su acceso.",
+      "subtitle": "Busca personas, revisa sus establecimientos y gestiona su acceso.",
       "search_placeholder": "Nombre, email o ID...",
       "filter_all": "Todos",
       "col_user": "Usuario",
       "col_role": "Rol",
-      "col_bars": "Bares",
+      "col_establishments": "Establecimientos",
       "empty": "No hay usuarios que coincidan con la búsqueda.",
       "inactive": "Inactivo",
       "actions": "Acciones",
@@ -912,7 +912,7 @@
       "deactivate": "Desactivar",
       "update_success": "Usuario actualizado",
       "promote_title": "Hacer administrador",
-      "promote_text": "{{ name }} ({{ email }}) tendrá acceso completo al panel de administración y a todos los bares.",
+      "promote_text": "{{ name }} ({{ email }}) tendrá acceso completo al panel de administración y a todos los establecimientos.",
       "promote_confirm": "Hacer administrador",
       "demote_title": "Quitar administrador",
       "demote_text": "{{ name }} ({{ email }}) perderá el acceso al panel de administración.",
@@ -928,7 +928,7 @@
       "empty": "No hay actividad registrada."
     }
   },
-  "NO_MANUAL_GRANT": "Este bar no tiene ningún plan concedido a mano.",
+  "NO_MANUAL_GRANT": "Este establecimiento no tiene ningún plan concedido a mano.",
   "CANNOT_DEMOTE_LAST_ADMIN": "No puedes quitar el último administrador de la plataforma.",
   "CANNOT_EDIT_OWN_ADMIN_ACCOUNT": "No puedes modificar tu propia cuenta de administrador.",
   "TIME_ENTRY_NOT_FOUND": "El fichaje no existe",

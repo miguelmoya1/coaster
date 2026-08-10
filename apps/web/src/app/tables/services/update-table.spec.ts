@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { Table } from '@coaster/common';
 import { TableStatus } from '@coaster/common';
@@ -12,7 +12,7 @@ describe('UpdateTable', () => {
 
   const mockTable: Table = {
     id: asTableId('table-1'),
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
     name: 'Mesa Actualizada',
     status: TableStatus.FREE,
   };
@@ -35,14 +35,14 @@ describe('UpdateTable', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const tableId = asTableId('table-1');
       const dto = { name: 'Mesa Actualizada' };
       tableRepoMock['update'].mockResolvedValue(mockTable);
 
-      const result = await service.execute(barId, tableId, dto);
+      const result = await service.execute(establishmentId, tableId, dto);
 
-      expect(tableRepoMock['update']).toHaveBeenCalledWith(barId, tableId, dto);
+      expect(tableRepoMock['update']).toHaveBeenCalledWith(establishmentId, tableId, dto);
       expect(result).toEqual(mockTable);
     });
   });

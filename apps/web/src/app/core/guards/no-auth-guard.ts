@@ -15,7 +15,7 @@ export const noAuthGuard: CanActivateFn = () => {
         return true;
       }
 
-      return router.createUrlTree(['/bars/select']);
+      return router.createUrlTree(['/establishments/select']);
     }),
   );
 };

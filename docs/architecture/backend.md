@@ -26,7 +26,7 @@ One alias per module, declared **only** in `tsconfig.json`:
 `core/db` has its own entry point because it is the persistence layer (the generated Prisma client)
 and should not travel inside the general `core` barrel.
 
-There are no wildcard aliases (`@bars/*`). They were a way to bypass `index.ts` and reach into
+There are no wildcard aliases (`@establishments/*`). They were a way to bypass `index.ts` and reach into
 another module's internals.
 
 Rule: **crossing modules goes through the alias; inside a module, use relative paths.**
@@ -66,7 +66,7 @@ The full authorisation picture is in [access model](permissions.md).
 
 `@nestjs/throttler` is registered globally at **300 requests/minute**. Two exceptions:
 
-- `POST /bars/:barId/ai` is capped at **20/minute** — it calls a paid LLM gateway, and without a
+- `POST /establishments/:establishmentId/ai` is capped at **20/minute** — it calls a paid LLM gateway, and without a
   tighter limit any member could burn the budget in a loop.
 - The Stripe webhook and the printer bridge long-poll are exempt with `@SkipThrottle()`. Stripe
   retries on failure and the bridge holds a request open for 25 seconds by design.
@@ -86,7 +86,7 @@ To check the number is right against a deployed API, hammer it with a rotating h
 `429`. If every response is identical, there is one more hop than you think:
 
 ```bash
-for i in $(seq 1 310); do curl -s -o /dev/null -w "%{http_code}\n" -H "X-Forwarded-For: 10.0.0.$i" https://your-api/api/v1/bars; done | sort | uniq -c
+for i in $(seq 1 310); do curl -s -o /dev/null -w "%{http_code}\n" -H "X-Forwarded-For: 10.0.0.$i" https://your-api/api/v1/establishments; done | sort | uniq -c
 ```
 
 ### API docs
@@ -118,9 +118,9 @@ error inside raw SQL is invisible to them. A `WHERE id = $1::uuid` against a `te
 every unit test and only failed against a real database.
 
 To exercise something between two people, `E2eTestSetup.actAs(user)` returns the `x-e2e-user-id`
-header the mocked guard uses to impersonate; without it everything runs as `mockUser`. Test bars are
-created with `E2eTestSetup.createBar()`, which mirrors `BarWriteRepository.create`: bar, owner
-membership and a 14-day trial subscription. Creating bars with a bare `prisma.dbBar.create` leaves
+header the mocked guard uses to impersonate; without it everything runs as `mockUser`. Test establishments are
+created with `E2eTestSetup.createEstablishment()`, which mirrors `EstablishmentWriteRepository.create`: establishment, owner
+membership and a 14-day trial subscription. Creating establishments with a bare `prisma.dbEstablishment.create` leaves
 them without a subscription and `SubscriptionActiveGuard` answers 402 to every write.
 
 The websocket gateway is tested with `MockWsAuthService`, which requires a token in the handshake

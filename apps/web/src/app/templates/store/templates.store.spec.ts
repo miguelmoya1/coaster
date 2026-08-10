@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -42,7 +42,7 @@ describe('TemplatesStore', () => {
     expect(store.products.value()).toEqual([{ id: 'prod-1', name: 'Vodka', price: 1500, categoryId: 'cat-1' }]);
   });
 
-  it('should trigger importToBar repository method successfully', async () => {
+  it('should trigger importToEstablishment repository method successfully', async () => {
     store.categories.value();
     store.products.value();
 
@@ -51,10 +51,10 @@ describe('TemplatesStore', () => {
     httpMock.expectOne('/templates/categories').flush([]);
     httpMock.expectOne('/templates/products').flush([]);
 
-    const barId = asBarId('bar-123');
-    const promise = store.importToBar(barId, ['cat-1']);
+    const establishmentId = asEstablishmentId('establishment-123');
+    const promise = store.importToEstablishment(establishmentId, ['cat-1']);
 
-    const req = httpMock.expectOne('/templates/bar/bar-123');
+    const req = httpMock.expectOne('/templates/establishment/establishment-123');
     expect(req.request.method).toBe('POST');
     req.flush(null);
 

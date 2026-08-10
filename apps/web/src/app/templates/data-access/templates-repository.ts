@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -10,10 +10,10 @@ export class TemplatesRepository {
   public readonly routes = {
     categories: () => '/templates/categories',
     products: () => '/templates/products',
-    import: (barId: BarId) => `/templates/bar/${barId}`,
+    import: (establishmentId: EstablishmentId) => `/templates/establishment/${establishmentId}`,
   };
 
-  public async importToBar(barId: BarId, categoryTemplateIds: string[]): Promise<void> {
-    return firstValueFrom(this.#http.post<void>(this.routes.import(barId), { categoryTemplateIds }));
+  public async importToEstablishment(establishmentId: EstablishmentId, categoryTemplateIds: string[]): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.import(establishmentId), { categoryTemplateIds }));
   }
 }

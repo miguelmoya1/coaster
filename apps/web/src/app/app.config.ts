@@ -6,7 +6,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withRouterConfig, withViewTransitions } from '@angular/router';
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import type { PaywallHandler } from '@coaster/core';
 import {
   errorInterceptor,
@@ -28,9 +28,9 @@ export const appConfig: ApplicationConfig = {
     {
       provide: PAYWALL_HANDLER,
       useFactory: (injector: Injector): PaywallHandler => ({
-        open: (barId: BarId) => {
-          void import('@coaster/bar-subscription').then(({ PlanDialogService }) =>
-            injector.get(PlanDialogService).open(barId),
+        open: (establishmentId: EstablishmentId) => {
+          void import('@coaster/establishment-subscription').then(({ PlanDialogService }) =>
+            injector.get(PlanDialogService).open(establishmentId),
           );
         },
       }),
