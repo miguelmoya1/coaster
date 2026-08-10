@@ -1,9 +1,9 @@
 import { SubscriptionPlan } from '../constants/subscription-plan.type';
 import { SubscriptionStatus } from '../constants/subscription-status.type';
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 
-export type BarSubscriptionId = Brand<string, 'BarSubscriptionId'>;
+export type EstablishmentSubscriptionId = Brand<string, 'EstablishmentSubscriptionId'>;
 
 export interface ManualGrant {
   plan: SubscriptionPlan;
@@ -17,13 +17,13 @@ export interface AdminManualGrant extends ManualGrant {
   grantedAt: string;
 }
 
-export interface AdminBarSubscription extends Omit<BarSubscription, 'manualGrant'> {
+export interface AdminEstablishmentSubscription extends Omit<EstablishmentSubscription, 'manualGrant'> {
   manualGrant: AdminManualGrant | null;
 }
 
-export interface BarSubscription {
-  id: BarSubscriptionId;
-  barId: BarId;
+export interface EstablishmentSubscription {
+  id: EstablishmentSubscriptionId;
+  establishmentId: EstablishmentId;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   stripeCustomerId: string | null;

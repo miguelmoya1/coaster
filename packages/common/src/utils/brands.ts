@@ -1,6 +1,6 @@
 import { AdjustmentTarget } from '../constants/adjustment-target.type';
 import { AdjustmentType } from '../constants/adjustment-type.type';
-import { BarRole } from '../constants/bar-role.type';
+import { EstablishmentRole } from '../constants/establishment-role.type';
 import { DeliveryStatus } from '../constants/delivery-status.type';
 import { OrderStatus } from '../constants/order-status.type';
 import { PaymentMethod } from '../constants/payment-method.type';
@@ -8,8 +8,8 @@ import { PaymentStatus } from '../constants/payment-status.type';
 import { Role } from '../constants/role.type';
 import { ShiftExchangeStatus } from '../constants/shift-exchange-status.type';
 import { TableStatus } from '../constants/table-status.type';
-import type { BarMemberId } from '../interfaces/bar-member.interface';
-import type { BarId } from '../interfaces/bar.interface';
+import type { EstablishmentMemberId } from '../interfaces/establishment-member.interface';
+import type { EstablishmentId } from '../interfaces/establishment.interface';
 import type { CategoryId } from '../interfaces/category.interface';
 import type { OrderAdjustmentId, OrderId, OrderItemId } from '../interfaces/order.interface';
 import type { ProductId } from '../interfaces/product.interface';
@@ -18,8 +18,8 @@ import type { TableId } from '../interfaces/table.interface';
 import type { TimeEntryId } from '../interfaces/time-entry.interface';
 import type { UserId } from '../interfaces/user.interface';
 
-export const asBarId = (id: string): BarId => id as BarId;
-export const asBarMemberId = (id: string): BarMemberId => id as BarMemberId;
+export const asEstablishmentId = (id: string): EstablishmentId => id as EstablishmentId;
+export const asEstablishmentMemberId = (id: string): EstablishmentMemberId => id as EstablishmentMemberId;
 export const asCategoryId = (id: string): CategoryId => id as CategoryId;
 export const asOrderId = (id: string): OrderId => id as OrderId;
 export const asOrderItemId = (id: string): OrderItemId => id as OrderItemId;
@@ -31,10 +31,10 @@ export const asTableId = (id: string): TableId => id as TableId;
 export const asTimeEntryId = (id: string): TimeEntryId => id as TimeEntryId;
 export const asUserId = (id: string): UserId => id as UserId;
 
-export const asBarRole = (role: string): BarRole => {
-  const roles: BarRole[] = Object.values(BarRole);
-  if (roles.includes(role as BarRole)) return role as BarRole;
-  return BarRole.STAFF;
+export const asEstablishmentRole = (role: string): EstablishmentRole => {
+  const roles: EstablishmentRole[] = Object.values(EstablishmentRole);
+  if (roles.includes(role as EstablishmentRole)) return role as EstablishmentRole;
+  return EstablishmentRole.STAFF;
 };
 
 export const asDeliveryStatus = (status: string): DeliveryStatus => {

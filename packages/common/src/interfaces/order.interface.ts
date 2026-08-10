@@ -4,7 +4,7 @@ import { PaymentStatus } from '../constants/payment-status.type';
 import { PaymentMethod } from '../constants/payment-method.type';
 import { AdjustmentTarget } from '../constants/adjustment-target.type';
 import { AdjustmentType } from '../constants/adjustment-type.type';
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 import { ProductId } from './product.interface';
 import { TableId } from './table.interface';
@@ -45,7 +45,7 @@ export interface OrderAdjustment {
 
 export interface Order {
   id: OrderId;
-  barId: BarId;
+  establishmentId: EstablishmentId;
   tableId?: TableId;
   tableName?: string;
   status: OrderStatus;

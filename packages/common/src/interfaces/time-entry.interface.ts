@@ -5,7 +5,7 @@ import {
   TimeEntryType,
   WorkdayDiscrepancy,
 } from '../constants/time-entry.type';
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 import { ShiftId } from './shift.interface';
 import { UserId } from './user.interface';
@@ -28,7 +28,7 @@ export interface TimeEntryRevision {
 export interface TimeEntry {
   id: TimeEntryId;
   rootId: TimeEntryId;
-  barId: BarId;
+  establishmentId: EstablishmentId;
   userId: UserId;
   userName: string;
   type: TimeEntryType;
@@ -87,7 +87,7 @@ export interface TimeSheetQuery {
 }
 
 export interface TimeSheetIntegrity {
-  barId: BarId;
+  establishmentId: EstablishmentId;
   checkedEntries: number;
   valid: boolean;
   brokenAt: TimeEntryId | null;

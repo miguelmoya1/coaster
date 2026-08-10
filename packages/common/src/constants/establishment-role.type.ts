@@ -1,7 +1,7 @@
-export const BarRole = {
+export const EstablishmentRole = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   STAFF: 'STAFF',
 } as const;
 
-export type BarRole = (typeof BarRole)[keyof typeof BarRole];
+export type EstablishmentRole = (typeof EstablishmentRole)[keyof typeof EstablishmentRole];

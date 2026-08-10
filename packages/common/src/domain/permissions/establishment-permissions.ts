@@ -1,87 +1,87 @@
-import { BarPermission } from '../../constants/bar-permissions.type';
-import { BarRole } from '../../constants/bar-role.type';
+import { EstablishmentPermission } from '../../constants/establishment-permissions.type';
+import { EstablishmentRole } from '../../constants/establishment-role.type';
 
-const STAFF_PERMISSIONS: BarPermission[] = [
-  'bar:view-members',
+const STAFF_PERMISSIONS: EstablishmentPermission[] = [
+  'establishment:view-members',
 
-  'bar:view-tables',
-  'bar:open-table',
+  'establishment:view-tables',
+  'establishment:open-table',
 
-  'bar:view-orders',
-  'bar:create-order',
-  'bar:update-order',
-  'bar:delete-order-item',
-  'bar:checkout-order',
-  'bar:cancel-order',
-  'bar:move-order-table',
-  'bar:merge-orders',
+  'establishment:view-orders',
+  'establishment:create-order',
+  'establishment:update-order',
+  'establishment:delete-order-item',
+  'establishment:checkout-order',
+  'establishment:cancel-order',
+  'establishment:move-order-table',
+  'establishment:merge-orders',
 
-  'bar:view-categories',
-  'bar:view-products',
-  'bar:update-product-stock',
+  'establishment:view-categories',
+  'establishment:view-products',
+  'establishment:update-product-stock',
 
-  'bar:view-shifts',
-  'bar:clock-in',
-  'bar:amend-own-time-entry',
-  'bar:view-exchanges',
-  'bar:create-exchange',
-  'bar:accept-exchange',
-  'bar:delete-exchange',
+  'establishment:view-shifts',
+  'establishment:clock-in',
+  'establishment:amend-own-time-entry',
+  'establishment:view-exchanges',
+  'establishment:create-exchange',
+  'establishment:accept-exchange',
+  'establishment:delete-exchange',
 
-  'bar:view-printer',
+  'establishment:view-printer',
 ];
 
-const OWNER_ONLY_PERMISSIONS: BarPermission[] = [
-  'bar:remove-member',
-  'bar:update-member-role',
+const OWNER_ONLY_PERMISSIONS: EstablishmentPermission[] = [
+  'establishment:remove-member',
+  'establishment:update-member-role',
 
-  'bar:create-table',
-  'bar:update-table',
-  'bar:delete-table',
+  'establishment:create-table',
+  'establishment:update-table',
+  'establishment:delete-table',
 
-  'bar:delete-order',
+  'establishment:delete-order',
 
-  'bar:delete-category',
-  'bar:delete-product',
-  'bar:import-templates',
+  'establishment:delete-category',
+  'establishment:delete-product',
+  'establishment:import-templates',
 
-  'bar:manage-billing',
+  'establishment:manage-billing',
 ];
 
-export const ROLE_PERMISSIONS: Record<BarRole, BarPermission[]> = {
+export const ROLE_PERMISSIONS: Record<EstablishmentRole, EstablishmentPermission[]> = {
   OWNER: [],
   MANAGER: [
-    'bar:view-dashboard',
+    'establishment:view-dashboard',
 
-    'bar:invite-member',
+    'establishment:invite-member',
 
-    'bar:create-category',
-    'bar:update-category',
-    'bar:create-product',
-    'bar:update-product',
+    'establishment:create-category',
+    'establishment:update-category',
+    'establishment:create-product',
+    'establishment:update-product',
 
-    'bar:create-shift',
-    'bar:delete-shift',
+    'establishment:create-shift',
+    'establishment:delete-shift',
 
-    'bar:view-time-entries',
-    'bar:manage-time-entries',
+    'establishment:view-time-entries',
+    'establishment:manage-time-entries',
 
-    'bar:manage-printer',
+    'establishment:manage-printer',
 
     ...STAFF_PERMISSIONS,
   ],
   STAFF: STAFF_PERMISSIONS,
 };
 
-export const hasPermission = (role: BarRole, permission: BarPermission): boolean => {
-  if (role === BarRole.OWNER) return true;
+export const hasPermission = (role: EstablishmentRole, permission: EstablishmentPermission): boolean => {
+  if (role === EstablishmentRole.OWNER) return true;
   const permissions = ROLE_PERMISSIONS[role];
   return permissions ? permissions.includes(permission) : false;
 };
 
-export const getRolePermissions = (role: BarRole): BarPermission[] => {
-  if (role === BarRole.OWNER) {
-    return [...ROLE_PERMISSIONS[BarRole.MANAGER], ...OWNER_ONLY_PERMISSIONS];
+export const getRolePermissions = (role: EstablishmentRole): EstablishmentPermission[] => {
+  if (role === EstablishmentRole.OWNER) {
+    return [...ROLE_PERMISSIONS[EstablishmentRole.MANAGER], ...OWNER_ONLY_PERMISSIONS];
   }
 
   const permissions = ROLE_PERMISSIONS[role];

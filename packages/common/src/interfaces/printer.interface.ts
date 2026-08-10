@@ -1,9 +1,9 @@
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 
 export type PrinterConfigId = string & { readonly __brand: 'PrinterConfigId' };
 
 export interface RegisterPrinterIpDto {
-  barId: BarId;
+  establishmentId: EstablishmentId;
   ipAddress: string;
 
   port?: number;
@@ -16,7 +16,7 @@ export interface PrinterConnectionDetailsDto {
 }
 
 export interface PrinterStatusDto {
-  barId: BarId;
+  establishmentId: EstablishmentId;
   isOnline: boolean;
   ipAddress: string | null;
   port: number;
@@ -36,7 +36,7 @@ export interface PrintTicketItemDto {
 
 export interface PrintTicketPayloadDto {
   type: 'order' | 'raw';
-  barName?: string;
+  establishmentName?: string;
   table?: string;
   date?: string;
   items?: PrintTicketItemDto[];

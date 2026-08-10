@@ -1,6 +1,6 @@
 export const SocketEvents = {
-  joinBar: 'joinBar',
-  leaveBar: 'leaveBar',
+  joinEstablishment: 'joinEstablishment',
+  leaveEstablishment: 'leaveEstablishment',
   joined: 'joined',
   left: 'left',
   unauthorized: 'unauthorized',

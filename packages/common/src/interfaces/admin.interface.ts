@@ -1,11 +1,11 @@
 import { AdminAuditAction, AdminAuditTargetType } from '../constants/admin-audit-action.type';
-import { BarRole } from '../constants/bar-role.type';
+import { EstablishmentRole } from '../constants/establishment-role.type';
 import { Role } from '../constants/role.type';
 import { SubscriptionPlan } from '../constants/subscription-plan.type';
 import { SubscriptionStatus } from '../constants/subscription-status.type';
-import { BarMemberId } from './bar-member.interface';
-import { BarId } from './bar.interface';
-import { AdminBarSubscription } from './bar-subscription.interface';
+import { EstablishmentMemberId } from './establishment-member.interface';
+import { EstablishmentId } from './establishment.interface';
+import { AdminEstablishmentSubscription } from './establishment-subscription.interface';
 import { UserId } from './user.interface';
 
 export interface Paginated<T> {
@@ -15,16 +15,16 @@ export interface Paginated<T> {
   pageSize: number;
 }
 
-export const BarBillingSource = {
+export const EstablishmentBillingSource = {
   NONE: 'NONE',
   STRIPE: 'STRIPE',
   MANUAL: 'MANUAL',
 } as const;
 
-export type BarBillingSource = (typeof BarBillingSource)[keyof typeof BarBillingSource];
+export type EstablishmentBillingSource = (typeof EstablishmentBillingSource)[keyof typeof EstablishmentBillingSource];
 
-export interface AdminBarSummary {
-  id: BarId;
+export interface AdminEstablishmentSummary {
+  id: EstablishmentId;
   name: string;
   createdAt: string;
   memberCount: number;
@@ -32,23 +32,23 @@ export interface AdminBarSummary {
   ownerEmail: string | null;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
-  billingSource: BarBillingSource;
+  billingSource: EstablishmentBillingSource;
   accessEndsAt: string | null;
   hasAccess: boolean;
 }
 
-export interface AdminBarMember {
-  id: BarMemberId;
+export interface AdminEstablishmentMember {
+  id: EstablishmentMemberId;
   userId: UserId;
   name: string;
   email: string;
   photoUrl: string | null;
-  role: BarRole;
+  role: EstablishmentRole;
   active: boolean;
   joinedAt: string;
 }
 
-export interface AdminBarCounters {
+export interface AdminEstablishmentCounters {
   categories: number;
   products: number;
   tables: number;
@@ -57,11 +57,11 @@ export interface AdminBarCounters {
   revenueLast30Days: number;
 }
 
-export interface AdminBarDetail {
-  bar: AdminBarSummary;
-  subscription: AdminBarSubscription;
-  members: AdminBarMember[];
-  counters: AdminBarCounters;
+export interface AdminEstablishmentDetail {
+  establishment: AdminEstablishmentSummary;
+  subscription: AdminEstablishmentSubscription;
+  members: AdminEstablishmentMember[];
+  counters: AdminEstablishmentCounters;
   recentActivity: AdminAuditLogEntry[];
 }
 
@@ -74,25 +74,25 @@ export interface AdminUserSummary {
   active: boolean;
   language: string;
   createdAt: string;
-  barCount: number;
+  establishmentCount: number;
 }
 
-export interface AdminUserBarMembership {
-  barId: BarId;
-  barName: string;
-  role: BarRole;
+export interface AdminUserEstablishmentMembership {
+  establishmentId: EstablishmentId;
+  establishmentName: string;
+  role: EstablishmentRole;
   active: boolean;
   joinedAt: string;
 }
 
 export interface AdminUserDetail {
   user: AdminUserSummary;
-  bars: AdminUserBarMembership[];
+  establishments: AdminUserEstablishmentMembership[];
   recentActivity: AdminAuditLogEntry[];
 }
 
 export interface AdminPlatformMetrics {
-  bars: {
+  establishments: {
     total: number;
     createdLast7Days: number;
     createdLast30Days: number;
@@ -130,17 +130,17 @@ export interface AdminAuditLogEntry {
   createdAt: string;
 }
 
-export interface GrantBarPlanDto {
+export interface GrantEstablishmentPlanDto {
   plan: Exclude<SubscriptionPlan, 'FREE'>;
   durationDays?: number | null;
   reason?: string;
 }
 
-export interface RevokeBarPlanDto {
+export interface RevokeEstablishmentPlanDto {
   reason?: string;
 }
 
-export interface RenameBarDto {
+export interface RenameEstablishmentDto {
   name: string;
 }
 
@@ -149,9 +149,9 @@ export interface UpdateAdminUserDto {
   active?: boolean;
 }
 
-export interface AdminBarsQuery {
+export interface AdminEstablishmentsQuery {
   q?: string;
-  billingSource?: BarBillingSource;
+  billingSource?: EstablishmentBillingSource;
   status?: SubscriptionStatus;
   page?: number;
   pageSize?: number;

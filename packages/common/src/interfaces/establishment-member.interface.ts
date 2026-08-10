@@ -1,17 +1,17 @@
-import { BarPermissionType } from '../constants/bar-permissions.type';
-import { BarRole } from '../constants/bar-role.type';
-import { BarId } from './bar.interface';
+import { EstablishmentPermissionType } from '../constants/establishment-permissions.type';
+import { EstablishmentRole } from '../constants/establishment-role.type';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
 
-export type BarMemberId = Brand<string, 'BarMemberId'>;
+export type EstablishmentMemberId = Brand<string, 'EstablishmentMemberId'>;
 
-export interface BarMember {
-  id: BarMemberId;
+export interface EstablishmentMember {
+  id: EstablishmentMemberId;
   userId: UserId;
-  barId: BarId;
-  role: BarRole;
-  permissions: BarPermissionType[];
+  establishmentId: EstablishmentId;
+  role: EstablishmentRole;
+  permissions: EstablishmentPermissionType[];
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -21,11 +21,11 @@ export interface BarMember {
   userEmail: string;
 }
 
-export interface InviteBarMemberDto {
+export interface InviteEstablishmentMemberDto {
   email: string;
-  role?: BarRole;
+  role?: EstablishmentRole;
 }
 
-export interface UpdateBarMemberRoleDto {
-  role: BarRole;
+export interface UpdateEstablishmentMemberRoleDto {
+  role: EstablishmentRole;
 }

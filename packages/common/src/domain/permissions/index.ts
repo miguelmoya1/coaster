@@ -1,1 +1,1 @@
-export * from './bar-permissions';
+export * from './establishment-permissions';

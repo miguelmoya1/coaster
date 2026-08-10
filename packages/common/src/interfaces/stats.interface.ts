@@ -10,7 +10,7 @@ export interface MonthlyRevenue {
   amount: number;
 }
 
-export interface BarStats {
+export interface EstablishmentStats {
   todayRevenue: number;
   yesterdayRevenue: number;
   weeklyRevenue: number;
