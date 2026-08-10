@@ -36,7 +36,7 @@ export type DbPrinterConfigSumAggregateOutputType = {
 
 export type DbPrinterConfigMinAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   deviceKey: string | null
   ipAddress: string | null
   port: number | null
@@ -47,7 +47,7 @@ export type DbPrinterConfigMinAggregateOutputType = {
 
 export type DbPrinterConfigMaxAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   deviceKey: string | null
   ipAddress: string | null
   port: number | null
@@ -58,7 +58,7 @@ export type DbPrinterConfigMaxAggregateOutputType = {
 
 export type DbPrinterConfigCountAggregateOutputType = {
   id: number
-  barId: number
+  establishmentId: number
   deviceKey: number
   ipAddress: number
   port: number
@@ -79,7 +79,7 @@ export type DbPrinterConfigSumAggregateInputType = {
 
 export type DbPrinterConfigMinAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   deviceKey?: true
   ipAddress?: true
   port?: true
@@ -90,7 +90,7 @@ export type DbPrinterConfigMinAggregateInputType = {
 
 export type DbPrinterConfigMaxAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   deviceKey?: true
   ipAddress?: true
   port?: true
@@ -101,7 +101,7 @@ export type DbPrinterConfigMaxAggregateInputType = {
 
 export type DbPrinterConfigCountAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   deviceKey?: true
   ipAddress?: true
   port?: true
@@ -199,7 +199,7 @@ export type DbPrinterConfigGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 
 export type DbPrinterConfigGroupByOutputType = {
   id: string
-  barId: string
+  establishmentId: string
   deviceKey: string
   ipAddress: string | null
   port: number
@@ -233,31 +233,31 @@ export type DbPrinterConfigWhereInput = {
   OR?: Prisma.DbPrinterConfigWhereInput[]
   NOT?: Prisma.DbPrinterConfigWhereInput | Prisma.DbPrinterConfigWhereInput[]
   id?: Prisma.StringFilter<"DbPrinterConfig"> | string
-  barId?: Prisma.StringFilter<"DbPrinterConfig"> | string
+  establishmentId?: Prisma.StringFilter<"DbPrinterConfig"> | string
   deviceKey?: Prisma.StringFilter<"DbPrinterConfig"> | string
   ipAddress?: Prisma.StringNullableFilter<"DbPrinterConfig"> | string | null
   port?: Prisma.IntFilter<"DbPrinterConfig"> | number
   lastSeenAt?: Prisma.DateTimeNullableFilter<"DbPrinterConfig"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbPrinterConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbPrinterConfig"> | Date | string
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
 }
 
 export type DbPrinterConfigOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   deviceKey?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   port?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  bar?: Prisma.DbBarOrderByWithRelationInput
+  establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
 }
 
 export type DbPrinterConfigWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  barId?: string
+  establishmentId?: string
   AND?: Prisma.DbPrinterConfigWhereInput | Prisma.DbPrinterConfigWhereInput[]
   OR?: Prisma.DbPrinterConfigWhereInput[]
   NOT?: Prisma.DbPrinterConfigWhereInput | Prisma.DbPrinterConfigWhereInput[]
@@ -267,12 +267,12 @@ export type DbPrinterConfigWhereUniqueInput = Prisma.AtLeast<{
   lastSeenAt?: Prisma.DateTimeNullableFilter<"DbPrinterConfig"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbPrinterConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbPrinterConfig"> | Date | string
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
-}, "id" | "barId">
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
+}, "id" | "establishmentId">
 
 export type DbPrinterConfigOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   deviceKey?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   port?: Prisma.SortOrder
@@ -291,7 +291,7 @@ export type DbPrinterConfigScalarWhereWithAggregatesInput = {
   OR?: Prisma.DbPrinterConfigScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DbPrinterConfigScalarWhereWithAggregatesInput | Prisma.DbPrinterConfigScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbPrinterConfig"> | string
-  barId?: Prisma.StringWithAggregatesFilter<"DbPrinterConfig"> | string
+  establishmentId?: Prisma.StringWithAggregatesFilter<"DbPrinterConfig"> | string
   deviceKey?: Prisma.StringWithAggregatesFilter<"DbPrinterConfig"> | string
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"DbPrinterConfig"> | string | null
   port?: Prisma.IntWithAggregatesFilter<"DbPrinterConfig"> | number
@@ -308,12 +308,12 @@ export type DbPrinterConfigCreateInput = {
   lastSeenAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  bar: Prisma.DbBarCreateNestedOneWithoutPrinterInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutPrinterInput
 }
 
 export type DbPrinterConfigUncheckedCreateInput = {
   id?: string
-  barId: string
+  establishmentId: string
   deviceKey?: string
   ipAddress?: string | null
   port?: number
@@ -330,12 +330,12 @@ export type DbPrinterConfigUpdateInput = {
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutPrinterNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutPrinterNestedInput
 }
 
 export type DbPrinterConfigUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   deviceKey?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
@@ -346,7 +346,7 @@ export type DbPrinterConfigUncheckedUpdateInput = {
 
 export type DbPrinterConfigCreateManyInput = {
   id?: string
-  barId: string
+  establishmentId: string
   deviceKey?: string
   ipAddress?: string | null
   port?: number
@@ -367,7 +367,7 @@ export type DbPrinterConfigUpdateManyMutationInput = {
 
 export type DbPrinterConfigUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   deviceKey?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
@@ -383,7 +383,7 @@ export type DbPrinterConfigNullableScalarRelationFilter = {
 
 export type DbPrinterConfigCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   deviceKey?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   port?: Prisma.SortOrder
@@ -398,7 +398,7 @@ export type DbPrinterConfigAvgOrderByAggregateInput = {
 
 export type DbPrinterConfigMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   deviceKey?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   port?: Prisma.SortOrder
@@ -409,7 +409,7 @@ export type DbPrinterConfigMaxOrderByAggregateInput = {
 
 export type DbPrinterConfigMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   deviceKey?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   port?: Prisma.SortOrder
@@ -422,39 +422,39 @@ export type DbPrinterConfigSumOrderByAggregateInput = {
   port?: Prisma.SortOrder
 }
 
-export type DbPrinterConfigCreateNestedOneWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
-  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutBarInput
+export type DbPrinterConfigCreateNestedOneWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
+  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutEstablishmentInput
   connect?: Prisma.DbPrinterConfigWhereUniqueInput
 }
 
-export type DbPrinterConfigUncheckedCreateNestedOneWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
-  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutBarInput
+export type DbPrinterConfigUncheckedCreateNestedOneWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
+  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutEstablishmentInput
   connect?: Prisma.DbPrinterConfigWhereUniqueInput
 }
 
-export type DbPrinterConfigUpdateOneWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
-  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutBarInput
-  upsert?: Prisma.DbPrinterConfigUpsertWithoutBarInput
+export type DbPrinterConfigUpdateOneWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
+  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutEstablishmentInput
+  upsert?: Prisma.DbPrinterConfigUpsertWithoutEstablishmentInput
   disconnect?: Prisma.DbPrinterConfigWhereInput | boolean
   delete?: Prisma.DbPrinterConfigWhereInput | boolean
   connect?: Prisma.DbPrinterConfigWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbPrinterConfigUpdateToOneWithWhereWithoutBarInput, Prisma.DbPrinterConfigUpdateWithoutBarInput>, Prisma.DbPrinterConfigUncheckedUpdateWithoutBarInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbPrinterConfigUpdateToOneWithWhereWithoutEstablishmentInput, Prisma.DbPrinterConfigUpdateWithoutEstablishmentInput>, Prisma.DbPrinterConfigUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbPrinterConfigUncheckedUpdateOneWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
-  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutBarInput
-  upsert?: Prisma.DbPrinterConfigUpsertWithoutBarInput
+export type DbPrinterConfigUncheckedUpdateOneWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
+  connectOrCreate?: Prisma.DbPrinterConfigCreateOrConnectWithoutEstablishmentInput
+  upsert?: Prisma.DbPrinterConfigUpsertWithoutEstablishmentInput
   disconnect?: Prisma.DbPrinterConfigWhereInput | boolean
   delete?: Prisma.DbPrinterConfigWhereInput | boolean
   connect?: Prisma.DbPrinterConfigWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbPrinterConfigUpdateToOneWithWhereWithoutBarInput, Prisma.DbPrinterConfigUpdateWithoutBarInput>, Prisma.DbPrinterConfigUncheckedUpdateWithoutBarInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbPrinterConfigUpdateToOneWithWhereWithoutEstablishmentInput, Prisma.DbPrinterConfigUpdateWithoutEstablishmentInput>, Prisma.DbPrinterConfigUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbPrinterConfigCreateWithoutBarInput = {
+export type DbPrinterConfigCreateWithoutEstablishmentInput = {
   id?: string
   deviceKey?: string
   ipAddress?: string | null
@@ -464,7 +464,7 @@ export type DbPrinterConfigCreateWithoutBarInput = {
   updatedAt?: Date | string
 }
 
-export type DbPrinterConfigUncheckedCreateWithoutBarInput = {
+export type DbPrinterConfigUncheckedCreateWithoutEstablishmentInput = {
   id?: string
   deviceKey?: string
   ipAddress?: string | null
@@ -474,23 +474,23 @@ export type DbPrinterConfigUncheckedCreateWithoutBarInput = {
   updatedAt?: Date | string
 }
 
-export type DbPrinterConfigCreateOrConnectWithoutBarInput = {
+export type DbPrinterConfigCreateOrConnectWithoutEstablishmentInput = {
   where: Prisma.DbPrinterConfigWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
+  create: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbPrinterConfigUpsertWithoutBarInput = {
-  update: Prisma.XOR<Prisma.DbPrinterConfigUpdateWithoutBarInput, Prisma.DbPrinterConfigUncheckedUpdateWithoutBarInput>
-  create: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutBarInput, Prisma.DbPrinterConfigUncheckedCreateWithoutBarInput>
+export type DbPrinterConfigUpsertWithoutEstablishmentInput = {
+  update: Prisma.XOR<Prisma.DbPrinterConfigUpdateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedUpdateWithoutEstablishmentInput>
+  create: Prisma.XOR<Prisma.DbPrinterConfigCreateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedCreateWithoutEstablishmentInput>
   where?: Prisma.DbPrinterConfigWhereInput
 }
 
-export type DbPrinterConfigUpdateToOneWithWhereWithoutBarInput = {
+export type DbPrinterConfigUpdateToOneWithWhereWithoutEstablishmentInput = {
   where?: Prisma.DbPrinterConfigWhereInput
-  data: Prisma.XOR<Prisma.DbPrinterConfigUpdateWithoutBarInput, Prisma.DbPrinterConfigUncheckedUpdateWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbPrinterConfigUpdateWithoutEstablishmentInput, Prisma.DbPrinterConfigUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbPrinterConfigUpdateWithoutBarInput = {
+export type DbPrinterConfigUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   deviceKey?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -500,7 +500,7 @@ export type DbPrinterConfigUpdateWithoutBarInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type DbPrinterConfigUncheckedUpdateWithoutBarInput = {
+export type DbPrinterConfigUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   deviceKey?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -514,43 +514,43 @@ export type DbPrinterConfigUncheckedUpdateWithoutBarInput = {
 
 export type DbPrinterConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   deviceKey?: boolean
   ipAddress?: boolean
   port?: boolean
   lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrinterConfig"]>
 
 export type DbPrinterConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   deviceKey?: boolean
   ipAddress?: boolean
   port?: boolean
   lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrinterConfig"]>
 
 export type DbPrinterConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   deviceKey?: boolean
   ipAddress?: boolean
   port?: boolean
   lastSeenAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrinterConfig"]>
 
 export type DbPrinterConfigSelectScalar = {
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   deviceKey?: boolean
   ipAddress?: boolean
   port?: boolean
@@ -559,25 +559,25 @@ export type DbPrinterConfigSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DbPrinterConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "deviceKey" | "ipAddress" | "port" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbPrinterConfig"]>
+export type DbPrinterConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "deviceKey" | "ipAddress" | "port" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbPrinterConfig"]>
 export type DbPrinterConfigInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 export type DbPrinterConfigIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 export type DbPrinterConfigIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 
 export type $DbPrinterConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbPrinterConfig"
   objects: {
-    bar: Prisma.$DbBarPayload<ExtArgs>
+    establishment: Prisma.$DbEstablishmentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    barId: string
+    establishmentId: string
     deviceKey: string
     ipAddress: string | null
     port: number
@@ -978,7 +978,7 @@ readonly fields: DbPrinterConfigFieldRefs;
  */
 export interface Prisma__DbPrinterConfigClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bar<T extends Prisma.DbBarDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBarDefaultArgs<ExtArgs>>): Prisma.Prisma__DbBarClient<runtime.Types.Result.GetResult<Prisma.$DbBarPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  establishment<T extends Prisma.DbEstablishmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DbEstablishmentClient<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1009,7 +1009,7 @@ export interface Prisma__DbPrinterConfigClient<T, Null = never, ExtArgs extends 
  */
 export interface DbPrinterConfigFieldRefs {
   readonly id: Prisma.FieldRef<"DbPrinterConfig", 'String'>
-  readonly barId: Prisma.FieldRef<"DbPrinterConfig", 'String'>
+  readonly establishmentId: Prisma.FieldRef<"DbPrinterConfig", 'String'>
   readonly deviceKey: Prisma.FieldRef<"DbPrinterConfig", 'String'>
   readonly ipAddress: Prisma.FieldRef<"DbPrinterConfig", 'String'>
   readonly port: Prisma.FieldRef<"DbPrinterConfig", 'Int'>

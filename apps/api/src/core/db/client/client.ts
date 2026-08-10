@@ -52,15 +52,15 @@ export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
  */
 export type DbUser = Prisma.DbUserModel
 /**
- * Model DbBar
+ * Model DbEstablishment
  * 
  */
-export type DbBar = Prisma.DbBarModel
+export type DbEstablishment = Prisma.DbEstablishmentModel
 /**
- * Model DbBarMember
+ * Model DbEstablishmentMember
  * 
  */
-export type DbBarMember = Prisma.DbBarMemberModel
+export type DbEstablishmentMember = Prisma.DbEstablishmentMemberModel
 /**
  * Model DbShift
  * 
@@ -117,10 +117,10 @@ export type DbPrinterConfig = Prisma.DbPrinterConfigModel
  */
 export type DbPrintJob = Prisma.DbPrintJobModel
 /**
- * Model DbBarSubscription
+ * Model DbEstablishmentSubscription
  * 
  */
-export type DbBarSubscription = Prisma.DbBarSubscriptionModel
+export type DbEstablishmentSubscription = Prisma.DbEstablishmentSubscriptionModel
 /**
  * Model DbTimeEntry
  * 

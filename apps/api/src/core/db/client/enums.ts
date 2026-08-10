@@ -9,13 +9,13 @@
 * 🟢 You can import this file directly.
 */
 
-export const DbBarRole = {
+export const DbEstablishmentRole = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   STAFF: 'STAFF'
 } as const
 
-export type DbBarRole = (typeof DbBarRole)[keyof typeof DbBarRole]
+export type DbEstablishmentRole = (typeof DbEstablishmentRole)[keyof typeof DbEstablishmentRole]
 
 
 export const DbRole = {

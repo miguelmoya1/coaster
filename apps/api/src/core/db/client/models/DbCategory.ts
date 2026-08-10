@@ -26,7 +26,7 @@ export type AggregateDbCategory = {
 
 export type DbCategoryMinAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   name: string | null
   icon: string | null
   deletedAt: Date | null
@@ -34,7 +34,7 @@ export type DbCategoryMinAggregateOutputType = {
 
 export type DbCategoryMaxAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   name: string | null
   icon: string | null
   deletedAt: Date | null
@@ -42,7 +42,7 @@ export type DbCategoryMaxAggregateOutputType = {
 
 export type DbCategoryCountAggregateOutputType = {
   id: number
-  barId: number
+  establishmentId: number
   name: number
   icon: number
   deletedAt: number
@@ -52,7 +52,7 @@ export type DbCategoryCountAggregateOutputType = {
 
 export type DbCategoryMinAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   name?: true
   icon?: true
   deletedAt?: true
@@ -60,7 +60,7 @@ export type DbCategoryMinAggregateInputType = {
 
 export type DbCategoryMaxAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   name?: true
   icon?: true
   deletedAt?: true
@@ -68,7 +68,7 @@ export type DbCategoryMaxAggregateInputType = {
 
 export type DbCategoryCountAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   name?: true
   icon?: true
   deletedAt?: true
@@ -149,7 +149,7 @@ export type DbCategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type DbCategoryGroupByOutputType = {
   id: string
-  barId: string
+  establishmentId: string
   name: string
   icon: string | null
   deletedAt: Date | null
@@ -178,21 +178,21 @@ export type DbCategoryWhereInput = {
   OR?: Prisma.DbCategoryWhereInput[]
   NOT?: Prisma.DbCategoryWhereInput | Prisma.DbCategoryWhereInput[]
   id?: Prisma.StringFilter<"DbCategory"> | string
-  barId?: Prisma.StringFilter<"DbCategory"> | string
+  establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   products?: Prisma.DbProductListRelationFilter
 }
 
 export type DbCategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  bar?: Prisma.DbBarOrderByWithRelationInput
+  establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
   products?: Prisma.DbProductOrderByRelationAggregateInput
 }
 
@@ -201,17 +201,17 @@ export type DbCategoryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DbCategoryWhereInput | Prisma.DbCategoryWhereInput[]
   OR?: Prisma.DbCategoryWhereInput[]
   NOT?: Prisma.DbCategoryWhereInput | Prisma.DbCategoryWhereInput[]
-  barId?: Prisma.StringFilter<"DbCategory"> | string
+  establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   products?: Prisma.DbProductListRelationFilter
 }, "id">
 
 export type DbCategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -225,7 +225,7 @@ export type DbCategoryScalarWhereWithAggregatesInput = {
   OR?: Prisma.DbCategoryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DbCategoryScalarWhereWithAggregatesInput | Prisma.DbCategoryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
-  barId?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
+  establishmentId?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableWithAggregatesFilter<"DbCategory"> | string | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbCategory"> | Date | string | null
@@ -236,13 +236,13 @@ export type DbCategoryCreateInput = {
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
-  bar: Prisma.DbBarCreateNestedOneWithoutCategoriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutCategoriesInput
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
 }
 
 export type DbCategoryUncheckedCreateInput = {
   id?: string
-  barId: string
+  establishmentId: string
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
@@ -254,13 +254,13 @@ export type DbCategoryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutCategoriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutCategoriesNestedInput
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
 }
 
 export type DbCategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -269,7 +269,7 @@ export type DbCategoryUncheckedUpdateInput = {
 
 export type DbCategoryCreateManyInput = {
   id?: string
-  barId: string
+  establishmentId: string
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
@@ -284,7 +284,7 @@ export type DbCategoryUpdateManyMutationInput = {
 
 export type DbCategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -302,7 +302,7 @@ export type DbCategoryOrderByRelationAggregateInput = {
 
 export type DbCategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -310,7 +310,7 @@ export type DbCategoryCountOrderByAggregateInput = {
 
 export type DbCategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -318,7 +318,7 @@ export type DbCategoryMaxOrderByAggregateInput = {
 
 export type DbCategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -329,45 +329,45 @@ export type DbCategoryScalarRelationFilter = {
   isNot?: Prisma.DbCategoryWhereInput
 }
 
-export type DbCategoryCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput> | Prisma.DbCategoryCreateWithoutBarInput[] | Prisma.DbCategoryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutBarInput | Prisma.DbCategoryCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbCategoryCreateManyBarInputEnvelope
+export type DbCategoryCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbCategoryCreateWithoutEstablishmentInput[] | Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput | Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbCategoryCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
 }
 
-export type DbCategoryUncheckedCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput> | Prisma.DbCategoryCreateWithoutBarInput[] | Prisma.DbCategoryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutBarInput | Prisma.DbCategoryCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbCategoryCreateManyBarInputEnvelope
+export type DbCategoryUncheckedCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbCategoryCreateWithoutEstablishmentInput[] | Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput | Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbCategoryCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
 }
 
-export type DbCategoryUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput> | Prisma.DbCategoryCreateWithoutBarInput[] | Prisma.DbCategoryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutBarInput | Prisma.DbCategoryCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbCategoryUpsertWithWhereUniqueWithoutBarInput | Prisma.DbCategoryUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbCategoryCreateManyBarInputEnvelope
+export type DbCategoryUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbCategoryCreateWithoutEstablishmentInput[] | Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput | Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbCategoryUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbCategoryUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbCategoryCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   disconnect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   delete?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   connect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
-  update?: Prisma.DbCategoryUpdateWithWhereUniqueWithoutBarInput | Prisma.DbCategoryUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbCategoryUpdateManyWithWhereWithoutBarInput | Prisma.DbCategoryUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbCategoryUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbCategoryUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbCategoryUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbCategoryUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbCategoryScalarWhereInput | Prisma.DbCategoryScalarWhereInput[]
 }
 
-export type DbCategoryUncheckedUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput> | Prisma.DbCategoryCreateWithoutBarInput[] | Prisma.DbCategoryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutBarInput | Prisma.DbCategoryCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbCategoryUpsertWithWhereUniqueWithoutBarInput | Prisma.DbCategoryUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbCategoryCreateManyBarInputEnvelope
+export type DbCategoryUncheckedUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbCategoryCreateWithoutEstablishmentInput[] | Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput | Prisma.DbCategoryCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbCategoryUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbCategoryUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbCategoryCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   disconnect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   delete?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
   connect?: Prisma.DbCategoryWhereUniqueInput | Prisma.DbCategoryWhereUniqueInput[]
-  update?: Prisma.DbCategoryUpdateWithWhereUniqueWithoutBarInput | Prisma.DbCategoryUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbCategoryUpdateManyWithWhereWithoutBarInput | Prisma.DbCategoryUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbCategoryUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbCategoryUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbCategoryUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbCategoryUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbCategoryScalarWhereInput | Prisma.DbCategoryScalarWhereInput[]
 }
 
@@ -385,7 +385,7 @@ export type DbCategoryUpdateOneRequiredWithoutProductsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbCategoryUpdateToOneWithWhereWithoutProductsInput, Prisma.DbCategoryUpdateWithoutProductsInput>, Prisma.DbCategoryUncheckedUpdateWithoutProductsInput>
 }
 
-export type DbCategoryCreateWithoutBarInput = {
+export type DbCategoryCreateWithoutEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
@@ -393,7 +393,7 @@ export type DbCategoryCreateWithoutBarInput = {
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
 }
 
-export type DbCategoryUncheckedCreateWithoutBarInput = {
+export type DbCategoryUncheckedCreateWithoutEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
@@ -401,30 +401,30 @@ export type DbCategoryUncheckedCreateWithoutBarInput = {
   products?: Prisma.DbProductUncheckedCreateNestedManyWithoutCategoryInput
 }
 
-export type DbCategoryCreateOrConnectWithoutBarInput = {
+export type DbCategoryCreateOrConnectWithoutEstablishmentInput = {
   where: Prisma.DbCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput>
+  create: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbCategoryCreateManyBarInputEnvelope = {
-  data: Prisma.DbCategoryCreateManyBarInput | Prisma.DbCategoryCreateManyBarInput[]
+export type DbCategoryCreateManyEstablishmentInputEnvelope = {
+  data: Prisma.DbCategoryCreateManyEstablishmentInput | Prisma.DbCategoryCreateManyEstablishmentInput[]
   skipDuplicates?: boolean
 }
 
-export type DbCategoryUpsertWithWhereUniqueWithoutBarInput = {
+export type DbCategoryUpsertWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbCategoryWhereUniqueInput
-  update: Prisma.XOR<Prisma.DbCategoryUpdateWithoutBarInput, Prisma.DbCategoryUncheckedUpdateWithoutBarInput>
-  create: Prisma.XOR<Prisma.DbCategoryCreateWithoutBarInput, Prisma.DbCategoryUncheckedCreateWithoutBarInput>
+  update: Prisma.XOR<Prisma.DbCategoryUpdateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedUpdateWithoutEstablishmentInput>
+  create: Prisma.XOR<Prisma.DbCategoryCreateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbCategoryUpdateWithWhereUniqueWithoutBarInput = {
+export type DbCategoryUpdateWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbCategoryWhereUniqueInput
-  data: Prisma.XOR<Prisma.DbCategoryUpdateWithoutBarInput, Prisma.DbCategoryUncheckedUpdateWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbCategoryUpdateWithoutEstablishmentInput, Prisma.DbCategoryUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbCategoryUpdateManyWithWhereWithoutBarInput = {
+export type DbCategoryUpdateManyWithWhereWithoutEstablishmentInput = {
   where: Prisma.DbCategoryScalarWhereInput
-  data: Prisma.XOR<Prisma.DbCategoryUpdateManyMutationInput, Prisma.DbCategoryUncheckedUpdateManyWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbCategoryUpdateManyMutationInput, Prisma.DbCategoryUncheckedUpdateManyWithoutEstablishmentInput>
 }
 
 export type DbCategoryScalarWhereInput = {
@@ -432,7 +432,7 @@ export type DbCategoryScalarWhereInput = {
   OR?: Prisma.DbCategoryScalarWhereInput[]
   NOT?: Prisma.DbCategoryScalarWhereInput | Prisma.DbCategoryScalarWhereInput[]
   id?: Prisma.StringFilter<"DbCategory"> | string
-  barId?: Prisma.StringFilter<"DbCategory"> | string
+  establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
@@ -443,12 +443,12 @@ export type DbCategoryCreateWithoutProductsInput = {
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
-  bar: Prisma.DbBarCreateNestedOneWithoutCategoriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutCategoriesInput
 }
 
 export type DbCategoryUncheckedCreateWithoutProductsInput = {
   id?: string
-  barId: string
+  establishmentId: string
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
@@ -475,25 +475,25 @@ export type DbCategoryUpdateWithoutProductsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutCategoriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutCategoriesNestedInput
 }
 
 export type DbCategoryUncheckedUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type DbCategoryCreateManyBarInput = {
+export type DbCategoryCreateManyEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
   deletedAt?: Date | string | null
 }
 
-export type DbCategoryUpdateWithoutBarInput = {
+export type DbCategoryUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,7 +501,7 @@ export type DbCategoryUpdateWithoutBarInput = {
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
 }
 
-export type DbCategoryUncheckedUpdateWithoutBarInput = {
+export type DbCategoryUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -509,7 +509,7 @@ export type DbCategoryUncheckedUpdateWithoutBarInput = {
   products?: Prisma.DbProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
-export type DbCategoryUncheckedUpdateManyWithoutBarInput = {
+export type DbCategoryUncheckedUpdateManyWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -549,63 +549,63 @@ export type DbCategoryCountOutputTypeCountProductsArgs<ExtArgs extends runtime.T
 
 export type DbCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   name?: boolean
   icon?: boolean
   deletedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
   _count?: boolean | Prisma.DbCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
 
 export type DbCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   name?: boolean
   icon?: boolean
   deletedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
 
 export type DbCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   name?: boolean
   icon?: boolean
   deletedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
 
 export type DbCategorySelectScalar = {
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   name?: boolean
   icon?: boolean
   deletedAt?: boolean
 }
 
-export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "name" | "icon" | "deletedAt", ExtArgs["result"]["dbCategory"]>
+export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "name" | "icon" | "deletedAt", ExtArgs["result"]["dbCategory"]>
 export type DbCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
   _count?: boolean | Prisma.DbCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 export type DbCategoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 
 export type $DbCategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbCategory"
   objects: {
-    bar: Prisma.$DbBarPayload<ExtArgs>
+    establishment: Prisma.$DbEstablishmentPayload<ExtArgs>
     products: Prisma.$DbProductPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    barId: string
+    establishmentId: string
     name: string
     icon: string | null
     deletedAt: Date | null
@@ -1003,7 +1003,7 @@ readonly fields: DbCategoryFieldRefs;
  */
 export interface Prisma__DbCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bar<T extends Prisma.DbBarDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBarDefaultArgs<ExtArgs>>): Prisma.Prisma__DbBarClient<runtime.Types.Result.GetResult<Prisma.$DbBarPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  establishment<T extends Prisma.DbEstablishmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DbEstablishmentClient<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   products<T extends Prisma.DbCategory$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbCategory$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1035,7 +1035,7 @@ export interface Prisma__DbCategoryClient<T, Null = never, ExtArgs extends runti
  */
 export interface DbCategoryFieldRefs {
   readonly id: Prisma.FieldRef<"DbCategory", 'String'>
-  readonly barId: Prisma.FieldRef<"DbCategory", 'String'>
+  readonly establishmentId: Prisma.FieldRef<"DbCategory", 'String'>
   readonly name: Prisma.FieldRef<"DbCategory", 'String'>
   readonly icon: Prisma.FieldRef<"DbCategory", 'String'>
   readonly deletedAt: Prisma.FieldRef<"DbCategory", 'DateTime'>

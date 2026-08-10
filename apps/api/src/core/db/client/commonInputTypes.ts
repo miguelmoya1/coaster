@@ -201,11 +201,11 @@ export type EnumDbRoleWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDbRoleFilter<$PrismaModel>
 }
 
-export type EnumDbBarRoleFilter<$PrismaModel = never> = {
-  equals?: $Enums.DbBarRole | Prisma.EnumDbBarRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel> | $Enums.DbBarRole
+export type EnumDbEstablishmentRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbEstablishmentRole | Prisma.EnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel> | $Enums.DbEstablishmentRole
 }
 
 export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -219,14 +219,14 @@ export type DateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
-export type EnumDbBarRoleWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DbBarRole | Prisma.EnumDbBarRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDbBarRoleWithAggregatesFilter<$PrismaModel> | $Enums.DbBarRole
+export type EnumDbEstablishmentRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbEstablishmentRole | Prisma.EnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbEstablishmentRoleWithAggregatesFilter<$PrismaModel> | $Enums.DbEstablishmentRole
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel>
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -752,11 +752,11 @@ export type NestedEnumDbRoleWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDbRoleFilter<$PrismaModel>
 }
 
-export type NestedEnumDbBarRoleFilter<$PrismaModel = never> = {
-  equals?: $Enums.DbBarRole | Prisma.EnumDbBarRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel> | $Enums.DbBarRole
+export type NestedEnumDbEstablishmentRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbEstablishmentRole | Prisma.EnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel> | $Enums.DbEstablishmentRole
 }
 
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -770,14 +770,14 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
-export type NestedEnumDbBarRoleWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DbBarRole | Prisma.EnumDbBarRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DbBarRole[] | Prisma.ListEnumDbBarRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDbBarRoleWithAggregatesFilter<$PrismaModel> | $Enums.DbBarRole
+export type NestedEnumDbEstablishmentRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbEstablishmentRole | Prisma.EnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbEstablishmentRole[] | Prisma.ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbEstablishmentRoleWithAggregatesFilter<$PrismaModel> | $Enums.DbEstablishmentRole
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDbBarRoleFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbEstablishmentRoleFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {

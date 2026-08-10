@@ -386,8 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
-  DbBar: 'DbBar',
-  DbBarMember: 'DbBarMember',
+  DbEstablishment: 'DbEstablishment',
+  DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
   DbCategory: 'DbCategory',
@@ -399,7 +399,7 @@ export const ModelName = {
   DbOrderItem: 'DbOrderItem',
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
-  DbBarSubscription: 'DbBarSubscription',
+  DbEstablishmentSubscription: 'DbEstablishmentSubscription',
   DbTimeEntry: 'DbTimeEntry',
   DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
@@ -417,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBar" | "dbBarMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbBarSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -569,151 +569,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DbBar: {
-      payload: Prisma.$DbBarPayload<ExtArgs>
-      fields: Prisma.DbBarFieldRefs
+    DbEstablishment: {
+      payload: Prisma.$DbEstablishmentPayload<ExtArgs>
+      fields: Prisma.DbEstablishmentFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DbBarFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload> | null
+          args: Prisma.DbEstablishmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DbBarFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         findFirst: {
-          args: Prisma.DbBarFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload> | null
+          args: Prisma.DbEstablishmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DbBarFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         findMany: {
-          args: Prisma.DbBarFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>[]
+          args: Prisma.DbEstablishmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>[]
         }
         create: {
-          args: Prisma.DbBarCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         createMany: {
-          args: Prisma.DbBarCreateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DbBarCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>[]
+          args: Prisma.DbEstablishmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>[]
         }
         delete: {
-          args: Prisma.DbBarDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         update: {
-          args: Prisma.DbBarUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         deleteMany: {
-          args: Prisma.DbBarDeleteManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DbBarUpdateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DbBarUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>[]
+          args: Prisma.DbEstablishmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>[]
         }
         upsert: {
-          args: Prisma.DbBarUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarPayload>
+          args: Prisma.DbEstablishmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentPayload>
         }
         aggregate: {
-          args: Prisma.DbBarAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBar>
+          args: Prisma.DbEstablishmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbEstablishment>
         }
         groupBy: {
-          args: Prisma.DbBarGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarGroupByOutputType>[]
+          args: Prisma.DbEstablishmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DbBarCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarCountAggregateOutputType> | number
+          args: Prisma.DbEstablishmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentCountAggregateOutputType> | number
         }
       }
     }
-    DbBarMember: {
-      payload: Prisma.$DbBarMemberPayload<ExtArgs>
-      fields: Prisma.DbBarMemberFieldRefs
+    DbEstablishmentMember: {
+      payload: Prisma.$DbEstablishmentMemberPayload<ExtArgs>
+      fields: Prisma.DbEstablishmentMemberFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DbBarMemberFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload> | null
+          args: Prisma.DbEstablishmentMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DbBarMemberFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         findFirst: {
-          args: Prisma.DbBarMemberFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload> | null
+          args: Prisma.DbEstablishmentMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DbBarMemberFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         findMany: {
-          args: Prisma.DbBarMemberFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>[]
+          args: Prisma.DbEstablishmentMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>[]
         }
         create: {
-          args: Prisma.DbBarMemberCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         createMany: {
-          args: Prisma.DbBarMemberCreateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentMemberCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DbBarMemberCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>[]
+          args: Prisma.DbEstablishmentMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>[]
         }
         delete: {
-          args: Prisma.DbBarMemberDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         update: {
-          args: Prisma.DbBarMemberUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         deleteMany: {
-          args: Prisma.DbBarMemberDeleteManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentMemberDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DbBarMemberUpdateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentMemberUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DbBarMemberUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>[]
+          args: Prisma.DbEstablishmentMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>[]
         }
         upsert: {
-          args: Prisma.DbBarMemberUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarMemberPayload>
+          args: Prisma.DbEstablishmentMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentMemberPayload>
         }
         aggregate: {
-          args: Prisma.DbBarMemberAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBarMember>
+          args: Prisma.DbEstablishmentMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbEstablishmentMember>
         }
         groupBy: {
-          args: Prisma.DbBarMemberGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarMemberGroupByOutputType>[]
+          args: Prisma.DbEstablishmentMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentMemberGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DbBarMemberCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarMemberCountAggregateOutputType> | number
+          args: Prisma.DbEstablishmentMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentMemberCountAggregateOutputType> | number
         }
       }
     }
@@ -1531,77 +1531,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DbBarSubscription: {
-      payload: Prisma.$DbBarSubscriptionPayload<ExtArgs>
-      fields: Prisma.DbBarSubscriptionFieldRefs
+    DbEstablishmentSubscription: {
+      payload: Prisma.$DbEstablishmentSubscriptionPayload<ExtArgs>
+      fields: Prisma.DbEstablishmentSubscriptionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DbBarSubscriptionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload> | null
+          args: Prisma.DbEstablishmentSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DbBarSubscriptionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         findFirst: {
-          args: Prisma.DbBarSubscriptionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload> | null
+          args: Prisma.DbEstablishmentSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DbBarSubscriptionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         findMany: {
-          args: Prisma.DbBarSubscriptionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+          args: Prisma.DbEstablishmentSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>[]
         }
         create: {
-          args: Prisma.DbBarSubscriptionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         createMany: {
-          args: Prisma.DbBarSubscriptionCreateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentSubscriptionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DbBarSubscriptionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+          args: Prisma.DbEstablishmentSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>[]
         }
         delete: {
-          args: Prisma.DbBarSubscriptionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         update: {
-          args: Prisma.DbBarSubscriptionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         deleteMany: {
-          args: Prisma.DbBarSubscriptionDeleteManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentSubscriptionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DbBarSubscriptionUpdateManyArgs<ExtArgs>
+          args: Prisma.DbEstablishmentSubscriptionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DbBarSubscriptionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>[]
+          args: Prisma.DbEstablishmentSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>[]
         }
         upsert: {
-          args: Prisma.DbBarSubscriptionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBarSubscriptionPayload>
+          args: Prisma.DbEstablishmentSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbEstablishmentSubscriptionPayload>
         }
         aggregate: {
-          args: Prisma.DbBarSubscriptionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBarSubscription>
+          args: Prisma.DbEstablishmentSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbEstablishmentSubscription>
         }
         groupBy: {
-          args: Prisma.DbBarSubscriptionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarSubscriptionGroupByOutputType>[]
+          args: Prisma.DbEstablishmentSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentSubscriptionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DbBarSubscriptionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbBarSubscriptionCountAggregateOutputType> | number
+          args: Prisma.DbEstablishmentSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentSubscriptionCountAggregateOutputType> | number
         }
       }
     }
@@ -1822,20 +1822,20 @@ export const DbUserScalarFieldEnum = {
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
 
 
-export const DbBarScalarFieldEnum = {
+export const DbEstablishmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type DbBarScalarFieldEnum = (typeof DbBarScalarFieldEnum)[keyof typeof DbBarScalarFieldEnum]
+export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
 
 
-export const DbBarMemberScalarFieldEnum = {
+export const DbEstablishmentMemberScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   role: 'role',
   active: 'active',
   createdAt: 'createdAt',
@@ -1843,7 +1843,7 @@ export const DbBarMemberScalarFieldEnum = {
   deletedAt: 'deletedAt'
 } as const
 
-export type DbBarMemberScalarFieldEnum = (typeof DbBarMemberScalarFieldEnum)[keyof typeof DbBarMemberScalarFieldEnum]
+export type DbEstablishmentMemberScalarFieldEnum = (typeof DbEstablishmentMemberScalarFieldEnum)[keyof typeof DbEstablishmentMemberScalarFieldEnum]
 
 
 export const DbShiftScalarFieldEnum = {
@@ -1851,7 +1851,7 @@ export const DbShiftScalarFieldEnum = {
   startTime: 'startTime',
   endTime: 'endTime',
   userId: 'userId',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1874,7 +1874,7 @@ export type DbShiftExchangeScalarFieldEnum = (typeof DbShiftExchangeScalarFieldE
 
 export const DbCategoryScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   name: 'name',
   icon: 'icon',
   deletedAt: 'deletedAt'
@@ -1927,7 +1927,7 @@ export const DbTableScalarFieldEnum = {
   id: 'id',
   name: 'name',
   status: 'status',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1937,7 +1937,7 @@ export type DbTableScalarFieldEnum = (typeof DbTableScalarFieldEnum)[keyof typeo
 
 export const DbOrderScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   tableId: 'tableId',
   tableName: 'tableName',
   status: 'status',
@@ -1977,7 +1977,7 @@ export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[key
 
 export const DbPrinterConfigScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   deviceKey: 'deviceKey',
   ipAddress: 'ipAddress',
   port: 'port',
@@ -1991,7 +1991,7 @@ export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldE
 
 export const DbPrintJobScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   payload: 'payload',
   status: 'status',
   attempts: 'attempts',
@@ -2004,9 +2004,9 @@ export const DbPrintJobScalarFieldEnum = {
 export type DbPrintJobScalarFieldEnum = (typeof DbPrintJobScalarFieldEnum)[keyof typeof DbPrintJobScalarFieldEnum]
 
 
-export const DbBarSubscriptionScalarFieldEnum = {
+export const DbEstablishmentSubscriptionScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   plan: 'plan',
   status: 'status',
   stripeCustomerId: 'stripeCustomerId',
@@ -2024,12 +2024,12 @@ export const DbBarSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+export type DbEstablishmentSubscriptionScalarFieldEnum = (typeof DbEstablishmentSubscriptionScalarFieldEnum)[keyof typeof DbEstablishmentSubscriptionScalarFieldEnum]
 
 
 export const DbTimeEntryScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   userId: 'userId',
   userSnapshot: 'userSnapshot',
   shiftId: 'shiftId',
@@ -2214,16 +2214,16 @@ export type ListEnumDbRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'DbBarRole'
+ * Reference to a field of type 'DbEstablishmentRole'
  */
-export type EnumDbBarRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbBarRole'>
+export type EnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentRole'>
     
 
 
 /**
- * Reference to a field of type 'DbBarRole[]'
+ * Reference to a field of type 'DbEstablishmentRole[]'
  */
-export type ListEnumDbBarRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbBarRole[]'>
+export type ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbEstablishmentRole[]'>
     
 
 
@@ -2492,8 +2492,8 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
-  dbBar?: Prisma.DbBarOmit
-  dbBarMember?: Prisma.DbBarMemberOmit
+  dbEstablishment?: Prisma.DbEstablishmentOmit
+  dbEstablishmentMember?: Prisma.DbEstablishmentMemberOmit
   dbShift?: Prisma.DbShiftOmit
   dbShiftExchange?: Prisma.DbShiftExchangeOmit
   dbCategory?: Prisma.DbCategoryOmit
@@ -2505,7 +2505,7 @@ export type GlobalOmitConfig = {
   dbOrderItem?: Prisma.DbOrderItemOmit
   dbPrinterConfig?: Prisma.DbPrinterConfigOmit
   dbPrintJob?: Prisma.DbPrintJobOmit
-  dbBarSubscription?: Prisma.DbBarSubscriptionOmit
+  dbEstablishmentSubscription?: Prisma.DbEstablishmentSubscriptionOmit
   dbTimeEntry?: Prisma.DbTimeEntryOmit
   dbAdminAuditLog?: Prisma.DbAdminAuditLogOmit
 }

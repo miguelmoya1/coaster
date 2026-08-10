@@ -36,7 +36,7 @@ export type DbPrintJobSumAggregateOutputType = {
 
 export type DbPrintJobMinAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   status: $Enums.DbPrintJobStatus | null
   attempts: number | null
   error: string | null
@@ -47,7 +47,7 @@ export type DbPrintJobMinAggregateOutputType = {
 
 export type DbPrintJobMaxAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   status: $Enums.DbPrintJobStatus | null
   attempts: number | null
   error: string | null
@@ -58,7 +58,7 @@ export type DbPrintJobMaxAggregateOutputType = {
 
 export type DbPrintJobCountAggregateOutputType = {
   id: number
-  barId: number
+  establishmentId: number
   payload: number
   status: number
   attempts: number
@@ -80,7 +80,7 @@ export type DbPrintJobSumAggregateInputType = {
 
 export type DbPrintJobMinAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   status?: true
   attempts?: true
   error?: true
@@ -91,7 +91,7 @@ export type DbPrintJobMinAggregateInputType = {
 
 export type DbPrintJobMaxAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   status?: true
   attempts?: true
   error?: true
@@ -102,7 +102,7 @@ export type DbPrintJobMaxAggregateInputType = {
 
 export type DbPrintJobCountAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   payload?: true
   status?: true
   attempts?: true
@@ -201,7 +201,7 @@ export type DbPrintJobGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type DbPrintJobGroupByOutputType = {
   id: string
-  barId: string
+  establishmentId: string
   payload: runtime.JsonValue
   status: $Enums.DbPrintJobStatus
   attempts: number
@@ -236,7 +236,7 @@ export type DbPrintJobWhereInput = {
   OR?: Prisma.DbPrintJobWhereInput[]
   NOT?: Prisma.DbPrintJobWhereInput | Prisma.DbPrintJobWhereInput[]
   id?: Prisma.StringFilter<"DbPrintJob"> | string
-  barId?: Prisma.StringFilter<"DbPrintJob"> | string
+  establishmentId?: Prisma.StringFilter<"DbPrintJob"> | string
   payload?: Prisma.JsonFilter<"DbPrintJob">
   status?: Prisma.EnumDbPrintJobStatusFilter<"DbPrintJob"> | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntFilter<"DbPrintJob"> | number
@@ -244,12 +244,12 @@ export type DbPrintJobWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"DbPrintJob"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"DbPrintJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"DbPrintJob"> | Date | string | null
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
 }
 
 export type DbPrintJobOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -257,7 +257,7 @@ export type DbPrintJobOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  bar?: Prisma.DbBarOrderByWithRelationInput
+  establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
 }
 
 export type DbPrintJobWhereUniqueInput = Prisma.AtLeast<{
@@ -265,7 +265,7 @@ export type DbPrintJobWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DbPrintJobWhereInput | Prisma.DbPrintJobWhereInput[]
   OR?: Prisma.DbPrintJobWhereInput[]
   NOT?: Prisma.DbPrintJobWhereInput | Prisma.DbPrintJobWhereInput[]
-  barId?: Prisma.StringFilter<"DbPrintJob"> | string
+  establishmentId?: Prisma.StringFilter<"DbPrintJob"> | string
   payload?: Prisma.JsonFilter<"DbPrintJob">
   status?: Prisma.EnumDbPrintJobStatusFilter<"DbPrintJob"> | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntFilter<"DbPrintJob"> | number
@@ -273,12 +273,12 @@ export type DbPrintJobWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"DbPrintJob"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"DbPrintJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"DbPrintJob"> | Date | string | null
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
 }, "id">
 
 export type DbPrintJobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -298,7 +298,7 @@ export type DbPrintJobScalarWhereWithAggregatesInput = {
   OR?: Prisma.DbPrintJobScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DbPrintJobScalarWhereWithAggregatesInput | Prisma.DbPrintJobScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbPrintJob"> | string
-  barId?: Prisma.StringWithAggregatesFilter<"DbPrintJob"> | string
+  establishmentId?: Prisma.StringWithAggregatesFilter<"DbPrintJob"> | string
   payload?: Prisma.JsonWithAggregatesFilter<"DbPrintJob">
   status?: Prisma.EnumDbPrintJobStatusWithAggregatesFilter<"DbPrintJob"> | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntWithAggregatesFilter<"DbPrintJob"> | number
@@ -317,12 +317,12 @@ export type DbPrintJobCreateInput = {
   createdAt?: Date | string
   claimedAt?: Date | string | null
   completedAt?: Date | string | null
-  bar: Prisma.DbBarCreateNestedOneWithoutPrintJobsInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutPrintJobsInput
 }
 
 export type DbPrintJobUncheckedCreateInput = {
   id?: string
-  barId: string
+  establishmentId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.DbPrintJobStatus
   attempts?: number
@@ -341,12 +341,12 @@ export type DbPrintJobUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutPrintJobsNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutPrintJobsNestedInput
 }
 
 export type DbPrintJobUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumDbPrintJobStatusFieldUpdateOperationsInput | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -358,7 +358,7 @@ export type DbPrintJobUncheckedUpdateInput = {
 
 export type DbPrintJobCreateManyInput = {
   id?: string
-  barId: string
+  establishmentId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.DbPrintJobStatus
   attempts?: number
@@ -381,7 +381,7 @@ export type DbPrintJobUpdateManyMutationInput = {
 
 export type DbPrintJobUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumDbPrintJobStatusFieldUpdateOperationsInput | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -403,7 +403,7 @@ export type DbPrintJobOrderByRelationAggregateInput = {
 
 export type DbPrintJobCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -419,7 +419,7 @@ export type DbPrintJobAvgOrderByAggregateInput = {
 
 export type DbPrintJobMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -430,7 +430,7 @@ export type DbPrintJobMaxOrderByAggregateInput = {
 
 export type DbPrintJobMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -443,45 +443,45 @@ export type DbPrintJobSumOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
 }
 
-export type DbPrintJobCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput> | Prisma.DbPrintJobCreateWithoutBarInput[] | Prisma.DbPrintJobUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutBarInput | Prisma.DbPrintJobCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbPrintJobCreateManyBarInputEnvelope
+export type DbPrintJobCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput> | Prisma.DbPrintJobCreateWithoutEstablishmentInput[] | Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput | Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbPrintJobCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
 }
 
-export type DbPrintJobUncheckedCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput> | Prisma.DbPrintJobCreateWithoutBarInput[] | Prisma.DbPrintJobUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutBarInput | Prisma.DbPrintJobCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbPrintJobCreateManyBarInputEnvelope
+export type DbPrintJobUncheckedCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput> | Prisma.DbPrintJobCreateWithoutEstablishmentInput[] | Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput | Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbPrintJobCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
 }
 
-export type DbPrintJobUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput> | Prisma.DbPrintJobCreateWithoutBarInput[] | Prisma.DbPrintJobUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutBarInput | Prisma.DbPrintJobCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbPrintJobUpsertWithWhereUniqueWithoutBarInput | Prisma.DbPrintJobUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbPrintJobCreateManyBarInputEnvelope
+export type DbPrintJobUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput> | Prisma.DbPrintJobCreateWithoutEstablishmentInput[] | Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput | Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbPrintJobUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbPrintJobUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbPrintJobCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   disconnect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   delete?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   connect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
-  update?: Prisma.DbPrintJobUpdateWithWhereUniqueWithoutBarInput | Prisma.DbPrintJobUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbPrintJobUpdateManyWithWhereWithoutBarInput | Prisma.DbPrintJobUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbPrintJobUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbPrintJobUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbPrintJobUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbPrintJobUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbPrintJobScalarWhereInput | Prisma.DbPrintJobScalarWhereInput[]
 }
 
-export type DbPrintJobUncheckedUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput> | Prisma.DbPrintJobCreateWithoutBarInput[] | Prisma.DbPrintJobUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutBarInput | Prisma.DbPrintJobCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbPrintJobUpsertWithWhereUniqueWithoutBarInput | Prisma.DbPrintJobUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbPrintJobCreateManyBarInputEnvelope
+export type DbPrintJobUncheckedUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput> | Prisma.DbPrintJobCreateWithoutEstablishmentInput[] | Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput | Prisma.DbPrintJobCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbPrintJobUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbPrintJobUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbPrintJobCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   disconnect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   delete?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
   connect?: Prisma.DbPrintJobWhereUniqueInput | Prisma.DbPrintJobWhereUniqueInput[]
-  update?: Prisma.DbPrintJobUpdateWithWhereUniqueWithoutBarInput | Prisma.DbPrintJobUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbPrintJobUpdateManyWithWhereWithoutBarInput | Prisma.DbPrintJobUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbPrintJobUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbPrintJobUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbPrintJobUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbPrintJobUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbPrintJobScalarWhereInput | Prisma.DbPrintJobScalarWhereInput[]
 }
 
@@ -489,7 +489,7 @@ export type EnumDbPrintJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.DbPrintJobStatus
 }
 
-export type DbPrintJobCreateWithoutBarInput = {
+export type DbPrintJobCreateWithoutEstablishmentInput = {
   id?: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.DbPrintJobStatus
@@ -500,7 +500,7 @@ export type DbPrintJobCreateWithoutBarInput = {
   completedAt?: Date | string | null
 }
 
-export type DbPrintJobUncheckedCreateWithoutBarInput = {
+export type DbPrintJobUncheckedCreateWithoutEstablishmentInput = {
   id?: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.DbPrintJobStatus
@@ -511,30 +511,30 @@ export type DbPrintJobUncheckedCreateWithoutBarInput = {
   completedAt?: Date | string | null
 }
 
-export type DbPrintJobCreateOrConnectWithoutBarInput = {
+export type DbPrintJobCreateOrConnectWithoutEstablishmentInput = {
   where: Prisma.DbPrintJobWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput>
+  create: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbPrintJobCreateManyBarInputEnvelope = {
-  data: Prisma.DbPrintJobCreateManyBarInput | Prisma.DbPrintJobCreateManyBarInput[]
+export type DbPrintJobCreateManyEstablishmentInputEnvelope = {
+  data: Prisma.DbPrintJobCreateManyEstablishmentInput | Prisma.DbPrintJobCreateManyEstablishmentInput[]
   skipDuplicates?: boolean
 }
 
-export type DbPrintJobUpsertWithWhereUniqueWithoutBarInput = {
+export type DbPrintJobUpsertWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbPrintJobWhereUniqueInput
-  update: Prisma.XOR<Prisma.DbPrintJobUpdateWithoutBarInput, Prisma.DbPrintJobUncheckedUpdateWithoutBarInput>
-  create: Prisma.XOR<Prisma.DbPrintJobCreateWithoutBarInput, Prisma.DbPrintJobUncheckedCreateWithoutBarInput>
+  update: Prisma.XOR<Prisma.DbPrintJobUpdateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedUpdateWithoutEstablishmentInput>
+  create: Prisma.XOR<Prisma.DbPrintJobCreateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbPrintJobUpdateWithWhereUniqueWithoutBarInput = {
+export type DbPrintJobUpdateWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbPrintJobWhereUniqueInput
-  data: Prisma.XOR<Prisma.DbPrintJobUpdateWithoutBarInput, Prisma.DbPrintJobUncheckedUpdateWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbPrintJobUpdateWithoutEstablishmentInput, Prisma.DbPrintJobUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbPrintJobUpdateManyWithWhereWithoutBarInput = {
+export type DbPrintJobUpdateManyWithWhereWithoutEstablishmentInput = {
   where: Prisma.DbPrintJobScalarWhereInput
-  data: Prisma.XOR<Prisma.DbPrintJobUpdateManyMutationInput, Prisma.DbPrintJobUncheckedUpdateManyWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbPrintJobUpdateManyMutationInput, Prisma.DbPrintJobUncheckedUpdateManyWithoutEstablishmentInput>
 }
 
 export type DbPrintJobScalarWhereInput = {
@@ -542,7 +542,7 @@ export type DbPrintJobScalarWhereInput = {
   OR?: Prisma.DbPrintJobScalarWhereInput[]
   NOT?: Prisma.DbPrintJobScalarWhereInput | Prisma.DbPrintJobScalarWhereInput[]
   id?: Prisma.StringFilter<"DbPrintJob"> | string
-  barId?: Prisma.StringFilter<"DbPrintJob"> | string
+  establishmentId?: Prisma.StringFilter<"DbPrintJob"> | string
   payload?: Prisma.JsonFilter<"DbPrintJob">
   status?: Prisma.EnumDbPrintJobStatusFilter<"DbPrintJob"> | $Enums.DbPrintJobStatus
   attempts?: Prisma.IntFilter<"DbPrintJob"> | number
@@ -552,7 +552,7 @@ export type DbPrintJobScalarWhereInput = {
   completedAt?: Prisma.DateTimeNullableFilter<"DbPrintJob"> | Date | string | null
 }
 
-export type DbPrintJobCreateManyBarInput = {
+export type DbPrintJobCreateManyEstablishmentInput = {
   id?: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.DbPrintJobStatus
@@ -563,7 +563,7 @@ export type DbPrintJobCreateManyBarInput = {
   completedAt?: Date | string | null
 }
 
-export type DbPrintJobUpdateWithoutBarInput = {
+export type DbPrintJobUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumDbPrintJobStatusFieldUpdateOperationsInput | $Enums.DbPrintJobStatus
@@ -574,7 +574,7 @@ export type DbPrintJobUpdateWithoutBarInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type DbPrintJobUncheckedUpdateWithoutBarInput = {
+export type DbPrintJobUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumDbPrintJobStatusFieldUpdateOperationsInput | $Enums.DbPrintJobStatus
@@ -585,7 +585,7 @@ export type DbPrintJobUncheckedUpdateWithoutBarInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type DbPrintJobUncheckedUpdateManyWithoutBarInput = {
+export type DbPrintJobUncheckedUpdateManyWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumDbPrintJobStatusFieldUpdateOperationsInput | $Enums.DbPrintJobStatus
@@ -600,7 +600,7 @@ export type DbPrintJobUncheckedUpdateManyWithoutBarInput = {
 
 export type DbPrintJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   payload?: boolean
   status?: boolean
   attempts?: boolean
@@ -608,12 +608,12 @@ export type DbPrintJobSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   claimedAt?: boolean
   completedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrintJob"]>
 
 export type DbPrintJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   payload?: boolean
   status?: boolean
   attempts?: boolean
@@ -621,12 +621,12 @@ export type DbPrintJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   claimedAt?: boolean
   completedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrintJob"]>
 
 export type DbPrintJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   payload?: boolean
   status?: boolean
   attempts?: boolean
@@ -634,12 +634,12 @@ export type DbPrintJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   claimedAt?: boolean
   completedAt?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbPrintJob"]>
 
 export type DbPrintJobSelectScalar = {
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   payload?: boolean
   status?: boolean
   attempts?: boolean
@@ -649,25 +649,25 @@ export type DbPrintJobSelectScalar = {
   completedAt?: boolean
 }
 
-export type DbPrintJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "payload" | "status" | "attempts" | "error" | "createdAt" | "claimedAt" | "completedAt", ExtArgs["result"]["dbPrintJob"]>
+export type DbPrintJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "payload" | "status" | "attempts" | "error" | "createdAt" | "claimedAt" | "completedAt", ExtArgs["result"]["dbPrintJob"]>
 export type DbPrintJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 export type DbPrintJobIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 export type DbPrintJobIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
 
 export type $DbPrintJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbPrintJob"
   objects: {
-    bar: Prisma.$DbBarPayload<ExtArgs>
+    establishment: Prisma.$DbEstablishmentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    barId: string
+    establishmentId: string
     payload: runtime.JsonValue
     status: $Enums.DbPrintJobStatus
     attempts: number
@@ -1069,7 +1069,7 @@ readonly fields: DbPrintJobFieldRefs;
  */
 export interface Prisma__DbPrintJobClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bar<T extends Prisma.DbBarDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBarDefaultArgs<ExtArgs>>): Prisma.Prisma__DbBarClient<runtime.Types.Result.GetResult<Prisma.$DbBarPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  establishment<T extends Prisma.DbEstablishmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DbEstablishmentClient<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1100,7 +1100,7 @@ export interface Prisma__DbPrintJobClient<T, Null = never, ExtArgs extends runti
  */
 export interface DbPrintJobFieldRefs {
   readonly id: Prisma.FieldRef<"DbPrintJob", 'String'>
-  readonly barId: Prisma.FieldRef<"DbPrintJob", 'String'>
+  readonly establishmentId: Prisma.FieldRef<"DbPrintJob", 'String'>
   readonly payload: Prisma.FieldRef<"DbPrintJob", 'Json'>
   readonly status: Prisma.FieldRef<"DbPrintJob", 'DbPrintJobStatus'>
   readonly attempts: Prisma.FieldRef<"DbPrintJob", 'Int'>

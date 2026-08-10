@@ -40,7 +40,7 @@ export type DbTimeEntrySumAggregateOutputType = {
 
 export type DbTimeEntryMinAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   userId: string | null
   shiftId: string | null
   type: string | null
@@ -62,7 +62,7 @@ export type DbTimeEntryMinAggregateOutputType = {
 
 export type DbTimeEntryMaxAggregateOutputType = {
   id: string | null
-  barId: string | null
+  establishmentId: string | null
   userId: string | null
   shiftId: string | null
   type: string | null
@@ -84,7 +84,7 @@ export type DbTimeEntryMaxAggregateOutputType = {
 
 export type DbTimeEntryCountAggregateOutputType = {
   id: number
-  barId: number
+  establishmentId: number
   userId: number
   userSnapshot: number
   shiftId: number
@@ -121,7 +121,7 @@ export type DbTimeEntrySumAggregateInputType = {
 
 export type DbTimeEntryMinAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   userId?: true
   shiftId?: true
   type?: true
@@ -143,7 +143,7 @@ export type DbTimeEntryMinAggregateInputType = {
 
 export type DbTimeEntryMaxAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   userId?: true
   shiftId?: true
   type?: true
@@ -165,7 +165,7 @@ export type DbTimeEntryMaxAggregateInputType = {
 
 export type DbTimeEntryCountAggregateInputType = {
   id?: true
-  barId?: true
+  establishmentId?: true
   userId?: true
   userSnapshot?: true
   shiftId?: true
@@ -275,7 +275,7 @@ export type DbTimeEntryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type DbTimeEntryGroupByOutputType = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: runtime.JsonValue
   shiftId: string | null
@@ -321,7 +321,7 @@ export type DbTimeEntryWhereInput = {
   OR?: Prisma.DbTimeEntryWhereInput[]
   NOT?: Prisma.DbTimeEntryWhereInput | Prisma.DbTimeEntryWhereInput[]
   id?: Prisma.StringFilter<"DbTimeEntry"> | string
-  barId?: Prisma.StringFilter<"DbTimeEntry"> | string
+  establishmentId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userSnapshot?: Prisma.JsonFilter<"DbTimeEntry">
   shiftId?: Prisma.StringNullableFilter<"DbTimeEntry"> | string | null
@@ -340,7 +340,7 @@ export type DbTimeEntryWhereInput = {
   sequence?: Prisma.BigIntFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringFilter<"DbTimeEntry"> | string
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   shift?: Prisma.XOR<Prisma.DbShiftNullableScalarRelationFilter, Prisma.DbShiftWhereInput> | null
   supersedes?: Prisma.XOR<Prisma.DbTimeEntryNullableScalarRelationFilter, Prisma.DbTimeEntryWhereInput> | null
@@ -350,7 +350,7 @@ export type DbTimeEntryWhereInput = {
 
 export type DbTimeEntryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   userSnapshot?: Prisma.SortOrder
   shiftId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -369,7 +369,7 @@ export type DbTimeEntryOrderByWithRelationInput = {
   sequence?: Prisma.SortOrder
   prevHash?: Prisma.SortOrder
   hash?: Prisma.SortOrder
-  bar?: Prisma.DbBarOrderByWithRelationInput
+  establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
   user?: Prisma.DbUserOrderByWithRelationInput
   shift?: Prisma.DbShiftOrderByWithRelationInput
   supersedes?: Prisma.DbTimeEntryOrderByWithRelationInput
@@ -380,11 +380,11 @@ export type DbTimeEntryOrderByWithRelationInput = {
 export type DbTimeEntryWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   supersedesId?: string
-  barId_sequence?: Prisma.DbTimeEntryBarIdSequenceCompoundUniqueInput
+  establishmentId_sequence?: Prisma.DbTimeEntryEstablishmentIdSequenceCompoundUniqueInput
   AND?: Prisma.DbTimeEntryWhereInput | Prisma.DbTimeEntryWhereInput[]
   OR?: Prisma.DbTimeEntryWhereInput[]
   NOT?: Prisma.DbTimeEntryWhereInput | Prisma.DbTimeEntryWhereInput[]
-  barId?: Prisma.StringFilter<"DbTimeEntry"> | string
+  establishmentId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userSnapshot?: Prisma.JsonFilter<"DbTimeEntry">
   shiftId?: Prisma.StringNullableFilter<"DbTimeEntry"> | string | null
@@ -402,17 +402,17 @@ export type DbTimeEntryWhereUniqueInput = Prisma.AtLeast<{
   sequence?: Prisma.BigIntFilter<"DbTimeEntry"> | bigint | number
   prevHash?: Prisma.StringFilter<"DbTimeEntry"> | string
   hash?: Prisma.StringFilter<"DbTimeEntry"> | string
-  bar?: Prisma.XOR<Prisma.DbBarScalarRelationFilter, Prisma.DbBarWhereInput>
+  establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   shift?: Prisma.XOR<Prisma.DbShiftNullableScalarRelationFilter, Prisma.DbShiftWhereInput> | null
   supersedes?: Prisma.XOR<Prisma.DbTimeEntryNullableScalarRelationFilter, Prisma.DbTimeEntryWhereInput> | null
   supersededBy?: Prisma.XOR<Prisma.DbTimeEntryNullableScalarRelationFilter, Prisma.DbTimeEntryWhereInput> | null
   actor?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
-}, "id" | "supersedesId" | "barId_sequence">
+}, "id" | "supersedesId" | "establishmentId_sequence">
 
 export type DbTimeEntryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   userSnapshot?: Prisma.SortOrder
   shiftId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -443,7 +443,7 @@ export type DbTimeEntryScalarWhereWithAggregatesInput = {
   OR?: Prisma.DbTimeEntryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DbTimeEntryScalarWhereWithAggregatesInput | Prisma.DbTimeEntryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
-  barId?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
+  establishmentId?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
   userId?: Prisma.StringWithAggregatesFilter<"DbTimeEntry"> | string
   userSnapshot?: Prisma.JsonWithAggregatesFilter<"DbTimeEntry">
   shiftId?: Prisma.StringNullableWithAggregatesFilter<"DbTimeEntry"> | string | null
@@ -480,7 +480,7 @@ export type DbTimeEntryCreateInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -490,7 +490,7 @@ export type DbTimeEntryCreateInput = {
 
 export type DbTimeEntryUncheckedCreateInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -528,7 +528,7 @@ export type DbTimeEntryUpdateInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -538,7 +538,7 @@ export type DbTimeEntryUpdateInput = {
 
 export type DbTimeEntryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -562,7 +562,7 @@ export type DbTimeEntryUncheckedUpdateInput = {
 
 export type DbTimeEntryCreateManyInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -603,7 +603,7 @@ export type DbTimeEntryUpdateManyMutationInput = {
 
 export type DbTimeEntryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -639,14 +639,14 @@ export type DbTimeEntryNullableScalarRelationFilter = {
   isNot?: Prisma.DbTimeEntryWhereInput | null
 }
 
-export type DbTimeEntryBarIdSequenceCompoundUniqueInput = {
-  barId: string
+export type DbTimeEntryEstablishmentIdSequenceCompoundUniqueInput = {
+  establishmentId: string
   sequence: bigint | number
 }
 
 export type DbTimeEntryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   userSnapshot?: Prisma.SortOrder
   shiftId?: Prisma.SortOrder
@@ -675,7 +675,7 @@ export type DbTimeEntryAvgOrderByAggregateInput = {
 
 export type DbTimeEntryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   shiftId?: Prisma.SortOrder
   type?: Prisma.SortOrder
@@ -697,7 +697,7 @@ export type DbTimeEntryMaxOrderByAggregateInput = {
 
 export type DbTimeEntryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  barId?: Prisma.SortOrder
+  establishmentId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   shiftId?: Prisma.SortOrder
   type?: Prisma.SortOrder
@@ -807,45 +807,45 @@ export type DbTimeEntryUncheckedUpdateManyWithoutActorNestedInput = {
   deleteMany?: Prisma.DbTimeEntryScalarWhereInput | Prisma.DbTimeEntryScalarWhereInput[]
 }
 
-export type DbTimeEntryCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput> | Prisma.DbTimeEntryCreateWithoutBarInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutBarInput | Prisma.DbTimeEntryCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbTimeEntryCreateManyBarInputEnvelope
+export type DbTimeEntryCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbTimeEntryCreateWithoutEstablishmentInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput | Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbTimeEntryCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
 }
 
-export type DbTimeEntryUncheckedCreateNestedManyWithoutBarInput = {
-  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput> | Prisma.DbTimeEntryCreateWithoutBarInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutBarInput | Prisma.DbTimeEntryCreateOrConnectWithoutBarInput[]
-  createMany?: Prisma.DbTimeEntryCreateManyBarInputEnvelope
+export type DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput = {
+  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbTimeEntryCreateWithoutEstablishmentInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput | Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput[]
+  createMany?: Prisma.DbTimeEntryCreateManyEstablishmentInputEnvelope
   connect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
 }
 
-export type DbTimeEntryUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput> | Prisma.DbTimeEntryCreateWithoutBarInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutBarInput | Prisma.DbTimeEntryCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutBarInput | Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbTimeEntryCreateManyBarInputEnvelope
+export type DbTimeEntryUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbTimeEntryCreateWithoutEstablishmentInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput | Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbTimeEntryCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   disconnect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   delete?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   connect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
-  update?: Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutBarInput | Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbTimeEntryUpdateManyWithWhereWithoutBarInput | Prisma.DbTimeEntryUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbTimeEntryUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbTimeEntryUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbTimeEntryScalarWhereInput | Prisma.DbTimeEntryScalarWhereInput[]
 }
 
-export type DbTimeEntryUncheckedUpdateManyWithoutBarNestedInput = {
-  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput> | Prisma.DbTimeEntryCreateWithoutBarInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutBarInput[]
-  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutBarInput | Prisma.DbTimeEntryCreateOrConnectWithoutBarInput[]
-  upsert?: Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutBarInput | Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutBarInput[]
-  createMany?: Prisma.DbTimeEntryCreateManyBarInputEnvelope
+export type DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput = {
+  create?: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput> | Prisma.DbTimeEntryCreateWithoutEstablishmentInput[] | Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput[]
+  connectOrCreate?: Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput | Prisma.DbTimeEntryCreateOrConnectWithoutEstablishmentInput[]
+  upsert?: Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutEstablishmentInput | Prisma.DbTimeEntryUpsertWithWhereUniqueWithoutEstablishmentInput[]
+  createMany?: Prisma.DbTimeEntryCreateManyEstablishmentInputEnvelope
   set?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   disconnect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   delete?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
   connect?: Prisma.DbTimeEntryWhereUniqueInput | Prisma.DbTimeEntryWhereUniqueInput[]
-  update?: Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutBarInput | Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutBarInput[]
-  updateMany?: Prisma.DbTimeEntryUpdateManyWithWhereWithoutBarInput | Prisma.DbTimeEntryUpdateManyWithWhereWithoutBarInput[]
+  update?: Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutEstablishmentInput | Prisma.DbTimeEntryUpdateWithWhereUniqueWithoutEstablishmentInput[]
+  updateMany?: Prisma.DbTimeEntryUpdateManyWithWhereWithoutEstablishmentInput | Prisma.DbTimeEntryUpdateManyWithWhereWithoutEstablishmentInput[]
   deleteMany?: Prisma.DbTimeEntryScalarWhereInput | Prisma.DbTimeEntryScalarWhereInput[]
 }
 
@@ -971,7 +971,7 @@ export type DbTimeEntryCreateWithoutUserInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
   supersededBy?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersedesInput
@@ -980,7 +980,7 @@ export type DbTimeEntryCreateWithoutUserInput = {
 
 export type DbTimeEntryUncheckedCreateWithoutUserInput = {
   id: string
-  barId: string
+  establishmentId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
   type: string
@@ -1027,7 +1027,7 @@ export type DbTimeEntryCreateWithoutActorInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -1036,7 +1036,7 @@ export type DbTimeEntryCreateWithoutActorInput = {
 
 export type DbTimeEntryUncheckedCreateWithoutActorInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -1088,7 +1088,7 @@ export type DbTimeEntryScalarWhereInput = {
   OR?: Prisma.DbTimeEntryScalarWhereInput[]
   NOT?: Prisma.DbTimeEntryScalarWhereInput | Prisma.DbTimeEntryScalarWhereInput[]
   id?: Prisma.StringFilter<"DbTimeEntry"> | string
-  barId?: Prisma.StringFilter<"DbTimeEntry"> | string
+  establishmentId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userId?: Prisma.StringFilter<"DbTimeEntry"> | string
   userSnapshot?: Prisma.JsonFilter<"DbTimeEntry">
   shiftId?: Prisma.StringNullableFilter<"DbTimeEntry"> | string | null
@@ -1125,7 +1125,7 @@ export type DbTimeEntryUpdateManyWithWhereWithoutActorInput = {
   data: Prisma.XOR<Prisma.DbTimeEntryUpdateManyMutationInput, Prisma.DbTimeEntryUncheckedUpdateManyWithoutActorInput>
 }
 
-export type DbTimeEntryCreateWithoutBarInput = {
+export type DbTimeEntryCreateWithoutEstablishmentInput = {
   id: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type: string
@@ -1148,7 +1148,7 @@ export type DbTimeEntryCreateWithoutBarInput = {
   actor: Prisma.DbUserCreateNestedOneWithoutTimeEntryEditsInput
 }
 
-export type DbTimeEntryUncheckedCreateWithoutBarInput = {
+export type DbTimeEntryUncheckedCreateWithoutEstablishmentInput = {
   id: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1171,30 +1171,30 @@ export type DbTimeEntryUncheckedCreateWithoutBarInput = {
   supersededBy?: Prisma.DbTimeEntryUncheckedCreateNestedOneWithoutSupersedesInput
 }
 
-export type DbTimeEntryCreateOrConnectWithoutBarInput = {
+export type DbTimeEntryCreateOrConnectWithoutEstablishmentInput = {
   where: Prisma.DbTimeEntryWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput>
+  create: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbTimeEntryCreateManyBarInputEnvelope = {
-  data: Prisma.DbTimeEntryCreateManyBarInput | Prisma.DbTimeEntryCreateManyBarInput[]
+export type DbTimeEntryCreateManyEstablishmentInputEnvelope = {
+  data: Prisma.DbTimeEntryCreateManyEstablishmentInput | Prisma.DbTimeEntryCreateManyEstablishmentInput[]
   skipDuplicates?: boolean
 }
 
-export type DbTimeEntryUpsertWithWhereUniqueWithoutBarInput = {
+export type DbTimeEntryUpsertWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbTimeEntryWhereUniqueInput
-  update: Prisma.XOR<Prisma.DbTimeEntryUpdateWithoutBarInput, Prisma.DbTimeEntryUncheckedUpdateWithoutBarInput>
-  create: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutBarInput, Prisma.DbTimeEntryUncheckedCreateWithoutBarInput>
+  update: Prisma.XOR<Prisma.DbTimeEntryUpdateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedUpdateWithoutEstablishmentInput>
+  create: Prisma.XOR<Prisma.DbTimeEntryCreateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedCreateWithoutEstablishmentInput>
 }
 
-export type DbTimeEntryUpdateWithWhereUniqueWithoutBarInput = {
+export type DbTimeEntryUpdateWithWhereUniqueWithoutEstablishmentInput = {
   where: Prisma.DbTimeEntryWhereUniqueInput
-  data: Prisma.XOR<Prisma.DbTimeEntryUpdateWithoutBarInput, Prisma.DbTimeEntryUncheckedUpdateWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbTimeEntryUpdateWithoutEstablishmentInput, Prisma.DbTimeEntryUncheckedUpdateWithoutEstablishmentInput>
 }
 
-export type DbTimeEntryUpdateManyWithWhereWithoutBarInput = {
+export type DbTimeEntryUpdateManyWithWhereWithoutEstablishmentInput = {
   where: Prisma.DbTimeEntryScalarWhereInput
-  data: Prisma.XOR<Prisma.DbTimeEntryUpdateManyMutationInput, Prisma.DbTimeEntryUncheckedUpdateManyWithoutBarInput>
+  data: Prisma.XOR<Prisma.DbTimeEntryUpdateManyMutationInput, Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentInput>
 }
 
 export type DbTimeEntryCreateWithoutShiftInput = {
@@ -1213,7 +1213,7 @@ export type DbTimeEntryCreateWithoutShiftInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
   supersededBy?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersedesInput
@@ -1222,7 +1222,7 @@ export type DbTimeEntryCreateWithoutShiftInput = {
 
 export type DbTimeEntryUncheckedCreateWithoutShiftInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type: string
@@ -1285,7 +1285,7 @@ export type DbTimeEntryCreateWithoutSupersededByInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersedes?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersededByInput
@@ -1294,7 +1294,7 @@ export type DbTimeEntryCreateWithoutSupersededByInput = {
 
 export type DbTimeEntryUncheckedCreateWithoutSupersededByInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -1336,7 +1336,7 @@ export type DbTimeEntryCreateWithoutSupersedesInput = {
   sequence: bigint | number
   prevHash: string
   hash: string
-  bar: Prisma.DbBarCreateNestedOneWithoutTimeEntriesInput
+  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutTimeEntriesInput
   user: Prisma.DbUserCreateNestedOneWithoutTimeEntriesInput
   shift?: Prisma.DbShiftCreateNestedOneWithoutTimeEntriesInput
   supersededBy?: Prisma.DbTimeEntryCreateNestedOneWithoutSupersedesInput
@@ -1345,7 +1345,7 @@ export type DbTimeEntryCreateWithoutSupersedesInput = {
 
 export type DbTimeEntryUncheckedCreateWithoutSupersedesInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -1398,7 +1398,7 @@ export type DbTimeEntryUpdateWithoutSupersededByInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -1407,7 +1407,7 @@ export type DbTimeEntryUpdateWithoutSupersededByInput = {
 
 export type DbTimeEntryUncheckedUpdateWithoutSupersededByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1455,7 +1455,7 @@ export type DbTimeEntryUpdateWithoutSupersedesInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersededBy?: Prisma.DbTimeEntryUpdateOneWithoutSupersedesNestedInput
@@ -1464,7 +1464,7 @@ export type DbTimeEntryUpdateWithoutSupersedesInput = {
 
 export type DbTimeEntryUncheckedUpdateWithoutSupersedesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1487,7 +1487,7 @@ export type DbTimeEntryUncheckedUpdateWithoutSupersedesInput = {
 
 export type DbTimeEntryCreateManyUserInput = {
   id: string
-  barId: string
+  establishmentId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
   type: string
@@ -1509,7 +1509,7 @@ export type DbTimeEntryCreateManyUserInput = {
 
 export type DbTimeEntryCreateManyActorInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: string | null
@@ -1545,7 +1545,7 @@ export type DbTimeEntryUpdateWithoutUserInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
   supersededBy?: Prisma.DbTimeEntryUpdateOneWithoutSupersedesNestedInput
@@ -1554,7 +1554,7 @@ export type DbTimeEntryUpdateWithoutUserInput = {
 
 export type DbTimeEntryUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1577,7 +1577,7 @@ export type DbTimeEntryUncheckedUpdateWithoutUserInput = {
 
 export type DbTimeEntryUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1613,7 +1613,7 @@ export type DbTimeEntryUpdateWithoutActorInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   shift?: Prisma.DbShiftUpdateOneWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
@@ -1622,7 +1622,7 @@ export type DbTimeEntryUpdateWithoutActorInput = {
 
 export type DbTimeEntryUncheckedUpdateWithoutActorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1645,7 +1645,7 @@ export type DbTimeEntryUncheckedUpdateWithoutActorInput = {
 
 export type DbTimeEntryUncheckedUpdateManyWithoutActorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1665,7 +1665,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutActorInput = {
   hash?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type DbTimeEntryCreateManyBarInput = {
+export type DbTimeEntryCreateManyEstablishmentInput = {
   id: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1687,7 +1687,7 @@ export type DbTimeEntryCreateManyBarInput = {
   hash: string
 }
 
-export type DbTimeEntryUpdateWithoutBarInput = {
+export type DbTimeEntryUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1710,7 +1710,7 @@ export type DbTimeEntryUpdateWithoutBarInput = {
   actor?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntryEditsNestedInput
 }
 
-export type DbTimeEntryUncheckedUpdateWithoutBarInput = {
+export type DbTimeEntryUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1733,7 +1733,7 @@ export type DbTimeEntryUncheckedUpdateWithoutBarInput = {
   supersededBy?: Prisma.DbTimeEntryUncheckedUpdateOneWithoutSupersedesNestedInput
 }
 
-export type DbTimeEntryUncheckedUpdateManyWithoutBarInput = {
+export type DbTimeEntryUncheckedUpdateManyWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1757,7 +1757,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutBarInput = {
 
 export type DbTimeEntryCreateManyShiftInput = {
   id: string
-  barId: string
+  establishmentId: string
   userId: string
   userSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type: string
@@ -1793,7 +1793,7 @@ export type DbTimeEntryUpdateWithoutShiftInput = {
   sequence?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   prevHash?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
-  bar?: Prisma.DbBarUpdateOneRequiredWithoutTimeEntriesNestedInput
+  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutTimeEntriesNestedInput
   user?: Prisma.DbUserUpdateOneRequiredWithoutTimeEntriesNestedInput
   supersedes?: Prisma.DbTimeEntryUpdateOneWithoutSupersededByNestedInput
   supersededBy?: Prisma.DbTimeEntryUpdateOneWithoutSupersedesNestedInput
@@ -1802,7 +1802,7 @@ export type DbTimeEntryUpdateWithoutShiftInput = {
 
 export type DbTimeEntryUncheckedUpdateWithoutShiftInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1825,7 +1825,7 @@ export type DbTimeEntryUncheckedUpdateWithoutShiftInput = {
 
 export type DbTimeEntryUncheckedUpdateManyWithoutShiftInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  barId?: Prisma.StringFieldUpdateOperationsInput | string
+  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   userSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1849,7 +1849,7 @@ export type DbTimeEntryUncheckedUpdateManyWithoutShiftInput = {
 
 export type DbTimeEntrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   userId?: boolean
   userSnapshot?: boolean
   shiftId?: boolean
@@ -1868,7 +1868,7 @@ export type DbTimeEntrySelect<ExtArgs extends runtime.Types.Extensions.InternalA
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
@@ -1878,7 +1878,7 @@ export type DbTimeEntrySelect<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type DbTimeEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   userId?: boolean
   userSnapshot?: boolean
   shiftId?: boolean
@@ -1897,7 +1897,7 @@ export type DbTimeEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
@@ -1906,7 +1906,7 @@ export type DbTimeEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type DbTimeEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   userId?: boolean
   userSnapshot?: boolean
   shiftId?: boolean
@@ -1925,7 +1925,7 @@ export type DbTimeEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   sequence?: boolean
   prevHash?: boolean
   hash?: boolean
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
@@ -1934,7 +1934,7 @@ export type DbTimeEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type DbTimeEntrySelectScalar = {
   id?: boolean
-  barId?: boolean
+  establishmentId?: boolean
   userId?: boolean
   userSnapshot?: boolean
   shiftId?: boolean
@@ -1955,9 +1955,9 @@ export type DbTimeEntrySelectScalar = {
   hash?: boolean
 }
 
-export type DbTimeEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barId" | "userId" | "userSnapshot" | "shiftId" | "type" | "action" | "occurredAt" | "recordedAt" | "workdayDate" | "source" | "latitude" | "longitude" | "rootId" | "supersedesId" | "actorId" | "reason" | "sequence" | "prevHash" | "hash", ExtArgs["result"]["dbTimeEntry"]>
+export type DbTimeEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "userId" | "userSnapshot" | "shiftId" | "type" | "action" | "occurredAt" | "recordedAt" | "workdayDate" | "source" | "latitude" | "longitude" | "rootId" | "supersedesId" | "actorId" | "reason" | "sequence" | "prevHash" | "hash", ExtArgs["result"]["dbTimeEntry"]>
 export type DbTimeEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
@@ -1965,14 +1965,14 @@ export type DbTimeEntryInclude<ExtArgs extends runtime.Types.Extensions.Internal
   actor?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
 }
 export type DbTimeEntryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
   actor?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
 }
 export type DbTimeEntryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bar?: boolean | Prisma.DbBarDefaultArgs<ExtArgs>
+  establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   shift?: boolean | Prisma.DbTimeEntry$shiftArgs<ExtArgs>
   supersedes?: boolean | Prisma.DbTimeEntry$supersedesArgs<ExtArgs>
@@ -1982,7 +1982,7 @@ export type DbTimeEntryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type $DbTimeEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DbTimeEntry"
   objects: {
-    bar: Prisma.$DbBarPayload<ExtArgs>
+    establishment: Prisma.$DbEstablishmentPayload<ExtArgs>
     user: Prisma.$DbUserPayload<ExtArgs>
     shift: Prisma.$DbShiftPayload<ExtArgs> | null
     supersedes: Prisma.$DbTimeEntryPayload<ExtArgs> | null
@@ -1991,7 +1991,7 @@ export type $DbTimeEntryPayload<ExtArgs extends runtime.Types.Extensions.Interna
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    barId: string
+    establishmentId: string
     userId: string
     userSnapshot: runtime.JsonValue
     shiftId: string | null
@@ -2404,7 +2404,7 @@ readonly fields: DbTimeEntryFieldRefs;
  */
 export interface Prisma__DbTimeEntryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bar<T extends Prisma.DbBarDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbBarDefaultArgs<ExtArgs>>): Prisma.Prisma__DbBarClient<runtime.Types.Result.GetResult<Prisma.$DbBarPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  establishment<T extends Prisma.DbEstablishmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DbEstablishmentClient<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.DbUserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUserDefaultArgs<ExtArgs>>): Prisma.Prisma__DbUserClient<runtime.Types.Result.GetResult<Prisma.$DbUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shift<T extends Prisma.DbTimeEntry$shiftArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbTimeEntry$shiftArgs<ExtArgs>>): Prisma.Prisma__DbShiftClient<runtime.Types.Result.GetResult<Prisma.$DbShiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supersedes<T extends Prisma.DbTimeEntry$supersedesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbTimeEntry$supersedesArgs<ExtArgs>>): Prisma.Prisma__DbTimeEntryClient<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2440,7 +2440,7 @@ export interface Prisma__DbTimeEntryClient<T, Null = never, ExtArgs extends runt
  */
 export interface DbTimeEntryFieldRefs {
   readonly id: Prisma.FieldRef<"DbTimeEntry", 'String'>
-  readonly barId: Prisma.FieldRef<"DbTimeEntry", 'String'>
+  readonly establishmentId: Prisma.FieldRef<"DbTimeEntry", 'String'>
   readonly userId: Prisma.FieldRef<"DbTimeEntry", 'String'>
   readonly userSnapshot: Prisma.FieldRef<"DbTimeEntry", 'Json'>
   readonly shiftId: Prisma.FieldRef<"DbTimeEntry", 'String'>
