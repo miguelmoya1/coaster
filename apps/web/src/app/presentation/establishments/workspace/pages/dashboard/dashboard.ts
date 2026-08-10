@@ -275,7 +275,7 @@ export class Dashboard {
     return this.#shiftsStore.shifts.value()?.length ?? 0;
   });
 
-  readonly rosterOverview = computed(() => {
+  readonly scheduleOverview = computed(() => {
     if (!this.#membersStore.list.hasValue() || !this.#shiftsStore.shifts.hasValue()) {
       return [];
     }

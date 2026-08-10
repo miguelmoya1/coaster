@@ -64,10 +64,10 @@ export class BottomNav {
       requiredModule: EstablishmentModule.ORDERS,
     },
     {
-      value: 'roster',
-      link: `/establishments/${this.establishmentId()}/roster`,
+      value: 'schedule',
+      link: `/establishments/${this.establishmentId()}/schedule`,
       icon: 'calendar_today',
-      labelKey: 'nav.roster',
+      labelKey: 'nav.schedule',
       requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS,
     },
     {

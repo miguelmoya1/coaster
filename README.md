@@ -18,7 +18,7 @@ admin backoffice.
 - **Payments:** cash, card or split; partial payments, tips and per-order or per-item adjustments.
 - **Receipts:** print to a local thermal printer through the printer bridge.
 
-### 📅 HR Module (The Roster)
+### 📅 HR Module (The Schedule)
 
 - **Multi-view Calendar:** daily, weekly and monthly shift views.
 - **Shift Assignment:** owners and managers create shifts and assign them to staff.

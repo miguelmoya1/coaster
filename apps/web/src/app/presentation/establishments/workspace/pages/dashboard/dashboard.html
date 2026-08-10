@@ -389,13 +389,13 @@
       <header class="flex justify-between items-center">
         <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
           <mat-icon class="text-on-surface text-xl">group</mat-icon>
-          {{ 'dashboard.sections.roster' | translate }}
+          {{ 'dashboard.sections.schedule' | translate }}
         </h2>
         <a
-          [routerLink]="['/establishments', establishmentId(), 'roster']"
+          [routerLink]="['/establishments', establishmentId(), 'schedule']"
           class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
         >
-          {{ 'dashboard.sections.roster_full' | translate }}
+          {{ 'dashboard.sections.schedule_full' | translate }}
           <mat-icon>arrow_forward</mat-icon>
         </a>
       </header>
@@ -411,19 +411,19 @@
           </div>
           <div class="flex flex-col gap-1">
             <h4 class="text-on-surface font-bold text-sm tracking-tight">
-              {{ 'dashboard.roster.no_shifts_warning' | translate }}
+              {{ 'dashboard.schedule.no_shifts_warning' | translate }}
             </h4>
           </div>
           <a
-            [routerLink]="['/establishments', establishmentId(), 'roster']"
+            [routerLink]="['/establishments', establishmentId(), 'schedule']"
             class="w-full bg-primary hover:bg-primary-container text-on-primary font-black py-3 px-4 rounded-xl text-xxs-plus tracking-widest uppercase transition-all shadow-md active:scale-95 text-center"
           >
-            {{ 'dashboard.roster.assign_shifts' | translate }}
+            {{ 'dashboard.schedule.assign_shifts' | translate }}
           </a>
         </div>
       } @else {
         <div class="flex flex-col gap-3">
-          @for (shift of rosterOverview(); track shift.id) {
+          @for (shift of scheduleOverview(); track shift.id) {
             <div
               class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md border border-outline-variant/10"
             >
@@ -449,7 +449,7 @@
                   [class.text-primary]="shift.status === 'current'"
                   [class.text-on-surface-variant]="shift.status === 'next'"
                 >
-                  {{ 'dashboard.roster.status.' + shift.status | translate }}
+                  {{ 'dashboard.schedule.status.' + shift.status | translate }}
                 </span>
               </div>
             </div>

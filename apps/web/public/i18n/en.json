@@ -219,7 +219,7 @@
       "floor_leads": "FLOOR LEADS",
       "security": "SECURITY"
     },
-    "roster": {
+    "schedule": {
       "no_shifts_warning": "Attention! No staff assigned to shifts today.",
       "assign_shifts": "Assign Shifts",
       "status": {
@@ -248,7 +248,7 @@
       "monthly_yearly": "Monthly & Yearly Analysis",
       "pantry": "Critical Pantry Alerts",
       "pantry_issues": "{{count}} ISSUES",
-      "roster": "Today's Roster",
+      "schedule": "Today's Roster",
       "roster_full": "FULL SCHEDULE"
     }
   },
@@ -304,7 +304,7 @@
     "dashboard": "Dashboard",
     "orders": "Orders",
     "pantry": "Pantry",
-    "roster": "Roster",
+    "schedule": "Schedule",
     "staff": "Staff"
   },
   "orders": {
@@ -441,7 +441,7 @@
       "current_stock_label": "Current Stock"
     }
   },
-  "roster": {
+  "schedule": {
     "create_shift": {
       "title": "Create Shift",
       "date_label": "For date",

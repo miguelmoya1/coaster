@@ -49,7 +49,7 @@ describe('BottomNav', () => {
   });
 
   it('should show every section for an establishment running everything', () => {
-    expect(renderedSections()).toEqual(['dashboard', 'orders', 'roster', 'pantry', 'staff']);
+    expect(renderedSections()).toEqual(['dashboard', 'orders', 'schedule', 'pantry', 'staff']);
   });
 
   it('should leave an establishment with only time tracking three sections', () => {
@@ -59,6 +59,6 @@ describe('BottomNav', () => {
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
     fixture.detectChanges();
 
-    expect(renderedSections()).toEqual(['dashboard', 'roster', 'staff']);
+    expect(renderedSections()).toEqual(['dashboard', 'schedule', 'staff']);
   });
 });

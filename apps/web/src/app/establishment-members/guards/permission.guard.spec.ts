@@ -117,7 +117,7 @@ describe('permissionGuard', () => {
       return firstValueFrom(guard as Observable<boolean | UrlTree>);
     });
 
-    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'roster']);
+    expect((result as unknown as { path: string[] }).path).toEqual(['/establishments', 'establishment-1', 'schedule']);
   });
 
   it('should redirect to select if user lacks permission and lacks orders permission', async () => {

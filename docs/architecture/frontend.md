@@ -38,14 +38,14 @@ repositories), `store/` (signal state), `services/`, `mappers/` and, where relev
 
 Around an establishment the split is:
 
-| Domain                       | Contains                                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| `establishments`             | creating and listing establishments, current establishment                      |
-| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                   |
-| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive          |
-| `admin`                      | platform backoffice (establishments, users, metrics, audit) and `adminGuard`    |
-| `time-tracking`              | clocking: own workday, team register, corrections and export                    |
-| `roster`                     | `RosterStateService`: selected date, view mode and the ranges derived from them |
+| Domain                       | Contains                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `establishments`             | creating and listing establishments, current establishment                        |
+| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                     |
+| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive            |
+| `admin`                      | platform backoffice (establishments, users, metrics, audit) and `adminGuard`      |
+| `time-tracking`              | clocking: own workday, team register, corrections and export                      |
+| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them |
 
 `permissionGuard` lives in `establishment-members` (not `establishments`) because it depends on `MyMemberStore`; in
 `establishments` it would form a `establishments -> establishment-members -> establishments` cycle.

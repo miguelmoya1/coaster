@@ -28,7 +28,11 @@ const mainRoutes: Routes = [
       },
       {
         path: 'roster',
-        loadChildren: () => import('./pages/roster/roster.routes'),
+        redirectTo: 'schedule',
+      },
+      {
+        path: 'schedule',
+        loadChildren: () => import('./pages/schedule/schedule.routes'),
         canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS)],
       },
       {

@@ -152,8 +152,8 @@ describe('Dashboard', () => {
       expect(component.totalAssignedToday()).toBe(0);
     });
 
-    it('should return empty roster overview when no shifts', () => {
-      expect(component.rosterOverview()).toEqual([]);
+    it('should return empty schedule overview when no shifts', () => {
+      expect(component.scheduleOverview()).toEqual([]);
     });
 
     it('should return overview stats with 0 counts', () => {
@@ -177,7 +177,7 @@ describe('Dashboard', () => {
       expect(heading).toBeTruthy();
     });
 
-    it('should render roster section', () => {
+    it('should render schedule section', () => {
       fixture.detectChanges();
       const sections = fixture.nativeElement.querySelectorAll('section');
       expect(sections.length).toBeGreaterThanOrEqual(2);

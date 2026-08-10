@@ -9,7 +9,7 @@ import { MyMemberStore } from '../store/my-member.store';
 /** In the order someone should be sent to them: the least surprising landing first. */
 const FALLBACKS: { permission: EstablishmentPermission; module?: EstablishmentModule; path: string }[] = [
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD, path: 'dashboard' },
-  { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS, path: 'roster' },
+  { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS, path: 'schedule' },
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_ORDERS, module: EstablishmentModule.ORDERS, path: 'orders' },
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_MEMBERS, path: 'staff' },
 ];

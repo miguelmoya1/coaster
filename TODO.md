@@ -97,10 +97,10 @@ interrupted by the dialog.
 
 ### 2.5 Rename the rota
 
-`nav.roster` is "Turnos", which is hospitality vocabulary. It becomes "Horario" / "Schedule", which
-covers both what was planned and what was worked. i18n keys, one route and one folder — last,
-because it is the only purely cosmetic step. `core/translations.spec.ts` spells the
-`roster.time_tracking.` prefix out by hand, so it moves with them.
+"Turnos" was hospitality vocabulary. It is now "Horario" / "Schedule", which covers both what was
+planned and what was worked, and reads the same to an office as to a bar. The `@coaster/roster` lib,
+the `/roster` route, the `pages/roster` folder and the `roster.*` i18n block moved with it; the old
+route redirects so existing bookmarks survive.
 
 ## Phase 3: intelligence layer
 

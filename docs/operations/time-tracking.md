@@ -148,7 +148,7 @@ policy, not an automatic cleanup: there is none today.
 ## Interface
 
 Clocking has **no section of its own** in the bottom establishment: it lives inside **Shifts**
-(`presentation/establishments/workspace/pages/roster`), because that is where the worker already goes to see
+(`presentation/establishments/workspace/pages/schedule`), because that is where the worker already goes to see
 their shift. Everything is managed from there.
 
 - **Clock card** (`clock-card`): current state, time worked and on break, and only the buttons the
