@@ -18,6 +18,8 @@ that one carries the most rules per line and is the easiest to get wrong.
 
 - [Admin backoffice](admin/backoffice.md)
 - [Time tracking](operations/time-tracking.md) — the legal working-time register
+- [Renaming `Bar` to `Establishment`](operations/establishment-rename.md) — runbook for a migration
+  in progress, to be deleted once it has shipped
 - [Stripe integration](saas/stripe-integration.md)
 - [Stripe locally](saas/stripe-local-setup.md)
 
