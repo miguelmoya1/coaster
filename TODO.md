@@ -6,9 +6,11 @@ this file is only the running order.
 Phase 1 (time tracking and legal compliance) is closed — see
 [Time tracking](docs/operations/time-tracking.md).
 
-Phase 2 is closed apart from 2.5. `Bar` is `Establishment` everywhere including the database, the
-modules are stored and enforced on both sides, and a new establishment is asked what it is before it
-is handed a menu it will never use.
+Phase 2 is closed. `Bar` is `Establishment` everywhere including the database, the modules are
+stored and enforced on both sides, and a new establishment is asked what it is before it is handed a
+menu it will never use. It has not been **deployed** yet: the print bridge changed the environment
+variable it reads, so see the [rename runbook](docs/operations/establishment-rename.md) before
+releasing.
 
 ## Phase 2: from bars to establishments
 
