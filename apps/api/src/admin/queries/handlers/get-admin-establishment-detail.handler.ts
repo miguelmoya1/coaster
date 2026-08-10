@@ -1,6 +1,7 @@
+import { EstablishmentSettingsMapper, EstablishmentSettingsRepository } from '@coaster/establishments';
 import { EstablishmentSubscriptionMapper } from '@coaster/establishment-subscription';
 import type { AdminEstablishmentDetail } from '@coaster/common';
-import { AdminAuditTargetType, ErrorCodes } from '@coaster/common';
+import { AdminAuditTargetType, DEFAULT_ESTABLISHMENT_MODULES, ErrorCodes, resolveModules } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AdminAuditRepository } from '../../data-access/admin-audit.repository';
@@ -19,6 +20,7 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
   constructor(
     private readonly _readRepo: AdminEstablishmentReadRepository,
     private readonly _auditRepo: AdminAuditRepository,
+    private readonly _settingsRepo: EstablishmentSettingsRepository,
   ) {}
 
   async execute(query: GetAdminEstablishmentDetailQuery): Promise<AdminEstablishmentDetail> {
@@ -28,7 +30,7 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
       throw new NotFoundException(ErrorCodes.ESTABLISHMENT_NOT_FOUND);
     }
 
-    const [members, counters, recentActivity] = await Promise.all([
+    const [members, counters, recentActivity, settings] = await Promise.all([
       this._readRepo.findMembers(query.establishmentId),
       this._readRepo.countersFor(query.establishmentId, daysAgo(30)),
       this._auditRepo.findRecentForTarget(
@@ -36,6 +38,7 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
         query.establishmentId,
         RECENT_ACTIVITY_SIZE,
       ),
+      this._settingsRepo.find(query.establishmentId),
     ]);
 
     const grantedById = establishment.billing?.manualGrantedById;
@@ -43,6 +46,13 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
 
     return {
       establishment: AdminMapper.toEstablishmentSummary(establishment),
+      settings: settings
+        ? EstablishmentSettingsMapper.toDto(settings)
+        : {
+            establishmentId: query.establishmentId,
+            modules: resolveModules(DEFAULT_ESTABLISHMENT_MODULES),
+            configuredAt: null,
+          },
       subscription: establishment.billing
         ? EstablishmentSubscriptionMapper.toAdminDomain({
             ...establishment.billing,

@@ -38,6 +38,29 @@
       </section>
     }
 
+    <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-3">
+      <header class="flex items-center gap-2">
+        <mat-icon class="text-primary">tune</mat-icon>
+        <h2 class="font-semibold text-base">{{ 'admin.establishment_detail.modules_title' | translate }}</h2>
+      </header>
+
+      <p class="text-xs text-on-surface-variant">{{ 'admin.establishment_detail.modules_hint' | translate }}</p>
+
+      <div class="flex flex-col gap-2">
+        @for (row of moduleRows; track row.module) {
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-sm text-on-surface">{{ row.labelKey | translate }}</span>
+            <mat-slide-toggle
+              [checked]="isModuleOn(row.module)"
+              [disabled]="row.locked || isModuleForced(row.module) || isSaving()"
+              (change)="toggleModule(row.module, $event.checked)"
+              [attr.aria-label]="row.labelKey | translate"
+            />
+          </div>
+        }
+      </div>
+    </section>
+
     <section class="bg-surface-container rounded-2xl border border-outline-variant/50 p-5 flex flex-col gap-4">
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">

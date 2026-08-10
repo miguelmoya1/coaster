@@ -33,7 +33,7 @@ import { RouterLink } from '@angular/router';
             </div>
           }
 
-          <h1 class="heading-1 font-bold text-on-surface text-2xl sm:text-3xl tracking-tight truncate">
+          <h1 class="heading-1 font-bold text-on-surface max-sm:text-2xl! tracking-tight truncate">
             {{ title() }}
           </h1>
 

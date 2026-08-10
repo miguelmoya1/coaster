@@ -8,9 +8,10 @@ import { AdminActionEvent } from '../../events/impl/admin-action.event';
 import { UpdateEstablishmentModulesCommand } from '../impl/update-establishment-modules.command';
 
 @CommandHandler(UpdateEstablishmentModulesCommand)
-export class UpdateEstablishmentModulesHandler
-  implements ICommandHandler<UpdateEstablishmentModulesCommand, EstablishmentSettings>
-{
+export class UpdateEstablishmentModulesHandler implements ICommandHandler<
+  UpdateEstablishmentModulesCommand,
+  EstablishmentSettings
+> {
   constructor(
     private readonly _readRepo: AdminEstablishmentReadRepository,
     private readonly _settingsRepo: EstablishmentSettingsRepository,

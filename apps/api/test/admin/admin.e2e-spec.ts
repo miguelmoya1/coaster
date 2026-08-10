@@ -1,4 +1,4 @@
-import { EstablishmentRole, SubscriptionPlan } from '@coaster/common';
+import { AdminAuditAction, EstablishmentModule, EstablishmentRole, SubscriptionPlan } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DbEstablishmentRole, DbSubscriptionStatus } from '../../src/core/db';
@@ -204,6 +204,75 @@ describe('Admin backoffice (e2e)', () => {
         .expect(200);
 
       expect(await waitForAudit()).toBe(0);
+    });
+  });
+
+  describe('changing an establishment modules from the backoffice', () => {
+    it('should apply the change and record who made it', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Supported establishment', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      const response = await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(200);
+
+      expect(response.body.modules).toEqual(
+        expect.arrayContaining([EstablishmentModule.ORDERS, EstablishmentModule.INVENTORY]),
+      );
+
+      await waitForAudit();
+      const entry = await testSetup.prisma.dbAdminAuditLog.findFirst({ where: { targetId: establishment.id } });
+
+      expect(entry?.action).toBe(AdminAuditAction.ESTABLISHMENT_MODULES_CHANGED);
+      expect(entry?.actorId).toBe(mockUser.id);
+    });
+
+    it('should take effect on the establishment straight away', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Supported establishment', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.INVENTORY] })
+        .expect(200);
+
+      await request(http()).get(`/api/establishments/${establishment.id}/products`).expect(200);
+    });
+
+    /*
+     * Support switching a module on is not the owner answering the welcome questions, and it must
+     * not quietly consume them.
+     */
+    it('should leave an unconfigured establishment still waiting for its owner', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Never set up', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(200);
+
+      const settings = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: establishment.id },
+      });
+
+      expect(settings?.configuredAt).toBeNull();
+    });
+
+    it('should refuse a plain user', async () => {
+      const establishment = await testSetup.createEstablishment('Not yours', { ownerId: null });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(403);
     });
   });
 

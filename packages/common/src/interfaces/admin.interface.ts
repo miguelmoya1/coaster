@@ -4,7 +4,7 @@ import { Role } from '../constants/role.type';
 import { SubscriptionPlan } from '../constants/subscription-plan.type';
 import { SubscriptionStatus } from '../constants/subscription-status.type';
 import { EstablishmentMemberId } from './establishment-member.interface';
-import { EstablishmentId } from './establishment.interface';
+import { EstablishmentId, EstablishmentSettings } from './establishment.interface';
 import { AdminEstablishmentSubscription } from './establishment-subscription.interface';
 import { UserId } from './user.interface';
 
@@ -59,6 +59,7 @@ export interface AdminEstablishmentCounters {
 
 export interface AdminEstablishmentDetail {
   establishment: AdminEstablishmentSummary;
+  settings: EstablishmentSettings;
   subscription: AdminEstablishmentSubscription;
   members: AdminEstablishmentMember[];
   counters: AdminEstablishmentCounters;

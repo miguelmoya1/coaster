@@ -10,6 +10,8 @@ import type {
   RevokeEstablishmentPlanDto,
   UpdateAdminUserDto,
   UserId,
+  EstablishmentSettings,
+  UpdateEstablishmentSettingsDto,
 } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
@@ -35,6 +37,7 @@ export class AdminRepository {
     audit: (query: AdminAuditQuery) => `/admin/audit${toQueryString({ ...query })}`,
     establishments: (query: AdminEstablishmentsQuery) => `/admin/establishments${toQueryString({ ...query })}`,
     establishmentDetail: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}`,
+    establishmentModules: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}/modules`,
     establishmentPlan: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}/plan`,
     revokeEstablishmentPlan: (establishmentId: EstablishmentId) =>
       `/admin/establishments/${establishmentId}/plan/revoke`,
@@ -55,6 +58,15 @@ export class AdminRepository {
 
   public async renameEstablishment(establishmentId: EstablishmentId, dto: RenameEstablishmentDto): Promise<void> {
     await firstValueFrom(this.#http.patch<void>(this.routes.establishmentDetail(establishmentId), dto));
+  }
+
+  public updateEstablishmentModules(
+    establishmentId: EstablishmentId,
+    dto: UpdateEstablishmentSettingsDto,
+  ): Promise<EstablishmentSettings> {
+    return firstValueFrom(
+      this.#http.patch<EstablishmentSettings>(this.routes.establishmentModules(establishmentId), dto),
+    );
   }
 
   public async updateUser(userId: UserId, dto: UpdateAdminUserDto): Promise<void> {

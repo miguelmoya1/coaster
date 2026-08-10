@@ -3,12 +3,19 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AdminEstablishmentDetailStore } from '@coaster/admin';
 import type { EstablishmentId, EstablishmentMemberId } from '@coaster/common';
-import { EstablishmentRole, SubscriptionPlan } from '@coaster/common';
+import {
+  DEFAULT_ESTABLISHMENT_MODULES,
+  EstablishmentModule,
+  EstablishmentRole,
+  SubscriptionPlan,
+  resolveModules,
+} from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PricePipe } from '../../../establishments/workspace/pipes/price/price';
@@ -33,6 +40,7 @@ import { StatusChip } from '../../components/status-chip/status-chip';
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
+    MatSlideToggle,
     TranslatePipe,
     PricePipe,
     Loading,
@@ -57,12 +65,44 @@ export default class AdminEstablishmentDetail {
   readonly #router = inject(Router);
 
   protected readonly establishment = this.#store.establishment;
+  protected readonly settings = this.#store.settings;
   protected readonly subscription = this.#store.subscription;
   protected readonly members = this.#store.members;
   protected readonly counters = this.#store.counters;
   protected readonly recentActivity = this.#store.recentActivity;
   protected readonly isLoading = this.#store.isLoading;
   protected readonly isSaving = this.#store.isSaving;
+
+  protected readonly moduleRows = [
+    { module: EstablishmentModule.TIME_TRACKING, labelKey: 'settings.module_time_tracking', locked: true },
+    { module: EstablishmentModule.ORDERS, labelKey: 'settings.module_orders', locked: false },
+    { module: EstablishmentModule.INVENTORY, labelKey: 'settings.module_inventory', locked: false },
+  ];
+
+  readonly #draftModules = signal<EstablishmentModule[] | null>(null);
+
+  protected readonly selectedModules = computed<EstablishmentModule[]>(
+    () => this.#draftModules() ?? this.settings()?.modules ?? DEFAULT_ESTABLISHMENT_MODULES,
+  );
+
+  protected isModuleOn(module: EstablishmentModule): boolean {
+    return this.selectedModules().includes(module);
+  }
+
+  /** Inventory cannot be taken away while orders is on, the same rule the owner's screen shows. */
+  protected isModuleForced(module: EstablishmentModule): boolean {
+    return module === EstablishmentModule.INVENTORY && this.selectedModules().includes(EstablishmentModule.ORDERS);
+  }
+
+  protected async toggleModule(module: EstablishmentModule, on: boolean): Promise<void> {
+    const without = this.selectedModules().filter((candidate) => candidate !== module);
+    const next = resolveModules(on ? [...without, module] : without);
+
+    this.#draftModules.set(next);
+    await this.#store.updateModules(next);
+    this.#draftModules.set(null);
+    this.#feedback.success(this.#translate.instant('admin.establishment_detail.modules_saved'));
+  }
 
   protected readonly assignableRoles = Object.values(EstablishmentRole);
   protected readonly isRenaming = signal(false);

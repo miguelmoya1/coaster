@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import type {
+  EstablishmentModule,
   EstablishmentId,
   EstablishmentMemberId,
   EstablishmentRole,
@@ -28,6 +29,7 @@ export class AdminEstablishmentDetailStore {
 
   public readonly detail = computed(() => this.#detailResource.value() ?? null);
   public readonly establishment = computed(() => this.detail()?.establishment ?? null);
+  public readonly settings = computed(() => this.detail()?.settings ?? null);
   public readonly subscription = computed(() => this.detail()?.subscription ?? null);
   public readonly members = computed(() => this.detail()?.members ?? []);
   public readonly counters = computed(() => this.detail()?.counters ?? null);
@@ -54,6 +56,12 @@ export class AdminEstablishmentDetailStore {
 
   public rename(name: string) {
     return this.#mutate((establishmentId) => this.#repository.renameEstablishment(establishmentId, { name }));
+  }
+
+  public updateModules(modules: EstablishmentModule[]) {
+    return this.#mutate(async (establishmentId) => {
+      await this.#repository.updateEstablishmentModules(establishmentId, { modules });
+    });
   }
 
   public updateMemberRole(memberId: EstablishmentMemberId, role: EstablishmentRole) {
