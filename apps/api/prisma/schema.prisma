@@ -13,12 +13,12 @@ datasource db {
   provider = "postgresql"
 }
 
-enum DbBarRole {
+enum DbEstablishmentRole {
   OWNER
   MANAGER
   STAFF
 
-  @@map("BarRole")
+  @@map("EstablishmentRole")
 }
 
 enum DbRole {
@@ -119,78 +119,78 @@ model DbOrderAdjustment {
 }
 
 model DbUser {
-  id             String            @id @default(uuid())
-  email          String            @unique
-  googleId       String?           @unique
+  id             String                  @id @default(uuid())
+  email          String                  @unique
+  googleId       String?                 @unique
   name           String
   photoUrl       String?
-  active         Boolean           @default(true)
-  role           DbRole            @default(USER)
-  language       String            @default("es")
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  memberships    DbBarMember[]
+  active         Boolean                 @default(true)
+  role           DbRole                  @default(USER)
+  language       String                  @default("es")
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  memberships    DbEstablishmentMember[]
   shifts         DbShift[]
-  shiftRequests  DbShiftExchange[] @relation("Requester")
-  shiftApprovals DbShiftExchange[] @relation("Target")
-  auditLogs      DbAdminAuditLog[] @relation("AdminAuditActor")
-  timeEntries    DbTimeEntry[]     @relation("TimeEntrySubject")
-  timeEntryEdits DbTimeEntry[]     @relation("TimeEntryActor")
+  shiftRequests  DbShiftExchange[]       @relation("Requester")
+  shiftApprovals DbShiftExchange[]       @relation("Target")
+  auditLogs      DbAdminAuditLog[]       @relation("AdminAuditActor")
+  timeEntries    DbTimeEntry[]           @relation("TimeEntrySubject")
+  timeEntryEdits DbTimeEntry[]           @relation("TimeEntryActor")
 
   @@map("User")
 }
 
-model DbBar {
-  id          String             @id @default(uuid())
+model DbEstablishment {
+  id          String                       @id @default(uuid())
   name        String
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  members     DbBarMember[]
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
+  members     DbEstablishmentMember[]
   shifts      DbShift[]
   categories  DbCategory[]
   tables      DbTable[]
   orders      DbOrder[]
   printer     DbPrinterConfig?
   printJobs   DbPrintJob[]
-  billing     DbBarSubscription?
+  billing     DbEstablishmentSubscription?
   timeEntries DbTimeEntry[]
 
-  @@map("Bar")
+  @@map("Establishment")
 }
 
-model DbBarMember {
-  id        String    @id @default(uuid())
-  userId    String
-  user      DbUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barId     String
-  bar       DbBar     @relation(fields: [barId], references: [id], onDelete: Cascade)
-  role      DbBarRole @default(STAFF)
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+model DbEstablishmentMember {
+  id              String              @id @default(uuid())
+  userId          String
+  user            DbUser              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishmentId String
+  establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  role            DbEstablishmentRole @default(STAFF)
+  active          Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
 
-  @@unique([userId, barId])
-  @@index([barId, deletedAt])
-  @@map("BarMember")
+  @@unique([userId, establishmentId])
+  @@index([establishmentId, deletedAt])
+  @@map("EstablishmentMember")
 }
 
 model DbShift {
-  id          String            @id @default(uuid())
-  startTime   DateTime
-  endTime     DateTime
-  userId      String
-  user        DbUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barId       String
-  bar         DbBar             @relation(fields: [barId], references: [id], onDelete: Cascade)
-  notes       String?
-  exchanges   DbShiftExchange[]
-  timeEntries DbTimeEntry[]
+  id              String            @id @default(uuid())
+  startTime       DateTime
+  endTime         DateTime
+  userId          String
+  user            DbUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishmentId String
+  establishment   DbEstablishment   @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  notes           String?
+  exchanges       DbShiftExchange[]
+  timeEntries     DbTimeEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([barId, startTime])
+  @@index([establishmentId, startTime])
   @@index([userId, startTime])
   @@map("Shift")
 }
@@ -213,15 +213,15 @@ model DbShiftExchange {
 }
 
 model DbCategory {
-  id        String      @id @default(uuid())
-  barId     String
-  bar       DbBar       @relation(fields: [barId], references: [id], onDelete: Cascade)
-  name      String
-  icon      String?
-  products  DbProduct[]
-  deletedAt DateTime?
+  id              String          @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  name            String
+  icon            String?
+  products        DbProduct[]
+  deletedAt       DateTime?
 
-  @@index([barId, deletedAt])
+  @@index([establishmentId, deletedAt])
   @@map("Category")
 }
 
@@ -268,39 +268,39 @@ model DbProductTemplate {
 }
 
 model DbTable {
-  id        String        @id @default(uuid())
-  name      String
-  status    DbTableStatus @default(FREE)
-  barId     String
-  bar       DbBar         @relation(fields: [barId], references: [id], onDelete: Cascade)
-  orders    DbOrder[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id              String          @id @default(uuid())
+  name            String
+  status          DbTableStatus   @default(FREE)
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  orders          DbOrder[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@map("Table")
 }
 
 model DbOrder {
-  id             String              @id @default(uuid())
-  barId          String
-  bar            DbBar               @relation(fields: [barId], references: [id], onDelete: Cascade)
-  tableId        String?
-  table          DbTable?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
-  tableName      String?
-  status         DbOrderStatus       @default(OPEN)
-  totalAmount    Int                 @default(0)
-  amountPaidCash Int                 @default(0)
-  amountPaidCard Int                 @default(0)
-  items          DbOrderItem[]
-  adjustments    DbOrderAdjustment[]
-  paymentMethod  DbPaymentMethod     @default(NONE)
-  notes          String?
-  tipAmount      Int                 @default(0)
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id              String              @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  tableId         String?
+  table           DbTable?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  tableName       String?
+  status          DbOrderStatus       @default(OPEN)
+  totalAmount     Int                 @default(0)
+  amountPaidCash  Int                 @default(0)
+  amountPaidCard  Int                 @default(0)
+  items           DbOrderItem[]
+  adjustments     DbOrderAdjustment[]
+  paymentMethod   DbPaymentMethod     @default(NONE)
+  notes           String?
+  tipAmount       Int                 @default(0)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
-  @@index([barId, status])
-  @@index([barId, createdAt])
+  @@index([establishmentId, status])
+  @@index([establishmentId, createdAt])
   @@index([tableId])
   @@map("Order")
 }
@@ -331,15 +331,15 @@ model DbOrderItem {
 }
 
 model DbPrinterConfig {
-  id         String    @id @default(uuid())
-  barId      String    @unique
-  bar        DbBar     @relation(fields: [barId], references: [id], onDelete: Cascade)
-  deviceKey  String    @default(uuid())
-  ipAddress  String?
-  port       Int       @default(8080)
-  lastSeenAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id              String          @id @default(uuid())
+  establishmentId String          @unique
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  deviceKey       String          @default(uuid())
+  ipAddress       String?
+  port            Int             @default(8080)
+  lastSeenAt      DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@map("PrinterConfig")
 }
@@ -354,25 +354,25 @@ enum DbPrintJobStatus {
 }
 
 model DbPrintJob {
-  id          String           @id @default(uuid())
-  barId       String
-  bar         DbBar            @relation(fields: [barId], references: [id], onDelete: Cascade)
-  payload     Json
-  status      DbPrintJobStatus @default(PENDING)
-  attempts    Int              @default(0)
-  error       String?
-  createdAt   DateTime         @default(now())
-  claimedAt   DateTime?
-  completedAt DateTime?
+  id              String           @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment  @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  payload         Json
+  status          DbPrintJobStatus @default(PENDING)
+  attempts        Int              @default(0)
+  error           String?
+  createdAt       DateTime         @default(now())
+  claimedAt       DateTime?
+  completedAt     DateTime?
 
-  @@index([barId, status, createdAt])
+  @@index([establishmentId, status, createdAt])
   @@map("PrintJob")
 }
 
-model DbBarSubscription {
+model DbEstablishmentSubscription {
   id                   String               @id @default(uuid())
-  barId                String               @unique
-  bar                  DbBar                @relation(fields: [barId], references: [id], onDelete: Cascade)
+  establishmentId      String               @unique
+  establishment        DbEstablishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   plan                 DbSubscriptionPlan   @default(FREE)
   status               DbSubscriptionStatus @default(INACTIVE)
   stripeCustomerId     String?              @unique
@@ -391,41 +391,41 @@ model DbBarSubscription {
 
   @@index([status])
   @@index([manualPlan])
-  @@map("BarSubscription")
+  @@map("EstablishmentSubscription")
 }
 
 model DbTimeEntry {
-  id           String       @id
-  barId        String
-  bar          DbBar        @relation(fields: [barId], references: [id], onDelete: Restrict)
-  userId       String
-  user         DbUser       @relation("TimeEntrySubject", fields: [userId], references: [id], onDelete: Restrict)
-  userSnapshot Json
-  shiftId      String?
-  shift        DbShift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
-  type         String
-  action       String
-  occurredAt   DateTime
-  recordedAt   DateTime
-  workdayDate  DateTime     @db.Date
-  source       String
-  latitude     Float?
-  longitude    Float?
-  rootId       String
-  supersedesId String?      @unique
-  supersedes   DbTimeEntry? @relation("TimeEntryRevision", fields: [supersedesId], references: [id], onDelete: Restrict)
-  supersededBy DbTimeEntry? @relation("TimeEntryRevision")
-  actorId      String
-  actor        DbUser       @relation("TimeEntryActor", fields: [actorId], references: [id], onDelete: Restrict)
-  reason       String?
-  sequence     BigInt
-  prevHash     String
-  hash         String
+  id              String          @id
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Restrict)
+  userId          String
+  user            DbUser          @relation("TimeEntrySubject", fields: [userId], references: [id], onDelete: Restrict)
+  userSnapshot    Json
+  shiftId         String?
+  shift           DbShift?        @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  type            String
+  action          String
+  occurredAt      DateTime
+  recordedAt      DateTime
+  workdayDate     DateTime        @db.Date
+  source          String
+  latitude        Float?
+  longitude       Float?
+  rootId          String
+  supersedesId    String?         @unique
+  supersedes      DbTimeEntry?    @relation("TimeEntryRevision", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy    DbTimeEntry?    @relation("TimeEntryRevision")
+  actorId         String
+  actor           DbUser          @relation("TimeEntryActor", fields: [actorId], references: [id], onDelete: Restrict)
+  reason          String?
+  sequence        BigInt
+  prevHash        String
+  hash            String
 
-  @@unique([barId, sequence])
+  @@unique([establishmentId, sequence])
   @@index([rootId])
-  @@index([barId, userId, workdayDate])
-  @@index([barId, workdayDate])
+  @@index([establishmentId, userId, workdayDate])
+  @@index([establishmentId, workdayDate])
   @@map("TimeEntry")
 }
 
