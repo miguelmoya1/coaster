@@ -186,10 +186,7 @@
     "question_import": "¿Cargamos un catálogo para empezar?",
     "import_yes": "Sí, cargar catálogo estándar",
     "import_no": "No, lo creo yo",
-    "back": "Atrás",
-    "next": "Siguiente",
-    "finish": "Empezar",
-    "done": "Todo listo"
+    "back": "Atrás"
   },
   "common": {
     "accept": "Aceptar",
@@ -249,7 +246,7 @@
       "pantry": "Alertas Críticas de Despensa",
       "pantry_issues": "INCIDENCIAS",
       "schedule": "Turnos de Hoy",
-      "roster_full": "HORARIO COMPLETO"
+      "schedule_full": "HORARIO COMPLETO"
     }
   },
   "history": {

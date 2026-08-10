@@ -11,7 +11,7 @@ import { DeleteShift } from '../services/delete-shift';
 
 @Service()
 export class ShiftsStore {
-  readonly #establishmentshifts = inject(EstablishmentShifts);
+  readonly #establishmentShifts = inject(EstablishmentShifts);
   readonly #createShift = inject(CreateShift);
   readonly #deleteShift = inject(DeleteShift);
   readonly #socketService = inject(Socket);
@@ -21,7 +21,7 @@ export class ShiftsStore {
   readonly #endDate = signal<string | undefined>(undefined);
 
   readonly #shiftsResource = httpResource(
-    () => this.#establishmentshifts.execute(this.#currentEstablishmentId(), this.#startDate(), this.#endDate()),
+    () => this.#establishmentShifts.execute(this.#currentEstablishmentId(), this.#startDate(), this.#endDate()),
     {
       parse: shiftArrayMapper,
     },

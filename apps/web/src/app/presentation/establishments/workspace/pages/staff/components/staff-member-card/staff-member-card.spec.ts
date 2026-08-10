@@ -19,7 +19,7 @@ describe('StaffMemberCard', () => {
     fixture.componentRef.setInput('staffName', 'John Doe');
     fixture.componentRef.setInput('staffImage', 'http://img.com/john.jpg');
     fixture.componentRef.setInput('staffEmail', 'john@test.com');
-    fixture.componentRef.setInput('roleName', 'Establishmenttender');
+    fixture.componentRef.setInput('roleName', 'Bartender');
 
     fixture.detectChanges();
   });
@@ -32,7 +32,7 @@ describe('StaffMemberCard', () => {
     it('should display the staff name and role', () => {
       const element: HTMLElement = fixture.nativeElement;
       expect(element.textContent).toContain('John Doe');
-      expect(element.textContent).toContain('common.role.establishmenttender');
+      expect(element.textContent).toContain('common.role.bartender');
     });
 
     it('should have a mailto link with the correct email', () => {

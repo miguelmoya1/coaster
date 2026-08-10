@@ -186,10 +186,7 @@
     "question_import": "Shall we load a catalogue to start from?",
     "import_yes": "Yes, load the standard catalogue",
     "import_no": "No, I will build my own",
-    "back": "Back",
-    "next": "Next",
-    "finish": "Get started",
-    "done": "All set"
+    "back": "Back"
   },
   "common": {
     "accept": "Accept",
@@ -249,7 +246,7 @@
       "pantry": "Critical Pantry Alerts",
       "pantry_issues": "{{count}} ISSUES",
       "schedule": "Today's Roster",
-      "roster_full": "FULL SCHEDULE"
+      "schedule_full": "FULL SCHEDULE"
     }
   },
   "history": {

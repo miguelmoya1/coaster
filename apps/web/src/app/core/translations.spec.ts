@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import {
   AdminAuditAction,
   EstablishmentBillingSource,
@@ -51,6 +51,61 @@ const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] =
   },
 ];
 
+/**
+ * Prefixes the interface concatenates onto something it does not own — an API-supplied name, a
+ * validator's kind, a status string. Everything under them is reachable even though no literal in
+ * the source spells it out.
+ */
+const runtimePrefixes = [
+  ...dynamicFamilies.map((family) => family.prefix),
+  'billing.plan_name.',
+  'billing.status.',
+  'billing.status_badge.',
+  'pantry.status.',
+  'ai_voice.status.',
+  'ai_voice.suggestions.',
+  'ai_voice.errors.',
+  'dashboard.schedule.status.',
+  'members.invite.role_hint_',
+  'schedule.exchanges.period_',
+  // Seeded catalogue names: the API stores the key and the app translates whatever it is sent.
+  'templates.categories.',
+  'templates.products.',
+];
+
+/** Angular's validator names, rendered straight through by the shared form-field components. */
+const validatorKinds = ['required', 'email', 'minLength', 'maxLength', 'min', 'max', 'pattern'];
+
+/** Only what the app itself asks for: a fixture inventing a product name is not a missing key. */
+const sourceFiles = (dir: string): string[] =>
+  readdirSync(dir).flatMap((entry) => {
+    const path = join(dir, entry);
+
+    if (statSync(path).isDirectory()) {
+      return sourceFiles(path);
+    }
+
+    if (path.endsWith('.spec.ts')) {
+      return [];
+    }
+
+    return path.endsWith('.ts') || path.endsWith('.html') ? [path] : [];
+  });
+
+const sources = sourceFiles(resolve(process.cwd(), 'src'))
+  .map((path) => readFileSync(path, 'utf8'))
+  .join('\n');
+
+const literalKeys = new Set(
+  Array.from(sources.matchAll(/['"`]([A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)*)['"`]/g), (match) => match[1]),
+);
+
+const isReachable = (key: string) =>
+  literalKeys.has(key) ||
+  Object.values(ErrorCodes).includes(key as never) ||
+  validatorKinds.includes(key) ||
+  runtimePrefixes.some((prefix) => key.startsWith(prefix));
+
 describe('translations', () => {
   it('should say the same things in both languages', () => {
     expect(Object.keys(es).sort()).toEqual(Object.keys(en).sort());
@@ -65,6 +120,27 @@ describe('translations', () => {
       expect(es[code], `${code} missing from es.json`).toBeTruthy();
       expect(en[code], `${code} missing from en.json`).toBeTruthy();
     });
+  });
+
+  /*
+   * Renaming a key in the source and forgetting the file leaves the raw key on someone's screen,
+   * and the reverse quietly grows dead weight. Neither shows up in any other test.
+   */
+  it('should define every key the source asks for', () => {
+    const asked = Array.from(literalKeys).filter(
+      (key) =>
+        key.includes('.') &&
+        // A prefix the app concatenates onto is not itself a key.
+        !runtimePrefixes.includes(key) &&
+        !key.endsWith('_') &&
+        Object.keys(es).some((known) => known.split('.')[0] === key.split('.')[0]),
+    );
+
+    expect(asked.filter((key) => !(key in es))).toEqual([]);
+  });
+
+  it('should carry no key the app never asks for', () => {
+    expect(Object.keys(es).filter((key) => !isReachable(key))).toEqual([]);
   });
 
   describe('keys built at runtime', () => {
