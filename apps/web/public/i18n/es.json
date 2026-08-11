@@ -224,7 +224,7 @@
         "next": "SIGUIENTE"
       }
     },
-    "pantry": {
+    "inventory": {
       "more_issues": "+{{count}} productos más con incidencias. Ver todos"
     },
     "financials": {
@@ -243,8 +243,8 @@
     "sections": {
       "financials": "Resumen Financiero",
       "monthly_yearly": "Análisis Mensual y Anual",
-      "pantry": "Alertas Críticas de Despensa",
-      "pantry_issues": "INCIDENCIAS",
+      "inventory": "Alertas Críticas de Inventario",
+      "inventory_issues": "INCIDENCIAS",
       "schedule": "Turnos de Hoy",
       "schedule_full": "HORARIO COMPLETO"
     }
@@ -300,7 +300,7 @@
   "nav": {
     "dashboard": "Panel",
     "orders": "Pedidos",
-    "pantry": "Despensa",
+    "inventory": "Inventario",
     "schedule": "Horario",
     "staff": "Equipo"
   },
@@ -373,7 +373,7 @@
     "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
     "total": "Total"
   },
-  "pantry": {
+  "inventory": {
     "status": {
       "ALERT": "STOCK CRÍTICO",
       "GOOD": "STOCK SEGURO",
@@ -678,127 +678,77 @@
   },
   "landing": {
     "nav": {
-      "what_it_does": "¿Qué hace?",
-      "what_is_it_for": "¿Para qué sirve?",
-      "pricing": "Planes y Precios",
-      "faq": "Preguntas Frecuentes",
-      "try_free": "Probar Gratis"
+      "what_it_is": "Qué es",
+      "modules": "Módulos",
+      "pricing": "Precios",
+      "try_free": "Entrar"
     },
     "hero": {
-      "badge": "El Software de Hostelería definitivo para Bares y Restaurantes",
-      "title_main": "Tu bar o restaurante,",
-      "title_gradient": "en piloto automático.",
-      "subtitle": "Gestiona sala, comandas en tiempo real, impresoras de cocina, turnos de personal y cierres de caja en una única plataforma inteligente. Cero complicaciones, máximo rendimiento.",
-      "cta_primary": "Empezar Gratis Ahora",
-      "badge_no_card": "Sin tarjeta de crédito requerida",
-      "badge_quick_setup": "Setup listo en 2 minutos",
-      "badge_forever_free": "Plan Free para siempre"
+      "badge": "Control horario obligatorio · Art. 34.9 ET",
+      "title_main": "El registro horario que la ley te exige,",
+      "title_gradient": "y solo lo demás que necesites",
+      "subtitle": "Toda empresa está obligada a registrar la jornada de su plantilla. Coaster lo resuelve para cualquier negocio y, si además llevas un bar o una tienda, le añades comandas e inventario. Nada más.",
+      "cta_primary": "Empezar gratis",
+      "cta_secondary": "Ver precios",
+      "badge_no_card": "Sin tarjeta",
+      "badge_quick_setup": "Listo en 2 minutos"
     },
-    "what_it_does": {
-      "tag": "¿Qué hace Coaster?",
-      "title": "Todo lo que tu negocio necesita para volar.",
-      "subtitle": "Una suite integrada de herramientas diseñadas específicamente para el ritmo acelerado de la hostelería.",
-      "feature1_title": "Comandas POS Ultra-Rápidas",
-      "feature1_desc": "Toma pedidos desde cualquier teléfono, tablet o pantalla TPV. Interfaz táctil optimizada para enviar bebidas y platos en menos de 3 segundos.",
-      "feature2_title": "Mapa de Mesas en Tiempo Real",
-      "feature2_desc": "Visualiza el estado de tu barra, terraza y sala de un vistazo. Asigna mesas, une pedidos, cambia comensales y gestiona cobros sin equivocaciones.",
-      "feature3_title": "Impresión y Pantalla de Cocina",
-      "feature3_desc": "Enrutamiento automático de tickets a impresoras térmicas de cocina y barra o pantallas de despensa. Cero comandas perdidas ni notas ilegibles.",
-      "feature4_title": "Control de Stock e Inventario",
-      "feature4_desc": "Catálogo completo de productos, familias, ingredientes y modificadores. Recibe alertas automáticas cuando un producto o bebida esté por agotarse.",
-      "feature5_title": "Gestión de Equipo y Turnos",
-      "feature5_desc": "Planifica los turnos de camareros y cocineros, asigna roles de acceso personalizados y mantén el registro de fichajes y horas trabajadas.",
-      "feature6_title": "Cierre de Caja y Analíticas",
-      "feature6_desc": "Informes diarios en un solo clic: desgloses de facturación por tarjeta/efectivo, productos más vendidos, horas punta y exportación contable."
+    "modules": {
+      "tag": "Módulos",
+      "title": "Enciendes lo que usas",
+      "subtitle": "Al crear tu establecimiento eliges qué necesitas. Lo que no enciendas no aparece: ni en el menú, ni en la aplicación.",
+      "time_tracking_title": "Control horario",
+      "time_tracking_desc": "Fichajes y cuadrante. Registro inalterable, correcciones que dejan rastro y exportación en CSV para una inspección de trabajo. Siempre activo, porque es una obligación legal.",
+      "time_tracking_tag": "Siempre incluido",
+      "orders_title": "Comandas",
+      "orders_desc": "Mesas, pedidos y cobros línea a línea. Efectivo, tarjeta o dividido, con propinas y descuentos, y el ticket impreso en la barra o la cocina.",
+      "orders_tag": "Hostelería",
+      "inventory_title": "Inventario",
+      "inventory_desc": "Catálogo con fotos, stock a la vista y aviso cuando algo baja del mínimo. Empieza con un catálogo cargado o crea el tuyo.",
+      "inventory_tag": "Hostelería y comercio"
     },
-    "use_cases": {
-      "tag": "¿Para qué sirve Coaster?",
-      "title": "Adiós al caos. Hola a la fluidez total.",
-      "subtitle": "Diseñado para resolver las fricciones reales del día a día en salas, barras y cocinas.",
-      "without_title": "Sin Coaster (Métodos Tradicionales)",
-      "without_item1": "Tickets de papel que se traspapelan o se mojan en barra.",
-      "without_item2": "Errores constantes en la cuenta final y cobros incorrectos.",
-      "without_item3": "Desplazamientos innecesarios del camarero a la cocina para avisar marchas de platos.",
-      "without_item4": "Arqueos de caja manuales al cierre de turno que tardan más de 45 minutos.",
-      "with_title": "Con Coaster (Fluidez Digital)",
-      "with_item1": "Comandas digitales instantáneas directas a la impresora de cocina adecuada.",
-      "with_item2": "Cuentas claras, división fácil de cobros y facturación automatizada.",
-      "with_item3": "Rotación de mesas un 35% más rápida y clientes mejor atendidos.",
-      "with_item4": "Cierre de caja en 1 solo clic con datos de ventas y stock precisos al 100%.",
-      "bars_title": "Bares & Pubs",
-      "bars_desc": "Toma comandas de barra en 1 toque. Agiliza rondas de copas y cobros rápidos en horas de máxima afluencia.",
-      "restaurants_title": "Restaurantes & Terrazas",
-      "restaurants_desc": "Controla entradas, primeros y segundos. Envía notificaciones a cocina y sincroniza el mapa de mesas de terraza.",
-      "cafes_title": "Cafeterías & Bakery",
-      "cafes_desc": "Cobro ágil por autoservicio o mesa, personalización de desayunos y alertas de repostería baja en stock."
+    "how": {
+      "tag": "Cómo funciona",
+      "title": "Tres pasos y estás dentro",
+      "step1_title": "Crea tu establecimiento",
+      "step1_desc": "Entra con Google y ponle nombre. No hace falta tarjeta.",
+      "step2_title": "Dinos qué eres",
+      "step2_desc": "Bar, tienda u oficina. Encendemos los módulos que te tocan y te dejamos cambiarlos cuando quieras.",
+      "step3_title": "Invita a tu equipo",
+      "step3_desc": "Cada persona ficha desde su móvil y tú ves la jornada real contra el cuadrante."
     },
     "pricing": {
-      "tag": "Planes de Suscripción",
-      "title": "Precios transparentes. Cero sorpresas.",
-      "subtitle": "Comienza gratis hoy mismo o elige el plan que mejor se adapte al volumen de tu bar.",
-      "monthly": "Facturación Mensual",
-      "free_title": "Plan FREE",
-      "free_badge": "Para Empezar",
-      "free_desc": "Ideal para bares pequeños o locales que están iniciando actividad.",
+      "tag": "Precios",
+      "title": "Sin sorpresas",
+      "subtitle": "Empieza gratis. Sube de plan cuando te haga falta.",
+      "free_title": "Gratis",
+      "free_desc": "Para empezar y cumplir con el registro horario.",
       "free_price": "0 €",
       "free_period": "/ mes",
-      "free_subtext": "Gratis para siempre",
-      "free_feature1": "1 Local / Bar registrado",
-      "free_feature2": "Hasta 100 comandas / mes",
-      "free_feature3": "Mapa de mesas interactivo básico",
-      "free_feature4": "Gestión de productos y categorías",
-      "free_feature5": "1 usuario activo",
-      "free_cta": "Comenzar Gratis",
-      "pro_title": "Barra PRO",
-      "pro_badge": "Recomendado • Más Popular",
-      "pro_tag": "Completo",
-      "pro_desc": "Para bares y restaurantes en crecimiento que exigen velocidad sin límites.",
-      "pro_price_monthly": "29 €",
-      "pro_subtext_monthly": "Sin compromiso de permanencia",
-      "pro_feature1": "Comandas ILIMITADAS",
-      "pro_feature2": "Conexión de impresoras ilimitadas",
-      "pro_feature3": "Gestión de equipo, turnos y fichajes",
-      "pro_feature4": "Control de stock e insumos",
-      "pro_feature5": "Analíticas avanzadas de ventas e IVA",
-      "pro_feature6": "Facturación e IVA automatizados",
-      "pro_feature7": "Usuarios ilimitados",
-      "pro_cta": "Elegir Plan PRO",
-      "table_feature_header": "Característica",
-      "table_free_header": "Free",
-      "table_pro_header": "Pro",
-      "table_orders": "Comandas Mensuales",
-      "table_orders_free": "100",
-      "table_orders_pro": "Ilimitadas",
-      "table_printers": "Impresoras de Cocina",
-      "table_printers_free": "1",
-      "table_printers_pro": "Ilimitadas",
-      "table_tablemap": "Mapa de Mesas Interactivo",
-      "table_shifts": "Gestión de Turnos y Equipo",
-      "table_billing": "Facturación e IVA automatizados"
-    },
-    "faq": {
-      "tag": "Resolvemos tus dudas",
-      "title": "Preguntas Frecuentes",
-      "q1": "¿Realmente el Plan FREE es gratuito para siempre?",
-      "a1": "Sí, 100%. El Plan FREE permite gestionar 1 bar y hasta 100 comandas mensuales sin coste alguno y sin pedir tarjeta de crédito al registrarte. Ideal para arrancar tu negocio sin riesgo.",
-      "q2": "¿Necesito comprar hardware o TPVs especiales?",
-      "a2": "No. Coaster funciona como una Web App moderna en cualquier smartphone, tablet Android/iOS o ordenador portátil/PC que ya tengas en tu establecimiento.",
-      "q3": "¿Puedo conectar mis impresoras de tickets de cocina actuales?",
-      "a3": "Sí. Coaster se conecta mediante nuestro micro-servicio de impresión en red local o impresoras térmicas estándar (Epson, Star, Bixolon, etc.).",
-      "q4": "¿Puedo pasar del Plan FREE al Plan PRO en cualquier momento?",
-      "a4": "Sí. Puedes empezar con el Plan FREE y actualizar a Barra PRO en cualquier momento desde tu panel para desbloquear comandas e impresoras ilimitadas.",
-      "q5": "¿Puedo cambiar de plan o cancelar en cualquier momento?",
-      "a5": "Absolutamente. Desde el panel de gestión de suscripción puedes actualizar, pausar o cancelar tu suscripción en cualquier instante con un solo clic."
+      "free_feature1": "1 establecimiento",
+      "free_feature2": "Control horario completo y exportación CSV",
+      "free_feature3": "Hasta 100 comandas al mes",
+      "free_cta": "Empezar gratis",
+      "pro_title": "PRO",
+      "pro_badge": "El más elegido",
+      "pro_desc": "Cuando el volumen deja de caber en el plan gratuito.",
+      "pro_price": "29 €",
+      "pro_period": "/ mes",
+      "pro_feature1": "Comandas e impresoras sin límite",
+      "pro_feature2": "Inventario con alertas de stock",
+      "pro_feature3": "Equipo y usuarios sin límite",
+      "pro_feature4": "Asistente de voz",
+      "pro_cta": "Elegir PRO",
+      "note": "Sin permanencia. Si dejas de pagar conservas el acceso a tu historial."
     },
     "cta": {
-      "title": "¿Listo para transformar tu bar hoy mismo?",
-      "subtitle": "Únete a cientos de hosteleros que ya han digitalizado su sala y cocina con Coaster.",
-      "button": "Comienza Gratis Ahora"
+      "title": "¿Empezamos?",
+      "subtitle": "Dos minutos para tenerlo funcionando.",
+      "button": "Crear mi establecimiento"
     },
     "footer": {
-      "tagline": "La plataforma SaaS líder en gestión de bares, comanderos y cocina.",
-      "copyright": "Coaster Inc. Todos los derechos reservados.",
-      "status_ok": "Todos los sistemas operativos"
+      "tagline": "Registro horario y gestión diaria para cualquier establecimiento.",
+      "rights": "Todos los derechos reservados."
     }
   },
   "admin": {

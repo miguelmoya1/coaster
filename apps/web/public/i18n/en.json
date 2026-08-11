@@ -224,7 +224,7 @@
         "next": "NEXT UP"
       }
     },
-    "pantry": {
+    "inventory": {
       "more_issues": "+{{count}} more products with issues. View all"
     },
     "financials": {
@@ -243,8 +243,8 @@
     "sections": {
       "financials": "Financial Overview",
       "monthly_yearly": "Monthly & Yearly Analysis",
-      "pantry": "Critical Pantry Alerts",
-      "pantry_issues": "{{count}} ISSUES",
+      "inventory": "Critical Pantry Alerts",
+      "inventory_issues": "{{count}} ISSUES",
       "schedule": "Today's Roster",
       "schedule_full": "FULL SCHEDULE"
     }
@@ -300,7 +300,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "orders": "Orders",
-    "pantry": "Pantry",
+    "inventory": "Inventory",
     "schedule": "Schedule",
     "staff": "Staff"
   },
@@ -373,7 +373,7 @@
     "all_served_desc": "There are no pending orders to serve at the establishment right now.",
     "total": "Total"
   },
-  "pantry": {
+  "inventory": {
     "status": {
       "ALERT": "CRITICAL LOW",
       "GOOD": "STOCK SECURE",
@@ -678,127 +678,77 @@
   },
   "landing": {
     "nav": {
-      "what_it_does": "What it does",
-      "what_is_it_for": "What it's for",
-      "pricing": "Plans & Pricing",
-      "faq": "FAQ",
-      "try_free": "Try Free"
+      "what_it_is": "What it is",
+      "modules": "Modules",
+      "pricing": "Pricing",
+      "try_free": "Sign in"
     },
     "hero": {
-      "badge": "The Ultimate Hospitality SaaS for Bars & Restaurants",
-      "title_main": "Your bar or restaurant,",
-      "title_gradient": "on autopilot.",
-      "subtitle": "Manage orders in real-time, tables, kitchen printers, staff shifts, and daily register closing in one intelligent platform. Zero friction, maximum performance.",
-      "cta_primary": "Start Free Now",
-      "badge_no_card": "No credit card required",
-      "badge_quick_setup": "Setup ready in 2 minutes",
-      "badge_forever_free": "Free Plan forever"
+      "badge": "Working-time register · Spanish law art. 34.9",
+      "title_main": "The working-time register the law asks of you,",
+      "title_gradient": "and nothing you do not need",
+      "subtitle": "Every employer has to record what their staff work. Coaster does that for any business, and adds orders and inventory if you run a bar or a shop. Nothing else.",
+      "cta_primary": "Start free",
+      "cta_secondary": "See pricing",
+      "badge_no_card": "No card",
+      "badge_quick_setup": "Ready in 2 minutes"
     },
-    "what_it_does": {
-      "tag": "What Coaster Does",
-      "title": "Everything your venue needs to fly.",
-      "subtitle": "An integrated suite of tools designed specifically for the fast-paced hospitality industry.",
-      "feature1_title": "Ultra-Fast POS & Orders",
-      "feature1_desc": "Take orders from any smartphone, tablet, or POS terminal. Touch interface optimized to dispatch drinks and dishes in under 3 seconds.",
-      "feature2_title": "Real-Time Floor Plan & Tables",
-      "feature2_desc": "View the status of your bar, terrace, and dining room at a glance. Assign tables, merge orders, move guests, and manage payments error-free.",
-      "feature3_title": "Kitchen Printers & Display",
-      "feature3_desc": "Automatic ticket routing to thermal kitchen & bar printers or pantry screens. Zero lost tickets or unreadable hand-written notes.",
-      "feature4_title": "Stock & Inventory Control",
-      "feature4_desc": "Complete catalog of products, categories, ingredients, and modifiers. Get automatic alerts when products or drinks run low.",
-      "feature5_title": "Team & Shift Management",
-      "feature5_desc": "Plan waiter and kitchen staff shifts, assign custom permission roles, and track clock-ins and worked hours seamlessly.",
-      "feature6_title": "Register Closing & Analytics",
-      "feature6_desc": "Daily automated reporting in one click: revenue breakdown by card/cash, top-selling items, peak hours, and accounting exports."
+    "modules": {
+      "tag": "Modules",
+      "title": "Turn on what you use",
+      "subtitle": "You choose what you need when you create your establishment. What you leave off never appears — not in the menu, not in the app.",
+      "time_tracking_title": "Time tracking",
+      "time_tracking_desc": "Clocking and the rota. An unalterable register, corrections that leave a trace, and a CSV export for a labour inspection. Always on, because it is a legal obligation.",
+      "time_tracking_tag": "Always included",
+      "orders_title": "Orders",
+      "orders_desc": "Tables, orders and payments line by line. Cash, card or split, with tips and discounts, and the ticket printed at the counter or in the kitchen.",
+      "orders_tag": "Hospitality",
+      "inventory_title": "Inventory",
+      "inventory_desc": "A catalogue with photos, stock at a glance and a warning when something runs low. Start from a ready-made catalogue or build your own.",
+      "inventory_tag": "Hospitality and retail"
     },
-    "use_cases": {
-      "tag": "What It's For",
-      "title": "Goodbye chaos. Hello total control.",
-      "subtitle": "Designed to solve daily friction points across dining rooms, bars, and kitchens.",
-      "without_title": "Without Coaster (Legacy Methods)",
-      "without_item1": "Paper tickets that get lost or soaked on the counter.",
-      "without_item2": "Constant errors in final checks and billing mistakes.",
-      "without_item3": "Unnecessary trips from tables to kitchen to call out dish courses.",
-      "without_item4": "Manual register closing taking over 45 minutes every night.",
-      "with_title": "With Coaster (Digital Speed)",
-      "with_item1": "Instant digital tickets sent directly to kitchen printers.",
-      "with_item2": "Clear bill splitting and automated invoicing.",
-      "with_item3": "35% faster table turnover and happier customers.",
-      "with_item4": "One-click register closing with 100% accurate sales and stock data.",
-      "bars_title": "Bars & Pubs",
-      "bars_desc": "One-tap bar orders. Speed up drink rounds and quick payments during peak rush hours.",
-      "restaurants_title": "Restaurants & Terraces",
-      "restaurants_desc": "Manage appetizers, main courses, and desserts. Send kitchen notifications and sync terrace table maps.",
-      "cafes_title": "Cafes & Bakery",
-      "cafes_desc": "Fast self-service or table checkout, custom breakfast items, and low stock bakery alerts."
+    "how": {
+      "tag": "How it works",
+      "title": "Three steps and you are in",
+      "step1_title": "Create your establishment",
+      "step1_desc": "Sign in with Google and give it a name. No card needed.",
+      "step2_title": "Tell us what you are",
+      "step2_desc": "Bar, shop or office. We turn on the modules that fit, and you can change them whenever you like.",
+      "step3_title": "Invite your team",
+      "step3_desc": "Everyone clocks in from their phone and you see the real day against the rota."
     },
     "pricing": {
-      "tag": "Subscription Plans",
-      "title": "Transparent pricing. Zero surprises.",
-      "subtitle": "Start free today or choose the plan that best fits your business volume.",
-      "monthly": "Monthly Billing",
-      "free_title": "FREE Plan",
-      "free_badge": "Getting Started",
-      "free_desc": "Ideal for small bars or venues launching operations.",
-      "free_price": "0 €",
+      "tag": "Pricing",
+      "title": "No surprises",
+      "subtitle": "Start free. Move up when you need to.",
+      "free_title": "Free",
+      "free_desc": "To get going and keep the working-time register.",
+      "free_price": "€0",
       "free_period": "/ month",
-      "free_subtext": "Free forever",
-      "free_feature1": "1 Registered venue / bar",
-      "free_feature2": "Up to 100 orders / month",
-      "free_feature3": "Basic interactive table map",
-      "free_feature4": "Product and category management",
-      "free_feature5": "1 active user",
-      "free_cta": "Get Started Free",
-      "pro_title": "Barra PRO",
-      "pro_badge": "Recommended • Most Popular",
-      "pro_tag": "Full Suite",
-      "pro_desc": "For growing bars and restaurants requiring unlimited speed.",
-      "pro_price_monthly": "29 €",
-      "pro_subtext_monthly": "No long-term commitment",
-      "pro_feature1": "UNLIMITED Orders",
-      "pro_feature2": "Unlimited kitchen printer connections",
-      "pro_feature3": "Team, shift, and clock-in management",
-      "pro_feature4": "Stock and inventory control",
-      "pro_feature5": "Advanced sales & VAT analytics",
-      "pro_feature6": "Automated billing & invoicing",
-      "pro_feature7": "Unlimited users",
-      "pro_cta": "Choose PRO Plan",
-      "table_feature_header": "Feature",
-      "table_free_header": "Free",
-      "table_pro_header": "Pro",
-      "table_orders": "Monthly Orders",
-      "table_orders_free": "100",
-      "table_orders_pro": "Unlimited",
-      "table_printers": "Kitchen Printers",
-      "table_printers_free": "1",
-      "table_printers_pro": "Unlimited",
-      "table_tablemap": "Interactive Floor Map",
-      "table_shifts": "Team & Shift Management",
-      "table_billing": "Automated Invoicing & VAT"
-    },
-    "faq": {
-      "tag": "Got Questions?",
-      "title": "Frequently Asked Questions",
-      "q1": "Is the FREE Plan really free forever?",
-      "a1": "Yes, 100%. The FREE Plan lets you manage 1 bar and up to 100 orders per month at no cost, with no credit card required at sign-up.",
-      "q2": "Do I need to buy special hardware or POS terminals?",
-      "a2": "No. Coaster runs as a modern Web App on any smartphone, Android/iOS tablet, or PC/laptop you already own.",
-      "q3": "Can I connect my current kitchen ticket printers?",
-      "a3": "Yes. Coaster connects via our local network printer service to standard thermal printers (Epson, Star, Bixolon, etc.).",
-      "q4": "Can I upgrade from the FREE Plan to the PRO Plan anytime?",
-      "a4": "Yes. You can start with the FREE Plan and upgrade to Barra PRO anytime from your panel to unlock unlimited orders and printers.",
-      "q5": "Can I upgrade, downgrade, or cancel anytime?",
-      "a5": "Absolutely. You can update, pause, or cancel your subscription anytime with a single click from your billing panel."
+      "free_feature1": "1 establishment",
+      "free_feature2": "Full time tracking and CSV export",
+      "free_feature3": "Up to 100 orders a month",
+      "free_cta": "Start free",
+      "pro_title": "PRO",
+      "pro_badge": "Most chosen",
+      "pro_desc": "For when the volume stops fitting the free plan.",
+      "pro_price": "€29",
+      "pro_period": "/ month",
+      "pro_feature1": "Unlimited orders and printers",
+      "pro_feature2": "Inventory with stock alerts",
+      "pro_feature3": "Unlimited team and users",
+      "pro_feature4": "Voice assistant",
+      "pro_cta": "Choose PRO",
+      "note": "No lock-in. If you stop paying you keep access to your history."
     },
     "cta": {
-      "title": "Ready to transform your bar today?",
-      "subtitle": "Join hundreds of venue owners who have digitized their floor and kitchen with Coaster.",
-      "button": "Start Free Now"
+      "title": "Shall we start?",
+      "subtitle": "Two minutes to have it running.",
+      "button": "Create my establishment"
     },
     "footer": {
-      "tagline": "The leading SaaS platform for venue, order, and kitchen management.",
-      "copyright": "Coaster Inc. All rights reserved.",
-      "status_ok": "All systems operational"
+      "tagline": "Working-time register and daily operations for any establishment.",
+      "rights": "All rights reserved."
     }
   },
   "admin": {
