@@ -3,43 +3,24 @@
 What is left, in the order it should be built. Technical detail lives in [`docs/`](docs/README.md);
 this file is only the running order.
 
-## Done
-
-- **Phase 1 — time tracking.** The register required by art. 34.9, append-only and hash-chained, with
-  the CSV export for inspections. See [time tracking](docs/operations/time-tracking.md).
-- **Phase 2 — from bars to establishments.** `Bar` became `Establishment` everywhere including the
-  database; `TIME_TRACKING`, `ORDERS` and `INVENTORY` are stored per establishment and enforced on
-  both sides; a new establishment is asked what it is before it is handed a menu it will never use.
-  See the [rename runbook](docs/operations/establishment-rename.md).
-
 ## Before the next deploy
 
 - **The print bridge reads a new environment variable.** `BAR_ID` is now `ESTABLISHMENT_ID`. Any
   bridge already installed needs its `.env` or service file edited by hand — self-updating is not
   enough.
-- **The API and the web have to ship together.** The route prefix moved from `/bars/:barId` to
-  `/establishments/:establishmentId`.
-- **Check the Stripe price matches the landing.** The page says 19.99 €/month; what is actually
-  charged comes from `STRIPE_PRICE_PRO`, and nothing keeps the two in step.
 
 ## Next: keep the price safe at scale
 
-One establishment paying a flat monthly fee has to cover what it costs to run. Almost everything
-scales flat with size — requests, storage, sockets — with one exception.
+A flat monthly fee has to cover what one establishment costs to run. Requests, storage and sockets
+scale flat with size and are paid for out of the Google AI Pro subscription, so the instance staying
+warm is not a concern. The assistant was the exception, and it is now bounded by a context budget in
+`ai/domain/snapshot.ts` — a 1,500-product venue costs about the same per message as a small bar.
 
-- **The AI prompt carries the whole establishment.** Every message embeds every product, table,
-  category and open order. A venue with a 500-line catalogue costs several times what a small bar
-  costs, on every single message, and nothing caps it. Trimming that snapshot and leaning on the
-  read tools the assistant already has is the single biggest lever, and it bites hardest exactly on
-  the customers that worry us.
 - **A monthly AI allowance per establishment**, lower during the 14-day trial, so the worst case is
-  bounded and predictable rather than discovered on a bill.
-- **Watch Cloud Run instance-time, not request count.** The printer bridge polls every 2 seconds
-  around the clock and websockets hold connections open, so an active establishment keeps an
-  instance warm permanently. Backing the bridge off when it has found nothing to print for a while
-  costs nothing in practice.
+  bounded by policy and not only by prompt size. The budget caps what one message costs; nothing yet
+  caps how many messages a month someone sends.
 
-## Phase 3: intelligence layer
+## Intelligence layer
 
 AI recommendations over accumulated history: best and worst performing products, price adjustments
 for stagnant stock, rota suggestions from historical load.

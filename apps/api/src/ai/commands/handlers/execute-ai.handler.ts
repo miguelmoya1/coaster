@@ -16,6 +16,7 @@ import { GetTablesByEstablishmentIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel, stepCountIs, streamText } from 'ai';
+import { formatCategories, formatOrders, formatProducts, formatTables } from '../../domain/snapshot';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 
@@ -198,28 +199,10 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       openOrders,
     } = input;
 
-    const productsList = products
-      .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
-      .join('\n');
-
-    const tablesList = tables.map((t) => `- ${t.name}: ID=${t.id}, Status=${t.status}`).join('\n');
-
-    const categoriesList = categories.map((c) => `- ${c.name}: ID=${c.id}, Icon=${c.icon || '(None)'}`).join('\n');
-
-    const ordersList = openOrders
-      .map((o) => {
-        const table = tables.find((t) => t.id === o.tableId);
-        const tableName = table ? table.name : 'No table';
-        const itemsStr = o.items
-          .map((i) => {
-            const product = products.find((p) => p.id === i.productId);
-            const prodName = product ? product.name : 'Unknown';
-            return `  * ${prodName} (x${i.quantity}): ItemID=${i.id}, Served=${i.servedQuantity}/${i.quantity}, Paid=${i.paidQuantity}/${i.quantity}`;
-          })
-          .join('\n');
-        return `- Order ID=${o.id} at ${tableName}:\n${itemsStr}`;
-      })
-      .join('\n');
+    const catalogue = formatProducts(products);
+    const tablesList = formatTables(tables);
+    const categoriesList = formatCategories(categories);
+    const ordersList = formatOrders(openOrders, tables);
 
     const permissionsList = isAdmin
       ? '(ADMIN: every permission)'
@@ -234,8 +217,11 @@ Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : us
 Current date and time (UTC): ${new Date().toISOString()}.
 
 === AVAILABLE DATA ===
-Below is the list of products available in this establishment (with their UUIDs, prices, and current stock):
-${productsList || '(None)'}
+${
+  catalogue.omitted
+    ? 'This establishment has too large a catalogue to list here. Call listProducts with a search term to find the ones you need, and never invent a product UUID.'
+    : `Below is the list of products available in this establishment (with their UUIDs, prices, and current stock):\n${catalogue.list || '(None)'}`
+}
 
 Below is the list of tables available (with their UUIDs and statuses):
 ${tablesList || '(None)'}
@@ -243,7 +229,8 @@ ${tablesList || '(None)'}
 Below is the list of categories available (with their UUIDs and icons):
 ${categoriesList || '(None)'}
 
-Below is the list of active open orders (with their UUIDs, table names, and corresponding item IDs):
+Below are the open orders. Call getOrderDetails for the lines of one, which is where item IDs,
+served and paid quantities live:
 ${ordersList || '(None)'}
 
 This snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,
