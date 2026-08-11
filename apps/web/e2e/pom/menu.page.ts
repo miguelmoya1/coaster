@@ -15,7 +15,7 @@ export class MenuPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.fabButton = page.getByTestId('create-pantry-fab');
+    this.fabButton = page.getByTestId('create-inventory-fab');
     this.categoryTab = page.getByTestId('tab-CATEGORY');
     this.productTab = page.getByTestId('tab-PRODUCT');
 
@@ -28,7 +28,7 @@ export class MenuPage {
   }
 
   async goto(establishmentId: string) {
-    await this.page.goto(`/establishments/${establishmentId}/pantry`);
+    await this.page.goto(`/establishments/${establishmentId}/inventory`);
   }
 
   async createCategory(name: string) {

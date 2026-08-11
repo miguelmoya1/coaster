@@ -226,7 +226,7 @@ export class Dashboard {
     this.#planDialogService.open(this.establishmentId());
   }
 
-  readonly pantryAlerts = computed(() => {
+  readonly inventoryAlerts = computed(() => {
     if (!this.#productsStore.list.hasValue()) {
       return [];
     }
@@ -242,16 +242,16 @@ export class Dashboard {
       .sort((a, b) => (a.stockStatus === 'ALERT' && b.stockStatus !== 'ALERT' ? -1 : 1));
   });
 
-  readonly pantryAlertsSliced = computed(() => {
-    return this.pantryAlerts().slice(0, 3);
+  readonly inventoryAlertsSliced = computed(() => {
+    return this.inventoryAlerts().slice(0, 3);
   });
 
-  readonly hasMorePantryAlerts = computed(() => {
-    return this.pantryAlerts().length > 3;
+  readonly hasMoreInventoryAlerts = computed(() => {
+    return this.inventoryAlerts().length > 3;
   });
 
-  readonly morePantryAlertsCount = computed(() => {
-    return Math.max(0, this.pantryAlerts().length - 3);
+  readonly moreInventoryAlertsCount = computed(() => {
+    return Math.max(0, this.inventoryAlerts().length - 3);
   });
 
   readonly activeShifts = computed(() => {

@@ -123,13 +123,13 @@ export default class ImportTemplates {
       await this.#templatesStore.importToEstablishment(establishmentId, ids);
       this.isSubmitting.set(false);
 
-      const translationResult = this.#translate.instant('pantry.import_success');
+      const translationResult = this.#translate.instant('inventory.import_success');
       this.#feedback.success(translationResult);
 
       this.#categoriesStore.reloadCategories();
       this.#productsStore.reloadProducts();
 
-      this.#router.navigate(['/establishments', establishmentId, 'pantry']);
+      this.#router.navigate(['/establishments', establishmentId, 'inventory']);
     } catch (error) {
       this.#feedback.error(error);
       this.isSubmitting.set(false);

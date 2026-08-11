@@ -71,10 +71,10 @@ export class BottomNav {
       requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS,
     },
     {
-      value: 'pantry',
-      link: `/establishments/${this.establishmentId()}/pantry`,
+      value: 'inventory',
+      link: `/establishments/${this.establishmentId()}/inventory`,
       icon: 'inventory_2',
-      labelKey: 'nav.pantry',
+      labelKey: 'nav.inventory',
       requiredPermission: EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS,
       requiredModule: EstablishmentModule.INVENTORY,
     },

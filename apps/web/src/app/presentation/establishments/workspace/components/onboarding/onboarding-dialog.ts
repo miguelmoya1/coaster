@@ -5,7 +5,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentModule } from '@coaster/common';
+import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
+import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -30,6 +32,8 @@ export class OnboardingDialog {
   readonly #dialogRef = inject(MatDialogRef<OnboardingDialog>);
   readonly #modulesStore = inject(ModulesStore);
   readonly #templatesStore = inject(TemplatesStore);
+  readonly #categoriesStore = inject(CategoriesStore);
+  readonly #productsStore = inject(ProductsStore);
 
   protected readonly data = inject<OnboardingDialogData>(MAT_DIALOG_DATA);
 
@@ -97,6 +101,10 @@ export class OnboardingDialog {
 
         if (ids.length > 0) {
           await this.#templatesStore.importToEstablishment(this.data.establishmentId, ids);
+
+          // The inventory may already have loaded an empty catalogue behind this dialog.
+          this.#categoriesStore.reloadCategories();
+          this.#productsStore.reloadProducts();
         }
       }
 

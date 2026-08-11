@@ -2,18 +2,18 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { PantrySearch } from './pantry-search';
+import { InventorySearch } from './inventory-search';
 
-describe('PantrySearch', () => {
+describe('InventorySearch', () => {
   let element: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PantrySearch],
+      imports: [InventorySearch],
       providers: [provideZonelessChangeDetection(), provideTranslateService()],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(PantrySearch);
+    const fixture = TestBed.createComponent(InventorySearch);
     fixture.detectChanges();
     element = fixture.nativeElement as HTMLElement;
   });

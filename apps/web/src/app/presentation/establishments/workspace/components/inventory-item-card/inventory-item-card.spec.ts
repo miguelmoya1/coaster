@@ -44,7 +44,7 @@ describe('InventoryItemCard', () => {
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('pantry.status.ALERT');
+      expect(element.textContent).toContain('inventory.status.ALERT');
 
       const indicatorSpan: HTMLElement = fixture.nativeElement.querySelector('span.absolute');
       expect(indicatorSpan.classList.contains('bg-error')).toBe(true);
@@ -55,7 +55,7 @@ describe('InventoryItemCard', () => {
       fixture.detectChanges();
 
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.textContent).toContain('pantry.status.WARNING');
+      expect(element.textContent).toContain('inventory.status.WARNING');
 
       const indicatorSpan: HTMLElement = fixture.nativeElement.querySelector('span.absolute');
       expect(indicatorSpan.classList.contains('bg-tertiary')).toBe(true);

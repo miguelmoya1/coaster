@@ -140,8 +140,8 @@ describe('Dashboard', () => {
   });
 
   describe('computed properties', () => {
-    it('should return empty pantry alerts when no products', () => {
-      expect(component.pantryAlerts()).toEqual([]);
+    it('should return empty inventory alerts when no products', () => {
+      expect(component.inventoryAlerts()).toEqual([]);
     });
 
     it('should return empty active shifts when no shifts', () => {
@@ -171,7 +171,7 @@ describe('Dashboard', () => {
   });
 
   describe('rendering', () => {
-    it('should render pantry section heading', () => {
+    it('should render inventory section heading', () => {
       fixture.detectChanges();
       const heading = fixture.nativeElement.querySelector('h2');
       expect(heading).toBeTruthy();

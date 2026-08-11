@@ -61,7 +61,7 @@ const runtimePrefixes = [
   'billing.plan_name.',
   'billing.status.',
   'billing.status_badge.',
-  'pantry.status.',
+  'inventory.status.',
   'ai_voice.status.',
   'ai_voice.suggestions.',
   'ai_voice.errors.',
@@ -152,7 +152,7 @@ describe('translations', () => {
 
     it('should label every stock status', () => {
       const missing = Object.values(StockStatus).filter(
-        (status) => !es[`pantry.status.${status}`] || !en[`pantry.status.${status}`],
+        (status) => !es[`inventory.status.${status}`] || !en[`inventory.status.${status}`],
       );
 
       expect(missing).toEqual([]);

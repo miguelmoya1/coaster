@@ -38,7 +38,7 @@ test.describe('Menu Management', () => {
     const newCat = { id: 'cat-1', name: 'Drinks', order: 1, active: true };
     await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'POST', newCat, 201);
 
-    await loginAsTestUser(page, `/establishments/${establishmentId}/pantry`);
+    await loginAsTestUser(page, `/establishments/${establishmentId}/inventory`);
 
     await menuPage.fabButton.click();
     await menuPage.categoryTab.click();
@@ -88,7 +88,7 @@ test.describe('Menu Management', () => {
     };
     await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'POST', newProd, 201);
 
-    await loginAsTestUser(page, `/establishments/${establishmentId}/pantry`);
+    await loginAsTestUser(page, `/establishments/${establishmentId}/inventory`);
 
     await menuPage.fabButton.click();
     await menuPage.productTab.click();
@@ -104,6 +104,6 @@ test.describe('Menu Management', () => {
     await menuPage.confirmProductButton.click();
 
     // Verify it appeared
-    await expect(page.getByTestId('pantry-item-name').filter({ hasText: 'Cola' }).first()).toBeVisible();
+    await expect(page.getByTestId('inventory-item-name').filter({ hasText: 'Cola' }).first()).toBeVisible();
   });
 });

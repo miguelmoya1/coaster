@@ -36,7 +36,7 @@ import { StatusBadge } from '../status-badge/status-badge';
     </div>
 
     <div class="flex flex-col gap-2 py-4 truncate">
-      <h3 data-testid="pantry-item-name" class="text-sm sm:text-md font-semibold m-0 truncate">
+      <h3 data-testid="inventory-item-name" class="text-sm sm:text-md font-semibold m-0 truncate">
         {{ itemName() | translate }}
       </h3>
 

@@ -19,7 +19,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
         <div class="flex flex-col gap-4">
           <coaster-number-input
             [formField]="form.currentStock"
-            [label]="'pantry.update_product.current_stock_label' | translate"
+            [label]="'inventory.update_product.current_stock_label' | translate"
           />
 
           @if (form().errors().length > 0) {

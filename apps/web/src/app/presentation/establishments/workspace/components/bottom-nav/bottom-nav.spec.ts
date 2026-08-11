@@ -49,7 +49,7 @@ describe('BottomNav', () => {
   });
 
   it('should show every section for an establishment running everything', () => {
-    expect(renderedSections()).toEqual(['dashboard', 'orders', 'schedule', 'pantry', 'staff']);
+    expect(renderedSections()).toEqual(['dashboard', 'orders', 'schedule', 'inventory', 'staff']);
   });
 
   it('should leave an establishment with only time tracking three sections', () => {

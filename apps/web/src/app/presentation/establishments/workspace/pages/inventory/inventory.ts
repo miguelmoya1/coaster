@@ -19,14 +19,14 @@ import { PageHeader } from '../../../../components/page-header/page-header';
 import { StatCard } from '../../../../components/stat-card/stat-card';
 import { Fab } from '../../components/fab/fab';
 import { InventoryItemCard } from '../../components/inventory-item-card/inventory-item-card';
-import { CreatePantrySheet } from './components/create-pantry-sheet/create-pantry-sheet';
+import { CreateInventorySheet } from './components/create-inventory-sheet/create-inventory-sheet';
 import { EditCategoryForm } from './components/edit-category-form/edit-category-form';
-import { PantrySearch } from './components/pantry-search/pantry-search';
+import { InventorySearch } from './components/inventory-search/inventory-search';
 import { UpdateProductForm } from './components/update-product-form/update-product-form';
 import { UpdateStockProductForm } from './components/update-stock-product-form/update-stock-product-form';
 
 @Component({
-  selector: 'coaster-pantry',
+  selector: 'coaster-inventory',
   imports: [
     CategoryFilter,
     InventoryItemCard,
@@ -36,7 +36,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
     TranslatePipe,
     MatIcon,
     MatButton,
-    PantrySearch,
+    InventorySearch,
     Fab,
     PageContainer,
     PageHeader,
@@ -45,7 +45,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
   host: {
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
-  templateUrl: './pantry.html',
+  templateUrl: './inventory.html',
   styles: `
     .product {
       content-visibility: auto;
@@ -53,7 +53,7 @@ import { UpdateStockProductForm } from './components/update-stock-product-form/u
     }
   `,
 })
-export default class Pantry {
+export default class Inventory {
   public readonly establishmentId = input.required<EstablishmentId>();
 
   readonly #myMemberStore = inject(MyMemberStore);
@@ -121,8 +121,8 @@ export default class Pantry {
     });
   }
 
-  onCreatePantryClicked() {
-    const bottomSheetRef = this.#bottomSheet.open(CreatePantrySheet, {
+  onCreateInventoryClicked() {
+    const bottomSheetRef = this.#bottomSheet.open(CreateInventorySheet, {
       disableClose: true,
       bindings: [
         inputBinding('categories', () => this.categories.value() ?? []),
@@ -191,8 +191,8 @@ export default class Pantry {
   protected async handleDeleteProductClicked(product: Product) {
     const confirmed = await this.#confirmation.confirm({
       destructive: true,
-      title: this.#translate.instant('pantry.delete_product.title'),
-      text: this.#translate.instant('pantry.delete_product.message', { name: product.name }),
+      title: this.#translate.instant('inventory.delete_product.title'),
+      text: this.#translate.instant('inventory.delete_product.message', { name: product.name }),
     });
 
     if (!confirmed) return;
@@ -207,8 +207,8 @@ export default class Pantry {
   protected async handleDeleteCategoryClicked(category: Category) {
     const confirmed = await this.#confirmation.confirm({
       destructive: true,
-      title: this.#translate.instant('pantry.delete_category.title'),
-      text: this.#translate.instant('pantry.delete_category.message', { name: category.name }),
+      title: this.#translate.instant('inventory.delete_category.title'),
+      text: this.#translate.instant('inventory.delete_category.message', { name: category.name }),
     });
 
     if (!confirmed) return;

@@ -6,18 +6,18 @@ import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'coaster-pantry-search',
+  selector: 'coaster-inventory-search',
   imports: [FormRoot, MatFormField, MatPrefix, MatInput, MatIcon, FormField, TranslatePipe],
   template: `
     <form [formRoot]="searchForm" class="w-full">
       <mat-form-field appearance="outline" class="w-full">
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput [formField]="searchForm.query" [placeholder]="'pantry.search_placeholder' | translate" />
+        <input matInput [formField]="searchForm.query" [placeholder]="'inventory.search_placeholder' | translate" />
       </mat-form-field>
     </form>
   `,
 })
-export class PantrySearch {
+export class InventorySearch {
   readonly query = model<string>('');
 
   readonly #formBase = signal({

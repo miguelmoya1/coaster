@@ -1,19 +1,19 @@
 import { asCategoryId } from '@coaster/common';
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
-import type { Category, CreateProductDto } from '@coaster/common';
+import type { Category, UpdateProductDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
-import { ProductsStore } from '@coaster/products';
+import { Product, ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
 import { ImageUploader } from '../../../../../../components/image-uploader/image-uploader';
 
 @Component({
-  selector: 'coaster-create-product-form',
+  selector: 'coaster-edit-product-form',
   imports: [
     FormRoot,
     MatFormField,
@@ -28,16 +28,18 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
     TranslatePipe,
     ImageUploader,
   ],
+  host: {
+    class: 'block px-6 pb-6 pt-2',
+  },
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'pantry.create_product.name_label' | translate }}</mat-label>
+          <mat-label>{{ 'inventory.edit_product.name_label' | translate }}</mat-label>
           <input
             matInput
-            data-testid="product-name-input"
             [formField]="form.name"
-            [placeholder]="'pantry.create_product.name_placeholder' | translate"
+            [placeholder]="'inventory.edit_product.name_placeholder' | translate"
           />
           @if (form.name().errors().length > 0) {
             <mat-error>{{
@@ -47,10 +49,10 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'pantry.create_product.category_label' | translate }}</mat-label>
+          <mat-label>{{ 'inventory.edit_product.category_label' | translate }}</mat-label>
           <mat-select
             [formField]="form.categoryId"
-            [placeholder]="'pantry.create_product.category_placeholder' | translate"
+            [placeholder]="'inventory.edit_product.category_placeholder' | translate"
           >
             @for (option of categoryOptions(); track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -67,26 +69,17 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
         <coaster-image-uploader
           [establishmentId]="establishmentId()!"
           entityType="products"
-          [label]="'pantry.create_product.image_url_label' | translate"
+          [label]="'inventory.edit_product.image_url_label' | translate"
           [value]="form.imageUrl().value()"
           (valueChange)="form.imageUrl().value.set($event)"
           [disabled]="form().submitting() || form().disabled()"
         />
 
-        <coaster-number-input
-          data-testid="product-price-input"
-          [formField]="form.price"
-          [label]="'Precio (Céntimos)'"
-        />
-
-        <coaster-number-input
-          [formField]="form.currentStock"
-          [label]="'pantry.create_product.current_stock_label' | translate"
-        />
+        <coaster-number-input [formField]="form.price" [label]="'Precio (Céntimos)'" />
 
         <coaster-number-input
           [formField]="form.minStockAlert"
-          [label]="'pantry.create_product.min_stock_label' | translate"
+          [label]="'inventory.edit_product.min_stock_label' | translate"
         />
 
         @if (form().errors().length > 0) {
@@ -102,53 +95,48 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
             mat-stroked-button
             class="w-full"
             type="button"
-            [disabled]="form().submitting()"
-            (click)="handleCancel()"
+            [disabled]="form().disabled() || form().submitting()"
+            (click)="canceled.emit()"
           >
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button
-            data-testid="submit-btn"
-            mat-flat-button
-            class="w-full"
-            type="submit"
-            [disabled]="form().disabled() || form().submitting() || form().invalid()"
-          >
-            {{ 'common.create' | translate }}
+          <button mat-flat-button class="w-full" type="submit" [disabled]="form().disabled() || form().submitting()">
+            {{ 'common.update' | translate }}
           </button>
         </div>
       </div>
     </form>
   `,
 })
-export class CreateProductForm {
-  readonly categories = input.required<Category[]>();
-  readonly #productsStore = inject(ProductsStore);
+export class UpdateProductForm {
+  public readonly product = input.required<Product>();
+  public readonly categories = input.required<Category[]>();
+
+  public readonly canceled = output<void>();
+  public readonly edited = output<void>();
+
+  readonly #productStore = inject(ProductsStore);
   readonly #translate = inject(TranslateService);
-  readonly establishmentId = this.#productsStore.currentEstablishmentId;
+  readonly establishmentId = this.#productStore.currentEstablishmentId;
 
-  readonly canceled = output<void>();
-  readonly created = output<void>();
-
-  readonly categoryOptions = computed(() => {
+  protected readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
       value: c.id,
       label: this.#translate.instant(c.name),
     }));
   });
 
-  readonly #formBase = signal<Required<CreateProductDto>>({
-    name: '',
+  readonly #productModel = signal<Required<UpdateProductDto>>({
     categoryId: asCategoryId(''),
     price: 0,
-    currentStock: 0,
-    minStockAlert: 5,
+    minStockAlert: 0,
+    name: '',
     imageUrl: '',
   });
 
   readonly form = form(
-    this.#formBase,
+    this.#productModel,
     (fields) => {
       required(fields.name);
       minLength(fields.name, 2);
@@ -157,9 +145,6 @@ export class CreateProductForm {
       required(fields.categoryId);
 
       min(fields.price, 0);
-
-      required(fields.currentStock);
-      min(fields.currentStock, 0);
 
       required(fields.minStockAlert);
       min(fields.minStockAlert, 0);
@@ -170,8 +155,8 @@ export class CreateProductForm {
           const payload = form().value();
 
           try {
-            await this.#productsStore.create(payload);
-            this.created.emit();
+            await this.#productStore.update(this.product().id, payload);
+            this.edited.emit();
             return null;
           } catch (error) {
             return handleErrorFormField(error);
@@ -181,7 +166,18 @@ export class CreateProductForm {
     },
   );
 
-  protected handleCancel() {
-    this.canceled.emit();
+  constructor() {
+    effect(() => {
+      const product = this.product();
+      if (product) {
+        this.#productModel.set({
+          name: product.name,
+          categoryId: product.categoryId,
+          price: product.price ?? 0,
+          minStockAlert: product.minStockAlert,
+          imageUrl: product.imageUrl ?? '',
+        });
+      }
+    });
   }
 }

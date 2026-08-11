@@ -8,7 +8,7 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     body1_mid: ' has invited you to join the team at ',
     body1_end: ' on our platform.',
     body2:
-      'With Coaster you can see your shifts, manage the pantry and communicate with your team directly from your mobile phone, without needing complicated passwords.',
+      'With Coaster you can see your shifts, manage the inventory and communicate with your team directly from your mobile phone, without needing complicated passwords.',
     buttonText: 'Enter Coaster',
     ignoreText: 'If you were not expecting this invitation, you can safely ignore this email.',
     footerText: '© 2026 Coaster App. All rights reserved.',

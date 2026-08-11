@@ -20,7 +20,11 @@ const mainRoutes: Routes = [
       },
       {
         path: 'pantry',
-        loadChildren: () => import('./pages/pantry/pantry.routes'),
+        redirectTo: 'inventory',
+      },
+      {
+        path: 'inventory',
+        loadChildren: () => import('./pages/inventory/inventory.routes'),
         canActivate: [
           moduleGuard(EstablishmentModule.INVENTORY),
           permissionGuard(EstablishmentPermission.ESTABLISHMENT_VIEW_PRODUCTS),

@@ -44,7 +44,7 @@ describe('ImportTemplates', () => {
       imports: [ImportTemplates],
       providers: [
         provideTranslateService(),
-        provideRouter([{ path: 'establishments/:establishmentId/pantry', component: class {} }]),
+        provideRouter([{ path: 'establishments/:establishmentId/inventory', component: class {} }]),
         { provide: TemplatesStore, useValue: templatesStoreMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },

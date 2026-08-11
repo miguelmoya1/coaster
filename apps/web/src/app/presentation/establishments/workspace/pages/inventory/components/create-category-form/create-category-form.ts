@@ -1,26 +1,28 @@
-import { Component, inject, input, linkedSignal, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
-import type { Category } from '@coaster/common';
+import type { CreateCategoryDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
 
 @Component({
-  selector: 'coaster-edit-category-form',
+  selector: 'coaster-create-category-form',
   imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe, IconPicker],
-  host: {
-    class: 'block px-6 pb-6 pt-2',
-  },
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'pantry.edit_category.name_label' | translate }}</mat-label>
-          <input matInput [formField]="form.name" [placeholder]="'pantry.edit_category.name_placeholder' | translate" />
+          <mat-label>{{ 'inventory.create_category.name_label' | translate }}</mat-label>
+          <input
+            matInput
+            data-testid="category-name-input"
+            [formField]="form.name"
+            [placeholder]="'inventory.create_category.name_placeholder' | translate"
+          />
           @if (form.name().errors().length > 0) {
             <mat-error>{{
               form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
@@ -30,8 +32,8 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
 
         <coaster-icon-picker
           [formField]="form.icon"
-          [label]="'pantry.edit_category.icon_label' | translate"
-          [placeholder]="'pantry.edit_category.icon_placeholder' | translate"
+          [label]="'inventory.create_category.icon_label' | translate"
+          [placeholder]="'inventory.create_category.icon_placeholder' | translate"
         />
 
         @if (form().errors().length > 0) {
@@ -53,39 +55,29 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
             {{ 'common.cancel' | translate }}
           </button>
 
-          <button mat-flat-button class="w-full" type="submit" [disabled]="form().invalid() || form().submitting()">
-            {{ 'common.update' | translate }}
-          </button>
-        </div>
-
-        <div class="mt-4 border-t border-outline-variant/20 pt-4">
           <button
-            mat-stroked-button
-            class="warn w-full"
-            type="button"
-            [disabled]="form().submitting()"
-            (click)="deleteHandler()"
+            data-testid="submit-btn"
+            mat-flat-button
+            class="w-full"
+            type="submit"
+            [disabled]="form().submitting() || form().invalid()"
           >
-            {{ 'common.delete' | translate }}
+            {{ 'common.create' | translate }}
           </button>
         </div>
       </div>
     </form>
   `,
 })
-export class EditCategoryForm {
+export class CreateCategoryForm {
   readonly #categoryStore = inject(CategoriesStore);
-
-  readonly category = input.required<Category>();
-
   readonly canceled = output<void>();
-  readonly deleted = output<void>();
-  readonly updated = output<void>();
+  readonly created = output<void>();
 
-  readonly #formBase = linkedSignal(() => ({
-    name: this.category().name,
-    icon: this.category().icon || '',
-  }));
+  readonly #formBase = signal<Required<CreateCategoryDto>>({
+    name: '',
+    icon: '',
+  });
 
   readonly form = form(
     this.#formBase,
@@ -100,8 +92,8 @@ export class EditCategoryForm {
           const payload = form().value();
 
           try {
-            await this.#categoryStore.update(this.category().id, payload);
-            this.updated.emit();
+            await this.#categoryStore.create(payload);
+            this.created.emit();
             return null;
           } catch (error) {
             return handleErrorFormField(error);
@@ -111,11 +103,7 @@ export class EditCategoryForm {
     },
   );
 
-  public cancelHandler() {
+  protected cancelHandler() {
     this.canceled.emit();
-  }
-
-  public deleteHandler() {
-    this.deleted.emit();
   }
 }

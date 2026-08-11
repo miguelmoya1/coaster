@@ -34,7 +34,7 @@ against what was actually worked.
 
 See [time tracking](docs/operations/time-tracking.md).
 
-### 📦 Logistics & Inventory Module (The Pantry)
+### 📦 Inventory Module
 
 - **Visual Catalog:** large icons for fast use on touch screens.
 - **Traffic Light System:** stock state at a glance — OK, low, or out.

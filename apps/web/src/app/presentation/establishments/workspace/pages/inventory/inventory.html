@@ -1,9 +1,9 @@
 <coaster-page-container size="lg">
-  <coaster-page-header [title]="'nav.pantry' | translate" [subtitle]="'pantry.inventory_title' | translate">
+  <coaster-page-header [title]="'nav.inventory' | translate" [subtitle]="'inventory.inventory_title' | translate">
     @if (canImportTemplates()) {
       <button actions mat-flat-button [routerLink]="['import']">
         <mat-icon>download</mat-icon>
-        <span>{{ 'pantry.import_title' | translate }}</span>
+        <span>{{ 'inventory.import_title' | translate }}</span>
       </button>
     }
   </coaster-page-header>
@@ -11,20 +11,20 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
     <coaster-stat-card
       class="flex-1"
-      [label]="'pantry.total' | translate"
+      [label]="'inventory.total' | translate"
       [value]="totalProductsCount() ?? 0"
       size="large"
     />
     <coaster-stat-card
       class="flex-1"
-      [label]="'pantry.critical' | translate"
+      [label]="'inventory.critical' | translate"
       [value]="criticalProductsCount() ?? 0"
       tone="error"
       size="large"
     />
     <coaster-stat-card
       class="flex-1"
-      [label]="'pantry.alerts' | translate"
+      [label]="'inventory.alerts' | translate"
       [value]="alertProductsCount() ?? 0"
       tone="tertiary"
       size="large"
@@ -32,7 +32,7 @@
   </div>
 
   <div class="mb-4 w-full">
-    <coaster-pantry-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
+    <coaster-inventory-search [query]="searchQuery()" (queryChange)="searchQuery.set($event)" />
   </div>
 
   <div class="mb-4 overflow-hidden">
@@ -63,16 +63,16 @@
         (deleteClicked)="handleDeleteProductClicked(product)"
       />
     } @empty {
-      <div class="text-center text-on-surface-variant mt-10">{{ 'pantry.empty' | translate }}</div>
+      <div class="text-center text-on-surface-variant mt-10">{{ 'inventory.empty' | translate }}</div>
     }
   </div>
 
   @if (canCreateProduct()) {
     <coaster-fab
-      data-testid="create-pantry-fab"
+      data-testid="create-inventory-fab"
       coasterRequireSubscription
       [establishmentId]="establishmentId()"
-      (click)="onCreatePantryClicked()"
+      (click)="onCreateInventoryClicked()"
     />
   }
 </coaster-page-container>

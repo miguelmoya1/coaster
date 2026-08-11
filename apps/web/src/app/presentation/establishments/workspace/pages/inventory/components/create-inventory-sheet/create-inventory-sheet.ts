@@ -5,10 +5,10 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateCategoryForm } from '../create-category-form/create-category-form';
 import { CreateProductForm } from '../create-product-form/create-product-form';
 
-type PantryTabs = 'PRODUCT' | 'CATEGORY';
+type InventoryTabs = 'PRODUCT' | 'CATEGORY';
 
 @Component({
-  selector: 'coaster-create-pantry-sheet',
+  selector: 'coaster-create-inventory-sheet',
   imports: [MatChipListbox, MatChipOption, TranslatePipe, CreateProductForm, CreateCategoryForm],
   template: `
     <div class="flex flex-col px-6 pb-6 pt-2">
@@ -37,7 +37,7 @@ type PantryTabs = 'PRODUCT' | 'CATEGORY';
     </div>
   `,
 })
-export class CreatePantrySheet {
+export class CreateInventorySheet {
   public readonly categories = input.required<Category[]>();
 
   public readonly canceled = output<void>();
@@ -45,10 +45,10 @@ export class CreatePantrySheet {
 
   readonly #translate = inject(TranslateService);
 
-  readonly currentTab = signal<PantryTabs>('PRODUCT');
-  readonly availableTabs = computed<{ id: PantryTabs; label: string }[]>(() => [
-    { id: 'PRODUCT', label: this.#translate.instant('pantry.product') },
-    { id: 'CATEGORY', label: this.#translate.instant('pantry.category') },
+  readonly currentTab = signal<InventoryTabs>('PRODUCT');
+  readonly availableTabs = computed<{ id: InventoryTabs; label: string }[]>(() => [
+    { id: 'PRODUCT', label: this.#translate.instant('inventory.product') },
+    { id: 'CATEGORY', label: this.#translate.instant('inventory.category') },
   ]);
 
   onTabChange(event: MatChipListboxChange, listbox: MatChipListbox) {

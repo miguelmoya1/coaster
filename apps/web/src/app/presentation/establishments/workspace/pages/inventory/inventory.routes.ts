@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { EstablishmentPermission } from '@coaster/common';
 import { permissionGuard } from '@coaster/establishment-members';
 
-const pantryRoutes: Routes = [
-  { path: '', loadComponent: () => import('./pantry') },
+const inventoryRoutes: Routes = [
+  { path: '', loadComponent: () => import('./inventory') },
 
   {
     path: 'import',
@@ -12,4 +12,4 @@ const pantryRoutes: Routes = [
   },
 ];
 
-export default pantryRoutes;
+export default inventoryRoutes;

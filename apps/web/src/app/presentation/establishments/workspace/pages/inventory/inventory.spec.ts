@@ -7,11 +7,11 @@ import { EstablishmentRole } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import Pantry from './pantry';
+import Inventory from './inventory';
 
-describe('Pantry', () => {
-  let component: Pantry;
-  let fixture: ComponentFixture<Pantry>;
+describe('Inventory', () => {
+  let component: Inventory;
+  let fixture: ComponentFixture<Inventory>;
 
   const categoriesStoreMock = {
     list: {
@@ -53,7 +53,7 @@ describe('Pantry', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Pantry],
+      imports: [Inventory],
       providers: [
         provideTranslateService(),
         provideRouter([]),
@@ -65,7 +65,7 @@ describe('Pantry', () => {
 
     vi.clearAllMocks();
 
-    fixture = TestBed.createComponent(Pantry);
+    fixture = TestBed.createComponent(Inventory);
     fixture.componentRef.setInput('establishmentId', 'establishment-1');
     component = fixture.componentInstance;
     await fixture.whenStable();

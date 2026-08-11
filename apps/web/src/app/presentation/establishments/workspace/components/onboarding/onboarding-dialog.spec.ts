@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EstablishmentModule } from '@coaster/common';
+import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
+import { ProductsStore } from '@coaster/products';
 import { TemplatesStore } from '@coaster/templates';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,6 +15,8 @@ describe('OnboardingDialog', () => {
 
   const dialogRefMock = { close: vi.fn() };
   const modulesStoreMock = { save: vi.fn().mockResolvedValue(undefined) };
+  const categoriesStoreMock = { reloadCategories: vi.fn() };
+  const productsStoreMock = { reloadProducts: vi.fn() };
   const templatesStoreMock = {
     categories: { hasValue: () => true, value: () => [{ id: 'cat-1' }, { id: 'cat-2' }] },
     importToEstablishment: vi.fn().mockResolvedValue(undefined),
@@ -31,6 +35,8 @@ describe('OnboardingDialog', () => {
         { provide: MAT_DIALOG_DATA, useValue: { establishmentId: 'establishment-1', establishmentName: 'El Bar' } },
         { provide: ModulesStore, useValue: modulesStoreMock },
         { provide: TemplatesStore, useValue: templatesStoreMock },
+        { provide: CategoriesStore, useValue: categoriesStoreMock },
+        { provide: ProductsStore, useValue: productsStoreMock },
       ],
     }).compileComponents();
 
@@ -64,6 +70,15 @@ describe('OnboardingDialog', () => {
       EstablishmentModule.INVENTORY,
     ]);
     expect(templatesStoreMock.importToEstablishment).toHaveBeenCalledWith('establishment-1', ['cat-1', 'cat-2']);
+  });
+
+  /* The inventory loads behind this dialog, so an import it never hears about leaves it showing nothing. */
+  it('should refresh the catalogue the inventory already loaded', async () => {
+    component['choose'](typeNamed('retail'));
+    await component['finish'](true);
+
+    expect(categoriesStoreMock.reloadCategories).toHaveBeenCalled();
+    expect(productsStoreMock.reloadProducts).toHaveBeenCalled();
   });
 
   it('should leave the catalogue alone when declined', async () => {

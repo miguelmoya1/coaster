@@ -353,31 +353,31 @@
         <header class="flex justify-between items-center">
           <h2 class="text-primary font-bold tracking-tight text-lg flex items-center gap-2">
             <mat-icon class="text-primary text-xl">warning</mat-icon>
-            {{ 'dashboard.sections.pantry' | translate }}
+            {{ 'dashboard.sections.inventory' | translate }}
           </h2>
           <span class="text-on-surface-variant text-xxs-plus font-bold tracking-widest uppercase">
-            {{ 'dashboard.sections.pantry_issues' | translate: { count: pantryAlerts().length } }}
+            {{ 'dashboard.sections.inventory_issues' | translate: { count: inventoryAlerts().length } }}
           </span>
         </header>
 
         <div class="flex flex-col gap-3">
-          @for (product of pantryAlertsSliced(); track product.id) {
+          @for (product of inventoryAlertsSliced(); track product.id) {
             <coaster-inventory-item-card
               [establishmentId]="establishmentId()"
               [itemName]="product.name"
               [qty]="product.currentStock"
               [statusLevel]="product.stockStatus"
               [price]="product.price"
-              [routerLink]="['/establishments', establishmentId(), 'pantry']"
+              [routerLink]="['/establishments', establishmentId(), 'inventory']"
             />
           }
 
-          @if (hasMorePantryAlerts()) {
+          @if (hasMoreInventoryAlerts()) {
             <a
-              [routerLink]="['/establishments', establishmentId(), 'pantry']"
+              [routerLink]="['/establishments', establishmentId(), 'inventory']"
               class="flex items-center justify-between bg-surface-container hover:bg-surface-container-high active:scale-98 transition-all p-4 rounded-2xl border border-dashed border-outline-variant text-primary font-black text-xs tracking-wider uppercase"
             >
-              <span>{{ 'dashboard.pantry.more_issues' | translate: { count: morePantryAlertsCount() } }}</span>
+              <span>{{ 'dashboard.inventory.more_issues' | translate: { count: moreInventoryAlertsCount() } }}</span>
               <mat-icon class="text-lg">chevron_right</mat-icon>
             </a>
           }
