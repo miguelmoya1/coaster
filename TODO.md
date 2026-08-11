@@ -3,47 +3,62 @@
 What is left, in the order it should be built. Technical detail lives in [`docs/`](docs/README.md);
 this file is only the running order.
 
-## Before the next deploy
-
-- **Publish the bridge binaries.** `GET /printer/download` streams whatever sits in
-  `public/downloads` under a name carrying a pairing code. With nothing published, the download
-  button in Settings hands back nothing.
-- **The API and the web ship together.** The route prefix moved from `/bars/:barId` to
-  `/establishments/:establishmentId`.
-- **Check the Stripe price matches the landing.** The page says 19.99 €/month; what is actually
-  charged comes from `STRIPE_PRICE_PRO`, and nothing keeps the two in step.
-- **Bridges installed before all this** still look for `BAR_ID`. Rather than editing a file on
-  someone's machine, download it again from Settings — it pairs itself.
-
 ## Next
 
-### Watch what the assistant actually costs
+### 1. Freeze what a product was sold as
 
-Both halves of the cap are in: a context budget bounds what one message costs
-(`ai/domain/snapshot.ts`), and a monthly allowance bounds how many arrive — 500 paid, 100 on trial,
-both environment variables. The numbers came from measurement, not from a finding. Worth revisiting
-once there is real usage: if nobody approaches 500, raise it; if many exhaust it, that is a reason
-for a price tier rather than a problem.
+Renaming a product today rewrites what every past order appears to have sold: `OrderItem` stores
+`priceAtPurchase` but never the name it was bought under. Either the name locks after the first sale,
+or the order line snapshots it the way `TimeEntry` snapshots the user. The snapshot is the better of
+the two — it keeps the catalogue editable and it makes a receipt reprinted a year later still true.
+Small, and the only item here that is fixing something rather than adding to it.
 
-### Intelligence layer
+### 2. Redis as a read cache
 
-AI recommendations over accumulated history: best and worst performing products, price adjustments
-for stagnant stock, rota suggestions from historical load.
+Reads and writes are already separate, so the cache has an obvious seam: queries read through it,
+commands never touch it, and the events those commands publish are what expires it.
 
-Cloud Run stops the container when idle, so an in-process cron will never fire. This needs Cloud
-Scheduler hitting an endpoint, or work driven by traffic.
+- **The events come first.** 24 of the 67 command handlers publish nothing today — the gaps are
+  `printer`, `templates`, `shift-exchanges`, `establishments` and `users`. Every command emits its
+  event even where nothing listens yet, because a write with no event is exactly a write the cache
+  will never hear about.
+- **Events invalidate, they do not write.** The handler deletes the keys its command dirtied and the
+  next read repopulates from Postgres. Writing the new value straight from the event instead lets two
+  commands arriving out of order leave the older value in Redis, where the TTL would keep it for
+  hours. Deleting is idempotent and cannot invert.
+- **Cache the request preamble before the queries.** Every authenticated request already makes two or
+  three round-trips before its handler runs: `getUserRole`, `getEstablishmentMemberRole`, the module
+  list and the subscription state, all inside guards. That is the hottest read in the app and the one
+  that pays for itself first. It also has to be the most carefully expired: `MemberRoleChanged` and
+  `MemberRemoved` already exist, and a withdrawn permission must never wait out a TTL.
+- **8 hours of TTL** as the backstop, roughly a working day, so a missed invalidation cannot outlive
+  the shift that saw it and the instance stays small enough to stay cheap.
+- Redis also fixes something already broken: `ThrottlerModule` counts in memory, so across more than
+  one Cloud Run instance the 300/min limit is really 300 per instance.
 
-## Not scheduled
+### 3. Public menu
 
-- Table reservations.
-- Public menu for customers.
+A QR on the table showing the catalogue: unauthenticated, read-only, and identical for every customer
+— the one screen where caching is the design rather than an optimisation, which is why it comes after
+Redis. It needs a route that sits outside every guard, so what it exposes (prices yes, stock and
+takings no) and how hard a stranger can hit it are part of building it, not a later pass.
+
+## Later
+
+- **Table reservations.** The largest of the parked features and the only one that needs a design of
+  its own before it can be estimated.
 - **Per-establishment time zone.** `ESTABLISHMENT_TIME_ZONE` is a constant. `EstablishmentSettings`
   is where it belongs, but moving it rewrites every workday calculation and the inspection CSV, and
   it buys nothing while the product is Spanish.
-- **Locking a product's name.** Renaming a product rewrites what every past order line appears to
-  have sold: `OrderItem` stores `priceAtPurchase` but never the name it was bought under. Either the
-  name freezes after the first sale, or the order line snapshots it the way `TimeEntry` snapshots
-  the user.
+- **Intelligence layer.** AI recommendations over accumulated history: best and worst performing
+  products, price adjustments for stagnant stock, rota suggestions from historical load. Cloud Run
+  stops the container when idle, so an in-process cron will never fire — this needs Cloud Scheduler
+  hitting an endpoint, or work driven by traffic.
+- **The assistant's allowance.** Both halves of the cap are in: a context budget bounds what one
+  message costs (`ai/domain/snapshot.ts`) and a monthly allowance bounds how many arrive — 500 paid,
+  100 on trial, both environment variables. The numbers came from measurement, not from a finding.
+  Nothing to do until there is real usage: if nobody approaches 500, raise it; if many exhaust it,
+  that is an argument for a price tier rather than a problem.
 
 ## Known debt
 
