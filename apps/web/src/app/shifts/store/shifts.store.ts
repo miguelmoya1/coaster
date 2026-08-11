@@ -1,9 +1,10 @@
 import { asShiftId } from '@coaster/common';
 import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
-import type { EstablishmentId, CreateShiftDto } from '@coaster/common';
+import type { EstablishmentId, CreateShiftDto, Shift } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { Socket } from '@coaster/core';
+import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { EstablishmentShifts } from '../services/establishment-shifts';
 import { CreateShift } from '../services/create-shift';
@@ -14,6 +15,7 @@ export class ShiftsStore {
   readonly #establishmentShifts = inject(EstablishmentShifts);
   readonly #createShift = inject(CreateShift);
   readonly #deleteShift = inject(DeleteShift);
+  readonly #shiftRepository = inject(ShiftRepository);
   readonly #socketService = inject(Socket);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
@@ -61,6 +63,13 @@ export class ShiftsStore {
 
   public reload() {
     this.#shiftsResource.reload();
+  }
+
+  /** Reads a past week so it can be copied forward. Not the rota on screen, which is a resource. */
+  public async listBetween(startDate: string, endDate: string): Promise<Shift[]> {
+    const establishmentId = this.#currentEstablishmentId();
+
+    return establishmentId ? this.#shiftRepository.listBetween(establishmentId, startDate, endDate) : [];
   }
 
   public async create(createShiftDto: CreateShiftDto) {

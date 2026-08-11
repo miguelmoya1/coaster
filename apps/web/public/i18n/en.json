@@ -55,6 +55,7 @@
   "PRINTER_ALREADY_CONFIGURED": "A printer is already configured for this establishment.",
   "PRINTER_INVALID_DEVICE_KEY": "The printer device key is invalid.",
   "PRINTER_NOT_CONFIGURED": "No printer has been configured.",
+  "PRINTER_PAIRING_INVALID": "That pairing code is no good: it has either been used already or expired. Download the printer again from the app.",
   "PRINTER_NOT_CONNECTED": "The printer is not connected.",
   "required": "This field is required.",
   "REQUIRED": "This field is fully required.",
@@ -132,7 +133,9 @@
       "low_stock": "Which products are running low?",
       "rota": "Who is working tomorrow?",
       "order": "Two beers for table 1"
-    }
+    },
+    "usage": "{{ used }} of {{ allowance }} messages this month",
+    "usage_low": "{{ remaining }} messages left this month"
   },
   "auth": {
     "login": {

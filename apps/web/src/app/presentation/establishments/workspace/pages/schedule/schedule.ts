@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   Component,
   computed,
@@ -34,7 +33,6 @@ import { ShiftsStore } from '@coaster/shifts';
 import { TimeTrackingStore } from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addDays, endOfWeek, isSameDay, startOfWeek, subWeeks } from 'date-fns';
-import { firstValueFrom } from 'rxjs';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../../components/loading/loading';
 import { PageContainer } from '../../../../components/page-container/page-container';
@@ -126,7 +124,6 @@ export default class Schedule {
   readonly #timeTrackingStore = inject(TimeTrackingStore);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
-  readonly #http = inject(HttpClient);
   readonly #confirmation = inject(ConfirmationDialog);
   readonly #bottomSheet = inject(MatBottomSheet);
   readonly #injector = inject(Injector);
@@ -512,11 +509,7 @@ export default class Schedule {
       const endLocal = new Date(prevWeekEnd);
       endLocal.setHours(23, 59, 59, 999);
 
-      const startIso = startLocal.toISOString();
-      const endIso = endLocal.toISOString();
-
-      const url = `/establishments/${this.establishmentId()}/shifts?startDate=${startIso}&endDate=${endIso}`;
-      const rawShifts = await firstValueFrom(this.#http.get<Shift[]>(url));
+      const rawShifts = await this.#shiftsStore.listBetween(startLocal.toISOString(), endLocal.toISOString());
 
       if (rawShifts && rawShifts.length > 0) {
         for (const shift of rawShifts) {

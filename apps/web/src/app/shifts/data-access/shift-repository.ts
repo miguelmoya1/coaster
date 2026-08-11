@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { EstablishmentId, CreateShiftDto } from '@coaster/common';
+import type { EstablishmentId, CreateShiftDto, Shift } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -14,6 +14,14 @@ export class ShiftRepository {
     delete: (establishmentId: EstablishmentId, shiftId: string) =>
       `/establishments/${establishmentId}/shifts/${shiftId}`,
   };
+
+  /**
+   * A one-shot read for replicating a past week. The rota on screen is an httpResource like every
+   * other read; this is not that — it answers a button press, so it cannot be reactive.
+   */
+  public async listBetween(establishmentId: EstablishmentId, startDate: string, endDate: string): Promise<Shift[]> {
+    return firstValueFrom(this.#http.get<Shift[]>(this.routes.list(establishmentId, startDate, endDate)));
+  }
 
   public async create(establishmentId: EstablishmentId, createShiftDto: CreateShiftDto): Promise<void> {
     return firstValueFrom(this.#http.post<void>(this.routes.create(establishmentId), createShiftDto));

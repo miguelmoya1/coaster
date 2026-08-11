@@ -55,6 +55,7 @@
   "PRINTER_ALREADY_CONFIGURED": "Ya hay una impresora configurada para este establecimiento.",
   "PRINTER_INVALID_DEVICE_KEY": "La clave de dispositivo de la impresora no es válida.",
   "PRINTER_NOT_CONFIGURED": "No hay ninguna impresora configurada.",
+  "PRINTER_PAIRING_INVALID": "Ese código de emparejamiento no vale: o ya se ha usado o ha caducado. Descarga la impresora otra vez desde la aplicación.",
   "PRINTER_NOT_CONNECTED": "La impresora no está conectada.",
   "required": "Este campo es obligatorio.",
   "REQUIRED": "Este campo es completamente obligatorio.",
@@ -132,7 +133,9 @@
       "low_stock": "¿Qué productos están bajo mínimos?",
       "rota": "¿Quién trabaja mañana?",
       "order": "Ponme dos cañas en la mesa 1"
-    }
+    },
+    "usage": "{{ used }} de {{ allowance }} mensajes este mes",
+    "usage_low": "Te quedan {{ remaining }} mensajes este mes"
   },
   "auth": {
     "login": {

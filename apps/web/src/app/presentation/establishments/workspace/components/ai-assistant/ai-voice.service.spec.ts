@@ -1,8 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
 import { asEstablishmentId } from '@coaster/common';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AiUsageService } from './ai-usage.service';
 import { AiVoiceRepository } from './ai-voice-repository';
 import { AiVoiceService, toSpokenText } from './ai-voice.service';
 
@@ -72,6 +74,8 @@ describe('AiVoiceService', () => {
         provideTranslateService(),
         AiVoiceService,
         { provide: AiVoiceRepository, useValue: repositoryMock },
+        { provide: AiUsageService, useValue: { execute: vi.fn(() => undefined) } },
+        provideHttpClient(),
       ],
     });
 

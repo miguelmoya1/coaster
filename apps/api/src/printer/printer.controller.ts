@@ -1,4 +1,4 @@
-import type { EstablishmentId, ClaimedPrintJobDto } from '@coaster/common';
+import type { EstablishmentId, ClaimedPrintJobDto, PrinterPairingResult } from '@coaster/common';
 import {
   BadRequestException,
   Body,
@@ -13,12 +13,14 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
+import { SkipSubscriptionCheck } from '@coaster/core';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle, seconds } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
-import { RegisterPrinterIpCommand, ReportPrintJobResultCommand } from './commands';
+import { RedeemPairingCommand, RegisterPrinterIpCommand, ReportPrintJobResultCommand } from './commands';
 import { PrintJobResultDto } from './dto/print-job-result.dto';
+import { RedeemPairingDto } from './dto/redeem-pairing.dto';
 import { RegisterPrinterIpDto } from './dto/register-printer-ip.dto';
 import { ClaimNextPrintJobQuery } from './queries';
 import { PrinterReleaseService } from './services/printer-release.service';
@@ -41,6 +43,17 @@ export class PrinterController {
       throw new BadRequestException('Unsupported OS. Use "windows" or "linux".');
     }
     return release;
+  }
+
+  /**
+   * Called by a bridge that has just been double-clicked and knows nothing yet, so it cannot carry
+   * a token. The code is the credential: one use, an hour to live, and worthless afterwards.
+   */
+  @Post('pair')
+  @SkipSubscriptionCheck()
+  @Throttle({ default: { ttl: seconds(60), limit: 10 } })
+  async pair(@Body() dto: RedeemPairingDto): Promise<PrinterPairingResult> {
+    return this._commandBus.execute<RedeemPairingCommand, PrinterPairingResult>(new RedeemPairingCommand(dto.code));
   }
 
   @Post('register-ip')

@@ -22,6 +22,26 @@ variables (`AI_MONTHLY_MESSAGES`, `AI_TRIAL_MONTHLY_MESSAGES`). The numbers came
 message measured after the budget landed, and are worth revisiting once there is real usage to look
 at.
 
+## In progress: pairing the printer bridge
+
+The downloaded binary is generic and expects `--establishment-id` and `--device-key`, which no
+customer will ever pass — printing from outside the local network is effectively unusable today.
+
+The app hands out a one-use code and a download named with it, the bridge reads its own filename on
+first run, redeems the code for the ids it needs and writes them beside itself. Nobody types
+anything.
+
+- **Done — the API.** `PrinterPairing` with a one-use, hour-long code; `POST
+/establishments/:id/printer/pairing` to issue one; `POST /printer/pair` for a bridge that has no
+  credentials yet to redeem it. Codes avoid the characters people mistype, and are recovered from a
+  filename a browser may have renamed to `name (1).exe`.
+- **Left — the download.** A route that serves the binary as `coaster-printer-<code>.exe`, since the
+  static asset is the same file for everyone today.
+- **Left — the bridge.** Read `os.Args[0]`, redeem, persist a config file, and fall back to a local
+  setup page asking for the code when the filename carries none.
+- **Left — the app.** A printer screen with the download button; `generateDeviceKey` has existed on
+  the API all along with no UI ever calling it.
+
 ## Intelligence layer
 
 AI recommendations over accumulated history: best and worst performing products, price adjustments

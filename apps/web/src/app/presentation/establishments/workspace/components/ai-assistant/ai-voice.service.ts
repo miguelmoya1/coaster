@@ -1,6 +1,8 @@
+import { httpResource } from '@angular/common/http';
 import { effect, inject, resource, Service, signal, untracked } from '@angular/core';
-import type { AiMessage, EstablishmentId } from '@coaster/common';
+import type { AiMessage, AiUsage, EstablishmentId } from '@coaster/common';
 import { TranslateService } from '@ngx-translate/core';
+import { AiUsageService } from './ai-usage.service';
 import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
@@ -70,6 +72,7 @@ interface ISpeechRecognition {
 @Service()
 export class AiVoiceService {
   readonly #repository = inject(AiVoiceRepository);
+  readonly #usageService = inject(AiUsageService);
   readonly #translate = inject(TranslateService);
 
   public readonly isOpen = signal<boolean>(false);
@@ -83,6 +86,17 @@ export class AiVoiceService {
   public readonly messages = signal<AiMessage[]>([]);
   public readonly streamingText = signal<string>('');
 
+  readonly #usageEstablishmentId = signal<EstablishmentId | undefined>(undefined);
+
+  readonly #usageResource = httpResource<AiUsage>(() => this.#usageService.execute(this.#usageEstablishmentId()));
+
+  /** Carries its own loading and error state, like every other read in the app. */
+  public readonly usage = this.#usageResource.asReadonly();
+
+  public watchUsage(establishmentId: EstablishmentId | undefined): void {
+    this.#usageEstablishmentId.set(establishmentId);
+  }
+
   readonly #commandParams = signal<
     { establishmentId: EstablishmentId; prompt: string; messages: AiMessage[] } | undefined
   >(undefined);
@@ -94,9 +108,19 @@ export class AiVoiceService {
 
       this.streamingText.set('');
 
-      return await this.#repository.streamCommand(params.establishmentId, params.prompt, params.messages, (delta) => {
-        this.streamingText.update((current) => current + delta);
-      });
+      const answer = await this.#repository.streamCommand(
+        params.establishmentId,
+        params.prompt,
+        params.messages,
+        (delta) => {
+          this.streamingText.update((current) => current + delta);
+        },
+      );
+
+      // The allowance only moves when a message actually lands, so this is the moment to re-read it.
+      this.#usageResource.reload();
+
+      return answer;
     },
   });
 

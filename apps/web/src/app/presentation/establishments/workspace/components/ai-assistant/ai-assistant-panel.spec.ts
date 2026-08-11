@@ -1,3 +1,4 @@
+import type { AiUsage } from '@coaster/common';
 import { asEstablishmentId } from '@coaster/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
@@ -36,6 +37,11 @@ describe('AiAssistantPanel', () => {
 
   const aiVoiceServiceMock = {
     isOpen: signal(true),
+    usage: Object.assign(signal<AiUsage | undefined>(undefined), {
+      hasValue: vi.fn(() => false),
+      value: vi.fn(() => undefined as AiUsage | undefined),
+    }),
+    watchUsage: vi.fn(),
     snap,
     isSupported: signal(true),
     status: signal('idle'),
@@ -289,6 +295,31 @@ describe('AiAssistantPanel', () => {
       component['onComposerKeydown'](new KeyboardEvent('keydown', { key: 'a', cancelable: true }));
 
       expect(aiVoiceServiceMock.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('the monthly allowance', () => {
+    it('should say nothing until the count has arrived', async () => {
+      aiVoiceServiceMock.usage.hasValue.mockReturnValue(false);
+
+      await createComponent(false);
+
+      expect(fixture.nativeElement.textContent).not.toContain('ai_voice.usage');
+    });
+
+    it('should show what has been spent once it knows', async () => {
+      aiVoiceServiceMock.usage.hasValue.mockReturnValue(true);
+      aiVoiceServiceMock.usage.value.mockReturnValue({ used: 42, allowance: 500, remaining: 458, period: '2026-08' });
+
+      await createComponent(false);
+
+      expect(fixture.nativeElement.textContent).toContain('ai_voice.usage');
+    });
+
+    it('should only watch it while the panel is open', async () => {
+      await createComponent(false);
+
+      expect(aiVoiceServiceMock.watchUsage).toHaveBeenCalledWith('establishment-1');
     });
   });
 });

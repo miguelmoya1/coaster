@@ -1,11 +1,12 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
-import type { AiMessage, AiResponse, EstablishmentId, User } from '@coaster/common';
+import type { AiMessage, AiResponse, AiUsage, EstablishmentId, User } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
-import { Body, Controller, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { Body, Controller, Get, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Throttle, seconds } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
 import { ExecuteAiCommand } from '../commands';
+import { GetAiUsageQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/ai')
 @UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
@@ -13,7 +14,15 @@ import { ExecuteAiCommand } from '../commands';
 export class AiController {
   private readonly _logger = new Logger(AiController.name);
 
-  constructor(private readonly _commandBus: CommandBus) {}
+  constructor(
+    private readonly _commandBus: CommandBus,
+    private readonly _queryBus: QueryBus,
+  ) {}
+
+  @Get('usage')
+  async usage(@Param('establishmentId') establishmentId: EstablishmentId): Promise<AiUsage> {
+    return this._queryBus.execute<GetAiUsageQuery, AiUsage>(new GetAiUsageQuery(establishmentId));
+  }
 
   @Post()
   async executeCommand(

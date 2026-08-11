@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { EnqueuePrintJobResponseDto, PrinterStatusDto, PrintJobDto, PrintTicketPayloadDto } from '@coaster/common';
+import type { EnqueuePrintJobResponseDto, PrintJobDto, PrintTicketPayloadDto } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -23,10 +23,6 @@ export class PrinterRepository {
 
   public async getJob(establishmentId: string, jobId: string): Promise<PrintJobDto> {
     return firstValueFrom(this.#http.get<PrintJobDto>(this.routes.job(establishmentId, jobId)));
-  }
-
-  public async getStatus(establishmentId: string): Promise<PrinterStatusDto> {
-    return firstValueFrom(this.#http.get<PrinterStatusDto>(this.routes.status(establishmentId)));
   }
 
   public async generateDeviceKey(establishmentId: string): Promise<{ deviceKey: string }> {

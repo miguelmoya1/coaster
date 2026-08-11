@@ -83,6 +83,21 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
                 </span>
                 {{ 'ai_voice.status.' + service.status() | translate }}
               </span>
+
+              @if (service.usage.hasValue()) {
+                @let usage = service.usage.value();
+                <span
+                  class="text-[11px] tabular-nums"
+                  [class]="usage.remaining <= 20 ? 'text-secondary font-semibold' : 'text-on-surface-variant/70'"
+                  [title]="'ai_voice.usage' | translate: { used: usage.used, allowance: usage.allowance }"
+                >
+                  @if (usage.remaining <= 20) {
+                    {{ 'ai_voice.usage_low' | translate: { remaining: usage.remaining } }}
+                  } @else {
+                    {{ 'ai_voice.usage' | translate: { used: usage.used, allowance: usage.allowance } }}
+                  }
+                </span>
+              }
             </div>
           </div>
 
@@ -419,6 +434,11 @@ export class AiAssistantPanel {
   });
 
   constructor() {
+    // Ask for the allowance only once the panel is open, not on every workspace load.
+    effect(() => {
+      this.service.watchUsage(this.service.isOpen() ? this.establishmentId() : undefined);
+    });
+
     // Dictation and typing share one composer, so whatever the mic hears lands in the draft.
     effect(() => {
       const transcript = this.service.transcript();

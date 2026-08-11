@@ -163,6 +163,7 @@ model DbEstablishment {
   billing     DbEstablishmentSubscription?
   settings    DbEstablishmentSettings?
   aiUsage     DbAiUsage[]
+  pairings    DbPrinterPairing[]
   timeEntries DbTimeEntry[]
 
   @@map("Establishment")
@@ -178,6 +179,21 @@ model DbEstablishmentSettings {
   updatedAt       DateTime                @updatedAt
 
   @@map("EstablishmentSettings")
+}
+
+/// A one-use code that turns a downloaded bridge into this establishment's bridge, so nobody has to
+/// type an id or a device key into a console.
+model DbPrinterPairing {
+  id              String          @id @default(uuid())
+  code            String          @unique
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  expiresAt       DateTime
+  redeemedAt      DateTime?
+  createdAt       DateTime        @default(now())
+
+  @@index([establishmentId])
+  @@map("PrinterPairing")
 }
 
 model DbAiUsage {

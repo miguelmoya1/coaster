@@ -69,3 +69,13 @@ export interface PrintJobResultDto {
   status: 'printed' | 'failed';
   error?: string;
 }
+
+/** What a bridge needs to stop being a generic binary and start being this establishment's printer. */
+export interface PrinterPairingResult {
+  establishmentId: EstablishmentId;
+  deviceKey: string;
+}
+
+export interface PrinterPairingCodeResponse {
+  code: string;
+}

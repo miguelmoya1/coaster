@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
 import { PrintJobRepository } from './data-access/print-job.repository';
+import { PrinterPairingRepository } from './data-access/printer-pairing.repository';
 import { PrinterReadRepository } from './data-access/printer.read.repository';
 import { PrinterWriteRepository } from './data-access/printer.write.repository';
 import { PrinterConnectionController } from './printer-connection.controller';
@@ -15,6 +16,7 @@ import { PrinterTokenService } from './services/printer-token.service';
   imports: [CqrsModule],
   controllers: [PrinterController, PrinterConnectionController],
   providers: [
+    PrinterPairingRepository,
     PrinterReadRepository,
     PrinterWriteRepository,
     PrintJobRepository,

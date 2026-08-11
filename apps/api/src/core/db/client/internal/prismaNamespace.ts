@@ -365,6 +365,7 @@ export const ModelName = {
   DbUser: 'DbUser',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
+  DbPrinterPairing: 'DbPrinterPairing',
   DbAiUsage: 'DbAiUsage',
   DbUserPreferences: 'DbUserPreferences',
   DbEstablishmentMember: 'DbEstablishmentMember',
@@ -406,6 +407,7 @@ export type TypeMap<
       | 'dbUser'
       | 'dbEstablishment'
       | 'dbEstablishmentSettings'
+      | 'dbPrinterPairing'
       | 'dbAiUsage'
       | 'dbUserPreferences'
       | 'dbEstablishmentMember'
@@ -719,6 +721,80 @@ export type TypeMap<
         count: {
           args: Prisma.DbEstablishmentSettingsCountArgs<ExtArgs>;
           result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentSettingsCountAggregateOutputType> | number;
+        };
+      };
+    };
+    DbPrinterPairing: {
+      payload: Prisma.$DbPrinterPairingPayload<ExtArgs>;
+      fields: Prisma.DbPrinterPairingFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.DbPrinterPairingFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.DbPrinterPairingFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        findFirst: {
+          args: Prisma.DbPrinterPairingFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.DbPrinterPairingFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        findMany: {
+          args: Prisma.DbPrinterPairingFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>[];
+        };
+        create: {
+          args: Prisma.DbPrinterPairingCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        createMany: {
+          args: Prisma.DbPrinterPairingCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.DbPrinterPairingCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>[];
+        };
+        delete: {
+          args: Prisma.DbPrinterPairingDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        update: {
+          args: Prisma.DbPrinterPairingUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        deleteMany: {
+          args: Prisma.DbPrinterPairingDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.DbPrinterPairingUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.DbPrinterPairingUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>[];
+        };
+        upsert: {
+          args: Prisma.DbPrinterPairingUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbPrinterPairingPayload>;
+        };
+        aggregate: {
+          args: Prisma.DbPrinterPairingAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbPrinterPairing>;
+        };
+        groupBy: {
+          args: Prisma.DbPrinterPairingGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.DbPrinterPairingGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.DbPrinterPairingCountArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.DbPrinterPairingCountAggregateOutputType> | number;
         };
       };
     };
@@ -2068,6 +2144,18 @@ export const DbEstablishmentSettingsScalarFieldEnum = {
 export type DbEstablishmentSettingsScalarFieldEnum =
   (typeof DbEstablishmentSettingsScalarFieldEnum)[keyof typeof DbEstablishmentSettingsScalarFieldEnum];
 
+export const DbPrinterPairingScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  establishmentId: 'establishmentId',
+  expiresAt: 'expiresAt',
+  redeemedAt: 'redeemedAt',
+  createdAt: 'createdAt',
+} as const;
+
+export type DbPrinterPairingScalarFieldEnum =
+  (typeof DbPrinterPairingScalarFieldEnum)[keyof typeof DbPrinterPairingScalarFieldEnum];
+
 export const DbAiUsageScalarFieldEnum = {
   id: 'id',
   establishmentId: 'establishmentId',
@@ -2701,6 +2789,7 @@ export type GlobalOmitConfig = {
   dbUser?: Prisma.DbUserOmit;
   dbEstablishment?: Prisma.DbEstablishmentOmit;
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit;
+  dbPrinterPairing?: Prisma.DbPrinterPairingOmit;
   dbAiUsage?: Prisma.DbAiUsageOmit;
   dbUserPreferences?: Prisma.DbUserPreferencesOmit;
   dbEstablishmentMember?: Prisma.DbEstablishmentMemberOmit;

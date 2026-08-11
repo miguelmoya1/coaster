@@ -662,9 +662,6 @@ export type $DbAiUsagePayload<
     {
       id: string;
       establishmentId: string;
-      /**
-       * Calendar month as YYYY-MM, so a period is trivially comparable and resets on its own.
-       */
       period: string;
       messages: number;
       createdAt: Date;

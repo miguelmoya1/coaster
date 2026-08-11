@@ -12,6 +12,10 @@ export class AiVoiceRepository {
   readonly #http = inject(HttpClient);
   readonly #auth = inject(Auth);
 
+  public readonly routes = {
+    usage: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/ai/usage`,
+  };
+
   public async executeCommand(
     establishmentId: EstablishmentId,
     prompt: string,

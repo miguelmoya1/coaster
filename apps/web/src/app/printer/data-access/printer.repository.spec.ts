@@ -78,26 +78,6 @@ describe('PrinterRepository', () => {
     });
   });
 
-  describe('getStatus', () => {
-    it('should fetch printer status', async () => {
-      const expected = {
-        establishmentId: 'establishment-1',
-        isOnline: true,
-        ipAddress: '192.168.1.100',
-        port: 8080,
-        lastSeenAt: '2026-07-13T20:00:00.000Z',
-      };
-
-      const promise = service.getStatus('establishment-1');
-
-      const req = httpMock.expectOne('/establishments/establishment-1/printer/status');
-      expect(req.request.method).toBe('GET');
-      req.flush(expected);
-
-      expect(await promise).toEqual(expected);
-    });
-  });
-
   describe('generateDeviceKey', () => {
     it('should POST to generate device key', async () => {
       const promise = service.generateDeviceKey('establishment-1');

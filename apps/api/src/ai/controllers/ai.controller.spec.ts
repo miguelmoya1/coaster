@@ -3,7 +3,7 @@ import type { User } from '@coaster/common';
 import { asEstablishmentId, asUserId } from '@coaster/common';
 import { EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { ExecuteAiCommand } from '../commands';
@@ -20,7 +20,10 @@ describe('AiController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AiController],
-      providers: [{ provide: CommandBus, useValue: mockCommandBus }],
+      providers: [
+        { provide: CommandBus, useValue: mockCommandBus },
+        { provide: QueryBus, useValue: { execute: vi.fn() } },
+      ],
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)

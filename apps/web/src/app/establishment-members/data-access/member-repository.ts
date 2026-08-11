@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
   EstablishmentId,
-  EstablishmentMember,
   EstablishmentMemberId,
   EstablishmentRole,
   DeleteResponse,
@@ -10,7 +9,6 @@ import type {
 } from '@coaster/common';
 import { firstValueFrom, map } from 'rxjs';
 import { deleteResponseMapper } from '@coaster/core';
-import { memberMapper } from '../mappers/member.mapper';
 
 @Service()
 export class MemberRepository {
@@ -23,12 +21,6 @@ export class MemberRepository {
     member: (establishmentId: EstablishmentId, memberId: string) =>
       `/establishments/${establishmentId}/members/${memberId}`,
   };
-
-  public async me(establishmentId: EstablishmentId) {
-    return firstValueFrom(
-      this.#http.get<EstablishmentMember>(this.routes.me(establishmentId)).pipe(map((member) => memberMapper(member))),
-    );
-  }
 
   public async invite(establishmentId: EstablishmentId, dto: InviteEstablishmentMemberDto) {
     return firstValueFrom(this.#http.post<void>(this.routes.invite(establishmentId), dto));

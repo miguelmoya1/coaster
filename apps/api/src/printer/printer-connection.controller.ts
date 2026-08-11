@@ -6,6 +6,7 @@ import type {
   PrinterConnectionDetailsDto,
   PrinterStatusDto,
   PrintJobDto,
+  PrinterPairingCodeResponse,
 } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
 import {
@@ -17,7 +18,7 @@ import {
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { EnqueuePrintJobCommand, GenerateDeviceKeyCommand } from './commands';
+import { EnqueuePrintJobCommand, GenerateDeviceKeyCommand, IssuePairingCommand } from './commands';
 import { PrintTicketDto } from './dto/print-ticket.dto';
 import { GetPrinterConnectionQuery, GetPrinterStatusQuery, GetPrintJobQuery } from './queries';
 
@@ -65,6 +66,19 @@ export class PrinterConnectionController {
   @ApiOperation({ summary: 'Get printer status (online/offline, last seen)' })
   async getStatus(@Param('establishmentId') establishmentId: EstablishmentId): Promise<PrinterStatusDto> {
     return this._queryBus.execute(new GetPrinterStatusQuery(establishmentId));
+  }
+
+  /**
+   * Hands back a one-use code and the URL that downloads a binary already named with it. The
+   * customer double-clicks and is done; nobody types an establishment id into a console.
+   */
+  @Post('pairing')
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_PRINTER)
+  @ApiOperation({ summary: 'Issue a one-use pairing code for a printer bridge download.' })
+  async issuePairing(@Param('establishmentId') establishmentId: EstablishmentId): Promise<PrinterPairingCodeResponse> {
+    return this._commandBus.execute<IssuePairingCommand, PrinterPairingCodeResponse>(
+      new IssuePairingCommand(establishmentId),
+    );
   }
 
   @Post('device-key')
