@@ -1,0 +1,79 @@
+@if (isLoading()) {
+  <div class="flex items-center justify-center min-h-dvh">
+    <mat-icon class="animate-spin text-on-surface-variant">progress_activity</mat-icon>
+  </div>
+} @else if (isMissing()) {
+  <div class="flex flex-col items-center justify-center min-h-dvh gap-3 px-6 text-center">
+    <mat-icon class="text-on-surface-variant text-4xl">menu_book</mat-icon>
+    <p class="text-sm text-on-surface-variant">{{ 'MENU_NOT_FOUND' | translate }}</p>
+  </div>
+} @else if (menu(); as published) {
+  <div class="mx-auto max-w-2xl px-5 py-8">
+    <header class="mb-6">
+      <h1 class="heading-1 text-3xl font-bold">{{ published.name }}</h1>
+
+      @if (languages().length > 1) {
+        <div class="flex gap-2 mt-4" role="group">
+          @for (option of languages(); track option) {
+            <button
+              type="button"
+              class="px-3 py-1 rounded-full text-xs font-semibold uppercase"
+              [class.bg-primary]="language() === option"
+              [class.text-on-primary]="language() === option"
+              [class.bg-surface-container]="language() !== option"
+              [attr.aria-pressed]="language() === option"
+              (click)="choose(option)"
+            >
+              {{ option }}
+            </button>
+          }
+        </div>
+      }
+    </header>
+
+    @for (section of published.sections; track section.name) {
+      <section class="mb-8">
+        <h2 class="heading-2 text-lg font-bold mb-3 pb-2 border-b border-outline/10">{{ section.name }}</h2>
+
+        <ul class="flex flex-col gap-4">
+          @for (item of section.items; track item.name) {
+            <li class="flex gap-3">
+              @if (item.imageUrl) {
+                <img
+                  [src]="item.imageUrl"
+                  [alt]="item.name"
+                  loading="lazy"
+                  class="w-16 h-16 rounded-xl object-cover shrink-0"
+                />
+              }
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline gap-3">
+                  <span class="font-semibold text-on-surface">{{ item.name }}</span>
+                  <span class="ml-auto font-semibold text-on-surface shrink-0">{{ item.price | price }}</span>
+                </div>
+
+                @if (item.description) {
+                  <p class="text-sm text-on-surface-variant mt-0.5">{{ item.description }}</p>
+                }
+
+                @if (item.allergens.length > 0) {
+                  <p class="text-xs text-on-surface-variant mt-1">
+                    <span class="font-semibold">{{ 'public_menu.allergens' | translate }}:</span>
+                    @for (allergen of item.allergens; track allergen) {
+                      <span>{{ 'allergens.' + allergen | translate }}{{ $last ? '' : ', ' }}</span>
+                    }
+                  </p>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <footer class="mt-10 pt-4 border-t border-outline/10">
+      <p class="text-xs text-on-surface-variant">{{ 'public_menu.allergen_notice' | translate }}</p>
+    </footer>
+  </div>
+}

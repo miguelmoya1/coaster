@@ -29,6 +29,7 @@
       "@coaster/stats": ["./src/app/stats/index.ts"],
       "@coaster/tables": ["./src/app/tables/index.ts"],
       "@coaster/catalogue": ["./src/app/catalogue/index.ts"],
+      "@coaster/menu": ["./src/app/menu/index.ts"],
       "@coaster/time-tracking": ["./src/app/time-tracking/index.ts"]
     }
   },

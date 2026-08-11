@@ -8,6 +8,10 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./presentation/landing/landing'),
   },
   {
+    path: 'm/:slug',
+    loadComponent: () => import('./presentation/public-menu/public-menu'),
+  },
+  {
     path: 'login',
     canActivate: [noAuthGuard],
     loadChildren: () => import('./presentation/auth/auth.routes'),

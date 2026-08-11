@@ -820,5 +820,49 @@
   "PRINT_JOB_NOT_FOUND": "The requested print job does not exist.",
   "PRINT_JOB_FAILED": "The ticket could not be printed.",
   "PRINT_JOB_TIMEOUT": "The printer did not respond in time.",
-  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "The subscription could not be cancelled. Please try again."
+  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "The subscription could not be cancelled. Please try again.",
+  "menu": {
+    "title": "Public menu",
+    "published_state": "Published",
+    "private_state": "Not published",
+    "publish": "Publish",
+    "republish": "Publish changes",
+    "unpublish": "Stop publishing",
+    "copy_link": "Copy link",
+    "link_copied": "Link copied.",
+    "pending_changes": "There are saved changes customers cannot see yet. Publish to show them.",
+    "missing_wording": "{{count}} pieces of wording are still missing in one of the languages.",
+    "languages": "Menu languages",
+    "editing": "Editing",
+    "section_name": "Section name",
+    "item_name": "Name on the menu",
+    "item_description": "Description (optional)",
+    "item_price": "Own price",
+    "add_section": "Add section",
+    "add_item": "Add product...",
+    "empty": "The menu is empty. Add a section to start.",
+    "saved": "Menu saved.",
+    "published": "Menu published.",
+    "unpublished": "The menu is no longer public."
+  },
+  "allergens": {
+    "GLUTEN": "gluten",
+    "CRUSTACEANS": "crustaceans",
+    "EGGS": "eggs",
+    "FISH": "fish",
+    "PEANUTS": "peanuts",
+    "SOYBEANS": "soybeans",
+    "MILK": "milk",
+    "NUTS": "nuts",
+    "CELERY": "celery",
+    "MUSTARD": "mustard",
+    "SESAME": "sesame",
+    "SULPHITES": "sulphites",
+    "LUPIN": "lupin",
+    "MOLLUSCS": "molluscs"
+  },
+  "public_menu": {
+    "allergens": "Allergens",
+    "allergen_notice": "If you have an allergy or intolerance, ask the staff before ordering."
+  }
 }

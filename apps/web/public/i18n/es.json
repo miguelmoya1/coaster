@@ -820,5 +820,49 @@
   "PRINT_JOB_NOT_FOUND": "El trabajo de impresión solicitado no existe.",
   "PRINT_JOB_FAILED": "No se pudo imprimir el ticket.",
   "PRINT_JOB_TIMEOUT": "La impresora no respondió a tiempo.",
-  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "No se pudo cancelar la suscripción. Inténtalo de nuevo."
+  "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "No se pudo cancelar la suscripción. Inténtalo de nuevo.",
+  "menu": {
+    "title": "Carta pública",
+    "published_state": "Publicada",
+    "private_state": "Sin publicar",
+    "publish": "Publicar",
+    "republish": "Publicar cambios",
+    "unpublish": "Dejar de publicar",
+    "copy_link": "Copiar enlace",
+    "link_copied": "Enlace copiado.",
+    "pending_changes": "Hay cambios guardados que los clientes todavía no ven. Publica para que aparezcan.",
+    "missing_wording": "Faltan {{count}} textos por escribir en alguno de los idiomas.",
+    "languages": "Idiomas de la carta",
+    "editing": "Editando",
+    "section_name": "Nombre de la sección",
+    "item_name": "Nombre en la carta",
+    "item_description": "Descripción (opcional)",
+    "item_price": "Precio propio",
+    "add_section": "Añadir sección",
+    "add_item": "Añadir producto...",
+    "empty": "La carta está vacía. Añade una sección para empezar.",
+    "saved": "Carta guardada.",
+    "published": "Carta publicada.",
+    "unpublished": "La carta ya no es pública."
+  },
+  "allergens": {
+    "GLUTEN": "gluten",
+    "CRUSTACEANS": "crustáceos",
+    "EGGS": "huevos",
+    "FISH": "pescado",
+    "PEANUTS": "cacahuetes",
+    "SOYBEANS": "soja",
+    "MILK": "lácteos",
+    "NUTS": "frutos de cáscara",
+    "CELERY": "apio",
+    "MUSTARD": "mostaza",
+    "SESAME": "sésamo",
+    "SULPHITES": "sulfitos",
+    "LUPIN": "altramuces",
+    "MOLLUSCS": "moluscos"
+  },
+  "public_menu": {
+    "allergens": "Alérgenos",
+    "allergen_notice": "Si tienes alguna alergia o intolerancia, pregunta al personal antes de pedir."
+  }
 }

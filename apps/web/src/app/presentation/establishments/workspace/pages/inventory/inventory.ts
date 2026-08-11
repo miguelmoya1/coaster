@@ -61,6 +61,9 @@ export default class Inventory {
   protected readonly canImportCatalogue = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE),
   );
+  protected readonly canManageMenu = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_MENU),
+  );
   protected readonly canUpdateCategory = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY),
   );

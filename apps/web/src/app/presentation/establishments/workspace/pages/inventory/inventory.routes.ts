@@ -6,6 +6,12 @@ const inventoryRoutes: Routes = [
   { path: '', loadComponent: () => import('./inventory') },
 
   {
+    path: 'menu',
+    loadComponent: () => import('./pages/menu/menu-editor'),
+    canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_MANAGE_MENU)],
+  },
+
+  {
     path: 'import',
     loadComponent: () => import('./pages/import/import-catalogue'),
     canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE)],

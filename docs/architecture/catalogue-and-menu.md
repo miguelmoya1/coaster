@@ -1,7 +1,8 @@
 # The catalogue, the menu, and the languages between them
 
-Step 1 is built: the starter catalogue is a file, names are words, and the establishment has a
-language. The menu is still a design.
+Steps 1 and 2 are built: the starter catalogue is a file, names are words, the establishment has a
+language, and the menu can be written, published and read by customers. What is left is the
+assistant's help with translations.
 
 ## Why the previous shape had to go
 
@@ -150,5 +151,8 @@ coastal bar may want French on the menu without Coaster being translated into Fr
    the file was generated from, so a re-import matches instead of duplicating. It took with it the
    template tables, the API module, the admin screen, the `templates.*` i18n blocks and the rename
    lock those keys had needed. Allergens went in at the same time, while catalogues were still empty.
-2. **The menu**: model, editor, publish, public route. Ships without Redis thanks to the snapshot.
-3. **Translation help**: the checklist, then the assistant's batch pass.
+2. ~~**The menu**~~ Done. `Menu`, `MenuSection` and `MenuItem`, a draft read and replaced whole, a
+   publish that renders every language into `publishedSnapshot`, and `GET /menus/:slug` outside every
+   guard with its own rate limit. The editor lives under inventory; the public page at `/m/:slug`.
+3. **Translation help**: the editor already counts what is unwritten; the assistant's batch pass is
+   what remains.

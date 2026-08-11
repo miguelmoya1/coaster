@@ -1,5 +1,11 @@
 <coaster-page-container size="lg">
   <coaster-page-header [title]="'nav.inventory' | translate" [subtitle]="'inventory.inventory_title' | translate">
+    @if (canManageMenu()) {
+      <button actions mat-stroked-button [routerLink]="['menu']">
+        <mat-icon>restaurant_menu</mat-icon>
+        <span>{{ 'menu.title' | translate }}</span>
+      </button>
+    }
     @if (canImportCatalogue()) {
       <button actions mat-flat-button [routerLink]="['import']">
         <mat-icon>download</mat-icon>
