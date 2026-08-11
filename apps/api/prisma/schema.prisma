@@ -36,6 +36,25 @@ enum DbEstablishmentModule {
   @@map("EstablishmentModule")
 }
 
+enum DbAllergen {
+  GLUTEN
+  CRUSTACEANS
+  EGGS
+  FISH
+  PEANUTS
+  SOYBEANS
+  MILK
+  NUTS
+  CELERY
+  MUSTARD
+  SESAME
+  SULPHITES
+  LUPIN
+  MOLLUSCS
+
+  @@map("Allergen")
+}
+
 enum DbSubscriptionPlan {
   FREE
   PRO
@@ -174,6 +193,7 @@ model DbEstablishmentSettings {
   establishmentId String                  @unique
   establishment   DbEstablishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   modules         DbEstablishmentModule[]
+  language        String                  @default("es")
   configuredAt    DateTime?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
@@ -296,6 +316,7 @@ model DbProduct {
   currentStock  Int           @default(0)
   minStockAlert Int           @default(0)
   imageUrl      String?
+  allergens     DbAllergen[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?

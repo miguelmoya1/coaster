@@ -6,6 +6,7 @@ export * from './constants/establishment-permissions.type';
 export * from './constants/establishment-role.type';
 export * from './constants/delivery-status.type';
 export * from './constants/error.types';
+export * from './constants/language.type';
 export * from './constants/order-status.type';
 export * from './constants/payment-method.type';
 export * from './constants/payment-status.type';

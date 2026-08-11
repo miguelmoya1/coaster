@@ -38,7 +38,7 @@ describe('EstablishmentWriteRepository', () => {
       const expectedResult = { id: 'establishment-1', ...createEstablishmentDto };
       vi.mocked(dbService.dbEstablishment.create).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.create(userId, createEstablishmentDto as any, DEFAULT_ESTABLISHMENT_MODULES);
+      const result = await repository.create(userId, createEstablishmentDto as any, DEFAULT_ESTABLISHMENT_MODULES, 'en');
 
       expect(dbService.dbEstablishment.create).toHaveBeenCalledWith({
         data: {
@@ -51,7 +51,7 @@ describe('EstablishmentWriteRepository', () => {
               trialEndsAt: expect.any(Date),
             },
           },
-          settings: { create: { modules: DEFAULT_ESTABLISHMENT_MODULES } },
+          settings: { create: { modules: DEFAULT_ESTABLISHMENT_MODULES, language: 'en' } },
         },
       });
       expect(result).toEqual(expectedResult);

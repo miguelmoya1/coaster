@@ -1,4 +1,4 @@
-import type { EstablishmentModule, UserId } from '@coaster/common';
+import type { EstablishmentModule, Language, UserId } from '@coaster/common';
 import {
   DbEstablishmentModule,
   DbEstablishmentRole,
@@ -28,7 +28,12 @@ type CreateEstablishmentDto = Omit<
 export class EstablishmentWriteRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async create(userId: UserId, createEstablishmentDto: CreateEstablishmentDto, modules: EstablishmentModule[]) {
+  public async create(
+    userId: UserId,
+    createEstablishmentDto: CreateEstablishmentDto,
+    modules: EstablishmentModule[],
+    language: Language,
+  ) {
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
     return this._db.dbEstablishment.create({
@@ -42,7 +47,7 @@ export class EstablishmentWriteRepository {
             trialEndsAt,
           },
         },
-        settings: { create: { modules: modules as DbEstablishmentModule[] } },
+        settings: { create: { modules: modules as DbEstablishmentModule[], language } },
       },
     });
   }
