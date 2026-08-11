@@ -158,7 +158,7 @@ interface Step {
       </section>
 
       <section id="precios" class="border-t border-white/10 bg-surface-container-low/40 py-20 sm:py-24">
-        <div class="mx-auto max-w-4xl px-4 sm:px-6">
+        <div class="mx-auto max-w-2xl px-4 sm:px-6">
           <header class="text-center">
             <span class="text-xs font-bold uppercase tracking-widest text-primary">
               {{ 'landing.pricing.tag' | translate }}
@@ -169,73 +169,44 @@ interface Step {
             <p class="mt-3 text-slate-300">{{ 'landing.pricing.subtitle' | translate }}</p>
           </header>
 
-          <div class="mt-10 grid gap-4 sm:grid-cols-2">
-            <article class="rounded-2xl border border-white/10 bg-white/[0.02] p-6 flex flex-col gap-4">
-              <div>
-                <h3 class="font-bold text-lg">{{ 'landing.pricing.free_title' | translate }}</h3>
-                <p class="mt-1 text-sm text-slate-400">{{ 'landing.pricing.free_desc' | translate }}</p>
-              </div>
-
-              <p class="flex items-baseline gap-1">
-                <span class="text-3xl sm:text-4xl font-black tabular-nums">
-                  {{ 'landing.pricing.free_price' | translate }}
-                </span>
-                <span class="text-sm text-slate-400">{{ 'landing.pricing.free_period' | translate }}</span>
-              </p>
-
-              <ul class="flex flex-col gap-2 text-sm text-slate-300">
-                @for (feature of freeFeatures; track feature) {
-                  <li class="flex gap-2">
-                    <span class="text-primary" aria-hidden="true">✓</span>
-                    <span>{{ feature | translate }}</span>
-                  </li>
-                }
-              </ul>
-
-              <a
-                mat-stroked-button
-                routerLink="/login"
-                class="mt-auto rounded-xl! border-white/20! text-white! font-bold!"
-              >
-                {{ 'landing.pricing.free_cta' | translate }}
-              </a>
-            </article>
-
-            <article class="rounded-2xl border border-primary/40 bg-primary/5 p-6 flex flex-col gap-4 relative">
+          <article class="mt-10 rounded-2xl border border-primary/40 bg-primary/5 p-6 sm:p-8 flex flex-col gap-6">
+            <div class="flex flex-col gap-2">
               <span
-                class="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-black uppercase tracking-wide"
+                class="self-start rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-black"
               >
-                {{ 'landing.pricing.pro_badge' | translate }}
+                {{ 'landing.pricing.trial_badge' | translate }}
               </span>
+              <h3 class="font-bold text-lg">{{ 'landing.pricing.trial_title' | translate }}</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">{{ 'landing.pricing.trial_desc' | translate }}</p>
+            </div>
 
-              <div>
-                <h3 class="font-bold text-lg">{{ 'landing.pricing.pro_title' | translate }}</h3>
-                <p class="mt-1 text-sm text-slate-400">{{ 'landing.pricing.pro_desc' | translate }}</p>
-              </div>
+            <div class="flex items-baseline gap-2 border-t border-white/10 pt-6">
+              <span class="text-sm text-slate-400">{{ 'landing.pricing.then' | translate }}</span>
+              <span class="text-3xl sm:text-4xl font-black tabular-nums text-primary">
+                {{ 'landing.pricing.price' | translate }}
+              </span>
+              <span class="text-sm text-slate-400">{{ 'landing.pricing.period' | translate }}</span>
+            </div>
 
-              <p class="flex items-baseline gap-1">
-                <span class="text-3xl sm:text-4xl font-black tabular-nums text-primary">
-                  {{ 'landing.pricing.pro_price' | translate }}
-                </span>
-                <span class="text-sm text-slate-400">{{ 'landing.pricing.pro_period' | translate }}</span>
-              </p>
+            <p class="-mt-4 text-xs text-slate-400">{{ 'landing.pricing.price_note' | translate }}</p>
 
-              <ul class="flex flex-col gap-2 text-sm text-slate-300">
-                @for (feature of proFeatures; track feature) {
-                  <li class="flex gap-2">
-                    <span class="text-primary" aria-hidden="true">✓</span>
-                    <span>{{ feature | translate }}</span>
-                  </li>
-                }
-              </ul>
+            <ul class="flex flex-col gap-2 text-sm text-slate-300">
+              @for (feature of planFeatures; track feature) {
+                <li class="flex gap-2">
+                  <span class="text-primary" aria-hidden="true">✓</span>
+                  <span>{{ feature | translate }}</span>
+                </li>
+              }
+            </ul>
 
-              <a mat-flat-button routerLink="/login" class="mt-auto bg-primary! text-black! font-bold! rounded-xl!">
-                {{ 'landing.pricing.pro_cta' | translate }}
-              </a>
-            </article>
-          </div>
+            <a mat-flat-button routerLink="/login" class="bg-primary! text-black! font-bold! rounded-xl! py-3!">
+              {{ 'landing.pricing.cta' | translate }}
+            </a>
+          </article>
 
-          <p class="mt-6 text-center text-xs text-slate-400">{{ 'landing.pricing.note' | translate }}</p>
+          <p class="mt-6 text-center text-xs text-slate-400 leading-relaxed">
+            {{ 'landing.pricing.note' | translate }}
+          </p>
         </div>
       </section>
 
@@ -298,16 +269,10 @@ export default class Landing {
     { titleKey: 'landing.how.step3_title', descKey: 'landing.how.step3_desc' },
   ];
 
-  protected readonly freeFeatures = [
-    'landing.pricing.free_feature1',
-    'landing.pricing.free_feature2',
-    'landing.pricing.free_feature3',
-  ];
-
-  protected readonly proFeatures = [
-    'landing.pricing.pro_feature1',
-    'landing.pricing.pro_feature2',
-    'landing.pricing.pro_feature3',
-    'landing.pricing.pro_feature4',
+  protected readonly planFeatures = [
+    'landing.pricing.feature1',
+    'landing.pricing.feature2',
+    'landing.pricing.feature3',
+    'landing.pricing.feature4',
   ];
 }
