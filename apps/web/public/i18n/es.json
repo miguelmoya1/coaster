@@ -52,6 +52,8 @@
   "ORDER_NOT_OPEN": "No se pueden realizar cambios porque el pedido ya está cerrado.",
   "pattern": "Formato no válido.",
   "PRODUCT_NOT_FOUND": "El producto de inventario solicitado no existe.",
+  "MENU_NOT_FOUND": "Esta carta no existe o todavía no se ha publicado.",
+  "MENU_LANGUAGE_NOT_OFFERED": "La carta no incluye su propio idioma, que es el que se usa cuando falta una traducción.",
   "PRINTER_ALREADY_CONFIGURED": "Ya hay una impresora configurada para este establecimiento.",
   "PRINTER_INVALID_DEVICE_KEY": "La clave de dispositivo de la impresora no es válida.",
   "PRINTER_NOT_CONFIGURED": "No hay ninguna impresora configurada.",

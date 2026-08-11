@@ -184,6 +184,7 @@ model DbEstablishment {
   aiUsage     DbAiUsage[]
   pairings    DbPrinterPairing[]
   timeEntries DbTimeEntry[]
+  menus       DbMenu[]
 
   @@map("Establishment")
 }
@@ -294,6 +295,51 @@ model DbShiftExchange {
   @@map("ShiftExchange")
 }
 
+model DbMenu {
+  id                String          @id @default(uuid())
+  establishmentId   String
+  establishment     DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  slug              String          @unique
+  name              String
+  defaultLanguage   String
+  languages         String[]
+  publishedSnapshot Json?
+  publishedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  sections          DbMenuSection[]
+
+  @@index([establishmentId])
+  @@map("Menu")
+}
+
+model DbMenuSection {
+  id           String       @id @default(uuid())
+  menuId       String
+  menu         DbMenu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  position     Int
+  translations Json
+  items        DbMenuItem[]
+
+  @@index([menuId])
+  @@map("MenuSection")
+}
+
+model DbMenuItem {
+  id           String        @id @default(uuid())
+  sectionId    String
+  section      DbMenuSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      DbProduct?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  price        Int?
+  position     Int
+  translations Json
+
+  @@index([sectionId])
+  @@index([productId])
+  @@map("MenuItem")
+}
+
 model DbCategory {
   id              String          @id @default(uuid())
   establishmentId String
@@ -321,6 +367,7 @@ model DbProduct {
   updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?
   orderItems    DbOrderItem[]
+  menuItems     DbMenuItem[]
 
   @@index([categoryId, deletedAt])
   @@map("Product")

@@ -52,6 +52,8 @@
   "ORDER_NOT_OPEN": "Cannot make changes because the order is already closed.",
   "pattern": "Invalid format.",
   "PRODUCT_NOT_FOUND": "The requested inventory product does not exist.",
+  "MENU_NOT_FOUND": "This menu does not exist or has not been published yet.",
+  "MENU_LANGUAGE_NOT_OFFERED": "The menu does not include its own language, which is the one used when a translation is missing.",
   "PRINTER_ALREADY_CONFIGURED": "A printer is already configured for this establishment.",
   "PRINTER_INVALID_DEVICE_KEY": "The printer device key is invalid.",
   "PRINTER_NOT_CONFIGURED": "No printer has been configured.",

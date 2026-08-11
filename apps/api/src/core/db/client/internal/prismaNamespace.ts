@@ -394,6 +394,9 @@ export const ModelName = {
   DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
+  DbMenu: 'DbMenu',
+  DbMenuSection: 'DbMenuSection',
+  DbMenuItem: 'DbMenuItem',
   DbCategory: 'DbCategory',
   DbProduct: 'DbProduct',
   DbTable: 'DbTable',
@@ -419,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1160,6 +1163,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbShiftExchangeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbShiftExchangeCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbMenu: {
+      payload: Prisma.$DbMenuPayload<ExtArgs>
+      fields: Prisma.DbMenuFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbMenuFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbMenuFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        findFirst: {
+          args: Prisma.DbMenuFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbMenuFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        findMany: {
+          args: Prisma.DbMenuFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>[]
+        }
+        create: {
+          args: Prisma.DbMenuCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        createMany: {
+          args: Prisma.DbMenuCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbMenuCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>[]
+        }
+        delete: {
+          args: Prisma.DbMenuDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        update: {
+          args: Prisma.DbMenuUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbMenuDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbMenuUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbMenuUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbMenuUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuPayload>
+        }
+        aggregate: {
+          args: Prisma.DbMenuAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbMenu>
+        }
+        groupBy: {
+          args: Prisma.DbMenuGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbMenuCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbMenuSection: {
+      payload: Prisma.$DbMenuSectionPayload<ExtArgs>
+      fields: Prisma.DbMenuSectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbMenuSectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbMenuSectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        findFirst: {
+          args: Prisma.DbMenuSectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbMenuSectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        findMany: {
+          args: Prisma.DbMenuSectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>[]
+        }
+        create: {
+          args: Prisma.DbMenuSectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        createMany: {
+          args: Prisma.DbMenuSectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbMenuSectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>[]
+        }
+        delete: {
+          args: Prisma.DbMenuSectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        update: {
+          args: Prisma.DbMenuSectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbMenuSectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbMenuSectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbMenuSectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbMenuSectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuSectionPayload>
+        }
+        aggregate: {
+          args: Prisma.DbMenuSectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbMenuSection>
+        }
+        groupBy: {
+          args: Prisma.DbMenuSectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuSectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbMenuSectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuSectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbMenuItem: {
+      payload: Prisma.$DbMenuItemPayload<ExtArgs>
+      fields: Prisma.DbMenuItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbMenuItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbMenuItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        findFirst: {
+          args: Prisma.DbMenuItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbMenuItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        findMany: {
+          args: Prisma.DbMenuItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>[]
+        }
+        create: {
+          args: Prisma.DbMenuItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        createMany: {
+          args: Prisma.DbMenuItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbMenuItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>[]
+        }
+        delete: {
+          args: Prisma.DbMenuItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        update: {
+          args: Prisma.DbMenuItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbMenuItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbMenuItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbMenuItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbMenuItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbMenuItemPayload>
+        }
+        aggregate: {
+          args: Prisma.DbMenuItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbMenuItem>
+        }
+        groupBy: {
+          args: Prisma.DbMenuItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbMenuItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbMenuItemCountAggregateOutputType> | number
         }
       }
     }
@@ -2069,6 +2294,44 @@ export const DbShiftExchangeScalarFieldEnum = {
 export type DbShiftExchangeScalarFieldEnum = (typeof DbShiftExchangeScalarFieldEnum)[keyof typeof DbShiftExchangeScalarFieldEnum]
 
 
+export const DbMenuScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  slug: 'slug',
+  name: 'name',
+  defaultLanguage: 'defaultLanguage',
+  languages: 'languages',
+  publishedSnapshot: 'publishedSnapshot',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbMenuScalarFieldEnum = (typeof DbMenuScalarFieldEnum)[keyof typeof DbMenuScalarFieldEnum]
+
+
+export const DbMenuSectionScalarFieldEnum = {
+  id: 'id',
+  menuId: 'menuId',
+  position: 'position',
+  translations: 'translations'
+} as const
+
+export type DbMenuSectionScalarFieldEnum = (typeof DbMenuSectionScalarFieldEnum)[keyof typeof DbMenuSectionScalarFieldEnum]
+
+
+export const DbMenuItemScalarFieldEnum = {
+  id: 'id',
+  sectionId: 'sectionId',
+  productId: 'productId',
+  price: 'price',
+  position: 'position',
+  translations: 'translations'
+} as const
+
+export type DbMenuItemScalarFieldEnum = (typeof DbMenuItemScalarFieldEnum)[keyof typeof DbMenuItemScalarFieldEnum]
+
+
 export const DbCategoryScalarFieldEnum = {
   id: 'id',
   establishmentId: 'establishmentId',
@@ -2250,19 +2513,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2416,6 +2679,20 @@ export type ListEnumDbEstablishmentRoleFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'DbAllergen[]'
  */
 export type ListEnumDbAllergenFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbAllergen[]'>
@@ -2496,20 +2773,6 @@ export type EnumDbDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'DbDeliveryStatus[]'
  */
 export type ListEnumDbDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DbDeliveryStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2702,6 +2965,9 @@ export type GlobalOmitConfig = {
   dbEstablishmentMember?: Prisma.DbEstablishmentMemberOmit
   dbShift?: Prisma.DbShiftOmit
   dbShiftExchange?: Prisma.DbShiftExchangeOmit
+  dbMenu?: Prisma.DbMenuOmit
+  dbMenuSection?: Prisma.DbMenuSectionOmit
+  dbMenuItem?: Prisma.DbMenuItemOmit
   dbCategory?: Prisma.DbCategoryOmit
   dbProduct?: Prisma.DbProductOmit
   dbTable?: Prisma.DbTableOmit

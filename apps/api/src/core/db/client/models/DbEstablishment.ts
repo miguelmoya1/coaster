@@ -186,6 +186,7 @@ export type DbEstablishmentWhereInput = {
   aiUsage?: Prisma.DbAiUsageListRelationFilter
   pairings?: Prisma.DbPrinterPairingListRelationFilter
   timeEntries?: Prisma.DbTimeEntryListRelationFilter
+  menus?: Prisma.DbMenuListRelationFilter
 }
 
 export type DbEstablishmentOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type DbEstablishmentOrderByWithRelationInput = {
   aiUsage?: Prisma.DbAiUsageOrderByRelationAggregateInput
   pairings?: Prisma.DbPrinterPairingOrderByRelationAggregateInput
   timeEntries?: Prisma.DbTimeEntryOrderByRelationAggregateInput
+  menus?: Prisma.DbMenuOrderByRelationAggregateInput
 }
 
 export type DbEstablishmentWhereUniqueInput = Prisma.AtLeast<{
@@ -227,6 +229,7 @@ export type DbEstablishmentWhereUniqueInput = Prisma.AtLeast<{
   aiUsage?: Prisma.DbAiUsageListRelationFilter
   pairings?: Prisma.DbPrinterPairingListRelationFilter
   timeEntries?: Prisma.DbTimeEntryListRelationFilter
+  menus?: Prisma.DbMenuListRelationFilter
 }, "id">
 
 export type DbEstablishmentOrderByWithAggregationInput = {
@@ -266,6 +269,7 @@ export type DbEstablishmentCreateInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateInput = {
@@ -285,6 +289,7 @@ export type DbEstablishmentUncheckedCreateInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUpdateInput = {
@@ -304,6 +309,7 @@ export type DbEstablishmentUpdateInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateInput = {
@@ -323,6 +329,7 @@ export type DbEstablishmentUncheckedUpdateInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateManyInput = {
@@ -442,6 +449,20 @@ export type DbEstablishmentUpdateOneRequiredWithoutShiftsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbEstablishmentUpdateToOneWithWhereWithoutShiftsInput, Prisma.DbEstablishmentUpdateWithoutShiftsInput>, Prisma.DbEstablishmentUncheckedUpdateWithoutShiftsInput>
 }
 
+export type DbEstablishmentCreateNestedOneWithoutMenusInput = {
+  create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutMenusInput, Prisma.DbEstablishmentUncheckedCreateWithoutMenusInput>
+  connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutMenusInput
+  connect?: Prisma.DbEstablishmentWhereUniqueInput
+}
+
+export type DbEstablishmentUpdateOneRequiredWithoutMenusNestedInput = {
+  create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutMenusInput, Prisma.DbEstablishmentUncheckedCreateWithoutMenusInput>
+  connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutMenusInput
+  upsert?: Prisma.DbEstablishmentUpsertWithoutMenusInput
+  connect?: Prisma.DbEstablishmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DbEstablishmentUpdateToOneWithWhereWithoutMenusInput, Prisma.DbEstablishmentUpdateWithoutMenusInput>, Prisma.DbEstablishmentUncheckedUpdateWithoutMenusInput>
+}
+
 export type DbEstablishmentCreateNestedOneWithoutCategoriesInput = {
   create?: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutCategoriesInput, Prisma.DbEstablishmentUncheckedCreateWithoutCategoriesInput>
   connectOrCreate?: Prisma.DbEstablishmentCreateOrConnectWithoutCategoriesInput
@@ -556,6 +577,7 @@ export type DbEstablishmentCreateWithoutSettingsInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutSettingsInput = {
@@ -574,6 +596,7 @@ export type DbEstablishmentUncheckedCreateWithoutSettingsInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutSettingsInput = {
@@ -608,6 +631,7 @@ export type DbEstablishmentUpdateWithoutSettingsInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutSettingsInput = {
@@ -626,6 +650,7 @@ export type DbEstablishmentUncheckedUpdateWithoutSettingsInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutPairingsInput = {
@@ -644,6 +669,7 @@ export type DbEstablishmentCreateWithoutPairingsInput = {
   settings?: Prisma.DbEstablishmentSettingsCreateNestedOneWithoutEstablishmentInput
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPairingsInput = {
@@ -662,6 +688,7 @@ export type DbEstablishmentUncheckedCreateWithoutPairingsInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedCreateNestedOneWithoutEstablishmentInput
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPairingsInput = {
@@ -696,6 +723,7 @@ export type DbEstablishmentUpdateWithoutPairingsInput = {
   settings?: Prisma.DbEstablishmentSettingsUpdateOneWithoutEstablishmentNestedInput
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPairingsInput = {
@@ -714,6 +742,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPairingsInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedUpdateOneWithoutEstablishmentNestedInput
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutAiUsageInput = {
@@ -732,6 +761,7 @@ export type DbEstablishmentCreateWithoutAiUsageInput = {
   settings?: Prisma.DbEstablishmentSettingsCreateNestedOneWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutAiUsageInput = {
@@ -750,6 +780,7 @@ export type DbEstablishmentUncheckedCreateWithoutAiUsageInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedCreateNestedOneWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutAiUsageInput = {
@@ -784,6 +815,7 @@ export type DbEstablishmentUpdateWithoutAiUsageInput = {
   settings?: Prisma.DbEstablishmentSettingsUpdateOneWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutAiUsageInput = {
@@ -802,6 +834,7 @@ export type DbEstablishmentUncheckedUpdateWithoutAiUsageInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedUpdateOneWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutMembersInput = {
@@ -820,6 +853,7 @@ export type DbEstablishmentCreateWithoutMembersInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutMembersInput = {
@@ -838,6 +872,7 @@ export type DbEstablishmentUncheckedCreateWithoutMembersInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutMembersInput = {
@@ -872,6 +907,7 @@ export type DbEstablishmentUpdateWithoutMembersInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutMembersInput = {
@@ -890,6 +926,7 @@ export type DbEstablishmentUncheckedUpdateWithoutMembersInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutShiftsInput = {
@@ -908,6 +945,7 @@ export type DbEstablishmentCreateWithoutShiftsInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutShiftsInput = {
@@ -926,6 +964,7 @@ export type DbEstablishmentUncheckedCreateWithoutShiftsInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutShiftsInput = {
@@ -960,6 +999,7 @@ export type DbEstablishmentUpdateWithoutShiftsInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutShiftsInput = {
@@ -968,6 +1008,99 @@ export type DbEstablishmentUncheckedUpdateWithoutShiftsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
+  categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  tables?: Prisma.DbTableUncheckedUpdateManyWithoutEstablishmentNestedInput
+  orders?: Prisma.DbOrderUncheckedUpdateManyWithoutEstablishmentNestedInput
+  printer?: Prisma.DbPrinterConfigUncheckedUpdateOneWithoutEstablishmentNestedInput
+  printJobs?: Prisma.DbPrintJobUncheckedUpdateManyWithoutEstablishmentNestedInput
+  billing?: Prisma.DbEstablishmentSubscriptionUncheckedUpdateOneWithoutEstablishmentNestedInput
+  settings?: Prisma.DbEstablishmentSettingsUncheckedUpdateOneWithoutEstablishmentNestedInput
+  aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
+  pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
+}
+
+export type DbEstablishmentCreateWithoutMenusInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
+  shifts?: Prisma.DbShiftCreateNestedManyWithoutEstablishmentInput
+  categories?: Prisma.DbCategoryCreateNestedManyWithoutEstablishmentInput
+  tables?: Prisma.DbTableCreateNestedManyWithoutEstablishmentInput
+  orders?: Prisma.DbOrderCreateNestedManyWithoutEstablishmentInput
+  printer?: Prisma.DbPrinterConfigCreateNestedOneWithoutEstablishmentInput
+  printJobs?: Prisma.DbPrintJobCreateNestedManyWithoutEstablishmentInput
+  billing?: Prisma.DbEstablishmentSubscriptionCreateNestedOneWithoutEstablishmentInput
+  settings?: Prisma.DbEstablishmentSettingsCreateNestedOneWithoutEstablishmentInput
+  aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
+  pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
+  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+}
+
+export type DbEstablishmentUncheckedCreateWithoutMenusInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
+  shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutEstablishmentInput
+  categories?: Prisma.DbCategoryUncheckedCreateNestedManyWithoutEstablishmentInput
+  tables?: Prisma.DbTableUncheckedCreateNestedManyWithoutEstablishmentInput
+  orders?: Prisma.DbOrderUncheckedCreateNestedManyWithoutEstablishmentInput
+  printer?: Prisma.DbPrinterConfigUncheckedCreateNestedOneWithoutEstablishmentInput
+  printJobs?: Prisma.DbPrintJobUncheckedCreateNestedManyWithoutEstablishmentInput
+  billing?: Prisma.DbEstablishmentSubscriptionUncheckedCreateNestedOneWithoutEstablishmentInput
+  settings?: Prisma.DbEstablishmentSettingsUncheckedCreateNestedOneWithoutEstablishmentInput
+  aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
+  pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
+  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+}
+
+export type DbEstablishmentCreateOrConnectWithoutMenusInput = {
+  where: Prisma.DbEstablishmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutMenusInput, Prisma.DbEstablishmentUncheckedCreateWithoutMenusInput>
+}
+
+export type DbEstablishmentUpsertWithoutMenusInput = {
+  update: Prisma.XOR<Prisma.DbEstablishmentUpdateWithoutMenusInput, Prisma.DbEstablishmentUncheckedUpdateWithoutMenusInput>
+  create: Prisma.XOR<Prisma.DbEstablishmentCreateWithoutMenusInput, Prisma.DbEstablishmentUncheckedCreateWithoutMenusInput>
+  where?: Prisma.DbEstablishmentWhereInput
+}
+
+export type DbEstablishmentUpdateToOneWithWhereWithoutMenusInput = {
+  where?: Prisma.DbEstablishmentWhereInput
+  data: Prisma.XOR<Prisma.DbEstablishmentUpdateWithoutMenusInput, Prisma.DbEstablishmentUncheckedUpdateWithoutMenusInput>
+}
+
+export type DbEstablishmentUpdateWithoutMenusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
+  shifts?: Prisma.DbShiftUpdateManyWithoutEstablishmentNestedInput
+  categories?: Prisma.DbCategoryUpdateManyWithoutEstablishmentNestedInput
+  tables?: Prisma.DbTableUpdateManyWithoutEstablishmentNestedInput
+  orders?: Prisma.DbOrderUpdateManyWithoutEstablishmentNestedInput
+  printer?: Prisma.DbPrinterConfigUpdateOneWithoutEstablishmentNestedInput
+  printJobs?: Prisma.DbPrintJobUpdateManyWithoutEstablishmentNestedInput
+  billing?: Prisma.DbEstablishmentSubscriptionUpdateOneWithoutEstablishmentNestedInput
+  settings?: Prisma.DbEstablishmentSettingsUpdateOneWithoutEstablishmentNestedInput
+  aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
+  pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
+  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+}
+
+export type DbEstablishmentUncheckedUpdateWithoutMenusInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
+  shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutEstablishmentNestedInput
   categories?: Prisma.DbCategoryUncheckedUpdateManyWithoutEstablishmentNestedInput
   tables?: Prisma.DbTableUncheckedUpdateManyWithoutEstablishmentNestedInput
   orders?: Prisma.DbOrderUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -996,6 +1129,7 @@ export type DbEstablishmentCreateWithoutCategoriesInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutCategoriesInput = {
@@ -1014,6 +1148,7 @@ export type DbEstablishmentUncheckedCreateWithoutCategoriesInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutCategoriesInput = {
@@ -1048,6 +1183,7 @@ export type DbEstablishmentUpdateWithoutCategoriesInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutCategoriesInput = {
@@ -1066,6 +1202,7 @@ export type DbEstablishmentUncheckedUpdateWithoutCategoriesInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutTablesInput = {
@@ -1084,6 +1221,7 @@ export type DbEstablishmentCreateWithoutTablesInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutTablesInput = {
@@ -1102,6 +1240,7 @@ export type DbEstablishmentUncheckedCreateWithoutTablesInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutTablesInput = {
@@ -1136,6 +1275,7 @@ export type DbEstablishmentUpdateWithoutTablesInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutTablesInput = {
@@ -1154,6 +1294,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTablesInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutOrdersInput = {
@@ -1172,6 +1313,7 @@ export type DbEstablishmentCreateWithoutOrdersInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutOrdersInput = {
@@ -1190,6 +1332,7 @@ export type DbEstablishmentUncheckedCreateWithoutOrdersInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutOrdersInput = {
@@ -1224,6 +1367,7 @@ export type DbEstablishmentUpdateWithoutOrdersInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutOrdersInput = {
@@ -1242,6 +1386,7 @@ export type DbEstablishmentUncheckedUpdateWithoutOrdersInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutPrinterInput = {
@@ -1260,6 +1405,7 @@ export type DbEstablishmentCreateWithoutPrinterInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPrinterInput = {
@@ -1278,6 +1424,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrinterInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPrinterInput = {
@@ -1312,6 +1459,7 @@ export type DbEstablishmentUpdateWithoutPrinterInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPrinterInput = {
@@ -1330,6 +1478,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrinterInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutPrintJobsInput = {
@@ -1348,6 +1497,7 @@ export type DbEstablishmentCreateWithoutPrintJobsInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutPrintJobsInput = {
@@ -1366,6 +1516,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrintJobsInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutPrintJobsInput = {
@@ -1400,6 +1551,7 @@ export type DbEstablishmentUpdateWithoutPrintJobsInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutPrintJobsInput = {
@@ -1418,6 +1570,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrintJobsInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutBillingInput = {
@@ -1436,6 +1589,7 @@ export type DbEstablishmentCreateWithoutBillingInput = {
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutBillingInput = {
@@ -1454,6 +1608,7 @@ export type DbEstablishmentUncheckedCreateWithoutBillingInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
   timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutBillingInput = {
@@ -1488,6 +1643,7 @@ export type DbEstablishmentUpdateWithoutBillingInput = {
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutBillingInput = {
@@ -1506,6 +1662,7 @@ export type DbEstablishmentUncheckedUpdateWithoutBillingInput = {
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
   timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentCreateWithoutTimeEntriesInput = {
@@ -1524,6 +1681,7 @@ export type DbEstablishmentCreateWithoutTimeEntriesInput = {
   settings?: Prisma.DbEstablishmentSettingsCreateNestedOneWithoutEstablishmentInput
   aiUsage?: Prisma.DbAiUsageCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentUncheckedCreateWithoutTimeEntriesInput = {
@@ -1542,6 +1700,7 @@ export type DbEstablishmentUncheckedCreateWithoutTimeEntriesInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedCreateNestedOneWithoutEstablishmentInput
   aiUsage?: Prisma.DbAiUsageUncheckedCreateNestedManyWithoutEstablishmentInput
   pairings?: Prisma.DbPrinterPairingUncheckedCreateNestedManyWithoutEstablishmentInput
+  menus?: Prisma.DbMenuUncheckedCreateNestedManyWithoutEstablishmentInput
 }
 
 export type DbEstablishmentCreateOrConnectWithoutTimeEntriesInput = {
@@ -1576,6 +1735,7 @@ export type DbEstablishmentUpdateWithoutTimeEntriesInput = {
   settings?: Prisma.DbEstablishmentSettingsUpdateOneWithoutEstablishmentNestedInput
   aiUsage?: Prisma.DbAiUsageUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUpdateManyWithoutEstablishmentNestedInput
 }
 
 export type DbEstablishmentUncheckedUpdateWithoutTimeEntriesInput = {
@@ -1594,6 +1754,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTimeEntriesInput = {
   settings?: Prisma.DbEstablishmentSettingsUncheckedUpdateOneWithoutEstablishmentNestedInput
   aiUsage?: Prisma.DbAiUsageUncheckedUpdateManyWithoutEstablishmentNestedInput
   pairings?: Prisma.DbPrinterPairingUncheckedUpdateManyWithoutEstablishmentNestedInput
+  menus?: Prisma.DbMenuUncheckedUpdateManyWithoutEstablishmentNestedInput
 }
 
 
@@ -1611,6 +1772,7 @@ export type DbEstablishmentCountOutputType = {
   aiUsage: number
   pairings: number
   timeEntries: number
+  menus: number
 }
 
 export type DbEstablishmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1623,6 +1785,7 @@ export type DbEstablishmentCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   aiUsage?: boolean | DbEstablishmentCountOutputTypeCountAiUsageArgs
   pairings?: boolean | DbEstablishmentCountOutputTypeCountPairingsArgs
   timeEntries?: boolean | DbEstablishmentCountOutputTypeCountTimeEntriesArgs
+  menus?: boolean | DbEstablishmentCountOutputTypeCountMenusArgs
 }
 
 /**
@@ -1698,6 +1861,13 @@ export type DbEstablishmentCountOutputTypeCountTimeEntriesArgs<ExtArgs extends r
   where?: Prisma.DbTimeEntryWhereInput
 }
 
+/**
+ * DbEstablishmentCountOutputType without action
+ */
+export type DbEstablishmentCountOutputTypeCountMenusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DbMenuWhereInput
+}
+
 
 export type DbEstablishmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1716,6 +1886,7 @@ export type DbEstablishmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   aiUsage?: boolean | Prisma.DbEstablishment$aiUsageArgs<ExtArgs>
   pairings?: boolean | Prisma.DbEstablishment$pairingsArgs<ExtArgs>
   timeEntries?: boolean | Prisma.DbEstablishment$timeEntriesArgs<ExtArgs>
+  menus?: boolean | Prisma.DbEstablishment$menusArgs<ExtArgs>
   _count?: boolean | Prisma.DbEstablishmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbEstablishment"]>
 
@@ -1754,6 +1925,7 @@ export type DbEstablishmentInclude<ExtArgs extends runtime.Types.Extensions.Inte
   aiUsage?: boolean | Prisma.DbEstablishment$aiUsageArgs<ExtArgs>
   pairings?: boolean | Prisma.DbEstablishment$pairingsArgs<ExtArgs>
   timeEntries?: boolean | Prisma.DbEstablishment$timeEntriesArgs<ExtArgs>
+  menus?: boolean | Prisma.DbEstablishment$menusArgs<ExtArgs>
   _count?: boolean | Prisma.DbEstablishmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbEstablishmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1774,6 +1946,7 @@ export type $DbEstablishmentPayload<ExtArgs extends runtime.Types.Extensions.Int
     aiUsage: Prisma.$DbAiUsagePayload<ExtArgs>[]
     pairings: Prisma.$DbPrinterPairingPayload<ExtArgs>[]
     timeEntries: Prisma.$DbTimeEntryPayload<ExtArgs>[]
+    menus: Prisma.$DbMenuPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2186,6 +2359,7 @@ export interface Prisma__DbEstablishmentClient<T, Null = never, ExtArgs extends 
   aiUsage<T extends Prisma.DbEstablishment$aiUsageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$aiUsageArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbAiUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pairings<T extends Prisma.DbEstablishment$pairingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$pairingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbPrinterPairingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   timeEntries<T extends Prisma.DbEstablishment$timeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$timeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  menus<T extends Prisma.DbEstablishment$menusArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishment$menusArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbMenuPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2882,6 +3056,30 @@ export type DbEstablishment$timeEntriesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.DbTimeEntryScalarFieldEnum | Prisma.DbTimeEntryScalarFieldEnum[]
+}
+
+/**
+ * DbEstablishment.menus
+ */
+export type DbEstablishment$menusArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DbMenu
+   */
+  select?: Prisma.DbMenuSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DbMenu
+   */
+  omit?: Prisma.DbMenuOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DbMenuInclude<ExtArgs> | null
+  where?: Prisma.DbMenuWhereInput
+  orderBy?: Prisma.DbMenuOrderByWithRelationInput | Prisma.DbMenuOrderByWithRelationInput[]
+  cursor?: Prisma.DbMenuWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DbMenuScalarFieldEnum | Prisma.DbMenuScalarFieldEnum[]
 }
 
 /**

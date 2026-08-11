@@ -68,6 +68,7 @@ export const ROLE_PERMISSIONS: Record<EstablishmentRole, EstablishmentPermission
     'establishment:manage-time-entries',
 
     'establishment:manage-printer',
+    'establishment:manage-menu',
 
     ...STAFF_PERMISSIONS,
   ],

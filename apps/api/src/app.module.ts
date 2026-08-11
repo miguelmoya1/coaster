@@ -18,6 +18,7 @@ import { StatsModule } from '@coaster/stats';
 import { StripeModule } from '@coaster/stripe';
 import { TablesModule } from '@coaster/tables';
 import { CatalogueModule } from '@coaster/catalogue';
+import { MenuModule } from '@coaster/menu';
 import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
 import { WebsocketsModule } from '@coaster/websockets';
@@ -49,6 +50,7 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     ShiftExchangesModule,
     TimeTrackingModule,
     CatalogueModule,
+    MenuModule,
     TablesModule,
     OrdersModule,
     StatsModule,

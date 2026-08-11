@@ -61,6 +61,9 @@ export const ModelName = {
   DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
+  DbMenu: 'DbMenu',
+  DbMenuSection: 'DbMenuSection',
+  DbMenuItem: 'DbMenuItem',
   DbCategory: 'DbCategory',
   DbProduct: 'DbProduct',
   DbTable: 'DbTable',
@@ -214,6 +217,44 @@ export const DbShiftExchangeScalarFieldEnum = {
 } as const
 
 export type DbShiftExchangeScalarFieldEnum = (typeof DbShiftExchangeScalarFieldEnum)[keyof typeof DbShiftExchangeScalarFieldEnum]
+
+
+export const DbMenuScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  slug: 'slug',
+  name: 'name',
+  defaultLanguage: 'defaultLanguage',
+  languages: 'languages',
+  publishedSnapshot: 'publishedSnapshot',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbMenuScalarFieldEnum = (typeof DbMenuScalarFieldEnum)[keyof typeof DbMenuScalarFieldEnum]
+
+
+export const DbMenuSectionScalarFieldEnum = {
+  id: 'id',
+  menuId: 'menuId',
+  position: 'position',
+  translations: 'translations'
+} as const
+
+export type DbMenuSectionScalarFieldEnum = (typeof DbMenuSectionScalarFieldEnum)[keyof typeof DbMenuSectionScalarFieldEnum]
+
+
+export const DbMenuItemScalarFieldEnum = {
+  id: 'id',
+  sectionId: 'sectionId',
+  productId: 'productId',
+  price: 'price',
+  position: 'position',
+  translations: 'translations'
+} as const
+
+export type DbMenuItemScalarFieldEnum = (typeof DbMenuItemScalarFieldEnum)[keyof typeof DbMenuItemScalarFieldEnum]
 
 
 export const DbCategoryScalarFieldEnum = {
@@ -397,19 +438,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

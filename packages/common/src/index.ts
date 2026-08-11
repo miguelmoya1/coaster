@@ -1,6 +1,7 @@
 export * from './constants/adjustment-target.type';
 export * from './constants/adjustment-type.type';
 export * from './constants/admin-audit-action.type';
+export * from './constants/allergen.type';
 export * from './constants/establishment-module.type';
 export * from './constants/establishment-permissions.type';
 export * from './constants/establishment-role.type';
@@ -33,6 +34,7 @@ export * from './interfaces/brand.type';
 export * from './interfaces/category.interface';
 export * from './interfaces/common.interface';
 export * from './interfaces/media.interface';
+export * from './interfaces/menu.interface';
 export * from './interfaces/order.interface';
 export * from './interfaces/printer.interface';
 export * from './interfaces/product.interface';
