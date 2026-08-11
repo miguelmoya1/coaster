@@ -13,6 +13,8 @@ that one carries the most rules per line and is the easiest to get wrong.
 - [Access model](architecture/permissions.md) — roles, guards, plan grants
 - [Domain models](architecture/domain-models.md) — what each context owns
 - [Printing bridge](architecture/printing-bridge.md) — the Go service on the venue's network
+- [Catalogue and menu](architecture/catalogue-and-menu.md) — a design, not yet built: the starter
+  catalogue, the public menu and the languages between them
 
 ## Platform
 

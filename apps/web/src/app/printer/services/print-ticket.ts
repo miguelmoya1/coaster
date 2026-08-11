@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import type { Order, OrderItem, PrintJobDto, PrintTicketItemDto, PrintTicketPayloadDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
+import { TranslateService } from '@ngx-translate/core';
 import { PrinterRepository } from '../data-access/printer.repository';
 
 const RESULT_TIMEOUT_MS = 30_000;
@@ -11,6 +12,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 @Injectable({ providedIn: 'root' })
 export class PrintTicket {
   readonly #printerRepository = inject(PrinterRepository);
+  readonly #translate = inject(TranslateService);
 
   public async execute(order: Order, establishmentName?: string): Promise<void> {
     const payload = this.buildTicketPayload(order, establishmentName);
@@ -45,7 +47,7 @@ export class PrintTicket {
 
   private buildTicketPayload(order: Order, establishmentName?: string): PrintTicketPayloadDto {
     const items: PrintTicketItemDto[] = order.items.map((item: OrderItem) => ({
-      name: item.productName ?? `Product ${item.productId}`,
+      name: this.#translate.instant(item.productName ?? `Product ${item.productId}`),
       quantity: item.quantity,
       price: this.formatPrice(item.priceAtPurchase),
       total: this.formatPrice(item.priceAtPurchase * item.quantity),

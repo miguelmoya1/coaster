@@ -52,6 +52,7 @@
   "ORDER_NOT_OPEN": "No se pueden realizar cambios porque el pedido ya está cerrado.",
   "pattern": "Formato no válido.",
   "PRODUCT_NOT_FOUND": "El producto de inventario solicitado no existe.",
+  "PRODUCT_NAME_FROM_TEMPLATE": "Este producto vino del catálogo y su nombre se traduce solo, así que no puede cambiarse.",
   "PRINTER_ALREADY_CONFIGURED": "Ya hay una impresora configurada para este establecimiento.",
   "PRINTER_INVALID_DEVICE_KEY": "La clave de dispositivo de la impresora no es válida.",
   "PRINTER_NOT_CONFIGURED": "No hay ninguna impresora configurada.",
@@ -428,7 +429,8 @@
       "image_url_label": "Imagen del Producto",
       "min_stock_label": "Alerta de Stock Mínimo",
       "name_label": "Nombre del Producto",
-      "name_placeholder": "Ej. Absolut Vodka"
+      "name_placeholder": "Ej. Absolut Vodka",
+      "name_from_template": "Nombre de catálogo: se traduce solo y no se puede editar"
     },
     "empty": "No se encontraron productos.",
     "import_action": "Importar seleccionados",

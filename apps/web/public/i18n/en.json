@@ -52,6 +52,7 @@
   "ORDER_NOT_OPEN": "Cannot make changes because the order is already closed.",
   "pattern": "Invalid format.",
   "PRODUCT_NOT_FOUND": "The requested inventory product does not exist.",
+  "PRODUCT_NAME_FROM_TEMPLATE": "This product came from the catalogue and its name translates itself, so it cannot be changed.",
   "PRINTER_ALREADY_CONFIGURED": "A printer is already configured for this establishment.",
   "PRINTER_INVALID_DEVICE_KEY": "The printer device key is invalid.",
   "PRINTER_NOT_CONFIGURED": "No printer has been configured.",
@@ -428,7 +429,8 @@
       "image_url_label": "Product Image",
       "min_stock_label": "Min Stock Alert",
       "name_label": "Product Name",
-      "name_placeholder": "e.g. Absolut Vodka"
+      "name_placeholder": "e.g. Absolut Vodka",
+      "name_from_template": "Catalogue name: it translates itself and cannot be edited"
     },
     "empty": "No products found.",
     "import_action": "Import selected",

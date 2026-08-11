@@ -5,43 +5,68 @@ this file is only the running order.
 
 ## Next
 
-### 1. Freeze what a product was sold as
+### 1. Get the catalogue out of translation keys
 
-Renaming a product today rewrites what every past order appears to have sold: `OrderItem` stores
-`priceAtPurchase` but never the name it was bought under. Either the name locks after the first sale,
-or the order line snapshots it the way `TimeEntry` snapshots the user. The snapshot is the better of
-the two — it keeps the catalogue editable and it makes a receipt reprinted a year later still true.
-Small, and the only item here that is fixing something rather than adding to it.
+Designed in [catalogue and menu](docs/architecture/catalogue-and-menu.md). Imported products are
+stored as `templates.products.coffee_black` rather than "Café solo", so everything that is not the
+Angular app reads keys — the assistant already does, and the menu would show them to customers.
+Worse, the key is generated from whatever an admin types while the translation is hand-written in the
+web and deployed, so adding one product to the catalogue silently creates a broken one.
 
-### 2. Redis as a read cache
+The starter catalogue becomes a versioned file, the establishment gets a language, and the import
+writes words. It deletes far more than it adds: two tables, the `templates` module, the admin editor,
+the `templates.*` i18n blocks, and — with words in the column — `isTemplateName`, the rename lock and
+`PRODUCT_NAME_FROM_TEMPLATE`.
 
-Reads and writes are already separate, so the cache has an obvious seam: queries read through it,
-commands never touch it, and the events those commands publish are what expires it.
+Worth doing before there is a live establishment: afterwards it means picking a language for every
+venue already storing keys, with nothing to pick it from.
 
-- **The events come first.** 24 of the 67 command handlers publish nothing today — the gaps are
-  `printer`, `templates`, `shift-exchanges`, `establishments` and `users`. Every command emits its
-  event even where nothing listens yet, because a write with no event is exactly a write the cache
-  will never hear about.
-- **Events invalidate, they do not write.** The handler deletes the keys its command dirtied and the
-  next read repopulates from Postgres. Writing the new value straight from the event instead lets two
-  commands arriving out of order leave the older value in Redis, where the TTL would keep it for
-  hours. Deleting is idempotent and cannot invert.
-- **Cache the request preamble before the queries.** Every authenticated request already makes two or
-  three round-trips before its handler runs: `getUserRole`, `getEstablishmentMemberRole`, the module
-  list and the subscription state, all inside guards. That is the hottest read in the app and the one
-  that pays for itself first. It also has to be the most carefully expired: `MemberRoleChanged` and
-  `MemberRemoved` already exist, and a withdrawn permission must never wait out a TTL.
+### 2. Public menu
+
+A QR showing a menu the establishment publishes, in the customer's language. Not a view over the
+catalogue: the catalogue is operational and private, and holds things nobody should read. The menu is
+its own document — sections, order, descriptions, translations, an optional price of its own — and
+publishing renders it once into a snapshot the public route reads whole.
+
+That snapshot is why this now comes before Redis rather than after: a published menu is one row and
+one language pick, so it is already fast without a cache in front of it.
+
+Explicitly not ordering from the QR. That is a different product with payments and table state in it.
+
+### 3. Redis in front of the hot path
+
+**Not a cache over everything.** Orders, the catalogue, shifts and stats keep going straight to
+Postgres: they change constantly, they are read by few people at once, and caching them buys latency
+nobody notices in exchange for a stale figure somebody acts on. What goes in Redis is the preamble
+every authenticated request pays before its handler even starts.
+
+- **What is cached.** `getUserRole`, `getEstablishmentMemberRole`, the establishment's module list
+  and its subscription state — all four run inside guards, on every single request, and all four
+  change a few times a month at most. Read them from cache and every endpoint in the app loses two or
+  three round-trips at once. The user record behind `CurrentUser` is the same shape of data and joins
+  them.
+- **A miss is not an error.** Not in Redis means ask Postgres, hand back the answer and store it on
+  the way out. Nothing changes for the caller, and Redis being down has to degrade into today's
+  behaviour rather than into an outage.
+- **A change deletes the key, it never rewrites it.** Change a role, remove a member, toggle a module
+  and the event handler drops that key; the next request repopulates from Postgres. Writing the new
+  value from the event instead lets two commands arriving out of order leave the older one in Redis,
+  where the TTL would keep it for hours. Deleting is idempotent and cannot invert.
+- **The events those deletions hang off.** `MemberRoleChanged` and `MemberRemoved` already exist.
+  `update-establishment-settings` and `update-user` publish nothing today and will have to. Another
+  fourteen command handlers are silent too once `templates` is gone — `printer`, `shift-exchanges`,
+  the rest of `establishments`; every command should end up emitting its event even where nothing
+  listens, but only those two block this step.
 - **8 hours of TTL** as the backstop, roughly a working day, so a missed invalidation cannot outlive
   the shift that saw it and the instance stays small enough to stay cheap.
 - Redis also fixes something already broken: `ThrottlerModule` counts in memory, so across more than
   one Cloud Run instance the 300/min limit is really 300 per instance.
 
-### 3. Public menu
+### 4. Help with the translations
 
-A QR on the table showing the catalogue: unauthenticated, read-only, and identical for every customer
-— the one screen where caching is the design rather than an optimisation, which is why it comes after
-Redis. It needs a route that sits outside every guard, so what it exposes (prices yes, stock and
-takings no) and how hard a stranger can hit it are part of building it, not a later pass.
+The checklist of what has no wording yet in each language, and then the assistant translating a menu
+in one pass — once per item rather than once per request, so a 50-item menu is about one message of
+the monthly allowance. Reviewed before it saves.
 
 ## Later
 
@@ -62,6 +87,10 @@ takings no) and how hard a stranger can hit it are part of building it, not a la
 
 ## Known debt
 
+- **Renaming a hand-typed product rewrites history.** `OrderItem` stores `priceAtPurchase` but never
+  the name it was sold under, so a receipt reprinted after a rename shows a sale that never happened
+  under that name. Imported products are safe — their names are locked — but typed ones are not. The
+  fix is for the order line to snapshot the name the way `TimeEntry` snapshots the user.
 - **Open CORS** (`origin: '*'`) on both the API and the websocket gateway, pending a decision on the
   production domain. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users

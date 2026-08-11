@@ -41,4 +41,5 @@ export * from './interfaces/template.interface';
 export * from './interfaces/time-entry.interface';
 export * from './interfaces/user.interface';
 export * from './utils/stock.util';
+export * from './utils/template-name.util';
 export * from './utils/brands';
