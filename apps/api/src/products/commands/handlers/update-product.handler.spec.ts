@@ -15,7 +15,6 @@ describe('UpdateProductHandler', () => {
   const repository = {
     checkCategoryBelongsToEstablishment: vi.fn(),
     checkProductBelongsToEstablishment: vi.fn(),
-    findName: vi.fn(),
     update: vi.fn(),
   };
   const eventBus = {
@@ -24,7 +23,6 @@ describe('UpdateProductHandler', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    repository.findName.mockResolvedValue('Refresco');
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -58,57 +56,6 @@ describe('UpdateProductHandler', () => {
 
     const cmd = new UpdateProductCommand(establishmentId, productId, dto);
     await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
-  });
-
-  it('should refuse to rename a product that came from a template', async () => {
-    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
-    repository.findName.mockResolvedValue('templates.products.coffee_black');
-
-    const cmd = new UpdateProductCommand(establishmentId, productId, { name: 'Café de la casa' });
-
-    await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
-    expect(repository.update).not.toHaveBeenCalled();
-  });
-
-  it('should let a template product change everything except its name', async () => {
-    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
-    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(true);
-    repository.findName.mockResolvedValue('templates.products.coffee_black');
-    repository.update.mockResolvedValue({
-      id: 'prod-1',
-      categoryId: 'cat-2',
-      name: 'templates.products.coffee_black',
-      price: 180,
-      currentStock: 10,
-      minStockAlert: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await handler.execute(new UpdateProductCommand(establishmentId, productId, { price: 180 }));
-
-    expect(repository.findName).not.toHaveBeenCalled();
-    expect(repository.update).toHaveBeenCalledWith(productId, { price: 180 });
-  });
-
-  it('should accept a template product whose name is sent back unchanged', async () => {
-    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
-    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(true);
-    repository.findName.mockResolvedValue('templates.products.coffee_black');
-    repository.update.mockResolvedValue({
-      id: 'prod-1',
-      categoryId: 'cat-2',
-      name: 'templates.products.coffee_black',
-      price: 180,
-      currentStock: 10,
-      minStockAlert: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    const cmd = new UpdateProductCommand(establishmentId, productId, { name: 'templates.products.coffee_black' });
-
-    await expect(handler.execute(cmd)).resolves.toBeUndefined();
   });
 
   it('should update product and publish stock changed event', async () => {

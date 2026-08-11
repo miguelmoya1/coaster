@@ -15,7 +15,6 @@ const NAV_ITEMS: AdminNavItem[] = [
   { path: 'establishments', icon: 'storefront', labelKey: 'admin.nav.establishments' },
   { path: 'users', icon: 'group', labelKey: 'admin.nav.users' },
   { path: 'audit', icon: 'history', labelKey: 'admin.nav.audit' },
-  { path: 'templates', icon: 'dashboard_customize', labelKey: 'admin.nav.templates' },
 ];
 
 @Component({

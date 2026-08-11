@@ -58,8 +58,8 @@ export default class Inventory {
 
   readonly #myMemberStore = inject(MyMemberStore);
 
-  protected readonly canImportTemplates = computed(() =>
-    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_IMPORT_TEMPLATES),
+  protected readonly canImportCatalogue = computed(() =>
+    this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE),
   );
   protected readonly canUpdateCategory = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY),

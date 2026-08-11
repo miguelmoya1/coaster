@@ -4,7 +4,7 @@ import { EstablishmentModule } from '@coaster/common';
 import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
 import { ProductsStore } from '@coaster/products';
-import { TemplatesStore } from '@coaster/templates';
+import { CatalogueStore } from '@coaster/catalogue';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OnboardingDialog } from './onboarding-dialog';
@@ -17,9 +17,8 @@ describe('OnboardingDialog', () => {
   const modulesStoreMock = { save: vi.fn().mockResolvedValue(undefined) };
   const categoriesStoreMock = { reloadCategories: vi.fn() };
   const productsStoreMock = { reloadProducts: vi.fn() };
-  const templatesStoreMock = {
-    categories: { hasValue: () => true, value: () => [{ id: 'cat-1' }, { id: 'cat-2' }] },
-    importToEstablishment: vi.fn().mockResolvedValue(undefined),
+  const catalogueStoreMock = {
+    import: vi.fn().mockResolvedValue(undefined),
   };
 
   const typeNamed = (key: string) => component['types'].find((type) => type.key === key)!;
@@ -34,7 +33,7 @@ describe('OnboardingDialog', () => {
         { provide: MatDialogRef, useValue: dialogRefMock },
         { provide: MAT_DIALOG_DATA, useValue: { establishmentId: 'establishment-1', establishmentName: 'El Bar' } },
         { provide: ModulesStore, useValue: modulesStoreMock },
-        { provide: TemplatesStore, useValue: templatesStoreMock },
+        { provide: CatalogueStore, useValue: catalogueStoreMock },
         { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
       ],
@@ -50,7 +49,7 @@ describe('OnboardingDialog', () => {
     await Promise.resolve();
 
     expect(modulesStoreMock.save).toHaveBeenCalledWith([EstablishmentModule.TIME_TRACKING]);
-    expect(templatesStoreMock.importToEstablishment).not.toHaveBeenCalled();
+    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
@@ -69,7 +68,7 @@ describe('OnboardingDialog', () => {
       EstablishmentModule.TIME_TRACKING,
       EstablishmentModule.INVENTORY,
     ]);
-    expect(templatesStoreMock.importToEstablishment).toHaveBeenCalledWith('establishment-1', ['cat-1', 'cat-2']);
+    expect(catalogueStoreMock.import).toHaveBeenCalledWith('establishment-1');
   });
 
   /* The inventory loads behind this dialog, so an import it never hears about leaves it showing nothing. */
@@ -85,7 +84,7 @@ describe('OnboardingDialog', () => {
     component['choose'](typeNamed('hospitality'));
     await component['finish'](false);
 
-    expect(templatesStoreMock.importToEstablishment).not.toHaveBeenCalled();
+    expect(catalogueStoreMock.import).not.toHaveBeenCalled();
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 

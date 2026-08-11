@@ -2,7 +2,7 @@ import { asEstablishmentId, asOrderId, asOrderItemId, asProductId } from '@coast
 import { TestBed } from '@angular/core/testing';
 import type { Order, PrintTicketPayloadDto } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { provideTranslateService, TranslateService } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrinterRepository } from '../data-access/printer.repository';
 import { PrintTicket } from './print-ticket';
@@ -34,9 +34,6 @@ describe('PrintTicket', () => {
       ],
     });
 
-    const translate = TestBed.inject(TranslateService);
-    translate.setTranslation('es', { 'templates.products.coffee_black': 'Café solo' }, true);
-    translate.use('es');
     service = TestBed.inject(PrintTicket);
   });
 
@@ -125,16 +122,6 @@ describe('PrintTicket', () => {
     const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
     expect(payload.items?.[0].name).toBe('Cerveza');
     expect(payload.items?.[1].name).toBe('Tapa de Jamón');
-  });
-
-  it('should print an imported product as the word, never as its translation key', async () => {
-    const order = createMockOrder();
-    order.items[0].productName = 'templates.products.coffee_black';
-
-    await service.execute(order);
-
-    const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
-    expect(payload.items?.[0].name).toBe('Café solo');
   });
 
   it('should use tableName when available', async () => {

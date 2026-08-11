@@ -7,8 +7,8 @@ const inventoryRoutes: Routes = [
 
   {
     path: 'import',
-    loadComponent: () => import('./pages/import/import-templates'),
-    canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_IMPORT_TEMPLATES)],
+    loadComponent: () => import('./pages/import/import-catalogue'),
+    canActivate: [permissionGuard(EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE)],
   },
 ];
 

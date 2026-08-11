@@ -13,7 +13,11 @@ The full access story is in [access model](../architecture/permissions.md).
 | `/admin/establishments` | Searchable list with filters; detail page with plan and team actions           |
 | `/admin/users`          | Find people, promote or demote admins, activate and deactivate                 |
 | `/admin/audit`          | Everything done from the panel                                                 |
-| `/admin/templates`      | Standard menu templates offered when creating an establishment                 |
+
+The starter catalogue an establishment can import is no longer edited here: it ships with the API as
+[`starter-catalogue.ts`](../../apps/api/src/catalogue/starter-catalogue.ts), so changing it is a
+reviewed commit rather than a paste into production. See
+[catalogue and menu](../architecture/catalogue-and-menu.md).
 
 ## Granting PRO without Stripe
 

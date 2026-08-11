@@ -68,9 +68,6 @@ const runtimePrefixes = [
   'dashboard.schedule.status.',
   'members.invite.role_hint_',
   'schedule.exchanges.period_',
-  // Seeded catalogue names: the API stores the key and the app translates whatever it is sent.
-  'templates.categories.',
-  'templates.products.',
 ];
 
 /** Angular's validator names, rendered straight through by the shared form-field components. */

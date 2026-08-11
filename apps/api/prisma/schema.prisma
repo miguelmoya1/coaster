@@ -326,30 +326,6 @@ model DbProduct {
   @@map("Product")
 }
 
-model DbCategoryTemplate {
-  id        String              @id @default(uuid())
-  name      String
-  icon      String?
-  products  DbProductTemplate[]
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-
-  @@map("CategoryTemplate")
-}
-
-model DbProductTemplate {
-  id         String             @id @default(uuid())
-  name       String
-  price      Int                @default(0)
-  categoryId String
-  category   DbCategoryTemplate @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  imageUrl   String?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-
-  @@map("ProductTemplate")
-}
-
 model DbTable {
   id              String          @id @default(uuid())
   name            String

@@ -43,7 +43,7 @@ const OWNER_ONLY_PERMISSIONS: EstablishmentPermission[] = [
 
   'establishment:delete-category',
   'establishment:delete-product',
-  'establishment:import-templates',
+  'establishment:import-catalogue',
 
   'establishment:manage-billing',
   'establishment:manage-settings',

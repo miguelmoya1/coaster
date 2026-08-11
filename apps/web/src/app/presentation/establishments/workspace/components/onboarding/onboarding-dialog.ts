@@ -8,7 +8,7 @@ import { EstablishmentModule } from '@coaster/common';
 import { CategoriesStore } from '@coaster/categories';
 import { ModulesStore } from '@coaster/establishments';
 import { ProductsStore } from '@coaster/products';
-import { TemplatesStore } from '@coaster/templates';
+import { CatalogueStore } from '@coaster/catalogue';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface BusinessType {
@@ -31,7 +31,7 @@ export interface OnboardingDialogData {
 export class OnboardingDialog {
   readonly #dialogRef = inject(MatDialogRef<OnboardingDialog>);
   readonly #modulesStore = inject(ModulesStore);
-  readonly #templatesStore = inject(TemplatesStore);
+  readonly #catalogueStore = inject(CatalogueStore);
   readonly #categoriesStore = inject(CategoriesStore);
   readonly #productsStore = inject(ProductsStore);
 
@@ -96,16 +96,11 @@ export class OnboardingDialog {
       await this.#modulesStore.save(type.modules);
 
       if (importCatalogue) {
-        const categories = this.#templatesStore.categories;
-        const ids = categories.hasValue() ? categories.value().map((category) => category.id) : [];
+        await this.#catalogueStore.import(this.data.establishmentId);
 
-        if (ids.length > 0) {
-          await this.#templatesStore.importToEstablishment(this.data.establishmentId, ids);
-
-          // The inventory may already have loaded an empty catalogue behind this dialog.
-          this.#categoriesStore.reloadCategories();
-          this.#productsStore.reloadProducts();
-        }
+        // The inventory may already have loaded an empty catalogue behind this dialog.
+        this.#categoriesStore.reloadCategories();
+        this.#productsStore.reloadProducts();
       }
 
       this.#dialogRef.close(true);

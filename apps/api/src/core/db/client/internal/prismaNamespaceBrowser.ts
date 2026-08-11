@@ -63,8 +63,6 @@ export const ModelName = {
   DbShiftExchange: 'DbShiftExchange',
   DbCategory: 'DbCategory',
   DbProduct: 'DbProduct',
-  DbCategoryTemplate: 'DbCategoryTemplate',
-  DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
@@ -244,30 +242,6 @@ export const DbProductScalarFieldEnum = {
 } as const
 
 export type DbProductScalarFieldEnum = (typeof DbProductScalarFieldEnum)[keyof typeof DbProductScalarFieldEnum]
-
-
-export const DbCategoryTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  icon: 'icon',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbCategoryTemplateScalarFieldEnum = (typeof DbCategoryTemplateScalarFieldEnum)[keyof typeof DbCategoryTemplateScalarFieldEnum]
-
-
-export const DbProductTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  price: 'price',
-  categoryId: 'categoryId',
-  imageUrl: 'imageUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbProductTemplateScalarFieldEnum = (typeof DbProductTemplateScalarFieldEnum)[keyof typeof DbProductTemplateScalarFieldEnum]
 
 
 export const DbTableScalarFieldEnum = {

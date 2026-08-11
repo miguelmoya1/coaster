@@ -5,35 +5,22 @@ this file is only the running order.
 
 ## Next
 
-### 1. Get the catalogue out of translation keys
+### 1. Public menu
 
-Designed in [catalogue and menu](docs/architecture/catalogue-and-menu.md). Imported products are
-stored as `templates.products.coffee_black` rather than "Café solo", so everything that is not the
-Angular app reads keys — the assistant already does, and the menu would show them to customers.
-Worse, the key is generated from whatever an admin types while the translation is hand-written in the
-web and deployed, so adding one product to the catalogue silently creates a broken one.
+A QR showing a menu the establishment publishes, in the customer's language. Designed in
+[catalogue and menu](docs/architecture/catalogue-and-menu.md), whose first step is done: names are
+words, the starter catalogue is a file, and the establishment has a language.
 
-The starter catalogue becomes a versioned file, the establishment gets a language, and the import
-writes words. It deletes far more than it adds: two tables, the `templates` module, the admin editor,
-the `templates.*` i18n blocks, and — with words in the column — `isTemplateName`, the rename lock and
-`PRODUCT_NAME_FROM_TEMPLATE`.
+Not a view over the catalogue: the catalogue is operational and private, and holds things nobody
+should read. The menu is its own document — sections, order, descriptions, translations, an optional
+price of its own — and publishing renders it once into a snapshot the public route reads whole.
 
-Worth doing before there is a live establishment: afterwards it means picking a language for every
-venue already storing keys, with nothing to pick it from.
-
-### 2. Public menu
-
-A QR showing a menu the establishment publishes, in the customer's language. Not a view over the
-catalogue: the catalogue is operational and private, and holds things nobody should read. The menu is
-its own document — sections, order, descriptions, translations, an optional price of its own — and
-publishing renders it once into a snapshot the public route reads whole.
-
-That snapshot is why this now comes before Redis rather than after: a published menu is one row and
-one language pick, so it is already fast without a cache in front of it.
+That snapshot is why this comes before Redis rather than after: a published menu is one row and one
+language pick, so it is already fast without a cache in front of it.
 
 Explicitly not ordering from the QR. That is a different product with payments and table state in it.
 
-### 3. Redis in front of the hot path
+### 2. Redis in front of the hot path
 
 **Not a cache over everything.** Orders, the catalogue, shifts and stats keep going straight to
 Postgres: they change constantly, they are read by few people at once, and caching them buys latency
@@ -53,16 +40,15 @@ every authenticated request pays before its handler even starts.
   value from the event instead lets two commands arriving out of order leave the older one in Redis,
   where the TTL would keep it for hours. Deleting is idempotent and cannot invert.
 - **The events those deletions hang off.** `MemberRoleChanged` and `MemberRemoved` already exist.
-  `update-establishment-settings` and `update-user` publish nothing today and will have to. Another
-  fourteen command handlers are silent too once `templates` is gone — `printer`, `shift-exchanges`,
-  the rest of `establishments`; every command should end up emitting its event even where nothing
-  listens, but only those two block this step.
+  `update-establishment-settings` and `update-user` publish nothing today and will have to. Fifteen
+  more command handlers are silent — mostly `printer` and `shift-exchanges`; every command should end
+  up emitting its event even where nothing listens, but only those two block this step.
 - **8 hours of TTL** as the backstop, roughly a working day, so a missed invalidation cannot outlive
   the shift that saw it and the instance stays small enough to stay cheap.
 - Redis also fixes something already broken: `ThrottlerModule` counts in memory, so across more than
   one Cloud Run instance the 300/min limit is really 300 per instance.
 
-### 4. Help with the translations
+### 3. Help with the translations
 
 The checklist of what has no wording yet in each language, and then the assistant translating a menu
 in one pass — once per item rather than once per request, so a 50-item menu is about one message of
@@ -87,10 +73,10 @@ the monthly allowance. Reviewed before it saves.
 
 ## Known debt
 
-- **Renaming a hand-typed product rewrites history.** `OrderItem` stores `priceAtPurchase` but never
-  the name it was sold under, so a receipt reprinted after a rename shows a sale that never happened
-  under that name. Imported products are safe — their names are locked — but typed ones are not. The
-  fix is for the order line to snapshot the name the way `TimeEntry` snapshots the user.
+- **Renaming a product rewrites history.** `OrderItem` stores `priceAtPurchase` but never the name it
+  was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
+  name. Every product is renameable now that names are words rather than keys. The fix is for the
+  order line to snapshot the name the way `TimeEntry` snapshots the user.
 - **Open CORS** (`origin: '*'`) on both the API and the websocket gateway, pending a decision on the
   production domain. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users

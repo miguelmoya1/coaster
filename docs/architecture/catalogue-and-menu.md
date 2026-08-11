@@ -1,31 +1,30 @@
 # The catalogue, the menu, and the languages between them
 
-A design, not a description: none of this is built. It replaces the way template names work today and
-adds the customer-facing menu.
+Step 1 is built: the starter catalogue is a file, names are words, and the establishment has a
+language. The menu is still a design.
 
-## Why the current shape has to go
+## Why the previous shape had to go
 
 Importing a template copies the template's name verbatim, and template names are translation keys —
 `templates.products.coffee_black`, not "Café solo". Three things follow, and the third is the one
 that makes this a redesign rather than a patch.
 
-1. **Only the browser can read the catalogue.** The keys live in `apps/web/public/i18n/*.json` and
-   the API has no i18n at all. The printed ticket carried the key until it was patched on the way
-   out; the assistant is still handed `templates.products.coffee_black` and asked to match "dos
-   cañas" against it.
-2. **The catalogue is not in the repository.** No seed, no migration, no fixture. The 83 rows exist
-   because somebody pasted JSON into the admin screen, so every environment holds whatever was typed
-   into it, no change to it can be reviewed, and losing the database loses the catalogue.
-3. **Keys are generated from data while translations live in code.** `bulk-upsert-templates.handler`
-   slugifies whatever the admin types into `templates.products.<slug>`. The translation for that slug
-   has to be hand-written into two JSON files and deployed. Nothing connects the two, so adding
-   "Vermut" to the catalogue silently creates a product named `templates.products.vermut`, and the
-   translations test cannot catch it because the key is data rather than code.
+1. **Only the browser could read the catalogue.** The keys lived in `apps/web/public/i18n/*.json` and
+   the API has no i18n at all, so the printed ticket carried the key and the assistant was handed
+   `templates.products.coffee_black` and asked to match "dos cañas" against it.
+2. **The catalogue was not in the repository.** No seed, no migration, no fixture. The 83 rows existed
+   because somebody pasted JSON into the admin screen, so every environment held whatever was typed
+   into it, no change to it could be reviewed, and losing the database lost the catalogue.
+3. **Keys were generated from data while translations lived in code.** `bulk-upsert-templates.handler`
+   slugified whatever the admin typed into `templates.products.<slug>`, and the translation for that
+   slug had to be hand-written into two JSON files and deployed. Nothing connected the two, so adding
+   "Vermut" to the catalogue silently created a product named `templates.products.vermut`, and the
+   translations test could not catch it because the key was data rather than code.
 
-## What is true regardless
+## What holds, now and for the menu
 
-- `Product.name` holds **words**, always. That alone fixes the ticket, the assistant and the CSV.
-- The establishment has a language: `EstablishmentSettings.language`.
+- `Product.name` holds **words**, always. That alone fixed the ticket, the assistant and the CSV.
+- The establishment has a language: `EstablishmentSettings.language`, inherited from its creator.
 - **No key is ever derived from a datum.**
 
 ## Three kinds of text, three owners
@@ -42,23 +41,31 @@ the internal side free of language decisions.
 
 ## The starter catalogue is a file
 
-The two template tables, the `templates` module in the API and the admin editor all go — roughly 1220
-lines maintaining 83 rows of content. In their place, a versioned file with the languages written
-out, no keys and no slugs:
+The two template tables, the `templates` module in the API and the admin editor are gone — roughly
+1220 lines that maintained 83 rows of content. In their place,
+[`starter-catalogue.ts`](../../apps/api/src/catalogue/starter-catalogue.ts): 141 lines, languages
+written out, no keys and no slugs.
 
-```json
-[{ "icon": "coffee",
-   "names": { "es": "Cafetería", "en": "Coffee" },
-   "products": [{ "names": { "es": "Café solo", "en": "Black coffee" },
-                  "price": 130, "allergens": [] }] }]
+```ts
+{
+  key: 'cafeteria',
+  icon: 'coffee',
+  names: { es: 'Cafetería', en: 'Coffee Shop' },
+  products: [{ names: { es: 'Café Solo', en: 'Black Coffee' }, price: 120 }],
+}
 ```
 
-Changing the catalogue becomes a reviewed commit rather than a paste into production. It is product
-content, so a deploy is the right gate.
+Changing the catalogue is a reviewed commit rather than a paste into production. It is product
+content, so a deploy is the right gate. A spec guards what a hand edit can break: every name present
+in every language, unique category keys, whole positive prices, no empty category.
 
-Importing writes `Category.name` and `Product.name` in the establishment's language, and — because
-the file carries the other languages too — fills the menu draft's translations at the same time. A
-bar that imports the standard catalogue gets a menu already written in both languages for free.
+`GET /establishments/:id/catalogue` serves it resolved to the establishment's language, and
+`POST .../catalogue/import` writes `Category.name` and `Product.name` as words. No selection means
+the whole catalogue, which is what onboarding asks for; a selection names categories by key. Both are
+idempotent, so importing twice adds nothing.
+
+When the menu arrives, the same file fills a draft menu's translations at import: a bar that imports
+the standard catalogue gets a menu already written in both languages for free.
 
 ## The menu is its own document
 
@@ -138,11 +145,10 @@ coastal bar may want French on the menu without Coaster being translated into Fr
 
 ## Order of work
 
-1. **Catalogue out of keys.** The file, `EstablishmentSettings.language`, import writing words, and a
-   migration mapping the existing `templates.*` names through the file. Deletes the template tables,
-   the API module, the admin screen, the `templates.*` i18n blocks, and — with words in the column —
-   `isTemplateName`, the rename lock and `PRODUCT_NAME_FROM_TEMPLATE`.
+1. ~~**Catalogue out of keys.**~~ Done. The file, `EstablishmentSettings.language`, an import that
+   writes words, and a migration that rewrote the stored `templates.*` names through the same source
+   the file was generated from, so a re-import matches instead of duplicating. It took with it the
+   template tables, the API module, the admin screen, the `templates.*` i18n blocks and the rename
+   lock those keys had needed. Allergens went in at the same time, while catalogues were still empty.
 2. **The menu**: model, editor, publish, public route. Ships without Redis thanks to the snapshot.
 3. **Translation help**: the checklist, then the assistant's batch pass.
-
-Step 1 pays for itself alone: it is what stops the assistant reading keys.

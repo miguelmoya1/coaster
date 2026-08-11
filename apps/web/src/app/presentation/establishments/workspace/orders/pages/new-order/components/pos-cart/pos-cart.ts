@@ -53,7 +53,7 @@ export interface CartItem {
             <div class="bg-surface-container rounded-xl p-3 flex flex-col gap-2">
               <div class="flex justify-between items-center gap-3">
                 <div class="flex-1 flex flex-col gap-0 min-w-0">
-                  <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName | translate }}</span>
+                  <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName }}</span>
                   <span class="text-xs text-on-surface-variant whitespace-nowrap">
                     {{ item.price * item.quantity | price }}
                   </span>

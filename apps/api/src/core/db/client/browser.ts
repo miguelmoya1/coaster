@@ -79,16 +79,6 @@ export type DbCategory = Prisma.DbCategoryModel
  */
 export type DbProduct = Prisma.DbProductModel
 /**
- * Model DbCategoryTemplate
- * 
- */
-export type DbCategoryTemplate = Prisma.DbCategoryTemplateModel
-/**
- * Model DbProductTemplate
- * 
- */
-export type DbProductTemplate = Prisma.DbProductTemplateModel
-/**
  * Model DbTable
  * 
  */

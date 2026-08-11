@@ -26,15 +26,6 @@ export class ProductsReadRepository {
     return product !== null;
   }
 
-  public async findName(productId: ProductId) {
-    const product = await this._db.dbProduct.findUnique({
-      where: { id: productId },
-      select: { name: true },
-    });
-
-    return product?.name ?? null;
-  }
-
   public async findByEstablishmentId(establishmentId: EstablishmentId) {
     return this._db.dbProduct.findMany({
       where: { category: { establishmentId, deletedAt: null }, deletedAt: null },

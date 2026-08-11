@@ -38,7 +38,7 @@ export const EstablishmentPermission = {
   ESTABLISHMENT_CREATE_EXCHANGE: 'establishment:create-exchange',
   ESTABLISHMENT_ACCEPT_EXCHANGE: 'establishment:accept-exchange',
   ESTABLISHMENT_DELETE_EXCHANGE: 'establishment:delete-exchange',
-  ESTABLISHMENT_IMPORT_TEMPLATES: 'establishment:import-templates',
+  ESTABLISHMENT_IMPORT_CATALOGUE: 'establishment:import-catalogue',
   ESTABLISHMENT_VIEW_PRINTER: 'establishment:view-printer',
   ESTABLISHMENT_MANAGE_PRINTER: 'establishment:manage-printer',
   ESTABLISHMENT_MANAGE_BILLING: 'establishment:manage-billing',

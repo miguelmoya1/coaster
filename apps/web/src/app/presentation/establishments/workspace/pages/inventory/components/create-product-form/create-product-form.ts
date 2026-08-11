@@ -134,7 +134,7 @@ export class CreateProductForm {
   readonly categoryOptions = computed(() => {
     return this.categories().map((c) => ({
       value: c.id,
-      label: this.#translate.instant(c.name),
+      label: c.name,
     }));
   });
 

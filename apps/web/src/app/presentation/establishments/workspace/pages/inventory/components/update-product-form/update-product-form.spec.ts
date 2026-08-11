@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Category } from '@coaster/common';
 import { Product, ProductsStore } from '@coaster/products';
-import { provideTranslateService, TranslateService } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateProductForm } from './update-product-form';
 
@@ -99,54 +99,4 @@ describe('UpdateProductForm', () => {
     });
   });
 
-  describe('a product imported from the catalogue', () => {
-    const imported: Product = { ...mockProduct, name: 'templates.products.coffee_black' };
-
-    const submit = async () => {
-      const submitButton = Array.from(
-        fixture.nativeElement.querySelectorAll('.justify-end button') as NodeListOf<HTMLButtonElement>,
-      ).find((button) => button.getAttribute('type') === 'submit');
-
-      submitButton?.click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    };
-
-    beforeEach(() => {
-      const translate = TestBed.inject(TranslateService);
-      translate.setTranslation('es', { 'templates.products.coffee_black': 'Café solo' }, true);
-      translate.use('es');
-
-      fixture.componentRef.setInput('product', imported);
-      fixture.detectChanges();
-    });
-
-    it('should show the translated name rather than the key it is stored under', () => {
-      expect(component.form.name().value()).toBe('Café solo');
-    });
-
-    it('should not let it be renamed', () => {
-      expect(component.form.name().disabled()).toBe(true);
-      expect(fixture.nativeElement.querySelector('input[matInput]').disabled).toBe(true);
-    });
-
-    it('should leave the name out of the update so the key survives', async () => {
-      await submit();
-
-      expect(productsStoreMock.update).toHaveBeenCalledWith(imported.id, {
-        categoryId: 'cat-1',
-        minStockAlert: 5,
-        price: 1050,
-        imageUrl: '',
-      });
-    });
-
-    it('should still allow everything else to be edited', async () => {
-      component.form.price().value.set(180);
-      fixture.detectChanges();
-
-      await submit();
-
-      expect(productsStoreMock.update).toHaveBeenCalledWith(imported.id, expect.objectContaining({ price: 180 }));
-    });
-  });
 });

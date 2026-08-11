@@ -1,6 +1,6 @@
 <coaster-page-container size="lg">
   <coaster-page-header [title]="'nav.inventory' | translate" [subtitle]="'inventory.inventory_title' | translate">
-    @if (canImportTemplates()) {
+    @if (canImportCatalogue()) {
       <button actions mat-flat-button [routerLink]="['import']">
         <mat-icon>download</mat-icon>
         <span>{{ 'inventory.import_title' | translate }}</span>

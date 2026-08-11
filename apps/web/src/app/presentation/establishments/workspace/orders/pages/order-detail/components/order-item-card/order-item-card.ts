@@ -50,7 +50,7 @@ import { PricePipe } from '../../../../../pipes/price/price';
       }
 
       <div class="flex-1 flex flex-col gap-1 min-w-0">
-        <span class="font-semibold text-on-surface text-sm truncate">{{ item().productName | translate }}</span>
+        <span class="font-semibold text-on-surface text-sm truncate">{{ item().productName }}</span>
         <div class="flex gap-2 items-center">
           <span class="text-xs text-on-surface-variant">x{{ item().quantity }}</span>
           <span class="text-xs font-bold text-on-surface">{{ item().priceAtPurchase * item().quantity | price }}</span>

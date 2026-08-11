@@ -1,4 +1,4 @@
-import { ErrorCodes, asCategoryId, isTemplateName } from '@coaster/common';
+import { ErrorCodes, asCategoryId } from '@coaster/common';
 import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ProductsReadRepository } from '../../data-access/products.read.repository';
@@ -27,14 +27,6 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
 
     if (!belongsToEstablishment) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
-    }
-
-    if (command.dto.name !== undefined) {
-      const currentName = await this.readRepo.findName(command.productId);
-
-      if (isTemplateName(currentName) && currentName !== command.dto.name) {
-        throw new ForbiddenException(ErrorCodes.PRODUCT_NAME_FROM_TEMPLATE);
-      }
     }
 
     if (command.dto.categoryId) {

@@ -396,8 +396,6 @@ export const ModelName = {
   DbShiftExchange: 'DbShiftExchange',
   DbCategory: 'DbCategory',
   DbProduct: 'DbProduct',
-  DbCategoryTemplate: 'DbCategoryTemplate',
-  DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
@@ -421,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbCategoryTemplate" | "dbProductTemplate" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1313,154 +1311,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DbCategoryTemplate: {
-      payload: Prisma.$DbCategoryTemplatePayload<ExtArgs>
-      fields: Prisma.DbCategoryTemplateFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DbCategoryTemplateFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DbCategoryTemplateFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        findFirst: {
-          args: Prisma.DbCategoryTemplateFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DbCategoryTemplateFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        findMany: {
-          args: Prisma.DbCategoryTemplateFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>[]
-        }
-        create: {
-          args: Prisma.DbCategoryTemplateCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        createMany: {
-          args: Prisma.DbCategoryTemplateCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DbCategoryTemplateCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>[]
-        }
-        delete: {
-          args: Prisma.DbCategoryTemplateDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        update: {
-          args: Prisma.DbCategoryTemplateUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        deleteMany: {
-          args: Prisma.DbCategoryTemplateDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DbCategoryTemplateUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DbCategoryTemplateUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>[]
-        }
-        upsert: {
-          args: Prisma.DbCategoryTemplateUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbCategoryTemplatePayload>
-        }
-        aggregate: {
-          args: Prisma.DbCategoryTemplateAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbCategoryTemplate>
-        }
-        groupBy: {
-          args: Prisma.DbCategoryTemplateGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbCategoryTemplateGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DbCategoryTemplateCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbCategoryTemplateCountAggregateOutputType> | number
-        }
-      }
-    }
-    DbProductTemplate: {
-      payload: Prisma.$DbProductTemplatePayload<ExtArgs>
-      fields: Prisma.DbProductTemplateFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DbProductTemplateFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DbProductTemplateFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        findFirst: {
-          args: Prisma.DbProductTemplateFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DbProductTemplateFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        findMany: {
-          args: Prisma.DbProductTemplateFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>[]
-        }
-        create: {
-          args: Prisma.DbProductTemplateCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        createMany: {
-          args: Prisma.DbProductTemplateCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DbProductTemplateCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>[]
-        }
-        delete: {
-          args: Prisma.DbProductTemplateDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        update: {
-          args: Prisma.DbProductTemplateUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        deleteMany: {
-          args: Prisma.DbProductTemplateDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DbProductTemplateUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DbProductTemplateUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>[]
-        }
-        upsert: {
-          args: Prisma.DbProductTemplateUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbProductTemplatePayload>
-        }
-        aggregate: {
-          args: Prisma.DbProductTemplateAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDbProductTemplate>
-        }
-        groupBy: {
-          args: Prisma.DbProductTemplateGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbProductTemplateGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DbProductTemplateCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DbProductTemplateCountAggregateOutputType> | number
-        }
-      }
-    }
     DbTable: {
       payload: Prisma.$DbTablePayload<ExtArgs>
       fields: Prisma.DbTableFieldRefs
@@ -2247,30 +2097,6 @@ export const DbProductScalarFieldEnum = {
 export type DbProductScalarFieldEnum = (typeof DbProductScalarFieldEnum)[keyof typeof DbProductScalarFieldEnum]
 
 
-export const DbCategoryTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  icon: 'icon',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbCategoryTemplateScalarFieldEnum = (typeof DbCategoryTemplateScalarFieldEnum)[keyof typeof DbCategoryTemplateScalarFieldEnum]
-
-
-export const DbProductTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  price: 'price',
-  categoryId: 'categoryId',
-  imageUrl: 'imageUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbProductTemplateScalarFieldEnum = (typeof DbProductTemplateScalarFieldEnum)[keyof typeof DbProductTemplateScalarFieldEnum]
-
-
 export const DbTableScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2878,8 +2704,6 @@ export type GlobalOmitConfig = {
   dbShiftExchange?: Prisma.DbShiftExchangeOmit
   dbCategory?: Prisma.DbCategoryOmit
   dbProduct?: Prisma.DbProductOmit
-  dbCategoryTemplate?: Prisma.DbCategoryTemplateOmit
-  dbProductTemplate?: Prisma.DbProductTemplateOmit
   dbTable?: Prisma.DbTableOmit
   dbOrder?: Prisma.DbOrderOmit
   dbOrderItem?: Prisma.DbOrderItemOmit

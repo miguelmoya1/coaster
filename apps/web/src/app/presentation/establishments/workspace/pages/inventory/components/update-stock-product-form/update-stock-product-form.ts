@@ -14,7 +14,7 @@ import { NumberInput } from '../../../../../../components/number-input/number-in
   },
   template: `
     <div>
-      <h2 class="heading-2 mb-6">{{ product().name | translate }}</h2>
+      <h2 class="heading-2 mb-6">{{ product().name }}</h2>
       <form [formRoot]="form">
         <div class="flex flex-col gap-4">
           <coaster-number-input

@@ -12,7 +12,7 @@ describe('PosProductsList', () => {
   const mockProducts: Product[] = [
     {
       id: asProductId('p-1'),
-      name: 'templates.products.cafe_solo',
+      name: 'Café Solo',
       price: 120,
       categoryId: asCategoryId('cat-1'),
       currentStock: 10,
@@ -22,7 +22,7 @@ describe('PosProductsList', () => {
     },
     {
       id: asProductId('p-2'),
-      name: 'templates.products.agua',
+      name: 'Agua Mineral',
       price: 150,
       categoryId: asCategoryId('cat-2'),
       currentStock: 0,

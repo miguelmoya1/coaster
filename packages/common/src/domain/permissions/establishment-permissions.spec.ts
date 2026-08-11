@@ -13,7 +13,7 @@ const MANAGER_MUST_NOT_HAVE: EstablishmentPermission[] = [
   EstablishmentPermission.ESTABLISHMENT_DELETE_ORDER,
   EstablishmentPermission.ESTABLISHMENT_DELETE_CATEGORY,
   EstablishmentPermission.ESTABLISHMENT_DELETE_PRODUCT,
-  EstablishmentPermission.ESTABLISHMENT_IMPORT_TEMPLATES,
+  EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE,
   EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING,
 ];
 

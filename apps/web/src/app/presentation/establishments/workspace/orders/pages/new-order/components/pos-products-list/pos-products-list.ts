@@ -33,9 +33,9 @@ import { PricePipe } from '../../../../../pipes/price/price';
             }
             <span
               class="font-semibold text-on-surface text-sm text-center leading-tight line-clamp-2 wrap-break-word w-full h-10 flex items-center justify-center"
-              [title]="product.name | translate"
+              [title]="product.name"
             >
-              {{ product.name | translate }}
+              {{ product.name }}
             </span>
             <div class="flex flex-col items-center gap-1 mt-1 w-full">
               <span class="font-bold text-primary text-sm">{{ product.price | price }}</span>

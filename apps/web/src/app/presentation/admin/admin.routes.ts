@@ -31,10 +31,6 @@ const adminRoutes: Routes = [
         loadComponent: () => import('./pages/admin-audit/admin-audit'),
       },
       {
-        path: 'templates',
-        loadComponent: () => import('./pages/admin-templates/admin-templates'),
-      },
-      {
         path: 'dashboard',
         redirectTo: 'overview',
       },
