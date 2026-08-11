@@ -16,9 +16,11 @@ scale flat with size and are paid for out of the Google AI Pro subscription, so 
 warm is not a concern. The assistant was the exception, and it is now bounded by a context budget in
 `ai/domain/snapshot.ts` — a 1,500-product venue costs about the same per message as a small bar.
 
-- **A monthly AI allowance per establishment**, lower during the 14-day trial, so the worst case is
-  bounded by policy and not only by prompt size. The budget caps what one message costs; nothing yet
-  caps how many messages a month someone sends.
+Both halves are in place: the budget caps what one message costs, and a monthly allowance per
+establishment caps how many arrive — 500 on a paid plan, 100 while on trial, both environment
+variables (`AI_MONTHLY_MESSAGES`, `AI_TRIAL_MONTHLY_MESSAGES`). The numbers came from the cost of a
+message measured after the budget landed, and are worth revisiting once there is real usage to look
+at.
 
 ## Intelligence layer
 

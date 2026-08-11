@@ -1,6 +1,6 @@
 import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { DbRole, DbService } from '../../db';
+import { DbRole, DbService, DbSubscriptionStatus } from '../../db';
 
 @Injectable()
 export class SecurityRepository {
@@ -53,5 +53,15 @@ export class SecurityRepository {
     }
 
     return resolveModules(settings.modules as EstablishmentModule[]);
+  }
+
+  /** Whether nobody is paying for this establishment yet, which earns it a smaller assistant allowance. */
+  async isOnTrial(establishmentId: string): Promise<boolean> {
+    const billing = await this._db.dbEstablishmentSubscription.findUnique({
+      where: { establishmentId },
+      select: { status: true },
+    });
+
+    return billing?.status === DbSubscriptionStatus.TRIALING;
   }
 }

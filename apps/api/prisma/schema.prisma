@@ -162,6 +162,7 @@ model DbEstablishment {
   printJobs   DbPrintJob[]
   billing     DbEstablishmentSubscription?
   settings    DbEstablishmentSettings?
+  aiUsage     DbAiUsage[]
   timeEntries DbTimeEntry[]
 
   @@map("Establishment")
@@ -177,6 +178,19 @@ model DbEstablishmentSettings {
   updatedAt       DateTime                @updatedAt
 
   @@map("EstablishmentSettings")
+}
+
+model DbAiUsage {
+  id              String          @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  period          String
+  messages        Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([establishmentId, period])
+  @@map("AiUsage")
 }
 
 model DbUserPreferences {

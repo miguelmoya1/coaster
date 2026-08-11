@@ -44,6 +44,7 @@
   "minLength": "Debe tener al menos {{ minLength }} caracteres.",
   "MISSING_ESTABLISHMENT_ID": "El identificador del establecimiento es obligatorio.",
   "MODULE_NOT_ENABLED": "Este módulo no está activado en tu establecimiento. Puedes activarlo desde la configuración.",
+  "AI_QUOTA_EXCEEDED": "Has agotado los mensajes del asistente de este mes. Se renuevan el día 1.",
   "NOT_YOUR_SHIFT": "No puedes modificar este turno porque no te pertenece.",
   "ORDER_ALREADY_PAID": "Este pedido ya ha sido cobrado.",
   "ORDER_ITEM_NOT_FOUND": "El producto solicitado no está en este pedido.",

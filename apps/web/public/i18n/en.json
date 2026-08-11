@@ -44,6 +44,7 @@
   "minLength": "Must be at least {{ minLength }} characters.",
   "MISSING_ESTABLISHMENT_ID": "The establishment ID is required.",
   "MODULE_NOT_ENABLED": "That module is not enabled for your establishment. You can turn it on from settings.",
+  "AI_QUOTA_EXCEEDED": "You have used up this month’s assistant messages. They renew on the 1st.",
   "NOT_YOUR_SHIFT": "You cannot modify this shift because it does not belong to you.",
   "ORDER_ALREADY_PAID": "This order has already been paid.",
   "ORDER_ITEM_NOT_FOUND": "The requested product is not in this order.",

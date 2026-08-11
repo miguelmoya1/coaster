@@ -1,5 +1,5 @@
 import { GetCategoriesQuery } from '@coaster/categories';
-import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
+import type { AiResponse, Category, EstablishmentId, Order, Product, Table } from '@coaster/common';
 import {
   asEstablishmentRole,
   EstablishmentModule,
@@ -16,6 +16,9 @@ import { GetTablesByEstablishmentIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel, stepCountIs, streamText } from 'ai';
+import { ConfigService } from '@nestjs/config';
+import { AiUsageRepository } from '../../data-access/ai-usage.repository';
+import { DEFAULT_MONTHLY_AI_MESSAGES, DEFAULT_TRIAL_AI_MESSAGES } from '../../domain/quota';
 import { formatCategories, formatOrders, formatProducts, formatTables } from '../../domain/snapshot';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
@@ -43,6 +46,8 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
     private readonly _commandBus: CommandBus,
     private readonly _queryBus: QueryBus,
     private readonly _securityRepository: SecurityRepository,
+    private readonly _aiUsage: AiUsageRepository,
+    private readonly _config: ConfigService,
   ) {}
 
   async execute(command: ExecuteAiCommand): Promise<AiResponse> {
@@ -61,6 +66,14 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       }
 
       userEstablishmentRole = asEstablishmentRole(membership.role);
+    }
+
+    const allowance = await this.#allowanceFor(establishmentId);
+    const used = await this._aiUsage.messagesThisPeriod(establishmentId);
+
+    if (used >= allowance) {
+      this.#logger.warn(`Establishment ${establishmentId} has used ${used}/${allowance} assistant messages this month`);
+      throw new ForbiddenException(ErrorCodes.AI_QUOTA_EXCEEDED);
     }
 
     const modules = await this._securityRepository.getEnabledModules(establishmentId);
@@ -152,6 +165,8 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
         // With multiple steps `stream.text` only holds the final step, while the user already saw
         // everything that was streamed. Keep the transcript and what was spoken in sync.
         const text = streamed.trim() || (await stream.text);
+        await this._aiUsage.countMessage(establishmentId);
+
         return { text: text || this.#fallbackText(userLang) };
       }
 
@@ -159,6 +174,10 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       const result = await generateText(modelOptions);
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
+      // Counted only once the model actually answered: a gateway that never replied cost nothing,
+      // and charging someone an allowance for it would be the wrong way round.
+      await this._aiUsage.countMessage(establishmentId);
+
       return { text: result.text || this.#fallbackText(userLang) };
     } catch (error: any) {
       this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
@@ -168,6 +187,14 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
         errorKey: 'ai_voice.errors.ai_gateway_failed',
       };
     }
+  }
+
+  async #allowanceFor(establishmentId: EstablishmentId): Promise<number> {
+    const onTrial = await this._securityRepository.isOnTrial(establishmentId);
+
+    return onTrial
+      ? Number(this._config.get('AI_TRIAL_MONTHLY_MESSAGES') ?? DEFAULT_TRIAL_AI_MESSAGES)
+      : Number(this._config.get('AI_MONTHLY_MESSAGES') ?? DEFAULT_MONTHLY_AI_MESSAGES);
   }
 
   #fallbackText(userLang: string): string {

@@ -1,6 +1,14 @@
 import type { User } from '@coaster/common';
-import { DEFAULT_ESTABLISHMENT_MODULES, asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
+import {
+  DEFAULT_ESTABLISHMENT_MODULES,
+  ErrorCodes,
+  asEstablishmentId,
+  asUserId,
+  EstablishmentRole,
+} from '@coaster/common';
+import { ConfigService } from '@nestjs/config';
 import { SecurityRepository } from '@coaster/core';
+import { AiUsageRepository } from '../../data-access/ai-usage.repository';
 import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -20,6 +28,8 @@ vi.mock('ai', async (importOriginal) => {
 });
 
 describe('ExecuteAiHandler', () => {
+  const mockAiUsage = { messagesThisPeriod: vi.fn().mockResolvedValue(0), countMessage: vi.fn().mockResolvedValue(1) };
+
   let handler: ExecuteAiHandler;
   let queryBus: Mocked<QueryBus>;
   let securityRepository: Mocked<SecurityRepository>;
@@ -31,6 +41,7 @@ describe('ExecuteAiHandler', () => {
       getUserRole: vi.fn(),
       getEstablishmentMemberRole: vi.fn(),
       getEnabledModules: vi.fn().mockResolvedValue(DEFAULT_ESTABLISHMENT_MODULES),
+      isOnTrial: vi.fn().mockResolvedValue(false),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -39,6 +50,8 @@ describe('ExecuteAiHandler', () => {
         { provide: CommandBus, useValue: mockCommandBus },
         { provide: QueryBus, useValue: mockQueryBus },
         { provide: SecurityRepository, useValue: mockSecurityRepository },
+        { provide: AiUsageRepository, useValue: mockAiUsage },
+        { provide: ConfigService, useValue: { get: vi.fn(() => undefined) } },
       ],
     }).compile();
 
@@ -179,6 +192,32 @@ describe('ExecuteAiHandler', () => {
 
       expect(deltas).toEqual(['Voy a mirarlo. ', 'Hoy llevas 240 €.']);
       expect(result).toEqual({ text: 'Voy a mirarlo. Hoy llevas 240 €.' });
+    });
+
+    it('should refuse once the establishment has spent its monthly allowance', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      mockAiUsage.messagesThisPeriod.mockResolvedValue(500);
+
+      await expect(handler.execute(command)).rejects.toThrow(ErrorCodes.AI_QUOTA_EXCEEDED);
+    });
+
+    it('should hold an establishment still on trial to a smaller allowance', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      securityRepository.isOnTrial.mockResolvedValue(true);
+      mockAiUsage.messagesThisPeriod.mockResolvedValue(100);
+
+      await expect(handler.execute(command)).rejects.toThrow(ErrorCodes.AI_QUOTA_EXCEEDED);
+    });
+
+    it('should not spend an allowance on a gateway that never answered', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      queryBus.execute.mockResolvedValue([]);
+      (generateText as any).mockRejectedValueOnce(new Error('gateway down'));
+      mockAiUsage.countMessage.mockClear();
+
+      await handler.execute(command);
+
+      expect(mockAiUsage.countMessage).not.toHaveBeenCalled();
     });
 
     it('should surface a gateway failure as a translatable error', async () => {
