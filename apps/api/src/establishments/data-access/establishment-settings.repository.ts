@@ -1,4 +1,4 @@
-import type { EstablishmentId, EstablishmentModule } from '@coaster/common';
+import type { EstablishmentId, EstablishmentModule, Language } from '@coaster/common';
 import { resolveModules } from '@coaster/common';
 import { DbEstablishmentModule, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
@@ -15,13 +15,13 @@ export class EstablishmentSettingsRepository {
    * Answering the questions is what marks an establishment as configured, so the first write also
    * closes the onboarding.
    */
-  public update(establishmentId: EstablishmentId, modules: EstablishmentModule[]) {
+  public update(establishmentId: EstablishmentId, modules: EstablishmentModule[], language?: Language) {
     const resolved = resolveModules(modules) as DbEstablishmentModule[];
 
     return this._db.dbEstablishmentSettings.upsert({
       where: { establishmentId },
-      create: { establishmentId, modules: resolved, configuredAt: new Date() },
-      update: { modules: resolved, configuredAt: { set: new Date() } },
+      create: { establishmentId, modules: resolved, configuredAt: new Date(), ...(language && { language }) },
+      update: { modules: resolved, configuredAt: { set: new Date() }, ...(language && { language }) },
     });
   }
 

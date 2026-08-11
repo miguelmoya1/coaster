@@ -1,3 +1,4 @@
+import { Allergen } from '../constants/allergen.type';
 import { Brand } from './brand.type';
 import { Category, CategoryId } from './category.interface';
 
@@ -12,6 +13,7 @@ export interface Product {
   currentStock: number;
   minStockAlert: number;
   imageUrl?: string;
+  allergens: Allergen[];
   lastUpdated: string;
 }
 
@@ -21,6 +23,7 @@ export interface UpdateProductDto {
   price?: number;
   minStockAlert?: number;
   imageUrl?: string;
+  allergens?: Allergen[];
 }
 
 export interface UpdateProductStockDto {
@@ -34,4 +37,5 @@ export interface CreateProductDto {
   currentStock?: number;
   minStockAlert?: number;
   imageUrl?: string;
+  allergens?: Allergen[];
 }

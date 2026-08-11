@@ -1,4 +1,4 @@
-import { asCategoryId } from '@coaster/common';
+import { ALLERGENS, asCategoryId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
@@ -9,8 +9,8 @@ import type { Category, CreateProductDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
-import { ImageUploader } from '../../../../../../components/image-uploader/image-uploader';
 
 @Component({
   selector: 'coaster-create-product-form',
@@ -23,10 +23,10 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
     MatSelect,
     MatOption,
     NumberInput,
+    ChipSelect,
     FormField,
     MatButton,
     TranslatePipe,
-    ImageUploader,
   ],
   template: `
     <form [formRoot]="form">
@@ -64,13 +64,16 @@ import { ImageUploader } from '../../../../../../components/image-uploader/image
           }
         </mat-form-field>
 
-        <coaster-image-uploader
-          [establishmentId]="establishmentId()!"
-          entityType="products"
-          [label]="'inventory.create_product.image_url_label' | translate"
-          [value]="form.imageUrl().value()"
-          (valueChange)="form.imageUrl().value.set($event)"
-          [disabled]="form().submitting() || form().disabled()"
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'inventory.create_product.image_url_label' | translate }}</mat-label>
+          <input matInput [formField]="form.imageUrl" placeholder="https://..." />
+        </mat-form-field>
+
+        <coaster-chip-select
+          [formField]="form.allergens"
+          [options]="allergenOptions()"
+          [label]="'inventory.allergens_label' | translate"
+          [hint]="'inventory.allergens_hint' | translate"
         />
 
         <coaster-number-input
@@ -138,6 +141,10 @@ export class CreateProductForm {
     }));
   });
 
+  protected readonly allergenOptions = computed(() =>
+    ALLERGENS.map((allergen) => ({ value: allergen, label: this.#translate.instant(`allergens.${allergen}`) })),
+  );
+
   readonly #formBase = signal<Required<CreateProductDto>>({
     name: '',
     categoryId: asCategoryId(''),
@@ -145,6 +152,7 @@ export class CreateProductForm {
     currentStock: 0,
     minStockAlert: 5,
     imageUrl: '',
+    allergens: [],
   });
 
   readonly form = form(

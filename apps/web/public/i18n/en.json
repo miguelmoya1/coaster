@@ -163,7 +163,9 @@
     "printer_windows": "Download for Windows",
     "printer_linux": "Download for Linux",
     "printer_code": "If it asks for a code when it opens, use this one:",
-    "printer_code_hint": "Good for an hour and for one computer."
+    "printer_code_hint": "Good for an hour and for one computer.",
+    "language_title": "Establishment language",
+    "language_desc": "The language your catalogue and your menu are written in. It does not change the app's language, which is each person's own."
   },
   "onboarding": {
     "title": "Welcome to {{ name }}",
@@ -427,7 +429,9 @@
     "total": "Total",
     "update_product": {
       "current_stock_label": "Current Stock"
-    }
+    },
+    "allergens_label": "Allergens",
+    "allergens_hint": "Shown on the public menu. If you change this, publish the menu again so customers see it."
   },
   "schedule": {
     "create_shift": {
@@ -839,11 +843,25 @@
     "item_description": "Description (optional)",
     "item_price": "Own price",
     "add_section": "Add section",
-    "add_item": "Add product...",
+    "add_item": "Add product",
     "empty": "The menu is empty. Add a section to start.",
     "saved": "Menu saved.",
     "published": "Menu published.",
-    "unpublished": "The menu is no longer public."
+    "unpublished": "The menu is no longer public.",
+    "published_hint": "Anyone with this link or the QR can read your menu. Print the QR and put it on the tables.",
+    "private_hint": "Nobody can see it yet. Publishing creates a link and a QR for the tables.",
+    "download_qr": "Download QR",
+    "main_language": "Main language: {{language}}. It is what gets read when a translation is missing, and it cannot be removed.",
+    "structure_hint": "The menu is organised in sections (Coffee, Desserts...) holding the products you already have in Inventory.",
+    "section_placeholder": "e.g. Coffee",
+    "from_product": "Product",
+    "item_name_placeholder": "The product name will be used",
+    "item_description_placeholder": "e.g. with Iberian ham",
+    "item_price_placeholder": "In cents",
+    "price_from_product": "from the product",
+    "price_own": "own to the menu",
+    "pick_product": "Pick a product...",
+    "up_to_date": "The published menu is up to date."
   },
   "allergens": {
     "GLUTEN": "gluten",

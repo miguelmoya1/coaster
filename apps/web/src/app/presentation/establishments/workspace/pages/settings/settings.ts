@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId, Language } from '@coaster/common';
 import { EstablishmentModule, resolveModules } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { ModulesStore } from '@coaster/establishments';
@@ -10,6 +10,7 @@ import { environment } from '@coaster/env';
 import { PrinterRepository } from '@coaster/printer';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
+import { LanguageSelect } from '../../../../components/language-select/language-select';
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
 
@@ -22,7 +23,16 @@ interface ModuleRow {
 
 @Component({
   selector: 'coaster-settings',
-  imports: [Loading, MatButton, MatIcon, MatSlideToggle, TranslatePipe, PageContainer, PageHeader],
+  imports: [
+    Loading,
+    MatButton,
+    MatIcon,
+    MatSlideToggle,
+    LanguageSelect,
+    TranslatePipe,
+    PageContainer,
+    PageHeader,
+  ],
   templateUrl: './settings.html',
   host: { class: 'block w-full flex-1' },
 })
@@ -35,6 +45,8 @@ export default class Settings {
   readonly #translate = inject(TranslateService);
 
   protected readonly settings = this.#modulesStore.settings;
+  protected readonly languageDraft = signal<Language | null>(null);
+  protected readonly language = computed<Language>(() => this.languageDraft() ?? this.#modulesStore.language());
   protected readonly isSaving = signal(false);
   protected readonly draft = signal<EstablishmentModule[] | null>(null);
 
@@ -113,8 +125,9 @@ export default class Settings {
     this.isSaving.set(true);
 
     try {
-      await this.#modulesStore.save(this.selected());
+      await this.#modulesStore.save(this.selected(), this.language());
       this.draft.set(null);
+      this.languageDraft.set(null);
       this.#feedback.success(this.#translate.instant('settings.saved'));
     } finally {
       this.isSaving.set(false);

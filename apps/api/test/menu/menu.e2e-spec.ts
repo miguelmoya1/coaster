@@ -160,6 +160,52 @@ describe('MenuController (e2e)', () => {
       expect(JSON.stringify(published)).not.toContain('currentStock');
     });
 
+    it('should stop reporting pending changes once published', async () => {
+      await draft().expect(200);
+      await save(oneSection()).expect(200);
+
+      await publish().expect(201);
+
+      const { body } = await draft().expect(200);
+      expect(body.hasUnpublishedChanges).toBe(false);
+      expect(body.publishedAt).toBeTruthy();
+    });
+
+    it('should report pending changes when a product on it moves, since customers read the old one', async () => {
+      await draft().expect(200);
+      await save(oneSection()).expect(200);
+      await publish().expect(201);
+
+      await testSetup.prisma.dbProduct.update({ where: { id: productId }, data: { allergens: ['GLUTEN'] } });
+
+      const { body } = await draft().expect(200);
+      expect(body.hasUnpublishedChanges).toBe(true);
+    });
+
+    it('should carry the product allergens as they are at publish time', async () => {
+      await draft().expect(200);
+      await save(oneSection()).expect(200);
+      await testSetup.prisma.dbProduct.update({ where: { id: productId }, data: { allergens: ['GLUTEN', 'NUTS'] } });
+
+      await publish().expect(201);
+
+      const { body: slug } = await draft().expect(200);
+      const { body: published } = await publicMenu(slug.slug).expect(200);
+
+      expect(published.sections[0].items[0].allergens).toEqual(['GLUTEN', 'NUTS']);
+    });
+
+    it('should report pending changes again after the draft is touched', async () => {
+      await draft().expect(200);
+      await save(oneSection()).expect(200);
+      await publish().expect(201);
+
+      await save(oneSection({ name: 'Otra carta' })).expect(200);
+
+      const { body } = await draft().expect(200);
+      expect(body.hasUnpublishedChanges).toBe(true);
+    });
+
     it('should not change what customers read until it is published again', async () => {
       const { body } = await draft().expect(200);
       await save(oneSection()).expect(200);

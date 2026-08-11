@@ -163,7 +163,9 @@
     "printer_windows": "Descargar para Windows",
     "printer_linux": "Descargar para Linux",
     "printer_code": "Si al abrirlo te pide un código, usa este:",
-    "printer_code_hint": "Vale una hora y para un solo ordenador."
+    "printer_code_hint": "Vale una hora y para un solo ordenador.",
+    "language_title": "Idioma del establecimiento",
+    "language_desc": "En qué idioma se escriben tu catálogo y tu carta. No cambia el idioma de la aplicación, que es el de cada persona."
   },
   "onboarding": {
     "title": "Bienvenido a {{ name }}",
@@ -427,7 +429,9 @@
     "total": "Total",
     "update_product": {
       "current_stock_label": "Stock Actual"
-    }
+    },
+    "allergens_label": "Alérgenos",
+    "allergens_hint": "Se muestran en la carta pública. Si cambias esto, vuelve a publicar la carta para que los clientes lo vean."
   },
   "schedule": {
     "create_shift": {
@@ -839,11 +843,25 @@
     "item_description": "Descripción (opcional)",
     "item_price": "Precio propio",
     "add_section": "Añadir sección",
-    "add_item": "Añadir producto...",
+    "add_item": "Añadir producto",
     "empty": "La carta está vacía. Añade una sección para empezar.",
     "saved": "Carta guardada.",
     "published": "Carta publicada.",
-    "unpublished": "La carta ya no es pública."
+    "unpublished": "La carta ya no es pública.",
+    "published_hint": "Cualquiera con este enlace o el QR ve tu carta. Imprime el QR y ponlo en las mesas.",
+    "private_hint": "Todavía nadie puede verla. Cuando publiques se generará un enlace y un QR para las mesas.",
+    "download_qr": "Descargar QR",
+    "main_language": "Idioma principal: {{language}}. Es el que se lee cuando falta una traducción, y no se puede quitar.",
+    "structure_hint": "La carta se organiza en secciones (Cafetería, Postres...) y dentro van los productos que ya tienes en Inventario.",
+    "section_placeholder": "Ej. Cafetería",
+    "from_product": "Producto",
+    "item_name_placeholder": "Se usará el nombre del producto",
+    "item_description_placeholder": "Ej. con jamón ibérico",
+    "item_price_placeholder": "En céntimos",
+    "price_from_product": "del producto",
+    "price_own": "propio de la carta",
+    "pick_product": "Elige un producto...",
+    "up_to_date": "La carta publicada está al día."
   },
   "allergens": {
     "GLUTEN": "gluten",

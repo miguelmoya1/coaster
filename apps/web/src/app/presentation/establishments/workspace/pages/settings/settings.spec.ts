@@ -13,9 +13,15 @@ describe('Settings', () => {
   let component: Settings;
 
   const modules = signal<EstablishmentModule[]>([EstablishmentModule.TIME_TRACKING]);
+  const language = signal<'es' | 'en'>('es');
   const modulesStoreMock = {
-    settings: { isLoading: signal(false).asReadonly(), hasValue: () => true, value: () => ({ modules: modules() }) },
+    settings: {
+      isLoading: signal(false).asReadonly(),
+      hasValue: () => true,
+      value: () => ({ modules: modules(), language: language() }),
+    },
     modules,
+    language,
     save: vi.fn().mockResolvedValue(undefined),
     isModuleEnabled: vi.fn((module: EstablishmentModule) => modules().includes(module)),
   };
@@ -74,11 +80,32 @@ describe('Settings', () => {
 
     await component['save']();
 
-    expect(modulesStoreMock.save).toHaveBeenCalledWith([
-      EstablishmentModule.TIME_TRACKING,
-      EstablishmentModule.ORDERS,
-      EstablishmentModule.INVENTORY,
-    ]);
+    expect(modulesStoreMock.save).toHaveBeenCalledWith(
+      [EstablishmentModule.TIME_TRACKING, EstablishmentModule.ORDERS, EstablishmentModule.INVENTORY],
+      'es',
+    );
+  });
+
+  describe('the establishment language', () => {
+    it('should start from what the establishment has', () => {
+      expect(component['language']()).toBe('es');
+    });
+
+    it('should save the one picked on screen', async () => {
+      component['languageDraft'].set('en');
+
+      await component['save']();
+
+      expect(modulesStoreMock.save).toHaveBeenCalledWith(expect.any(Array), 'en');
+    });
+
+    it('should fall back to the stored one once saved, rather than hold a stale draft', async () => {
+      component['languageDraft'].set('en');
+      await component['save']();
+
+      expect(component['languageDraft']()).toBeNull();
+      expect(component['language']()).toBe('es');
+    });
   });
 
   /*

@@ -12,6 +12,8 @@ export class UpdateEstablishmentSettingsHandler implements ICommandHandler<
   constructor(private readonly repository: EstablishmentSettingsRepository) {}
 
   async execute(command: UpdateEstablishmentSettingsCommand): Promise<EstablishmentSettings> {
-    return EstablishmentSettingsMapper.toDto(await this.repository.update(command.establishmentId, command.modules));
+    return EstablishmentSettingsMapper.toDto(
+      await this.repository.update(command.establishmentId, command.modules, command.language),
+    );
   }
 }

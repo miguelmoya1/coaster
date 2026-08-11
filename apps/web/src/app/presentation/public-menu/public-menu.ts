@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import type { Language } from '@coaster/common';
-import { asLanguage } from '@coaster/common';
+import { asLanguage, LANGUAGE_NAMES } from '@coaster/common';
 import { PublicMenuStore } from '@coaster/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../establishments/workspace/pipes/price/price';
@@ -25,6 +25,11 @@ export default class PublicMenu {
 
   /** Only what the menu itself offers: a switch to a language it has no wording for would read the same. */
   protected readonly languages = computed<Language[]>(() => this.menu()?.languages ?? []);
+
+  /** Each language named in itself, the way a switcher on a menu should read to whoever needs it. */
+  protected languageName(language: Language): string {
+    return LANGUAGE_NAMES[language];
+  }
 
   constructor() {
     effect(() => {

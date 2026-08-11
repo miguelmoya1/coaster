@@ -1,19 +1,31 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import type { EstablishmentId, Language, MenuItemDraft, MenuSectionDraft, ProductId } from '@coaster/common';
-import { LANGUAGES } from '@coaster/common';
+import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MenuStore } from '@coaster/menu';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelect } from '../../../../../../components/language-select/language-select';
 import { Loading } from '../../../../../../components/loading/loading';
+import { QrCode } from '../../../../../../components/qr-code/qr-code';
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-menu-editor',
-  imports: [RouterLink, MatIcon, MatButton, MatIconButton, TranslatePipe, Loading, PricePipe],
+  imports: [
+    RouterLink,
+    MatIcon,
+    MatButton,
+    MatIconButton,
+    LanguageSelect,
+    TranslatePipe,
+    Loading,
+    PricePipe,
+    QrCode,
+  ],
   host: { class: 'flex flex-col gap-2' },
   templateUrl: './menu-editor.html',
 })
@@ -39,7 +51,15 @@ export default class MenuEditor {
   protected readonly slug = computed(() => this.draft()?.slug ?? '');
   protected readonly isPublished = computed(() => Boolean(this.draft()?.publishedAt));
   protected readonly hasUnpublishedChanges = computed(() => this.draft()?.hasUnpublishedChanges ?? false);
+  /** Local edits count too: the draft on screen may differ from the one the server last saw. */
+  protected readonly canPublish = computed(() => !this.isPublished() || this.hasUnpublishedChanges() || this.isDirty());
+
   protected readonly publicUrl = computed(() => `${location.origin}/m/${this.slug()}`);
+
+  protected readonly qr = viewChild(QrCode);
+
+  /** Every language the app has except the menu's own, which is never optional. */
+  protected readonly extraLanguages = computed(() => this.languages.filter((language) => language !== this.defaultLanguage()));
 
   protected readonly products = computed(() => (this.#productsStore.list.hasValue() ? this.#productsStore.list.value() : []));
 
@@ -54,6 +74,9 @@ export default class MenuEditor {
       return total + blanks;
     }, 0),
   );
+
+  readonly #savedShape = signal('');
+  protected readonly isDirty = computed(() => this.shapeOf() !== this.#savedShape());
 
   constructor() {
     effect(() => {
@@ -70,8 +93,26 @@ export default class MenuEditor {
         this.menuName.set(draft.name);
         this.offered.set([...draft.languages]);
         this.editingLanguage.set(draft.defaultLanguage);
+        this.#savedShape.set(this.shapeOf());
       }
     });
+  }
+
+  protected shapeOf(): string {
+    return JSON.stringify({ name: this.menuName(), languages: this.offered(), sections: this.sections() });
+  }
+
+  protected languageName(language: Language): string {
+    return LANGUAGE_NAMES[language];
+  }
+
+  /** Shows what the customer would read if the field is left empty, rather than a generic hint. */
+  protected itemPlaceholder(item: MenuItemDraft): string {
+    return this.itemName(item, this.editingLanguage()) || this.#translate.instant('menu.item_name_placeholder');
+  }
+
+  protected priceOrigin(item: MenuItemDraft): string {
+    return item.price === undefined ? 'menu.price_from_product' : 'menu.price_own';
   }
 
   protected itemName(item: MenuItemDraft, language: Language): string {
@@ -196,6 +237,7 @@ export default class MenuEditor {
         languages: this.offered(),
         sections: this.sections(),
       });
+      this.#savedShape.set(this.shapeOf());
       this.#feedback.success(this.#translate.instant('menu.saved'));
     });
   }
@@ -207,6 +249,7 @@ export default class MenuEditor {
         languages: this.offered(),
         sections: this.sections(),
       });
+      this.#savedShape.set(this.shapeOf());
       await this.#menuStore.publish(establishmentId);
       this.#feedback.success(this.#translate.instant('menu.published'));
     });
@@ -217,6 +260,19 @@ export default class MenuEditor {
       await this.#menuStore.unpublish(establishmentId);
       this.#feedback.success(this.#translate.instant('menu.unpublished'));
     });
+  }
+
+  protected downloadQr() {
+    const image = this.qr()?.toPngDataUrl();
+
+    if (!image) {
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `qr-${this.slug()}.png`;
+    link.click();
   }
 
   protected async copyLink() {

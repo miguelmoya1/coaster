@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model DbMenu
- * What customers read, kept apart from the catalogue the staff work with. Publishing renders the
- * draft into publishedSnapshot, so a public read is one row and an unpublished edit stays private.
+ * 
  */
 export type DbMenuModel = runtime.Types.Result.DefaultSelection<Prisma.$DbMenuPayload>
 

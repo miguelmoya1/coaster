@@ -70,8 +70,7 @@ export type DbShift = Prisma.DbShiftModel
 export type DbShiftExchange = Prisma.DbShiftExchangeModel
 /**
  * Model DbMenu
- * What customers read, kept apart from the catalogue the staff work with. Publishing renders the
- * draft into publishedSnapshot, so a public read is one row and an unpublished edit stays private.
+ * 
  */
 export type DbMenu = Prisma.DbMenuModel
 /**
@@ -81,8 +80,7 @@ export type DbMenu = Prisma.DbMenuModel
 export type DbMenuSection = Prisma.DbMenuSectionModel
 /**
  * Model DbMenuItem
- * price null takes the product's. A product is optional so a menu can carry something the till
- * never sells, and survives one being deleted rather than losing the line.
+ * 
  */
 export type DbMenuItem = Prisma.DbMenuItemModel
 /**

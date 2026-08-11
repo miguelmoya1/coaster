@@ -1,5 +1,5 @@
 import type { EstablishmentId, EstablishmentModule, EstablishmentSettings } from '@coaster/common';
-import { resolveModules } from '@coaster/common';
+import { asLanguage, resolveModules } from '@coaster/common';
 import type { DbEstablishmentSettings } from '@coaster/core/db';
 
 export const EstablishmentSettingsMapper = {
@@ -7,6 +7,7 @@ export const EstablishmentSettingsMapper = {
     return {
       establishmentId: row.establishmentId as EstablishmentId,
       modules: resolveModules(row.modules as EstablishmentModule[]),
+      language: asLanguage(row.language),
       configuredAt: row.configuredAt?.toISOString() ?? null,
     };
   },

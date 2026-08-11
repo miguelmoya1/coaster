@@ -49,6 +49,8 @@ describe('MenuEditor', () => {
   const feedbackMock = { success: vi.fn(), error: vi.fn() };
 
   const build = async () => {
+    TestBed.resetTestingModule();
+
     await TestBed.configureTestingModule({
       imports: [MenuEditor],
       providers: [
@@ -191,6 +193,67 @@ describe('MenuEditor', () => {
       component['setSectionName'](0, 'Coffee');
 
       expect(component['missingWording']()).toBe(0);
+    });
+  });
+
+  describe('what the editor explains', () => {
+    it('should offer as optional every language except the menu own one', () => {
+      expect(component['extraLanguages']()).toEqual(['en']);
+    });
+
+    it('should show what a customer would read when a name is left blank', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+
+      expect(component['itemPlaceholder'](component['sections']()[0].items[0])).toBe('Café Solo');
+    });
+
+    it('should say where a price comes from', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+      expect(component['priceOrigin'](component['sections']()[0].items[0])).toBe('menu.price_from_product');
+
+      component['setItemPrice'](0, 0, '200');
+      expect(component['priceOrigin'](component['sections']()[0].items[0])).toBe('menu.price_own');
+    });
+  });
+
+  describe('when publishing is offered', () => {
+    it('should always be offered while the menu has never been published', () => {
+      expect(component['canPublish']()).toBe(true);
+    });
+
+    it('should stay offered while the server reports pending changes', async () => {
+      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: true });
+      await build();
+
+      expect(component['canPublish']()).toBe(true);
+    });
+
+    it('should not be offered when published and nothing has moved', async () => {
+      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      await build();
+
+      expect(component['canPublish']()).toBe(false);
+    });
+
+    it('should come back as soon as something is edited on screen', async () => {
+      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      await build();
+
+      component['addSection']();
+
+      expect(component['canPublish']()).toBe(true);
+    });
+
+    it('should settle again once the edit is saved', async () => {
+      draft.set({ ...draft(), publishedAt: '2026-08-11T10:00:00.000Z', hasUnpublishedChanges: false });
+      await build();
+      component['addSection']();
+
+      await component['save']();
+
+      expect(component['canPublish']()).toBe(false);
     });
   });
 

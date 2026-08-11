@@ -1,5 +1,5 @@
 import type { EstablishmentSettings } from '@coaster/common';
-import { DEFAULT_ESTABLISHMENT_MODULES, resolveModules } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES, DEFAULT_LANGUAGE, resolveModules } from '@coaster/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { EstablishmentSettingsRepository } from '../../data-access/establishment-settings.repository';
 import { EstablishmentSettingsMapper } from '../../mappers/establishment-settings.mapper';
@@ -16,6 +16,7 @@ export class GetEstablishmentSettingsHandler implements IQueryHandler<GetEstabli
       return {
         establishmentId: query.establishmentId,
         modules: resolveModules(DEFAULT_ESTABLISHMENT_MODULES),
+        language: DEFAULT_LANGUAGE,
         configuredAt: null,
       };
     }

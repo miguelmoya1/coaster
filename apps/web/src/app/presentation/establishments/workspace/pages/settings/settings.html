@@ -38,6 +38,17 @@
 
     <section class="flex flex-col gap-3 mt-8">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <mat-icon class="text-primary text-xl">translate</mat-icon>
+        {{ 'settings.language_title' | translate }}
+      </h2>
+
+      <p class="text-sm text-on-surface-variant">{{ 'settings.language_desc' | translate }}</p>
+
+      <coaster-language-select [value]="language()" (valueChange)="languageDraft.set($event)" />
+    </section>
+
+    <section class="flex flex-col gap-3 mt-8">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
         <mat-icon class="text-primary text-xl">print</mat-icon>
         {{ 'settings.printer_title' | translate }}
       </h2>

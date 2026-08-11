@@ -50,7 +50,7 @@ export class EstablishmentsController {
     @Body() dto: UpdateEstablishmentSettingsDto,
   ): Promise<EstablishmentSettings> {
     return this._commandBus.execute<UpdateEstablishmentSettingsCommand, EstablishmentSettings>(
-      new UpdateEstablishmentSettingsCommand(establishmentId, dto.modules),
+      new UpdateEstablishmentSettingsCommand(establishmentId, dto.modules, dto.language),
     );
   }
 

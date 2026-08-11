@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
-import type { EstablishmentId, EstablishmentSettings } from '@coaster/common';
-import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
+import type { EstablishmentId, EstablishmentSettings, Language } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES, DEFAULT_LANGUAGE, EstablishmentModule, resolveModules } from '@coaster/common';
 import { EstablishmentRepository } from '../data-access/establishment-repository';
 import { EstablishmentSettingsService } from '../services/establishment-settings';
 
@@ -41,14 +41,18 @@ export class ModulesStore {
     this.settings.hasValue() ? this.settings.value().configuredAt !== null : null,
   );
 
-  public async save(modules: EstablishmentModule[]): Promise<void> {
+  public readonly language = computed<Language>(() =>
+    this.settings.hasValue() ? this.settings.value().language : DEFAULT_LANGUAGE,
+  );
+
+  public async save(modules: EstablishmentModule[], language?: Language): Promise<void> {
     const establishmentId = this.#currentEstablishmentId();
 
     if (!establishmentId) {
       return;
     }
 
-    await this.#repository.updateSettings(establishmentId, { modules });
+    await this.#repository.updateSettings(establishmentId, { modules, language });
     this.#settingsResource.reload();
   }
 }

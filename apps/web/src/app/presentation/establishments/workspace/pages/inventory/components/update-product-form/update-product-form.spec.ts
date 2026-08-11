@@ -22,6 +22,7 @@ describe('UpdateProductForm', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
+    allergens: [],
     stockStatus: 'GOOD',
     lastUpdated: '2022-01-01T00:00:00.000Z',
   };
@@ -63,6 +64,40 @@ describe('UpdateProductForm', () => {
     });
   });
 
+  describe('allergens', () => {
+    it('should start from what the product declares', async () => {
+      fixture.componentRef.setInput('product', { ...mockProduct, allergens: ['GLUTEN'] });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.form.allergens().value()).toEqual(['GLUTEN']);
+    });
+
+    it('should offer the fourteen, translated', () => {
+      const options = component['allergenOptions']();
+
+      expect(options).toHaveLength(14);
+      expect(options[0].value).toBe('GLUTEN');
+    });
+
+    it('should send them with the update', async () => {
+      component.form.allergens().value.set(['FISH']);
+      fixture.detectChanges();
+
+      const submitButton = Array.from(
+        fixture.nativeElement.querySelectorAll('.justify-end button') as NodeListOf<HTMLButtonElement>,
+      ).find((button) => button.getAttribute('type') === 'submit');
+
+      submitButton?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(productsStoreMock.update).toHaveBeenCalledWith(
+        mockProduct.id,
+        expect.objectContaining({ allergens: ['FISH'] }),
+      );
+    });
+  });
+
   describe('actions', () => {
     it('should emit canceled when cancel button is clicked', () => {
       const spy = vi.spyOn(component.canceled, 'emit');
@@ -95,6 +130,7 @@ describe('UpdateProductForm', () => {
         minStockAlert: 5,
         price: 1050,
         imageUrl: '',
+        allergens: [],
       });
     });
   });

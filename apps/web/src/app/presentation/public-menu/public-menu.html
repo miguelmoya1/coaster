@@ -17,14 +17,14 @@
           @for (option of languages(); track option) {
             <button
               type="button"
-              class="px-3 py-1 rounded-full text-xs font-semibold uppercase"
+              class="px-3 py-1 rounded-full text-xs font-semibold"
               [class.bg-primary]="language() === option"
               [class.text-on-primary]="language() === option"
               [class.bg-surface-container]="language() !== option"
               [attr.aria-pressed]="language() === option"
               (click)="choose(option)"
             >
-              {{ option }}
+              {{ languageName(option) }}
             </button>
           }
         </div>
@@ -59,7 +59,7 @@
 
                 @if (item.allergens.length > 0) {
                   <p class="text-xs text-on-surface-variant mt-1">
-                    <span class="font-semibold">{{ 'public_menu.allergens' | translate }}:</span>
+                    <span class="font-semibold">{{ 'public_menu.allergens' | translate }}:</span>&nbsp;
                     @for (allergen of item.allergens; track allergen) {
                       <span>{{ 'allergens.' + allergen | translate }}{{ $last ? '' : ', ' }}</span>
                     }

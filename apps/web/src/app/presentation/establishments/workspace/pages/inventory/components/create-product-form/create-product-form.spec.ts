@@ -74,6 +74,7 @@ describe('CreateProductForm', () => {
 
       expect(productsStoreMock.create).toHaveBeenCalledWith({
         name: 'New Beer',
+        allergens: [],
         categoryId: 'cat-1',
         currentStock: 10,
         minStockAlert: 5,

@@ -9,7 +9,9 @@ const DRAFT = {
       items: {
         orderBy: { position: 'asc' },
         include: {
-          product: { select: { name: true, price: true, imageUrl: true, allergens: true, deletedAt: true } },
+          product: {
+            select: { name: true, price: true, imageUrl: true, allergens: true, deletedAt: true, updatedAt: true },
+          },
         },
       },
     },
@@ -83,10 +85,16 @@ export class MenuRepository {
     });
   }
 
+  /**
+   * updatedAt is written by hand to the same instant as publishedAt. Left to `@updatedAt` it lands a
+   * few milliseconds later, and every publish would immediately look like an unpublished change.
+   */
   public publish(menuId: MenuId, snapshot: Prisma.InputJsonValue) {
+    const now = new Date();
+
     return this._db.dbMenu.update({
       where: { id: menuId },
-      data: { publishedSnapshot: snapshot, publishedAt: new Date() },
+      data: { publishedSnapshot: snapshot, publishedAt: now, updatedAt: now },
     });
   }
 

@@ -16,7 +16,14 @@ type DbMenuWithSections = {
       productId: string | null;
       price: number | null;
       translations: unknown;
-      product: { name: string; price: number; imageUrl: string | null; allergens: string[]; deletedAt: Date | null } | null;
+      product: {
+        name: string;
+        price: number;
+        imageUrl: string | null;
+        allergens: string[];
+        deletedAt: Date | null;
+        updatedAt: Date;
+      } | null;
     }[];
   }[];
 };
@@ -32,7 +39,7 @@ export const MenuMapper = {
       defaultLanguage: asLanguage(menu.defaultLanguage),
       languages: menu.languages.map(asLanguage),
       publishedAt: menu.publishedAt?.toISOString(),
-      hasUnpublishedChanges: !menu.publishedAt || menu.updatedAt > menu.publishedAt,
+      hasUnpublishedChanges: hasChangesSince(menu),
       sections: menu.sections.map((section) => ({
         translations: wording(section.translations),
         items: section.items.map((item) => ({
@@ -68,4 +75,24 @@ export const MenuMapper = {
       })),
     };
   },
+};
+
+/**
+ * A published menu also goes stale when a product it points at moves: an allergen added or a price
+ * corrected changes what customers should be reading, and only republishing puts it in front of them.
+ */
+const hasChangesSince = (menu: DbMenuWithSections): boolean => {
+  const published = menu.publishedAt;
+
+  if (!published) {
+    return true;
+  }
+
+  if (menu.updatedAt > published) {
+    return true;
+  }
+
+  return menu.sections.some((section) =>
+    section.items.some((item) => item.product && item.product.updatedAt > published),
+  );
 };

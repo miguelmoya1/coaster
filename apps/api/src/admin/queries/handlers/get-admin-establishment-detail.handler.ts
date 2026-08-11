@@ -1,7 +1,13 @@
 import { EstablishmentSettingsMapper, EstablishmentSettingsRepository } from '@coaster/establishments';
 import { EstablishmentSubscriptionMapper } from '@coaster/establishment-subscription';
 import type { AdminEstablishmentDetail } from '@coaster/common';
-import { AdminAuditTargetType, DEFAULT_ESTABLISHMENT_MODULES, ErrorCodes, resolveModules } from '@coaster/common';
+import {
+  AdminAuditTargetType,
+  DEFAULT_ESTABLISHMENT_MODULES,
+  DEFAULT_LANGUAGE,
+  ErrorCodes,
+  resolveModules,
+} from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AdminAuditRepository } from '../../data-access/admin-audit.repository';
@@ -51,7 +57,8 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
         : {
             establishmentId: query.establishmentId,
             modules: resolveModules(DEFAULT_ESTABLISHMENT_MODULES),
-            configuredAt: null,
+            language: DEFAULT_LANGUAGE,
+        configuredAt: null,
           },
       subscription: establishment.billing
         ? EstablishmentSubscriptionMapper.toAdminDomain({

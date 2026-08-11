@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model DbMenuItem
- * price null takes the product's. A product is optional so a menu can carry something the till
- * never sells, and survives one being deleted rather than losing the line.
+ * 
  */
 export type DbMenuItemModel = runtime.Types.Result.DefaultSelection<Prisma.$DbMenuItemPayload>
 

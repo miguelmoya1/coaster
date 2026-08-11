@@ -98,6 +98,15 @@ describe('PublicMenu', () => {
     expect(component['languages']()).toEqual(['es', 'en']);
   });
 
+  it('should name each language in itself, not as a code', async () => {
+    await build();
+
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('Español');
+    expect(text).toContain('English');
+  });
+
   it('should switch language on demand', async () => {
     await build();
 
