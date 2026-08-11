@@ -5,44 +5,27 @@ this file is only the running order.
 
 ## Before the next deploy
 
-- **The print bridge reads a new environment variable.** `BAR_ID` is now `ESTABLISHMENT_ID`. Any
-  bridge already installed needs its `.env` or service file edited by hand — self-updating is not
-  enough.
+- **Publish the bridge binaries.** `GET /printer/download` streams whatever sits in
+  `public/downloads` under a name carrying a pairing code. With nothing published, the download
+  button in Settings hands back nothing.
+- **The API and the web ship together.** The route prefix moved from `/bars/:barId` to
+  `/establishments/:establishmentId`.
+- **Check the Stripe price matches the landing.** The page says 19.99 €/month; what is actually
+  charged comes from `STRIPE_PRICE_PRO`, and nothing keeps the two in step.
+- **Bridges installed before all this** still look for `BAR_ID`. Rather than editing a file on
+  someone's machine, download it again from Settings — it pairs itself.
 
-## Next: keep the price safe at scale
+## Next
 
-A flat monthly fee has to cover what one establishment costs to run. Requests, storage and sockets
-scale flat with size and are paid for out of the Google AI Pro subscription, so the instance staying
-warm is not a concern. The assistant was the exception, and it is now bounded by a context budget in
-`ai/domain/snapshot.ts` — a 1,500-product venue costs about the same per message as a small bar.
+### Watch what the assistant actually costs
 
-Both halves are in place: the budget caps what one message costs, and a monthly allowance per
-establishment caps how many arrive — 500 on a paid plan, 100 while on trial, both environment
-variables (`AI_MONTHLY_MESSAGES`, `AI_TRIAL_MONTHLY_MESSAGES`). The numbers came from the cost of a
-message measured after the budget landed, and are worth revisiting once there is real usage to look
-at.
+Both halves of the cap are in: a context budget bounds what one message costs
+(`ai/domain/snapshot.ts`), and a monthly allowance bounds how many arrive — 500 paid, 100 on trial,
+both environment variables. The numbers came from measurement, not from a finding. Worth revisiting
+once there is real usage: if nobody approaches 500, raise it; if many exhaust it, that is a reason
+for a price tier rather than a problem.
 
-## In progress: pairing the printer bridge
-
-The downloaded binary is generic and expects `--establishment-id` and `--device-key`, which no
-customer will ever pass — printing from outside the local network is effectively unusable today.
-
-The app hands out a one-use code and a download named with it, the bridge reads its own filename on
-first run, redeems the code for the ids it needs and writes them beside itself. Nobody types
-anything.
-
-- **Done — the API.** `PrinterPairing` with a one-use, hour-long code; `POST
-/establishments/:id/printer/pairing` to issue one; `POST /printer/pair` for a bridge that has no
-  credentials yet to redeem it. Codes avoid the characters people mistype, and are recovered from a
-  filename a browser may have renamed to `name (1).exe`.
-- **Left — the download.** A route that serves the binary as `coaster-printer-<code>.exe`, since the
-  static asset is the same file for everyone today.
-- **Left — the bridge.** Read `os.Args[0]`, redeem, persist a config file, and fall back to a local
-  setup page asking for the code when the filename carries none.
-- **Left — the app.** A printer screen with the download button; `generateDeviceKey` has existed on
-  the API all along with no UI ever calling it.
-
-## Intelligence layer
+### Intelligence layer
 
 AI recommendations over accumulated history: best and worst performing products, price adjustments
 for stagnant stock, rota suggestions from historical load.
@@ -68,13 +51,18 @@ Scheduler hitting an endpoint, or work driven by traffic.
   production domain. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
   is added, it must require typing the name to confirm and must land in the audit log.
+- **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.
+  They answer a button press or an event rather than describing state, so `httpResource` does not
+  fit: replicating a rota week, verifying the hash chain, exporting the inspection CSV, polling a
+  print job, and refreshing one order after a socket event.
 - **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
   methods directly; dispatched DOM events never reach Angular listeners in that setup, so keyboard
   and click wiring is only ever verified by hand.
 - **Browser e2e run against mocked HTTP.** The Playwright suite stubs every API response, so nothing
-  automated exercises browser → API → database end to end.
+  automated exercises browser → API → database end to end. Printer pairing is covered on the API
+  side and in Go, but no test drives a real binary against a real server.
 - **`member-roles.e2e-spec.ts` failed once** and has passed every run since. Its siblings had a real
-  race — asserting on a membership the invite saga writes asynchronously — now fixed with
+  race — asserting on a membership the invite saga writes asynchronously — fixed with
   `E2eTestSetup.waitForMembers`. This one asserts no member counts, so if it returns it is something
   else.
 - **The admin mobile test does not reproduce the bug it was written for.** It asserts each admin

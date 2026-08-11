@@ -1,4 +1,5 @@
 import type { EstablishmentId, ClaimedPrintJobDto, PrinterPairingResult } from '@coaster/common';
+import { ErrorCodes } from '@coaster/common';
 import {
   BadRequestException,
   Body,
@@ -11,6 +12,7 @@ import {
   Post,
   Query,
   Res,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { SkipSubscriptionCheck } from '@coaster/core';
@@ -23,7 +25,8 @@ import { PrintJobResultDto } from './dto/print-job-result.dto';
 import { RedeemPairingDto } from './dto/redeem-pairing.dto';
 import { RegisterPrinterIpDto } from './dto/register-printer-ip.dto';
 import { ClaimNextPrintJobQuery } from './queries';
-import { PrinterReleaseService } from './services/printer-release.service';
+import { binaryFor, downloadNameFor, PrinterReleaseService } from './services/printer-release.service';
+import { codeFromFilename } from './domain/pairing-code';
 
 @ApiTags('printer')
 @Controller('printer')
@@ -49,6 +52,35 @@ export class PrinterController {
    * Called by a bridge that has just been double-clicked and knows nothing yet, so it cannot carry
    * a token. The code is the credential: one use, an hour to live, and worthless afterwards.
    */
+  /**
+   * Serves the same binary everyone gets, under a name that carries the pairing code. That name is
+   * the whole trick: the customer double-clicks and the bridge knows where it belongs.
+   */
+  @Get('download')
+  @SkipSubscriptionCheck()
+  @ApiOperation({ summary: 'Download the printer bridge named with a pairing code.' })
+  @ApiQuery({ name: 'os', required: true, enum: ['windows', 'linux'] })
+  @ApiQuery({ name: 'code', required: true })
+  async download(@Query('os') os: string, @Query('code') code: string, @Res() reply: FastifyReply): Promise<void> {
+    const filename = binaryFor(os);
+    const pairingCode = codeFromFilename(`coaster-printer-${(code ?? '').toUpperCase()}`);
+
+    if (!filename || !pairingCode) {
+      throw new BadRequestException(ErrorCodes.INVALID_TYPE);
+    }
+
+    const binary = this._releases.stream(filename);
+
+    if (!binary) {
+      throw new NotFoundException(ErrorCodes.PRINTER_NOT_CONFIGURED);
+    }
+
+    await reply
+      .header('Content-Type', 'application/octet-stream')
+      .header('Content-Disposition', `attachment; filename="${downloadNameFor(os, pairingCode)}"`)
+      .send(binary);
+  }
+
   @Post('pair')
   @SkipSubscriptionCheck()
   @Throttle({ default: { ttl: seconds(60), limit: 10 } })

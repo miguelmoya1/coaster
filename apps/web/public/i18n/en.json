@@ -175,7 +175,13 @@
     "module_orders_desc": "Tables, orders, payments and ticket printing.",
     "module_inventory": "Inventory",
     "module_inventory_desc": "Categories, products and stock control.",
-    "orders_needs_inventory": "Orders need inventory, so it comes on with them."
+    "orders_needs_inventory": "Orders need inventory, so it comes on with them.",
+    "printer_title": "Printer",
+    "printer_desc": "Download the bridge onto the computer your printer is attached to. It connects itself: nothing to type.",
+    "printer_windows": "Download for Windows",
+    "printer_linux": "Download for Linux",
+    "printer_code": "If it asks for a code when it opens, use this one:",
+    "printer_code_hint": "Good for an hour and for one computer."
   },
   "onboarding": {
     "title": "Welcome to {{ name }}",
@@ -199,7 +205,6 @@
     "confirm": "Confirm",
     "create": "Create",
     "delete": "Delete",
-    "download_printer": "Download Printer",
     "invite": "Invite",
     "language": "Language",
     "logout": "Log Out",

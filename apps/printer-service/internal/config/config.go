@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"printer-service/internal/pairing"
 	"strings"
 	"time"
 
@@ -72,6 +73,17 @@ func Parse(args []string) (*Config, error) {
 	fallbackToEnv(deviceKey, "PRINTER_DEVICE_KEY")
 	fallbackToEnv(ipAddress, "PRINTER_IP_ADDRESS")
 	fallbackToEnv(jwtSecret, "PRINTER_JWT_SECRET")
+
+	// Nobody passes flags to a binary they double-clicked, so the pairing saved beside the executable
+	// is the usual source of these two, and the flags are for people running it by hand.
+	if saved := pairing.Load(); saved != nil {
+		if *establishmentID == "" {
+			*establishmentID = saved.EstablishmentID
+		}
+		if *deviceKey == "" {
+			*deviceKey = saved.DeviceKey
+		}
+	}
 
 	kind := PrinterType(*printerType)
 	if kind != PrinterTypeUSB && kind != PrinterTypeNetwork {

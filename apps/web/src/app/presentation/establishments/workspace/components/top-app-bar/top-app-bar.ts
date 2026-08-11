@@ -11,7 +11,6 @@ import { EstablishmentSubscriptionStore, BillingAction, PlanDialogService } from
 import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentPermission, ErrorCodes } from '@coaster/common';
 import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
-import { environment } from '@coaster/env';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
@@ -137,36 +136,6 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
 
         <mat-divider />
 
-        <div class="px-4 py-2 flex flex-col gap-2 outline-none">
-          <div class="flex items-center gap-2 text-xs font-bold tracking-wider text-on-surface-variant/60 uppercase">
-            <mat-icon class="text-xs">print</mat-icon>
-            <span>{{ 'common.download_printer' | translate }}</span>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <a
-              mat-menu-item
-              [href]="apiUrl + '/public/downloads/printer-service-windows.exe'"
-              target="_blank"
-              class="flex items-center gap-2"
-            >
-              <mat-icon>desktop_windows</mat-icon>
-              <span>Windows (.exe)</span>
-            </a>
-            <a
-              mat-menu-item
-              [href]="apiUrl + '/public/downloads/printer-service-linux'"
-              target="_blank"
-              class="flex items-center gap-2"
-            >
-              <mat-icon>terminal</mat-icon>
-              <span>Linux (bin)</span>
-            </a>
-          </div>
-        </div>
-
-        <mat-divider />
-
         <button mat-menu-item (click)="logout()" class="text-error!">
           <mat-icon class="text-error!">logout</mat-icon>
           <span>{{ 'common.logout' | translate }}</span>
@@ -191,7 +160,6 @@ export class TopAppBar {
 
   readonly currentLang = this.#translate.currentLang;
   readonly isAdmin = this.#currentUser.isAdmin;
-  readonly apiUrl = environment.apiUrl;
   readonly canManageSettings = computed(() =>
     this.#myMemberStore.hasPermission(EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS),
   );

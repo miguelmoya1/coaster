@@ -6,6 +6,8 @@ import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentModule, resolveModules } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { ModulesStore } from '@coaster/establishments';
+import { environment } from '@coaster/env';
+import { PrinterRepository } from '@coaster/printer';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Loading } from '../../../../components/loading/loading';
 import { PageContainer } from '../../../../components/page-container/page-container';
@@ -29,6 +31,7 @@ export default class Settings {
 
   readonly #modulesStore = inject(ModulesStore);
   readonly #feedback = inject(ActionFeedback);
+  readonly #printerRepository = inject(PrinterRepository);
   readonly #translate = inject(TranslateService);
 
   protected readonly settings = this.#modulesStore.settings;
@@ -77,6 +80,33 @@ export default class Settings {
       this.selected().includes(EstablishmentModule.ORDERS) &&
       this.isOn(module)
     );
+  }
+
+  protected readonly isPairing = signal(false);
+  protected readonly pairingCode = signal<string | null>(null);
+
+  /**
+   * The code travels in the file name, so the customer never has to read it. It is shown anyway for
+   * the run where that fails — a renamed download, a browser that appends "(1)" — and the bridge
+   * asks for it on its own local page.
+   */
+  protected async downloadBridge(os: 'windows' | 'linux'): Promise<void> {
+    if (this.isPairing()) {
+      return;
+    }
+
+    this.isPairing.set(true);
+
+    try {
+      const { code } = await this.#printerRepository.issuePairing(this.establishmentId());
+      this.pairingCode.set(code);
+
+      window.location.assign(`${environment.apiUrl}/api/v1/printer/download?os=${os}&code=${code}`);
+    } catch (error) {
+      this.#feedback.error(error);
+    } finally {
+      this.isPairing.set(false);
+    }
   }
 
   protected async save(): Promise<void> {

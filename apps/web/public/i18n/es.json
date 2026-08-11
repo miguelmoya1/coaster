@@ -175,7 +175,13 @@
     "module_orders_desc": "Mesas, pedidos, cobros e impresión de tickets.",
     "module_inventory": "Inventario",
     "module_inventory_desc": "Categorías, productos y control de stock.",
-    "orders_needs_inventory": "Las comandas necesitan el inventario, así que se activa contigo."
+    "orders_needs_inventory": "Las comandas necesitan el inventario, así que se activa contigo.",
+    "printer_title": "Impresora",
+    "printer_desc": "Descarga el puente e instálalo en el ordenador conectado a la impresora. Se conecta solo: no hay que escribir nada.",
+    "printer_windows": "Descargar para Windows",
+    "printer_linux": "Descargar para Linux",
+    "printer_code": "Si al abrirlo te pide un código, usa este:",
+    "printer_code_hint": "Vale una hora y para un solo ordenador."
   },
   "onboarding": {
     "title": "Bienvenido a {{ name }}",
@@ -199,7 +205,6 @@
     "confirm": "Confirmar",
     "create": "Crear",
     "delete": "Eliminar",
-    "download_printer": "Descargar Impresora",
     "invite": "Invitar",
     "language": "Idioma",
     "logout": "Cerrar sesión",

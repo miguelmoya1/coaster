@@ -35,5 +35,33 @@
         {{ 'settings.save' | translate }}
       </button>
     </section>
+
+    <section class="flex flex-col gap-3 mt-8">
+      <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+        <mat-icon class="text-primary text-xl">print</mat-icon>
+        {{ 'settings.printer_title' | translate }}
+      </h2>
+
+      <p class="text-sm text-on-surface-variant">{{ 'settings.printer_desc' | translate }}</p>
+
+      <div class="flex flex-wrap gap-2">
+        <button mat-flat-button [disabled]="isPairing()" (click)="downloadBridge('windows')">
+          <mat-icon>desktop_windows</mat-icon>
+          {{ 'settings.printer_windows' | translate }}
+        </button>
+        <button mat-stroked-button [disabled]="isPairing()" (click)="downloadBridge('linux')">
+          <mat-icon>terminal</mat-icon>
+          {{ 'settings.printer_linux' | translate }}
+        </button>
+      </div>
+
+      @if (pairingCode(); as code) {
+        <div class="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 flex flex-col gap-1">
+          <p class="text-sm text-on-surface-variant">{{ 'settings.printer_code' | translate }}</p>
+          <p class="font-mono text-2xl font-black tracking-[0.2em] text-primary">{{ code }}</p>
+          <p class="text-xs text-on-surface-variant">{{ 'settings.printer_code_hint' | translate }}</p>
+        </div>
+      }
+    </section>
   }
 </coaster-page-container>

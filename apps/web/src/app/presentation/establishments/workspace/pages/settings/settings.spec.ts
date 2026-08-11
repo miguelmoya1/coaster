@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EstablishmentModule } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { ModulesStore } from '@coaster/establishments';
+import { PrinterRepository } from '@coaster/printer';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Settings from './settings';
@@ -19,6 +20,9 @@ describe('Settings', () => {
     isModuleEnabled: vi.fn((module: EstablishmentModule) => modules().includes(module)),
   };
 
+  const feedbackMock = { success: vi.fn(), error: vi.fn() };
+  const printerRepositoryMock = { issuePairing: vi.fn().mockResolvedValue({ code: '7F3KB92X' }) };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     modules.set([EstablishmentModule.TIME_TRACKING]);
@@ -28,7 +32,8 @@ describe('Settings', () => {
       providers: [
         provideChildTranslateService(),
         { provide: ModulesStore, useValue: modulesStoreMock },
-        { provide: ActionFeedback, useValue: { success: vi.fn(), error: vi.fn() } },
+        { provide: ActionFeedback, useValue: feedbackMock },
+        { provide: PrinterRepository, useValue: printerRepositoryMock },
       ],
     }).compileComponents();
 
@@ -74,5 +79,41 @@ describe('Settings', () => {
       EstablishmentModule.ORDERS,
       EstablishmentModule.INVENTORY,
     ]);
+  });
+
+  /*
+   * The navigation itself is one line of window.location and jsdom will not let it be spied on;
+   * contorting the component to make it observable would cost more than the assertion is worth.
+   * What matters is that a code is minted, shown, and not minted twice.
+   */
+  describe('the printer bridge', () => {
+    it('should mint a code, which is how the bridge learns where it belongs', async () => {
+      await component['downloadBridge']('windows');
+
+      expect(printerRepositoryMock.issuePairing).toHaveBeenCalledWith('establishment-1');
+    });
+
+    it('should show the code as well, for the download whose name got mangled', async () => {
+      await component['downloadBridge']('linux');
+
+      expect(component['pairingCode']()).toBe('7F3KB92X');
+    });
+
+    it('should not ask for a second code while the first is still on its way', async () => {
+      component['isPairing'].set(true);
+
+      await component['downloadBridge']('windows');
+
+      expect(printerRepositoryMock.issuePairing).not.toHaveBeenCalled();
+    });
+
+    it('should report a refusal instead of failing silently', async () => {
+      printerRepositoryMock.issuePairing.mockRejectedValueOnce(new Error('nope'));
+
+      await component['downloadBridge']('windows');
+
+      expect(feedbackMock.error).toHaveBeenCalled();
+      expect(component['pairingCode']()).toBeNull();
+    });
   });
 });

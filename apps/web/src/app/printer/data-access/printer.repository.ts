@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { EnqueuePrintJobResponseDto, PrintJobDto, PrintTicketPayloadDto } from '@coaster/common';
+import type {
+  EnqueuePrintJobResponseDto,
+  PrinterPairingCodeResponse,
+  PrintJobDto,
+  PrintTicketPayloadDto,
+} from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +17,12 @@ export class PrinterRepository {
     job: (establishmentId: string, jobId: string) => `/establishments/${establishmentId}/printer/jobs/${jobId}`,
     status: (establishmentId: string) => `/establishments/${establishmentId}/printer/status`,
     deviceKey: (establishmentId: string) => `/establishments/${establishmentId}/printer/device-key`,
+    pairing: (establishmentId: string) => `/establishments/${establishmentId}/printer/pairing`,
   };
+
+  public async issuePairing(establishmentId: string): Promise<PrinterPairingCodeResponse> {
+    return firstValueFrom(this.#http.post<PrinterPairingCodeResponse>(this.routes.pairing(establishmentId), {}));
+  }
 
   public async printTicket(
     establishmentId: string,
