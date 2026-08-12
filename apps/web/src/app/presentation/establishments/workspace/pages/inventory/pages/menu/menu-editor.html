@@ -12,7 +12,7 @@
   @if (isLoading()) {
     <coaster-loading />
   } @else {
-    <section class="bg-surface-container rounded-2xl p-4 mb-4">
+    <section class="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 mb-4">
       @if (isPublished()) {
         <div class="flex flex-col sm:flex-row gap-4 items-start">
           <coaster-qr-code [value]="publicUrl()" [size]="150" />
@@ -64,7 +64,7 @@
       }
     </section>
 
-    <section class="bg-surface-container rounded-2xl p-4 mb-4 flex flex-col gap-3">
+    <section class="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 mb-4 flex flex-col gap-3">
       <div>
         <p class="text-sm font-semibold">{{ 'menu.languages' | translate }}</p>
         <p class="text-xs text-on-surface-variant">
@@ -103,9 +103,12 @@
 
     <div class="flex flex-col gap-3">
       @for (section of sections(); track $index; let sectionIndex = $index) {
-        <section class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3" data-testid="menu-section">
+        <section
+          class="p-4 rounded-2xl bg-surface-container border border-outline-variant/20 flex flex-col gap-3"
+          data-testid="menu-section"
+        >
           <div class="flex items-end gap-2">
-            <label class="flex-1 flex flex-col gap-1">
+            <label class="flex-1 min-w-0 flex flex-col gap-1">
               <span class="text-xs font-semibold text-on-surface-variant">
                 {{ 'menu.section_name' | translate }}
                 @if (offered().length > 1) {
@@ -117,7 +120,7 @@
                 [value]="section.translations[editingLanguage()]?.name ?? ''"
                 (input)="setSectionName(sectionIndex, $any($event.target).value)"
                 [placeholder]="'menu.section_placeholder' | translate"
-                class="bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
+                class="w-full bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
               />
             </label>
 
@@ -144,7 +147,7 @@
 
           @for (item of section.items; track $index; let itemIndex = $index) {
             <div
-              class="pl-3 border-l-2 border-outline/10 flex flex-col gap-2 pt-1"
+              class="p-3 rounded-xl bg-surface-container-high border border-outline-variant/20 flex flex-col gap-2"
               [class.opacity-50]="!item.isVisible"
               data-testid="menu-item"
             >
