@@ -8,12 +8,12 @@ import { EstablishmentListStore } from '@coaster/establishments';
 import type { CreateEstablishmentDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
+import { Spinner } from '../../../../components/spinner/spinner';
 
 @Component({
   selector: 'coaster-create-establishment-form',
   imports: [
-    ButtonSpinner,
+    Spinner,
     MatFormField,
     MatLabel,
     MatInput,
@@ -63,7 +63,7 @@ import { ButtonSpinner } from '../../../../components/button-spinner/button-spin
           {{ 'common.create' | translate }}
 
           @if (establishmentForm().submitting()) {
-            <coaster-button-spinner />
+            <coaster-spinner />
           } @else {
             <mat-icon class="text-on-primary-fixed text-xl">arrow_forward</mat-icon>
           }

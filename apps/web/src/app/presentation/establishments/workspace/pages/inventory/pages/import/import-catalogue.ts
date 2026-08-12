@@ -13,12 +13,12 @@ import { Loading } from '../../../../../../components/loading/loading';
 import { PageHeader } from '../../../../../../components/page-header/page-header';
 
 import { PricePipe } from '../../../../pipes/price/price';
-import { ButtonSpinner } from '../../../../../../components/button-spinner/button-spinner';
+import { Spinner } from '../../../../../../components/spinner/spinner';
 
 @Component({
   selector: 'coaster-import-catalogue',
   imports: [
-    ButtonSpinner,
+    Spinner,
     MatIcon,
     TranslatePipe,
     MatButton,

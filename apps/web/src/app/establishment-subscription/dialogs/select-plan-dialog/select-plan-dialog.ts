@@ -4,11 +4,11 @@ import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/mat
 import { MatIcon } from '@angular/material/icon';
 import { SubscriptionPlan } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ButtonSpinner } from '../../../presentation/components/button-spinner/button-spinner';
+import { Spinner } from '../../../presentation/components/spinner/spinner';
 
 @Component({
   selector: 'coaster-select-plan-dialog',
-  imports: [ButtonSpinner, MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
+  imports: [Spinner, MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-3 m-0 p-0 text-xl font-bold text-on-surface">
       <span class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
@@ -59,7 +59,7 @@ import { ButtonSpinner } from '../../../presentation/components/button-spinner/b
         (click)="selected.emit(SubscriptionPlan.PRO)"
       >
         @if (loading()) {
-          <coaster-button-spinner />
+          <coaster-spinner />
         }
         {{ 'billing.continue_to_checkout' | translate }}
       </button>

@@ -11,7 +11,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
 import { AiVoiceService, type AiSheetSnap } from './ai-voice.service';
 import { MarkdownMessage } from './markdown-message';
-import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
+import { Spinner } from '../../../../components/spinner/spinner';
 
 const SUGGESTION_KEYS = ['takings', 'low_stock', 'rota', 'order'] as const;
 
@@ -25,7 +25,7 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
 @Component({
   selector: 'coaster-ai-assistant-panel',
   imports: [
-    ButtonSpinner,
+    Spinner,
     MatIconButton,
     MatIcon,
     MatFormField,
@@ -269,7 +269,7 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
               class="text-primary!"
             >
               @if (service.status() === 'processing') {
-                <coaster-button-spinner />
+                <coaster-spinner />
               } @else {
                 <mat-icon>send</mat-icon>
               }

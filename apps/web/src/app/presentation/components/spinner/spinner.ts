@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
-  selector: 'coaster-button-spinner',
+  selector: 'coaster-spinner',
   imports: [MatProgressSpinner],
   template: `<mat-progress-spinner mode="indeterminate" [diameter]="diameter()" [strokeWidth]="2" />`,
   host: {
@@ -23,6 +23,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     `,
   ],
 })
-export class ButtonSpinner {
+export class Spinner {
   public readonly diameter = input(18);
 }

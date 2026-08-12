@@ -3,23 +3,22 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatToolbar } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
-import { MyMemberStore } from '@coaster/establishment-members';
-import { EstablishmentSubscriptionStore, BillingAction, PlanDialogService } from '@coaster/establishment-subscription';
 import type { EstablishmentId } from '@coaster/common';
-import { EstablishmentPermission, ErrorCodes } from '@coaster/common';
+import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
 import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
+import { MyMemberStore } from '@coaster/establishment-members';
+import { BillingAction, EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Spinner } from '../../../../components/spinner/spinner';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
-import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-top-app-bar',
   imports: [
-    ButtonSpinner,
+    Spinner,
     AiAssistantTrigger,
     AvatarBadge,
     RouterLink,
@@ -30,7 +29,6 @@ import { ButtonSpinner } from '../../../../components/button-spinner/button-spin
     MatToolbar,
     MatMenuModule,
     MatDivider,
-    MatProgressSpinner,
   ],
   host: {
     class: 'block w-full z-50 shrink-0',
@@ -100,7 +98,7 @@ import { ButtonSpinner } from '../../../../components/button-spinner/button-spin
               (click)="manageBilling(); menuTrigger.closeMenu()"
             >
               @if (isOpeningBillingPortal()) {
-                <coaster-button-spinner />
+                <coaster-spinner />
               } @else {
                 <mat-icon>receipt_long</mat-icon>
               }

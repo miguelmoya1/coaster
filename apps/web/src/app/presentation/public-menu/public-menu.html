@@ -6,7 +6,7 @@
     <p class="text-sm text-on-surface-variant">{{ 'MENU_NOT_FOUND' | translate }}</p>
   </div>
 } @else if (menu(); as published) {
-  <coaster-page-container class="px-5 py-8">
+  <coaster-page-container>
     <coaster-page-header [title]="published.name">
       @if (languages().length > 1) {
         <coaster-language-select actions [value]="language()" [choices]="languages()" (valueChange)="choose($event)" />

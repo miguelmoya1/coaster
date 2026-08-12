@@ -13,7 +13,7 @@ import { PricePipe } from '../establishments/workspace/pipes/price/price';
 @Component({
   selector: 'coaster-public-menu',
   imports: [MatIcon, TranslatePipe, PricePipe, LanguageSelect, Loading, PageContainer, PageHeader],
-  host: { class: 'block min-h-dvh bg-surface' },
+  host: { class: 'block min-h-dvh bg-surface px-5 py-8' },
   templateUrl: './public-menu.html',
 })
 export default class PublicMenu {

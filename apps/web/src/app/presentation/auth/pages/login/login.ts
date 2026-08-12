@@ -11,13 +11,13 @@ import {
 import { Router } from '@angular/router';
 import { Auth } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ButtonSpinner } from '../../../components/button-spinner/button-spinner';
+import { Spinner } from '../../../components/spinner/spinner';
 import { PageContainer } from '../../../components/page-container/page-container';
 
 @Component({
   selector: 'coaster-login',
   imports: [
-    ButtonSpinner,
+    Spinner,
     MatCard,
     MatCardContent,
     MatCardHeader,
@@ -67,7 +67,7 @@ import { PageContainer } from '../../../components/page-container/page-container
               class="w-full py-4 text-base font-medium rounded-full"
             >
               @if (isLoading()) {
-                <coaster-button-spinner class="mr-2" />
+                <coaster-spinner class="mr-2" />
               }
               {{ 'auth.login.google_button' | translate }}
             </button>

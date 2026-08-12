@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ButtonSpinner } from './button-spinner';
+import { Spinner } from './spinner';
 
-describe('ButtonSpinner', () => {
-  let fixture: ComponentFixture<ButtonSpinner>;
+describe('Spinner', () => {
+  let fixture: ComponentFixture<Spinner>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ButtonSpinner] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [Spinner] }).compileComponents();
 
-    fixture = TestBed.createComponent(ButtonSpinner);
+    fixture = TestBed.createComponent(Spinner);
     fixture.detectChanges();
   });
 

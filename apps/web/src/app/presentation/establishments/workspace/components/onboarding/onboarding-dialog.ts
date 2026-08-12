@@ -10,7 +10,7 @@ import { ModulesStore } from '@coaster/establishments';
 import { ProductsStore } from '@coaster/products';
 import { CatalogueStore } from '@coaster/catalogue';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
+import { Spinner } from '../../../../components/spinner/spinner';
 
 interface BusinessType {
   key: string;
@@ -26,7 +26,7 @@ export interface OnboardingDialogData {
 
 @Component({
   selector: 'coaster-onboarding-dialog',
-  imports: [ButtonSpinner, MatButton, MatIcon, MatDialogActions, MatDialogContent, MatProgressSpinner, TranslatePipe],
+  imports: [Spinner, MatButton, MatIcon, MatDialogActions, MatDialogContent, MatProgressSpinner, TranslatePipe],
   templateUrl: './onboarding-dialog.html',
 })
 export class OnboardingDialog {
