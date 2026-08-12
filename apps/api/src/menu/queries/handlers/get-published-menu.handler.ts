@@ -22,6 +22,28 @@ export class GetPublishedMenuHandler implements IQueryHandler<GetPublishedMenuQu
     const language: Language =
       asked && isLanguage(asked) && snapshot[asked] ? asked : asLanguage(menu.defaultLanguage);
 
-    return snapshot[language] ?? snapshot[asLanguage(menu.defaultLanguage)];
+    const published = snapshot[language] ?? snapshot[asLanguage(menu.defaultLanguage)];
+
+    if (!menu.establishment?.settings?.markSoldOut) {
+      return published;
+    }
+
+    const productIds = published.sections
+      .flatMap((section) => section.items)
+      .map((item) => item.productId)
+      .filter((productId): productId is NonNullable<typeof productId> => Boolean(productId));
+
+    const soldOut = await this.repository.soldOutAmong(productIds);
+
+    return {
+      ...published,
+      sections: published.sections.map((section) => ({
+        ...section,
+        items: section.items.map((item) => ({
+          ...item,
+          soldOut: Boolean(item.productId && soldOut.has(item.productId)),
+        })),
+      })),
+    };
   }
 }

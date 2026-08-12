@@ -17,6 +17,7 @@ export class GetEstablishmentSettingsHandler implements IQueryHandler<GetEstabli
         establishmentId: query.establishmentId,
         modules: resolveModules(DEFAULT_ESTABLISHMENT_MODULES),
         language: DEFAULT_LANGUAGE,
+        markSoldOut: false,
         configuredAt: null,
       };
     }

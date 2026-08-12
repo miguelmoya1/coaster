@@ -15,13 +15,29 @@ export class EstablishmentSettingsRepository {
    * Answering the questions is what marks an establishment as configured, so the first write also
    * closes the onboarding.
    */
-  public update(establishmentId: EstablishmentId, modules: EstablishmentModule[], language?: Language) {
+  public update(
+    establishmentId: EstablishmentId,
+    modules: EstablishmentModule[],
+    language?: Language,
+    markSoldOut?: boolean,
+  ) {
     const resolved = resolveModules(modules) as DbEstablishmentModule[];
 
     return this._db.dbEstablishmentSettings.upsert({
       where: { establishmentId },
-      create: { establishmentId, modules: resolved, configuredAt: new Date(), ...(language && { language }) },
-      update: { modules: resolved, configuredAt: { set: new Date() }, ...(language && { language }) },
+      create: {
+        establishmentId,
+        modules: resolved,
+        configuredAt: new Date(),
+        ...(language && { language }),
+        ...(markSoldOut !== undefined && { markSoldOut }),
+      },
+      update: {
+        modules: resolved,
+        configuredAt: { set: new Date() },
+        ...(language && { language }),
+        ...(markSoldOut !== undefined && { markSoldOut }),
+      },
     });
   }
 

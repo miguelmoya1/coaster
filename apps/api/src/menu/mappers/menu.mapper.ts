@@ -15,6 +15,7 @@ type DbMenuWithSections = {
     items: {
       productId: string | null;
       price: number | null;
+      isVisible: boolean;
       translations: unknown;
       product: {
         name: string;
@@ -45,6 +46,7 @@ export const MenuMapper = {
         items: section.items.map((item) => ({
           productId: (item.productId ?? undefined) as ProductId | undefined,
           price: item.price ?? undefined,
+          isVisible: item.isVisible,
           translations: wording(item.translations),
         })),
       })),
@@ -61,6 +63,8 @@ export const MenuMapper = {
         translations: wording(section.translations),
         items: section.items.map((item) => ({
           price: item.price,
+          isVisible: item.isVisible,
+          productId: item.productId,
           translations: wording(item.translations),
           product:
             item.product && !item.product.deletedAt

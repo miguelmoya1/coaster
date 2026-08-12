@@ -31,9 +31,6 @@
         </div>
       }
 
-      <button mat-flat-button class="self-end mt-2" [disabled]="isSaving()" (click)="save()">
-        {{ 'settings.save' | translate }}
-      </button>
     </section>
 
     <section class="flex flex-col gap-3 mt-8">
@@ -45,7 +42,22 @@
       <p class="text-sm text-on-surface-variant">{{ 'settings.language_desc' | translate }}</p>
 
       <coaster-language-select [value]="language()" (valueChange)="languageDraft.set($event)" />
+
+      <div
+        class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant/20 mt-2"
+      >
+        <div class="min-w-0">
+          <p class="font-bold text-on-surface">{{ 'settings.mark_sold_out' | translate }}</p>
+          <p class="text-sm text-on-surface-variant">{{ 'settings.mark_sold_out_desc' | translate }}</p>
+        </div>
+        <mat-slide-toggle [checked]="markSoldOut()" (change)="markSoldOutDraft.set($event.checked)" />
+      </div>
+
     </section>
+
+    <button mat-flat-button class="self-end mt-4" [disabled]="isSaving()" (click)="save()">
+      {{ 'settings.save' | translate }}
+    </button>
 
     <section class="flex flex-col gap-3 mt-8">
       <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">

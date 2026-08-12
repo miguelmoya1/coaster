@@ -113,8 +113,8 @@
   <p class="text-xs text-on-surface-variant px-1 mb-2">{{ 'menu.structure_hint' | translate }}</p>
 
   <div class="flex flex-col gap-3">
-    @for (section of sections(); track $index) {
-      <section class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3">
+    @for (section of sections(); track $index; let sectionIndex = $index) {
+      <section class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3" data-testid="menu-section">
         <div class="flex items-end gap-2">
           <label class="flex-1 flex flex-col gap-1">
             <span class="text-xs font-semibold text-on-surface-variant">
@@ -126,30 +126,34 @@
             <input
               type="text"
               [value]="section.translations[editingLanguage()]?.name ?? ''"
-              (input)="setSectionName($index, $any($event.target).value)"
+              (input)="setSectionName(sectionIndex, $any($event.target).value)"
               [placeholder]="'menu.section_placeholder' | translate"
               class="bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
             />
           </label>
 
-          <button mat-icon-button type="button" [disabled]="$index === 0" (click)="moveSection($index, -1)">
+          <button mat-icon-button type="button" [disabled]="sectionIndex === 0" (click)="moveSection(sectionIndex, -1)">
             <mat-icon class="text-lg">arrow_upward</mat-icon>
           </button>
           <button
             mat-icon-button
             type="button"
-            [disabled]="$index === sections().length - 1"
-            (click)="moveSection($index, 1)"
+            [disabled]="sectionIndex === sections().length - 1"
+            (click)="moveSection(sectionIndex, 1)"
           >
             <mat-icon class="text-lg">arrow_downward</mat-icon>
           </button>
-          <button mat-icon-button type="button" (click)="removeSection($index)">
+          <button mat-icon-button type="button" (click)="removeSection(sectionIndex)">
             <mat-icon class="text-lg">delete</mat-icon>
           </button>
         </div>
 
         @for (item of section.items; track $index; let itemIndex = $index) {
-          <div class="pl-3 border-l-2 border-outline/10 flex flex-col gap-2 pt-1">
+          <div
+            class="pl-3 border-l-2 border-outline/10 flex flex-col gap-2 pt-1"
+            [class.opacity-50]="!item.isVisible"
+            data-testid="menu-item"
+          >
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs text-on-surface-variant truncate">
                 {{ 'menu.from_product' | translate }}: <strong>{{ productName(item.productId) || '—' }}</strong>
@@ -159,7 +163,7 @@
                   mat-icon-button
                   type="button"
                   [disabled]="itemIndex === 0"
-                  (click)="moveItem($index, itemIndex, -1)"
+                  (click)="moveItem(sectionIndex, itemIndex, -1)"
                 >
                   <mat-icon class="text-lg">arrow_upward</mat-icon>
                 </button>
@@ -167,11 +171,20 @@
                   mat-icon-button
                   type="button"
                   [disabled]="itemIndex === section.items.length - 1"
-                  (click)="moveItem($index, itemIndex, 1)"
+                  (click)="moveItem(sectionIndex, itemIndex, 1)"
                 >
                   <mat-icon class="text-lg">arrow_downward</mat-icon>
                 </button>
-                <button mat-icon-button type="button" (click)="removeItem($index, itemIndex)">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-pressed]="!item.isVisible"
+                  [title]="(item.isVisible ? 'menu.hide_item' : 'menu.show_item') | translate"
+                  (click)="toggleItemVisible(sectionIndex, itemIndex)"
+                >
+                  <mat-icon class="text-lg">{{ item.isVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                <button mat-icon-button type="button" (click)="removeItem(sectionIndex, itemIndex)">
                   <mat-icon class="text-lg">close</mat-icon>
                 </button>
               </div>
@@ -182,7 +195,7 @@
               <input
                 type="text"
                 [value]="item.translations[editingLanguage()]?.name ?? ''"
-                (input)="setItemWording($index, itemIndex, 'name', $any($event.target).value)"
+                (input)="setItemWording(sectionIndex, itemIndex, 'name', $any($event.target).value)"
                 [placeholder]="itemPlaceholder(item)"
                 class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-sm border-none outline-none"
               />
@@ -195,7 +208,7 @@
               <input
                 type="text"
                 [value]="item.translations[editingLanguage()]?.description ?? ''"
-                (input)="setItemWording($index, itemIndex, 'description', $any($event.target).value)"
+                (input)="setItemWording(sectionIndex, itemIndex, 'description', $any($event.target).value)"
                 [placeholder]="'menu.item_description_placeholder' | translate"
                 class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
               />
@@ -210,7 +223,7 @@
                   type="number"
                   min="0"
                   [value]="item.price ?? ''"
-                  (input)="setItemPrice($index, itemIndex, $any($event.target).value)"
+                  (input)="setItemPrice(sectionIndex, itemIndex, $any($event.target).value)"
                   [placeholder]="'menu.item_price_placeholder' | translate"
                   class="w-32 bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
                 />
@@ -225,7 +238,7 @@
           <select
             class="bg-surface-container-highest rounded-xl px-3 py-2 text-xs border-none outline-none"
             [value]="''"
-            (change)="addItem($index, $any($event.target).value); $any($event.target).value = ''"
+            (change)="addItem(sectionIndex, $any($event.target).value); $any($event.target).value = ''"
           >
             <option value="">{{ 'menu.pick_product' | translate }}</option>
             @for (product of products(); track product.id) {
@@ -235,7 +248,17 @@
         </label>
       </section>
     } @empty {
-      <p class="text-sm text-on-surface-variant px-1">{{ 'menu.empty' | translate }}</p>
+      <div class="flex flex-col gap-3 items-start">
+        <p class="text-sm text-on-surface-variant px-1">{{ 'menu.empty' | translate }}</p>
+
+        @if (canFillFromCatalogue()) {
+          <button mat-stroked-button type="button" (click)="fillFromCatalogue()">
+            <mat-icon class="text-base">library_add</mat-icon>
+            {{ 'menu.fill_from_catalogue' | translate }}
+          </button>
+          <p class="text-xs text-on-surface-variant px-1">{{ 'menu.fill_from_catalogue_hint' | translate }}</p>
+        }
+      </div>
     }
   </div>
 
@@ -244,7 +267,7 @@
       <mat-icon class="text-base">add</mat-icon>
       {{ 'menu.add_section' | translate }}
     </button>
-    <button mat-flat-button class="flex-1" type="button" [disabled]="isSaving()" (click)="save()">
+    <button mat-flat-button class="flex-1" type="button" [disabled]="isSaving() || !isDirty()" (click)="save()">
       {{ 'common.save' | translate }}
     </button>
   </div>

@@ -45,14 +45,16 @@ export class ModulesStore {
     this.settings.hasValue() ? this.settings.value().language : DEFAULT_LANGUAGE,
   );
 
-  public async save(modules: EstablishmentModule[], language?: Language): Promise<void> {
+  public readonly markSoldOut = computed(() => (this.settings.hasValue() ? this.settings.value().markSoldOut : false));
+
+  public async save(modules: EstablishmentModule[], language?: Language, markSoldOut?: boolean): Promise<void> {
     const establishmentId = this.#currentEstablishmentId();
 
     if (!establishmentId) {
       return;
     }
 
-    await this.#repository.updateSettings(establishmentId, { modules, language });
+    await this.#repository.updateSettings(establishmentId, { modules, language, markSoldOut });
     this.#settingsResource.reload();
   }
 }

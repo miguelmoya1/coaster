@@ -12,6 +12,8 @@ const menu = (overrides: Partial<RenderableMenu> = {}): RenderableMenu => ({
       items: [
         {
           price: null,
+          isVisible: true,
+          productId: 'prod-1',
           translations: { es: { name: 'Café Solo', description: 'Recién molido' }, en: { name: 'Black Coffee' } },
           product: { name: 'Café Solo', price: 120, imageUrl: null, allergens: [] },
         },
@@ -36,7 +38,9 @@ describe('renderMenu', () => {
         sections: [
           {
             translations: { es: { name: 'Postres' } },
-            items: [{ price: 400, translations: { es: { name: 'Flan' } }, product: null }],
+            items: [
+              { price: 400, isVisible: true, productId: null, translations: { es: { name: 'Flan' } }, product: null },
+            ],
           },
         ],
       }),
@@ -100,6 +104,19 @@ describe('renderMenu', () => {
     blank.sections[0].items[0].translations = { es: { name: 'Café Solo', description: '   ' } };
 
     expect(renderMenu(blank, 'es').sections[0].items[0].description).toBeUndefined();
+  });
+});
+
+describe('renderMenu and what is hidden', () => {
+  it('should leave out a line the establishment took off the menu', () => {
+    const hidden = menu();
+    hidden.sections[0].items[0].isVisible = false;
+
+    expect(renderMenu(hidden, 'es').sections).toEqual([]);
+  });
+
+  it('should keep the product id, so stock can be answered when the page is read', () => {
+    expect(renderMenu(menu(), 'es').sections[0].items[0].productId).toBe('prod-1');
   });
 });
 

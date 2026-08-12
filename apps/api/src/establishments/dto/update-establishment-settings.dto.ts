@@ -1,7 +1,7 @@
 import type { UpdateEstablishmentSettingsDto as IUpdateEstablishmentSettingsDto } from '@coaster/common';
 import { EstablishmentModule, ErrorCodes, LANGUAGES } from '@coaster/common';
 import type { Language } from '@coaster/common';
-import { ArrayUnique, IsArray, IsEnum, IsIn, IsOptional } from 'class-validator';
+import { ArrayUnique, IsArray, IsBoolean, IsEnum, IsIn, IsOptional } from 'class-validator';
 
 export class UpdateEstablishmentSettingsDto implements IUpdateEstablishmentSettingsDto {
   @IsArray()
@@ -12,4 +12,8 @@ export class UpdateEstablishmentSettingsDto implements IUpdateEstablishmentSetti
   @IsIn(LANGUAGES, { message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   declare language?: Language;
+
+  @IsBoolean({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare markSoldOut?: boolean;
 }

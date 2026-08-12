@@ -15,7 +15,7 @@ describe('LanguageSelect', () => {
   });
 
   it('should offer every language the app has by default', () => {
-    expect(fixture.nativeElement.querySelectorAll('mat-button-toggle').length).toBe(2);
+    expect(fixture.nativeElement.querySelectorAll('mat-chip-option').length).toBe(2);
   });
 
   it('should name each language in itself rather than translate it', () => {
@@ -29,10 +29,10 @@ describe('LanguageSelect', () => {
     fixture.componentRef.setInput('choices', ['en']);
     fixture.detectChanges();
 
-    const toggles = fixture.nativeElement.querySelectorAll('mat-button-toggle');
+    const options = fixture.nativeElement.querySelectorAll('mat-chip-option');
 
-    expect(toggles.length).toBe(1);
-    expect(toggles[0].textContent).toContain('English');
+    expect(options.length).toBe(1);
+    expect(options[0].textContent).toContain('English');
   });
 
   it('should report what was chosen and mark itself touched', () => {
@@ -40,6 +40,14 @@ describe('LanguageSelect', () => {
 
     expect(component.value()).toBe('en');
     expect(component.touched()).toBe(true);
+  });
+
+  it('should keep the language when the chosen chip is tapped again', () => {
+    component['onChange']('en');
+
+    component['onChange'](null);
+
+    expect(component.value()).toBe('en');
   });
 
   it('should ignore a choice while disabled', () => {
@@ -55,6 +63,6 @@ describe('LanguageSelect', () => {
     fixture.componentRef.setInput('hidden', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('mat-button-toggle-group')).toBeNull();
+    expect(fixture.nativeElement.querySelector('mat-chip-listbox')).toBeNull();
   });
 });

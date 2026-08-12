@@ -13,20 +13,8 @@
       <h1 class="heading-1 text-3xl font-bold">{{ published.name }}</h1>
 
       @if (languages().length > 1) {
-        <div class="flex gap-2 mt-4" role="group">
-          @for (option of languages(); track option) {
-            <button
-              type="button"
-              class="px-3 py-1 rounded-full text-xs font-semibold"
-              [class.bg-primary]="language() === option"
-              [class.text-on-primary]="language() === option"
-              [class.bg-surface-container]="language() !== option"
-              [attr.aria-pressed]="language() === option"
-              (click)="choose(option)"
-            >
-              {{ languageName(option) }}
-            </button>
-          }
+        <div class="mt-4">
+          <coaster-language-select [value]="language()" [choices]="languages()" (valueChange)="choose($event)" />
         </div>
       }
     </header>
@@ -49,7 +37,12 @@
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-baseline gap-3">
-                  <span class="font-semibold text-on-surface">{{ item.name }}</span>
+                  <span class="font-semibold text-on-surface" [class.line-through]="item.soldOut">{{ item.name }}</span>
+                  @if (item.soldOut) {
+                    <span class="text-xxs font-bold uppercase tracking-wider text-on-surface-variant shrink-0">
+                      {{ 'menu.sold_out' | translate }}
+                    </span>
+                  }
                   <span class="ml-auto font-semibold text-on-surface shrink-0">{{ item.price | price }}</span>
                 </div>
 

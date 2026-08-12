@@ -98,6 +98,47 @@ describe('Module gating (e2e)', () => {
       await request(http()).get(`/api/establishments/${timeTrackingOnlyId}/products`).expect(200);
     });
 
+    it('should keep what the owner asked about marking sold out', async () => {
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.INVENTORY], markSoldOut: true })
+        .expect(200);
+
+      const settings = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: timeTrackingOnlyId },
+      });
+
+      expect(settings?.markSoldOut).toBe(true);
+    });
+
+    it('should hand the setting back on the response, so the screen does not have to guess', async () => {
+      const { body } = await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.INVENTORY], markSoldOut: true, language: 'en' })
+        .expect(200);
+
+      expect(body.markSoldOut).toBe(true);
+      expect(body.language).toBe('en');
+    });
+
+    it('should leave the setting alone when the request does not mention it', async () => {
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.INVENTORY], markSoldOut: true })
+        .expect(200);
+
+      await request(http())
+        .patch(`/api/establishments/${timeTrackingOnlyId}/settings`)
+        .send({ modules: [EstablishmentModule.INVENTORY] })
+        .expect(200);
+
+      const settings = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: timeTrackingOnlyId },
+      });
+
+      expect(settings?.markSoldOut).toBe(true);
+    });
+
     it('should refuse a member who is not an owner', async () => {
       const staff = await testSetup.prisma.dbUser.create({
         data: { email: 'staff@example.com', name: 'Staff', role: 'USER', active: true },

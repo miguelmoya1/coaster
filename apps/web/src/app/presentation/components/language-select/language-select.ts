@@ -1,6 +1,6 @@
 import { Component, input, model } from '@angular/core';
 import { DisabledReason, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { MatChipListbox, MatChipOption } from '@angular/material/chips';
 import type { Language } from '@coaster/common';
 import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
 
@@ -10,24 +10,24 @@ import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
  */
 @Component({
   selector: 'coaster-language-select',
-  imports: [MatButtonToggle, MatButtonToggleGroup],
+  imports: [MatChipListbox, MatChipOption],
   template: `
     @if (!hidden()) {
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 items-start">
         @if (label()) {
           <span class="text-xs font-semibold text-on-surface-variant">{{ label() }}</span>
         }
 
-        <mat-button-toggle-group
+        <mat-chip-listbox
           [value]="value()"
           [disabled]="disabled()"
           (change)="onChange($event.value)"
           (blur)="touched.set(true)"
         >
           @for (language of choices(); track language) {
-            <mat-button-toggle [value]="language">{{ nameOf(language) }}</mat-button-toggle>
+            <mat-chip-option [value]="language" [selectable]="!readonly()">{{ nameOf(language) }}</mat-chip-option>
           }
-        </mat-button-toggle-group>
+        </mat-chip-listbox>
 
         @if (hint()) {
           <p class="text-xs text-on-surface-variant">{{ hint() }}</p>
@@ -59,8 +59,9 @@ export class LanguageSelect {
     return LANGUAGE_NAMES[language];
   }
 
-  protected onChange(language: Language) {
-    if (this.readonly() || this.disabled()) {
+  /** A listbox reports null when the chosen chip is tapped again; a menu always has a language. */
+  protected onChange(language: Language | null) {
+    if (this.readonly() || this.disabled() || !language) {
       return;
     }
 

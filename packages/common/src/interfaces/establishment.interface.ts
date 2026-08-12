@@ -18,6 +18,8 @@ export interface EstablishmentSettings {
   modules: EstablishmentModule[];
   /** What the establishment writes its catalogue and its menu in. */
   language: Language;
+  /** Whether a product with no stock left says so on the public menu. */
+  markSoldOut: boolean;
   /** Null until an owner has answered the onboarding questions for the first time. */
   configuredAt: string | null;
 }
@@ -29,4 +31,5 @@ export interface CreateEstablishmentDto {
 export interface UpdateEstablishmentSettingsDto {
   modules: EstablishmentModule[];
   language?: Language;
+  markSoldOut?: boolean;
 }

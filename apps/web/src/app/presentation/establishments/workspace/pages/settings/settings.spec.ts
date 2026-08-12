@@ -14,14 +14,16 @@ describe('Settings', () => {
 
   const modules = signal<EstablishmentModule[]>([EstablishmentModule.TIME_TRACKING]);
   const language = signal<'es' | 'en'>('es');
+  const markSoldOut = signal(false);
   const modulesStoreMock = {
     settings: {
       isLoading: signal(false).asReadonly(),
       hasValue: () => true,
-      value: () => ({ modules: modules(), language: language() }),
+      value: () => ({ modules: modules(), language: language(), markSoldOut: markSoldOut() }),
     },
     modules,
     language,
+    markSoldOut,
     save: vi.fn().mockResolvedValue(undefined),
     isModuleEnabled: vi.fn((module: EstablishmentModule) => modules().includes(module)),
   };
@@ -83,7 +85,36 @@ describe('Settings', () => {
     expect(modulesStoreMock.save).toHaveBeenCalledWith(
       [EstablishmentModule.TIME_TRACKING, EstablishmentModule.ORDERS, EstablishmentModule.INVENTORY],
       'es',
+      false,
     );
+  });
+
+  /*
+   * The save button used to sit inside the modules block, above the language and sold-out controls.
+   * It saved them all along, but nothing after them looked like it would, so they never got saved.
+   */
+  it('should put the save button after every control it saves', () => {
+    const html = fixture.nativeElement as HTMLElement;
+    const save = Array.from(html.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('settings.save'),
+    )!;
+    const lastControl = Array.from(html.querySelectorAll('mat-slide-toggle')).at(-1)!;
+
+    expect(save.compareDocumentPosition(lastControl) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+
+  describe('marking what has run out', () => {
+    it('should start from what the establishment has', () => {
+      expect(component['markSoldOut']()).toBe(false);
+    });
+
+    it('should save what is on screen', async () => {
+      component['markSoldOutDraft'].set(true);
+
+      await component['save']();
+
+      expect(modulesStoreMock.save).toHaveBeenCalledWith(expect.any(Array), 'es', true);
+    });
   });
 
   describe('the establishment language', () => {
@@ -96,7 +127,7 @@ describe('Settings', () => {
 
       await component['save']();
 
-      expect(modulesStoreMock.save).toHaveBeenCalledWith(expect.any(Array), 'en');
+      expect(modulesStoreMock.save).toHaveBeenCalledWith(expect.any(Array), 'en', false);
     });
 
     it('should fall back to the stored one once saved, rather than hold a stale draft', async () => {

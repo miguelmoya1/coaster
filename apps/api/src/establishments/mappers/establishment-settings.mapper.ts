@@ -8,6 +8,7 @@ export const EstablishmentSettingsMapper = {
       establishmentId: row.establishmentId as EstablishmentId,
       modules: resolveModules(row.modules as EstablishmentModule[]),
       language: asLanguage(row.language),
+      markSoldOut: row.markSoldOut,
       configuredAt: row.configuredAt?.toISOString() ?? null,
     };
   },

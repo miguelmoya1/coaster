@@ -5,5 +5,6 @@ export class UpdateEstablishmentSettingsCommand {
     public readonly establishmentId: EstablishmentId,
     public readonly modules: EstablishmentModule[],
     public readonly language?: Language,
+    public readonly markSoldOut?: boolean,
   ) {}
 }

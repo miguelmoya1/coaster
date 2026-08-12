@@ -58,7 +58,8 @@ export class GetAdminEstablishmentDetailHandler implements IQueryHandler<
             establishmentId: query.establishmentId,
             modules: resolveModules(DEFAULT_ESTABLISHMENT_MODULES),
             language: DEFAULT_LANGUAGE,
-        configuredAt: null,
+            markSoldOut: false,
+            configuredAt: null,
           },
       subscription: establishment.billing
         ? EstablishmentSubscriptionMapper.toAdminDomain({

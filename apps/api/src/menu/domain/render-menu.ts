@@ -9,7 +9,9 @@ import type {
 
 export interface RenderableItem {
   price: number | null;
+  isVisible: boolean;
   translations: MenuTranslations;
+  productId: string | null;
   product: { name: string; price: number; imageUrl: string | null; allergens: Allergen[] } | null;
 }
 
@@ -36,7 +38,7 @@ const itemFor = (item: RenderableItem, language: Language, fallback: Language): 
   const wording = wordingFor(item.translations, language, fallback);
   const name = wording?.name?.trim() || item.product?.name;
 
-  if (!name) {
+  if (!name || !item.isVisible) {
     return null;
   }
 
@@ -46,6 +48,7 @@ const itemFor = (item: RenderableItem, language: Language, fallback: Language): 
     price: item.price ?? item.product?.price ?? 0,
     imageUrl: item.product?.imageUrl ?? undefined,
     allergens: item.product?.allergens ?? [],
+    productId: (item.productId ?? undefined) as PublishedMenuItem['productId'],
   };
 };
 

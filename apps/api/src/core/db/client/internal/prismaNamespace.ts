@@ -2211,6 +2211,7 @@ export const DbEstablishmentSettingsScalarFieldEnum = {
   establishmentId: 'establishmentId',
   modules: 'modules',
   language: 'language',
+  markSoldOut: 'markSoldOut',
   configuredAt: 'configuredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2326,6 +2327,7 @@ export const DbMenuItemScalarFieldEnum = {
   productId: 'productId',
   price: 'price',
   position: 'position',
+  isVisible: 'isVisible',
   translations: 'translations'
 } as const
 

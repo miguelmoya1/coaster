@@ -15,6 +15,7 @@ export type MenuTranslations = Partial<Record<Language, MenuWording>>;
 export interface MenuItemDraft {
   productId?: ProductId;
   price?: number;
+  isVisible: boolean;
   translations: MenuTranslations;
 }
 
@@ -47,6 +48,9 @@ export interface PublishedMenuItem {
   price: number;
   imageUrl?: string;
   allergens: Allergen[];
+  /** Kept so stock can be answered when the page is read, not when it was published. */
+  productId?: ProductId;
+  soldOut?: boolean;
 }
 
 export interface PublishedMenuSection {

@@ -13,7 +13,7 @@ export class UpdateEstablishmentSettingsHandler implements ICommandHandler<
 
   async execute(command: UpdateEstablishmentSettingsCommand): Promise<EstablishmentSettings> {
     return EstablishmentSettingsMapper.toDto(
-      await this.repository.update(command.establishmentId, command.modules, command.language),
+      await this.repository.update(command.establishmentId, command.modules, command.language, command.markSoldOut),
     );
   }
 }

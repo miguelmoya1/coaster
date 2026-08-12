@@ -195,6 +195,7 @@ model DbEstablishmentSettings {
   establishment   DbEstablishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   modules         DbEstablishmentModule[]
   language        String                  @default("es")
+  markSoldOut     Boolean                 @default(false)
   configuredAt    DateTime?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
@@ -333,6 +334,7 @@ model DbMenuItem {
   product      DbProduct?    @relation(fields: [productId], references: [id], onDelete: SetNull)
   price        Int?
   position     Int
+  isVisible    Boolean       @default(true)
   translations Json
 
   @@index([sectionId])

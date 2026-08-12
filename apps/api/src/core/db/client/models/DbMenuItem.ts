@@ -42,6 +42,7 @@ export type DbMenuItemMinAggregateOutputType = {
   productId: string | null
   price: number | null
   position: number | null
+  isVisible: boolean | null
 }
 
 export type DbMenuItemMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type DbMenuItemMaxAggregateOutputType = {
   productId: string | null
   price: number | null
   position: number | null
+  isVisible: boolean | null
 }
 
 export type DbMenuItemCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type DbMenuItemCountAggregateOutputType = {
   productId: number
   price: number
   position: number
+  isVisible: number
   translations: number
   _all: number
 }
@@ -79,6 +82,7 @@ export type DbMenuItemMinAggregateInputType = {
   productId?: true
   price?: true
   position?: true
+  isVisible?: true
 }
 
 export type DbMenuItemMaxAggregateInputType = {
@@ -87,6 +91,7 @@ export type DbMenuItemMaxAggregateInputType = {
   productId?: true
   price?: true
   position?: true
+  isVisible?: true
 }
 
 export type DbMenuItemCountAggregateInputType = {
@@ -95,6 +100,7 @@ export type DbMenuItemCountAggregateInputType = {
   productId?: true
   price?: true
   position?: true
+  isVisible?: true
   translations?: true
   _all?: true
 }
@@ -191,6 +197,7 @@ export type DbMenuItemGroupByOutputType = {
   productId: string | null
   price: number | null
   position: number
+  isVisible: boolean
   translations: runtime.JsonValue
   _count: DbMenuItemCountAggregateOutputType | null
   _avg: DbMenuItemAvgAggregateOutputType | null
@@ -223,6 +230,7 @@ export type DbMenuItemWhereInput = {
   productId?: Prisma.StringNullableFilter<"DbMenuItem"> | string | null
   price?: Prisma.IntNullableFilter<"DbMenuItem"> | number | null
   position?: Prisma.IntFilter<"DbMenuItem"> | number
+  isVisible?: Prisma.BoolFilter<"DbMenuItem"> | boolean
   translations?: Prisma.JsonFilter<"DbMenuItem">
   section?: Prisma.XOR<Prisma.DbMenuSectionScalarRelationFilter, Prisma.DbMenuSectionWhereInput>
   product?: Prisma.XOR<Prisma.DbProductNullableScalarRelationFilter, Prisma.DbProductWhereInput> | null
@@ -234,6 +242,7 @@ export type DbMenuItemOrderByWithRelationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   translations?: Prisma.SortOrder
   section?: Prisma.DbMenuSectionOrderByWithRelationInput
   product?: Prisma.DbProductOrderByWithRelationInput
@@ -248,6 +257,7 @@ export type DbMenuItemWhereUniqueInput = Prisma.AtLeast<{
   productId?: Prisma.StringNullableFilter<"DbMenuItem"> | string | null
   price?: Prisma.IntNullableFilter<"DbMenuItem"> | number | null
   position?: Prisma.IntFilter<"DbMenuItem"> | number
+  isVisible?: Prisma.BoolFilter<"DbMenuItem"> | boolean
   translations?: Prisma.JsonFilter<"DbMenuItem">
   section?: Prisma.XOR<Prisma.DbMenuSectionScalarRelationFilter, Prisma.DbMenuSectionWhereInput>
   product?: Prisma.XOR<Prisma.DbProductNullableScalarRelationFilter, Prisma.DbProductWhereInput> | null
@@ -259,6 +269,7 @@ export type DbMenuItemOrderByWithAggregationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   translations?: Prisma.SortOrder
   _count?: Prisma.DbMenuItemCountOrderByAggregateInput
   _avg?: Prisma.DbMenuItemAvgOrderByAggregateInput
@@ -276,6 +287,7 @@ export type DbMenuItemScalarWhereWithAggregatesInput = {
   productId?: Prisma.StringNullableWithAggregatesFilter<"DbMenuItem"> | string | null
   price?: Prisma.IntNullableWithAggregatesFilter<"DbMenuItem"> | number | null
   position?: Prisma.IntWithAggregatesFilter<"DbMenuItem"> | number
+  isVisible?: Prisma.BoolWithAggregatesFilter<"DbMenuItem"> | boolean
   translations?: Prisma.JsonWithAggregatesFilter<"DbMenuItem">
 }
 
@@ -283,6 +295,7 @@ export type DbMenuItemCreateInput = {
   id?: string
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
   section: Prisma.DbMenuSectionCreateNestedOneWithoutItemsInput
   product?: Prisma.DbProductCreateNestedOneWithoutMenuItemsInput
@@ -294,6 +307,7 @@ export type DbMenuItemUncheckedCreateInput = {
   productId?: string | null
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -301,6 +315,7 @@ export type DbMenuItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   section?: Prisma.DbMenuSectionUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.DbProductUpdateOneWithoutMenuItemsNestedInput
@@ -312,6 +327,7 @@ export type DbMenuItemUncheckedUpdateInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -321,6 +337,7 @@ export type DbMenuItemCreateManyInput = {
   productId?: string | null
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -328,6 +345,7 @@ export type DbMenuItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -337,6 +355,7 @@ export type DbMenuItemUncheckedUpdateManyInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -356,6 +375,7 @@ export type DbMenuItemCountOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   position?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   translations?: Prisma.SortOrder
 }
 
@@ -370,6 +390,7 @@ export type DbMenuItemMaxOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   position?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
 }
 
 export type DbMenuItemMinOrderByAggregateInput = {
@@ -378,6 +399,7 @@ export type DbMenuItemMinOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   position?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
 }
 
 export type DbMenuItemSumOrderByAggregateInput = {
@@ -481,6 +503,7 @@ export type DbMenuItemCreateWithoutSectionInput = {
   id?: string
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
   product?: Prisma.DbProductCreateNestedOneWithoutMenuItemsInput
 }
@@ -490,6 +513,7 @@ export type DbMenuItemUncheckedCreateWithoutSectionInput = {
   productId?: string | null
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -528,6 +552,7 @@ export type DbMenuItemScalarWhereInput = {
   productId?: Prisma.StringNullableFilter<"DbMenuItem"> | string | null
   price?: Prisma.IntNullableFilter<"DbMenuItem"> | number | null
   position?: Prisma.IntFilter<"DbMenuItem"> | number
+  isVisible?: Prisma.BoolFilter<"DbMenuItem"> | boolean
   translations?: Prisma.JsonFilter<"DbMenuItem">
 }
 
@@ -535,6 +560,7 @@ export type DbMenuItemCreateWithoutProductInput = {
   id?: string
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
   section: Prisma.DbMenuSectionCreateNestedOneWithoutItemsInput
 }
@@ -544,6 +570,7 @@ export type DbMenuItemUncheckedCreateWithoutProductInput = {
   sectionId: string
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -578,6 +605,7 @@ export type DbMenuItemCreateManySectionInput = {
   productId?: string | null
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -585,6 +613,7 @@ export type DbMenuItemUpdateWithoutSectionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   product?: Prisma.DbProductUpdateOneWithoutMenuItemsNestedInput
 }
@@ -594,6 +623,7 @@ export type DbMenuItemUncheckedUpdateWithoutSectionInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -602,6 +632,7 @@ export type DbMenuItemUncheckedUpdateManyWithoutSectionInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -610,6 +641,7 @@ export type DbMenuItemCreateManyProductInput = {
   sectionId: string
   price?: number | null
   position: number
+  isVisible?: boolean
   translations: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -617,6 +649,7 @@ export type DbMenuItemUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   section?: Prisma.DbMenuSectionUpdateOneRequiredWithoutItemsNestedInput
 }
@@ -626,6 +659,7 @@ export type DbMenuItemUncheckedUpdateWithoutProductInput = {
   sectionId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -634,6 +668,7 @@ export type DbMenuItemUncheckedUpdateManyWithoutProductInput = {
   sectionId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   position?: Prisma.IntFieldUpdateOperationsInput | number
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   translations?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
@@ -645,6 +680,7 @@ export type DbMenuItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   productId?: boolean
   price?: boolean
   position?: boolean
+  isVisible?: boolean
   translations?: boolean
   section?: boolean | Prisma.DbMenuSectionDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbMenuItem$productArgs<ExtArgs>
@@ -656,6 +692,7 @@ export type DbMenuItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   productId?: boolean
   price?: boolean
   position?: boolean
+  isVisible?: boolean
   translations?: boolean
   section?: boolean | Prisma.DbMenuSectionDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbMenuItem$productArgs<ExtArgs>
@@ -667,6 +704,7 @@ export type DbMenuItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   productId?: boolean
   price?: boolean
   position?: boolean
+  isVisible?: boolean
   translations?: boolean
   section?: boolean | Prisma.DbMenuSectionDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbMenuItem$productArgs<ExtArgs>
@@ -678,10 +716,11 @@ export type DbMenuItemSelectScalar = {
   productId?: boolean
   price?: boolean
   position?: boolean
+  isVisible?: boolean
   translations?: boolean
 }
 
-export type DbMenuItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sectionId" | "productId" | "price" | "position" | "translations", ExtArgs["result"]["dbMenuItem"]>
+export type DbMenuItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sectionId" | "productId" | "price" | "position" | "isVisible" | "translations", ExtArgs["result"]["dbMenuItem"]>
 export type DbMenuItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   section?: boolean | Prisma.DbMenuSectionDefaultArgs<ExtArgs>
   product?: boolean | Prisma.DbMenuItem$productArgs<ExtArgs>
@@ -707,6 +746,7 @@ export type $DbMenuItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
     productId: string | null
     price: number | null
     position: number
+    isVisible: boolean
     translations: runtime.JsonValue
   }, ExtArgs["result"]["dbMenuItem"]>
   composites: {}
@@ -1138,6 +1178,7 @@ export interface DbMenuItemFieldRefs {
   readonly productId: Prisma.FieldRef<"DbMenuItem", 'String'>
   readonly price: Prisma.FieldRef<"DbMenuItem", 'Int'>
   readonly position: Prisma.FieldRef<"DbMenuItem", 'Int'>
+  readonly isVisible: Prisma.FieldRef<"DbMenuItem", 'Boolean'>
   readonly translations: Prisma.FieldRef<"DbMenuItem", 'Json'>
 }
     

@@ -1,6 +1,19 @@
 import { LANGUAGES } from '@coaster/common';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsIn, IsInt, IsObject, IsOptional, IsString, IsUUID, MaxLength, Min, ValidateNested } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsInt,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class MenuItemDraftDto {
   @IsOptional()
@@ -11,6 +24,10 @@ export class MenuItemDraftDto {
   @IsInt()
   @Min(0)
   declare price?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  declare isVisible?: boolean;
 
   @IsObject()
   declare translations: Record<string, unknown>;

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import type { MenuDraft } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MenuStore } from '@coaster/menu';
+import { CategoriesStore } from '@coaster/categories';
 import { ProductsStore } from '@coaster/products';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,8 +40,20 @@ describe('MenuEditor', () => {
     list: {
       hasValue: vi.fn().mockReturnValue(true),
       value: vi.fn().mockReturnValue([
-        { id: 'prod-1', name: 'Café Solo', price: 120 },
-        { id: 'prod-2', name: 'Croquetas', price: 600 },
+        { id: 'prod-1', name: 'Café Solo', price: 120, categoryId: 'cat-1' },
+        { id: 'prod-2', name: 'Croquetas', price: 600, categoryId: 'cat-2' },
+      ]),
+    },
+    setEstablishmentId: vi.fn(),
+  };
+
+  const categoriesStoreMock = {
+    list: {
+      hasValue: vi.fn().mockReturnValue(true),
+      value: vi.fn().mockReturnValue([
+        { id: 'cat-1', name: 'Cafetería' },
+        { id: 'cat-2', name: 'Tapas' },
+        { id: 'cat-3', name: 'Vacía' },
       ]),
     },
     setEstablishmentId: vi.fn(),
@@ -58,6 +71,7 @@ describe('MenuEditor', () => {
         provideRouter([]),
         { provide: MenuStore, useValue: menuStoreMock },
         { provide: ProductsStore, useValue: productsStoreMock },
+        { provide: CategoriesStore, useValue: categoriesStoreMock },
         { provide: ActionFeedback, useValue: feedbackMock },
       ],
     }).compileComponents();
@@ -88,6 +102,164 @@ describe('MenuEditor', () => {
     expect(component).toBeTruthy();
   });
 
+  /*
+   * The screen reloads the draft in an effect. If that effect also reads what the user is editing it
+   * depends on its own writes, and every edit is undone on the next change detection.
+   */
+  describe('an edit survives change detection', () => {
+    it('should keep a section that was removed removed', () => {
+      component['addSection']();
+      component['addSection']();
+      fixture.detectChanges();
+
+      component['removeSection'](0);
+      fixture.detectChanges();
+
+      expect(component['sections']()).toHaveLength(1);
+    });
+
+    it('should keep a section that was added added', () => {
+      component['addSection']();
+
+      fixture.detectChanges();
+
+      expect(component['sections']()).toHaveLength(1);
+    });
+
+    it('should keep a section moved up where it was moved to', () => {
+      component['addSection']();
+      component['addSection']();
+      component['setSectionName'](0, 'Primera');
+      component['setSectionName'](1, 'Segunda');
+      fixture.detectChanges();
+
+      component['moveSection'](1, -1);
+      fixture.detectChanges();
+
+      expect(component['sections']().map((section) => section.translations.es?.name)).toEqual(['Segunda', 'Primera']);
+    });
+
+    it('should show the new order on screen, not just hold it in memory', () => {
+      component['addSection']();
+      component['addSection']();
+      component['setSectionName'](0, 'Primera');
+      component['setSectionName'](1, 'Segunda');
+      fixture.detectChanges();
+
+      component['moveSection'](1, -1);
+      fixture.detectChanges();
+
+      const names = Array.from(
+        fixture.nativeElement.querySelectorAll('input[type="text"]') as NodeListOf<HTMLInputElement>,
+      ).map((input) => input.value);
+
+      expect(names.slice(0, 2)).toEqual(['Segunda', 'Primera']);
+    });
+
+    it('should keep an item moved up where it was moved to', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+      component['addItem'](0, 'prod-2');
+      fixture.detectChanges();
+
+      component['moveItem'](0, 1, -1);
+      fixture.detectChanges();
+
+      expect(component['sections']()[0].items.map((item) => item.productId)).toEqual(['prod-2', 'prod-1']);
+    });
+
+    it('should keep the wording that was typed', () => {
+      component['addSection']();
+      component['setSectionName'](0, 'Cafetería');
+
+      fixture.detectChanges();
+
+      expect(component['sections']()[0].translations.es?.name).toBe('Cafetería');
+    });
+  });
+
+  /*
+   * Calling the methods directly proves the logic but not the wiring: inside the item loop `$index`
+   * is the item's, so a section index taken from there is only right for the first line of the first
+   * section. These press the real buttons.
+   */
+  describe('the buttons on screen', () => {
+    const sectionAt = (index: number): Element =>
+      fixture.nativeElement.querySelectorAll('[data-testid="menu-section"]')[index];
+    const itemRows = (index: number) => sectionAt(index).querySelectorAll('[data-testid="menu-item"]');
+    const buttonsOf = (element: Element) => Array.from(element.querySelectorAll('button')) as HTMLButtonElement[];
+
+    /* Both sections carry lines, so every assertion below distinguishes a section index used where
+     * an item index belongs — the two only coincide when the fixture lets them. */
+    const twoSectionsWithItems = () => {
+      component['addSection']();
+      component['addSection']();
+      component['setSectionName'](0, 'Primera');
+      component['setSectionName'](1, 'Segunda');
+      component['addItem'](0, 'prod-1');
+      component['addItem'](0, 'prod-2');
+      component['addItem'](1, 'prod-1');
+      component['addItem'](1, 'prod-2');
+      fixture.detectChanges();
+    };
+
+    it('should move the second line of the first section up, leaving the second section alone', () => {
+      twoSectionsWithItems();
+
+      const [up] = buttonsOf(itemRows(0)[1]);
+      up.click();
+      fixture.detectChanges();
+
+      expect(component['sections']()[0].items.map((item) => item.productId)).toEqual(['prod-2', 'prod-1']);
+      expect(component['sections']()[1].items.map((item) => item.productId)).toEqual(['prod-1', 'prod-2']);
+    });
+
+    it('should remove the right line, not one from another section', () => {
+      twoSectionsWithItems();
+
+      const buttons = buttonsOf(itemRows(1)[0]);
+      buttons[buttons.length - 1].click();
+      fixture.detectChanges();
+
+      expect(component['sections']()[1].items.map((item) => item.productId)).toEqual(['prod-2']);
+      expect(component['sections']()[0].items).toHaveLength(2);
+    });
+
+    it('should hide the line it was pressed on', () => {
+      twoSectionsWithItems();
+
+      const buttons = buttonsOf(itemRows(1)[0]);
+      buttons[buttons.length - 2].click();
+      fixture.detectChanges();
+
+      expect(component['sections']()[1].items[0].isVisible).toBe(false);
+      expect(component['sections']()[0].items.every((item) => item.isVisible)).toBe(true);
+    });
+
+    it('should write wording into the line it was typed in', () => {
+      twoSectionsWithItems();
+
+      const input = itemRows(1)[0].querySelector('input[type="text"]') as HTMLInputElement;
+      input.value = 'Café de la casa';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      expect(component['sections']()[1].items[0].translations.es?.name).toBe('Café de la casa');
+      expect(component['sections']()[0].items.every((item) => !item.translations.es)).toBe(true);
+    });
+
+    it('should delete the section its own button belongs to', () => {
+      twoSectionsWithItems();
+
+      const headerButtons = buttonsOf(sectionAt(1).querySelector('.items-end') as Element);
+      headerButtons[headerButtons.length - 1].click();
+      fixture.detectChanges();
+
+      expect(component['sections']()).toHaveLength(1);
+      expect(component['sections']()[0].translations.es?.name).toBe('Primera');
+    });
+  });
+
   describe('editing the structure', () => {
     it('should add and remove sections', () => {
       component['addSection']();
@@ -96,6 +268,32 @@ describe('MenuEditor', () => {
 
       component['removeSection'](0);
       expect(component['sections']().length).toBe(1);
+    });
+
+    it('should leave the list alone when the index is behind the array, rather than punch a hole', () => {
+      component['addSection']();
+      component['addSection']();
+
+      // Two sections and an arrow pressed on a third that is already gone: the destination is a
+      // real position, the origin is not, and swapping them would leave an empty slot behind.
+      component['moveSection'](2, -1);
+
+      expect(component['sections']()).toHaveLength(2);
+      expect(component['sections']().every(Boolean)).toBe(true);
+    });
+
+    it('should survive an arrow pressed on a line that has just gone', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+      component['addItem'](0, 'prod-2');
+      component['removeItem'](0, 1);
+
+      component['moveItem'](0, 1, -1);
+      fixture.detectChanges();
+
+      expect(component['sections']()[0].items).toHaveLength(1);
+      expect(component['sections']()[0].items.every(Boolean)).toBe(true);
+      expect(component['missingWording']()).toBeTypeOf('number');
     });
 
     it('should reorder by swapping, and refuse to move past the ends', () => {
@@ -126,7 +324,7 @@ describe('MenuEditor', () => {
       component['addSection']();
       component['addItem'](0, 'prod-1');
 
-      expect(component['sections']()[0].items).toEqual([{ productId: 'prod-1', translations: {} }]);
+      expect(component['sections']()[0].items).toEqual([{ productId: 'prod-1', isVisible: true, translations: {} }]);
       expect(component['itemName'](component['sections']()[0].items[0], 'es')).toBe('Café Solo');
     });
 
@@ -215,6 +413,54 @@ describe('MenuEditor', () => {
 
       component['setItemPrice'](0, 0, '200');
       expect(component['priceOrigin'](component['sections']()[0].items[0])).toBe('menu.price_own');
+    });
+  });
+
+  describe('bringing the catalogue in', () => {
+    it('should offer it only while the menu is still empty', () => {
+      expect(component['canFillFromCatalogue']()).toBe(true);
+
+      component['addSection']();
+
+      expect(component['canFillFromCatalogue']()).toBe(false);
+    });
+
+    it('should make a section per category that has products', () => {
+      component['fillFromCatalogue']();
+
+      const sections = component['sections']();
+
+      expect(sections).toHaveLength(2);
+      expect(sections.map((section) => section.translations.es?.name)).toEqual(['Cafetería', 'Tapas']);
+    });
+
+    it('should leave the wording empty so the product name is what reads', () => {
+      component['fillFromCatalogue']();
+
+      const [first] = component['sections']();
+
+      expect(first.items).toEqual([{ productId: 'prod-1', isVisible: true, translations: {} }]);
+      expect(component['itemName'](first.items[0], 'es')).toBe('Café Solo');
+    });
+  });
+
+  describe('hiding a line', () => {
+    it('should flip and unflip a single item', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+
+      component['toggleItemVisible'](0, 0);
+      expect(component['sections']()[0].items[0].isVisible).toBe(false);
+
+      component['toggleItemVisible'](0, 0);
+      expect(component['sections']()[0].items[0].isVisible).toBe(true);
+    });
+
+    it('should add new lines visible', () => {
+      component['addSection']();
+      component['addItem'](0, 'prod-1');
+
+      expect(component['sections']()[0].items[0].isVisible).toBe(true);
     });
   });
 

@@ -47,6 +47,7 @@ export class SaveMenuDraftHandler implements ICommandHandler<SaveMenuDraftComman
       items: section.items.map((item) => ({
         productId: item.productId,
         price: item.price,
+        isVisible: item.isVisible !== false,
         translations: sanitiseTranslations(item.translations, offered),
       })),
     }));

@@ -36,8 +36,31 @@ export class MenuRepository {
   public findPublishedBySlug(slug: string) {
     return this._db.dbMenu.findUnique({
       where: { slug },
-      select: { publishedSnapshot: true, publishedAt: true, languages: true, defaultLanguage: true },
+      select: {
+        publishedSnapshot: true,
+        publishedAt: true,
+        languages: true,
+        defaultLanguage: true,
+        establishment: { select: { settings: { select: { markSoldOut: true } } } },
+      },
     });
+  }
+
+  /**
+   * Stock is the one thing on a menu that moves by the hour, so it is answered when the page is
+   * read rather than baked into the snapshot, which would be wrong before the ink dried.
+   */
+  public async soldOutAmong(productIds: string[]): Promise<Set<string>> {
+    if (productIds.length === 0) {
+      return new Set();
+    }
+
+    const empty = await this._db.dbProduct.findMany({
+      where: { id: { in: productIds }, currentStock: { lte: 0 } },
+      select: { id: true },
+    });
+
+    return new Set(empty.map((product) => product.id));
   }
 
   public takenSlugs(roots: string[]) {
@@ -74,6 +97,7 @@ export class MenuRepository {
                 position: itemPosition,
                 productId: item.productId ?? null,
                 price: item.price ?? null,
+                isVisible: item.isVisible !== false,
                 translations: item.translations as Prisma.InputJsonValue,
               })),
             },

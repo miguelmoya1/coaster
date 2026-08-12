@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import type { EstablishmentId, Language, MenuItemDraft, MenuSectionDraft, Produc
 import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MenuStore } from '@coaster/menu';
+import { CategoriesStore } from '@coaster/categories';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LanguageSelect } from '../../../../../../components/language-select/language-select';
@@ -34,6 +35,7 @@ export default class MenuEditor {
 
   readonly #menuStore = inject(MenuStore);
   readonly #productsStore = inject(ProductsStore);
+  readonly #categoriesStore = inject(CategoriesStore);
   readonly #feedback = inject(ActionFeedback);
   readonly #translate = inject(TranslateService);
 
@@ -83,18 +85,25 @@ export default class MenuEditor {
       const establishmentId = this.establishmentId();
       this.#menuStore.setEstablishmentId(establishmentId);
       this.#productsStore.setEstablishmentId(establishmentId);
+      this.#categoriesStore.setEstablishmentId(establishmentId);
     });
 
+    // Untracked, or reading the edits back to record their shape would make this effect depend on
+    // its own writes and undo every change on the next tick.
     effect(() => {
       const draft = this.draft();
 
-      if (draft) {
+      untracked(() => {
+        if (!draft) {
+          return;
+        }
+
         this.sections.set(structuredClone(draft.sections));
         this.menuName.set(draft.name);
         this.offered.set([...draft.languages]);
         this.editingLanguage.set(draft.defaultLanguage);
         this.#savedShape.set(this.shapeOf());
-      }
+      });
     });
   }
 
@@ -152,6 +161,44 @@ export default class MenuEditor {
     }
   }
 
+  protected readonly categories = computed(() =>
+    this.#categoriesStore.list.hasValue() ? this.#categoriesStore.list.value() : [],
+  );
+
+  protected readonly canFillFromCatalogue = computed(() => this.sections().length === 0 && this.products().length > 0);
+
+  /**
+   * One section per category, every product under it, and no wording at all: an empty name reads as
+   * the product's own, so the menu is usable before anybody types a word.
+   */
+  protected fillFromCatalogue() {
+    const products = this.products();
+
+    this.sections.set(
+      this.categories()
+        .map((category) => ({
+          translations: { [this.defaultLanguage()]: { name: category.name } } as MenuSectionDraft['translations'],
+          items: products
+            .filter((product) => product.categoryId === category.id)
+            .map((product) => ({ productId: product.id, isVisible: true, translations: {} })),
+        }))
+        .filter((section) => section.items.length > 0),
+    );
+  }
+
+  protected toggleItemVisible(sectionIndex: number, itemIndex: number) {
+    this.sections.update((sections) =>
+      sections.map((section, at) =>
+        at === sectionIndex
+          ? {
+              ...section,
+              items: section.items.map((item, i) => (i === itemIndex ? { ...item, isVisible: !item.isVisible } : item)),
+            }
+          : section,
+      ),
+    );
+  }
+
   protected addSection() {
     this.sections.update((sections) => [...sections, { translations: {}, items: [] }]);
   }
@@ -178,7 +225,10 @@ export default class MenuEditor {
     this.sections.update((sections) =>
       sections.map((section, at) =>
         at === sectionIndex
-          ? { ...section, items: [...section.items, { productId: productId as ProductId, translations: {} }] }
+          ? {
+              ...section,
+              items: [...section.items, { productId: productId as ProductId, isVisible: true, translations: {} }],
+            }
           : section,
       ),
     );
@@ -297,10 +347,16 @@ export default class MenuEditor {
   }
 }
 
+/**
+ * The index comes from a render that can be a tick behind the array — deleting the last line and
+ * hitting its arrow before the button disables. Guarding only the destination let the swap write
+ * past the end and leave a hole, which then reads as an item that is not there.
+ */
 const move = <T>(items: T[], index: number, by: number): T[] => {
   const target = index + by;
+  const outOfRange = (at: number) => at < 0 || at >= items.length;
 
-  if (target < 0 || target >= items.length) {
+  if (outOfRange(index) || outOfRange(target)) {
     return items;
   }
 

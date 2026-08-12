@@ -24,6 +24,7 @@ describe('MenuController (e2e)', () => {
         items: [
           {
             productId,
+            isVisible: true,
             translations: { es: { name: 'Café Solo', description: 'Recién molido' }, en: { name: 'Black Coffee' } },
           },
         ],
@@ -225,6 +226,54 @@ describe('MenuController (e2e)', () => {
       await request(server()).post(`/api/establishments/${establishmentId}/menu/unpublish`).expect(201);
 
       await publicMenu(body.slug).expect(404);
+    });
+  });
+
+  describe('what has run out', () => {
+    const markSoldOut = (markSoldOut: boolean) =>
+      testSetup.prisma.dbEstablishmentSettings.update({ where: { establishmentId }, data: { markSoldOut } });
+
+    it('should say nothing about stock while the establishment has not asked for it', async () => {
+      const { body: menu } = await draft().expect(200);
+      await save(oneSection()).expect(200);
+      await publish().expect(201);
+      await testSetup.prisma.dbProduct.update({ where: { id: productId }, data: { currentStock: 0 } });
+
+      const { body } = await publicMenu(menu.slug).expect(200);
+
+      expect(body.sections[0].items[0].soldOut).toBeUndefined();
+    });
+
+    it('should answer stock as it is when the page is read, not as it was when published', async () => {
+      await markSoldOut(true);
+      const { body: menu } = await draft().expect(200);
+      await save(oneSection()).expect(200);
+      await testSetup.prisma.dbProduct.update({ where: { id: productId }, data: { currentStock: 10 } });
+      await publish().expect(201);
+
+      const { body: whileStocked } = await publicMenu(menu.slug).expect(200);
+      expect(whileStocked.sections[0].items[0].soldOut).toBe(false);
+
+      await testSetup.prisma.dbProduct.update({ where: { id: productId }, data: { currentStock: 0 } });
+
+      const { body: afterRunningOut } = await publicMenu(menu.slug).expect(200);
+      expect(afterRunningOut.sections[0].items[0].soldOut).toBe(true);
+    });
+  });
+
+  describe('a line taken off the menu', () => {
+    it('should not reach customers, while keeping its wording in the draft', async () => {
+      await draft().expect(200);
+      const hidden = oneSection();
+      hidden.sections[0].items[0].isVisible = false;
+      await save(hidden).expect(200);
+      await publish().expect(201);
+
+      const { body: menu } = await draft().expect(200);
+      expect(menu.sections[0].items[0].isVisible).toBe(false);
+
+      const { body: published } = await publicMenu(menu.slug).expect(200);
+      expect(published.sections).toEqual([]);
     });
   });
 

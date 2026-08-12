@@ -47,6 +47,8 @@ export default class Settings {
   protected readonly settings = this.#modulesStore.settings;
   protected readonly languageDraft = signal<Language | null>(null);
   protected readonly language = computed<Language>(() => this.languageDraft() ?? this.#modulesStore.language());
+  protected readonly markSoldOutDraft = signal<boolean | null>(null);
+  protected readonly markSoldOut = computed(() => this.markSoldOutDraft() ?? this.#modulesStore.markSoldOut());
   protected readonly isSaving = signal(false);
   protected readonly draft = signal<EstablishmentModule[] | null>(null);
 
@@ -125,9 +127,10 @@ export default class Settings {
     this.isSaving.set(true);
 
     try {
-      await this.#modulesStore.save(this.selected(), this.language());
+      await this.#modulesStore.save(this.selected(), this.language(), this.markSoldOut());
       this.draft.set(null);
       this.languageDraft.set(null);
+      this.markSoldOutDraft.set(null);
       this.#feedback.success(this.#translate.instant('settings.saved'));
     } finally {
       this.isSaving.set(false);

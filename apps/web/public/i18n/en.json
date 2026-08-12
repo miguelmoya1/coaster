@@ -165,7 +165,9 @@
     "printer_code": "If it asks for a code when it opens, use this one:",
     "printer_code_hint": "Good for an hour and for one computer.",
     "language_title": "Establishment language",
-    "language_desc": "The language your catalogue and your menu are written in. It does not change the app's language, which is each person's own."
+    "language_desc": "The language your catalogue and your menu are written in. It does not change the app's language, which is each person's own.",
+    "mark_sold_out": "Mark sold out on the menu",
+    "mark_sold_out_desc": "When a product runs out of stock it shows crossed out on the public menu. Checked when the page is opened, not when it was published."
   },
   "onboarding": {
     "title": "Welcome to {{ name }}",
@@ -861,7 +863,12 @@
     "price_from_product": "from the product",
     "price_own": "own to the menu",
     "pick_product": "Pick a product...",
-    "up_to_date": "The published menu is up to date."
+    "up_to_date": "The published menu is up to date.",
+    "fill_from_catalogue": "Bring the whole catalogue",
+    "fill_from_catalogue_hint": "Creates a section per category with all its products. Names come from the product until you write others.",
+    "hide_item": "Hide from the menu",
+    "show_item": "Show again",
+    "sold_out": "Sold out"
   },
   "allergens": {
     "GLUTEN": "gluten",
