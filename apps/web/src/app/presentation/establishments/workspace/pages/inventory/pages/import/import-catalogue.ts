@@ -13,10 +13,21 @@ import { Loading } from '../../../../../../components/loading/loading';
 import { PageHeader } from '../../../../../../components/page-header/page-header';
 
 import { PricePipe } from '../../../../pipes/price/price';
+import { ButtonSpinner } from '../../../../../../components/button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-import-catalogue',
-  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, Loading, PricePipe, LowerCasePipe, PageHeader],
+  imports: [
+    ButtonSpinner,
+    MatIcon,
+    TranslatePipe,
+    MatButton,
+    MatIconButton,
+    Loading,
+    PricePipe,
+    LowerCasePipe,
+    PageHeader,
+  ],
   host: {
     class: 'flex flex-col gap-2',
   },

@@ -1,7 +1,5 @@
 @if (isLoading()) {
-  <div class="flex items-center justify-center min-h-dvh">
-    <mat-icon class="animate-spin text-on-surface-variant">progress_activity</mat-icon>
-  </div>
+  <coaster-loading />
 } @else if (isMissing()) {
   <div class="flex flex-col items-center justify-center min-h-dvh gap-3 px-6 text-center">
     <mat-icon class="text-on-surface-variant text-4xl">menu_book</mat-icon>

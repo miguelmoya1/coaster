@@ -4,11 +4,11 @@ import type { EstablishmentId } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
-import { Loading } from '../loading/loading';
+import { ButtonSpinner } from '../button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-image-uploader',
-  imports: [MatIcon, Loading, TranslatePipe],
+  imports: [MatIcon, ButtonSpinner, TranslatePipe],
   host: {
     class: 'flex flex-col gap-2 w-full',
   },
@@ -57,7 +57,7 @@ import { Loading } from '../loading/loading';
 
       @if (uploading()) {
         <div class="absolute inset-0 bg-white/70 flex items-center justify-center">
-          <coaster-loading class="w-full h-full" containerClasses="p-0" />
+          <coaster-button-spinner [diameter]="32" />
         </div>
       }
     </label>

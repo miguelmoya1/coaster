@@ -14,10 +14,12 @@ import { ActionFeedback, ApiError, Auth, CurrentUser } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AiAssistantTrigger } from '../ai-assistant/ai-assistant-trigger';
 import { AvatarBadge } from '../avatar-badge/avatar-badge';
+import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-top-app-bar',
   imports: [
+    ButtonSpinner,
     AiAssistantTrigger,
     AvatarBadge,
     RouterLink,
@@ -98,7 +100,7 @@ import { AvatarBadge } from '../avatar-badge/avatar-badge';
               (click)="manageBilling(); menuTrigger.closeMenu()"
             >
               @if (isOpeningBillingPortal()) {
-                <mat-spinner diameter="18" />
+                <coaster-button-spinner />
               } @else {
                 <mat-icon>receipt_long</mat-icon>
               }

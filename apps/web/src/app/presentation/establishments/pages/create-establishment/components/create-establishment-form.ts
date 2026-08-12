@@ -8,10 +8,22 @@ import { EstablishmentListStore } from '@coaster/establishments';
 import type { CreateEstablishmentDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-create-establishment-form',
-  imports: [MatFormField, MatLabel, MatInput, MatError, MatButton, MatIcon, FormRoot, FormField, TranslatePipe],
+  imports: [
+    ButtonSpinner,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatError,
+    MatButton,
+    MatIcon,
+    FormRoot,
+    FormField,
+    TranslatePipe,
+  ],
   host: {
     class: 'flex flex-col gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
@@ -51,7 +63,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           {{ 'common.create' | translate }}
 
           @if (establishmentForm().submitting()) {
-            <mat-icon class="text-on-primary-fixed text-xl animate-spin">sync</mat-icon>
+            <coaster-button-spinner />
           } @else {
             <mat-icon class="text-on-primary-fixed text-xl">arrow_forward</mat-icon>
           }

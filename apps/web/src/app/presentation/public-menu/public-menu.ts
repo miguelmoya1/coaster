@@ -5,13 +5,14 @@ import { asLanguage } from '@coaster/common';
 import { PublicMenuStore } from '@coaster/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageSelect } from '../components/language-select/language-select';
+import { Loading } from '../components/loading/loading';
 import { PageContainer } from '../components/page-container/page-container';
 import { PageHeader } from '../components/page-header/page-header';
 import { PricePipe } from '../establishments/workspace/pipes/price/price';
 
 @Component({
   selector: 'coaster-public-menu',
-  imports: [MatIcon, TranslatePipe, PricePipe, LanguageSelect, PageContainer, PageHeader],
+  imports: [MatIcon, TranslatePipe, PricePipe, LanguageSelect, Loading, PageContainer, PageHeader],
   host: { class: 'block min-h-dvh bg-surface' },
   templateUrl: './public-menu.html',
 })

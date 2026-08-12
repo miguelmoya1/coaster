@@ -22,10 +22,12 @@ import { PricePipe } from '../../pipes/price/price';
 
 import { PageContainer } from '../../../../components/page-container/page-container';
 import { PageHeader } from '../../../../components/page-header/page-header';
+import { ButtonSpinner } from '../../../../components/button-spinner/button-spinner';
 
 @Component({
   selector: 'coaster-dashboard',
   imports: [
+    ButtonSpinner,
     TranslatePipe,
     MatIcon,
     MatButton,
