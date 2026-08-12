@@ -61,7 +61,6 @@ export class OnboardingDialog {
   protected readonly chosen = signal<BusinessType | null>(null);
   protected readonly isSaving = signal(false);
 
-  /** Only worth asking about a catalogue once inventory is actually going to exist. */
   protected readonly asksAboutCatalogue = computed(
     () => this.chosen()?.modules.includes(EstablishmentModule.INVENTORY) ?? false,
   );
@@ -98,7 +97,6 @@ export class OnboardingDialog {
       if (importCatalogue) {
         await this.#catalogueStore.import(this.data.establishmentId);
 
-        // The inventory may already have loaded an empty catalogue behind this dialog.
         this.#categoriesStore.reloadCategories();
         this.#productsStore.reloadProducts();
       }

@@ -35,7 +35,6 @@ export interface MenuDraft {
   sections: MenuSectionDraft[];
 }
 
-/** What a save replaces. Order is the array order, so a reorder is just a different array. */
 export interface SaveMenuDraftDto {
   name: string;
   languages: Language[];
@@ -48,7 +47,6 @@ export interface PublishedMenuItem {
   price: number;
   imageUrl?: string;
   allergens: Allergen[];
-  /** Kept so stock can be answered when the page is read, not when it was published. */
   productId?: ProductId;
   soldOut?: boolean;
 }
@@ -58,7 +56,6 @@ export interface PublishedMenuSection {
   items: PublishedMenuItem[];
 }
 
-/** One language, already chosen: what a customer's browser receives. */
 export interface PublishedMenu {
   name: string;
   language: Language;

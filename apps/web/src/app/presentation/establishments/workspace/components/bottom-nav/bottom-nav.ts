@@ -34,7 +34,9 @@ interface NavItem {
           class="flex-1 min-w-0 flex flex-col items-center justify-center text-on-surface-variant px-1 sm:px-2 py-1.5 sm:py-2 hover:text-white transition-all active:scale-95 duration-150 gap-0 sm:gap-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container"
         >
           <mat-icon class="text-xl sm:text-2xl">{{ item.icon }}</mat-icon>
-          <span class="font-bold text-xxs sm:text-xxs-plus uppercase tracking-wider hidden sm:block truncate max-w-full">
+          <span
+            class="font-bold text-xxs sm:text-xxs-plus uppercase tracking-wider hidden sm:block truncate max-w-full"
+          >
             {{ item.labelKey | translate }}
           </span>
         </a>

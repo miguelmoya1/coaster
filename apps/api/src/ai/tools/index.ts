@@ -17,10 +17,6 @@ export * from './shift.tools';
 export * from './stats.tools';
 export * from './table.tools';
 
-/**
- * The assistant only gets tools for what the establishment actually runs. Without this it would
- * cheerfully offer to open a table in a law firm, and the model has no other way to know.
- */
 export function getAiTools(context: AiToolsContext) {
   const has = (module: EstablishmentModule) => context.modules.includes(module);
 

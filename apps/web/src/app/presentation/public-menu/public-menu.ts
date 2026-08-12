@@ -26,7 +26,6 @@ export default class PublicMenu {
   protected readonly isMissing = computed(() => !this.isLoading() && !this.menu());
   protected readonly language = signal<Language>('es');
 
-  /** Only what the menu itself offers: a switch to a language it has no wording for would read the same. */
   protected readonly languages = computed<Language[]>(() => this.menu()?.languages ?? []);
 
   constructor() {

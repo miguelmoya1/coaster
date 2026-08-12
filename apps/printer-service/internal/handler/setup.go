@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// Pairer spends a code and remembers the result. Kept as an interface so the handler can be tested
-// without the network.
 type Pairer interface {
 	Pair(code string) error
 	Paired() bool
@@ -35,8 +33,6 @@ button{width:100%;margin-top:1rem;padding:.85rem;border:0;border-radius:12px;bac
 
 var setupTemplate = template.Must(template.New("setup").Parse(setupPage))
 
-// NewSetupHandler serves the way back when the file name carried no code: someone renamed the
-// download, or moved it, and the bridge has no other way to learn where it belongs.
 func NewSetupHandler(pairer Pairer) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		view := struct {

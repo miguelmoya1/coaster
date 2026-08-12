@@ -25,10 +25,6 @@ import { ExecuteAiCommand } from '../impl/execute-ai.command';
 
 const MAX_HISTORY_MESSAGES = 10;
 
-/**
- * The assistant may chain tool calls (look something up, then act on it), so it needs more than one
- * step. The cap keeps a confused model from looping through the whole establishment's data on a single prompt.
- */
 const MAX_TOOL_STEPS = 8;
 
 @CommandHandler(ExecuteAiCommand)
@@ -162,8 +158,6 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
           onDelta(delta);
         }
 
-        // With multiple steps `stream.text` only holds the final step, while the user already saw
-        // everything that was streamed. Keep the transcript and what was spoken in sync.
         const text = streamed.trim() || (await stream.text);
         await this._aiUsage.countMessage(establishmentId);
 
@@ -174,8 +168,6 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       const result = await generateText(modelOptions);
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
-      // Counted only once the model actually answered: a gateway that never replied cost nothing,
-      // and charging someone an allowance for it would be the wrong way round.
       await this._aiUsage.countMessage(establishmentId);
 
       return { text: result.text || this.#fallbackText(userLang) };

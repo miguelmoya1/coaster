@@ -33,10 +33,6 @@ export function isStripeResourceMissingError(error: unknown, resource: 'customer
   return code === 'resource_missing' && (param.includes(resourceName) || message.includes(`no such ${resourceName}`));
 }
 
-/**
- * Whether a Stripe subscription is still worth anything: it either grants access or is expected to
- * once payment clears. Anything else is spent, so it can be safely replaced by a fresh purchase.
- */
 export function isLiveSubscription(status: Subscription.Status): boolean {
   return status !== 'canceled' && status !== 'incomplete_expired';
 }
@@ -78,20 +74,13 @@ export interface StripeSubscriptionSnapshot {
   currentPeriodEnd: Date | null;
   trialEndsAt: Date | null;
   canceledAt: Date | null;
-  /** Not a column: the caller decides which domain event the change deserves. */
   isCancellation: boolean;
 }
 
-/**
- * The single reading of what a Stripe subscription means for an establishment. Both the checkout webhook and
- * the subscription webhook write the same row, so they have to agree on this or whichever arrives
- * last quietly overwrites the other with a different opinion.
- */
 export function toSubscriptionSnapshot(
   subscription: Subscription,
   configService: ConfigService,
 ): StripeSubscriptionSnapshot {
-  // A subscription without items should not be possible, but a webhook is a bad place to find out.
   const firstItem = subscription.items?.data?.[0];
   const isTerminalCancellation = subscription.status === 'canceled';
   const isScheduledCancellation = Boolean(subscription.cancel_at_period_end || subscription.cancel_at);

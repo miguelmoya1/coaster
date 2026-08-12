@@ -17,7 +17,6 @@ export class AiUsageRepository {
     return usage?.messages ?? 0;
   }
 
-  /** Incremented in the database rather than read-then-write, so two devices talking at once cannot both win. */
   public async countMessage(establishmentId: EstablishmentId, now = new Date()): Promise<number> {
     const period = periodOf(now);
 

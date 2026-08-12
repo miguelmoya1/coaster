@@ -14,10 +14,8 @@ import { MarkdownMessage } from './markdown-message';
 
 const SUGGESTION_KEYS = ['takings', 'low_stock', 'rota', 'order'] as const;
 
-/** The rail takes real estate from the content, so it only appears where there is room to spare. */
 const RAIL_BREAKPOINT = '(min-width: 1024px)';
 
-/** Sheet heights in viewport units. `peek` is content-sized, hence absent. */
 const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
   half: '55svh',
   full: 'calc(100svh - 12rem)',
@@ -372,7 +370,6 @@ export class AiAssistantPanel {
   readonly #translate = inject(TranslateService);
   readonly #breakpoints = inject(BreakpointObserver);
 
-  /** True where the assistant docks beside the content instead of floating over it. */
   protected readonly isRail = toSignal(this.#breakpoints.observe(RAIL_BREAKPOINT).pipe(map((state) => state.matches)), {
     initialValue: this.#breakpoints.isMatched(RAIL_BREAKPOINT),
   });
@@ -382,7 +379,6 @@ export class AiAssistantPanel {
   protected readonly draft = signal('');
   protected readonly chatContainer = viewChild<ElementRef<HTMLDivElement>>('chatContainer');
 
-  /** Live height while a drag is in flight; null hands control back to the current snap. */
   readonly #dragHeight = signal<number | null>(null);
 
   protected readonly shellClass = computed(() =>
@@ -409,7 +405,6 @@ export class AiAssistantPanel {
     () => this.service.status() === 'listening' || this.service.status() === 'paused',
   );
 
-  /** Example prompts for the empty state, re-resolved whenever the user switches language. */
   protected readonly suggestions = computed(() => {
     this.#translate.currentLang();
 
@@ -434,12 +429,10 @@ export class AiAssistantPanel {
   });
 
   constructor() {
-    // Ask for the allowance only once the panel is open, not on every workspace load.
     effect(() => {
       this.service.watchUsage(this.service.isOpen() ? this.establishmentId() : undefined);
     });
 
-    // Dictation and typing share one composer, so whatever the mic hears lands in the draft.
     effect(() => {
       const transcript = this.service.transcript();
 
@@ -461,7 +454,6 @@ export class AiAssistantPanel {
     });
   }
 
-  /** Drags the sheet with the finger and settles on whichever snap ends up closest. */
   protected startDrag(event: PointerEvent) {
     if (this.isRail()) {
       return;
@@ -493,7 +485,6 @@ export class AiAssistantPanel {
       const height = this.#dragHeight();
       this.#dragHeight.set(null);
 
-      // A tap without movement falls through to the click handler, which cycles the snap.
       if (moved && height !== null) {
         this.service.setSnap(this.nearestSnap(height));
       }
@@ -545,7 +536,6 @@ export class AiAssistantPanel {
     this.#dispatch();
   }
 
-  /** Enter envia, Mayus+Enter parte la linea: es lo que espera cualquiera que venga de un chat. */
   protected onComposerKeydown(event: KeyboardEvent) {
     if (event.key !== 'Enter' || event.shiftKey) {
       return;

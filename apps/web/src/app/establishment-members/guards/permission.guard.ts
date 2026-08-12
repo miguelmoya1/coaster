@@ -6,7 +6,6 @@ import { ModulesStore } from '@coaster/establishments';
 import { combineLatest, filter, map, switchMap, take, timer } from 'rxjs';
 import { MyMemberStore } from '../store/my-member.store';
 
-/** In the order someone should be sent to them: the least surprising landing first. */
 const FALLBACKS: { permission: EstablishmentPermission; module?: EstablishmentModule; path: string }[] = [
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD, path: 'dashboard' },
   { permission: EstablishmentPermission.ESTABLISHMENT_VIEW_SHIFTS, path: 'schedule' },
@@ -49,10 +48,6 @@ export const permissionGuard = (permission: EstablishmentPermission): CanActivat
           return true;
         }
 
-        /*
-         * Somewhere else this person can actually go. Orders used to be the only fallback, which is
-         * a dead route in an establishment that does not run that module.
-         */
         const fallback = FALLBACKS.find(
           (candidate) =>
             candidate.permission !== permission &&

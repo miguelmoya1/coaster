@@ -68,10 +68,6 @@ export class PrinterConnectionController {
     return this._queryBus.execute(new GetPrinterStatusQuery(establishmentId));
   }
 
-  /**
-   * Hands back a one-use code and the URL that downloads a binary already named with it. The
-   * customer double-clicks and is done; nobody types an establishment id into a console.
-   */
   @Post('pairing')
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_PRINTER)
   @ApiOperation({ summary: 'Issue a one-use pairing code for a printer bridge download.' })

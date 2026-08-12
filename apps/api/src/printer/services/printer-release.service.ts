@@ -13,7 +13,6 @@ const BINARIES: Record<string, string> = {
 
 export const binaryFor = (os: string): string | null => BINARIES[os] ?? null;
 
-/** The name the customer's machine will see, and the only place the bridge learns who it belongs to. */
 export const downloadNameFor = (os: string, code: string): string =>
   os === 'windows' ? `coaster-printer-${code}.exe` : `coaster-printer-${code}`;
 
@@ -86,7 +85,6 @@ export class PrinterReleaseService {
     });
   }
 
-  /** Null when the release has not been published, which is a deploy problem rather than a request one. */
   public stream(filename: string) {
     const path = join(DOWNLOADS_ROOT, filename);
 

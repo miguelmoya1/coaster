@@ -30,7 +30,6 @@
           />
         </div>
       }
-
     </section>
 
     <section class="flex flex-col gap-3 mt-8">
@@ -52,7 +51,6 @@
         </div>
         <mat-slide-toggle [checked]="markSoldOut()" (change)="markSoldOutDraft.set($event.checked)" />
       </div>
-
     </section>
 
     <button mat-flat-button class="self-end mt-4" [disabled]="isSaving()" (click)="save()">

@@ -15,10 +15,6 @@ export class ShiftRepository {
       `/establishments/${establishmentId}/shifts/${shiftId}`,
   };
 
-  /**
-   * A one-shot read for replicating a past week. The rota on screen is an httpResource like every
-   * other read; this is not that — it answers a button press, so it cannot be reactive.
-   */
   public async listBetween(establishmentId: EstablishmentId, startDate: string, endDate: string): Promise<Shift[]> {
     return firstValueFrom(this.#http.get<Shift[]>(this.routes.list(establishmentId, startDate, endDate)));
   }

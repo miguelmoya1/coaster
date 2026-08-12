@@ -89,10 +89,6 @@ describe('Settings', () => {
     );
   });
 
-  /*
-   * The save button used to sit inside the modules block, above the language and sold-out controls.
-   * It saved them all along, but nothing after them looked like it would, so they never got saved.
-   */
   it('should put the save button after every control it saves', () => {
     const html = fixture.nativeElement as HTMLElement;
     const save = Array.from(html.querySelectorAll('button')).find((button) =>
@@ -139,11 +135,6 @@ describe('Settings', () => {
     });
   });
 
-  /*
-   * The navigation itself is one line of window.location and jsdom will not let it be spied on;
-   * contorting the component to make it observable would cost more than the assertion is worth.
-   * What matters is that a code is minted, shown, and not minted twice.
-   */
   describe('the printer bridge', () => {
     it('should mint a code, which is how the bridge learns where it belongs', async () => {
       await component['downloadBridge']('windows');

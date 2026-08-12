@@ -10,7 +10,6 @@ export interface StarterCatalogueCategory {
   products: StarterCatalogueProduct[];
 }
 
-/** No selection means the whole starter catalogue, which is what a new establishment asks for. */
 export interface ImportStarterCatalogueDto {
   categoryKeys?: string[];
 }

@@ -1,4 +1,3 @@
-/** Annex II of Regulation 1169/2011: the fourteen a Spanish establishment must declare. */
 export const Allergen = {
   GLUTEN: 'GLUTEN',
   CRUSTACEANS: 'CRUSTACEANS',

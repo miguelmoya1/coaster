@@ -11,7 +11,6 @@ import { GetMenuDraftQuery } from '../impl/get-menu-draft.query';
 export class GetMenuDraftHandler implements IQueryHandler<GetMenuDraftQuery, MenuDraft> {
   constructor(private readonly repository: MenuRepository) {}
 
-  /** An establishment that has never opened the editor has no menu row; reading one starts it. */
   async execute(query: GetMenuDraftQuery): Promise<MenuDraft> {
     const existing = await this.repository.findByEstablishmentId(query.establishmentId);
 

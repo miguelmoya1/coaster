@@ -46,10 +46,6 @@ export class MenuRepository {
     });
   }
 
-  /**
-   * Stock is the one thing on a menu that moves by the hour, so it is answered when the page is
-   * read rather than baked into the snapshot, which would be wrong before the ink dried.
-   */
   public async soldOutAmong(productIds: string[]): Promise<Set<string>> {
     if (productIds.length === 0) {
       return new Set();
@@ -76,10 +72,6 @@ export class MenuRepository {
     });
   }
 
-  /**
-   * The draft is a document, so a save replaces it whole: rebuilding the rows is what makes array
-   * order the only definition of order, with no positions left behind by a reorder.
-   */
   public async replaceDraft(menuId: MenuId, name: string, languages: Language[], sections: MenuSectionDraft[]) {
     return this._db.$transaction(async (tx) => {
       await tx.dbMenuSection.deleteMany({ where: { menuId } });
@@ -109,10 +101,6 @@ export class MenuRepository {
     });
   }
 
-  /**
-   * updatedAt is written by hand to the same instant as publishedAt. Left to `@updatedAt` it lands a
-   * few milliseconds later, and every publish would immediately look like an unpublished change.
-   */
   public publish(menuId: MenuId, snapshot: Prisma.InputJsonValue) {
     const now = new Date();
 

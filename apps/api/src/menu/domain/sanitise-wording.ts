@@ -25,10 +25,6 @@ const wording = (value: unknown): MenuWording | undefined => {
   return cleaned.name || cleaned.description ? cleaned : undefined;
 };
 
-/**
- * Bounds what reaches the column rather than rejecting the save: the map is keyed by language, so a
- * key nobody offers is noise to drop, not an error worth losing an edit over.
- */
 export const sanitiseTranslations = (translations: unknown, offered: Language[]): MenuTranslations => {
   if (typeof translations !== 'object' || translations === null) {
     return {};

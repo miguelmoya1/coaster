@@ -20,15 +20,9 @@ describe('PageContainer', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should apply lg max-w by default to host element', () => {
+  it('should give every page the same width', () => {
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.className).toContain('max-w-7xl');
-  });
 
-  it('should change max-w class when size input changes', () => {
-    fixture.componentRef.setInput('size', 'sm');
-    fixture.detectChanges();
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.className).toContain('max-w-xl');
+    expect(el.className).toContain('max-w-7xl');
   });
 });

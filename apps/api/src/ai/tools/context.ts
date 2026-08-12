@@ -36,20 +36,15 @@ export type ToolResult =
   | { status: 'confirmation_required'; message: string };
 
 export interface Confirmation {
-  /** Plain description of the action, read back to the user before it runs. */
   summary: string;
-  /** True only when the user already agreed to this exact action in a previous turn. */
   confirmed?: boolean;
 }
 
 export interface AiToolRunner {
-  /** Runs a write command through the CommandBus once the permission (and confirmation) checks pass. */
   execute(permission: EstablishmentPermission, command: ICommand, confirmation?: Confirmation): Promise<ToolResult>;
-  /** Runs a read query through the QueryBus once the permission check passes. */
   query<T>(permission: EstablishmentPermission, query: IQuery, project?: (value: T) => unknown): Promise<ToolResult>;
 }
 
-/** Rejects a tool call the assistant got wrong, without ever reaching the bus. */
 export const failed = (message: string): ToolResult => ({ status: 'error', message });
 
 export const createToolRunner = (context: AiToolsContext): AiToolRunner => {
@@ -112,7 +107,6 @@ export const createToolRunner = (context: AiToolsContext): AiToolRunner => {
   };
 };
 
-/** Prices travel through the API in cents; the assistant always talks to the user in euros. */
 export const toEuros = (cents: number): number => Math.round(cents) / 100;
 
 export const toCents = (euros: number): number => Math.round(euros * 100);

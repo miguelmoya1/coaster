@@ -23,16 +23,7 @@ interface ModuleRow {
 
 @Component({
   selector: 'coaster-settings',
-  imports: [
-    Loading,
-    MatButton,
-    MatIcon,
-    MatSlideToggle,
-    LanguageSelect,
-    TranslatePipe,
-    PageContainer,
-    PageHeader,
-  ],
+  imports: [Loading, MatButton, MatIcon, MatSlideToggle, LanguageSelect, TranslatePipe, PageContainer, PageHeader],
   templateUrl: './settings.html',
   host: { class: 'block w-full flex-1' },
 })
@@ -79,10 +70,6 @@ export default class Settings {
     return this.selected().includes(module);
   }
 
-  /**
-   * Toggling orders on brings inventory with it, and the screen shows that immediately rather than
-   * letting the server surprise the owner after they save.
-   */
   protected toggle(module: EstablishmentModule, on: boolean): void {
     const without = this.selected().filter((candidate) => candidate !== module);
     this.draft.set(resolveModules(on ? [...without, module] : without));
@@ -99,11 +86,6 @@ export default class Settings {
   protected readonly isPairing = signal(false);
   protected readonly pairingCode = signal<string | null>(null);
 
-  /**
-   * The code travels in the file name, so the customer never has to read it. It is shown anyway for
-   * the run where that fails — a renamed download, a browser that appends "(1)" — and the bridge
-   * asks for it on its own local page.
-   */
   protected async downloadBridge(os: 'windows' | 'linux'): Promise<void> {
     if (this.isPairing()) {
       return;

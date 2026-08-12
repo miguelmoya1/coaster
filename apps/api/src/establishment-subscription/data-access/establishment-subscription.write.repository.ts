@@ -84,11 +84,6 @@ export class EstablishmentSubscriptionWriteRepository {
     });
   }
 
-  /**
-   * Unlinking is the only way to honour the unique index, but the establishment that loses the reference is
-   * still being billed by Stripe and now has no way back to its own portal. Nothing downstream
-   * notices, so this is the one record that it happened.
-   */
   #reportRelease(
     kind: 'customer' | 'subscription',
     stripeId: string,

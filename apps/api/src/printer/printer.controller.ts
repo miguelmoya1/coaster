@@ -48,14 +48,6 @@ export class PrinterController {
     return release;
   }
 
-  /**
-   * Called by a bridge that has just been double-clicked and knows nothing yet, so it cannot carry
-   * a token. The code is the credential: one use, an hour to live, and worthless afterwards.
-   */
-  /**
-   * Serves the same binary everyone gets, under a name that carries the pairing code. That name is
-   * the whole trick: the customer double-clicks and the bridge knows where it belongs.
-   */
   @Get('download')
   @SkipSubscriptionCheck()
   @ApiOperation({ summary: 'Download the printer bridge named with a pairing code.' })

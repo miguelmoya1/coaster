@@ -133,7 +133,6 @@ describe('AiVoiceService', () => {
       results: [{ isFinal: true, 0: { transcript: 'quiero crear una mesa' } }],
     });
 
-    // Android keeps resultIndex at 0 and re-sends the whole list on every utterance.
     recognition?.onresult?.({
       resultIndex: 0,
       results: [
@@ -164,7 +163,6 @@ describe('AiVoiceService', () => {
       results: [{ isFinal: true, 0: { transcript: 'hola' } }],
     });
 
-    // Mobile ends the session on every pause in speech, and the service starts a fresh one.
     MockSpeechRecognition.latestInstance?.onend?.();
 
     MockSpeechRecognition.latestInstance?.onresult?.({

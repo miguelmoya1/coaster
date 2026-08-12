@@ -65,12 +65,6 @@ export class HandleCheckoutCompletedHandler implements ICommandHandler<HandleChe
     await this._writeRepo.upsert(establishmentId, data, data);
   }
 
-  /**
-   * Reading the subscription back from Stripe rather than waiting for `customer.subscription.*` to
-   * turn up: that event usually arrives, but "usually" here means an establishment that paid and stays locked
-   * out until somebody notices. A live read also beats any webhook already processed, so writing
-   * it cannot undo fresher state.
-   */
   async #resolveState(stripeCustomerId: string, stripeSubscriptionId: string) {
     const subscription = await this._stripeApi.retrieveSubscription(stripeSubscriptionId);
 
@@ -113,7 +107,6 @@ export class HandleCheckoutCompletedHandler implements ICommandHandler<HandleChe
       return false;
     }
 
-    // The billing consequence is reported by whoever handles the event; this is just the action.
     this._logger.warn(
       `Cancelling duplicate subscription ${incomingSubscriptionId} on establishmentId=${establishmentId}, which already has the live ${trackedSubscriptionId}`,
     );

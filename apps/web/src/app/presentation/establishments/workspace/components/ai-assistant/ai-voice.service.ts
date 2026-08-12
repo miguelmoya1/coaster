@@ -7,15 +7,10 @@ import { AiVoiceRepository } from './ai-voice-repository';
 
 export type AiVoiceStatus = 'idle' | 'listening' | 'paused' | 'processing' | 'success' | 'error';
 
-/** How much of the screen the mobile sheet takes. Ignored by the desktop rail, which is always full height. */
 export type AiSheetSnap = 'peek' | 'half' | 'full';
 
 export const AI_SHEET_SNAPS: AiSheetSnap[] = ['peek', 'half', 'full'];
 
-/**
- * The assistant answers in markdown so the panel can render it, but speech synthesis would read the
- * syntax out loud ("asterisco asterisco"). This strips the markup and keeps the words.
- */
 export const toSpokenText = (markdown: string): string =>
   markdown
     .replace(/```[\s\S]*?```/g, '\n')
@@ -35,7 +30,6 @@ export const toSpokenText = (markdown: string): string =>
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
-    // Each markdown line was its own visual block, so it earns a pause instead of running on.
     .map((line) => (/[.!?:,;]$/.test(line) ? line : `${line}.`))
     .join(' ')
     .trim();
@@ -90,7 +84,6 @@ export class AiVoiceService {
 
   readonly #usageResource = httpResource<AiUsage>(() => this.#usageService.execute(this.#usageEstablishmentId()));
 
-  /** Carries its own loading and error state, like every other read in the app. */
   public readonly usage = this.#usageResource.asReadonly();
 
   public watchUsage(establishmentId: EstablishmentId | undefined): void {
@@ -117,7 +110,6 @@ export class AiVoiceService {
         },
       );
 
-      // The allowance only moves when a message actually lands, so this is the moment to re-read it.
       this.#usageResource.reload();
 
       return answer;
@@ -141,12 +133,6 @@ export class AiVoiceService {
     effect(() => {
       const status = this.aiResource.status();
 
-      /*
-       * Only the resource status drives this effect. The work below reads unrelated signals
-       * (isMuted through speak(), the active language through the translations), and tracking
-       * those would replay the whole branch on, say, a mute toggle, appending the same answer to
-       * the transcript a second time.
-       */
       untracked(() => {
         if (status === 'resolved') {
           const value = this.aiResource.value();
@@ -194,7 +180,6 @@ export class AiVoiceService {
     const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
-    // Two live recognizers would both write to the transcript, so the outgoing one is muted first.
     if (this.#recognition) {
       this.#recognition.onresult = null;
       this.#recognition.onerror = null;
@@ -206,11 +191,6 @@ export class AiVoiceService {
     this.#recognition.interimResults = true;
     this.#recognition.lang = this.#lang;
 
-    /*
-     * `event.results` holds the whole session, so the transcript is rebuilt from it on every event
-     * instead of appended to. Android re-sends results already seen, and with `resultIndex` stuck
-     * at zero, so appending repeated every phrase the moment the next one arrived.
-     */
     this.#recognition.onresult = (event: SpeechRecognitionEvent) => {
       if (this.status() !== 'listening') return;
 
@@ -251,10 +231,6 @@ export class AiVoiceService {
     this.#recognition.onend = () => {
       if (this.status() !== 'listening') return;
 
-      /*
-       * Mobile ends the session at every pause in speech. The next one starts with an empty
-       * `results`, so what is already settled moves into the saved half before restarting.
-       */
       this.#savedTranscript = `${this.#savedTranscript} ${this.#sessionTranscript}`.trim();
       this.#sessionTranscript = '';
 
@@ -267,7 +243,6 @@ export class AiVoiceService {
     };
   }
 
-  /** The panel lives in the workspace layout but is driven from the top establishment, so ownership sits here. */
   public open() {
     this.isOpen.set(true);
     this.snap.set('peek');
@@ -295,7 +270,6 @@ export class AiVoiceService {
     this.snap.set(snap);
   }
 
-  /** Tapping the handle walks up the snaps and wraps back to the resting position. */
   public cycleSnap() {
     const next = AI_SHEET_SNAPS[(AI_SHEET_SNAPS.indexOf(this.snap()) + 1) % AI_SHEET_SNAPS.length];
     this.snap.set(next);
@@ -399,7 +373,6 @@ export class AiVoiceService {
     this.messages.set(updatedMessages);
     this.transcript.set('');
 
-    // Resting on the composer is fine until there is a conversation worth reading.
     if (this.snap() === 'peek') {
       this.snap.set('half');
     }

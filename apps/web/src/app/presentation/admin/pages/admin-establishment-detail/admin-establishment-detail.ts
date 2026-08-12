@@ -89,7 +89,6 @@ export default class AdminEstablishmentDetail {
     return this.selectedModules().includes(module);
   }
 
-  /** Inventory cannot be taken away while orders is on, the same rule the owner's screen shows. */
   protected isModuleForced(module: EstablishmentModule): boolean {
     return module === EstablishmentModule.INVENTORY && this.selectedModules().includes(EstablishmentModule.ORDERS);
   }

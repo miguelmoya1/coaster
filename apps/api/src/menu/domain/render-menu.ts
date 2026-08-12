@@ -27,10 +27,6 @@ export interface RenderableMenu {
   sections: RenderableSection[];
 }
 
-/**
- * A missing wording falls back to the menu's own language and no further: a customer reading a
- * third language they did not ask for is worse off than one reading the original.
- */
 const wordingFor = (translations: MenuTranslations, language: Language, fallback: Language) =>
   translations[language] ?? translations[fallback];
 
@@ -69,7 +65,6 @@ const sectionFor = (
   return { name, items };
 };
 
-/** An empty section is left out rather than printed as a heading with nothing under it. */
 export const renderMenu = (menu: RenderableMenu, language: Language): PublishedMenu => ({
   name: menu.name,
   language,

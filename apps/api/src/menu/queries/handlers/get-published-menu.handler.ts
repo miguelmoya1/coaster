@@ -9,7 +9,6 @@ import { GetPublishedMenuQuery } from '../impl/get-published-menu.query';
 export class GetPublishedMenuHandler implements IQueryHandler<GetPublishedMenuQuery, PublishedMenu> {
   constructor(private readonly repository: MenuRepository) {}
 
-  /** Never published is a 404, not an empty menu: there is nothing here to read yet. */
   async execute(query: GetPublishedMenuQuery): Promise<PublishedMenu> {
     const menu = await this.repository.findPublishedBySlug(query.slug);
 
@@ -19,8 +18,7 @@ export class GetPublishedMenuHandler implements IQueryHandler<GetPublishedMenuQu
 
     const snapshot = menu.publishedSnapshot as unknown as Record<string, PublishedMenu>;
     const asked = query.language;
-    const language: Language =
-      asked && isLanguage(asked) && snapshot[asked] ? asked : asLanguage(menu.defaultLanguage);
+    const language: Language = asked && isLanguage(asked) && snapshot[asked] ? asked : asLanguage(menu.defaultLanguage);
 
     const published = snapshot[language] ?? snapshot[asLanguage(menu.defaultLanguage)];
 

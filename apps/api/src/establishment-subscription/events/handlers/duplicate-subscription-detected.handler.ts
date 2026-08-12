@@ -2,11 +2,6 @@ import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { DuplicateSubscriptionDetectedEvent } from '../impl/duplicate-subscription-detected.event';
 
-/**
- * The duplicate is already cancelled by the time this runs, but Stripe may well have taken the
- * first payment for it, and no automated path gives that money back. This is the one place that
- * says so out loud, and the seam to hang a real alert (email, Slack) off when there is one.
- */
 @EventsHandler(DuplicateSubscriptionDetectedEvent)
 export class DuplicateSubscriptionDetectedHandler implements IEventHandler<DuplicateSubscriptionDetectedEvent> {
   readonly #logger = new Logger(DuplicateSubscriptionDetectedHandler.name);

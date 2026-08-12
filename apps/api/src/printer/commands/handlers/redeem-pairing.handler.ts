@@ -24,7 +24,6 @@ export class RedeemPairingHandler implements ICommandHandler<RedeemPairingComman
 
     const establishmentId = pairing.establishmentId as EstablishmentId;
 
-    // A venue that has never printed has no config yet, and the bridge cannot wait for one.
     const config =
       (await this._readRepo.findByEstablishmentId(establishmentId)) ??
       (await this._writeRepo.createPrinterConfig(establishmentId));

@@ -11,10 +11,6 @@ export class EstablishmentSettingsRepository {
     return this._db.dbEstablishmentSettings.findUnique({ where: { establishmentId } });
   }
 
-  /**
-   * Answering the questions is what marks an establishment as configured, so the first write also
-   * closes the onboarding.
-   */
   public update(
     establishmentId: EstablishmentId,
     modules: EstablishmentModule[],
@@ -41,10 +37,6 @@ export class EstablishmentSettingsRepository {
     });
   }
 
-  /**
-   * Support changing a module is not the owner answering the onboarding, so this deliberately
-   * leaves configuredAt alone: an establishment nobody has set up yet still gets its welcome.
-   */
   public updateAsAdmin(establishmentId: EstablishmentId, modules: EstablishmentModule[]) {
     const resolved = resolveModules(modules) as DbEstablishmentModule[];
 

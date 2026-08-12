@@ -53,10 +53,6 @@ describe('SubscriptionActiveGuard', () => {
     } as any;
   };
 
-  /**
-   * What the guard actually sees in production: a bearer token and no `user`, because the Firebase
-   * guard is controller-level and Nest runs it after every global guard.
-   */
   const createRealRequestContext = (token?: string, establishmentId = 'establishment-1'): ExecutionContext => {
     return {
       switchToHttp: () => ({

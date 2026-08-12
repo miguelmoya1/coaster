@@ -39,10 +39,6 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
       throw new BadRequestException(ErrorCodes.TIME_ENTRY_NOT_CURRENT);
     }
 
-    /*
-     * Everyone fixes their own hours; touching somebody else's is what needs the establishment to trust you.
-     * The guard cannot tell whose mark it is, so the ownership half of the rule lives here.
-     */
     if (current.userId !== actor.id && !(await this.#canManageOthers(establishmentId, actor.id, actor.role))) {
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_TIME_ENTRY);
     }

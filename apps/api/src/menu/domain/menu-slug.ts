@@ -1,9 +1,5 @@
 const MAX_LENGTH = 40;
 
-/**
- * What gets printed on a QR, so it has to survive being read aloud and typed: no accents, no
- * punctuation, nothing that needs escaping in a URL.
- */
 export const slugify = (name: string): string =>
   name
     .normalize('NFD')

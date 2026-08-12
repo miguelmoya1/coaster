@@ -80,7 +80,6 @@ describe('AcceptExchangeHandler', () => {
   });
 
   it('should refuse to hand over a shift that already started', async () => {
-    // The repository mock is shared across this file, so only calls from here on count.
     repository.acceptExchangeAndSwapShift.mockClear();
     repository.getExchangeById.mockResolvedValue({
       id: 'exc-1',

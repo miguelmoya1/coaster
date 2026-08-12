@@ -12,9 +12,7 @@ export class PublicMenuStore {
 
   public readonly language = this.#language.asReadonly();
 
-  readonly #menuResource = httpResource<Published>(() =>
-    this.#publishedMenu.execute(this.#slug(), this.#language()),
-  );
+  readonly #menuResource = httpResource<Published>(() => this.#publishedMenu.execute(this.#slug(), this.#language()));
 
   public readonly menu = this.#menuResource.asReadonly();
 

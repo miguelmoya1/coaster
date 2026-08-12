@@ -53,7 +53,6 @@ export const MenuMapper = {
     };
   },
 
-  /** A deleted product is treated as gone: the line keeps its own wording and price. */
   toRenderable(menu: DbMenuWithSections): RenderableMenu {
     return {
       name: menu.name,
@@ -81,10 +80,6 @@ export const MenuMapper = {
   },
 };
 
-/**
- * A published menu also goes stale when a product it points at moves: an allergen added or a price
- * corrected changes what customers should be reading, and only republishing puts it in front of them.
- */
 const hasChangesSince = (menu: DbMenuWithSections): boolean => {
   const published = menu.publishedAt;
 

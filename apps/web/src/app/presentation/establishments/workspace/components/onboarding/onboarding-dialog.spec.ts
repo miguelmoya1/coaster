@@ -71,7 +71,6 @@ describe('OnboardingDialog', () => {
     expect(catalogueStoreMock.import).toHaveBeenCalledWith('establishment-1');
   });
 
-  /* The inventory loads behind this dialog, so an import it never hears about leaves it showing nothing. */
   it('should refresh the catalogue the inventory already loaded', async () => {
     component['choose'](typeNamed('retail'));
     await component['finish'](true);

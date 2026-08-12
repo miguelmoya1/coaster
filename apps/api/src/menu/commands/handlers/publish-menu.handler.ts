@@ -12,10 +12,6 @@ import { PublishMenuCommand } from '../impl/publish-menu.command';
 export class PublishMenuHandler implements ICommandHandler<PublishMenuCommand, void> {
   constructor(private readonly repository: MenuRepository) {}
 
-  /**
-   * Publishing renders the draft once, in every language it offers. The public route then reads one
-   * column and picks, so there is no cache to invalidate: republishing replaces what it reads.
-   */
   async execute(command: PublishMenuCommand): Promise<void> {
     const menu = await this.repository.findByEstablishmentId(command.establishmentId);
 

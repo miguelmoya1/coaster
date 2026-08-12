@@ -35,11 +35,6 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
   `,
   styles: [
     `
-      /*
-       * Layout containment makes this element the containing block for its fixed-position
-       * descendants, so the bottom nav, the FAB and the order bulk actions re-centre inside the
-       * content column instead of the viewport once the assistant rail claims its width.
-       */
       .content-column {
         contain: layout;
       }
@@ -68,10 +63,6 @@ export default class WorkspaceLayout {
 
   protected readonly isOwner = this.#myMemberStore.isOwner;
 
-  /**
-   * The mobile sheet rests above the bottom nav, so the content needs to clear both of them or the
-   * last row of cards hides behind the composer.
-   */
   protected readonly mainPaddingClass = computed(() =>
     this.#aiVoiceService.isOpen() && this.#aiVoiceService.snap() === 'peek' ? 'pb-[13rem] lg:pb-28' : 'pb-28',
   );
@@ -93,11 +84,6 @@ export default class WorkspaceLayout {
   });
 
   constructor() {
-    /*
-     * Only an owner can answer these questions, and only once: a brand new establishment has no
-     * configuredAt until somebody does. Everything backfilled from before this existed counts as
-     * configured, so no working venue is ever interrupted by it.
-     */
     effect(() => {
       const isConfigured = this.#modulesStore.isConfigured();
       const establishment = this.currentEstablishment.hasValue() ? this.currentEstablishment.value() : undefined;

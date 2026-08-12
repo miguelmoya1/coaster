@@ -7,10 +7,6 @@ export interface ChipOption<T extends string = string> {
   label: string;
 }
 
-/**
- * A multiple choice bound to a signal form the same way `coaster-number-input` is, so `[formField]`
- * wires the value, the errors and the disabled state without the page knowing how it is drawn.
- */
 @Component({
   selector: 'coaster-chip-select',
   imports: [MatChipListbox, MatChipOption],

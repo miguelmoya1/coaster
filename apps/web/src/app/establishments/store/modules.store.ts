@@ -18,10 +18,6 @@ export class ModulesStore {
   public readonly settings = this.#settingsResource.asReadonly();
   public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
 
-  /**
-   * Everything on until the answer arrives. The alternative hides the menu on every page load and
-   * then pops it back, which reads as the app losing features for a moment.
-   */
   public readonly modules = computed<EstablishmentModule[]>(() =>
     this.settings.hasValue()
       ? resolveModules(this.settings.value().modules)
@@ -36,7 +32,6 @@ export class ModulesStore {
     return this.modules().includes(module);
   }
 
-  /** Null while the answer is still on its way, so callers can tell it apart from a configured one. */
   public readonly isConfigured = computed<boolean | null>(() =>
     this.settings.hasValue() ? this.settings.value().configuredAt !== null : null,
   );

@@ -35,12 +35,6 @@ export class SecurityRepository {
     return membership;
   }
 
-  /**
-   * Every establishment gets its settings row on creation and the migration backfilled the rest, so
-   * a missing row is an anomaly rather than a state to design for. Opening up rather than locking
-   * down is the kinder failure: this decides which features a venue has, not who is allowed in, and
-   * a venue silently losing its till is worse than one that keeps working.
-   */
   async getEnabledModules(establishmentId: string): Promise<EstablishmentModule[]> {
     const settings = await this._db.dbEstablishmentSettings.findUnique({
       where: { establishmentId },
@@ -55,7 +49,6 @@ export class SecurityRepository {
     return resolveModules(settings.modules as EstablishmentModule[]);
   }
 
-  /** Whether nobody is paying for this establishment yet, which earns it a smaller assistant allowance. */
   async isOnTrial(establishmentId: string): Promise<boolean> {
     const billing = await this._db.dbEstablishmentSubscription.findUnique({
       where: { establishmentId },

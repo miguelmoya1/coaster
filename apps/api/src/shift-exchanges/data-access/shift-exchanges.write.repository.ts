@@ -22,11 +22,6 @@ export class ShiftExchangesWriteRepository {
     });
   }
 
-  /**
-   * Claiming the offer and handing over the shift happen together, and only if the offer is still
-   * pending when the write lands. Two people tapping accept at once used to end with both of them
-   * told they got the shift.
-   */
   public async acceptExchangeAndSwapShift(exchangeId: ShiftExchangeId, shiftId: ShiftId, newUserId: UserId) {
     return this._db.$transaction(async (tx) => {
       const claimed = await tx.dbShiftExchange.updateMany({

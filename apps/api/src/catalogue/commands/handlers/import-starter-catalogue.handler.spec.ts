@@ -35,13 +35,13 @@ describe('ImportStarterCatalogueHandler', () => {
   });
 
   it('should create the category and its products as words', async () => {
-    repository.findCategoriesByName.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'cat-1', name: 'Cafetería' }]);
+    repository.findCategoriesByName
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'cat-1', name: 'Cafetería' }]);
 
     await importing('cafeteria');
 
-    expect(repository.createCategories).toHaveBeenCalledWith([
-      { establishmentId, name: 'Cafetería', icon: 'coffee' },
-    ]);
+    expect(repository.createCategories).toHaveBeenCalledWith([{ establishmentId, name: 'Cafetería', icon: 'coffee' }]);
     expect(repository.createProducts).toHaveBeenCalledWith(
       expect.arrayContaining([{ categoryId: 'cat-1', name: 'Café Solo', price: 120 }]),
     );
@@ -49,7 +49,9 @@ describe('ImportStarterCatalogueHandler', () => {
 
   it('should write the establishment language, not Spanish by default', async () => {
     repository.languageOf.mockResolvedValue('en');
-    repository.findCategoriesByName.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'cat-1', name: 'Coffee Shop' }]);
+    repository.findCategoriesByName
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'cat-1', name: 'Coffee Shop' }]);
 
     await importing('cafeteria');
 

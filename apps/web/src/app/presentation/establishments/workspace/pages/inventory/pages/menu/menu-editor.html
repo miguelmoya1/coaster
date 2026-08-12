@@ -14,7 +14,6 @@
       <coaster-loading />
     </div>
   } @else {
-    <!-- What customers see, and how they reach it -->
     <section class="bg-surface-container rounded-2xl p-4 mb-4">
       @if (isPublished()) {
         <div class="flex flex-col sm:flex-row gap-4 items-start">
@@ -67,7 +66,6 @@
       }
     </section>
 
-    <!-- Which languages the menu is written in -->
     <section class="bg-surface-container rounded-2xl p-4 mb-4 flex flex-col gap-3">
       <div>
         <p class="text-sm font-semibold">{{ 'menu.languages' | translate }}</p>
@@ -103,7 +101,6 @@
       }
     </section>
 
-    <!-- The menu itself -->
     <p class="text-xs text-on-surface-variant px-1 mb-2">{{ 'menu.structure_hint' | translate }}</p>
 
     <div class="flex flex-col gap-3">

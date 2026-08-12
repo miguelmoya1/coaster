@@ -181,7 +181,6 @@ describe('ExecuteAiHandler', () => {
           yield 'Voy a mirarlo. ';
           yield 'Hoy llevas 240 €.';
         })(),
-        // A multi-step run only exposes the last step here, which is not what the user heard.
         text: Promise.resolve('Hoy llevas 240 €.'),
       });
 

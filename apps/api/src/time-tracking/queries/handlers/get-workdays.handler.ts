@@ -81,10 +81,6 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
       }
     }
 
-    /*
-     * A rota entry nobody clocked into leaves no marks, so it would never reach the list built from
-     * them. Seeding those keys is what makes an absence visible next to the days that were worked.
-     */
     for (const [key, shift] of planned) {
       if (!days.has(key) && shift.date >= query.from && shift.date <= query.to) {
         days.set(key, []);

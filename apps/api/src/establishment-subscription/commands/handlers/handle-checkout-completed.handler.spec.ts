@@ -98,7 +98,6 @@ describe('HandleCheckoutCompletedHandler (establishment-subscription)', () => {
       await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
       await handler.execute(new HandleCheckoutCompletedCommand(duplicateSession));
 
-      // The establishment keeps the subscription it already tracks; a redelivery just rewrites the same state.
       expect(stripeApiMock.cancelSubscription).not.toHaveBeenCalled();
       expect(writeRepoMock.upsert).toHaveBeenCalledTimes(2);
       expect(writeRepoMock.upsert.mock.calls[0]).toEqual(writeRepoMock.upsert.mock.calls[1]);

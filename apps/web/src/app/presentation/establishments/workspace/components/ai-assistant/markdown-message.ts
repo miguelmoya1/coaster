@@ -1,16 +1,6 @@
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { marked } from 'marked';
 
-/**
- * Renders the assistant's markdown answer.
- *
- * The parsed HTML goes through Angular's `[innerHTML]` binding, which sanitises it in
- * `SecurityContext.HTML` (scripts, event handlers and `javascript:` URLs are stripped). The model
- * output is never passed through `bypassSecurityTrust*`, so a prompt injection cannot execute here.
- *
- * Encapsulation is disabled because injected HTML carries no scoping attribute, so component styles
- * would never reach it. Every rule is nested under `.coaster-md` to keep it from leaking.
- */
 @Component({
   selector: 'coaster-markdown-message',
   template: `<div class="coaster-md" [innerHTML]="html()"></div>`,
@@ -97,7 +87,6 @@ import { marked } from 'marked';
         letter-spacing: -0.01em;
       }
 
-      /* The panel is narrow, so headings stay close to body size instead of shouting. */
       .coaster-md h1 {
         font-size: 1.05rem;
       }
@@ -156,7 +145,6 @@ import { marked } from 'marked';
         border-top: 1px solid var(--color-border-ghost);
       }
 
-      /* Tables would blow the panel width open, so they scroll inside their own box. */
       .coaster-md table {
         display: block;
         width: 100%;

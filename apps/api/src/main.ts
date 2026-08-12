@@ -22,11 +22,6 @@ async function bootstrap() {
 
   const isProduction = process.env.NODE_ENV === 'production';
 
-  /*
-   * Cloud Run appends the caller's address to whatever `X-Forwarded-For` arrived, so the real client
-   * is one hop from the right. Trusting every hop instead would hand `req.ip` the leftmost entry,
-   * which the caller writes themselves and can rotate to walk straight past the rate limit.
-   */
   const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
   const trustProxy = Number.isFinite(proxyHops) && proxyHops > 0 ? proxyHops : false;
 

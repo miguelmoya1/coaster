@@ -65,7 +65,6 @@ export class ShiftsStore {
     this.#shiftsResource.reload();
   }
 
-  /** Reads a past week so it can be copied forward. Not the rota on screen, which is a resource. */
   public async listBetween(startDate: string, endDate: string): Promise<Shift[]> {
     const establishmentId = this.#currentEstablishmentId();
 

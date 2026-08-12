@@ -187,10 +187,6 @@ export default class Schedule {
 
   readonly selectedDayId = computed(() => this.#dateFormatter.formatDayId(this.#state.selectedDate()));
 
-  /*
-   * Clocking in always stamps the server clock, so a punch can only ever be "now". Offering the
-   * buttons on another day would just invite people to try; those days are fixed with marks.
-   */
   readonly isViewingToday = computed(() => isSameDay(this.#state.selectedDate(), new Date()));
 
   readonly currentUserRole = computed(() => {
@@ -288,7 +284,6 @@ export default class Schedule {
       timeRange: this.#dateFormatter.formatTimeRange(exchange.shiftStartTime, exchange.shiftEndTime),
       roleName: EstablishmentRole.STAFF as EstablishmentRole,
       isOwnRequest: exchange.requesterId === this.currentUserId(),
-      // Nobody can take over a shift that is already being worked, so do not offer it.
       hasStarted: new Date(exchange.shiftStartTime) <= new Date(),
     }));
   });

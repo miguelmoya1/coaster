@@ -17,10 +17,6 @@ export class PrinterPairingRepository {
     return code;
   }
 
-  /**
-   * Claims the code and hands back what the bridge needs, in one conditional update: two machines
-   * opening the same download cannot both end up believing they are this establishment's printer.
-   */
   public async redeem(code: string, now = new Date()): Promise<{ establishmentId: string } | null> {
     const claimed = await this._db.dbPrinterPairing.updateMany({
       where: { code, redeemedAt: null, expiresAt: { gt: now } },

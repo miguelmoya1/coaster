@@ -9,11 +9,6 @@ import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { EstablishmentGateway } from '../../establishment.gateway';
 
-/**
- * A failed payment moves the establishment to PAST_DUE, which is as much a change of what the workspace may
- * do as a cancellation is. Leaving it out kept the clients acting as if they were still paid up
- * until somebody happened to reload.
- */
 type SubscriptionEvent =
   SubscriptionRenewedEvent | SubscriptionCancelledEvent | SubscriptionPaymentFailedEvent | SubscriptionOverriddenEvent;
 

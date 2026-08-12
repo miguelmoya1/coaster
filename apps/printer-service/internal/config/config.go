@@ -74,8 +74,6 @@ func Parse(args []string) (*Config, error) {
 	fallbackToEnv(ipAddress, "PRINTER_IP_ADDRESS")
 	fallbackToEnv(jwtSecret, "PRINTER_JWT_SECRET")
 
-	// Nobody passes flags to a binary they double-clicked, so the pairing saved beside the executable
-	// is the usual source of these two, and the flags are for people running it by hand.
 	if saved := pairing.Load(); saved != nil {
 		if *establishmentID == "" {
 			*establishmentID = saved.EstablishmentID

@@ -102,10 +102,6 @@ describe('MenuEditor', () => {
     expect(component).toBeTruthy();
   });
 
-  /*
-   * The screen reloads the draft in an effect. If that effect also reads what the user is editing it
-   * depends on its own writes, and every edit is undone on the next change detection.
-   */
   describe('an edit survives change detection', () => {
     it('should keep a section that was removed removed', () => {
       component['addSection']();
@@ -178,19 +174,12 @@ describe('MenuEditor', () => {
     });
   });
 
-  /*
-   * Calling the methods directly proves the logic but not the wiring: inside the item loop `$index`
-   * is the item's, so a section index taken from there is only right for the first line of the first
-   * section. These press the real buttons.
-   */
   describe('the buttons on screen', () => {
     const sectionAt = (index: number): Element =>
       fixture.nativeElement.querySelectorAll('[data-testid="menu-section"]')[index];
     const itemRows = (index: number) => sectionAt(index).querySelectorAll('[data-testid="menu-item"]');
     const buttonsOf = (element: Element) => Array.from(element.querySelectorAll('button')) as HTMLButtonElement[];
 
-    /* Both sections carry lines, so every assertion below distinguishes a section index used where
-     * an item index belongs — the two only coincide when the fixture lets them. */
     const twoSectionsWithItems = () => {
       component['addSection']();
       component['addSection']();
@@ -274,8 +263,6 @@ describe('MenuEditor', () => {
       component['addSection']();
       component['addSection']();
 
-      // Two sections and an arrow pressed on a third that is already gone: the destination is a
-      // real position, the origin is not, and swapping them would leave an empty slot behind.
       component['moveSection'](2, -1);
 
       expect(component['sections']()).toHaveLength(2);

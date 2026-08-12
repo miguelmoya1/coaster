@@ -164,10 +164,6 @@ describe('TopAppBar', () => {
   });
 
   describe('the way back to the establishment settings', () => {
-    /*
-     * hasPermission is a plain mock behind a computed, so the component caches whatever it answered
-     * first. The permission has to be in place before the component exists.
-     */
     const renderWith = (allowed: boolean) => {
       myMemberStoreMock.hasPermission.mockImplementation(
         (perm: EstablishmentPermission) => allowed && perm === EstablishmentPermission.ESTABLISHMENT_MANAGE_SETTINGS,

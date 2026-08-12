@@ -138,9 +138,6 @@ func (s *service) run() error {
 	return s.server.Shutdown(shutdownCtx)
 }
 
-// pairFromFileName spends the code the download was named with. It runs once: afterwards the pairing
-// sits beside the binary and the name stops mattering, which is just as well because people rename
-// things and browsers add "(1)".
 func (s *service) pairFromFileName() {
 	executable, err := os.Executable()
 	if err != nil {
@@ -170,7 +167,6 @@ func (s *service) pairFromFileName() {
 	log.Printf("Paired with establishment %s. This machine will not need the code again.\n", paired.EstablishmentID)
 }
 
-// Pair spends a code typed into the setup page, for the run where the file name carried none.
 func (s *service) Pair(code string) error {
 	paired, err := pairing.Redeem(s.cfg.APIURL, code)
 	if err != nil {

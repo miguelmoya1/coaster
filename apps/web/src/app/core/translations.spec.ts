@@ -15,7 +15,6 @@ import {
 } from '@coaster/common';
 import { describe, expect, it } from 'vitest';
 
-// Vitest runs from apps/web, which is where the translations the app ships live.
 const load = (lang: string): Record<string, unknown> =>
   JSON.parse(readFileSync(resolve(process.cwd(), 'public/i18n', `${lang}.json`), 'utf8'));
 
@@ -31,10 +30,6 @@ const flatten = (value: Record<string, unknown>, prefix = ''): Record<string, st
 const es = flatten(load('es'));
 const en = flatten(load('en'));
 
-/**
- * Keys the interface assembles at runtime, so nothing ever points at them in the source. A value
- * added to one of these enums without its label shows up in the screen as the raw key.
- */
 const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] = [
   { prefix: 'admin.audit_action.', values: Object.values(AdminAuditAction), builtIn: 'audit-list' },
   { prefix: 'admin.billing_source.', values: Object.values(EstablishmentBillingSource), builtIn: 'billing-badge' },
@@ -51,11 +46,6 @@ const dynamicFamilies: { prefix: string; values: string[]; builtIn: string }[] =
   },
 ];
 
-/**
- * Prefixes the interface concatenates onto something it does not own — an API-supplied name, a
- * validator's kind, a status string. Everything under them is reachable even though no literal in
- * the source spells it out.
- */
 const runtimePrefixes = [
   ...dynamicFamilies.map((family) => family.prefix),
   'billing.plan_name.',
@@ -71,10 +61,8 @@ const runtimePrefixes = [
   'allergens.',
 ];
 
-/** Angular's validator names, rendered straight through by the shared form-field components. */
 const validatorKinds = ['required', 'email', 'minLength', 'maxLength', 'min', 'max', 'pattern'];
 
-/** Only what the app itself asks for: a fixture inventing a product name is not a missing key. */
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
@@ -120,15 +108,10 @@ describe('translations', () => {
     });
   });
 
-  /*
-   * Renaming a key in the source and forgetting the file leaves the raw key on someone's screen,
-   * and the reverse quietly grows dead weight. Neither shows up in any other test.
-   */
   it('should define every key the source asks for', () => {
     const asked = Array.from(literalKeys).filter(
       (key) =>
         key.includes('.') &&
-        // A prefix the app concatenates onto is not itself a key.
         !runtimePrefixes.includes(key) &&
         !key.endsWith('_') &&
         Object.keys(es).some((known) => known.split('.')[0] === key.split('.')[0]),

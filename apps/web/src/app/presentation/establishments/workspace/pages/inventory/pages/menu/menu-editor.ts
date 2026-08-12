@@ -55,19 +55,20 @@ export default class MenuEditor {
   protected readonly slug = computed(() => this.draft()?.slug ?? '');
   protected readonly isPublished = computed(() => Boolean(this.draft()?.publishedAt));
   protected readonly hasUnpublishedChanges = computed(() => this.draft()?.hasUnpublishedChanges ?? false);
-  /** Local edits count too: the draft on screen may differ from the one the server last saw. */
   protected readonly canPublish = computed(() => !this.isPublished() || this.hasUnpublishedChanges() || this.isDirty());
 
   protected readonly publicUrl = computed(() => `${location.origin}/m/${this.slug()}`);
 
   protected readonly qr = viewChild(QrCode);
 
-  /** Every language the app has except the menu's own, which is never optional. */
-  protected readonly extraLanguages = computed(() => this.languages.filter((language) => language !== this.defaultLanguage()));
+  protected readonly extraLanguages = computed(() =>
+    this.languages.filter((language) => language !== this.defaultLanguage()),
+  );
 
-  protected readonly products = computed(() => (this.#productsStore.list.hasValue() ? this.#productsStore.list.value() : []));
+  protected readonly products = computed(() =>
+    this.#productsStore.list.hasValue() ? this.#productsStore.list.value() : [],
+  );
 
-  /** What the owner still has to write before the menu reads properly in every language offered. */
   protected readonly missingWording = computed(() =>
     this.offered().reduce((total, language) => {
       const sections = this.sections();
@@ -90,8 +91,6 @@ export default class MenuEditor {
       this.#categoriesStore.setEstablishmentId(establishmentId);
     });
 
-    // Untracked, or reading the edits back to record their shape would make this effect depend on
-    // its own writes and undo every change on the next tick.
     effect(() => {
       const draft = this.draft();
 
@@ -117,7 +116,6 @@ export default class MenuEditor {
     return LANGUAGE_NAMES[language];
   }
 
-  /** Shows what the customer would read if the field is left empty, rather than a generic hint. */
   protected itemPlaceholder(item: MenuItemDraft): string {
     return this.itemName(item, this.editingLanguage()) || this.#translate.instant('menu.item_name_placeholder');
   }
@@ -169,10 +167,6 @@ export default class MenuEditor {
 
   protected readonly canFillFromCatalogue = computed(() => this.sections().length === 0 && this.products().length > 0);
 
-  /**
-   * One section per category, every product under it, and no wording at all: an empty name reads as
-   * the product's own, so the menu is usable before anybody types a word.
-   */
   protected fillFromCatalogue() {
     const products = this.products();
 
@@ -246,7 +240,9 @@ export default class MenuEditor {
 
   protected moveItem(sectionIndex: number, itemIndex: number, by: number) {
     this.sections.update((sections) =>
-      sections.map((section, at) => (at === sectionIndex ? { ...section, items: move(section.items, itemIndex, by) } : section)),
+      sections.map((section, at) =>
+        at === sectionIndex ? { ...section, items: move(section.items, itemIndex, by) } : section,
+      ),
     );
   }
 
@@ -349,11 +345,6 @@ export default class MenuEditor {
   }
 }
 
-/**
- * The index comes from a render that can be a tick behind the array — deleting the last line and
- * hitting its arrow before the button disables. Guarding only the destination let the swap write
- * past the end and leave a hole, which then reads as an item that is not there.
- */
 const move = <T>(items: T[], index: number, by: number): T[] => {
   const target = index + by;
   const outOfRange = (at: number) => at < 0 || at >= items.length;

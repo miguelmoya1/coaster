@@ -21,8 +21,6 @@ export class SaveMenuDraftHandler implements ICommandHandler<SaveMenuDraftComman
     const languages = command.dto.languages.map(asLanguage);
     const defaultLanguage = asLanguage(menu.defaultLanguage);
 
-    // Every fallback lands on the menu's own language, so a menu that does not offer it has lines
-    // with nothing to fall back to.
     if (!languages.includes(defaultLanguage)) {
       throw new BadRequestException(ErrorCodes.MENU_LANGUAGE_NOT_OFFERED);
     }
@@ -52,12 +50,7 @@ export class SaveMenuDraftHandler implements ICommandHandler<SaveMenuDraftComman
       })),
     }));
 
-    const saved = await this.repository.replaceDraft(
-      menu.id as MenuId,
-      command.dto.name.trim(),
-      offered,
-      sections,
-    );
+    const saved = await this.repository.replaceDraft(menu.id as MenuId, command.dto.name.trim(), offered, sections);
 
     return MenuMapper.toDraft(saved);
   }

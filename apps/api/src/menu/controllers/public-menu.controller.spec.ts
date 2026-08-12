@@ -2,10 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { MenuController } from './menu.controller';
 import { PublicMenuController } from './public-menu.controller';
 
-/*
- * The e2e suite replaces the auth guard with one that always allows, so it cannot tell a public
- * route from a protected one. This can: it reads what the class actually declares.
- */
 describe('PublicMenuController', () => {
   const guardsOn = (target: object) => (Reflect.getMetadata('__guards__', target) ?? []) as unknown[];
 

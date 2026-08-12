@@ -31,7 +31,6 @@ export class StripeApi {
       delete retryRequest.customer;
 
       try {
-        // The retry changes the payload, so it cannot reuse the key of the request that just failed.
         return await this._stripeClient.client.checkout.sessions.create(
           retryRequest,
           idempotencyKey ? { idempotencyKey: `${idempotencyKey}:no-customer` } : undefined,
@@ -43,10 +42,6 @@ export class StripeApi {
     }
   }
 
-  /**
-   * Ends a subscription right away, used to undo a duplicate that slipped past the checkout guard.
-   * Returns false when Stripe no longer knows about it, which is already the desired end state.
-   */
   public async cancelSubscription(subscriptionId: string): Promise<boolean> {
     try {
       await this._stripeClient.client.subscriptions.cancel(subscriptionId);

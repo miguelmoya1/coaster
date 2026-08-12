@@ -4,10 +4,6 @@ import qrcode from 'qrcode-generator';
 
 const PRINT_SIZE = 1024;
 
-/**
- * Drawn as SVG rather than a canvas so it survives being printed and scaled: a QR taped to a table
- * gets photocopied, and a bitmap at the wrong size stops scanning.
- */
 @Component({
   selector: 'coaster-qr-code',
   template: `<div class="bg-white p-3 rounded-xl inline-block" [innerHTML]="svg()"></div>`,
@@ -53,7 +49,6 @@ export class QrCode {
     );
   });
 
-  /** Big enough to print on a table tent, with the quiet zone a scanner needs around it. */
   public toPngDataUrl(): string {
     const { modules, dark } = this.#matrix();
     const quiet = 4;

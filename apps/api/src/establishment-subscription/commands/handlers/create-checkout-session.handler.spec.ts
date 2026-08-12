@@ -62,7 +62,6 @@ describe('CreateCheckoutSessionHandler (establishment-subscription)', () => {
     vi.useFakeTimers();
 
     try {
-      // Start of a 30-minute bucket, then a click a few minutes later inside that same bucket.
       vi.setSystemTime(new Date('2026-08-06T10:00:00.000Z'));
       await handler.execute(new CreateCheckoutSessionCommand(establishmentId, SubscriptionPlan.PRO));
 

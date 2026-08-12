@@ -33,11 +33,6 @@ export class EstablishmentModulesGuard implements CanActivate {
 
     const enabled = await this._securityRepository.getEnabledModules(establishmentId);
 
-    /*
-     * Deliberately no platform-admin bypass, unlike the permissions guard. A module says what the
-     * establishment has, not who the caller is: an admin creating an order in an establishment
-     * without the orders module would write rows nobody there can ever see.
-     */
     if (!required.every((module) => enabled.includes(module))) {
       throw new ForbiddenException(ErrorCodes.MODULE_NOT_ENABLED);
     }
