@@ -12,7 +12,7 @@ import { CreateEstablishmentForm } from './components/create-establishment-form'
     class: 'block w-full flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500',
   },
   template: `
-    <coaster-page-container size="sm">
+    <coaster-page-container>
       <coaster-page-header
         [title]="'establishments.create.title' | translate"
         [subtitle]="'establishments.create.description' | translate"

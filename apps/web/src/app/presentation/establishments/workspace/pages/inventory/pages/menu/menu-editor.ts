@@ -1,7 +1,6 @@
 import { Component, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
 import type { EstablishmentId, Language, MenuItemDraft, MenuSectionDraft, ProductId } from '@coaster/common';
 import { LANGUAGE_NAMES, LANGUAGES } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
@@ -11,19 +10,22 @@ import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LanguageSelect } from '../../../../../../components/language-select/language-select';
 import { Loading } from '../../../../../../components/loading/loading';
+import { PageContainer } from '../../../../../../components/page-container/page-container';
+import { PageHeader } from '../../../../../../components/page-header/page-header';
 import { QrCode } from '../../../../../../components/qr-code/qr-code';
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-menu-editor',
   imports: [
-    RouterLink,
     MatIcon,
     MatButton,
     MatIconButton,
     LanguageSelect,
     TranslatePipe,
     Loading,
+    PageContainer,
+    PageHeader,
     PricePipe,
     QrCode,
   ],

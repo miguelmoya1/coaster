@@ -1,9 +1,7 @@
-<div class="flex items-center gap-3 mb-6">
-  <button mat-icon-button [routerLink]="['/establishments', establishmentId(), 'inventory']">
-    <mat-icon class="text-xl">chevron_left</mat-icon>
-  </button>
-  <h2 class="heading-2 text-2xl font-bold">{{ 'inventory.import_title' | translate }}</h2>
-</div>
+<coaster-page-header
+  [title]="'inventory.import_title' | translate"
+  [backUrl]="['/establishments', establishmentId(), 'inventory']"
+/>
 
 <div class="relative mb-4">
   <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</mat-icon>

@@ -2,7 +2,7 @@ import { LowerCasePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CategoriesStore } from '@coaster/categories';
 import type { EstablishmentId } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
@@ -10,12 +10,13 @@ import { ProductsStore } from '@coaster/products';
 import { CatalogueStore } from '@coaster/catalogue';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Loading } from '../../../../../../components/loading/loading';
+import { PageHeader } from '../../../../../../components/page-header/page-header';
 
 import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-import-catalogue',
-  imports: [RouterLink, MatIcon, TranslatePipe, MatButton, MatIconButton, Loading, PricePipe, LowerCasePipe],
+  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, Loading, PricePipe, LowerCasePipe, PageHeader],
   host: {
     class: 'flex flex-col gap-2',
   },

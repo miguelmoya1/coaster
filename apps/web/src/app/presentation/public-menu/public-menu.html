@@ -8,16 +8,17 @@
     <p class="text-sm text-on-surface-variant">{{ 'MENU_NOT_FOUND' | translate }}</p>
   </div>
 } @else if (menu(); as published) {
-  <div class="mx-auto max-w-2xl px-5 py-8">
-    <header class="mb-6">
-      <h1 class="heading-1 text-3xl font-bold">{{ published.name }}</h1>
-
+  <coaster-page-container class="px-5 py-8">
+    <coaster-page-header [title]="published.name">
       @if (languages().length > 1) {
-        <div class="mt-4">
-          <coaster-language-select [value]="language()" [choices]="languages()" (valueChange)="choose($event)" />
-        </div>
+        <coaster-language-select
+          actions
+          [value]="language()"
+          [choices]="languages()"
+          (valueChange)="choose($event)"
+        />
       }
-    </header>
+    </coaster-page-header>
 
     @for (section of published.sections; track section.name) {
       <section class="mb-8">
@@ -68,5 +69,5 @@
     <footer class="mt-10 pt-4 border-t border-outline/10">
       <p class="text-xs text-on-surface-variant">{{ 'public_menu.allergen_notice' | translate }}</p>
     </footer>
-  </div>
+  </coaster-page-container>
 }

@@ -15,7 +15,7 @@ describe('LanguageSelect', () => {
   });
 
   it('should offer every language the app has by default', () => {
-    expect(fixture.nativeElement.querySelectorAll('mat-chip-option').length).toBe(2);
+    expect(fixture.nativeElement.querySelectorAll('mat-button-toggle').length).toBe(2);
   });
 
   it('should name each language in itself rather than translate it', () => {
@@ -29,7 +29,7 @@ describe('LanguageSelect', () => {
     fixture.componentRef.setInput('choices', ['en']);
     fixture.detectChanges();
 
-    const options = fixture.nativeElement.querySelectorAll('mat-chip-option');
+    const options = fixture.nativeElement.querySelectorAll('mat-button-toggle');
 
     expect(options.length).toBe(1);
     expect(options[0].textContent).toContain('English');
@@ -42,12 +42,28 @@ describe('LanguageSelect', () => {
     expect(component.touched()).toBe(true);
   });
 
-  it('should keep the language when the chosen chip is tapped again', () => {
+  it('should never end up with nothing chosen, however the control reports it', () => {
     component['onChange']('en');
 
     component['onChange'](null);
 
     expect(component.value()).toBe('en');
+  });
+
+  it('should keep exactly one option marked on screen after pressing the one already chosen', () => {
+    const marked = () =>
+      Array.from(fixture.nativeElement.querySelectorAll('button[aria-pressed], button[aria-checked]')).filter(
+        (button) =>
+          (button as HTMLElement).getAttribute('aria-pressed') === 'true' ||
+          (button as HTMLElement).getAttribute('aria-checked') === 'true',
+      );
+
+    const current = fixture.nativeElement.querySelector('mat-button-toggle button') as HTMLButtonElement;
+    current.click();
+    fixture.detectChanges();
+
+    expect(marked()).toHaveLength(1);
+    expect(component.value()).toBe('es');
   });
 
   it('should ignore a choice while disabled', () => {
@@ -63,6 +79,6 @@ describe('LanguageSelect', () => {
     fixture.componentRef.setInput('hidden', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('mat-chip-listbox')).toBeNull();
+    expect(fixture.nativeElement.querySelector('mat-button-toggle-group')).toBeNull();
   });
 });

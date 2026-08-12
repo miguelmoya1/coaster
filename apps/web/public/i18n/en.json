@@ -868,7 +868,8 @@
     "fill_from_catalogue_hint": "Creates a section per category with all its products. Names come from the product until you write others.",
     "hide_item": "Hide from the menu",
     "show_item": "Show again",
-    "sold_out": "Sold out"
+    "sold_out": "Sold out",
+    "subtitle": "What your customers see when they scan the QR."
   },
   "allergens": {
     "GLUTEN": "gluten",

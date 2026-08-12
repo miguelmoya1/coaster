@@ -30,7 +30,7 @@ import { PageContainer } from '../../../components/page-container/page-container
     class: 'min-h-screen w-full flex flex-col justify-center items-center bg-background',
   },
   template: `
-    <coaster-page-container size="sm">
+    <coaster-page-container>
       <div class="flex flex-col items-center justify-center min-h-[80vh]">
         <div class="flex flex-col gap-2 text-center mb-6">
           <h1 class="heading-1 font-extrabold text-primary text-3xl sm:text-4xl tracking-tight">

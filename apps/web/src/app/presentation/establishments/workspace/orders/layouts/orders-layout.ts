@@ -9,7 +9,7 @@ import { PageHeader } from '../../../../components/page-header/page-header';
   selector: 'coaster-main-layout',
   imports: [RouterOutlet, TranslatePipe, RouterLink, RouterLinkActive, PageContainer, PageHeader],
   template: `
-    <coaster-page-container size="lg">
+    <coaster-page-container>
       <coaster-page-header [title]="'nav.orders' | translate" [subtitle]="'orders.tables_title' | translate" />
 
       <div

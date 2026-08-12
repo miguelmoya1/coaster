@@ -1,274 +1,274 @@
-<div class="flex items-center gap-3 mb-4">
-  <button mat-icon-button [routerLink]="['/establishments', establishmentId(), 'inventory']">
-    <mat-icon class="text-xl">chevron_left</mat-icon>
-  </button>
-  <h2 class="heading-2 text-2xl font-bold">{{ 'menu.title' | translate }}</h2>
-</div>
+<coaster-page-container>
+  <coaster-page-header
+    [title]="'menu.title' | translate"
+    [subtitle]="'menu.subtitle' | translate"
+    [backUrl]="['/establishments', establishmentId(), 'inventory']"
+  >
+    <button actions mat-flat-button type="button" [disabled]="isSaving() || !canPublish()" (click)="publish()">
+      {{ (isPublished() ? 'menu.republish' : 'menu.publish') | translate }}
+    </button>
+  </coaster-page-header>
 
-@if (isLoading()) {
-  <div class="flex-1 flex items-center justify-center min-h-[300px]">
-    <coaster-loading />
-  </div>
-} @else {
-  <!-- What customers see, and how they reach it -->
-  <section class="bg-surface-container rounded-2xl p-4 mb-4">
-    @if (isPublished()) {
-      <div class="flex flex-col sm:flex-row gap-4 items-start">
-        <coaster-qr-code [value]="publicUrl()" [size]="150" />
+  @if (isLoading()) {
+    <div class="flex-1 flex items-center justify-center min-h-[300px]">
+      <coaster-loading />
+    </div>
+  } @else {
+    <!-- What customers see, and how they reach it -->
+    <section class="bg-surface-container rounded-2xl p-4 mb-4">
+      @if (isPublished()) {
+        <div class="flex flex-col sm:flex-row gap-4 items-start">
+          <coaster-qr-code [value]="publicUrl()" [size]="150" />
 
-        <div class="flex-1 min-w-0 flex flex-col gap-2">
-          <p class="text-sm font-semibold flex items-center gap-2">
-            <mat-icon class="text-base text-primary">public</mat-icon>
-            {{ 'menu.published_state' | translate }}
-          </p>
-          <p class="text-xs text-on-surface-variant">{{ 'menu.published_hint' | translate }}</p>
+          <div class="flex-1 min-w-0 flex flex-col gap-2">
+            <p class="text-sm font-semibold flex items-center gap-2">
+              <mat-icon class="text-base text-primary">public</mat-icon>
+              {{ 'menu.published_state' | translate }}
+            </p>
+            <p class="text-sm text-on-surface-variant">{{ 'menu.published_hint' | translate }}</p>
 
-          <a [href]="publicUrl()" target="_blank" rel="noopener" class="text-xs text-primary underline break-all">
-            {{ publicUrl() }}
-          </a>
+            <a [href]="publicUrl()" target="_blank" rel="noopener" class="text-xs text-primary underline break-all">
+              {{ publicUrl() }}
+            </a>
 
-          <div class="flex gap-2 flex-wrap mt-1">
-            <button mat-stroked-button type="button" (click)="copyLink()">
-              <mat-icon class="text-base">link</mat-icon>
-              {{ 'menu.copy_link' | translate }}
-            </button>
-            <button mat-stroked-button type="button" (click)="downloadQr()">
-              <mat-icon class="text-base">download</mat-icon>
-              {{ 'menu.download_qr' | translate }}
-            </button>
-            <button mat-stroked-button type="button" [disabled]="isSaving()" (click)="unpublish()">
-              {{ 'menu.unpublish' | translate }}
-            </button>
+            <div class="flex gap-2 flex-wrap mt-1">
+              <button mat-stroked-button type="button" (click)="copyLink()">
+                <mat-icon class="text-base">link</mat-icon>
+                {{ 'menu.copy_link' | translate }}
+              </button>
+              <button mat-stroked-button type="button" (click)="downloadQr()">
+                <mat-icon class="text-base">download</mat-icon>
+                {{ 'menu.download_qr' | translate }}
+              </button>
+              <button mat-stroked-button type="button" [disabled]="isSaving()" (click)="unpublish()">
+                {{ 'menu.unpublish' | translate }}
+              </button>
+            </div>
+
+            @if (hasUnpublishedChanges()) {
+              <p class="text-xs text-tertiary font-semibold mt-1" role="status">
+                {{ 'menu.pending_changes' | translate }}
+              </p>
+            }
           </div>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-2">
+          <p class="text-sm font-semibold flex items-center gap-2">
+            <mat-icon class="text-base text-on-surface-variant">lock</mat-icon>
+            {{ 'menu.private_state' | translate }}
+          </p>
+          <p class="text-sm text-on-surface-variant">{{ 'menu.private_hint' | translate }}</p>
+        </div>
+      }
 
-          @if (hasUnpublishedChanges()) {
-            <p class="text-xs text-tertiary font-semibold mt-1" role="status">
-              {{ 'menu.pending_changes' | translate }}
+      @if (isPublished() && !canPublish()) {
+        <p class="text-xs text-on-surface-variant mt-3">{{ 'menu.up_to_date' | translate }}</p>
+      }
+    </section>
+
+    <!-- Which languages the menu is written in -->
+    <section class="bg-surface-container rounded-2xl p-4 mb-4 flex flex-col gap-3">
+      <div>
+        <p class="text-sm font-semibold">{{ 'menu.languages' | translate }}</p>
+        <p class="text-xs text-on-surface-variant">
+          {{ 'menu.main_language' | translate: { language: languageName(defaultLanguage()) } }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        @for (language of extraLanguages(); track language) {
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" [checked]="isOffered(language)" (change)="toggleLanguage(language)" />
+            <span>{{ languageName(language) }}</span>
+          </label>
+        }
+      </div>
+
+      @if (offered().length > 1) {
+        <div class="border-t border-outline/10 pt-3">
+          <p class="text-xs font-semibold text-on-surface-variant mb-2">{{ 'menu.editing' | translate }}</p>
+          <coaster-language-select
+            [value]="editingLanguage()"
+            [choices]="offered()"
+            (valueChange)="editingLanguage.set($event)"
+          />
+
+          @if (missingWording() > 0) {
+            <p class="text-xs text-on-surface-variant mt-2" role="status">
+              {{ 'menu.missing_wording' | translate: { count: missingWording() } }}
             </p>
           }
         </div>
-      </div>
-    } @else {
-      <div class="flex flex-col gap-2">
-        <p class="text-sm font-semibold flex items-center gap-2">
-          <mat-icon class="text-base text-on-surface-variant">lock</mat-icon>
-          {{ 'menu.private_state' | translate }}
-        </p>
-        <p class="text-xs text-on-surface-variant">{{ 'menu.private_hint' | translate }}</p>
-      </div>
-    }
+      }
+    </section>
 
-    <button
-      mat-flat-button
-      class="w-full mt-3"
-      type="button"
-      [disabled]="isSaving() || !canPublish()"
-      (click)="publish()"
-    >
-      {{ (isPublished() ? 'menu.republish' : 'menu.publish') | translate }}
-    </button>
+    <!-- The menu itself -->
+    <p class="text-xs text-on-surface-variant px-1 mb-2">{{ 'menu.structure_hint' | translate }}</p>
 
-    @if (isPublished() && !canPublish()) {
-      <p class="text-xs text-on-surface-variant mt-2 text-center">{{ 'menu.up_to_date' | translate }}</p>
-    }
-  </section>
+    <div class="flex flex-col gap-3">
+      @for (section of sections(); track $index; let sectionIndex = $index) {
+        <section class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3" data-testid="menu-section">
+          <div class="flex items-end gap-2">
+            <label class="flex-1 flex flex-col gap-1">
+              <span class="text-xs font-semibold text-on-surface-variant">
+                {{ 'menu.section_name' | translate }}
+                @if (offered().length > 1) {
+                  <span class="opacity-60">· {{ languageName(editingLanguage()) }}</span>
+                }
+              </span>
+              <input
+                type="text"
+                [value]="section.translations[editingLanguage()]?.name ?? ''"
+                (input)="setSectionName(sectionIndex, $any($event.target).value)"
+                [placeholder]="'menu.section_placeholder' | translate"
+                class="bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
+              />
+            </label>
 
-  <!-- Which languages the menu is written in -->
-  <section class="bg-surface-container rounded-2xl p-4 mb-4 flex flex-col gap-3">
-    <div>
-      <p class="text-sm font-semibold">{{ 'menu.languages' | translate }}</p>
-      <p class="text-xs text-on-surface-variant">
-        {{ 'menu.main_language' | translate: { language: languageName(defaultLanguage()) } }}
-      </p>
-    </div>
+            <button
+              mat-icon-button
+              type="button"
+              [disabled]="sectionIndex === 0"
+              (click)="moveSection(sectionIndex, -1)"
+            >
+              <mat-icon class="text-lg">arrow_upward</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              [disabled]="sectionIndex === sections().length - 1"
+              (click)="moveSection(sectionIndex, 1)"
+            >
+              <mat-icon class="text-lg">arrow_downward</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="removeSection(sectionIndex)">
+              <mat-icon class="text-lg">delete</mat-icon>
+            </button>
+          </div>
 
-    <div class="flex flex-col gap-1">
-      @for (language of extraLanguages(); track language) {
-        <label class="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="checkbox" [checked]="isOffered(language)" (change)="toggleLanguage(language)" />
-          <span>{{ languageName(language) }}</span>
-        </label>
+          @for (item of section.items; track $index; let itemIndex = $index) {
+            <div
+              class="pl-3 border-l-2 border-outline/10 flex flex-col gap-2 pt-1"
+              [class.opacity-50]="!item.isVisible"
+              data-testid="menu-item"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs text-on-surface-variant truncate">
+                  {{ 'menu.from_product' | translate }}: <strong>{{ productName(item.productId) || '—' }}</strong>
+                </span>
+                <div class="flex shrink-0">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [disabled]="itemIndex === 0"
+                    (click)="moveItem(sectionIndex, itemIndex, -1)"
+                  >
+                    <mat-icon class="text-lg">arrow_upward</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [disabled]="itemIndex === section.items.length - 1"
+                    (click)="moveItem(sectionIndex, itemIndex, 1)"
+                  >
+                    <mat-icon class="text-lg">arrow_downward</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [attr.aria-pressed]="!item.isVisible"
+                    [title]="(item.isVisible ? 'menu.hide_item' : 'menu.show_item') | translate"
+                    (click)="toggleItemVisible(sectionIndex, itemIndex)"
+                  >
+                    <mat-icon class="text-lg">{{ item.isVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" (click)="removeItem(sectionIndex, itemIndex)">
+                    <mat-icon class="text-lg">close</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <label class="flex flex-col gap-1">
+                <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.item_name' | translate }}</span>
+                <input
+                  type="text"
+                  [value]="item.translations[editingLanguage()]?.name ?? ''"
+                  (input)="setItemWording(sectionIndex, itemIndex, 'name', $any($event.target).value)"
+                  [placeholder]="itemPlaceholder(item)"
+                  class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-sm border-none outline-none"
+                />
+              </label>
+
+              <label class="flex flex-col gap-1">
+                <span class="text-xs font-semibold text-on-surface-variant">
+                  {{ 'menu.item_description' | translate }}
+                </span>
+                <input
+                  type="text"
+                  [value]="item.translations[editingLanguage()]?.description ?? ''"
+                  (input)="setItemWording(sectionIndex, itemIndex, 'description', $any($event.target).value)"
+                  [placeholder]="'menu.item_description_placeholder' | translate"
+                  class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
+                />
+              </label>
+
+              <label class="flex flex-col gap-1">
+                <span class="text-xs font-semibold text-on-surface-variant">
+                  {{ 'menu.item_price' | translate }} · {{ priceOrigin(item) | translate }}
+                </span>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    [value]="item.price ?? ''"
+                    (input)="setItemPrice(sectionIndex, itemIndex, $any($event.target).value)"
+                    [placeholder]="'menu.item_price_placeholder' | translate"
+                    class="w-32 bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
+                  />
+                  <span class="text-sm font-semibold">{{ priceOf(item) | price }}</span>
+                </div>
+              </label>
+            </div>
+          }
+
+          <label class="flex flex-col gap-1">
+            <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.add_item' | translate }}</span>
+            <select
+              class="bg-surface-container-highest rounded-xl px-3 py-2 text-xs border-none outline-none"
+              [value]="''"
+              (change)="addItem(sectionIndex, $any($event.target).value); $any($event.target).value = ''"
+            >
+              <option value="">{{ 'menu.pick_product' | translate }}</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.name }}</option>
+              }
+            </select>
+          </label>
+        </section>
+      } @empty {
+        <div class="flex flex-col gap-3 items-start">
+          <p class="text-sm text-on-surface-variant px-1">{{ 'menu.empty' | translate }}</p>
+
+          @if (canFillFromCatalogue()) {
+            <button mat-stroked-button type="button" (click)="fillFromCatalogue()">
+              <mat-icon class="text-base">library_add</mat-icon>
+              {{ 'menu.fill_from_catalogue' | translate }}
+            </button>
+            <p class="text-xs text-on-surface-variant px-1">{{ 'menu.fill_from_catalogue_hint' | translate }}</p>
+          }
+        </div>
       }
     </div>
 
-    @if (offered().length > 1) {
-      <div class="border-t border-outline/10 pt-3">
-        <p class="text-xs font-semibold text-on-surface-variant mb-2">{{ 'menu.editing' | translate }}</p>
-        <coaster-language-select
-          [value]="editingLanguage()"
-          [choices]="offered()"
-          (valueChange)="editingLanguage.set($event)"
-        />
-
-        @if (missingWording() > 0) {
-          <p class="text-xs text-on-surface-variant mt-2" role="status">
-            {{ 'menu.missing_wording' | translate: { count: missingWording() } }}
-          </p>
-        }
-      </div>
-    }
-  </section>
-
-  <!-- The menu itself -->
-  <p class="text-xs text-on-surface-variant px-1 mb-2">{{ 'menu.structure_hint' | translate }}</p>
-
-  <div class="flex flex-col gap-3">
-    @for (section of sections(); track $index; let sectionIndex = $index) {
-      <section class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3" data-testid="menu-section">
-        <div class="flex items-end gap-2">
-          <label class="flex-1 flex flex-col gap-1">
-            <span class="text-xs font-semibold text-on-surface-variant">
-              {{ 'menu.section_name' | translate }}
-              @if (offered().length > 1) {
-                <span class="opacity-60">· {{ languageName(editingLanguage()) }}</span>
-              }
-            </span>
-            <input
-              type="text"
-              [value]="section.translations[editingLanguage()]?.name ?? ''"
-              (input)="setSectionName(sectionIndex, $any($event.target).value)"
-              [placeholder]="'menu.section_placeholder' | translate"
-              class="bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
-            />
-          </label>
-
-          <button mat-icon-button type="button" [disabled]="sectionIndex === 0" (click)="moveSection(sectionIndex, -1)">
-            <mat-icon class="text-lg">arrow_upward</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            type="button"
-            [disabled]="sectionIndex === sections().length - 1"
-            (click)="moveSection(sectionIndex, 1)"
-          >
-            <mat-icon class="text-lg">arrow_downward</mat-icon>
-          </button>
-          <button mat-icon-button type="button" (click)="removeSection(sectionIndex)">
-            <mat-icon class="text-lg">delete</mat-icon>
-          </button>
-        </div>
-
-        @for (item of section.items; track $index; let itemIndex = $index) {
-          <div
-            class="pl-3 border-l-2 border-outline/10 flex flex-col gap-2 pt-1"
-            [class.opacity-50]="!item.isVisible"
-            data-testid="menu-item"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs text-on-surface-variant truncate">
-                {{ 'menu.from_product' | translate }}: <strong>{{ productName(item.productId) || '—' }}</strong>
-              </span>
-              <div class="flex shrink-0">
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="itemIndex === 0"
-                  (click)="moveItem(sectionIndex, itemIndex, -1)"
-                >
-                  <mat-icon class="text-lg">arrow_upward</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [disabled]="itemIndex === section.items.length - 1"
-                  (click)="moveItem(sectionIndex, itemIndex, 1)"
-                >
-                  <mat-icon class="text-lg">arrow_downward</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [attr.aria-pressed]="!item.isVisible"
-                  [title]="(item.isVisible ? 'menu.hide_item' : 'menu.show_item') | translate"
-                  (click)="toggleItemVisible(sectionIndex, itemIndex)"
-                >
-                  <mat-icon class="text-lg">{{ item.isVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
-                </button>
-                <button mat-icon-button type="button" (click)="removeItem(sectionIndex, itemIndex)">
-                  <mat-icon class="text-lg">close</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <label class="flex flex-col gap-1">
-              <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.item_name' | translate }}</span>
-              <input
-                type="text"
-                [value]="item.translations[editingLanguage()]?.name ?? ''"
-                (input)="setItemWording(sectionIndex, itemIndex, 'name', $any($event.target).value)"
-                [placeholder]="itemPlaceholder(item)"
-                class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-sm border-none outline-none"
-              />
-            </label>
-
-            <label class="flex flex-col gap-1">
-              <span class="text-xs font-semibold text-on-surface-variant">
-                {{ 'menu.item_description' | translate }}
-              </span>
-              <input
-                type="text"
-                [value]="item.translations[editingLanguage()]?.description ?? ''"
-                (input)="setItemWording(sectionIndex, itemIndex, 'description', $any($event.target).value)"
-                [placeholder]="'menu.item_description_placeholder' | translate"
-                class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
-              />
-            </label>
-
-            <label class="flex flex-col gap-1">
-              <span class="text-xs font-semibold text-on-surface-variant">
-                {{ 'menu.item_price' | translate }} · {{ priceOrigin(item) | translate }}
-              </span>
-              <div class="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  [value]="item.price ?? ''"
-                  (input)="setItemPrice(sectionIndex, itemIndex, $any($event.target).value)"
-                  [placeholder]="'menu.item_price_placeholder' | translate"
-                  class="w-32 bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
-                />
-                <span class="text-sm font-semibold">{{ priceOf(item) | price }}</span>
-              </div>
-            </label>
-          </div>
-        }
-
-        <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.add_item' | translate }}</span>
-          <select
-            class="bg-surface-container-highest rounded-xl px-3 py-2 text-xs border-none outline-none"
-            [value]="''"
-            (change)="addItem(sectionIndex, $any($event.target).value); $any($event.target).value = ''"
-          >
-            <option value="">{{ 'menu.pick_product' | translate }}</option>
-            @for (product of products(); track product.id) {
-              <option [value]="product.id">{{ product.name }}</option>
-            }
-          </select>
-        </label>
-      </section>
-    } @empty {
-      <div class="flex flex-col gap-3 items-start">
-        <p class="text-sm text-on-surface-variant px-1">{{ 'menu.empty' | translate }}</p>
-
-        @if (canFillFromCatalogue()) {
-          <button mat-stroked-button type="button" (click)="fillFromCatalogue()">
-            <mat-icon class="text-base">library_add</mat-icon>
-            {{ 'menu.fill_from_catalogue' | translate }}
-          </button>
-          <p class="text-xs text-on-surface-variant px-1">{{ 'menu.fill_from_catalogue_hint' | translate }}</p>
-        }
-      </div>
-    }
-  </div>
-
-  <div class="flex gap-2 mt-4">
-    <button mat-stroked-button class="flex-1" type="button" (click)="addSection()">
-      <mat-icon class="text-base">add</mat-icon>
-      {{ 'menu.add_section' | translate }}
-    </button>
-    <button mat-flat-button class="flex-1" type="button" [disabled]="isSaving() || !isDirty()" (click)="save()">
-      {{ 'common.save' | translate }}
-    </button>
-  </div>
-}
+    <div class="flex gap-2 mt-4">
+      <button mat-stroked-button class="flex-1" type="button" (click)="addSection()">
+        <mat-icon class="text-base">add</mat-icon>
+        {{ 'menu.add_section' | translate }}
+      </button>
+      <button mat-flat-button class="flex-1" type="button" [disabled]="isSaving() || !isDirty()" (click)="save()">
+        {{ 'common.save' | translate }}
+      </button>
+    </div>
+  }
+</coaster-page-container>
