@@ -2,13 +2,13 @@ import { Component, input, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SubscriptionPlan } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Spinner } from '../../../presentation/components/spinner/spinner';
 
 @Component({
   selector: 'coaster-select-plan-dialog',
-  imports: [Spinner, MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
+  imports: [MatProgressSpinner, MatButton, MatIcon, TranslatePipe, MatDialogTitle, MatDialogContent, MatDialogActions],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-3 m-0 p-0 text-xl font-bold text-on-surface">
       <span class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
@@ -59,12 +59,23 @@ import { Spinner } from '../../../presentation/components/spinner/spinner';
         (click)="selected.emit(SubscriptionPlan.PRO)"
       >
         @if (loading()) {
-          <coaster-spinner />
+          <mat-progress-spinner mode="indeterminate" [diameter]="18" [strokeWidth]="2" class="inline-flex shrink-0" />
         }
         {{ 'billing.continue_to_checkout' | translate }}
       </button>
     </mat-dialog-actions>
   `,
+  styles: [
+    `
+      mat-progress-spinner ::ng-deep .mdc-circular-progress {
+        display: block;
+      }
+
+      mat-progress-spinner ::ng-deep circle {
+        stroke: currentColor;
+      }
+    `,
+  ],
 })
 export class SelectPlanDialog {
   readonly loading = input(false);

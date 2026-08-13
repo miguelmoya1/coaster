@@ -2,7 +2,7 @@ import type { Allergen, MenuDraft, MenuId, MenuTranslations, ProductId } from '@
 import { asLanguage } from '@coaster/common';
 import type { RenderableMenu } from '../domain/render-menu';
 
-type DbMenuWithSections = {
+interface DbMenuWithSections {
   id: string;
   slug: string;
   name: string;
@@ -27,9 +27,9 @@ type DbMenuWithSections = {
       } | null;
     }[];
   }[];
-};
+}
 
-const wording = (translations: unknown): MenuTranslations => (translations ?? {}) as MenuTranslations;
+const wording =(translations: unknown): MenuTranslations => (translations ?? {}) as MenuTranslations;
 
 export const MenuMapper = {
   toDraft(menu: DbMenuWithSections): MenuDraft {

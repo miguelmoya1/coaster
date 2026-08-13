@@ -516,8 +516,8 @@ describe('MenuEditor', () => {
     });
 
     it('should not fire twice while a save is in flight', async () => {
-      let release = () => {};
-      menuStoreMock.save.mockImplementationOnce(() => new Promise<void>((resolve) => (release = () => resolve())));
+      let release!: () => void;
+      menuStoreMock.save.mockImplementationOnce(() => new Promise<void>((resolve) => (release = resolve)));
 
       const first = component['save']();
       await component['save']();
