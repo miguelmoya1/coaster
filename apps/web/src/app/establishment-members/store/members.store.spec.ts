@@ -1,0 +1,215 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import type { EstablishmentMember } from '@coaster/common';
+import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole } from '@coaster/common';
+import { Socket } from '@coaster/core';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { MembersStore } from './members.store';
+
+describe('MembersStore', () => {
+  let store: MembersStore;
+  let httpMock: HttpTestingController;
+
+  const mockMembers: EstablishmentMember[] = [
+    {
+      id: asEstablishmentMemberId('member-1'),
+      userId: asUserId('user-1'),
+      establishmentId: asEstablishmentId('establishment-1'),
+      role: EstablishmentRole.STAFF,
+      permissions: [],
+      active: true,
+      userName: 'John Doe',
+      userEmail: 'john@test.com',
+      userImage: 'https://photo.url/test.jpg',
+    },
+    {
+      id: asEstablishmentMemberId('member-2'),
+      userId: asUserId('user-2'),
+      establishmentId: asEstablishmentId('establishment-1'),
+      role: EstablishmentRole.OWNER,
+      permissions: [],
+      active: true,
+      userName: 'Jane Doe',
+      userEmail: 'jane@test.com',
+      userImage: 'https://photo.url/test.jpg',
+    },
+  ];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideZonelessChangeDetection(),
+        {
+          provide: Socket,
+          useValue: {
+            memberRemoved: signal<any>(null),
+            memberInvited: signal<any>(null),
+            memberRoleChanged: signal<any>(null),
+          },
+        },
+      ],
+    });
+
+    store = TestBed.inject(MembersStore);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should be created', () => {
+    expect(store).toBeTruthy();
+  });
+
+  describe('list', () => {
+    it('should be idle at start', () => {
+      expect(store.list.status()).toBe('idle');
+    });
+
+    it('should fetch members when establishmentId is set', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/members`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.list.hasValue()).toBe(true);
+      expect(store.list.value()).toEqual(mockMembers);
+    });
+
+    it('should calculate isOnlyOwner correctly', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isOnlyOwner()).toBe(true);
+
+      const twoOwners = [
+        ...mockMembers,
+        {
+          id: asEstablishmentMemberId('member-3'),
+          userId: asUserId('user-3'),
+          establishmentId: asEstablishmentId('establishment-1'),
+          role: EstablishmentRole.OWNER,
+          permissions: [],
+          active: true,
+          userName: 'Owner 2',
+          userEmail: 'owner2@test.com',
+          userImage: '',
+        },
+      ];
+      store.reload();
+      TestBed.tick();
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush(twoOwners);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.isOnlyOwner()).toBe(false);
+    });
+
+    it('should be idle if establishmentId is not set', () => {
+      TestBed.tick();
+      httpMock.expectNone(() => true);
+      expect(store.list.status()).toBe('idle');
+    });
+
+    it('should return to idle when context is cleared', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.list.hasValue()).toBe(true);
+
+      store.setEstablishmentId(undefined);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.list.status()).toBe('idle');
+      expect(store.list.hasValue()).toBe(false);
+    });
+  });
+
+  describe('invite', () => {
+    it('should add a member to the list after successful invite', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush([]);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      const newMember: EstablishmentMember = {
+        ...mockMembers[0],
+        id: asEstablishmentMemberId('new-member'),
+      };
+
+      const invitePromise = store.invite({ email: 'new@test.com', role: EstablishmentRole.STAFF });
+
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/members`);
+      expect(req.request.method).toBe('POST');
+      req.flush(newMember);
+      TestBed.tick();
+
+      await invitePromise;
+      TestBed.tick();
+
+      const reloadReq = httpMock.expectOne(`/establishments/${establishmentId}/members`);
+      expect(reloadReq.request.method).toBe('GET');
+      reloadReq.flush([newMember]);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(store.list.value()).toContainEqual(newMember);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a member from the list after successful removal', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
+      TestBed.tick();
+      httpMock.expectOne(`/establishments/${establishmentId}/members`).flush(mockMembers);
+      TestBed.tick();
+      await Promise.resolve();
+      TestBed.tick();
+
+      const memberIdToRemove = mockMembers[0].id;
+      const removePromise = store.remove(memberIdToRemove);
+
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/members/${memberIdToRemove}`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush({ success: true });
+      TestBed.tick();
+
+      await removePromise;
+      TestBed.tick();
+
+      expect(store.list.value()).not.toContainEqual(mockMembers[0]);
+      expect(store.list.value()).toContainEqual(mockMembers[1]);
+    });
+  });
+});

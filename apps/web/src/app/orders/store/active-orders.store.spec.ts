@@ -1,11 +1,11 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asEstablishmentId, asOrderId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { Socket, Toast } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarOrders } from '../services/bar-orders';
+import { EstablishmentOrders } from '../services/establishment-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
@@ -14,7 +14,7 @@ import { ActiveOrdersStore } from './active-orders.store';
 describe('ActiveOrdersStore', () => {
   let store: ActiveOrdersStore;
 
-  const barOrdersMock = {
+  const establishmentOrdersMock = {
     execute: vi.fn().mockResolvedValue([]),
   };
   const createOrderMock = {
@@ -63,7 +63,7 @@ describe('ActiveOrdersStore', () => {
     TestBed.configureTestingModule({
       providers: [
         ActiveOrdersStore,
-        { provide: BarOrders, useValue: barOrdersMock },
+        { provide: EstablishmentOrders, useValue: establishmentOrdersMock },
         { provide: CreateOrder, useValue: createOrderMock },
         { provide: DeleteOrder, useValue: deleteOrderMock },
         { provide: ManageOrder, useValue: manageOrderMock },
@@ -79,38 +79,38 @@ describe('ActiveOrdersStore', () => {
     expect(store).toBeTruthy();
   });
 
-  describe('setBarId', () => {
-    it('should set currentBarId and trigger list fetch', () => {
-      expect(store.currentBarId()).toBeUndefined();
-      store.setBarId(asBarId('bar-1'));
-      expect(store.currentBarId()).toBe('bar-1');
+  describe('setEstablishmentId', () => {
+    it('should set currentEstablishmentId and trigger list fetch', () => {
+      expect(store.currentEstablishmentId()).toBeUndefined();
+      store.setEstablishmentId(asEstablishmentId('establishment-1'));
+      expect(store.currentEstablishmentId()).toBe('establishment-1');
       TestBed.tick();
-      expect(barOrdersMock.execute).toHaveBeenCalledWith('bar-1', OrderStatus.OPEN);
+      expect(establishmentOrdersMock.execute).toHaveBeenCalledWith('establishment-1', OrderStatus.OPEN);
     });
   });
 
   describe('actions', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const orderId = asOrderId('order-1');
 
     it('should create order and handle error', async () => {
       createOrderMock.execute.mockRejectedValueOnce(new Error('Test error'));
-      await expect(store.create(barId, { items: [] })).rejects.toThrow('Test error');
+      await expect(store.create(establishmentId, { items: [] })).rejects.toThrow('Test error');
     });
 
     it('should call manageOrder.addItems and handle success', async () => {
-      await store.addItems(barId, orderId, { items: [] });
-      expect(manageOrderMock.addItems).toHaveBeenCalledWith(barId, orderId, { items: [] });
+      await store.addItems(establishmentId, orderId, { items: [] });
+      expect(manageOrderMock.addItems).toHaveBeenCalledWith(establishmentId, orderId, { items: [] });
     });
 
     it('should call manageOrder.bulkUpdate and handle success', async () => {
-      await store.bulkUpdate(barId, orderId, { items: [] });
-      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(barId, orderId, { items: [] });
+      await store.bulkUpdate(establishmentId, orderId, { items: [] });
+      expect(manageOrderMock.bulkUpdate).toHaveBeenCalledWith(establishmentId, orderId, { items: [] });
     });
 
     it('should propagate manageOrder errors', async () => {
       manageOrderMock.checkout.mockRejectedValueOnce(new Error('Checkout error'));
-      await expect(store.checkout(barId, orderId, PaymentMethod.CASH)).rejects.toThrow('Checkout error');
+      await expect(store.checkout(establishmentId, orderId, PaymentMethod.CASH)).rejects.toThrow('Checkout error');
     });
   });
 });

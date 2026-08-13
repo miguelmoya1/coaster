@@ -2,7 +2,7 @@ import type { HttpErrorResponse } from '@angular/common/http';
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { ErrorCodes } from '@coaster/common';
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApiError } from '../errors/api-error';
@@ -32,9 +32,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (error.status === 402 || errorCode === ErrorCodes.SUBSCRIPTION_EXPIRED) {
         toast.error(ErrorCodes.SUBSCRIPTION_EXPIRED);
-        const barIdMatch = /\/bars\/([^/]+)/.exec(req.url);
-        if (barIdMatch?.[1]) {
-          paywall?.open(barIdMatch[1] as BarId);
+        const establishmentIdMatch = /\/establishments\/([^/]+)/.exec(req.url);
+        if (establishmentIdMatch?.[1]) {
+          paywall?.open(establishmentIdMatch[1] as EstablishmentId);
         }
       } else if (error.status !== 401) {
         toast.error(cleanError.code || ErrorCodes.UNEXPECTED_ERROR);

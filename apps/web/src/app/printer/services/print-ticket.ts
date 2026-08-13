@@ -12,18 +12,18 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export class PrintTicket {
   readonly #printerRepository = inject(PrinterRepository);
 
-  public async execute(order: Order, barName?: string): Promise<void> {
-    const payload = this.buildTicketPayload(order, barName);
-    const { jobId } = await this.#printerRepository.printTicket(order.barId, payload);
+  public async execute(order: Order, establishmentName?: string): Promise<void> {
+    const payload = this.buildTicketPayload(order, establishmentName);
+    const { jobId } = await this.#printerRepository.printTicket(order.establishmentId, payload);
 
-    await this.waitUntilPrinted(order.barId, jobId);
+    await this.waitUntilPrinted(order.establishmentId, jobId);
   }
 
-  private async waitUntilPrinted(barId: string, jobId: string): Promise<void> {
+  private async waitUntilPrinted(establishmentId: string, jobId: string): Promise<void> {
     const giveUpAt = Date.now() + RESULT_TIMEOUT_MS;
 
     while (Date.now() < giveUpAt) {
-      const job = await this.#printerRepository.getJob(barId, jobId);
+      const job = await this.#printerRepository.getJob(establishmentId, jobId);
 
       if (job.status === 'PRINTED') {
         return;
@@ -43,7 +43,7 @@ export class PrintTicket {
     return job.error ?? ErrorCodes.PRINT_JOB_FAILED;
   }
 
-  private buildTicketPayload(order: Order, barName?: string): PrintTicketPayloadDto {
+  private buildTicketPayload(order: Order, establishmentName?: string): PrintTicketPayloadDto {
     const items: PrintTicketItemDto[] = order.items.map((item: OrderItem) => ({
       name: item.productName ?? `Product ${item.productId}`,
       quantity: item.quantity,
@@ -53,7 +53,7 @@ export class PrintTicket {
 
     return {
       type: 'order',
-      barName,
+      establishmentName,
       table: order.tableName ?? (order.tableId ? `Table ${order.tableId}` : 'Barra'),
       date: new Date().toLocaleString('es-ES', {
         day: '2-digit',

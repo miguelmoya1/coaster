@@ -18,6 +18,7 @@ import (
 	"printer-service/internal/handler"
 	"printer-service/internal/infrastructure/printer"
 	"printer-service/internal/middleware"
+	"printer-service/internal/pairing"
 	"printer-service/internal/registration"
 	"printer-service/internal/relay"
 	"printer-service/internal/updater"
@@ -73,15 +74,16 @@ func (s *service) routes() http.Handler {
 
 	mux := http.NewServeMux()
 	mux.Handle("/print", cors(s.printHandler()))
-	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.BarID, fmt.Sprint(s.device))))
+	mux.Handle("/health", cors(handler.NewHealthHandler(updater.CurrentVersion, s.cfg.EstablishmentID, fmt.Sprint(s.device))))
 	mux.Handle("/printers", cors(handler.NewDiscoveryHandler()))
+	mux.Handle("/setup", handler.NewSetupHandler(s))
 
 	return mux
 }
 
 func (s *service) printHandler() http.Handler {
 	if s.cfg.JWTSecret != "" {
-		return middleware.JWT(s.cfg.JWTSecret, s.cfg.BarID)(handler.NewPrintHandler(s.printUC, s.renderer))
+		return middleware.JWT(s.cfg.JWTSecret, s.cfg.EstablishmentID)(handler.NewPrintHandler(s.printUC, s.renderer))
 	}
 
 	if s.cfg.Insecure {
@@ -104,11 +106,15 @@ func (s *service) run() error {
 	up.AcquireIdle = s.printUC.AcquireIdle
 	go up.Watch(ctx, s.cfg.UpdateInterval)
 
+	if !s.cfg.RelayEnabled() {
+		s.pairFromFileName()
+	}
+
 	if s.cfg.RelayEnabled() {
 		go registration.StartIPRegistration(ctx, s.cfg)
 		go relay.Run(ctx, s.cfg, s.printUC, s.renderer)
 	} else {
-		log.Println("No bar-id/device-key: printing only from the local network.")
+		log.Println("No establishment-id/device-key: printing only from the local network.")
 	}
 
 	errs := make(chan error, 1)
@@ -132,10 +138,55 @@ func (s *service) run() error {
 	return s.server.Shutdown(shutdownCtx)
 }
 
+func (s *service) pairFromFileName() {
+	executable, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	code := pairing.CodeFromName(executable)
+	if code == "" {
+		log.Println("Not paired yet and no code in the file name. Open http://localhost:" + s.cfg.Port + "/setup to pair.")
+		return
+	}
+
+	paired, err := pairing.Redeem(s.cfg.APIURL, code)
+	if err != nil {
+		log.Printf("Could not pair with code %s: %v\n", code, err)
+		return
+	}
+
+	s.cfg.EstablishmentID = paired.EstablishmentID
+	s.cfg.DeviceKey = paired.DeviceKey
+
+	if err := pairing.Save(*paired); err != nil {
+		log.Printf("Paired, but could not save it next to the binary: %v\n", err)
+		return
+	}
+
+	log.Printf("Paired with establishment %s. This machine will not need the code again.\n", paired.EstablishmentID)
+}
+
+func (s *service) Pair(code string) error {
+	paired, err := pairing.Redeem(s.cfg.APIURL, code)
+	if err != nil {
+		return err
+	}
+
+	s.cfg.EstablishmentID = paired.EstablishmentID
+	s.cfg.DeviceKey = paired.DeviceKey
+
+	return pairing.Save(*paired)
+}
+
+func (s *service) Paired() bool {
+	return s.cfg.RelayEnabled()
+}
+
 func (s *service) warnAboutConfiguration() {
 	if s.cfg.JWTSecret != "" {
-		if s.cfg.BarID == "" {
-			log.Println("WARNING: -bar-id is not set, so a token issued for any bar will be accepted.")
+		if s.cfg.EstablishmentID == "" {
+			log.Println("WARNING: -establishment-id is not set, so a token issued for any establishment will be accepted.")
 		}
 		return
 	}

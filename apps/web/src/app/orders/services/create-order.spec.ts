@@ -1,4 +1,4 @@
-import { asBarId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
@@ -26,13 +26,13 @@ describe('CreateOrder', () => {
 
   describe('execute', () => {
     it('should delegate to repository', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const dto = { items: [{ productId: asProductId('prod-1'), quantity: 1 }] };
       orderRepoMock['create'].mockResolvedValue(undefined);
 
-      const result = await service.execute(barId, dto);
+      const result = await service.execute(establishmentId, dto);
 
-      expect(orderRepoMock['create']).toHaveBeenCalledWith(barId, dto);
+      expect(orderRepoMock['create']).toHaveBeenCalledWith(establishmentId, dto);
       expect(result).toBeUndefined();
     });
   });

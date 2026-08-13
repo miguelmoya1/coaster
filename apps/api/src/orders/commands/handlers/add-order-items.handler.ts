@@ -20,7 +20,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
   async execute(command: AddOrderItemsCommand): Promise<void> {
     this.#logger.debug(`Executing addOrderItems...`);
     const existingOrder = await this.readRepo.findById(command.orderId);
-    if (!existingOrder || existingOrder.barId !== command.barId) {
+    if (!existingOrder || existingOrder.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (existingOrder.status !== OrderStatus.OPEN) {
@@ -28,7 +28,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     }
 
     const productIds = command.dto.items.map((i) => i.productId);
-    const products = await this.readRepo.findProductsByIds(command.barId, productIds);
+    const products = await this.readRepo.findProductsByIds(command.establishmentId, productIds);
     if (products.length !== new Set(productIds).size) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
@@ -51,7 +51,7 @@ export class AddOrderItemsHandler implements ICommandHandler<AddOrderItemsComman
     this.#logger.debug(`Publishing OrderItemsAddedEvent...`);
     this._eventBus.publish(
       new OrderItemsAddedEvent(
-        command.barId,
+        command.establishmentId,
         mapped,
         command.dto.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       ),

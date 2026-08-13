@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CategoriesReadRepository } from '../../data-access/categories.read.repository';
@@ -8,7 +8,7 @@ import { GetCategoriesHandler } from './get-categories.handler';
 describe('GetCategoriesHandler', () => {
   let handler: GetCategoriesHandler;
   const repository = {
-    findByBarId: vi.fn(),
+    findByEstablishmentId: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,12 +20,12 @@ describe('GetCategoriesHandler', () => {
   });
 
   it('should return categories', async () => {
-    const barId = asBarId('bar-1');
-    repository.findByBarId.mockResolvedValue([]);
+    const establishmentId = asEstablishmentId('establishment-1');
+    repository.findByEstablishmentId.mockResolvedValue([]);
 
-    const result = await handler.execute(new GetCategoriesQuery(barId));
+    const result = await handler.execute(new GetCategoriesQuery(establishmentId));
 
-    expect(repository.findByBarId).toHaveBeenCalledWith(barId);
+    expect(repository.findByEstablishmentId).toHaveBeenCalledWith(establishmentId);
     expect(result).toEqual([]);
   });
 });

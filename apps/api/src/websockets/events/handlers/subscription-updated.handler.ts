@@ -3,22 +3,14 @@ import {
   SubscriptionOverriddenEvent,
   SubscriptionPaymentFailedEvent,
   SubscriptionRenewedEvent,
-} from '@coaster/bar-subscription';
+} from '@coaster/establishment-subscription';
 import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 
-/**
- * A failed payment moves the bar to PAST_DUE, which is as much a change of what the workspace may
- * do as a cancellation is. Leaving it out kept the clients acting as if they were still paid up
- * until somebody happened to reload.
- */
 type SubscriptionEvent =
-  | SubscriptionRenewedEvent
-  | SubscriptionCancelledEvent
-  | SubscriptionPaymentFailedEvent
-  | SubscriptionOverriddenEvent;
+  SubscriptionRenewedEvent | SubscriptionCancelledEvent | SubscriptionPaymentFailedEvent | SubscriptionOverriddenEvent;
 
 @EventsHandler(
   SubscriptionRenewedEvent,
@@ -29,10 +21,12 @@ type SubscriptionEvent =
 export class SubscriptionUpdatedHandler implements IEventHandler<SubscriptionEvent> {
   readonly #logger = new Logger(SubscriptionUpdatedHandler.name);
 
-  constructor(private readonly _barGateway: BarGateway) {}
+  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
 
   handle(event: SubscriptionEvent) {
-    this.#logger.debug(`Catching SubscriptionEvent for barId=${event.barId}...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.subscriptionUpdated, { barId: event.barId });
+    this.#logger.debug(`Catching SubscriptionEvent for establishmentId=${event.establishmentId}...`);
+    this._establishmentGateway.server
+      .to(event.establishmentId)
+      .emit(SocketEvents.subscriptionUpdated, { establishmentId: event.establishmentId });
   }
 }

@@ -1,4 +1,4 @@
-import { asBarId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftExchangeId, asShiftId, asUserId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -27,27 +27,31 @@ describe('ExchangeRepository', () => {
 
   describe('routes', () => {
     it('should have the listPending route', () => {
-      expect(service.routes.listPending(asBarId('1'))).toBe('/bars/1/exchanges');
+      expect(service.routes.listPending(asEstablishmentId('1'))).toBe('/establishments/1/exchanges');
     });
 
     it('should have the request route', () => {
-      expect(service.routes.request(asBarId('1'), asShiftId('2'))).toBe('/bars/1/shifts/2/exchanges');
+      expect(service.routes.request(asEstablishmentId('1'), asShiftId('2'))).toBe(
+        '/establishments/1/shifts/2/exchanges',
+      );
     });
 
     it('should have the accept route', () => {
-      expect(service.routes.accept(asBarId('1'), asShiftExchangeId('3'))).toBe('/bars/1/exchanges/3/accept');
+      expect(service.routes.accept(asEstablishmentId('1'), asShiftExchangeId('3'))).toBe(
+        '/establishments/1/exchanges/3/accept',
+      );
     });
   });
 
   describe('request', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const shiftId = asShiftId('shift-1');
     const dto: CreateShiftExchangeDto = { targetId: asUserId('user-2') };
 
     it('should call request exchange endpoint', async () => {
-      const promise = service.request(barId, shiftId, dto);
+      const promise = service.request(establishmentId, shiftId, dto);
 
-      const req = httpMock.expectOne(service.routes.request(barId, shiftId));
+      const req = httpMock.expectOne(service.routes.request(establishmentId, shiftId));
       expect(req.request.method).toBe('POST');
       req.flush(null);
 
@@ -57,13 +61,13 @@ describe('ExchangeRepository', () => {
   });
 
   describe('accept', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const exchangeId = asShiftExchangeId('exchange-1');
 
     it('should call accept exchange endpoint', async () => {
-      const promise = service.accept(barId, exchangeId);
+      const promise = service.accept(establishmentId, exchangeId);
 
-      const req = httpMock.expectOne(service.routes.accept(barId, exchangeId));
+      const req = httpMock.expectOne(service.routes.accept(establishmentId, exchangeId));
       expect(req.request.method).toBe('PATCH');
       req.flush(null);
 

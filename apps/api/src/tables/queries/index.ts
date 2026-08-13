@@ -1,5 +1,5 @@
-import { GetTablesByBarIdHandler } from './handlers/get-tables-by-bar-id.handler';
+import { GetTablesByEstablishmentIdHandler } from './handlers/get-tables-by-establishment-id.handler';
 
-export { GetTablesByBarIdQuery } from './impl/get-tables-by-bar-id.query';
+export { GetTablesByEstablishmentIdQuery } from './impl/get-tables-by-establishment-id.query';
 
-export const QueryHandlers = [GetTablesByBarIdHandler];
+export const QueryHandlers = [GetTablesByEstablishmentIdHandler];

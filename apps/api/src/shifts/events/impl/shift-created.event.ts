@@ -1,8 +1,8 @@
-import type { BarId, Shift } from '@coaster/common';
+import type { EstablishmentId, Shift } from '@coaster/common';
 
 export class ShiftCreatedEvent {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly shift: Shift,
   ) {}
 }

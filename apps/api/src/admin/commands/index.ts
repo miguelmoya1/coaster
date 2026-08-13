@@ -1,11 +1,19 @@
-import { GrantBarPlanHandler } from './handlers/grant-bar-plan.handler';
-import { RenameBarHandler } from './handlers/rename-bar.handler';
-import { RevokeBarPlanHandler } from './handlers/revoke-bar-plan.handler';
+import { GrantEstablishmentPlanHandler } from './handlers/grant-establishment-plan.handler';
+import { RenameEstablishmentHandler } from './handlers/rename-establishment.handler';
+import { RevokeEstablishmentPlanHandler } from './handlers/revoke-establishment-plan.handler';
 import { UpdateAdminUserHandler } from './handlers/update-admin-user.handler';
+import { UpdateEstablishmentModulesHandler } from './handlers/update-establishment-modules.handler';
 
-export { GrantBarPlanCommand } from './impl/grant-bar-plan.command';
-export { RenameBarCommand } from './impl/rename-bar.command';
-export { RevokeBarPlanCommand } from './impl/revoke-bar-plan.command';
+export { GrantEstablishmentPlanCommand } from './impl/grant-establishment-plan.command';
+export { RenameEstablishmentCommand } from './impl/rename-establishment.command';
+export { RevokeEstablishmentPlanCommand } from './impl/revoke-establishment-plan.command';
 export { UpdateAdminUserCommand } from './impl/update-admin-user.command';
+export { UpdateEstablishmentModulesCommand } from './impl/update-establishment-modules.command';
 
-export const CommandHandlers = [GrantBarPlanHandler, RevokeBarPlanHandler, RenameBarHandler, UpdateAdminUserHandler];
+export const CommandHandlers = [
+  GrantEstablishmentPlanHandler,
+  RevokeEstablishmentPlanHandler,
+  RenameEstablishmentHandler,
+  UpdateAdminUserHandler,
+  UpdateEstablishmentModulesHandler,
+];

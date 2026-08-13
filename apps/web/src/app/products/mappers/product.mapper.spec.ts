@@ -14,6 +14,7 @@ describe('Product Mapper', () => {
     currentStock: 10,
     minStockAlert: 5,
     stockStatus: 'GOOD',
+    allergens: [],
     lastUpdated,
   };
 
@@ -24,6 +25,7 @@ describe('Product Mapper', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
+    allergens: [],
     lastUpdated,
   };
 

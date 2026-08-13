@@ -62,9 +62,9 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const rows = await this._readRepo.findByWorkdayRange(query.barId, from, to, query.userId);
+    const rows = await this._readRepo.findByWorkdayRange(query.establishmentId, from, to, query.userId);
     const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(
-      new GetShiftsQuery(query.barId, from.toISOString(), shiftWorkdayDate(to, 1).toISOString()),
+      new GetShiftsQuery(query.establishmentId, from.toISOString(), shiftWorkdayDate(to, 1).toISOString()),
     );
     const planned = plannedByDay(shifts);
 
@@ -81,10 +81,6 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
       }
     }
 
-    /*
-     * A rota entry nobody clocked into leaves no marks, so it would never reach the list built from
-     * them. Seeding those keys is what makes an absence visible next to the days that were worked.
-     */
     for (const [key, shift] of planned) {
       if (!days.has(key) && shift.date >= query.from && shift.date <= query.to) {
         days.set(key, []);

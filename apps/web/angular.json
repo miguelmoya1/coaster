@@ -3,7 +3,11 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": ["angular-eslint", "@schematics/angular", "playwright-ng-schematics"],
+    "schematicCollections": [
+      "angular-eslint",
+      "@schematics/angular",
+      "playwright-ng-schematics"
+    ],
     "analytics": false
   },
   "newProjectRoot": "projects",
@@ -26,7 +30,10 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/material-theme.scss", "src/styles.css"]
+            "styles": [
+              "src/material-theme.scss",
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
@@ -59,6 +66,13 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "prebundle": {
+              "exclude": [
+                "@coaster/common"
+              ]
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "coaster:build:production"
@@ -90,7 +104,10 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }

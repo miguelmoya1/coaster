@@ -22,18 +22,18 @@ export class ClaimNextPrintJobHandler implements IQueryHandler<ClaimNextPrintJob
   ) {}
 
   async execute(query: ClaimNextPrintJobQuery): Promise<ClaimedPrintJobDto | null> {
-    await this.deviceKey.authenticate(query.barId, query.deviceKey);
+    await this.deviceKey.authenticate(query.establishmentId, query.deviceKey);
 
-    await this.writeRepo.updateLastSeen(query.barId);
-    await this.jobRepo.requeueStaleClaims(query.barId);
+    await this.writeRepo.updateLastSeen(query.establishmentId);
+    await this.jobRepo.requeueStaleClaims(query.establishmentId);
 
     const stopWaitingAt = Date.now() + HOLD_REQUEST_OPEN_FOR_MS;
 
     do {
-      const job = await this.claimNext(query.barId);
+      const job = await this.claimNext(query.establishmentId);
 
       if (job) {
-        this.#logger.debug(`Handed print job ${job.id} to the bridge for bar ${query.barId}`);
+        this.#logger.debug(`Handed print job ${job.id} to the bridge for establishment ${query.establishmentId}`);
         return job;
       }
 
@@ -43,8 +43,10 @@ export class ClaimNextPrintJobHandler implements IQueryHandler<ClaimNextPrintJob
     return null;
   }
 
-  private async claimNext(barId: ClaimNextPrintJobQuery['barId']): Promise<ClaimedPrintJobDto | null> {
-    const job = await this.jobRepo.claimNext(barId);
+  private async claimNext(
+    establishmentId: ClaimNextPrintJobQuery['establishmentId'],
+  ): Promise<ClaimedPrintJobDto | null> {
+    const job = await this.jobRepo.claimNext(establishmentId);
 
     if (!job) {
       return null;

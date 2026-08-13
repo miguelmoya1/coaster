@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { DbRole, DbService } from '../../db';
+import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { DbRole, DbService, DbSubscriptionStatus } from '../../db';
 
 @Injectable()
 export class SecurityRepository {
+  readonly #logger = new Logger(SecurityRepository.name);
+
   constructor(private readonly _db: DbService) {}
 
   async getUserRole(userId: string): Promise<DbRole | undefined> {
@@ -14,12 +17,15 @@ export class SecurityRepository {
     return user?.role;
   }
 
-  async getBarMemberRole(userId: string, barId: string): Promise<{ role: string; active: boolean } | null> {
-    const membership = await this._db.dbBarMember.findUnique({
+  async getEstablishmentMemberRole(
+    userId: string,
+    establishmentId: string,
+  ): Promise<{ role: string; active: boolean } | null> {
+    const membership = await this._db.dbEstablishmentMember.findUnique({
       where: {
-        userId_barId: {
+        userId_establishmentId: {
           userId,
-          barId,
+          establishmentId,
         },
         deletedAt: null,
       },
@@ -27,5 +33,28 @@ export class SecurityRepository {
     });
 
     return membership;
+  }
+
+  async getEnabledModules(establishmentId: string): Promise<EstablishmentModule[]> {
+    const settings = await this._db.dbEstablishmentSettings.findUnique({
+      where: { establishmentId },
+      select: { modules: true },
+    });
+
+    if (!settings) {
+      this.#logger.warn(`Establishment ${establishmentId} has no settings row; assuming every module is on`);
+      return resolveModules(DEFAULT_ESTABLISHMENT_MODULES);
+    }
+
+    return resolveModules(settings.modules as EstablishmentModule[]);
+  }
+
+  async isOnTrial(establishmentId: string): Promise<boolean> {
+    const billing = await this._db.dbEstablishmentSubscription.findUnique({
+      where: { establishmentId },
+      select: { status: true },
+    });
+
+    return billing?.status === DbSubscriptionStatus.TRIALING;
   }
 }

@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -13,7 +13,7 @@ import { CreateProductHandler } from './create-product.handler';
 describe('CreateProductHandler', () => {
   let handler: CreateProductHandler;
   const repository = {
-    checkCategoryBelongsToBar: vi.fn(),
+    checkCategoryBelongsToEstablishment: vi.fn(),
     create: vi.fn(),
   };
   const eventBus = {
@@ -33,18 +33,18 @@ describe('CreateProductHandler', () => {
     handler = module.get<CreateProductHandler>(CreateProductHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const dto = { categoryId: asCategoryId('cat-1'), name: 'Refresco', price: 2 };
 
-  it('should throw ForbiddenException if category does not belong to bar', async () => {
-    repository.checkCategoryBelongsToBar.mockResolvedValue(false);
+  it('should throw ForbiddenException if category does not belong to establishment', async () => {
+    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(false);
 
-    const cmd = new CreateProductCommand(barId, dto);
+    const cmd = new CreateProductCommand(establishmentId, dto);
     await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
   });
 
   it('should create product and publish event', async () => {
-    repository.checkCategoryBelongsToBar.mockResolvedValue(true);
+    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(true);
     repository.create.mockResolvedValue({
       id: 'prod-1',
       categoryId: 'cat-1',
@@ -56,7 +56,7 @@ describe('CreateProductHandler', () => {
       updatedAt: new Date(),
     });
 
-    const cmd = new CreateProductCommand(barId, dto);
+    const cmd = new CreateProductCommand(establishmentId, dto);
     await handler.execute(cmd);
 
     expect(repository.create).toHaveBeenCalledWith(asCategoryId('cat-1'), {
@@ -67,7 +67,7 @@ describe('CreateProductHandler', () => {
       imageUrl: null,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new ProductCreatedEvent(barId, expect.any(Object) as unknown as Product),
+      new ProductCreatedEvent(establishmentId, expect.any(Object) as unknown as Product),
     );
   });
 });

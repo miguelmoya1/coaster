@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -32,24 +32,24 @@ describe('DeleteTableHandler', () => {
     handler = module.get<DeleteTableHandler>(DeleteTableHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const tableId = asTableId('table-1');
 
   it('should fail if the table does not exist', async () => {
     repository.findById.mockResolvedValue(null);
 
-    const cmd = new DeleteTableCommand(barId, tableId);
+    const cmd = new DeleteTableCommand(establishmentId, tableId);
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
   });
 
   it('should delete the table and publish event', async () => {
-    repository.findById.mockResolvedValue({ id: 'table-1', barId: 'bar-1' });
+    repository.findById.mockResolvedValue({ id: 'table-1', establishmentId: 'establishment-1' });
     repository.delete.mockResolvedValue(undefined);
 
-    const cmd = new DeleteTableCommand(barId, tableId);
+    const cmd = new DeleteTableCommand(establishmentId, tableId);
     await handler.execute(cmd);
 
     expect(repository.delete).toHaveBeenCalledWith(tableId);
-    expect(eventBus.publish).toHaveBeenCalledWith(new TableDeletedEvent(barId, tableId));
+    expect(eventBus.publish).toHaveBeenCalledWith(new TableDeletedEvent(establishmentId, tableId));
   });
 });

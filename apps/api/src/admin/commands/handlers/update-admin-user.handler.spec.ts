@@ -16,7 +16,7 @@ const actor = {
 const target = {
   id: 'user-2',
   name: 'Staff',
-  email: 'staff@bar.com',
+  email: 'staff@establishment.com',
   role: Role.USER,
   active: true,
 };

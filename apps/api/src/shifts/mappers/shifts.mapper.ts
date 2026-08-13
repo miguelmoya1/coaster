@@ -1,5 +1,5 @@
 import type { Shift as IShift } from '@coaster/common';
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import { DbShift as ShiftDb } from '@coaster/core/db';
 
 export type ShiftWithUser = ShiftDb & { user: { id: string; name: string; photoUrl: string | null } | null };
@@ -13,7 +13,7 @@ export const ShiftsMapper = {
       userId: asUserId(dbShift.userId),
       userName: dbShift.user?.name ?? '',
       userImage: dbShift.user?.photoUrl ?? undefined,
-      barId: asBarId(dbShift.barId),
+      establishmentId: asEstablishmentId(dbShift.establishmentId),
       notes: dbShift.notes ?? undefined,
     };
   },

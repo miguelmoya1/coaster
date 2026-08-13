@@ -22,5 +22,5 @@ export { OrderUpdatedEvent } from './events/impl/order-updated.event';
 export { OrdersMergedEvent } from './events/impl/orders-merged.event';
 export { OrdersModule } from './orders.module';
 export { GetOrderByIdQuery } from './queries/impl/get-order-by-id.query';
-export { GetOrdersByBarIdQuery } from './queries/impl/get-orders-by-bar-id.query';
+export { GetOrdersByEstablishmentIdQuery } from './queries/impl/get-orders-by-establishment-id.query';
 export { GetOrdersByDateQuery } from './queries/impl/get-orders-by-date.query';

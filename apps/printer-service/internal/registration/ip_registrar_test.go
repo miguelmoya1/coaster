@@ -26,9 +26,9 @@ func TestGetLocalIP(t *testing.T) {
 
 func TestStartIPRegistration_HTTPCall(t *testing.T) {
 	type registration struct {
-		BarID     string `json:"barId"`
-		IPAddress string `json:"ipAddress"`
-		Port      int    `json:"port"`
+		EstablishmentID string `json:"establishmentId"`
+		IPAddress       string `json:"ipAddress"`
+		Port            int    `json:"port"`
 	}
 
 	received := make(chan registration, 1)
@@ -57,18 +57,18 @@ func TestStartIPRegistration_HTTPCall(t *testing.T) {
 	defer cancel()
 
 	cfg := &config.Config{
-		APIURL:    server.URL,
-		Port:      "9090",
-		BarID:     "bar-123",
-		DeviceKey: "key-xyz",
-		IPAddress: "192.168.1.100",
+		APIURL:          server.URL,
+		Port:            "9090",
+		EstablishmentID: "establishment-123",
+		DeviceKey:       "key-xyz",
+		IPAddress:       "192.168.1.100",
 	}
 
 	go StartIPRegistration(ctx, cfg)
 
 	select {
 	case body := <-received:
-		if body.BarID != "bar-123" || body.IPAddress != "192.168.1.100" {
+		if body.EstablishmentID != "establishment-123" || body.IPAddress != "192.168.1.100" {
 			t.Errorf("unexpected registration contents: %+v", body)
 		}
 		if body.Port != 9090 {
@@ -100,11 +100,11 @@ func TestStartIPRegistration_FailedServer(t *testing.T) {
 	defer cancel()
 
 	cfg := &config.Config{
-		APIURL:    server.URL,
-		Port:      "8080",
-		BarID:     "bar-fail",
-		DeviceKey: "key-fail",
-		IPAddress: "10.0.0.1",
+		APIURL:          server.URL,
+		Port:            "8080",
+		EstablishmentID: "establishment-fail",
+		DeviceKey:       "key-fail",
+		IPAddress:       "10.0.0.1",
 	}
 
 	go StartIPRegistration(ctx, cfg)
@@ -126,11 +126,11 @@ func TestStartIPRegistration_SkipsAnInvalidPort(t *testing.T) {
 	defer cancel()
 
 	go StartIPRegistration(ctx, &config.Config{
-		APIURL:    server.URL,
-		Port:      "not-a-port",
-		BarID:     "bar-123",
-		DeviceKey: "key-xyz",
-		IPAddress: "192.168.1.100",
+		APIURL:          server.URL,
+		Port:            "not-a-port",
+		EstablishmentID: "establishment-123",
+		DeviceKey:       "key-xyz",
+		IPAddress:       "192.168.1.100",
 	})
 
 	time.Sleep(50 * time.Millisecond)

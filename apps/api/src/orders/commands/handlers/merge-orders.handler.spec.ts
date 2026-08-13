@@ -1,5 +1,5 @@
 import type { Order, OrderId, TableId } from '@coaster/common';
-import { asBarId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asTableId, OrderStatus, TableStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,7 +37,7 @@ describe('MergeOrdersHandler', () => {
     repository.findOrdersByIds.mockResolvedValue([
       {
         id: 'order-1',
-        barId: 'bar-1',
+        establishmentId: 'establishment-1',
         status: OrderStatus.OPEN,
         tableId: 'table-1',
         items: [],
@@ -46,7 +46,7 @@ describe('MergeOrdersHandler', () => {
       },
       {
         id: 'order-2',
-        barId: 'bar-1',
+        establishmentId: 'establishment-1',
         status: OrderStatus.OPEN,
         tableId: 'table-2',
         items: [],
@@ -54,10 +54,14 @@ describe('MergeOrdersHandler', () => {
         updatedAt: new Date(),
       },
     ]);
-    repository.findTableById.mockResolvedValue({ id: 'table-1', barId: 'bar-1', status: TableStatus.OCCUPIED });
+    repository.findTableById.mockResolvedValue({
+      id: 'table-1',
+      establishmentId: 'establishment-1',
+      status: TableStatus.OCCUPIED,
+    });
     repository.mergeOrders.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       tableId: 'table-1',
       items: [],
@@ -66,7 +70,7 @@ describe('MergeOrdersHandler', () => {
     });
 
     await handler.execute(
-      new MergeOrdersCommand(asBarId('bar-1'), {
+      new MergeOrdersCommand(asEstablishmentId('establishment-1'), {
         orderIds: ['order-1', 'order-2'] as OrderId[],
         targetTableId: asTableId('table-1'),
       }),
@@ -74,7 +78,7 @@ describe('MergeOrdersHandler', () => {
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       new OrdersMergedEvent(
-        asBarId('bar-1'),
+        asEstablishmentId('establishment-1'),
         expect.any(Object) as unknown as Order,
         expect.any(Array) as unknown as { id: OrderId; tableId: TableId | null }[],
       ),

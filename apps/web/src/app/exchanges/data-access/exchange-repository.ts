@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import type { BarId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
+import type { EstablishmentId, CreateShiftExchangeDto, ShiftExchangeId, ShiftId } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Service()
@@ -8,21 +8,24 @@ export class ExchangeRepository {
   readonly #http = inject(HttpClient);
 
   public readonly routes = {
-    listPending: (barId: BarId) => `/bars/${barId}/exchanges`,
-    request: (barId: BarId, shiftId: ShiftId) => `/bars/${barId}/shifts/${shiftId}/exchanges`,
-    accept: (barId: BarId, exchangeId: ShiftExchangeId) => `/bars/${barId}/exchanges/${exchangeId}/accept`,
-    delete: (barId: BarId, exchangeId: ShiftExchangeId) => `/bars/${barId}/exchanges/${exchangeId}`,
+    listPending: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/exchanges`,
+    request: (establishmentId: EstablishmentId, shiftId: ShiftId) =>
+      `/establishments/${establishmentId}/shifts/${shiftId}/exchanges`,
+    accept: (establishmentId: EstablishmentId, exchangeId: ShiftExchangeId) =>
+      `/establishments/${establishmentId}/exchanges/${exchangeId}/accept`,
+    delete: (establishmentId: EstablishmentId, exchangeId: ShiftExchangeId) =>
+      `/establishments/${establishmentId}/exchanges/${exchangeId}`,
   };
 
-  public async request(barId: BarId, shiftId: ShiftId, dto: CreateShiftExchangeDto): Promise<void> {
-    return firstValueFrom(this.#http.post<void>(this.routes.request(barId, shiftId), dto));
+  public async request(establishmentId: EstablishmentId, shiftId: ShiftId, dto: CreateShiftExchangeDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.request(establishmentId, shiftId), dto));
   }
 
-  public async accept(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {
-    return firstValueFrom(this.#http.patch<void>(this.routes.accept(barId, exchangeId), {}));
+  public async accept(establishmentId: EstablishmentId, exchangeId: ShiftExchangeId): Promise<void> {
+    return firstValueFrom(this.#http.patch<void>(this.routes.accept(establishmentId, exchangeId), {}));
   }
 
-  public async delete(barId: BarId, exchangeId: ShiftExchangeId): Promise<void> {
-    return firstValueFrom(this.#http.delete<void>(this.routes.delete(barId, exchangeId)));
+  public async delete(establishmentId: EstablishmentId, exchangeId: ShiftExchangeId): Promise<void> {
+    return firstValueFrom(this.#http.delete<void>(this.routes.delete(establishmentId, exchangeId)));
   }
 }

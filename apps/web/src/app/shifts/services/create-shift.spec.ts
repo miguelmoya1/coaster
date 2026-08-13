@@ -1,4 +1,4 @@
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { CreateShiftDto, Shift } from '@coaster/common';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
@@ -27,7 +27,7 @@ describe('CreateShift', () => {
 
   describe('execute', () => {
     it('should delegate shift creation to repository', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const dto: CreateShiftDto = {
         startTime: '2026-03-20T08:00:00Z',
         endTime: '2026-03-20T16:00:00Z',
@@ -35,7 +35,7 @@ describe('CreateShift', () => {
       };
       const mockShift: Shift = {
         id: asShiftId('shift-1'),
-        barId,
+        establishmentId,
         ...dto,
         userName: 'User 1',
         userImage: '',
@@ -43,14 +43,14 @@ describe('CreateShift', () => {
 
       shiftRepoMock['create'].mockResolvedValue(mockShift);
 
-      const result = await service.execute(barId, dto);
+      const result = await service.execute(establishmentId, dto);
 
-      expect(shiftRepoMock['create']).toHaveBeenCalledWith(barId, dto);
+      expect(shiftRepoMock['create']).toHaveBeenCalledWith(establishmentId, dto);
       expect(result).toEqual(mockShift);
     });
 
     it('should throw error if repository fails', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const dto: CreateShiftDto = {
         startTime: '2026-03-20T08:00:00Z',
         endTime: '2026-03-20T16:00:00Z',
@@ -60,7 +60,7 @@ describe('CreateShift', () => {
       const error = new Error('Creation failed');
       shiftRepoMock['create'].mockRejectedValue(error);
 
-      await expect(service.execute(barId, dto)).rejects.toThrow('Creation failed');
+      await expect(service.execute(establishmentId, dto)).rejects.toThrow('Creation failed');
     });
   });
 });

@@ -21,7 +21,7 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
     this.#logger.debug(`Executing removeOrderAdjustment...`);
 
     const orderDb = await this.readRepo.findById(command.orderId);
-    if (!orderDb || orderDb.barId !== command.barId) {
+    if (!orderDb || orderDb.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
@@ -39,7 +39,7 @@ export class RemoveOrderAdjustmentHandler implements ICommandHandler<RemoveOrder
 
     this.#logger.debug(`Publishing OrderAdjustmentsUpdatedEvent...`);
     this._eventBus.publish(
-      new OrderAdjustmentsUpdatedEvent(command.barId, command.orderId, updatedOrderDomain.adjustments),
+      new OrderAdjustmentsUpdatedEvent(command.establishmentId, command.orderId, updatedOrderDomain.adjustments),
     );
   }
 }

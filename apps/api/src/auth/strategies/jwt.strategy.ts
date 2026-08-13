@@ -1,5 +1,5 @@
 import { ErrorCodes } from '@coaster/common';
-import { FirebaseTokenService } from '@coaster/core';
+import { FirebaseTokenService, UsersMapper } from '@coaster/core';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
@@ -26,6 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'firebase-jwt') {
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
 
-    return caller.user;
+    return UsersMapper.toDomain(caller.user);
   }
 }

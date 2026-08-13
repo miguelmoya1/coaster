@@ -19,17 +19,19 @@ export class GenerateDeviceKeyHandler implements ICommandHandler<
   ) {}
 
   async execute(command: GenerateDeviceKeyCommand): Promise<GenerateDeviceKeyResponseDto> {
-    const existing = await this.readRepo.findByBarId(command.barId);
+    const existing = await this.readRepo.findByEstablishmentId(command.establishmentId);
 
     if (!existing) {
-      const config = await this.writeRepo.createPrinterConfig(command.barId);
-      this.#logger.log(`Device key issued for bar ${command.barId}`);
+      const config = await this.writeRepo.createPrinterConfig(command.establishmentId);
+      this.#logger.log(`Device key issued for establishment ${command.establishmentId}`);
       return { deviceKey: config.deviceKey };
     }
 
     const deviceKey = randomUUID();
-    await this.writeRepo.rotateDeviceKey(command.barId, deviceKey);
-    this.#logger.log(`Device key rotated for bar ${command.barId}; the previous key no longer works`);
+    await this.writeRepo.rotateDeviceKey(command.establishmentId, deviceKey);
+    this.#logger.log(
+      `Device key rotated for establishment ${command.establishmentId}; the previous key no longer works`,
+    );
 
     return { deviceKey };
   }

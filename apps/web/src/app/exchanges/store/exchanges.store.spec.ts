@@ -1,8 +1,8 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CurrentBarStore } from '@coaster/bars';
-import type { BarId } from '@coaster/common';
+import { CurrentEstablishmentStore } from '@coaster/establishments';
+import type { EstablishmentId } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
 import { ExchangesStore } from './exchanges.store';
@@ -11,29 +11,34 @@ describe('ExchangesStore', () => {
   let store: ExchangesStore;
   let httpMock: HttpTestingController;
 
-  const currentBarId = signal<BarId | undefined>(undefined);
+  const currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
-  const currentBarStoreMock = {
-    currentId: currentBarId.asReadonly(),
+  const currentEstablishmentStoreMock = {
+    currentId: currentEstablishmentId.asReadonly(),
   };
 
   const repositoryMock = {
     routes: {
-      listPending: vi.fn((barId: string) => `/bars/${barId}/exchanges`),
-      request: vi.fn((barId: string, shiftId: string) => `/bars/${barId}/shifts/${shiftId}/exchanges`),
-      accept: vi.fn((barId: string, exchangeId: string) => `/bars/${barId}/exchanges/${exchangeId}/accept`),
+      listPending: vi.fn((establishmentId: string) => `/establishments/${establishmentId}/exchanges`),
+      request: vi.fn(
+        (establishmentId: string, shiftId: string) => `/establishments/${establishmentId}/shifts/${shiftId}/exchanges`,
+      ),
+      accept: vi.fn(
+        (establishmentId: string, exchangeId: string) =>
+          `/establishments/${establishmentId}/exchanges/${exchangeId}/accept`,
+      ),
     },
   };
 
   beforeEach(() => {
-    currentBarId.set(undefined);
+    currentEstablishmentId.set(undefined);
     vi.clearAllMocks();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: CurrentBarStore, useValue: currentBarStoreMock },
+        { provide: CurrentEstablishmentStore, useValue: currentEstablishmentStoreMock },
         { provide: ExchangeRepository, useValue: repositoryMock },
       ],
     });
@@ -55,7 +60,7 @@ describe('ExchangesStore', () => {
       expect(store.exchanges.status()).toBe('idle');
     });
 
-    it('should not fetch if barId is not set', () => {
+    it('should not fetch if establishmentId is not set', () => {
       TestBed.tick();
       httpMock.expectNone(() => true);
       expect(store.exchanges.status()).toBe('idle');

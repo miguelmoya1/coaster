@@ -9,11 +9,6 @@ import { QueryHandlers } from './queries';
 @Module({
   imports: [CqrsModule],
   controllers: [TimeEntriesController],
-  providers: [
-    TimeEntriesReadRepository,
-    TimeEntriesWriteRepository,
-    ...CommandHandlers,
-    ...QueryHandlers,
-  ],
+  providers: [TimeEntriesReadRepository, TimeEntriesWriteRepository, ...CommandHandlers, ...QueryHandlers],
 })
 export class TimeTrackingModule {}

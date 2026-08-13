@@ -1,17 +1,24 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import type { BarId, Table, TableId } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { BarPermissions, BarPermissionsGuard, commonMapper } from '@coaster/core';
+import type { EstablishmentId, Table, TableId } from '@coaster/common';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+  commonMapper,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateTableCommand, DeleteTableCommand, UpdateTableCommand } from '../commands';
 import { CreateTableDto } from '../dto/create-table.dto';
 import { UpdateTableDto } from '../dto/update-table.dto';
 import { TablesMapper } from '../mappers/tables.mapper';
-import { GetTablesByBarIdQuery } from '../queries';
+import { GetTablesByEstablishmentIdQuery } from '../queries';
 
-@Controller('bars/:barId/tables')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/tables')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.ORDERS)
 export class TablesController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -19,29 +26,38 @@ export class TablesController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.BAR_VIEW_TABLES)
-  async getTables(@Param('barId') barId: BarId) {
-    const tables = await this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_TABLES)
+  async getTables(@Param('establishmentId') establishmentId: EstablishmentId) {
+    const tables = await this._queryBus.execute<GetTablesByEstablishmentIdQuery, Table[]>(
+      new GetTablesByEstablishmentIdQuery(establishmentId),
+    );
     return tables.map((t) => TablesMapper.toDto(t));
   }
 
   @Post()
-  @BarPermissions(BarPermission.BAR_CREATE_TABLE)
-  async createTable(@Param('barId') barId: BarId, @Body() dto: CreateTableDto): Promise<void> {
-    await this._commandBus.execute<CreateTableCommand, void>(new CreateTableCommand(barId, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CREATE_TABLE)
+  async createTable(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: CreateTableDto,
+  ): Promise<void> {
+    await this._commandBus.execute<CreateTableCommand, void>(new CreateTableCommand(establishmentId, dto));
   }
 
   @Patch(':tableId')
-  @BarPermissions(BarPermission.BAR_UPDATE_TABLE)
-  async updateTable(@Param('barId') barId: BarId, @Param('tableId') tableId: TableId, @Body() dto: UpdateTableDto) {
-    await this._commandBus.execute<UpdateTableCommand, void>(new UpdateTableCommand(barId, tableId, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_TABLE)
+  async updateTable(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('tableId') tableId: TableId,
+    @Body() dto: UpdateTableDto,
+  ) {
+    await this._commandBus.execute<UpdateTableCommand, void>(new UpdateTableCommand(establishmentId, tableId, dto));
     return commonMapper.getSuccessResponse();
   }
 
   @Delete(':tableId')
-  @BarPermissions(BarPermission.BAR_DELETE_TABLE)
-  async deleteTable(@Param('barId') barId: BarId, @Param('tableId') tableId: TableId) {
-    await this._commandBus.execute<DeleteTableCommand, void>(new DeleteTableCommand(barId, tableId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_DELETE_TABLE)
+  async deleteTable(@Param('establishmentId') establishmentId: EstablishmentId, @Param('tableId') tableId: TableId) {
+    await this._commandBus.execute<DeleteTableCommand, void>(new DeleteTableCommand(establishmentId, tableId));
     return commonMapper.getSuccessResponse();
   }
 }

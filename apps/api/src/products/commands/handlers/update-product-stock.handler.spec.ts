@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asProductId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -14,7 +14,7 @@ describe('UpdateProductStockHandler', () => {
   let handler: UpdateProductStockHandler;
   const repository = {
     update: vi.fn(),
-    checkProductBelongsToBar: vi.fn(),
+    checkProductBelongsToEstablishment: vi.fn(),
   };
   const eventBus = {
     publish: vi.fn(),
@@ -36,11 +36,11 @@ describe('UpdateProductStockHandler', () => {
   });
 
   it('should update stock and publish event', async () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
     const dto = { currentStock: 10 };
 
-    repository.checkProductBelongsToBar.mockResolvedValue(true);
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',
       categoryId: 'cat-1',
@@ -52,22 +52,22 @@ describe('UpdateProductStockHandler', () => {
       updatedAt: new Date(),
     });
 
-    const cmd = new UpdateProductStockCommand(barId, productId, dto);
+    const cmd = new UpdateProductStockCommand(establishmentId, productId, dto);
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, dto);
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product),
+      new ProductStockChangedEvent(establishmentId, expect.any(Object) as unknown as Product),
     );
   });
 
-  it('should refuse to change stock of a product owned by another bar', async () => {
-    const barId = asBarId('bar-1');
-    const productId = asProductId('prod-from-other-bar');
-    repository.checkProductBelongsToBar.mockResolvedValue(false);
+  it('should refuse to change stock of a product owned by another establishment', async () => {
+    const establishmentId = asEstablishmentId('establishment-1');
+    const productId = asProductId('prod-from-other-establishment');
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(false);
 
     await expect(
-      handler.execute(new UpdateProductStockCommand(barId, productId, { currentStock: 10 })),
+      handler.execute(new UpdateProductStockCommand(establishmentId, productId, { currentStock: 10 })),
     ).rejects.toThrow(NotFoundException);
 
     expect(repository.update).not.toHaveBeenCalled();

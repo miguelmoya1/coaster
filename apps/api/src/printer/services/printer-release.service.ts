@@ -4,12 +4,17 @@ import { createHash } from 'crypto';
 import { createReadStream, existsSync } from 'fs';
 import { join } from 'path';
 
-export const PRINTER_BRIDGE_VERSION = '1.1.0';
+export const PRINTER_BRIDGE_VERSION = '1.2.0';
 
 const BINARIES: Record<string, string> = {
   windows: 'printer-service-windows.exe',
   linux: 'printer-service-linux',
 };
+
+export const binaryFor = (os: string): string | null => BINARIES[os] ?? null;
+
+export const downloadNameFor = (os: string, code: string): string =>
+  os === 'windows' ? `coaster-printer-${code}.exe` : `coaster-printer-${code}`;
 
 export interface PrinterRelease {
   version: string;
@@ -49,7 +54,7 @@ export class PrinterReleaseService {
       return configured.replace(/\/+$/, '');
     }
 
-    this._logger.warn('PUBLIC_URL is not set; advertising downloads on localhost, which no bar can reach.');
+    this._logger.warn('PUBLIC_URL is not set; advertising downloads on localhost, which no establishment can reach.');
     return 'http://localhost:3000';
   }
 
@@ -78,5 +83,11 @@ export class PrinterReleaseService {
       stream.on('error', reject);
       stream.on('end', () => resolve(hash.digest('hex')));
     });
+  }
+
+  public stream(filename: string) {
+    const path = join(DOWNLOADS_ROOT, filename);
+
+    return existsSync(path) ? createReadStream(path) : null;
   }
 }

@@ -1,5 +1,5 @@
 import { ShiftExchangeStatus } from '../constants/shift-exchange-status.type';
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 import { UserId } from './user.interface';
 
@@ -13,7 +13,7 @@ export interface Shift {
   userId: UserId;
   userName: string;
   userImage?: string;
-  barId: BarId;
+  establishmentId: EstablishmentId;
   notes?: string;
 }
 

@@ -1,7 +1,7 @@
-import { BarRole, SubscriptionPlan } from '@coaster/common';
+import { AdminAuditAction, EstablishmentModule, EstablishmentRole, SubscriptionPlan } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { DbBarRole, DbSubscriptionStatus } from '../../src/core/db';
+import { DbEstablishmentRole, DbSubscriptionStatus } from '../../src/core/db';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 const OTHER_USER_ID = '00000000-0000-4000-8000-00000000000f';
@@ -43,7 +43,7 @@ describe('Admin backoffice (e2e)', () => {
   });
 
   describe('access control', () => {
-    const routes = ['/api/admin/overview', '/api/admin/audit', '/api/admin/bars', '/api/admin/users'];
+    const routes = ['/api/admin/overview', '/api/admin/audit', '/api/admin/establishments', '/api/admin/users'];
 
     it('should refuse every admin route to a plain user', async () => {
       for (const route of routes) {
@@ -60,57 +60,62 @@ describe('Admin backoffice (e2e)', () => {
     });
 
     it('should refuse a plain user the write routes too', async () => {
-      const bar = await testSetup.createBar('Someone elses bar', { ownerId: null });
+      const establishment = await testSetup.createEstablishment('Someone elses establishment', { ownerId: null });
 
       await request(http())
-        .post(`/api/admin/bars/${bar.id}/plan`)
+        .post(`/api/admin/establishments/${establishment.id}/plan`)
         .send({ plan: SubscriptionPlan.PRO })
         .expect(403);
 
-      await request(http()).patch(`/api/admin/bars/${bar.id}`).send({ name: 'Hijacked' }).expect(403);
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}`)
+        .send({ name: 'Hijacked' })
+        .expect(403);
     });
   });
 
   describe('manual PRO grant', () => {
-    const lapse = (barId: string) =>
-      testSetup.prisma.dbBarSubscription.update({
-        where: { barId },
+    const lapse = (establishmentId: string) =>
+      testSetup.prisma.dbEstablishmentSubscription.update({
+        where: { establishmentId },
         data: { status: DbSubscriptionStatus.INACTIVE, trialEndsAt: new Date(Date.now() - 1000) },
       });
 
-    it('should let a lapsed bar write again, and stop it once revoked', async () => {
+    it('should let a lapsed establishment write again, and stop it once revoked', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('Lapsed bar');
-      await lapse(bar.id);
+      const establishment = await testSetup.createEstablishment('Lapsed establishment');
+      await lapse(establishment.id);
 
-      await request(http()).post(`/api/bars/${bar.id}/tables`).send({ name: 'T1' }).expect(402);
+      await request(http()).post(`/api/establishments/${establishment.id}/tables`).send({ name: 'T1' }).expect(402);
 
       await request(http())
-        .post(`/api/admin/bars/${bar.id}/plan`)
+        .post(`/api/admin/establishments/${establishment.id}/plan`)
         .send({ plan: SubscriptionPlan.PRO, durationDays: 30, reason: 'Compensation' })
         .expect(201);
 
-      await request(http()).post(`/api/bars/${bar.id}/tables`).send({ name: 'T2' }).expect(201);
+      await request(http()).post(`/api/establishments/${establishment.id}/tables`).send({ name: 'T2' }).expect(201);
 
-      await request(http()).post(`/api/admin/bars/${bar.id}/plan/revoke`).send({}).expect(201);
+      await request(http()).post(`/api/admin/establishments/${establishment.id}/plan/revoke`).send({}).expect(201);
 
-      await request(http()).post(`/api/bars/${bar.id}/tables`).send({ name: 'T3' }).expect(402);
+      await request(http()).post(`/api/establishments/${establishment.id}/tables`).send({ name: 'T3' }).expect(402);
     });
 
     it('should keep the Stripe columns untouched when granting', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('Stripe bar');
-      await testSetup.prisma.dbBarSubscription.update({
-        where: { barId: bar.id },
+      const establishment = await testSetup.createEstablishment('Stripe establishment');
+      await testSetup.prisma.dbEstablishmentSubscription.update({
+        where: { establishmentId: establishment.id },
         data: { stripeCustomerId: 'cus_keep', stripeSubscriptionId: 'sub_keep' },
       });
 
       await request(http())
-        .post(`/api/admin/bars/${bar.id}/plan`)
+        .post(`/api/admin/establishments/${establishment.id}/plan`)
         .send({ plan: SubscriptionPlan.PRO })
         .expect(201);
 
-      const billing = await testSetup.prisma.dbBarSubscription.findUnique({ where: { barId: bar.id } });
+      const billing = await testSetup.prisma.dbEstablishmentSubscription.findUnique({
+        where: { establishmentId: establishment.id },
+      });
 
       expect(billing?.stripeCustomerId).toBe('cus_keep');
       expect(billing?.stripeSubscriptionId).toBe('sub_keep');
@@ -120,55 +125,57 @@ describe('Admin backoffice (e2e)', () => {
 
     it('should refuse to revoke a grant that is not there', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('No grant');
+      const establishment = await testSetup.createEstablishment('No grant');
 
-      await request(http()).post(`/api/admin/bars/${bar.id}/plan/revoke`).send({}).expect(400);
+      await request(http()).post(`/api/admin/establishments/${establishment.id}/plan/revoke`).send({}).expect(400);
     });
 
-    it('should not expose the admin note to the members of the bar', async () => {
+    it('should not expose the admin note to the members of the establishment', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('Granted bar');
+      const establishment = await testSetup.createEstablishment('Granted establishment');
 
       await request(http())
-        .post(`/api/admin/bars/${bar.id}/plan`)
+        .post(`/api/admin/establishments/${establishment.id}/plan`)
         .send({ plan: SubscriptionPlan.PRO, reason: 'Friend of the founder' })
         .expect(201);
 
-      const workspace = await request(http()).get(`/api/bars/${bar.id}/bar-subscription`).expect(200);
+      const workspace = await request(http())
+        .get(`/api/establishments/${establishment.id}/establishment-subscription`)
+        .expect(200);
 
       expect(JSON.stringify(workspace.body)).not.toContain('Friend of the founder');
       expect(workspace.body.manualGrant).toEqual({ plan: SubscriptionPlan.PRO, expiresAt: null });
 
-      const backoffice = await request(http()).get(`/api/admin/bars/${bar.id}`).expect(200);
+      const backoffice = await request(http()).get(`/api/admin/establishments/${establishment.id}`).expect(200);
 
       expect(backoffice.body.subscription.manualGrant.reason).toBe('Friend of the founder');
     });
   });
 
-  describe('admin reach into any bar', () => {
-    it('should let an admin act on a bar it does not belong to', async () => {
+  describe('admin reach into any establishment', () => {
+    it('should let an admin act on an establishment it does not belong to', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('Foreign bar', { ownerId: null });
+      const establishment = await testSetup.createEstablishment('Foreign establishment', { ownerId: null });
 
-      const me = await request(http()).get(`/api/bars/${bar.id}/members/me`).expect(200);
-      expect(me.body.role).toBe(DbBarRole.OWNER);
+      const me = await request(http()).get(`/api/establishments/${establishment.id}/members/me`).expect(200);
+      expect(me.body.role).toBe(DbEstablishmentRole.OWNER);
 
-      await request(http()).post(`/api/bars/${bar.id}/tables`).send({ name: 'T1' }).expect(201);
+      await request(http()).post(`/api/establishments/${establishment.id}/tables`).send({ name: 'T1' }).expect(201);
     });
 
     it('should audit a role change an admin makes through the ordinary member route', async () => {
       await becomeAdmin();
-      const bar = await testSetup.createBar('Foreign bar', { ownerId: null });
+      const establishment = await testSetup.createEstablishment('Foreign establishment', { ownerId: null });
       await testSetup.prisma.dbUser.create({
-        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'USER', active: true },
+        data: { id: OTHER_USER_ID, email: 'other@establishment.com', name: 'Other', role: 'USER', active: true },
       });
-      const member = await testSetup.prisma.dbBarMember.create({
-        data: { barId: bar.id, userId: OTHER_USER_ID, role: DbBarRole.STAFF },
+      const member = await testSetup.prisma.dbEstablishmentMember.create({
+        data: { establishmentId: establishment.id, userId: OTHER_USER_ID, role: DbEstablishmentRole.STAFF },
       });
 
       await request(http())
-        .patch(`/api/bars/${bar.id}/members/${member.id}`)
-        .send({ role: BarRole.MANAGER })
+        .patch(`/api/establishments/${establishment.id}/members/${member.id}`)
+        .send({ role: EstablishmentRole.MANAGER })
         .expect(200);
 
       expect(await waitForAudit()).toBe(1);
@@ -176,27 +183,96 @@ describe('Admin backoffice (e2e)', () => {
       const audit = await request(http()).get('/api/admin/audit').expect(200);
 
       expect(audit.body.items[0]).toMatchObject({
-        action: 'BAR_MEMBER_ROLE_CHANGED',
-        targetType: 'BAR',
-        targetId: bar.id,
+        action: 'ESTABLISHMENT_MEMBER_ROLE_CHANGED',
+        targetType: 'ESTABLISHMENT',
+        targetId: establishment.id,
       });
     });
 
     it('should not audit a role change made by an ordinary owner', async () => {
-      const bar = await testSetup.createBar('My bar');
+      const establishment = await testSetup.createEstablishment('My establishment');
       await testSetup.prisma.dbUser.create({
-        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'USER', active: true },
+        data: { id: OTHER_USER_ID, email: 'other@establishment.com', name: 'Other', role: 'USER', active: true },
       });
-      const member = await testSetup.prisma.dbBarMember.create({
-        data: { barId: bar.id, userId: OTHER_USER_ID, role: DbBarRole.STAFF },
+      const member = await testSetup.prisma.dbEstablishmentMember.create({
+        data: { establishmentId: establishment.id, userId: OTHER_USER_ID, role: DbEstablishmentRole.STAFF },
       });
 
       await request(http())
-        .patch(`/api/bars/${bar.id}/members/${member.id}`)
-        .send({ role: BarRole.MANAGER })
+        .patch(`/api/establishments/${establishment.id}/members/${member.id}`)
+        .send({ role: EstablishmentRole.MANAGER })
         .expect(200);
 
       expect(await waitForAudit()).toBe(0);
+    });
+  });
+
+  describe('changing an establishment modules from the backoffice', () => {
+    it('should apply the change and record who made it', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Supported establishment', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      const response = await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(200);
+
+      expect(response.body.modules).toEqual(
+        expect.arrayContaining([EstablishmentModule.ORDERS, EstablishmentModule.INVENTORY]),
+      );
+
+      await waitForAudit();
+      const entry = await testSetup.prisma.dbAdminAuditLog.findFirst({ where: { targetId: establishment.id } });
+
+      expect(entry?.action).toBe(AdminAuditAction.ESTABLISHMENT_MODULES_CHANGED);
+      expect(entry?.actorId).toBe(mockUser.id);
+    });
+
+    it('should take effect on the establishment straight away', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Supported establishment', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.INVENTORY] })
+        .expect(200);
+
+      await request(http()).get(`/api/establishments/${establishment.id}/products`).expect(200);
+    });
+
+    /*
+     * Support switching a module on is not the owner answering the welcome questions, and it must
+     * not quietly consume them.
+     */
+    it('should leave an unconfigured establishment still waiting for its owner', async () => {
+      await becomeAdmin();
+      const establishment = await testSetup.createEstablishment('Never set up', {
+        modules: [EstablishmentModule.TIME_TRACKING],
+      });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(200);
+
+      const settings = await testSetup.prisma.dbEstablishmentSettings.findUnique({
+        where: { establishmentId: establishment.id },
+      });
+
+      expect(settings?.configuredAt).toBeNull();
+    });
+
+    it('should refuse a plain user', async () => {
+      const establishment = await testSetup.createEstablishment('Not yours', { ownerId: null });
+
+      await request(http())
+        .patch(`/api/admin/establishments/${establishment.id}/modules`)
+        .send({ modules: [EstablishmentModule.ORDERS] })
+        .expect(403);
     });
   });
 
@@ -204,7 +280,7 @@ describe('Admin backoffice (e2e)', () => {
     it('should record an audit entry for every change', async () => {
       await becomeAdmin();
       await testSetup.prisma.dbUser.create({
-        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'USER', active: true },
+        data: { id: OTHER_USER_ID, email: 'other@establishment.com', name: 'Other', role: 'USER', active: true },
       });
 
       await request(http()).patch(`/api/admin/users/${OTHER_USER_ID}`).send({ role: 'ADMIN' }).expect(200);
@@ -227,7 +303,7 @@ describe('Admin backoffice (e2e)', () => {
     it('should refuse demoting the last admin', async () => {
       await becomeAdmin();
       await testSetup.prisma.dbUser.create({
-        data: { id: OTHER_USER_ID, email: 'other@bar.com', name: 'Other', role: 'ADMIN', active: true },
+        data: { id: OTHER_USER_ID, email: 'other@establishment.com', name: 'Other', role: 'ADMIN', active: true },
       });
       await testSetup.prisma.dbUser.update({ where: { id: mockUser.id }, data: { role: 'ADMIN' } });
       await testSetup.prisma.dbUser.update({ where: { id: mockUser.id }, data: { active: false } });

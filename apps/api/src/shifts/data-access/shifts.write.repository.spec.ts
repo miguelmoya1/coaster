@@ -1,4 +1,4 @@
-import { asBarId, asShiftId, asUserId } from '@coaster/common';
+import { asEstablishmentId, asShiftId, asUserId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -34,18 +34,18 @@ describe('ShiftsWriteRepository', () => {
 
   describe('create', () => {
     it('should call dbShift.create with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const userId = asUserId('user-1');
       const createShiftDto = { startTime: new Date(), endTime: new Date() };
       const expectedResult = { id: 'shift-1' };
       vi.mocked(dbService.dbShift.create).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.create(barId, userId, createShiftDto as any);
+      const result = await repository.create(establishmentId, userId, createShiftDto as any);
 
       expect(dbService.dbShift.create).toHaveBeenCalledWith({
         data: {
           ...createShiftDto,
-          bar: { connect: { id: barId } },
+          establishment: { connect: { id: establishmentId } },
           user: { connect: { id: userId } },
         },
         include: {

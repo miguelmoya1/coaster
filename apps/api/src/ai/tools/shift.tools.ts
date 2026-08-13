@@ -28,7 +28,7 @@ export const createShiftTools = (context: AiToolsContext) => {
   return {
     listShifts: tool({
       description:
-        'List the scheduled shifts of the bar within a date range, with the worker assigned to each one. Use it for "¿quién trabaja mañana?" or "¿cuándo me toca turno?".',
+        'List the scheduled shifts of the establishment within a date range, with the worker assigned to each one. Use it for "¿quién trabaja mañana?" or "¿cuándo me toca turno?".',
       inputSchema: zodSchema(
         z.object({
           startDate: z
@@ -41,8 +41,8 @@ export const createShiftTools = (context: AiToolsContext) => {
       execute: async ({ startDate, endDate }: { startDate?: string; endDate?: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'listShifts' called with startDate="${startDate}", endDate="${endDate}"`);
         return runner.query<Shift[]>(
-          'bar:view-shifts',
-          new GetShiftsQuery(context.barId, startDate, endDate),
+          'establishment:view-shifts',
+          new GetShiftsQuery(context.establishmentId, startDate, endDate),
           (shifts) =>
             shifts.map((shift) => ({
               id: shift.id,
@@ -58,7 +58,7 @@ export const createShiftTools = (context: AiToolsContext) => {
 
     createShift: tool({
       description:
-        'Schedule a shift for a member of the bar. Use listMembers first to resolve the worker name into a user UUID.',
+        'Schedule a shift for a member of the establishment. Use listMembers first to resolve the worker name into a user UUID.',
       inputSchema: zodSchema(
         z.object({
           userId: z.string().describe('The user UUID of the worker taking the shift.'),
@@ -92,8 +92,8 @@ export const createShiftTools = (context: AiToolsContext) => {
         }
 
         return runner.execute(
-          'bar:create-shift',
-          new CreateShiftCommand(context.barId, {
+          'establishment:create-shift',
+          new CreateShiftCommand(context.establishmentId, {
             userId: asUserId(userId),
             startTime: start,
             endTime: end,
@@ -115,21 +115,26 @@ export const createShiftTools = (context: AiToolsContext) => {
       ),
       execute: async ({ shiftId, confirmed }: { shiftId: string; confirmed: boolean }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'deleteShift' called with shiftId="${shiftId}", confirmed=${confirmed}`);
-        return runner.execute('bar:delete-shift', new DeleteShiftCommand(context.barId, asShiftId(shiftId)), {
-          confirmed,
-          summary: 'delete that scheduled shift',
-        });
+        return runner.execute(
+          'establishment:delete-shift',
+          new DeleteShiftCommand(context.establishmentId, asShiftId(shiftId)),
+          {
+            confirmed,
+            summary: 'delete that scheduled shift',
+          },
+        );
       },
     }),
 
     listShiftExchanges: tool({
-      description: 'List the pending shift exchange requests of the bar, so staff can see which swaps are open.',
+      description:
+        'List the pending shift exchange requests of the establishment, so staff can see which swaps are open.',
       inputSchema: zodSchema(z.object({})),
       execute: async (): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'listShiftExchanges' called`);
         return runner.query<ShiftExchange[]>(
-          'bar:view-exchanges',
-          new GetPendingExchangesQuery(context.barId),
+          'establishment:view-exchanges',
+          new GetPendingExchangesQuery(context.establishmentId),
           (exchanges) =>
             exchanges.map((exchange) => ({
               id: exchange.id,
@@ -158,8 +163,8 @@ export const createShiftTools = (context: AiToolsContext) => {
       execute: async ({ shiftId, targetUserId }: { shiftId: string; targetUserId?: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'requestShiftExchange' called with shiftId="${shiftId}"`);
         return runner.execute(
-          'bar:create-exchange',
-          new RequestExchangeCommand(context.barId, asShiftId(shiftId), context.user.id, {
+          'establishment:create-exchange',
+          new RequestExchangeCommand(context.establishmentId, asShiftId(shiftId), context.user.id, {
             targetId: targetUserId ? asUserId(targetUserId) : undefined,
           }),
         );
@@ -176,8 +181,8 @@ export const createShiftTools = (context: AiToolsContext) => {
       execute: async ({ exchangeId }: { exchangeId: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'acceptShiftExchange' called with exchangeId="${exchangeId}"`);
         return runner.execute(
-          'bar:accept-exchange',
-          new AcceptExchangeCommand(context.barId, asShiftExchangeId(exchangeId), context.user.id),
+          'establishment:accept-exchange',
+          new AcceptExchangeCommand(context.establishmentId, asShiftExchangeId(exchangeId), context.user.id),
         );
       },
     }),
@@ -195,8 +200,8 @@ export const createShiftTools = (context: AiToolsContext) => {
       execute: async ({ exchangeId, confirmed }: { exchangeId: string; confirmed: boolean }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'cancelShiftExchange' called with exchangeId="${exchangeId}"`);
         return runner.execute(
-          'bar:delete-exchange',
-          new DeleteExchangeCommand(context.barId, asShiftExchangeId(exchangeId), context.user.id),
+          'establishment:delete-exchange',
+          new DeleteExchangeCommand(context.establishmentId, asShiftExchangeId(exchangeId), context.user.id),
           { confirmed, summary: 'withdraw that shift exchange request' },
         );
       },

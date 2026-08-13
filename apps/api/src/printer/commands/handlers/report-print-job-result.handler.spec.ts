@@ -16,16 +16,18 @@ describe('ReportPrintJobResultHandler', () => {
     complete: ReturnType<typeof vi.fn>;
     fail: ReturnType<typeof vi.fn>;
   };
-  let readRepo: { findByBarId: ReturnType<typeof vi.fn> };
+  let readRepo: { findByEstablishmentId: ReturnType<typeof vi.fn> };
   let writeRepo: { updateLastSeen: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     jobRepo = {
-      findById: vi.fn().mockResolvedValue({ id: 'job-1', barId: 'bar-1' }),
+      findById: vi.fn().mockResolvedValue({ id: 'job-1', establishmentId: 'establishment-1' }),
       complete: vi.fn().mockResolvedValue({ count: 1 }),
       fail: vi.fn().mockResolvedValue({ count: 1 }),
     };
-    readRepo = { findByBarId: vi.fn().mockResolvedValue({ barId: 'bar-1', deviceKey: 'key-xyz' }) };
+    readRepo = {
+      findByEstablishmentId: vi.fn().mockResolvedValue({ establishmentId: 'establishment-1', deviceKey: 'key-xyz' }),
+    };
     writeRepo = { updateLastSeen: vi.fn().mockResolvedValue({}) };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -42,7 +44,7 @@ describe('ReportPrintJobResultHandler', () => {
   });
 
   const command = (result: { status: 'printed' | 'failed'; error?: string }, deviceKey = 'key-xyz') =>
-    new ReportPrintJobResultCommand('bar-1' as any, 'job-1', deviceKey, result);
+    new ReportPrintJobResultCommand('establishment-1' as any, 'job-1', deviceKey, result);
 
   it('should mark a printed job complete', async () => {
     await handler.execute(command({ status: 'printed' }));
@@ -62,8 +64,8 @@ describe('ReportPrintJobResultHandler', () => {
     expect(jobRepo.complete).not.toHaveBeenCalled();
   });
 
-  it('should refuse a job belonging to another bar', async () => {
-    jobRepo.findById.mockResolvedValue({ id: 'job-1', barId: 'another-bar' });
+  it('should refuse a job belonging to another establishment', async () => {
+    jobRepo.findById.mockResolvedValue({ id: 'job-1', establishmentId: 'another-establishment' });
 
     await expect(handler.execute(command({ status: 'printed' }))).rejects.toThrow(NotFoundException);
     expect(jobRepo.complete).not.toHaveBeenCalled();

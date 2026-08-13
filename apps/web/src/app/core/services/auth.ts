@@ -81,7 +81,7 @@ export class Auth {
 
     if (typeof window !== 'undefined' && !environment.production) {
       (window as unknown as { __TEST_LOGIN__: (token: string, targetRoute: string) => Promise<void> }).__TEST_LOGIN__ =
-        async (token = 'fake-jwt-token', targetRoute = '/bars') => {
+        async (token = 'fake-jwt-token', targetRoute = '/establishments') => {
           this.#isTestMode = true;
           this.#currentUser.set({ uid: 'test-user-123', email: 'test@coaster.com' } as unknown as User);
           this.#token.set(token);

@@ -18,7 +18,7 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
 
   async execute(command: DeleteOrderCommand): Promise<void> {
     const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.barId !== command.barId) {
+    if (!order || order.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
@@ -37,6 +37,6 @@ export class DeleteOrderHandler implements ICommandHandler<DeleteOrderCommand, v
 
     await this.writeRepo.deleteOrder(command.orderId);
     this.#logger.debug(`Publishing OrderDeletedEvent...`);
-    this._eventBus.publish(new OrderDeletedEvent(command.barId, command.orderId));
+    this._eventBus.publish(new OrderDeletedEvent(command.establishmentId, command.orderId));
   }
 }

@@ -2,11 +2,11 @@ import {
   SubscriptionCancelledEvent,
   SubscriptionPaymentFailedEvent,
   SubscriptionRenewedEvent,
-} from '@coaster/bar-subscription';
-import { SocketEvents, asBarId } from '@coaster/common';
+} from '@coaster/establishment-subscription';
+import { SocketEvents, asEstablishmentId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { SubscriptionUpdatedHandler } from './subscription-updated.handler';
 
 describe('SubscriptionUpdatedHandler', () => {
@@ -20,7 +20,7 @@ describe('SubscriptionUpdatedHandler', () => {
       providers: [
         SubscriptionUpdatedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -35,26 +35,26 @@ describe('SubscriptionUpdatedHandler', () => {
   });
 
   it('should emit SUBSCRIPTION_UPDATED event when SubscriptionRenewedEvent is received', () => {
-    const event = new SubscriptionRenewedEvent(asBarId('bar-1'), 'sub_123');
+    const event = new SubscriptionRenewedEvent(asEstablishmentId('establishment-1'), 'sub_123');
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { barId: 'bar-1' });
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { establishmentId: 'establishment-1' });
   });
 
   it('should emit SUBSCRIPTION_UPDATED event when SubscriptionCancelledEvent is received', () => {
-    const event = new SubscriptionCancelledEvent(asBarId('bar-1'), 'sub_123', new Date());
+    const event = new SubscriptionCancelledEvent(asEstablishmentId('establishment-1'), 'sub_123', new Date());
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { barId: 'bar-1' });
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { establishmentId: 'establishment-1' });
   });
 
-  it('should emit SUBSCRIPTION_UPDATED event when a payment fails, so clients see the bar go past due', () => {
-    const event = new SubscriptionPaymentFailedEvent(asBarId('bar-1'), 'cus_123');
+  it('should emit SUBSCRIPTION_UPDATED event when a payment fails, so clients see the establishment go past due', () => {
+    const event = new SubscriptionPaymentFailedEvent(asEstablishmentId('establishment-1'), 'cus_123');
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { barId: 'bar-1' });
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.subscriptionUpdated, { establishmentId: 'establishment-1' });
   });
 });

@@ -1,17 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
-import type { BarId, BarStats } from '@coaster/common';
-import { firstValueFrom } from 'rxjs';
+import { Service } from '@angular/core';
+import type { EstablishmentId } from '@coaster/common';
 
 @Service()
 export class StatsRepository {
-  readonly #http = inject(HttpClient);
-
   public readonly routes = {
-    get: (barId: BarId) => `/bars/${barId}/stats`,
+    get: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/stats`,
   };
-
-  public async getStats(barId: BarId): Promise<BarStats> {
-    return firstValueFrom(this.#http.get<BarStats>(this.routes.get(barId)));
-  }
 }

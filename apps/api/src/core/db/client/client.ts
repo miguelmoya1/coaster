@@ -52,15 +52,35 @@ export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
  */
 export type DbUser = Prisma.DbUserModel
 /**
- * Model DbBar
+ * Model DbEstablishment
  * 
  */
-export type DbBar = Prisma.DbBarModel
+export type DbEstablishment = Prisma.DbEstablishmentModel
 /**
- * Model DbBarMember
+ * Model DbEstablishmentSettings
  * 
  */
-export type DbBarMember = Prisma.DbBarMemberModel
+export type DbEstablishmentSettings = Prisma.DbEstablishmentSettingsModel
+/**
+ * Model DbPrinterPairing
+ * 
+ */
+export type DbPrinterPairing = Prisma.DbPrinterPairingModel
+/**
+ * Model DbAiUsage
+ * 
+ */
+export type DbAiUsage = Prisma.DbAiUsageModel
+/**
+ * Model DbUserPreferences
+ * 
+ */
+export type DbUserPreferences = Prisma.DbUserPreferencesModel
+/**
+ * Model DbEstablishmentMember
+ * 
+ */
+export type DbEstablishmentMember = Prisma.DbEstablishmentMemberModel
 /**
  * Model DbShift
  * 
@@ -72,6 +92,21 @@ export type DbShift = Prisma.DbShiftModel
  */
 export type DbShiftExchange = Prisma.DbShiftExchangeModel
 /**
+ * Model DbMenu
+ * 
+ */
+export type DbMenu = Prisma.DbMenuModel
+/**
+ * Model DbMenuSection
+ * 
+ */
+export type DbMenuSection = Prisma.DbMenuSectionModel
+/**
+ * Model DbMenuItem
+ * 
+ */
+export type DbMenuItem = Prisma.DbMenuItemModel
+/**
  * Model DbCategory
  * 
  */
@@ -81,16 +116,6 @@ export type DbCategory = Prisma.DbCategoryModel
  * 
  */
 export type DbProduct = Prisma.DbProductModel
-/**
- * Model DbCategoryTemplate
- * 
- */
-export type DbCategoryTemplate = Prisma.DbCategoryTemplateModel
-/**
- * Model DbProductTemplate
- * 
- */
-export type DbProductTemplate = Prisma.DbProductTemplateModel
 /**
  * Model DbTable
  * 
@@ -117,10 +142,10 @@ export type DbPrinterConfig = Prisma.DbPrinterConfigModel
  */
 export type DbPrintJob = Prisma.DbPrintJobModel
 /**
- * Model DbBarSubscription
+ * Model DbEstablishmentSubscription
  * 
  */
-export type DbBarSubscription = Prisma.DbBarSubscriptionModel
+export type DbEstablishmentSubscription = Prisma.DbEstablishmentSubscriptionModel
 /**
  * Model DbTimeEntry
  * 

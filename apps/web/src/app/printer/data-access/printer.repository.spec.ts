@@ -21,14 +21,14 @@ describe('PrinterRepository', () => {
 
   describe('routes', () => {
     it('should build the job routes on the API', () => {
-      expect(service.routes.print('bar-1')).toBe('/bars/bar-1/printer/jobs');
-      expect(service.routes.job('bar-1', 'job-1')).toBe('/bars/bar-1/printer/jobs/job-1');
-      expect(service.routes.status('bar-1')).toBe('/bars/bar-1/printer/status');
-      expect(service.routes.deviceKey('bar-1')).toBe('/bars/bar-1/printer/device-key');
+      expect(service.routes.print('establishment-1')).toBe('/establishments/establishment-1/printer/jobs');
+      expect(service.routes.job('establishment-1', 'job-1')).toBe('/establishments/establishment-1/printer/jobs/job-1');
+      expect(service.routes.status('establishment-1')).toBe('/establishments/establishment-1/printer/status');
+      expect(service.routes.deviceKey('establishment-1')).toBe('/establishments/establishment-1/printer/device-key');
     });
 
     it('should never address the bridge directly', () => {
-      const routes = Object.values(service.routes).map((build) => build('bar-1', 'job-1'));
+      const routes = Object.values(service.routes).map((build) => build('establishment-1', 'job-1'));
 
       for (const route of routes) {
         expect(route.startsWith('/')).toBe(true);
@@ -47,9 +47,9 @@ describe('PrinterRepository', () => {
         currency: 'EUR',
       };
 
-      const promise = service.printTicket('bar-1', payload);
+      const promise = service.printTicket('establishment-1', payload);
 
-      const req = httpMock.expectOne('/bars/bar-1/printer/jobs');
+      const req = httpMock.expectOne('/establishments/establishment-1/printer/jobs');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(payload);
       req.flush({ jobId: 'job-1' });
@@ -68,29 +68,9 @@ describe('PrinterRepository', () => {
         completedAt: '2026-08-07T10:00:02.000Z',
       };
 
-      const promise = service.getJob('bar-1', 'job-1');
+      const promise = service.getJob('establishment-1', 'job-1');
 
-      const req = httpMock.expectOne('/bars/bar-1/printer/jobs/job-1');
-      expect(req.request.method).toBe('GET');
-      req.flush(expected);
-
-      expect(await promise).toEqual(expected);
-    });
-  });
-
-  describe('getStatus', () => {
-    it('should fetch printer status', async () => {
-      const expected = {
-        barId: 'bar-1',
-        isOnline: true,
-        ipAddress: '192.168.1.100',
-        port: 8080,
-        lastSeenAt: '2026-07-13T20:00:00.000Z',
-      };
-
-      const promise = service.getStatus('bar-1');
-
-      const req = httpMock.expectOne('/bars/bar-1/printer/status');
+      const req = httpMock.expectOne('/establishments/establishment-1/printer/jobs/job-1');
       expect(req.request.method).toBe('GET');
       req.flush(expected);
 
@@ -100,9 +80,9 @@ describe('PrinterRepository', () => {
 
   describe('generateDeviceKey', () => {
     it('should POST to generate device key', async () => {
-      const promise = service.generateDeviceKey('bar-1');
+      const promise = service.generateDeviceKey('establishment-1');
 
-      const req = httpMock.expectOne('/bars/bar-1/printer/device-key');
+      const req = httpMock.expectOne('/establishments/establishment-1/printer/device-key');
       expect(req.request.method).toBe('POST');
       req.flush({ deviceKey: 'uuid-key-123' });
 

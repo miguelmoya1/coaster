@@ -20,7 +20,7 @@ export class UpdateOrderTipHandler implements ICommandHandler<UpdateOrderTipComm
     this.#logger.debug(`Executing updateOrderTip...`);
 
     const order = await this.readRepo.findById(command.orderId);
-    if (!order || order.barId !== command.barId) {
+    if (!order || order.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
@@ -35,6 +35,6 @@ export class UpdateOrderTipHandler implements ICommandHandler<UpdateOrderTipComm
     await this.writeRepo.updateOrderTip(command.orderId, command.dto.tipAmount);
 
     this.#logger.debug(`Publishing OrderTipUpdatedEvent...`);
-    this._eventBus.publish(new OrderTipUpdatedEvent(command.barId, command.orderId, command.dto.tipAmount));
+    this._eventBus.publish(new OrderTipUpdatedEvent(command.establishmentId, command.orderId, command.dto.tipAmount));
   }
 }

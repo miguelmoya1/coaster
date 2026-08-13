@@ -20,15 +20,18 @@ export class UpdateProductStockHandler implements ICommandHandler<UpdateProductS
   async execute(command: UpdateProductStockCommand): Promise<void> {
     this.#logger.debug(`Executing updateProductStock...`);
 
-    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+    const belongsToEstablishment = await this.readRepo.checkProductBelongsToEstablishment(
+      command.productId,
+      command.establishmentId,
+    );
 
-    if (!belongsToBar) {
+    if (!belongsToEstablishment) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
     const product = await this.writeRepo.update(command.productId, command.dto);
     const mapped = ProductsMapper.toDomain(product);
     this.#logger.debug(`Publishing ProductStockChangedEvent...`);
-    this._eventBus.publish(new ProductStockChangedEvent(command.barId, mapped));
+    this._eventBus.publish(new ProductStockChangedEvent(command.establishmentId, mapped));
   }
 }

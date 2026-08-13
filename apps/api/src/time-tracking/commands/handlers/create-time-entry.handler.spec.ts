@@ -1,27 +1,35 @@
 import type { User } from '@coaster/common';
-import { ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType, asUserId, Role, asBarId } from '@coaster/common';
+import {
+  ErrorCodes,
+  TimeEntryAction,
+  TimeEntrySource,
+  TimeEntryType,
+  asUserId,
+  Role,
+  asEstablishmentId,
+} from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateTimeEntryCommand } from '../impl/create-time-entry.command';
 import { CreateTimeEntryHandler } from './create-time-entry.handler';
 
-const barId = asBarId('bar-1');
+const establishmentId = asEstablishmentId('establishment-1');
 const actor: User = {
   id: asUserId('manager-1'),
-  email: 'ana@bar.com',
+  email: 'ana@establishment.com',
   name: 'Ana',
   active: true,
   role: Role.USER,
   language: 'es',
 };
-const member = { userId: 'user-1', userName: 'Luis', userEmail: 'luis@bar.com', active: true };
+const member = { userId: 'user-1', userName: 'Luis', userEmail: 'luis@establishment.com', active: true };
 
 const row = {
   id: 'entry-1',
   rootId: 'entry-1',
-  barId: 'bar-1',
+  establishmentId: 'establishment-1',
   userId: 'user-1',
-  userSnapshot: { name: 'Luis', email: 'luis@bar.com' },
+  userSnapshot: { name: 'Luis', email: 'luis@establishment.com' },
   shiftId: null,
   type: TimeEntryType.CLOCK_IN,
   action: TimeEntryAction.RECORDED,
@@ -42,7 +50,7 @@ const row = {
 };
 
 const command = (overrides: Record<string, unknown> = {}) =>
-  new CreateTimeEntryCommand(barId, actor, {
+  new CreateTimeEntryCommand(establishmentId, actor, {
     userId: asUserId('user-1'),
     type: TimeEntryType.CLOCK_IN,
     occurredAt: '2026-08-08T08:00:00Z',
@@ -75,7 +83,7 @@ describe('CreateTimeEntryHandler', () => {
         userId: 'user-1',
         actorId: actor.id,
         reason: 'El terminal estaba caido',
-        userSnapshot: { name: 'Luis', email: 'luis@bar.com' },
+        userSnapshot: { name: 'Luis', email: 'luis@establishment.com' },
       }),
     );
   });

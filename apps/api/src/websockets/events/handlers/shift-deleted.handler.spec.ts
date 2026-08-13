@@ -1,8 +1,8 @@
-import { SocketEvents, asBarId, asShiftId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId, asShiftId } from '@coaster/common';
 import { ShiftDeletedEvent } from '@coaster/shifts';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { ShiftDeletedHandler } from './shift-deleted.handler';
 
 describe('ShiftDeletedHandler', () => {
@@ -16,7 +16,7 @@ describe('ShiftDeletedHandler', () => {
       providers: [
         ShiftDeletedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -30,13 +30,13 @@ describe('ShiftDeletedHandler', () => {
     vi.clearAllMocks();
   });
 
-  it('should emit SHIFT_DELETED event to the correct bar room', () => {
+  it('should emit SHIFT_DELETED event to the correct establishment room', () => {
     const shiftId = asShiftId('shift-1');
-    const barId = asBarId('bar-1');
-    const event = new ShiftDeletedEvent(barId, shiftId);
+    const establishmentId = asEstablishmentId('establishment-1');
+    const event = new ShiftDeletedEvent(establishmentId, shiftId);
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.shiftDeleted, { id: shiftId });
   });
 });

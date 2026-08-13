@@ -1,4 +1,4 @@
-import { Bar, BarId } from './bar.interface';
+import { Establishment, EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 import { Product } from './product.interface';
 
@@ -6,8 +6,8 @@ export type CategoryId = Brand<string, 'CategoryId'>;
 
 export interface Category {
   id: CategoryId;
-  barId: BarId;
-  bar?: Bar;
+  establishmentId: EstablishmentId;
+  establishment?: Establishment;
   name: string;
   icon?: string;
   products?: Product[];

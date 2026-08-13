@@ -12,10 +12,9 @@ interface AdminNavItem {
 
 const NAV_ITEMS: AdminNavItem[] = [
   { path: 'overview', icon: 'monitoring', labelKey: 'admin.nav.overview' },
-  { path: 'bars', icon: 'storefront', labelKey: 'admin.nav.bars' },
+  { path: 'establishments', icon: 'storefront', labelKey: 'admin.nav.establishments' },
   { path: 'users', icon: 'group', labelKey: 'admin.nav.users' },
   { path: 'audit', icon: 'history', labelKey: 'admin.nav.audit' },
-  { path: 'templates', icon: 'dashboard_customize', labelKey: 'admin.nav.templates' },
 ];
 
 @Component({
@@ -35,12 +34,12 @@ const NAV_ITEMS: AdminNavItem[] = [
 
       <a
         mat-stroked-button
-        routerLink="/bars/select"
+        routerLink="/establishments/select"
         class="shrink-0"
-        [attr.aria-label]="'common.change_bar' | translate"
+        [attr.aria-label]="'common.change_establishment' | translate"
       >
         <mat-icon>storefront</mat-icon>
-        <span class="hidden sm:inline">{{ 'common.change_bar' | translate }}</span>
+        <span class="hidden sm:inline">{{ 'common.change_establishment' | translate }}</span>
       </a>
     </header>
 

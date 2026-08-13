@@ -54,10 +54,23 @@ describe('UpdateUserHandler', () => {
       }),
     );
 
-    expect(repository.update).toHaveBeenCalledWith('user-1', {
-      name: 'Updated Name',
-      photoUrl: 'http://photo.com/2',
-    });
+    expect(repository.update).toHaveBeenCalledWith(
+      'user-1',
+      {
+        name: 'Updated Name',
+        photoUrl: 'http://photo.com/2',
+      },
+      undefined,
+    );
+  });
+
+  it('should pass the language through so it lands in the preferences row', async () => {
+    repository.findById.mockResolvedValue({ id: 'user-1', email: 'test@mail.com', name: 'Test' });
+    repository.update.mockResolvedValue({ id: 'user-1' });
+
+    await handler.execute(new UpdateUserCommand(asUserId('user-1'), { language: 'en' }));
+
+    expect(repository.update).toHaveBeenCalledWith('user-1', expect.anything(), 'en');
   });
 
   it('should throw an error if the user does not exist', async () => {

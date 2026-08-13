@@ -22,7 +22,7 @@ describe('WsAuthService', () => {
     vi.clearAllMocks();
 
     dbMock = { dbUser: { findUnique: vi.fn() } };
-    securityRepoMock = { getUserRole: vi.fn(), getBarMemberRole: vi.fn() };
+    securityRepoMock = { getUserRole: vi.fn(), getEstablishmentMemberRole: vi.fn() };
 
     service = new WsAuthService(
       new FirebaseTokenService(dbMock as unknown as DbService),
@@ -66,6 +66,7 @@ describe('WsAuthService', () => {
       expect(verifyIdToken).toHaveBeenCalledWith('tok_123');
       expect(dbMock.dbUser.findUnique).toHaveBeenCalledWith({
         where: { googleId: 'google-1' },
+        include: { preferences: true },
       });
       expect(userId).toBe('user-1');
     });
@@ -107,33 +108,33 @@ describe('WsAuthService', () => {
     });
   });
 
-  describe('canAccessBar', () => {
-    it('should allow platform admins into any bar', async () => {
+  describe('canAccessEstablishment', () => {
+    it('should allow platform admins into any establishment', async () => {
       securityRepoMock.getUserRole.mockResolvedValue(DbRole.ADMIN);
 
-      await expect(service.canAccessBar('user-1', 'bar-1')).resolves.toBe(true);
-      expect(securityRepoMock.getBarMemberRole).not.toHaveBeenCalled();
+      await expect(service.canAccessEstablishment('user-1', 'establishment-1')).resolves.toBe(true);
+      expect(securityRepoMock.getEstablishmentMemberRole).not.toHaveBeenCalled();
     });
 
-    it('should allow an active member of the bar', async () => {
+    it('should allow an active member of the establishment', async () => {
       securityRepoMock.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepoMock.getBarMemberRole.mockResolvedValue({ role: 'STAFF', active: true });
+      securityRepoMock.getEstablishmentMemberRole.mockResolvedValue({ role: 'STAFF', active: true });
 
-      await expect(service.canAccessBar('user-1', 'bar-1')).resolves.toBe(true);
+      await expect(service.canAccessEstablishment('user-1', 'establishment-1')).resolves.toBe(true);
     });
 
-    it('should reject a user who is not a member of the bar', async () => {
+    it('should reject a user who is not a member of the establishment', async () => {
       securityRepoMock.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepoMock.getBarMemberRole.mockResolvedValue(null);
+      securityRepoMock.getEstablishmentMemberRole.mockResolvedValue(null);
 
-      await expect(service.canAccessBar('user-1', 'someone-elses-bar')).resolves.toBe(false);
+      await expect(service.canAccessEstablishment('user-1', 'someone-elses-establishment')).resolves.toBe(false);
     });
 
     it('should reject a deactivated member', async () => {
       securityRepoMock.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepoMock.getBarMemberRole.mockResolvedValue({ role: 'STAFF', active: false });
+      securityRepoMock.getEstablishmentMemberRole.mockResolvedValue({ role: 'STAFF', active: false });
 
-      await expect(service.canAccessBar('user-1', 'bar-1')).resolves.toBe(false);
+      await expect(service.canAccessEstablishment('user-1', 'establishment-1')).resolves.toBe(false);
     });
   });
 });

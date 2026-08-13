@@ -39,7 +39,7 @@ describe('UserReadRepository', () => {
 
       const result = await repository.findById(id);
 
-      expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({ where: { id } });
+      expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({ where: { id }, include: { preferences: true } });
       expect(result).toEqual(expectedResult);
     });
   });
@@ -52,7 +52,7 @@ describe('UserReadRepository', () => {
 
       const result = await repository.findByEmail(email);
 
-      expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({ where: { email } });
+      expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({ where: { email }, include: { preferences: true } });
       expect(result).toEqual(expectedResult);
     });
   });

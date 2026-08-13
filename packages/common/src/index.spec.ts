@@ -9,10 +9,10 @@ describe('Common', () => {
   });
 
   it('should export the enums the apps gate on', () => {
-    expect(common.BarRole.OWNER).toBe('OWNER');
+    expect(common.EstablishmentRole.OWNER).toBe('OWNER');
     expect(common.Role.ADMIN).toBe('ADMIN');
     expect(common.SubscriptionPlan.PRO).toBe('PRO');
-    expect(common.BarBillingSource.MANUAL).toBe('MANUAL');
-    expect(common.AdminAuditAction.BAR_PLAN_GRANTED).toBe('BAR_PLAN_GRANTED');
+    expect(common.EstablishmentBillingSource.MANUAL).toBe('MANUAL');
+    expect(common.AdminAuditAction.ESTABLISHMENT_PLAN_GRANTED).toBe('ESTABLISHMENT_PLAN_GRANTED');
   });
 });

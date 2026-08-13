@@ -1,0 +1,122 @@
+<section class="flex flex-col gap-4" data-testid="widget-revenue-history">
+  <header class="flex justify-between items-center">
+    <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+      <mat-icon class="text-primary text-xl">trending_up</mat-icon>
+      {{ 'dashboard.sections.monthly_yearly' | translate }}
+    </h2>
+  </header>
+
+  @if (stats.isLoading()) {
+    <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
+  } @else if (history(); as revenue) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <mat-card
+        class="p-4 flex flex-col gap-2 border-l-4! border-primary hover:-translate-y-0.5 transition-all duration-200"
+      >
+        <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
+          {{ 'dashboard.financials.current_month' | translate }} ({{ currentMonthName() }})
+        </mat-card-subtitle>
+        <mat-card-title class="text-lg font-black text-on-surface tracking-tight m-0!">
+          {{ revenue.currentMonthRevenue | price }}
+        </mat-card-title>
+        <mat-card-content class="p-0 flex flex-col gap-1">
+          @if (revenue.percentageChange > 0) {
+            <div class="flex items-center gap-1">
+              <span
+                class="text-[10px] font-black flex items-center gap-0.5"
+                [class.text-success]="revenue.isPositiveChange"
+                [class.text-error]="!revenue.isPositiveChange"
+              >
+                {{ revenue.isPositiveChange ? '▲' : '▼' }} {{ revenue.percentageChange }}%
+              </span>
+              <span class="text-xxs text-on-surface-variant">
+                vs {{ 'dashboard.financials.previous_month_short' | translate }}
+              </span>
+            </div>
+          } @else {
+            <span class="text-xxs text-on-surface-variant">{{ 'dashboard.financials.no_change' | translate }}</span>
+          }
+
+          @if (projectedMonthRevenue(); as projected) {
+            <span class="text-xxs text-on-surface-variant/80">
+              {{ 'dashboard.financials.projected_close' | translate }}
+              <span class="font-black text-on-surface-variant">{{ projected | price }}</span>
+            </span>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card
+        class="p-4 flex flex-col gap-2 border-l-4! border-outline-variant hover:-translate-y-0.5 transition-all duration-200"
+      >
+        <mat-card-subtitle class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase m-0!">
+          {{ 'dashboard.financials.previous_month' | translate }} ({{ previousMonthName() }})
+        </mat-card-subtitle>
+        <mat-card-title class="text-lg font-black text-on-surface-variant tracking-tight m-0!">
+          {{ revenue.previousMonthRevenue | price }}
+        </mat-card-title>
+        <mat-card-content class="p-0 text-xxs text-on-surface-variant">
+          {{ 'dashboard.financials.closed_revenue' | translate }}
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+
+      <mat-card-header class="flex justify-between items-center z-10 p-0">
+        <div class="flex flex-col">
+          <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">
+            <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
+            {{ 'dashboard.financials.yearly' | translate }}
+          </h3>
+          <mat-card-title class="text-2xl font-black text-on-surface tracking-tight mt-1 m-0!">
+            {{ revenue.yearlyRevenue | price }}
+          </mat-card-title>
+        </div>
+        <span
+          class="text-xxs text-primary font-black tracking-widest bg-primary/10 px-2 py-1 rounded-full uppercase self-start"
+        >
+          {{ currentYear() }}
+        </span>
+      </mat-card-header>
+
+      <mat-card-content class="flex flex-col gap-2.5 mt-2 z-10 p-0">
+        <span class="text-xxs font-bold text-on-surface-variant tracking-wider uppercase">
+          {{ 'dashboard.financials.yearly_progress' | translate }}
+        </span>
+
+        <div class="flex items-end justify-between h-20 pt-4 px-1 gap-1.5">
+          @for (m of revenue.monthlyBreakdown; track m.monthIndex) {
+            <div class="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer relative">
+              <div
+                class="absolute bottom-full mb-2 bg-surface-container-high border border-outline-variant text-[10px] font-black text-on-surface px-2 py-1 rounded-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none whitespace-nowrap shadow-elevated z-20"
+              >
+                {{ m.amount | price }}
+              </div>
+
+              <div
+                class="w-full rounded-t-xs transition-all duration-300 group-hover:brightness-110"
+                [style.height.%]="(m.amount / (revenue.maxMonthRevenue || 1)) * 80 + 20"
+                [class.bg-primary]="m.monthIndex === currentMonthIndex() && m.amount > 0"
+                [class.bg-outline]="m.monthIndex === currentMonthIndex() && m.amount === 0"
+                [class.bg-primary/40]="m.monthIndex !== currentMonthIndex() && m.amount > 0"
+                [class.bg-outline-variant/20]="m.amount === 0"
+                [class.border-t-2]="m.amount > 0"
+                [class.border-primary]="m.amount > 0"
+              ></div>
+
+              <span
+                class="text-[9px] font-black uppercase transition-colors"
+                [class.text-primary]="m.monthIndex === currentMonthIndex()"
+                [class.text-on-surface-variant]="m.monthIndex !== currentMonthIndex()"
+              >
+                {{ m.monthName.slice(0, 3) }}
+              </span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

@@ -1,4 +1,4 @@
-import { BarRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/common';
 import { expect, test } from '@playwright/test';
 import { MenuPage } from '../pom/menu.page';
 import { mockApiResponse } from './utils/mock-api';
@@ -6,20 +6,24 @@ import { loginAsTestUser } from './utils/mock-auth';
 
 test.describe('Menu Management', () => {
   let menuPage: MenuPage;
-  const barId = 'bar-123';
+  const establishmentId = 'establishment-123';
 
   test.beforeEach(async ({ page }) => {
     menuPage = new MenuPage(page);
   });
 
   test('should create a new category', async ({ page }) => {
-    // Mock the bar profile
-    await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
-    await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
+    // Mock the establishment profile
+    await mockApiResponse(page, `/establishments/${establishmentId}`, 'GET', {
+      id: establishmentId,
+      name: 'My Establishment',
+      active: true,
+    });
+    await mockApiResponse(page, `/establishments/${establishmentId}/members/me`, 'GET', {
       id: 'member-123',
       userId: 'test-user-123',
-      barId,
-      role: BarRole.OWNER,
+      establishmentId,
+      role: EstablishmentRole.OWNER,
       permissions: [],
       active: true,
       userName: 'Test User',
@@ -27,21 +31,21 @@ test.describe('Menu Management', () => {
       userEmail: 'test@example.com',
     });
     // Initial categories and products mock
-    await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', []);
-    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', []);
+    await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'GET', []);
+    await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', []);
 
     // Mock POST
     const newCat = { id: 'cat-1', name: 'Drinks', order: 1, active: true };
-    await mockApiResponse(page, `/bars/${barId}/categories`, 'POST', newCat, 201);
+    await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'POST', newCat, 201);
 
-    await loginAsTestUser(page, `/bars/${barId}/pantry`);
+    await loginAsTestUser(page, `/establishments/${establishmentId}/inventory`);
 
     await menuPage.fabButton.click();
     await menuPage.categoryTab.click();
     await menuPage.categoryNameInput.fill('Drinks');
 
     // Update GET after create
-    await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', [newCat]);
+    await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'GET', [newCat]);
 
     await menuPage.confirmCategoryButton.click();
 
@@ -50,13 +54,17 @@ test.describe('Menu Management', () => {
   });
 
   test('should create a new product', async ({ page }) => {
-    // Mock the bar profile
-    await mockApiResponse(page, `/bars/${barId}`, 'GET', { id: barId, name: 'My Bar', active: true });
-    await mockApiResponse(page, `/bars/${barId}/members/me`, 'GET', {
+    // Mock the establishment profile
+    await mockApiResponse(page, `/establishments/${establishmentId}`, 'GET', {
+      id: establishmentId,
+      name: 'My Establishment',
+      active: true,
+    });
+    await mockApiResponse(page, `/establishments/${establishmentId}/members/me`, 'GET', {
       id: 'member-123',
       userId: 'test-user-123',
-      barId,
-      role: BarRole.OWNER,
+      establishmentId,
+      role: EstablishmentRole.OWNER,
       permissions: [],
       active: true,
       userName: 'Test User',
@@ -65,8 +73,8 @@ test.describe('Menu Management', () => {
     });
     // Mock existing categories so we can assign product
     const cat = { id: 'cat-1', name: 'Drinks', order: 1, active: true };
-    await mockApiResponse(page, `/bars/${barId}/categories`, 'GET', [cat]);
-    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', []);
+    await mockApiResponse(page, `/establishments/${establishmentId}/categories`, 'GET', [cat]);
+    await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', []);
 
     // Mock POST product
     const newProd = {
@@ -78,9 +86,9 @@ test.describe('Menu Management', () => {
       minStockAlert: 5,
       active: true,
     };
-    await mockApiResponse(page, `/bars/${barId}/products`, 'POST', newProd, 201);
+    await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'POST', newProd, 201);
 
-    await loginAsTestUser(page, `/bars/${barId}/pantry`);
+    await loginAsTestUser(page, `/establishments/${establishmentId}/inventory`);
 
     await menuPage.fabButton.click();
     await menuPage.productTab.click();
@@ -91,11 +99,11 @@ test.describe('Menu Management', () => {
     await page.locator('mat-option').first().click();
 
     // Update GET after create
-    await mockApiResponse(page, `/bars/${barId}/products`, 'GET', [newProd]);
+    await mockApiResponse(page, `/establishments/${establishmentId}/products`, 'GET', [newProd]);
 
     await menuPage.confirmProductButton.click();
 
     // Verify it appeared
-    await expect(page.getByTestId('pantry-item-name').filter({ hasText: 'Cola' }).first()).toBeVisible();
+    await expect(page.getByTestId('inventory-item-name').filter({ hasText: 'Cola' }).first()).toBeVisible();
   });
 });

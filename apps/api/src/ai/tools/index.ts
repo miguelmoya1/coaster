@@ -1,3 +1,4 @@
+import { EstablishmentModule } from '@coaster/common';
 import { createCategoryTools } from './category.tools';
 import type { AiToolsContext } from './context';
 import { createMemberTools } from './member.tools';
@@ -17,13 +18,13 @@ export * from './stats.tools';
 export * from './table.tools';
 
 export function getAiTools(context: AiToolsContext) {
+  const has = (module: EstablishmentModule) => context.modules.includes(module);
+
   return {
-    ...createTableTools(context),
-    ...createOrderTools(context),
-    ...createProductTools(context),
-    ...createCategoryTools(context),
+    ...(has(EstablishmentModule.ORDERS) ? { ...createTableTools(context), ...createOrderTools(context) } : {}),
+    ...(has(EstablishmentModule.INVENTORY) ? { ...createProductTools(context), ...createCategoryTools(context) } : {}),
+    ...(has(EstablishmentModule.ORDERS) ? createStatsTools(context) : {}),
     ...createShiftTools(context),
     ...createMemberTools(context),
-    ...createStatsTools(context),
   };
 }

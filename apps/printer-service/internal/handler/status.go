@@ -10,7 +10,7 @@ import (
 
 const discoveryTimeout = 30 * time.Second
 
-func NewHealthHandler(version, barID, printerTarget string) http.Handler {
+func NewHealthHandler(version, establishmentID, printerTarget string) http.Handler {
 	started := time.Now()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -21,11 +21,11 @@ func NewHealthHandler(version, barID, printerTarget string) http.Handler {
 		}
 
 		writeJSON(w, http.StatusOK, map[string]any{
-			"status":  "ok",
-			"version": version,
-			"barId":   barID,
-			"printer": printerTarget,
-			"uptime":  time.Since(started).Round(time.Second).String(),
+			"status":          "ok",
+			"version":         version,
+			"establishmentId": establishmentID,
+			"printer":         printerTarget,
+			"uptime":          time.Since(started).Round(time.Second).String(),
 		})
 	})
 }

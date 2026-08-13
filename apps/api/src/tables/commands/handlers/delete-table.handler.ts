@@ -19,12 +19,12 @@ export class DeleteTableHandler implements ICommandHandler<DeleteTableCommand, v
   async execute(command: DeleteTableCommand): Promise<void> {
     this.#logger.debug(`Executing deleteTable...`);
     const existing = await this.readRepo.findById(command.tableId);
-    if (!existing || existing.barId !== command.barId) {
+    if (!existing || existing.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
     }
 
     await this.writeRepo.delete(command.tableId);
     this.#logger.debug(`Publishing TableDeletedEvent...`);
-    this._eventBus.publish(new TableDeletedEvent(command.barId, command.tableId));
+    this._eventBus.publish(new TableDeletedEvent(command.establishmentId, command.tableId));
   }
 }

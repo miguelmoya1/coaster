@@ -1,23 +1,30 @@
 import { GetCategoriesQuery } from '@coaster/categories';
-import type { AiResponse, Category, Order, Product, Table } from '@coaster/common';
-import { asBarRole, BarRole, ErrorCodes, getRolePermissions, OrderStatus } from '@coaster/common';
+import type { AiResponse, Category, EstablishmentId, Order, Product, Table } from '@coaster/common';
+import {
+  asEstablishmentRole,
+  EstablishmentModule,
+  EstablishmentRole,
+  ErrorCodes,
+  getRolePermissions,
+  OrderStatus,
+} from '@coaster/common';
 import { SecurityRepository } from '@coaster/core';
-import { DbBarRole, DbRole } from '@coaster/core/db';
-import { GetOrdersByBarIdQuery } from '@coaster/orders';
-import { GetProductsByBarIdQuery } from '@coaster/products';
-import { GetTablesByBarIdQuery } from '@coaster/tables';
+import { DbEstablishmentRole, DbRole } from '@coaster/core/db';
+import { GetOrdersByEstablishmentIdQuery } from '@coaster/orders';
+import { GetProductsByEstablishmentIdQuery } from '@coaster/products';
+import { GetTablesByEstablishmentIdQuery } from '@coaster/tables';
 import { ForbiddenException, Logger } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { generateText, LanguageModel, stepCountIs, streamText } from 'ai';
+import { ConfigService } from '@nestjs/config';
+import { AiUsageRepository } from '../../data-access/ai-usage.repository';
+import { DEFAULT_MONTHLY_AI_MESSAGES, DEFAULT_TRIAL_AI_MESSAGES } from '../../domain/quota';
+import { formatCategories, formatOrders, formatProducts, formatTables } from '../../domain/snapshot';
 import { getAiTools } from '../../tools';
 import { ExecuteAiCommand } from '../impl/execute-ai.command';
 
 const MAX_HISTORY_MESSAGES = 10;
 
-/**
- * The assistant may chain tool calls (look something up, then act on it), so it needs more than one
- * step. The cap keeps a confused model from looping through the whole bar's data on a single prompt.
- */
 const MAX_TOOL_STEPS = 8;
 
 @CommandHandler(ExecuteAiCommand)
@@ -35,39 +42,68 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
     private readonly _commandBus: CommandBus,
     private readonly _queryBus: QueryBus,
     private readonly _securityRepository: SecurityRepository,
+    private readonly _aiUsage: AiUsageRepository,
+    private readonly _config: ConfigService,
   ) {}
 
   async execute(command: ExecuteAiCommand): Promise<AiResponse> {
-    const { barId, prompt, user, messages, onDelta } = command;
-    this.#logger.debug(`Executing AI command for user ${user.id} in bar ${barId}`);
+    const { establishmentId, prompt, user, messages, onDelta } = command;
+    this.#logger.debug(`Executing AI command for user ${user.id} in establishment ${establishmentId}`);
 
     const userRole = await this._securityRepository.getUserRole(user.id);
     const isAdmin = userRole === DbRole.ADMIN;
 
-    let userBarRole: BarRole = DbBarRole.OWNER;
+    let userEstablishmentRole: EstablishmentRole = DbEstablishmentRole.OWNER;
     if (!isAdmin) {
-      const membership = await this._securityRepository.getBarMemberRole(user.id, barId);
+      const membership = await this._securityRepository.getEstablishmentMemberRole(user.id, establishmentId);
 
       if (!membership || !membership.active) {
         throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
       }
 
-      userBarRole = asBarRole(membership.role);
+      userEstablishmentRole = asEstablishmentRole(membership.role);
     }
 
+    const allowance = await this.#allowanceFor(establishmentId);
+    const used = await this._aiUsage.messagesThisPeriod(establishmentId);
+
+    if (used >= allowance) {
+      this.#logger.warn(`Establishment ${establishmentId} has used ${used}/${allowance} assistant messages this month`);
+      throw new ForbiddenException(ErrorCodes.AI_QUOTA_EXCEEDED);
+    }
+
+    const modules = await this._securityRepository.getEnabledModules(establishmentId);
+    const hasOrders = modules.includes(EstablishmentModule.ORDERS);
+    const hasInventory = modules.includes(EstablishmentModule.INVENTORY);
+
     const [tables, products, openOrders, categories] = await Promise.all([
-      this._queryBus.execute<GetTablesByBarIdQuery, Table[]>(new GetTablesByBarIdQuery(barId)),
-      this._queryBus.execute<GetProductsByBarIdQuery, Product[]>(new GetProductsByBarIdQuery(barId)),
-      this._queryBus.execute<GetOrdersByBarIdQuery, Order[]>(new GetOrdersByBarIdQuery(barId, OrderStatus.OPEN)),
-      this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId)),
+      hasOrders
+        ? this._queryBus.execute<GetTablesByEstablishmentIdQuery, Table[]>(
+            new GetTablesByEstablishmentIdQuery(establishmentId),
+          )
+        : Promise.resolve<Table[]>([]),
+      hasInventory
+        ? this._queryBus.execute<GetProductsByEstablishmentIdQuery, Product[]>(
+            new GetProductsByEstablishmentIdQuery(establishmentId),
+          )
+        : Promise.resolve<Product[]>([]),
+      hasOrders
+        ? this._queryBus.execute<GetOrdersByEstablishmentIdQuery, Order[]>(
+            new GetOrdersByEstablishmentIdQuery(establishmentId, OrderStatus.OPEN),
+          )
+        : Promise.resolve<Order[]>([]),
+      hasInventory
+        ? this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(establishmentId))
+        : Promise.resolve<Category[]>([]),
     ]);
 
     const userLang = user.language || 'es';
     const systemPrompt = this.#buildSystemPrompt({
-      barId,
+      establishmentId,
+      modules,
       user,
       isAdmin,
-      userBarRole,
+      userEstablishmentRole,
       userLang,
       tables,
       products,
@@ -98,10 +134,11 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
         temperature: 0.1,
         stopWhen: stepCountIs(MAX_TOOL_STEPS),
         tools: getAiTools({
-          barId,
+          establishmentId,
+          modules,
           user,
           isAdmin,
-          barRole: userBarRole,
+          establishmentRole: userEstablishmentRole,
           commandBus: this._commandBus,
           queryBus: this._queryBus,
           products,
@@ -121,9 +158,9 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
           onDelta(delta);
         }
 
-        // With multiple steps `stream.text` only holds the final step, while the user already saw
-        // everything that was streamed. Keep the transcript and what was spoken in sync.
         const text = streamed.trim() || (await stream.text);
+        await this._aiUsage.countMessage(establishmentId);
+
         return { text: text || this.#fallbackText(userLang) };
       }
 
@@ -131,6 +168,8 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
       const result = await generateText(modelOptions);
 
       this.#logger.debug(`[AI Gateway] Success: generateText output text="${result.text}"`);
+      await this._aiUsage.countMessage(establishmentId);
+
       return { text: result.text || this.#fallbackText(userLang) };
     } catch (error: any) {
       this.#logger.error(`[AI Gateway] Error: AI generation failed: ${error.message || error}`, error.stack);
@@ -142,61 +181,66 @@ export class ExecuteAiHandler implements ICommandHandler<ExecuteAiCommand, AiRes
     }
   }
 
+  async #allowanceFor(establishmentId: EstablishmentId): Promise<number> {
+    const onTrial = await this._securityRepository.isOnTrial(establishmentId);
+
+    return onTrial
+      ? Number(this._config.get('AI_TRIAL_MONTHLY_MESSAGES') ?? DEFAULT_TRIAL_AI_MESSAGES)
+      : Number(this._config.get('AI_MONTHLY_MESSAGES') ?? DEFAULT_MONTHLY_AI_MESSAGES);
+  }
+
   #fallbackText(userLang: string): string {
     return userLang === 'es' ? 'Acción completada con éxito.' : 'Action completed successfully.';
   }
 
   #buildSystemPrompt(input: {
-    barId: string;
+    establishmentId: string;
+    modules: EstablishmentModule[];
     user: { id: string; name: string };
     isAdmin: boolean;
-    userBarRole: BarRole;
+    userEstablishmentRole: EstablishmentRole;
     userLang: string;
     tables: Table[];
     products: Product[];
     categories: Category[];
     openOrders: Order[];
   }): string {
-    const { barId, user, isAdmin, userBarRole, userLang, tables, products, categories, openOrders } = input;
+    const {
+      establishmentId,
+      modules,
+      user,
+      isAdmin,
+      userEstablishmentRole,
+      userLang,
+      tables,
+      products,
+      categories,
+      openOrders,
+    } = input;
 
-    const productsList = products
-      .map((p) => `- ${p.name}: ID=${p.id}, Price=${p.price / 100}€, Stock=${p.currentStock}`)
-      .join('\n');
-
-    const tablesList = tables.map((t) => `- ${t.name}: ID=${t.id}, Status=${t.status}`).join('\n');
-
-    const categoriesList = categories.map((c) => `- ${c.name}: ID=${c.id}, Icon=${c.icon || '(None)'}`).join('\n');
-
-    const ordersList = openOrders
-      .map((o) => {
-        const table = tables.find((t) => t.id === o.tableId);
-        const tableName = table ? table.name : 'No table';
-        const itemsStr = o.items
-          .map((i) => {
-            const product = products.find((p) => p.id === i.productId);
-            const prodName = product ? product.name : 'Unknown';
-            return `  * ${prodName} (x${i.quantity}): ItemID=${i.id}, Served=${i.servedQuantity}/${i.quantity}, Paid=${i.paidQuantity}/${i.quantity}`;
-          })
-          .join('\n');
-        return `- Order ID=${o.id} at ${tableName}:\n${itemsStr}`;
-      })
-      .join('\n');
+    const catalogue = formatProducts(products);
+    const tablesList = formatTables(tables);
+    const categoriesList = formatCategories(categories);
+    const ordersList = formatOrders(openOrders, tables);
 
     const permissionsList = isAdmin
       ? '(ADMIN: every permission)'
-      : getRolePermissions(userBarRole)
+      : getRolePermissions(userEstablishmentRole)
           .map((permission) => `- ${permission}`)
           .join('\n');
 
     return `
-You are the Coaster Voice Assistant, a professional real-time management system for bars and restaurants.
-Current Bar ID: "${barId}".
-Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : userBarRole}".
+You are the Coaster Voice Assistant, a professional real-time management system for establishments and restaurants.
+Current Establishment ID: "${establishmentId}".
+Current User: "${user.name}" (ID: "${user.id}"), Role: "${isAdmin ? 'ADMIN' : userEstablishmentRole}".
 Current date and time (UTC): ${new Date().toISOString()}.
 
 === AVAILABLE DATA ===
-Below is the list of products available in this bar (with their UUIDs, prices, and current stock):
-${productsList || '(None)'}
+${
+  catalogue.omitted
+    ? 'This establishment has too large a catalogue to list here. Call listProducts with a search term to find the ones you need, and never invent a product UUID.'
+    : `Below is the list of products available in this establishment (with their UUIDs, prices, and current stock):\n${catalogue.list || '(None)'}`
+}
 
 Below is the list of tables available (with their UUIDs and statuses):
 ${tablesList || '(None)'}
@@ -204,11 +248,17 @@ ${tablesList || '(None)'}
 Below is the list of categories available (with their UUIDs and icons):
 ${categoriesList || '(None)'}
 
-Below is the list of active open orders (with their UUIDs, table names, and corresponding item IDs):
+Below are the open orders. Call getOrderDetails for the lines of one, which is where item IDs,
+served and paid quantities live:
 ${ordersList || '(None)'}
 
 This snapshot was taken when the conversation turn started. Anything beyond it (revenue, past days,
 shifts, staff, stock alerts) must be fetched with a read tool instead of guessed.
+
+=== MODULES THIS ESTABLISHMENT RUNS ===
+${modules.join(', ')}
+Only tools belonging to these modules exist in this conversation. If the user asks for something
+from a module that is off, say it is not enabled here rather than reaching for a tool.
 
 === THIS USER'S PERMISSIONS ===
 ${permissionsList}
@@ -222,7 +272,7 @@ that their role does not allow it instead of calling the tool.
    - For tables: Match names like "Mesa 1", "Mesa 5", "Terraza" to their corresponding Table UUID in the available tables list.
    - For categories: Match names like "bebidas", "comidas", "postres" to their corresponding Category UUID in the available categories list.
    - For orders: Match the requested table name or table/order ID to find the correct active order UUID.
-3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getBarStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.
+3. [READ BEFORE YOU ACT] When a question is about data not in the snapshot above, call the matching read tool first (getEstablishmentStats for takings, getOrdersByDate for past days, listShifts for the rota, listMembers for staff, listProducts with lowStockOnly for stock alerts) and answer from its result. Never invent figures.
 4. [CHAINING] You may call several tools in a row within the same turn, for example listMembers to resolve a worker name into a UUID and then createShift. Do it silently and only report the final outcome.
 5. [DESTRUCTIVE ACTIONS] Deleting, cancelling, removing staff and sending invitations are irreversible. Their tools take a "confirmed" flag: call them with confirmed=false first, read the confirmation request back to the user in their language, and only call again with confirmed=true after the user clearly agrees in a later message. Never set confirmed=true on the first attempt, and never assume consent from an ambiguous answer.
 6. Money is always spoken and written in euros (e.g. 2,50 €), never in cents.

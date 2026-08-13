@@ -5,7 +5,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('StatsController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
 
   beforeAll(async () => {
     await testSetup.setup();
@@ -24,8 +24,8 @@ describe('StatsController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
   });
 
   afterAll(async () => {
@@ -36,35 +36,40 @@ describe('StatsController (e2e)', () => {
     const http = () => testSetup.app.getHttpServer();
 
     const sellOneProduct = async (price: number, discountPercentage?: number, tipAmount?: number) => {
-      const category = await testSetup.prisma.dbCategory.create({ data: { name: 'Drinks', barId } });
+      const category = await testSetup.prisma.dbCategory.create({ data: { name: 'Drinks', establishmentId } });
       const product = await testSetup.prisma.dbProduct.create({
         data: { name: 'Beer', price, categoryId: category.id },
       });
 
       await request(http())
-        .post(`/api/bars/${barId}/orders`)
+        .post(`/api/establishments/${establishmentId}/orders`)
         .send({ items: [{ productId: product.id, quantity: 1 }] })
         .expect(201);
 
-      const order = await testSetup.prisma.dbOrder.findFirstOrThrow({ where: { barId, status: OrderStatus.OPEN } });
+      const order = await testSetup.prisma.dbOrder.findFirstOrThrow({
+        where: { establishmentId, status: OrderStatus.OPEN },
+      });
 
       if (discountPercentage) {
         await request(http())
-          .post(`/api/bars/${barId}/orders/${order.id}/adjustments`)
+          .post(`/api/establishments/${establishmentId}/orders/${order.id}/adjustments`)
           .send({ target: 'ORDER', type: 'PERCENTAGE', value: discountPercentage })
           .expect(201);
       }
 
       if (tipAmount) {
-        await request(http()).patch(`/api/bars/${barId}/orders/${order.id}/tip`).send({ tipAmount }).expect(200);
+        await request(http())
+          .patch(`/api/establishments/${establishmentId}/orders/${order.id}/tip`)
+          .send({ tipAmount })
+          .expect(200);
       }
 
       await request(http())
-        .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/checkout`)
         .send({ paymentMethod: PaymentMethod.CASH })
         .expect(201);
 
-      const { body } = await request(http()).get(`/api/bars/${barId}/stats`).expect(200);
+      const { body } = await request(http()).get(`/api/establishments/${establishmentId}/stats`).expect(200);
       return body as { todayRevenue: number };
     };
 
@@ -81,11 +86,11 @@ describe('StatsController (e2e)', () => {
     });
   });
 
-  describe('GET /api/bars/:barId/stats', () => {
-    it('should return bar stats', async () => {
+  describe('GET /api/establishments/:establishmentId/stats', () => {
+    it('should return establishment stats', async () => {
       await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.CLOSED,
           totalAmount: 100,
           paymentMethod: PaymentMethod.CASH,
@@ -94,21 +99,25 @@ describe('StatsController (e2e)', () => {
 
       await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.CLOSED,
           totalAmount: 50,
           paymentMethod: PaymentMethod.CARD,
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/stats`).expect(200);
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/establishments/${establishmentId}/stats`)
+        .expect(200);
 
       expect(response.body).toBeDefined();
       expect(response.body.todayRevenue).toBeDefined();
       expect(response.body.weeklyRevenue).toBeDefined();
-      expect(response.body.currentMonthRevenue).toBeDefined();
-      expect(response.body.yearlyRevenue).toBeDefined();
-      expect(response.body.monthlyBreakdown).toBeDefined();
+      expect(response.body.todayTicketCount).toBeDefined();
+      expect(response.body.todayAverageTicket).toBeDefined();
+      expect(response.body.history.currentMonthRevenue).toBeDefined();
+      expect(response.body.history.yearlyRevenue).toBeDefined();
+      expect(response.body.history.monthlyBreakdown).toBeDefined();
     });
   });
 });

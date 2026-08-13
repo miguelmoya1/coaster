@@ -10,7 +10,7 @@ interface RequestWithParams {
   method: string;
   url?: string;
   headers?: { authorization?: string };
-  params?: { barId?: string };
+  params?: { establishmentId?: string };
   user?: { id: string };
 }
 
@@ -23,7 +23,7 @@ interface SubscriptionState {
   manualGrantExpiresAt: Date | null;
 }
 
-const SUBSCRIPTION_MANAGEMENT_PATH = /\/bars\/[^/]+\/bar-subscription(\/|$)/;
+const SUBSCRIPTION_MANAGEMENT_PATH = /\/establishments\/[^/]+\/establishment-subscription(\/|$)/;
 
 function getPathname(url: string | undefined): string {
   if (!url) {
@@ -65,13 +65,13 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    const barId = request.params?.barId;
-    if (!barId) {
+    const establishmentId = request.params?.establishmentId;
+    if (!establishmentId) {
       return true;
     }
 
-    const subscription = await this._db.dbBarSubscription.findUnique({
-      where: { barId },
+    const subscription = await this._db.dbEstablishmentSubscription.findUnique({
+      where: { establishmentId },
       select: {
         status: true,
         stripeSubscriptionId: true,
@@ -87,7 +87,9 @@ export class SubscriptionActiveGuard implements CanActivate {
     }
 
     if (await this.#isPlatformAdmin(request)) {
-      this.#logger.debug(`Letting a platform admin act on barId=${barId} despite its lapsed subscription`);
+      this.#logger.debug(
+        `Letting a platform admin act on establishmentId=${establishmentId} despite its lapsed subscription`,
+      );
       return true;
     }
 

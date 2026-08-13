@@ -38,18 +38,18 @@ type result struct {
 }
 
 type Client struct {
-	baseURL   string
-	barID     string
-	deviceKey string
-	http      *http.Client
+	baseURL         string
+	establishmentID string
+	deviceKey       string
+	http            *http.Client
 }
 
 func NewClient(cfg *config.Config) *Client {
 	return &Client{
-		baseURL:   cfg.APIURL,
-		barID:     cfg.BarID,
-		deviceKey: cfg.DeviceKey,
-		http:      &http.Client{Timeout: pollTimeout + 10*time.Second},
+		baseURL:         cfg.APIURL,
+		establishmentID: cfg.EstablishmentID,
+		deviceKey:       cfg.DeviceKey,
+		http:            &http.Client{Timeout: pollTimeout + 10*time.Second},
 	}
 }
 
@@ -59,7 +59,7 @@ func Run(ctx context.Context, cfg *config.Config, printUC *usecase.PrintTicketUs
 	client := NewClient(cfg)
 	backoff := minBackoff
 
-	log.Printf("Relay started for bar %s against %s\n", cfg.BarID, cfg.APIURL)
+	log.Printf("Relay started for establishment %s against %s\n", cfg.EstablishmentID, cfg.APIURL)
 
 	for {
 		if ctx.Err() != nil {
@@ -72,7 +72,7 @@ func Run(ctx context.Context, cfg *config.Config, printUC *usecase.PrintTicketUs
 			return
 
 		case errors.Is(err, errUnauthorized):
-			log.Printf("Relay: %v. Check -device-key and -bar-id; retrying in %s\n", err, maxBackoff)
+			log.Printf("Relay: %v. Check -device-key and -establishment-id; retrying in %s\n", err, maxBackoff)
 			if !sleep(ctx, maxBackoff) {
 				return
 			}
@@ -114,7 +114,7 @@ func (c *Client) NextJob(ctx context.Context) (*Job, error) {
 	ctx, cancel := context.WithTimeout(ctx, pollTimeout+5*time.Second)
 	defer cancel()
 
-	endpoint := fmt.Sprintf("%s/printer/jobs/next?barId=%s", c.baseURL, url.QueryEscape(c.barID))
+	endpoint := fmt.Sprintf("%s/printer/jobs/next?establishmentId=%s", c.baseURL, url.QueryEscape(c.establishmentID))
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
@@ -167,8 +167,8 @@ func (c *Client) postResult(ctx context.Context, jobID string, body result) erro
 		return err
 	}
 
-	endpoint := fmt.Sprintf("%s/printer/jobs/%s/result?barId=%s",
-		c.baseURL, url.PathEscape(jobID), url.QueryEscape(c.barID))
+	endpoint := fmt.Sprintf("%s/printer/jobs/%s/result?establishmentId=%s",
+		c.baseURL, url.PathEscape(jobID), url.QueryEscape(c.establishmentID))
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(encoded))
 	if err != nil {
 		return err

@@ -3,60 +3,34 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { Loading } from './loading';
 
 describe('Loading', () => {
-  let component: Loading;
   let fixture: ComponentFixture<Loading>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Loading],
-    }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [Loading] }).compileComponents();
 
     fixture = TestBed.createComponent(Loading);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should show the horizontal Material bar a page uses', () => {
+    const bar = fixture.nativeElement.querySelector('mat-progress-bar');
+
+    expect(bar).toBeTruthy();
+    expect(bar.getAttribute('mode')).toBe('indeterminate');
   });
 
-  describe('rendering', () => {
-    it('should show the loading spinner', () => {
-      const spinner = fixture.nativeElement.querySelector('.animate-spin');
-      expect(spinner).toBeTruthy();
-    });
-
-    it('should not show text if not provided', () => {
-      const text = fixture.nativeElement.querySelector('p');
-      expect(text).toBeNull();
-    });
-
-    it('should show text if provided', () => {
-      fixture.componentRef.setInput('text', 'Loading data...');
-      fixture.detectChanges();
-
-      const text = fixture.nativeElement.querySelector('p');
-      expect(text).toBeTruthy();
-      expect(text.textContent).toContain('Loading data...');
-    });
+  it('should span the width it is given', () => {
+    expect((fixture.nativeElement as HTMLElement).className).toContain('w-full');
   });
 
-  describe('inputs', () => {
-    it('should apply custom container classes', () => {
-      fixture.componentRef.setInput('containerClasses', 'custom-container');
-      fixture.detectChanges();
+  it('should stay quiet when there is nothing to say', () => {
+    expect(fixture.nativeElement.querySelector('p')).toBeNull();
+  });
 
-      const container = fixture.nativeElement.querySelector('div');
-      expect(container.classList.contains('custom-container')).toBe(true);
-    });
+  it('should show the text it is given', () => {
+    fixture.componentRef.setInput('text', 'Cargando la carta');
+    fixture.detectChanges();
 
-    it('should apply custom text classes', () => {
-      fixture.componentRef.setInput('text', 'Wait');
-      fixture.componentRef.setInput('textClasses', 'custom-text');
-      fixture.detectChanges();
-
-      const text = fixture.nativeElement.querySelector('p');
-      expect(text.classList.contains('custom-text')).toBe(true);
-    });
+    expect(fixture.nativeElement.textContent).toContain('Cargando la carta');
   });
 });

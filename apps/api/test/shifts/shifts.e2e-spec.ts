@@ -4,7 +4,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('ShiftsController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let userId: string;
 
   beforeAll(async () => {
@@ -25,15 +25,15 @@ describe('ShiftsController (e2e)', () => {
     });
     userId = user.id;
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
   });
 
   afterAll(async () => {
     await testSetup.teardown();
   });
 
-  describe('POST /api/bars/:barId/shifts', () => {
+  describe('POST /api/establishments/:establishmentId/shifts', () => {
     it('should create a shift', async () => {
       const now = new Date();
       const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -45,12 +45,14 @@ describe('ShiftsController (e2e)', () => {
         notes: 'Morning shift',
       };
 
-      const response = await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/shifts`).send(dto);
+      const response = await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/shifts`)
+        .send(dto);
 
       expect(response.status).toBe(201);
 
       const shifts = await testSetup.prisma.dbShift.findMany({
-        where: { barId },
+        where: { establishmentId },
       });
 
       expect(shifts).toHaveLength(1);
@@ -60,7 +62,7 @@ describe('ShiftsController (e2e)', () => {
 
     it('should reject invalid payload (missing userId)', async () => {
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/shifts`)
+        .post(`/api/establishments/${establishmentId}/shifts`)
         .send({
           startTime: new Date().toISOString(),
           endTime: new Date().toISOString(),
@@ -68,14 +70,14 @@ describe('ShiftsController (e2e)', () => {
         .expect(400);
     });
 
-    it('should refuse to schedule somebody who does not work at this bar', async () => {
+    it('should refuse to schedule somebody who does not work at this establishment', async () => {
       const stranger = await testSetup.prisma.dbUser.create({
         data: { email: 'stranger@elsewhere.com', name: 'Stranger', role: 'USER', active: true },
       });
       const now = new Date();
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/shifts`)
+        .post(`/api/establishments/${establishmentId}/shifts`)
         .send({
           userId: stranger.id,
           startTime: now.toISOString(),
@@ -83,14 +85,14 @@ describe('ShiftsController (e2e)', () => {
         })
         .expect(404);
 
-      expect(await testSetup.prisma.dbShift.count({ where: { barId } })).toBe(0);
+      expect(await testSetup.prisma.dbShift.count({ where: { establishmentId } })).toBe(0);
     });
 
     it('should refuse a shift that ends before it starts', async () => {
       const now = new Date();
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/shifts`)
+        .post(`/api/establishments/${establishmentId}/shifts`)
         .send({
           userId,
           startTime: now.toISOString(),
@@ -98,23 +100,25 @@ describe('ShiftsController (e2e)', () => {
         })
         .expect(400);
 
-      expect(await testSetup.prisma.dbShift.count({ where: { barId } })).toBe(0);
+      expect(await testSetup.prisma.dbShift.count({ where: { establishmentId } })).toBe(0);
     });
   });
 
-  describe('GET /api/bars/:barId/shifts', () => {
+  describe('GET /api/establishments/:establishmentId/shifts', () => {
     it('should return a list of shifts', async () => {
       const shift = await testSetup.prisma.dbShift.create({
         data: {
           userId,
-          barId,
+          establishmentId,
           startTime: new Date(),
           endTime: new Date(Date.now() + 3600 * 1000),
           notes: 'Test shift',
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/shifts`).expect(200);
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/establishments/${establishmentId}/shifts`)
+        .expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(shift.id);
@@ -122,18 +126,20 @@ describe('ShiftsController (e2e)', () => {
     });
   });
 
-  describe('DELETE /api/bars/:barId/shifts/:shiftId', () => {
+  describe('DELETE /api/establishments/:establishmentId/shifts/:shiftId', () => {
     it('should delete a shift', async () => {
       const shift = await testSetup.prisma.dbShift.create({
         data: {
           userId,
-          barId,
+          establishmentId,
           startTime: new Date(),
           endTime: new Date(Date.now() + 3600 * 1000),
         },
       });
 
-      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/shifts/${shift.id}`).expect(200);
+      await request(testSetup.app.getHttpServer())
+        .delete(`/api/establishments/${establishmentId}/shifts/${shift.id}`)
+        .expect(200);
 
       const deleted = await testSetup.prisma.dbShift.findUnique({
         where: { id: shift.id },

@@ -1,6 +1,14 @@
 import type { User } from '@coaster/common';
-import { asBarId, asUserId, BarRole } from '@coaster/common';
+import {
+  DEFAULT_ESTABLISHMENT_MODULES,
+  ErrorCodes,
+  asEstablishmentId,
+  asUserId,
+  EstablishmentRole,
+} from '@coaster/common';
+import { ConfigService } from '@nestjs/config';
 import { SecurityRepository } from '@coaster/core';
+import { AiUsageRepository } from '../../data-access/ai-usage.repository';
 import { DbRole } from '@coaster/core/db';
 import { ForbiddenException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -20,6 +28,8 @@ vi.mock('ai', async (importOriginal) => {
 });
 
 describe('ExecuteAiHandler', () => {
+  const mockAiUsage = { messagesThisPeriod: vi.fn().mockResolvedValue(0), countMessage: vi.fn().mockResolvedValue(1) };
+
   let handler: ExecuteAiHandler;
   let queryBus: Mocked<QueryBus>;
   let securityRepository: Mocked<SecurityRepository>;
@@ -29,7 +39,9 @@ describe('ExecuteAiHandler', () => {
     const mockQueryBus = { execute: vi.fn() };
     const mockSecurityRepository = {
       getUserRole: vi.fn(),
-      getBarMemberRole: vi.fn(),
+      getEstablishmentMemberRole: vi.fn(),
+      getEnabledModules: vi.fn().mockResolvedValue(DEFAULT_ESTABLISHMENT_MODULES),
+      isOnTrial: vi.fn().mockResolvedValue(false),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -38,6 +50,8 @@ describe('ExecuteAiHandler', () => {
         { provide: CommandBus, useValue: mockCommandBus },
         { provide: QueryBus, useValue: mockQueryBus },
         { provide: SecurityRepository, useValue: mockSecurityRepository },
+        { provide: AiUsageRepository, useValue: mockAiUsage },
+        { provide: ConfigService, useValue: { get: vi.fn(() => undefined) } },
       ],
     }).compile();
 
@@ -51,14 +65,14 @@ describe('ExecuteAiHandler', () => {
   });
 
   describe('execute', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const user = { id: asUserId('user-1'), name: 'Juan Carlos', language: 'es' } as User;
     const prompt = 'Crea la mesa 3';
-    const command = new ExecuteAiCommand(barId, prompt, user);
+    const command = new ExecuteAiCommand(establishmentId, prompt, user);
 
-    it('should throw ForbiddenException if user is not a member of the bar and not an admin', async () => {
+    it('should throw ForbiddenException if user is not a member of the establishment and not an admin', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue(null);
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue(null);
 
       await expect(handler.execute(command)).rejects.toThrow(ForbiddenException);
     });
@@ -78,13 +92,13 @@ describe('ExecuteAiHandler', () => {
 
     it('should execute successfully for an active staff member', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue({ role: BarRole.STAFF, active: true });
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue({ role: EstablishmentRole.STAFF, active: true });
       queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'Mesa creada correctamente.' });
 
       const result = await handler.execute(command);
 
-      expect(securityRepository.getBarMemberRole).toHaveBeenCalledWith(user.id, barId);
+      expect(securityRepository.getEstablishmentMemberRole).toHaveBeenCalledWith(user.id, establishmentId);
       expect(generateText).toHaveBeenCalled();
       expect(result).toEqual({ text: 'Mesa creada correctamente.' });
     });
@@ -99,7 +113,7 @@ describe('ExecuteAiHandler', () => {
         { role: 'assistant' as const, content: 'Hola, ¿en qué puedo ayudarte?' },
         { role: 'user' as const, content: 'Crear mesa 3' },
       ];
-      const cmdWithMessages = new ExecuteAiCommand(barId, 'Crear mesa 3', user, customMessages);
+      const cmdWithMessages = new ExecuteAiCommand(establishmentId, 'Crear mesa 3', user, customMessages);
       const result = await handler.execute(cmdWithMessages);
 
       expect(generateText).toHaveBeenCalledWith(
@@ -124,7 +138,7 @@ describe('ExecuteAiHandler', () => {
         content: `mensaje ${index}`,
       }));
 
-      await handler.execute(new ExecuteAiCommand(barId, 'mensaje 29', user, longHistory));
+      await handler.execute(new ExecuteAiCommand(establishmentId, 'mensaje 29', user, longHistory));
 
       const sent = (generateText as any).mock.calls.at(-1)[0].messages;
       expect(sent).toHaveLength(10);
@@ -142,21 +156,21 @@ describe('ExecuteAiHandler', () => {
       const options = (generateText as any).mock.calls.at(-1)[0];
       expect(options.stopWhen).toBeDefined();
       expect(Object.keys(options.tools)).toEqual(
-        expect.arrayContaining(['createOrder', 'getBarStats', 'listMembers', 'listShifts', 'deleteProduct']),
+        expect.arrayContaining(['createOrder', 'getEstablishmentStats', 'listMembers', 'listShifts', 'deleteProduct']),
       );
     });
 
     it('should tell the model which permissions the role actually grants', async () => {
       securityRepository.getUserRole.mockResolvedValue(DbRole.USER);
-      securityRepository.getBarMemberRole.mockResolvedValue({ role: BarRole.STAFF, active: true });
+      securityRepository.getEstablishmentMemberRole.mockResolvedValue({ role: EstablishmentRole.STAFF, active: true });
       queryBus.execute.mockResolvedValue([]);
       (generateText as any).mockResolvedValue({ text: 'ok' });
 
       await handler.execute(command);
 
       const { system } = (generateText as any).mock.calls.at(-1)[0];
-      expect(system).toContain('bar:create-order');
-      expect(system).not.toContain('bar:delete-product');
+      expect(system).toContain('establishment:create-order');
+      expect(system).not.toContain('establishment:delete-product');
     });
 
     it('should keep the streamed transcript as the final answer across multiple steps', async () => {
@@ -167,17 +181,42 @@ describe('ExecuteAiHandler', () => {
           yield 'Voy a mirarlo. ';
           yield 'Hoy llevas 240 €.';
         })(),
-        // A multi-step run only exposes the last step here, which is not what the user heard.
         text: Promise.resolve('Hoy llevas 240 €.'),
       });
 
       const deltas: string[] = [];
       const result = await handler.execute(
-        new ExecuteAiCommand(barId, '¿cuánto llevamos hoy?', user, undefined, (delta) => deltas.push(delta)),
+        new ExecuteAiCommand(establishmentId, '¿cuánto llevamos hoy?', user, undefined, (delta) => deltas.push(delta)),
       );
 
       expect(deltas).toEqual(['Voy a mirarlo. ', 'Hoy llevas 240 €.']);
       expect(result).toEqual({ text: 'Voy a mirarlo. Hoy llevas 240 €.' });
+    });
+
+    it('should refuse once the establishment has spent its monthly allowance', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      mockAiUsage.messagesThisPeriod.mockResolvedValue(500);
+
+      await expect(handler.execute(command)).rejects.toThrow(ErrorCodes.AI_QUOTA_EXCEEDED);
+    });
+
+    it('should hold an establishment still on trial to a smaller allowance', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      securityRepository.isOnTrial.mockResolvedValue(true);
+      mockAiUsage.messagesThisPeriod.mockResolvedValue(100);
+
+      await expect(handler.execute(command)).rejects.toThrow(ErrorCodes.AI_QUOTA_EXCEEDED);
+    });
+
+    it('should not spend an allowance on a gateway that never answered', async () => {
+      securityRepository.getUserRole.mockResolvedValue(DbRole.ADMIN);
+      queryBus.execute.mockResolvedValue([]);
+      (generateText as any).mockRejectedValueOnce(new Error('gateway down'));
+      mockAiUsage.countMessage.mockClear();
+
+      await handler.execute(command);
+
+      expect(mockAiUsage.countMessage).not.toHaveBeenCalled();
     });
 
     it('should surface a gateway failure as a translatable error', async () => {

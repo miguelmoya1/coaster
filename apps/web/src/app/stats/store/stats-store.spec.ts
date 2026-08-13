@@ -1,9 +1,9 @@
-import { asBarId, asOrderId } from '@coaster/common';
+import { asEstablishmentId, asOrderId } from '@coaster/common';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { BarStats, Order } from '@coaster/common';
+import type { EstablishmentStats, Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -18,18 +18,26 @@ describe('StatsStore', () => {
     orderDeleted: signal<{ id: string } | null>(null),
   };
 
-  const mockStats: BarStats = {
+  const mockStats: EstablishmentStats = {
     todayRevenue: 100,
     yesterdayRevenue: 50,
+    sameWeekdayLastWeekRevenue: 80,
     weeklyRevenue: 150,
     dailyRevenues: [],
-    currentMonthRevenue: 150,
-    previousMonthRevenue: 200,
-    yearlyRevenue: 1000,
-    monthlyBreakdown: [],
-    percentageChange: 25,
-    isPositiveChange: false,
-    maxMonthRevenue: 200,
+    todayTicketCount: 4,
+    todayAverageTicket: 25,
+    todayCashRevenue: 60,
+    todayCardRevenue: 40,
+    todayTipAmount: 0,
+    history: {
+      currentMonthRevenue: 150,
+      previousMonthRevenue: 200,
+      yearlyRevenue: 1000,
+      monthlyBreakdown: [],
+      percentageChange: 25,
+      isPositiveChange: false,
+      maxMonthRevenue: 200,
+    },
   };
 
   beforeEach(() => {
@@ -61,12 +69,12 @@ describe('StatsStore', () => {
   });
 
   describe('stats loading', () => {
-    it('should fetch stats when barId is set', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+    it('should fetch stats when establishmentId is set', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const req = httpMock.expectOne(`/bars/${barId}/stats`);
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       expect(req.request.method).toBe('GET');
       req.flush(mockStats);
       TestBed.tick();
@@ -79,12 +87,12 @@ describe('StatsStore', () => {
   });
 
   describe('realtime reload via sockets', () => {
-    it('should reload stats when orderClosed is received for current barId', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+    it('should reload stats when orderClosed is received for current establishmentId', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const req = httpMock.expectOne(`/bars/${barId}/stats`);
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       req.flush(mockStats);
       TestBed.tick();
       await Promise.resolve();
@@ -94,7 +102,7 @@ describe('StatsStore', () => {
 
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
-        barId: asBarId('bar-1'),
+        establishmentId: asEstablishmentId('establishment-1'),
         status: OrderStatus.CLOSED,
         totalAmount: 100,
         amountPaidCash: 0,
@@ -110,7 +118,7 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      const reloadReq = httpMock.expectOne(`/bars/${barId}/stats`);
+      const reloadReq = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       expect(reloadReq.request.method).toBe('GET');
       reloadReq.flush({ ...mockStats, todayRevenue: 180 });
       TestBed.tick();
@@ -120,12 +128,12 @@ describe('StatsStore', () => {
       expect(store.stats.value()?.todayRevenue).toBe(180);
     });
 
-    it('should NOT reload stats when orderClosed is for a different barId', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+    it('should NOT reload stats when orderClosed is for a different establishmentId', async () => {
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const req = httpMock.expectOne(`/bars/${barId}/stats`);
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       req.flush(mockStats);
       TestBed.tick();
       await Promise.resolve();
@@ -133,7 +141,7 @@ describe('StatsStore', () => {
 
       mockSocket.orderClosed.set({
         id: asOrderId('ord-1'),
-        barId: asBarId('bar-2'),
+        establishmentId: asEstablishmentId('establishment-2'),
         status: OrderStatus.CLOSED,
         totalAmount: 100,
         amountPaidCash: 0,
@@ -149,15 +157,15 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      httpMock.expectNone(`/bars/${barId}/stats`);
+      httpMock.expectNone(`/establishments/${establishmentId}/stats`);
     });
 
     it('should reload stats when orderCancelled is received', async () => {
-      const barId = asBarId('bar-1');
-      store.setBarId(barId);
+      const establishmentId = asEstablishmentId('establishment-1');
+      store.setEstablishmentId(establishmentId);
       TestBed.tick();
 
-      const req = httpMock.expectOne(`/bars/${barId}/stats`);
+      const req = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       req.flush(mockStats);
       TestBed.tick();
       await Promise.resolve();
@@ -165,7 +173,7 @@ describe('StatsStore', () => {
 
       mockSocket.orderCancelled.set({
         id: asOrderId('ord-1'),
-        barId: asBarId('bar-1'),
+        establishmentId: asEstablishmentId('establishment-1'),
         status: OrderStatus.CANCELLED,
         totalAmount: 100,
         amountPaidCash: 0,
@@ -181,7 +189,7 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      const reloadReq = httpMock.expectOne(`/bars/${barId}/stats`);
+      const reloadReq = httpMock.expectOne(`/establishments/${establishmentId}/stats`);
       expect(reloadReq.request.method).toBe('GET');
       reloadReq.flush(mockStats);
       TestBed.tick();

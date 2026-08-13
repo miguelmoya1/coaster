@@ -16,12 +16,12 @@ export class CreateTableHandler implements ICommandHandler<CreateTableCommand, v
 
   async execute(command: CreateTableCommand): Promise<void> {
     this.#logger.debug(`Executing createTable...`);
-    const table = await this.writeRepo.create(command.barId, {
+    const table = await this.writeRepo.create(command.establishmentId, {
       name: command.dto.name,
     });
 
     const mapped = TablesMapper.toDomain(table);
     this.#logger.debug(`Publishing TableCreatedEvent...`);
-    this._eventBus.publish(new TableCreatedEvent(command.barId, mapped));
+    this._eventBus.publish(new TableCreatedEvent(command.establishmentId, mapped));
   }
 }

@@ -3,7 +3,7 @@ import { computed, effect, inject, Service, signal } from '@angular/core';
 import type {
   AddOrderAdjustmentDto,
   AddOrderItemsDto,
-  BarId,
+  EstablishmentId,
   BulkUpdateDto,
   CreateOrderDto,
   MergeOrdersDto,
@@ -15,26 +15,29 @@ import type {
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
-import { BarOrders } from '../services/bar-orders';
+import { EstablishmentOrders } from '../services/establishment-orders';
 import { CreateOrder } from '../services/create-order';
 import { DeleteOrder } from '../services/delete-order';
 import { ManageOrder } from '../services/manage-order';
 
 @Service()
 export class ActiveOrdersStore {
-  readonly #barOrders = inject(BarOrders);
+  readonly #establishmentOrders = inject(EstablishmentOrders);
   readonly #createOrder = inject(CreateOrder);
   readonly #deleteOrder = inject(DeleteOrder);
   readonly #manageOrder = inject(ManageOrder);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
-  readonly #ordersResource = httpResource(() => this.#barOrders.execute(this.#currentBarId(), OrderStatus.OPEN), {
-    parse: (orders) => orderArrayMapper(orders),
-  });
+  readonly #ordersResource = httpResource(
+    () => this.#establishmentOrders.execute(this.#currentEstablishmentId(), OrderStatus.OPEN),
+    {
+      parse: (orders) => orderArrayMapper(orders),
+    },
+  );
 
-  public readonly currentBarId = this.#currentBarId.asReadonly();
+  public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
   public readonly list = this.#ordersResource.asReadonly();
 
   public readonly openOrders = computed(() => {
@@ -57,21 +60,21 @@ export class ActiveOrdersStore {
 
     effect(() => {
       const created = this.#socketService.orderCreated();
-      if (created && this.#currentBarId() === created.barId) {
+      if (created && this.#currentEstablishmentId() === created.establishmentId) {
         upsertOrder(created);
       }
     });
 
     effect(() => {
       const updated = this.#socketService.orderUpdated();
-      if (updated && this.#currentBarId() === updated.barId) {
+      if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         upsertOrder(updated);
       }
     });
 
     effect(() => {
       const closed = this.#socketService.orderClosed();
-      if (closed && this.#currentBarId() === closed.barId) {
+      if (closed && this.#currentEstablishmentId() === closed.establishmentId) {
         upsertOrder(closed);
       }
     });
@@ -88,7 +91,7 @@ export class ActiveOrdersStore {
 
     effect(() => {
       const itemAdded = this.#socketService.orderItemAdded();
-      if (itemAdded && this.#currentBarId() === itemAdded.barId) {
+      if (itemAdded && this.#currentEstablishmentId() === itemAdded.establishmentId) {
         upsertOrder(itemAdded);
       }
     });
@@ -117,9 +120,9 @@ export class ActiveOrdersStore {
       const adjUpdated = this.#socketService.orderAdjustmentsUpdated();
       if (adjUpdated) {
         const orderId = adjUpdated.orderId as OrderId;
-        const currentBarId = this.#currentBarId();
-        if (currentBarId) {
-          this.getOrder(currentBarId, orderId).then((updatedOrder) => {
+        const currentEstablishmentId = this.#currentEstablishmentId();
+        if (currentEstablishmentId) {
+          this.getOrder(currentEstablishmentId, orderId).then((updatedOrder) => {
             upsertOrder(updatedOrder);
           });
         }
@@ -137,8 +140,8 @@ export class ActiveOrdersStore {
     });
   }
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public reloadOrders() {
@@ -168,65 +171,77 @@ export class ActiveOrdersStore {
     });
   }
 
-  public async create(barId: BarId, dto: CreateOrderDto) {
-    await this.#createOrder.execute(barId, dto);
+  public async create(establishmentId: EstablishmentId, dto: CreateOrderDto) {
+    await this.#createOrder.execute(establishmentId, dto);
   }
 
-  public async getOrder(barId: BarId, orderId: OrderId) {
-    return await this.#manageOrder.getOrder(barId, orderId);
+  public async getOrder(establishmentId: EstablishmentId, orderId: OrderId) {
+    return await this.#manageOrder.getOrder(establishmentId, orderId);
   }
 
-  public async addItems(barId: BarId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
-    await this.#manageOrder.addItems(barId, orderId, dto);
+  public async addItems(establishmentId: EstablishmentId, orderId: OrderId, dto: AddOrderItemsDto): Promise<void> {
+    await this.#manageOrder.addItems(establishmentId, orderId, dto);
   }
 
-  public async bulkUpdate(barId: BarId, orderId: OrderId, dto: BulkUpdateDto): Promise<void> {
-    await this.#manageOrder.bulkUpdate(barId, orderId, dto);
+  public async bulkUpdate(establishmentId: EstablishmentId, orderId: OrderId, dto: BulkUpdateDto): Promise<void> {
+    await this.#manageOrder.bulkUpdate(establishmentId, orderId, dto);
   }
 
-  public async checkout(barId: BarId, orderId: OrderId, paymentMethod: PaymentMethod): Promise<void> {
-    await this.#manageOrder.checkout(barId, orderId, { paymentMethod });
+  public async checkout(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    paymentMethod: PaymentMethod,
+  ): Promise<void> {
+    await this.#manageOrder.checkout(establishmentId, orderId, { paymentMethod });
   }
 
-  public async cancel(barId: BarId, orderId: OrderId): Promise<void> {
-    await this.#manageOrder.cancel(barId, orderId);
+  public async cancel(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#manageOrder.cancel(establishmentId, orderId);
   }
 
-  public async moveTable(barId: BarId, orderId: OrderId, dto: MoveTableDto): Promise<void> {
-    await this.#manageOrder.moveTable(barId, orderId, dto);
+  public async moveTable(establishmentId: EstablishmentId, orderId: OrderId, dto: MoveTableDto): Promise<void> {
+    await this.#manageOrder.moveTable(establishmentId, orderId, dto);
   }
 
-  public async merge(barId: BarId, dto: MergeOrdersDto): Promise<void> {
-    await this.#manageOrder.merge(barId, dto);
+  public async merge(establishmentId: EstablishmentId, dto: MergeOrdersDto): Promise<void> {
+    await this.#manageOrder.merge(establishmentId, dto);
   }
 
-  public async removeItem(barId: BarId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
-    await this.#manageOrder.removeItem(barId, orderId, itemId);
+  public async removeItem(establishmentId: EstablishmentId, orderId: OrderId, itemId: OrderItemId): Promise<void> {
+    await this.#manageOrder.removeItem(establishmentId, orderId, itemId);
   }
 
-  public async deleteOrder(barId: BarId, orderId: OrderId): Promise<void> {
-    await this.#deleteOrder.execute(barId, orderId);
+  public async deleteOrder(establishmentId: EstablishmentId, orderId: OrderId): Promise<void> {
+    await this.#deleteOrder.execute(establishmentId, orderId);
   }
 
-  public async updateTip(barId: BarId, orderId: OrderId, tipAmount: number): Promise<void> {
+  public async updateTip(establishmentId: EstablishmentId, orderId: OrderId, tipAmount: number): Promise<void> {
     const original = this.optimisticUpdate(orderId, (o) => ({
       ...o,
       tipAmount,
       payableTotal: (o.orderTotal ?? o.totalAmount) + tipAmount,
     }));
     try {
-      await this.#manageOrder.updateTip(barId, orderId, { tipAmount });
+      await this.#manageOrder.updateTip(establishmentId, orderId, { tipAmount });
     } catch (e) {
       this.revertUpdate(original);
       throw e;
     }
   }
 
-  public async addAdjustment(barId: BarId, orderId: OrderId, dto: AddOrderAdjustmentDto): Promise<void> {
-    await this.#manageOrder.addAdjustment(barId, orderId, dto);
+  public async addAdjustment(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    dto: AddOrderAdjustmentDto,
+  ): Promise<void> {
+    await this.#manageOrder.addAdjustment(establishmentId, orderId, dto);
   }
 
-  public async removeAdjustment(barId: BarId, orderId: OrderId, adjustmentId: string): Promise<void> {
-    await this.#manageOrder.removeAdjustment(barId, orderId, adjustmentId);
+  public async removeAdjustment(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    adjustmentId: string,
+  ): Promise<void> {
+    await this.#manageOrder.removeAdjustment(establishmentId, orderId, adjustmentId);
   }
 }

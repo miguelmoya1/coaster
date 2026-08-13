@@ -1,5 +1,5 @@
 import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asProductId, OrderStatus } from '@coaster/common';
 import { AdjustProductStockCommand } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { firstValueFrom, of } from 'rxjs';
@@ -22,7 +22,7 @@ describe('OrdersSagas', () => {
   it('should map OrderCreatedEvent to AdjustProductStockCommand', async () => {
     const order = {
       id: asOrderId('order-1'),
-      barId: asBarId('bar-1'),
+      establishmentId: asEstablishmentId('establishment-1'),
       status: OrderStatus.OPEN,
       totalAmount: 10,
       items: [
@@ -30,45 +30,51 @@ describe('OrdersSagas', () => {
         { productId: asProductId('prod-2'), quantity: 3 },
       ],
     };
-    const event = new OrderCreatedEvent(asBarId('bar-1'), order as unknown as Order, null);
+    const event = new OrderCreatedEvent(asEstablishmentId('establishment-1'), order as unknown as Order, null);
 
     const result = await firstValueFrom(sagas.handleStockManagement(of(event)).pipe(toArray()));
 
     expect(result).toEqual([
-      new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-1'), -2),
-      new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-2'), -3),
+      new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-1'), -2),
+      new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-2'), -3),
     ]);
   });
 
   it('should map OrderItemsAddedEvent to AdjustProductStockCommand', async () => {
-    const event = new OrderItemsAddedEvent(asBarId('bar-1'), {} as Order, [
+    const event = new OrderItemsAddedEvent(asEstablishmentId('establishment-1'), {} as Order, [
       { productId: asProductId('prod-1'), quantity: 2 },
     ]);
 
     const result = await firstValueFrom(sagas.handleStockManagement(of(event)).pipe(toArray()));
 
-    expect(result).toEqual([new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-1'), -2)]);
+    expect(result).toEqual([
+      new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-1'), -2),
+    ]);
   });
 
   it('should map OrderItemRemovedEvent to AdjustProductStockCommand', async () => {
-    const event = new OrderItemRemovedEvent(asBarId('bar-1'), {} as Order, {
+    const event = new OrderItemRemovedEvent(asEstablishmentId('establishment-1'), {} as Order, {
       productId: asProductId('prod-1'),
       quantity: 4,
     });
 
     const result = await firstValueFrom(sagas.handleStockManagement(of(event)).pipe(toArray()));
 
-    expect(result).toEqual([new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-1'), 4)]);
+    expect(result).toEqual([
+      new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-1'), 4),
+    ]);
   });
 
   it('should map OrderCancelledEvent to AdjustProductStockCommand', async () => {
     const order = {
       items: [{ productId: asProductId('prod-1'), quantity: 2 }],
     };
-    const event = new OrderCancelledEvent(asBarId('bar-1'), order as Order, null);
+    const event = new OrderCancelledEvent(asEstablishmentId('establishment-1'), order as Order, null);
 
     const result = await firstValueFrom(sagas.handleStockManagement(of(event)).pipe(toArray()));
 
-    expect(result).toEqual([new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-1'), 2)]);
+    expect(result).toEqual([
+      new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-1'), 2),
+    ]);
   });
 });

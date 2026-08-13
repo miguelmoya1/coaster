@@ -1,7 +1,7 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
 import type { CreateProductDto } from '@coaster/common';
-import { asBarId, asProductId } from '@coaster/common';
-import { BarPermissionsGuard } from '@coaster/core';
+import { asEstablishmentId, asProductId } from '@coaster/common';
+import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -12,7 +12,7 @@ import {
   UpdateProductCommand,
   UpdateProductStockCommand,
 } from '../commands';
-import { GetProductsByBarIdQuery } from '../queries';
+import { GetProductsByEstablishmentIdQuery } from '../queries';
 import { ProductsController } from './products.controller';
 
 describe('ProductsController', () => {
@@ -35,7 +35,9 @@ describe('ProductsController', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
+      .useValue(mockGuard)
+      .overrideGuard(EstablishmentModulesGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -47,16 +49,16 @@ describe('ProductsController', () => {
   it('getProducts should delegate to the query bus', async () => {
     queryBus.execute.mockResolvedValue([]);
 
-    await controller.getProducts(asBarId('bar-1'));
+    await controller.getProducts(asEstablishmentId('establishment-1'));
 
-    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetProductsByBarIdQuery));
+    expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetProductsByEstablishmentIdQuery));
   });
 
   it('createProduct should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { categoryId: 'cat-1', name: 'Refresco', price: 2 };
 
-    await controller.createProduct(asBarId('bar-1'), dto as unknown as CreateProductDto);
+    await controller.createProduct(asEstablishmentId('establishment-1'), dto as unknown as CreateProductDto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateProductCommand));
   });
@@ -65,7 +67,7 @@ describe('ProductsController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { currentStock: 10 };
 
-    await controller.updateStock(asBarId('bar-1'), asProductId('prod-1'), dto);
+    await controller.updateStock(asEstablishmentId('establishment-1'), asProductId('prod-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateProductStockCommand));
   });
@@ -74,7 +76,7 @@ describe('ProductsController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { name: 'Refresco VIP' };
 
-    await controller.updateProduct(asBarId('bar-1'), asProductId('prod-1'), dto);
+    await controller.updateProduct(asEstablishmentId('establishment-1'), asProductId('prod-1'), dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(UpdateProductCommand));
   });
@@ -82,7 +84,7 @@ describe('ProductsController', () => {
   it('deleteProduct should delegate to the command bus', async () => {
     commandBus.execute.mockResolvedValue(undefined);
 
-    await controller.deleteProduct(asBarId('bar-1'), asProductId('prod-1'));
+    await controller.deleteProduct(asEstablishmentId('establishment-1'), asProductId('prod-1'));
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(DeleteProductCommand));
   });

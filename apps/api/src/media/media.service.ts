@@ -18,7 +18,7 @@ export class MediaService {
   constructor(private readonly _config: ConfigService) {}
 
   async generateUploadUrls(
-    barId: string,
+    establishmentId: string,
     entityType: string,
     files: MediaFileRequestDto[],
   ): Promise<MediaUploadResponse[]> {
@@ -29,7 +29,7 @@ export class MediaService {
     for (const fileReq of files) {
       const contentType = fileReq.contentType;
       const objectName = `${randomUUID()}${this.safeExtension(fileReq.filename)}`;
-      const filePath = `bars/${barId}/${entityType}/${objectName}`;
+      const filePath = `establishments/${establishmentId}/${entityType}/${objectName}`;
 
       const uploadHeaders = { 'x-goog-content-length-range': `0,${MAX_UPLOAD_BYTES}` };
 

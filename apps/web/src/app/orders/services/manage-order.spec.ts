@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { PaymentMethod, asBarId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/common';
+import { PaymentMethod, asEstablishmentId, asOrderId, asOrderItemId, asProductId, asTableId } from '@coaster/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderRepository } from '../data-access/order-repository';
 import { ManageOrder } from './manage-order';
@@ -20,7 +20,7 @@ describe('ManageOrder', () => {
     create: vi.fn(),
   };
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const orderId = asOrderId('order-1');
 
   beforeEach(() => {
@@ -42,9 +42,9 @@ describe('ManageOrder', () => {
       const dto = { items: [{ productId: asProductId('prod-2'), quantity: 3 }] };
       orderRepoMock.addItems.mockResolvedValue(undefined);
 
-      const result = await service.addItems(barId, orderId, dto);
+      const result = await service.addItems(establishmentId, orderId, dto);
 
-      expect(orderRepoMock.addItems).toHaveBeenCalledWith(barId, orderId, dto);
+      expect(orderRepoMock.addItems).toHaveBeenCalledWith(establishmentId, orderId, dto);
       expect(result).toBeUndefined();
     });
   });
@@ -54,9 +54,9 @@ describe('ManageOrder', () => {
       const dto = { items: [{ itemId: asOrderItemId('item-1'), paidQuantity: 2, servedQuantity: 1 }] };
       orderRepoMock.bulkUpdate.mockResolvedValue(undefined);
 
-      const result = await service.bulkUpdate(barId, orderId, dto);
+      const result = await service.bulkUpdate(establishmentId, orderId, dto);
 
-      expect(orderRepoMock.bulkUpdate).toHaveBeenCalledWith(barId, orderId, dto);
+      expect(orderRepoMock.bulkUpdate).toHaveBeenCalledWith(establishmentId, orderId, dto);
       expect(result).toBeUndefined();
     });
   });
@@ -65,9 +65,11 @@ describe('ManageOrder', () => {
     it('should delegate to repository', async () => {
       orderRepoMock.checkout.mockResolvedValue(undefined);
 
-      const result = await service.checkout(barId, orderId, { paymentMethod: PaymentMethod.CASH });
+      const result = await service.checkout(establishmentId, orderId, { paymentMethod: PaymentMethod.CASH });
 
-      expect(orderRepoMock.checkout).toHaveBeenCalledWith(barId, orderId, { paymentMethod: PaymentMethod.CASH });
+      expect(orderRepoMock.checkout).toHaveBeenCalledWith(establishmentId, orderId, {
+        paymentMethod: PaymentMethod.CASH,
+      });
       expect(result).toBeUndefined();
     });
   });
@@ -76,9 +78,9 @@ describe('ManageOrder', () => {
     it('should delegate to repository', async () => {
       orderRepoMock.cancel.mockResolvedValue(undefined);
 
-      const result = await service.cancel(barId, orderId);
+      const result = await service.cancel(establishmentId, orderId);
 
-      expect(orderRepoMock.cancel).toHaveBeenCalledWith(barId, orderId);
+      expect(orderRepoMock.cancel).toHaveBeenCalledWith(establishmentId, orderId);
       expect(result).toBeUndefined();
     });
   });
@@ -88,9 +90,9 @@ describe('ManageOrder', () => {
       const dto = { tableId: asTableId('table-2') };
       orderRepoMock.moveTable.mockResolvedValue(undefined);
 
-      const result = await service.moveTable(barId, orderId, dto);
+      const result = await service.moveTable(establishmentId, orderId, dto);
 
-      expect(orderRepoMock.moveTable).toHaveBeenCalledWith(barId, orderId, dto);
+      expect(orderRepoMock.moveTable).toHaveBeenCalledWith(establishmentId, orderId, dto);
       expect(result).toBeUndefined();
     });
   });
@@ -100,9 +102,9 @@ describe('ManageOrder', () => {
       const dto = { orderIds: [asOrderId('o1'), asOrderId('o2')] };
       orderRepoMock.merge.mockResolvedValue(undefined);
 
-      const result = await service.merge(barId, dto);
+      const result = await service.merge(establishmentId, dto);
 
-      expect(orderRepoMock.merge).toHaveBeenCalledWith(barId, dto);
+      expect(orderRepoMock.merge).toHaveBeenCalledWith(establishmentId, dto);
       expect(result).toBeUndefined();
     });
   });

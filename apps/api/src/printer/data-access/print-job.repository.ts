@@ -1,4 +1,4 @@
-import type { BarId, PrintTicketPayloadDto } from '@coaster/common';
+import type { EstablishmentId, PrintTicketPayloadDto } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -10,9 +10,9 @@ const MAX_ATTEMPTS = 3;
 export class PrintJobRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async enqueue(barId: BarId, payload: PrintTicketPayloadDto) {
+  public async enqueue(establishmentId: EstablishmentId, payload: PrintTicketPayloadDto) {
     return this._db.dbPrintJob.create({
-      data: { barId, payload: JSON.parse(JSON.stringify(payload)) },
+      data: { establishmentId, payload: JSON.parse(JSON.stringify(payload)) },
     });
   }
 
@@ -20,9 +20,9 @@ export class PrintJobRepository {
     return this._db.dbPrintJob.findUnique({ where: { id } });
   }
 
-  public async claimNext(barId: BarId) {
+  public async claimNext(establishmentId: EstablishmentId) {
     const candidate = await this._db.dbPrintJob.findFirst({
-      where: { barId, status: 'PENDING' },
+      where: { establishmentId, status: 'PENDING' },
       orderBy: { createdAt: 'asc' },
     });
 
@@ -56,16 +56,16 @@ export class PrintJobRepository {
     });
   }
 
-  public async requeueStaleClaims(barId: BarId) {
+  public async requeueStaleClaims(establishmentId: EstablishmentId) {
     const cutoff = new Date(Date.now() - STALE_CLAIM_MS);
 
     await this._db.dbPrintJob.updateMany({
-      where: { barId, status: 'PRINTING', claimedAt: { lt: cutoff }, attempts: { lt: MAX_ATTEMPTS } },
+      where: { establishmentId, status: 'PRINTING', claimedAt: { lt: cutoff }, attempts: { lt: MAX_ATTEMPTS } },
       data: { status: 'PENDING', claimedAt: null },
     });
 
     await this._db.dbPrintJob.updateMany({
-      where: { barId, status: 'PRINTING', claimedAt: { lt: cutoff }, attempts: { gte: MAX_ATTEMPTS } },
+      where: { establishmentId, status: 'PRINTING', claimedAt: { lt: cutoff }, attempts: { gte: MAX_ATTEMPTS } },
       data: {
         status: 'FAILED',
         completedAt: new Date(),

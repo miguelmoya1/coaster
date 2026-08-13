@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -13,8 +13,8 @@ import { UpdateProductHandler } from './update-product.handler';
 describe('UpdateProductHandler', () => {
   let handler: UpdateProductHandler;
   const repository = {
-    checkCategoryBelongsToBar: vi.fn(),
-    checkProductBelongsToBar: vi.fn(),
+    checkCategoryBelongsToEstablishment: vi.fn(),
+    checkProductBelongsToEstablishment: vi.fn(),
     update: vi.fn(),
   };
   const eventBus = {
@@ -36,29 +36,31 @@ describe('UpdateProductHandler', () => {
     handler = module.get<UpdateProductHandler>(UpdateProductHandler);
   });
 
-  const barId = asBarId('bar-1');
+  const establishmentId = asEstablishmentId('establishment-1');
   const productId = asProductId('prod-1');
   const dto = { categoryId: asCategoryId('cat-2'), name: 'Refresco Actualizado' };
 
-  it('should refuse to update a product owned by another bar', async () => {
-    repository.checkProductBelongsToBar.mockResolvedValue(false);
+  it('should refuse to update a product owned by another establishment', async () => {
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(false);
 
-    await expect(handler.execute(new UpdateProductCommand(barId, productId, dto))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new UpdateProductCommand(establishmentId, productId, dto))).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(repository.update).not.toHaveBeenCalled();
   });
 
-  it('should throw ForbiddenException if new category does not belong to bar', async () => {
-    repository.checkProductBelongsToBar.mockResolvedValue(true);
-    repository.checkCategoryBelongsToBar.mockResolvedValue(false);
+  it('should throw ForbiddenException if new category does not belong to establishment', async () => {
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
+    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(false);
 
-    const cmd = new UpdateProductCommand(barId, productId, dto);
+    const cmd = new UpdateProductCommand(establishmentId, productId, dto);
     await expect(handler.execute(cmd)).rejects.toThrow(ForbiddenException);
   });
 
   it('should update product and publish stock changed event', async () => {
-    repository.checkProductBelongsToBar.mockResolvedValue(true);
-    repository.checkCategoryBelongsToBar.mockResolvedValue(true);
+    repository.checkProductBelongsToEstablishment.mockResolvedValue(true);
+    repository.checkCategoryBelongsToEstablishment.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',
       categoryId: 'cat-2',
@@ -70,12 +72,12 @@ describe('UpdateProductHandler', () => {
       updatedAt: new Date(),
     });
 
-    const cmd = new UpdateProductCommand(barId, productId, dto);
+    const cmd = new UpdateProductCommand(establishmentId, productId, dto);
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, dto);
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product),
+      new ProductStockChangedEvent(establishmentId, expect.any(Object) as unknown as Product),
     );
   });
 });

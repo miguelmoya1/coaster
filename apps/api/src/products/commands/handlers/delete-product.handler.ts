@@ -19,14 +19,17 @@ export class DeleteProductHandler implements ICommandHandler<DeleteProductComman
   async execute(command: DeleteProductCommand): Promise<void> {
     this.#logger.debug(`Executing deleteProduct...`);
 
-    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+    const belongsToEstablishment = await this.readRepo.checkProductBelongsToEstablishment(
+      command.productId,
+      command.establishmentId,
+    );
 
-    if (!belongsToBar) {
+    if (!belongsToEstablishment) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
     await this.writeRepo.delete(command.productId);
     this.#logger.debug(`Publishing ProductDeletedEvent...`);
-    this._eventBus.publish(new ProductDeletedEvent(command.barId, command.productId));
+    this._eventBus.publish(new ProductDeletedEvent(command.establishmentId, command.productId));
   }
 }

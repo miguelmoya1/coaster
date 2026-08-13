@@ -1,4 +1,4 @@
-import type { BarId, TimeEntryId, UserId } from '@coaster/common';
+import type { EstablishmentId, TimeEntryId, UserId } from '@coaster/common';
 import type { DbTimeEntryWhereInput } from '@coaster/core/db';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
@@ -12,8 +12,8 @@ const entryInclude = {
 export class TimeEntriesReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public findByWorkdayRange(barId: BarId, from: Date, to: Date, userId?: UserId) {
-    const where: DbTimeEntryWhereInput = { barId, workdayDate: { gte: from, lte: to } };
+  public findByWorkdayRange(establishmentId: EstablishmentId, from: Date, to: Date, userId?: UserId) {
+    const where: DbTimeEntryWhereInput = { establishmentId, workdayDate: { gte: from, lte: to } };
 
     if (userId) {
       where.userId = userId;
@@ -34,28 +34,27 @@ export class TimeEntriesReadRepository {
     });
   }
 
-  public findRecentForUser(barId: BarId, userId: UserId, since: Date) {
+  public findRecentForUser(establishmentId: EstablishmentId, userId: UserId, since: Date) {
     return this._db.dbTimeEntry.findMany({
-      where: { barId, userId, occurredAt: { gte: since } },
+      where: { establishmentId, userId, occurredAt: { gte: since } },
       include: entryInclude,
       orderBy: { sequence: 'asc' },
     });
   }
 
-  public async findCurrentById(barId: BarId, entryId: TimeEntryId) {
+  public async findCurrentById(establishmentId: EstablishmentId, entryId: TimeEntryId) {
     const entry = await this._db.dbTimeEntry.findFirst({
-      where: { id: entryId, barId },
+      where: { id: entryId, establishmentId },
       include: { ...entryInclude, supersededBy: { select: { id: true } } },
     });
 
     return entry;
   }
 
-  public findChain(barId: BarId) {
+  public findChain(establishmentId: EstablishmentId) {
     return this._db.dbTimeEntry.findMany({
-      where: { barId },
+      where: { establishmentId },
       orderBy: { sequence: 'asc' },
     });
   }
-
 }

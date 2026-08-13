@@ -16,9 +16,9 @@ export class CreateCategoryHandler implements ICommandHandler<CreateCategoryComm
 
   async execute(command: CreateCategoryCommand): Promise<void> {
     this.#logger.debug(`Executing createCategory...`);
-    const created = await this.repository.create(command.barId, command.dto);
+    const created = await this.repository.create(command.establishmentId, command.dto);
     const mapped = CategoriesMapper.toDomain(created);
     this.#logger.debug(`Publishing CategoryCreatedEvent...`);
-    this._eventBus.publish(new CategoryCreatedEvent(command.barId, mapped));
+    this._eventBus.publish(new CategoryCreatedEvent(command.establishmentId, mapped));
   }
 }

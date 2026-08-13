@@ -18,9 +18,9 @@ export class VoidTimeEntryHandler implements ICommandHandler<VoidTimeEntryComman
   ) {}
 
   async execute(command: VoidTimeEntryCommand): Promise<TimeEntry> {
-    const { barId, entryId, actor, dto } = command;
+    const { establishmentId, entryId, actor, dto } = command;
 
-    const current = await this._readRepo.findCurrentById(barId, entryId);
+    const current = await this._readRepo.findCurrentById(establishmentId, entryId);
 
     if (!current) {
       throw new NotFoundException(ErrorCodes.TIME_ENTRY_NOT_FOUND);
@@ -31,7 +31,12 @@ export class VoidTimeEntryHandler implements ICommandHandler<VoidTimeEntryComman
     }
 
     const userId = asUserId(current.userId);
-    const rows = await this._readRepo.findByWorkdayRange(barId, current.workdayDate, current.workdayDate, userId);
+    const rows = await this._readRepo.findByWorkdayRange(
+      establishmentId,
+      current.workdayDate,
+      current.workdayDate,
+      userId,
+    );
     const day = TimeEntriesMapper.groupByRoot(rows).filter((entry) => entry.rootId !== current.rootId);
 
     if (!replayClockState(toDatedMarks(day))) {
@@ -41,7 +46,7 @@ export class VoidTimeEntryHandler implements ICommandHandler<VoidTimeEntryComman
     const reason = dto.reason.trim();
 
     await this._writeRepo.append({
-      barId,
+      establishmentId,
       userId,
       userSnapshot: current.userSnapshot as { name: string; email: string },
       type: current.type as TimeEntryType,
@@ -56,7 +61,7 @@ export class VoidTimeEntryHandler implements ICommandHandler<VoidTimeEntryComman
     });
 
     const entry = TimeEntriesMapper.toDomain(await this._readRepo.findByRoots([current.rootId]));
-    this._eventBus.publish(new TimeEntryVoidedEvent(barId, entry, actor.id, actor.role, reason));
+    this._eventBus.publish(new TimeEntryVoidedEvent(establishmentId, entry, actor.id, actor.role, reason));
 
     return entry;
   }

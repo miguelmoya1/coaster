@@ -10,7 +10,7 @@ const userListSelect = {
   photoUrl: true,
   role: true,
   active: true,
-  language: true,
+  preferences: { select: { language: true } },
   createdAt: true,
   _count: { select: { memberships: true } },
 } as const;
@@ -64,14 +64,14 @@ export class AdminUserReadRepository {
   }
 
   public findMemberships(userId: UserId) {
-    return this._db.dbBarMember.findMany({
+    return this._db.dbEstablishmentMember.findMany({
       where: { userId, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       select: {
         role: true,
         active: true,
         createdAt: true,
-        bar: { select: { id: true, name: true } },
+        establishment: { select: { id: true, name: true } },
       },
     });
   }

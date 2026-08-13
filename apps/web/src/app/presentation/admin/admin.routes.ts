@@ -15,12 +15,12 @@ const adminRoutes: Routes = [
         loadComponent: () => import('./pages/admin-overview/admin-overview'),
       },
       {
-        path: 'bars',
-        loadComponent: () => import('./pages/admin-bars/admin-bars'),
+        path: 'establishments',
+        loadComponent: () => import('./pages/admin-establishments/admin-establishments'),
       },
       {
-        path: 'bars/:barId',
-        loadComponent: () => import('./pages/admin-bar-detail/admin-bar-detail'),
+        path: 'establishments/:establishmentId',
+        loadComponent: () => import('./pages/admin-establishment-detail/admin-establishment-detail'),
       },
       {
         path: 'users',
@@ -29,10 +29,6 @@ const adminRoutes: Routes = [
       {
         path: 'audit',
         loadComponent: () => import('./pages/admin-audit/admin-audit'),
-      },
-      {
-        path: 'templates',
-        loadComponent: () => import('./pages/admin-templates/admin-templates'),
       },
       {
         path: 'dashboard',

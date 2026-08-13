@@ -18,11 +18,16 @@ export class ClockHandler implements ICommandHandler<ClockCommand, TimeEntry> {
   ) {}
 
   async execute(command: ClockCommand): Promise<TimeEntry> {
-    const { barId, actor, dto } = command;
+    const { establishmentId, actor, dto } = command;
 
     const occurredAt = new Date();
     const natural = toWorkdayDate(occurredAt);
-    const rows = await this._readRepo.findByWorkdayRange(barId, shiftWorkdayDate(natural, -1), natural, actor.id);
+    const rows = await this._readRepo.findByWorkdayRange(
+      establishmentId,
+      shiftWorkdayDate(natural, -1),
+      natural,
+      actor.id,
+    );
     const workdayDate = planMark(dto.type, occurredAt, toDatedMarks(TimeEntriesMapper.groupByRoot(rows)));
 
     if (!workdayDate) {
@@ -30,7 +35,7 @@ export class ClockHandler implements ICommandHandler<ClockCommand, TimeEntry> {
     }
 
     const created = await this._writeRepo.append({
-      barId,
+      establishmentId,
       userId: actor.id,
       userSnapshot: { name: actor.name, email: actor.email },
       type: dto.type,
@@ -44,7 +49,7 @@ export class ClockHandler implements ICommandHandler<ClockCommand, TimeEntry> {
     });
 
     const entry = TimeEntriesMapper.toDomain([created]);
-    this._eventBus.publish(new TimeEntryRecordedEvent(barId, entry, actor.id, actor.role, null));
+    this._eventBus.publish(new TimeEntryRecordedEvent(establishmentId, entry, actor.id, actor.role, null));
 
     return entry;
   }

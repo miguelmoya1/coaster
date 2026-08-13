@@ -22,7 +22,7 @@ export class GetShiftsHandler implements IQueryHandler<GetShiftsQuery, Shift[]> 
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const shifts = await this.readRepo.findByBarId(query.barId, start, end);
+    const shifts = await this.readRepo.findByEstablishmentId(query.establishmentId, start, end);
     return shifts.map((shift) => ShiftsMapper.toDomain(shift));
   }
 }

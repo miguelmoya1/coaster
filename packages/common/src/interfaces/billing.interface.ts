@@ -1,1 +1,1 @@
-export * from './bar-subscription.interface';
+export * from './establishment-subscription.interface';

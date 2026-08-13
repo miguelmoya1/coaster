@@ -14,9 +14,9 @@
     "module": "preserve",
     "paths": {
       "@coaster/admin": ["./src/app/admin/index.ts"],
-      "@coaster/bar-members": ["./src/app/bar-members/index.ts"],
-      "@coaster/bar-subscription": ["./src/app/bar-subscription/index.ts"],
-      "@coaster/bars": ["./src/app/bars/index.ts"],
+      "@coaster/establishment-members": ["./src/app/establishment-members/index.ts"],
+      "@coaster/establishment-subscription": ["./src/app/establishment-subscription/index.ts"],
+      "@coaster/establishments": ["./src/app/establishments/index.ts"],
       "@coaster/categories": ["./src/app/categories/index.ts"],
       "@coaster/core": ["./src/app/core/index.ts"],
       "@coaster/env": ["./src/environments/environment.ts"],
@@ -24,11 +24,12 @@
       "@coaster/orders": ["./src/app/orders/index.ts"],
       "@coaster/printer": ["./src/app/printer/index.ts"],
       "@coaster/products": ["./src/app/products/index.ts"],
-      "@coaster/roster": ["./src/app/roster/index.ts"],
+      "@coaster/schedule": ["./src/app/schedule/index.ts"],
       "@coaster/shifts": ["./src/app/shifts/index.ts"],
       "@coaster/stats": ["./src/app/stats/index.ts"],
       "@coaster/tables": ["./src/app/tables/index.ts"],
-      "@coaster/templates": ["./src/app/templates/index.ts"],
+      "@coaster/catalogue": ["./src/app/catalogue/index.ts"],
+      "@coaster/menu": ["./src/app/menu/index.ts"],
       "@coaster/time-tracking": ["./src/app/time-tracking/index.ts"]
     }
   },

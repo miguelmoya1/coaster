@@ -1,5 +1,5 @@
-import { MemberInvitedEvent } from '@coaster/bar-members';
-import { asBarId, asBarMemberId } from '@coaster/common';
+import { MemberInvitedEvent } from '@coaster/establishment-members';
+import { asEstablishmentId, asEstablishmentMemberId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EmailService } from '../../email.service';
@@ -22,16 +22,16 @@ describe('MemberInvitedHandler', () => {
 
   it('should send invite email when member is invited', async () => {
     const event = new MemberInvitedEvent(
-      asBarId('bar-1'),
-      asBarMemberId('mem-1'),
+      asEstablishmentId('establishment-1'),
+      asEstablishmentMemberId('mem-1'),
       'john@example.com',
-      'My Bar',
+      'My Establishment',
       'John Doe',
       'es',
     );
 
     await handler.handle(event);
 
-    expect(emailService.sendInviteEmail).toHaveBeenCalledWith('john@example.com', 'My Bar', 'John Doe', 'es');
+    expect(emailService.sendInviteEmail).toHaveBeenCalledWith('john@example.com', 'My Establishment', 'John Doe', 'es');
   });
 });

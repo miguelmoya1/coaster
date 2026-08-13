@@ -1,8 +1,8 @@
-import type { BarId, TableId } from '@coaster/common';
+import type { EstablishmentId, TableId } from '@coaster/common';
 
 export class DeleteTableCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly tableId: TableId,
   ) {}
 }

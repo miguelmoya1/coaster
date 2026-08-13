@@ -7,7 +7,7 @@ import {
   asTimeEntryId,
   asUserId,
   Role,
-  asBarId,
+  asEstablishmentId,
 } from '@coaster/common';
 import { BadRequestException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,10 +15,10 @@ import { TimeEntryVoidedEvent } from '../../events/impl/time-entry-voided.event'
 import { VoidTimeEntryCommand } from '../impl/void-time-entry.command';
 import { VoidTimeEntryHandler } from './void-time-entry.handler';
 
-const barId = asBarId('bar-1');
+const establishmentId = asEstablishmentId('establishment-1');
 const actor: User = {
   id: asUserId('manager-1'),
-  email: 'ana@bar.com',
+  email: 'ana@establishment.com',
   name: 'Ana',
   active: true,
   role: Role.USER,
@@ -28,9 +28,9 @@ const actor: User = {
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: 'entry-1',
   rootId: 'entry-1',
-  barId: 'bar-1',
+  establishmentId: 'establishment-1',
   userId: 'user-1',
-  userSnapshot: { name: 'Luis', email: 'luis@bar.com' },
+  userSnapshot: { name: 'Luis', email: 'luis@establishment.com' },
   shiftId: null,
   type: TimeEntryType.CLOCK_IN,
   action: TimeEntryAction.RECORDED,
@@ -52,7 +52,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const command = new VoidTimeEntryCommand(barId, asTimeEntryId('entry-1'), actor, {
+const command = new VoidTimeEntryCommand(establishmentId, asTimeEntryId('entry-1'), actor, {
   reason: 'Fichaje duplicado por error del terminal',
 });
 

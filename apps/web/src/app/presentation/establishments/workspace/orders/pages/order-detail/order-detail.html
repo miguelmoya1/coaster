@@ -1,0 +1,68 @@
+<div class="flex items-center gap-3">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <h2 class="heading-2 flex-1!">{{ displayOrder() | orderTitle }}</h2>
+</div>
+
+@if (isLoadingServices() || isLoading()) {
+  <coaster-loading />
+}
+
+@if (displayOrderViewModel(); as order) {
+  <coaster-order-summary-card
+    [order]="order"
+    (updateTip)="onUpdateTip($event)"
+    (addAdjustment)="onAddAdjustment()"
+    (removeAdjustment)="onRemoveAdjustment($event)"
+  />
+
+  <div class="flex flex-col gap-2">
+    @for (item of order.items; track item.id) {
+      <coaster-order-item-card
+        [item]="item"
+        [isOpen]="order.status === OrderStatus.OPEN"
+        [isSelected]="isItemSelected(item.id)"
+        [selectedQty]="getSelectedQuantities(item.id)"
+        [adjustments]="order.adjustments || []"
+        (toggleSelect)="toggleSelectItem(item)"
+        (updatePayQty)="updateSelectedPayQty(item.id, $event)"
+        (removeItem)="handleRemoveItem(item)"
+        (addAdjustment)="onAddAdjustment(item.id)"
+        (removeAdjustment)="onRemoveAdjustment($event)"
+      />
+    }
+  </div>
+
+  @if (totalSelectedItemsCount() > 0) {
+    <coaster-order-bulk-actions
+      [selectedCount]="totalSelectedItemsCount()"
+      [selectedAmount]="selectedTotalAmount()"
+      [canConfirm]="totalPaidUnitsDiff() > 0"
+      (clearSelection)="clearSelection()"
+      (confirmChanges)="handleConfirmChanges()"
+    />
+  }
+
+  @if (order.status === OrderStatus.OPEN) {
+    <coaster-order-actions
+      [establishmentId]="establishmentId()"
+      [hasTable]="!!order.tableId"
+      (addItems)="onAddItems()"
+      (checkout)="handleOpenCheckout()"
+      (moveTable)="onMoveTable()"
+      (merge)="onMerge()"
+      (cancelOrder)="handleCancelOrder()"
+      (printOrder)="printOrder()"
+    />
+  }
+} @else {
+  @if (!isLoadingServices() && !isLoading()) {
+    <div class="flex flex-col items-center gap-4 py-12 text-center">
+      <span class="text-on-surface-variant text-lg">{{ 'orders.order_not_found' | translate }}</span>
+      <button mat-flat-button class="w-full" (click)="goBack()">
+        {{ 'orders.tables_title' | translate }}
+      </button>
+    </div>
+  }
+}

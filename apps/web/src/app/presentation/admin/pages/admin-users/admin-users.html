@@ -11,7 +11,7 @@
     @if (hasFilters()) {
       <button mat-stroked-button type="button" (click)="clearFilters()">
         <mat-icon>filter_alt_off</mat-icon>
-        {{ 'admin.bars.clear_filters' | translate }}
+        {{ 'admin.establishments.clear_filters' | translate }}
       </button>
     }
   </section>
@@ -60,13 +60,13 @@
         <table class="w-full text-sm">
           <thead class="bg-surface/50 text-on-surface-variant">
             <tr class="text-left">
-              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_user' | translate }}</th>
-              <th scope="col" class="px-4 py-3 font-medium">{{ 'admin.users.col_role' | translate }}</th>
-              <th scope="col" class="px-4 py-3 font-medium hidden sm:table-cell">
-                {{ 'admin.users.col_bars' | translate }}
+              <th scope="col" class="px-3 py-3 sm:px-4 font-medium">{{ 'admin.users.col_user' | translate }}</th>
+              <th scope="col" class="px-3 py-3 sm:px-4 font-medium">{{ 'admin.users.col_role' | translate }}</th>
+              <th scope="col" class="px-3 py-3 sm:px-4 font-medium hidden sm:table-cell">
+                {{ 'admin.users.col_establishments' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 font-medium text-right">
-                <span class="sr-only">{{ 'admin.bars.col_actions' | translate }}</span>
+              <th scope="col" class="px-3 py-3 sm:px-4 font-medium text-right">
+                <span class="sr-only">{{ 'admin.establishments.col_actions' | translate }}</span>
               </th>
             </tr>
           </thead>
@@ -74,37 +74,41 @@
           <tbody class="divide-y divide-outline-variant/30">
             @for (user of users(); track user.id) {
               <tr class="hover:bg-surface/60 transition-colors">
-                <td class="px-4 py-3">
-                  <div class="flex flex-col">
-                    <span class="font-medium text-on-surface">{{ user.name }}</span>
-                    <span class="text-xs text-on-surface-variant">{{ user.email }}</span>
+                <td class="px-3 py-3 sm:px-4 max-w-[9.5rem] sm:max-w-none">
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-medium text-on-surface truncate">{{ user.name }}</span>
+                    <span class="text-xs text-on-surface-variant truncate" [title]="user.email">{{ user.email }}</span>
                   </div>
                 </td>
 
-                <td class="px-4 py-3">
+                <td class="px-3 py-3 sm:px-4">
                   <div class="flex flex-wrap items-center gap-2">
                     <span
                       class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
                       [class]="
-                        user.role === adminRole ? 'bg-tertiary/15 text-tertiary' : 'bg-on-surface/10 text-on-surface-variant'
+                        user.role === adminRole
+                          ? 'bg-tertiary/15 text-tertiary'
+                          : 'bg-on-surface/10 text-on-surface-variant'
                       "
                     >
                       {{ 'admin.user_role.' + user.role.toLowerCase() | translate }}
                     </span>
 
                     @if (!user.active) {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-error/10 text-error">
+                      <span
+                        class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-error/10 text-error"
+                      >
                         {{ 'admin.users.inactive' | translate }}
                       </span>
                     }
                   </div>
                 </td>
 
-                <td class="px-4 py-3 hidden sm:table-cell tabular-nums text-on-surface-variant">
-                  {{ user.barCount }}
+                <td class="px-3 py-3 sm:px-4 hidden sm:table-cell tabular-nums text-on-surface-variant">
+                  {{ user.establishmentCount }}
                 </td>
 
-                <td class="px-4 py-3 text-right">
+                <td class="px-3 py-3 sm:px-4 text-right">
                   <button
                     mat-icon-button
                     type="button"

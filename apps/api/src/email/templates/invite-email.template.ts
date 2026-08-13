@@ -8,7 +8,7 @@ export const InviteEmailTranslations: Record<string, Record<string, string>> = {
     body1_mid: ' has invited you to join the team at ',
     body1_end: ' on our platform.',
     body2:
-      'With Coaster you can see your shifts, manage the pantry and communicate with your team directly from your mobile phone, without needing complicated passwords.',
+      'With Coaster you can see your shifts, manage the inventory and communicate with your team directly from your mobile phone, without needing complicated passwords.',
     buttonText: 'Enter Coaster',
     ignoreText: 'If you were not expecting this invitation, you can safely ignore this email.',
     footerText: '© 2026 Coaster App. All rights reserved.',
@@ -90,7 +90,7 @@ export const InviteEmailTemplate = `
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">{{greeting}}</p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 16px 0;">
-                  {{body1_start}}<strong style="color: #0e0e0e;">{{inviterName}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{barName}}</strong>{{body1_end}}
+                  {{body1_start}}<strong style="color: #0e0e0e;">{{inviterName}}</strong>{{body1_mid}}<strong style="color: #0e0e0e;">{{establishmentName}}</strong>{{body1_end}}
                 </p>
 
                 <p style="color: #475569; font-size: 16px; line-height: 24px; margin: 0 0 32px 0;">

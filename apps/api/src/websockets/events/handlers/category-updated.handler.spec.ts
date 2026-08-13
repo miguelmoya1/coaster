@@ -1,8 +1,8 @@
 import { CategoryUpdatedEvent } from '@coaster/categories';
-import { SocketEvents, asBarId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { CategoryUpdatedHandler } from './category-updated.handler';
 
 describe('CategoryUpdatedHandler', () => {
@@ -16,7 +16,7 @@ describe('CategoryUpdatedHandler', () => {
       providers: [
         CategoryUpdatedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -30,13 +30,13 @@ describe('CategoryUpdatedHandler', () => {
     vi.clearAllMocks();
   });
 
-  it('should emit CATEGORY_UPDATED event to the correct bar room', () => {
-    const barId = asBarId('bar-1');
+  it('should emit CATEGORY_UPDATED event to the correct establishment room', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
     const categoryData = { id: 'cat-1', name: 'Test' } as any;
-    const event = new CategoryUpdatedEvent(barId, categoryData);
+    const event = new CategoryUpdatedEvent(establishmentId, categoryData);
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.categoryUpdated, categoryData);
   });
 });

@@ -1,13 +1,13 @@
-import { SocketEvents, asBarId, asProductId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId, asProductId } from '@coaster/common';
 import { ProductDeletedEvent } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { ProductDeletedHandler } from './product-deleted.handler';
 
 describe('ProductDeletedHandler', () => {
   let handler: ProductDeletedHandler;
-  const barGateway = {
+  const establishmentGateway = {
     server: {
       to: vi.fn().mockReturnThis(),
       emit: vi.fn(),
@@ -17,20 +17,20 @@ describe('ProductDeletedHandler', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProductDeletedHandler, { provide: BarGateway, useValue: barGateway }],
+      providers: [ProductDeletedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
     }).compile();
 
     handler = module.get<ProductDeletedHandler>(ProductDeletedHandler);
   });
 
   it('should emit PRODUCT_DELETED event', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
-    const event = new ProductDeletedEvent(barId, productId);
+    const event = new ProductDeletedEvent(establishmentId, productId);
 
     handler.handle(event);
 
-    expect(barGateway.server.to).toHaveBeenCalledWith(barId);
-    expect(barGateway.server.emit).toHaveBeenCalledWith(SocketEvents.productDeleted, { id: productId });
+    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
+    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.productDeleted, { id: productId });
   });
 });

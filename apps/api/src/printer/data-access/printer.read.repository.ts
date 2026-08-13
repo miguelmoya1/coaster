@@ -1,4 +1,4 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -6,15 +6,15 @@ import { Injectable } from '@nestjs/common';
 export class PrinterReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async findByBarId(barId: BarId) {
+  public async findByEstablishmentId(establishmentId: EstablishmentId) {
     return this._db.dbPrinterConfig.findUnique({
-      where: { barId },
+      where: { establishmentId },
     });
   }
 
-  public async findBarById(barId: BarId) {
-    return this._db.dbBar.findUnique({
-      where: { id: barId },
+  public async findEstablishmentById(establishmentId: EstablishmentId) {
+    return this._db.dbEstablishment.findUnique({
+      where: { id: establishmentId },
       select: { id: true, name: true },
     });
   }

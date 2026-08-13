@@ -41,20 +41,20 @@ describe('errorInterceptor', () => {
   });
 
   it('should call toast.error and planDialogService.open on 402 error', () => {
-    httpClient.get('/bars/bar-1/orders').subscribe({
+    httpClient.get('/establishments/establishment-1/orders').subscribe({
       error: (err) => {
         expect(err.status).toBe(402);
       },
     });
 
-    const req = httpMock.expectOne('/bars/bar-1/orders');
+    const req = httpMock.expectOne('/establishments/establishment-1/orders');
     req.flush({ message: 'SUBSCRIPTION_EXPIRED' }, { status: 402, statusText: 'Payment Required' });
 
     expect(toastMock.error).toHaveBeenCalledWith(ErrorCodes.SUBSCRIPTION_EXPIRED);
-    expect(planDialogServiceMock.open).toHaveBeenCalledWith('bar-1');
+    expect(planDialogServiceMock.open).toHaveBeenCalledWith('establishment-1');
   });
 
-  it('should only show the error when a 402 request has no bar context', () => {
+  it('should only show the error when a 402 request has no establishment context', () => {
     httpClient.get('/account/profile').subscribe({ error: () => undefined });
     const req = httpMock.expectOne('/account/profile');
     req.flush({ message: 'SUBSCRIPTION_EXPIRED' }, { status: 402, statusText: 'Payment Required' });

@@ -1,8 +1,8 @@
-import type { BarId } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
 
 export class RegisterPrinterIpCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly ipAddress: string,
     public readonly deviceKey: string,
     public readonly port?: number,

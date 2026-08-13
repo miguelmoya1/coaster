@@ -1,0 +1,66 @@
+@if (isLoading()) {
+  <coaster-loading />
+} @else if (isMissing()) {
+  <div class="flex flex-col items-center justify-center min-h-dvh gap-3 px-6 text-center">
+    <mat-icon class="text-on-surface-variant text-4xl">menu_book</mat-icon>
+    <p class="text-sm text-on-surface-variant">{{ 'MENU_NOT_FOUND' | translate }}</p>
+  </div>
+} @else if (menu(); as published) {
+  <coaster-page-container>
+    <coaster-page-header [title]="published.name">
+      @if (languages().length > 1) {
+        <coaster-language-select actions [value]="language()" [choices]="languages()" (valueChange)="choose($event)" />
+      }
+    </coaster-page-header>
+
+    @for (section of published.sections; track section.name) {
+      <section class="mb-8">
+        <h2 class="heading-2 text-lg font-bold mb-3 pb-2 border-b border-outline/10">{{ section.name }}</h2>
+
+        <ul class="flex flex-col gap-4">
+          @for (item of section.items; track item.name) {
+            <li class="flex gap-3">
+              @if (item.imageUrl) {
+                <img
+                  [src]="item.imageUrl"
+                  [alt]="item.name"
+                  loading="lazy"
+                  class="w-16 h-16 rounded-xl object-cover shrink-0"
+                />
+              }
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline gap-3">
+                  <span class="font-semibold text-on-surface" [class.line-through]="item.soldOut">{{ item.name }}</span>
+                  @if (item.soldOut) {
+                    <span class="text-xxs font-bold uppercase tracking-wider text-on-surface-variant shrink-0">
+                      {{ 'menu.sold_out' | translate }}
+                    </span>
+                  }
+                  <span class="ml-auto font-semibold text-on-surface shrink-0">{{ item.price | price }}</span>
+                </div>
+
+                @if (item.description) {
+                  <p class="text-sm text-on-surface-variant mt-0.5">{{ item.description }}</p>
+                }
+
+                @if (item.allergens.length > 0) {
+                  <p class="text-xs text-on-surface-variant mt-1">
+                    <span class="font-semibold">{{ 'public_menu.allergens' | translate }}:</span>&nbsp;
+                    @for (allergen of item.allergens; track allergen) {
+                      <span>{{ 'allergens.' + allergen | translate }}{{ $last ? '' : ', ' }}</span>
+                    }
+                  </p>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <footer class="mt-10 pt-4 border-t border-outline/10">
+      <p class="text-xs text-on-surface-variant">{{ 'public_menu.allergen_notice' | translate }}</p>
+    </footer>
+  </coaster-page-container>
+}

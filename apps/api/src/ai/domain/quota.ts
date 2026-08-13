@@ -1,0 +1,3 @@
+export const DEFAULT_MONTHLY_AI_MESSAGES = 500;
+
+export const DEFAULT_TRIAL_AI_MESSAGES = 100;

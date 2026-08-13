@@ -40,18 +40,18 @@ describe('EmailService', () => {
   });
 
   describe('sendInviteEmail', () => {
-    it('should name the inviter and the bar instead of leaving placeholders behind', async () => {
-      await service.sendInviteEmail('nuevo@bar.com', 'Bar Pepe', 'Miguel', 'es');
+    it('should name the inviter and the establishment instead of leaving placeholders behind', async () => {
+      await service.sendInviteEmail('nuevo@establishment.com', 'Establishment Pepe', 'Miguel', 'es');
 
       const html = sentHtml();
 
       expect(html).toContain('Miguel');
-      expect(html).toContain('Bar Pepe');
+      expect(html).toContain('Establishment Pepe');
       expect(html).not.toContain('{{');
     });
 
     it('should write the invitation in the requested language', async () => {
-      await service.sendInviteEmail('new@bar.com', 'Pepe Bar', 'Miguel', 'en');
+      await service.sendInviteEmail('new@establishment.com', 'Pepe Establishment', 'Miguel', 'en');
 
       const html = sentHtml();
 
@@ -60,13 +60,13 @@ describe('EmailService', () => {
     });
 
     it('should fall back to Spanish for a language it does not know', async () => {
-      await service.sendInviteEmail('nuevo@bar.com', 'Bar Pepe', 'Miguel', 'fr');
+      await service.sendInviteEmail('nuevo@establishment.com', 'Establishment Pepe', 'Miguel', 'fr');
 
       expect(sentHtml()).toContain('te ha invitado a unirte al equipo de');
     });
 
-    it('should escape a bar name carrying markup', async () => {
-      await service.sendInviteEmail('nuevo@bar.com', '<script>alert(1)</script>', 'Miguel', 'es');
+    it('should escape an establishment name carrying markup', async () => {
+      await service.sendInviteEmail('nuevo@establishment.com', '<script>alert(1)</script>', 'Miguel', 'es');
 
       expect(sentHtml()).not.toContain('<script>');
     });

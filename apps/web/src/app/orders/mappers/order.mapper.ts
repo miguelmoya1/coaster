@@ -23,7 +23,7 @@ export const checkIsOrder = (order: unknown): order is Order => {
     typeof order === 'object' &&
     order !== null &&
     typeof o['id'] === 'string' &&
-    typeof o['barId'] === 'string' &&
+    typeof o['establishmentId'] === 'string' &&
     typeof o['status'] === 'string' &&
     typeof o['totalAmount'] === 'number' &&
     Array.isArray(o['items']) &&

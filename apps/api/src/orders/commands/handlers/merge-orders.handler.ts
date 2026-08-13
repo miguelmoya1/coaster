@@ -24,8 +24,8 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
-    const nonBarOrders = orders.filter((o) => o.barId !== command.barId);
-    if (nonBarOrders.length > 0) {
+    const nonEstablishmentOrders = orders.filter((o) => o.establishmentId !== command.establishmentId);
+    if (nonEstablishmentOrders.length > 0) {
       throw new BadRequestException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
@@ -36,7 +36,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
 
     if (command.dto.targetTableId) {
       const targetTable = await this.readRepo.findTableById(asTableId(command.dto.targetTableId));
-      if (!targetTable || targetTable.barId !== command.barId) {
+      if (!targetTable || targetTable.establishmentId !== command.establishmentId) {
         throw new NotFoundException(ErrorCodes.TABLE_NOT_FOUND);
       }
     }
@@ -56,7 +56,7 @@ export class MergeOrdersHandler implements ICommandHandler<MergeOrdersCommand, v
     this.#logger.debug(`Publishing OrdersMergedEvent...`);
     this._eventBus.publish(
       new OrdersMergedEvent(
-        command.barId,
+        command.establishmentId,
         mapped,
         sourceOrders.map((o) => ({
           id: asOrderId(o.id),

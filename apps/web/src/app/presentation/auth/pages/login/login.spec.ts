@@ -66,10 +66,10 @@ describe('Login', () => {
       expect(authMock.loginWithGoogle).toHaveBeenCalled();
     });
 
-    it('should navigate to /bars/select after successful signIn', async () => {
+    it('should navigate to /establishments/select after successful signIn', async () => {
       await component.signIn();
 
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/bars/select']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments/select']);
     });
 
     it('should set isLoading to false after signIn completes', async () => {

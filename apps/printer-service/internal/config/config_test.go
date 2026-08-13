@@ -29,7 +29,7 @@ func TestParse_FlagOverrides(t *testing.T) {
 		"--port=9090",
 		"--printer-type=network",
 		"--printer-path=10.0.0.1:9100",
-		"--bar-id=bar-abc",
+		"--establishment-id=establishment-abc",
 		"--device-key=key-xyz",
 		"--jwt-secret=s3cret",
 		"--allowed-origins=https://example.com",
@@ -46,8 +46,8 @@ func TestParse_FlagOverrides(t *testing.T) {
 	if cfg.PrinterPath != "10.0.0.1:9100" {
 		t.Errorf("expected 10.0.0.1:9100, got %s", cfg.PrinterPath)
 	}
-	if cfg.BarID != "bar-abc" {
-		t.Errorf("expected bar-abc, got %s", cfg.BarID)
+	if cfg.EstablishmentID != "establishment-abc" {
+		t.Errorf("expected establishment-abc, got %s", cfg.EstablishmentID)
 	}
 	if cfg.DeviceKey != "key-xyz" {
 		t.Errorf("expected key-xyz, got %s", cfg.DeviceKey)
@@ -71,12 +71,12 @@ func TestParse_LocalFlag(t *testing.T) {
 }
 
 func TestParse_EnvVarFallback(t *testing.T) {
-	os.Setenv("BAR_ID", "env-bar")
+	os.Setenv("ESTABLISHMENT_ID", "env-establishment")
 	os.Setenv("PRINTER_DEVICE_KEY", "env-key")
 	os.Setenv("PRINTER_IP_ADDRESS", "10.10.10.10")
 	os.Setenv("PRINTER_JWT_SECRET", "env-secret")
 	defer func() {
-		os.Unsetenv("BAR_ID")
+		os.Unsetenv("ESTABLISHMENT_ID")
 		os.Unsetenv("PRINTER_DEVICE_KEY")
 		os.Unsetenv("PRINTER_IP_ADDRESS")
 		os.Unsetenv("PRINTER_JWT_SECRET")
@@ -86,8 +86,8 @@ func TestParse_EnvVarFallback(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if cfg.BarID != "env-bar" {
-		t.Errorf("expected env-bar, got %s", cfg.BarID)
+	if cfg.EstablishmentID != "env-establishment" {
+		t.Errorf("expected env-establishment, got %s", cfg.EstablishmentID)
 	}
 	if cfg.DeviceKey != "env-key" {
 		t.Errorf("expected env-key, got %s", cfg.DeviceKey)
@@ -101,15 +101,15 @@ func TestParse_EnvVarFallback(t *testing.T) {
 }
 
 func TestParse_FlagOverridesEnv(t *testing.T) {
-	os.Setenv("BAR_ID", "env-bar")
-	defer os.Unsetenv("BAR_ID")
+	os.Setenv("ESTABLISHMENT_ID", "env-establishment")
+	defer os.Unsetenv("ESTABLISHMENT_ID")
 
-	cfg, err := Parse([]string{"--bar-id=flag-bar"})
+	cfg, err := Parse([]string{"--establishment-id=flag-establishment"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if cfg.BarID != "flag-bar" {
-		t.Errorf("expected flag-bar to override env, got %s", cfg.BarID)
+	if cfg.EstablishmentID != "flag-establishment" {
+		t.Errorf("expected flag-establishment to override env, got %s", cfg.EstablishmentID)
 	}
 }
 

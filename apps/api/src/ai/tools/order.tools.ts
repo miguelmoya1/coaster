@@ -19,7 +19,7 @@ import {
   CreateOrderCommand,
   DeleteOrderCommand,
   GetOrderByIdQuery,
-  GetOrdersByBarIdQuery,
+  GetOrdersByEstablishmentIdQuery,
   GetOrdersByDateQuery,
   MergeOrdersCommand,
   MoveOrderTableCommand,
@@ -70,8 +70,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       execute: async (): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'listOpenOrders' called`);
         return runner.query<Order[]>(
-          'bar:view-orders',
-          new GetOrdersByBarIdQuery(context.barId, OrderStatus.OPEN),
+          'establishment:view-orders',
+          new GetOrdersByEstablishmentIdQuery(context.establishmentId, OrderStatus.OPEN),
           (orders) => orders.map(summarizeOrder),
         );
       },
@@ -88,8 +88,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       execute: async ({ orderId }: { orderId: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'getOrderDetails' called with orderId="${orderId}"`);
         return runner.query<Order>(
-          'bar:view-orders',
-          new GetOrderByIdQuery(context.barId, asOrderId(orderId)),
+          'establishment:view-orders',
+          new GetOrderByIdQuery(context.establishmentId, asOrderId(orderId)),
           (order) => ({
             ...summarizeOrder(order),
             tip: toEuros(order.tipAmount),
@@ -120,20 +120,24 @@ export const createOrderTools = (context: AiToolsContext) => {
         if (!ISO_DATE.test(date)) {
           return failed('The date must be formatted as YYYY-MM-DD.');
         }
-        return runner.query<Order[]>('bar:view-orders', new GetOrdersByDateQuery(context.barId, date), (orders) => ({
-          count: orders.length,
-          revenue: toEuros(
-            orders
-              .filter((order) => order.status === OrderStatus.CLOSED)
-              .reduce((total, order) => total + order.totalAmount, 0),
-          ),
-          orders: orders.map(summarizeOrder),
-        }));
+        return runner.query<Order[]>(
+          'establishment:view-orders',
+          new GetOrdersByDateQuery(context.establishmentId, date),
+          (orders) => ({
+            count: orders.length,
+            revenue: toEuros(
+              orders
+                .filter((order) => order.status === OrderStatus.CLOSED)
+                .reduce((total, order) => total + order.totalAmount, 0),
+            ),
+            orders: orders.map(summarizeOrder),
+          }),
+        );
       },
     }),
 
     createOrder: tool({
-      description: 'Create a new open order for a specific table in the bar.',
+      description: 'Create a new open order for a specific table in the establishment.',
       inputSchema: zodSchema(
         z.object({
           tableId: z
@@ -173,15 +177,19 @@ export const createOrderTools = (context: AiToolsContext) => {
 
         if (validItems.length === 0) {
           logger.warn(`[AI Tool] No valid items found to create order.`);
-          return failed(`None of the requested products are available in this bar's menu.`);
+          return failed(`None of the requested products are available in this establishment's menu.`);
         }
 
         return runner.execute(
-          'bar:create-order',
-          new CreateOrderCommand(context.barId, {
-            tableId: tableId ? asTableId(tableId) : undefined,
-            items: validItems.map((item) => ({ productId: asProductId(item.productId), quantity: item.quantity })),
-          }),
+          'establishment:create-order',
+          new CreateOrderCommand(
+            context.establishmentId,
+            {
+              tableId: tableId ? asTableId(tableId) : undefined,
+              items: validItems.map((item) => ({ productId: asProductId(item.productId), quantity: item.quantity })),
+            },
+            context.user.id,
+          ),
         );
       },
     }),
@@ -227,12 +235,12 @@ export const createOrderTools = (context: AiToolsContext) => {
 
         if (validItems.length === 0) {
           logger.warn(`[AI Tool] No valid items found to add to order.`);
-          return failed(`None of the requested products are available in this bar's menu.`);
+          return failed(`None of the requested products are available in this establishment's menu.`);
         }
 
         return runner.execute(
-          'bar:update-order',
-          new AddOrderItemsCommand(context.barId, asOrderId(orderId), {
+          'establishment:update-order',
+          new AddOrderItemsCommand(context.establishmentId, asOrderId(orderId), {
             items: validItems.map((item) => ({ productId: asProductId(item.productId), quantity: item.quantity })),
           }),
         );
@@ -264,8 +272,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'checkoutOrder' called with orderId="${orderId}", paymentMethod="${paymentMethod}"`);
         return runner.execute(
-          'bar:checkout-order',
-          new CheckoutOrderCommand(context.barId, asOrderId(orderId), paymentMethod),
+          'establishment:checkout-order',
+          new CheckoutOrderCommand(context.establishmentId, asOrderId(orderId), paymentMethod),
         );
       },
     }),
@@ -315,8 +323,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'serveOrPayItems' called with orderId="${orderId}", items=${JSON.stringify(items)}`);
         return runner.execute(
-          'bar:update-order',
-          new BulkUpdateOrderCommand(context.barId, asOrderId(orderId), {
+          'establishment:update-order',
+          new BulkUpdateOrderCommand(context.establishmentId, asOrderId(orderId), {
             items: items.map((item) => ({
               itemId: asOrderItemId(item.itemId),
               servedQuantity: item.servedQuantity,
@@ -339,8 +347,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       execute: async ({ orderId, tableId }: { orderId: string; tableId: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'moveOrderTable' called with orderId="${orderId}", tableId="${tableId}"`);
         return runner.execute(
-          'bar:move-order-table',
-          new MoveOrderTableCommand(context.barId, asOrderId(orderId), { tableId: asTableId(tableId) }),
+          'establishment:move-order-table',
+          new MoveOrderTableCommand(context.establishmentId, asOrderId(orderId), { tableId: asTableId(tableId) }),
         );
       },
     }),
@@ -365,8 +373,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'mergeOrders' called with orderIds=${JSON.stringify(orderIds)}`);
         return runner.execute(
-          'bar:merge-orders',
-          new MergeOrdersCommand(context.barId, {
+          'establishment:merge-orders',
+          new MergeOrdersCommand(context.establishmentId, {
             orderIds: orderIds.map(asOrderId),
             targetTableId: targetTableId ? asTableId(targetTableId) : undefined,
           }),
@@ -385,8 +393,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       execute: async ({ orderId, tip }: { orderId: string; tip: number }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'updateOrderTip' called with orderId="${orderId}", tip=${tip}`);
         return runner.execute(
-          'bar:update-order',
-          new UpdateOrderTipCommand(context.barId, asOrderId(orderId), { tipAmount: toCents(tip) }),
+          'establishment:update-order',
+          new UpdateOrderTipCommand(context.establishmentId, asOrderId(orderId), { tipAmount: toCents(tip) }),
         );
       },
     }),
@@ -437,8 +445,8 @@ export const createOrderTools = (context: AiToolsContext) => {
         }
 
         return runner.execute(
-          'bar:update-order',
-          new AddOrderAdjustmentCommand(context.barId, asOrderId(orderId), {
+          'establishment:update-order',
+          new AddOrderAdjustmentCommand(context.establishmentId, asOrderId(orderId), {
             target,
             type,
             value: type === AdjustmentType.PERCENTAGE ? Math.round(value) : toCents(value),
@@ -460,8 +468,12 @@ export const createOrderTools = (context: AiToolsContext) => {
       execute: async ({ orderId, adjustmentId }: { orderId: string; adjustmentId: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'removeOrderDiscount' called with adjustmentId="${adjustmentId}"`);
         return runner.execute(
-          'bar:update-order',
-          new RemoveOrderAdjustmentCommand(context.barId, asOrderId(orderId), asOrderAdjustmentId(adjustmentId)),
+          'establishment:update-order',
+          new RemoveOrderAdjustmentCommand(
+            context.establishmentId,
+            asOrderId(orderId),
+            asOrderAdjustmentId(adjustmentId),
+          ),
         );
       },
     }),
@@ -489,8 +501,8 @@ export const createOrderTools = (context: AiToolsContext) => {
       }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'removeOrderItem' called with itemId="${itemId}", confirmed=${confirmed}`);
         return runner.execute(
-          'bar:delete-order-item',
-          new RemoveOrderItemCommand(context.barId, asOrderId(orderId), asOrderItemId(itemId)),
+          'establishment:delete-order-item',
+          new RemoveOrderItemCommand(context.establishmentId, asOrderId(orderId), asOrderItemId(itemId)),
           { confirmed, summary: 'remove that item from the order' },
         );
       },
@@ -510,10 +522,14 @@ export const createOrderTools = (context: AiToolsContext) => {
       ),
       execute: async ({ orderId, confirmed }: { orderId: string; confirmed: boolean }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'cancelOrder' called with orderId="${orderId}", confirmed=${confirmed}`);
-        return runner.execute('bar:cancel-order', new CancelOrderCommand(context.barId, asOrderId(orderId)), {
-          confirmed,
-          summary: `cancel the order of table "${tableNameForOrder(orderId)}"`,
-        });
+        return runner.execute(
+          'establishment:cancel-order',
+          new CancelOrderCommand(context.establishmentId, asOrderId(orderId)),
+          {
+            confirmed,
+            summary: `cancel the order of table "${tableNameForOrder(orderId)}"`,
+          },
+        );
       },
     }),
 
@@ -530,10 +546,14 @@ export const createOrderTools = (context: AiToolsContext) => {
       ),
       execute: async ({ orderId, confirmed }: { orderId: string; confirmed: boolean }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'deleteOrder' called with orderId="${orderId}", confirmed=${confirmed}`);
-        return runner.execute('bar:delete-order', new DeleteOrderCommand(context.barId, asOrderId(orderId)), {
-          confirmed,
-          summary: `permanently delete the order of table "${tableNameForOrder(orderId)}"`,
-        });
+        return runner.execute(
+          'establishment:delete-order',
+          new DeleteOrderCommand(context.establishmentId, asOrderId(orderId)),
+          {
+            confirmed,
+            summary: `permanently delete the order of table "${tableNameForOrder(orderId)}"`,
+          },
+        );
       },
     }),
   };

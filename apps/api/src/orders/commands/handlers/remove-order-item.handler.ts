@@ -22,7 +22,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
     const order = await this.readRepo.findById(command.orderId);
 
-    if (!order || order.barId !== command.barId) {
+    if (!order || order.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
 
@@ -48,7 +48,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
       this.#logger.debug(`Publishing OrderItemRemovedEvent...`);
       this._eventBus.publish(
-        new OrderItemRemovedEvent(command.barId, mapped, {
+        new OrderItemRemovedEvent(command.establishmentId, mapped, {
           productId: asProductId(item.productId),
           quantity: item.quantity,
         }),
@@ -56,7 +56,7 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
       this.#logger.debug(`Publishing OrderCancelledEvent...`);
       this._eventBus.publish(
-        new OrderCancelledEvent(command.barId, mapped, order.tableId ? asTableId(order.tableId) : null),
+        new OrderCancelledEvent(command.establishmentId, mapped, order.tableId ? asTableId(order.tableId) : null),
       );
       return;
     }
@@ -66,13 +66,13 @@ export class RemoveOrderItemHandler implements ICommandHandler<RemoveOrderItemCo
 
     this.#logger.debug(`Publishing OrderItemRemovedEvent...`);
     this._eventBus.publish(
-      new OrderItemRemovedEvent(command.barId, mapped, {
+      new OrderItemRemovedEvent(command.establishmentId, mapped, {
         productId: asProductId(item.productId),
         quantity: item.quantity,
       }),
     );
 
     this.#logger.debug(`Publishing OrderUpdatedEvent...`);
-    this._eventBus.publish(new OrderUpdatedEvent(command.barId, mapped));
+    this._eventBus.publish(new OrderUpdatedEvent(command.establishmentId, mapped));
   }
 }

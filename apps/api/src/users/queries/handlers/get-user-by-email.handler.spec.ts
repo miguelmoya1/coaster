@@ -40,6 +40,7 @@ describe('GetUserByEmailHandler', () => {
       role: 'USER',
       createdAt: new Date(),
       updatedAt: new Date(),
+      preferences: { language: 'en' },
     });
 
     const result = await handler.execute(new GetUserByEmailQuery('test@mail.com'));
@@ -50,6 +51,7 @@ describe('GetUserByEmailHandler', () => {
       name: 'Test',
       photoUrl: 'http://photo.com/1',
       active: true,
+      language: 'en',
       role: DbRole.USER,
     });
   });

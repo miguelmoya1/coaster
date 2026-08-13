@@ -1,5 +1,5 @@
-import { GetMembersQuery } from '@coaster/bar-members';
-import type { BarMember, TimeEntry } from '@coaster/common';
+import { GetMembersQuery } from '@coaster/establishment-members';
+import type { EstablishmentMember, TimeEntry } from '@coaster/common';
 import { ErrorCodes, TimeEntryAction, TimeEntrySource } from '@coaster/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
@@ -20,7 +20,7 @@ export class CreateTimeEntryHandler implements ICommandHandler<CreateTimeEntryCo
   ) {}
 
   async execute(command: CreateTimeEntryCommand): Promise<TimeEntry> {
-    const { barId, actor, dto } = command;
+    const { establishmentId, actor, dto } = command;
 
     const occurredAt = new Date(dto.occurredAt);
 
@@ -28,7 +28,9 @@ export class CreateTimeEntryHandler implements ICommandHandler<CreateTimeEntryCo
       throw new BadRequestException(ErrorCodes.INVALID_DATE);
     }
 
-    const members = await this._queryBus.execute<GetMembersQuery, BarMember[]>(new GetMembersQuery(barId));
+    const members = await this._queryBus.execute<GetMembersQuery, EstablishmentMember[]>(
+      new GetMembersQuery(establishmentId),
+    );
     const member = members.find((candidate) => candidate.userId === dto.userId && candidate.active);
 
     if (!member) {
@@ -36,7 +38,12 @@ export class CreateTimeEntryHandler implements ICommandHandler<CreateTimeEntryCo
     }
 
     const natural = toWorkdayDate(occurredAt);
-    const rows = await this._readRepo.findByWorkdayRange(barId, shiftWorkdayDate(natural, -1), natural, dto.userId);
+    const rows = await this._readRepo.findByWorkdayRange(
+      establishmentId,
+      shiftWorkdayDate(natural, -1),
+      natural,
+      dto.userId,
+    );
     const workdayDate = planMark(dto.type, occurredAt, toDatedMarks(TimeEntriesMapper.groupByRoot(rows)));
 
     if (!workdayDate) {
@@ -44,7 +51,7 @@ export class CreateTimeEntryHandler implements ICommandHandler<CreateTimeEntryCo
     }
 
     const created = await this._writeRepo.append({
-      barId,
+      establishmentId,
       userId: dto.userId,
       userSnapshot: { name: member.userName, email: member.userEmail },
       type: dto.type,
@@ -57,7 +64,7 @@ export class CreateTimeEntryHandler implements ICommandHandler<CreateTimeEntryCo
     });
 
     const entry = TimeEntriesMapper.toDomain([created]);
-    this._eventBus.publish(new TimeEntryRecordedEvent(barId, entry, actor.id, actor.role, dto.reason.trim()));
+    this._eventBus.publish(new TimeEntryRecordedEvent(establishmentId, entry, actor.id, actor.role, dto.reason.trim()));
 
     return entry;
   }

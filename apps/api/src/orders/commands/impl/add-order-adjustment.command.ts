@@ -1,8 +1,8 @@
-import type { AddOrderAdjustmentDto, BarId, OrderId } from '@coaster/common';
+import type { AddOrderAdjustmentDto, EstablishmentId, OrderId } from '@coaster/common';
 
 export class AddOrderAdjustmentCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly orderId: OrderId,
     public readonly dto: AddOrderAdjustmentDto,
   ) {}

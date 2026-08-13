@@ -8,14 +8,18 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./presentation/landing/landing'),
   },
   {
+    path: 'm/:slug',
+    loadComponent: () => import('./presentation/public-menu/public-menu'),
+  },
+  {
     path: 'login',
     canActivate: [noAuthGuard],
     loadChildren: () => import('./presentation/auth/auth.routes'),
   },
   {
-    path: 'bars',
+    path: 'establishments',
     canActivate: [authGuard],
-    loadChildren: () => import('./presentation/bars/bars.routes'),
+    loadChildren: () => import('./presentation/establishments/establishments.routes'),
   },
   {
     path: 'admin',
@@ -23,8 +27,8 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./presentation/admin/admin.routes'),
   },
   {
-    path: 'bar',
-    redirectTo: 'bars',
+    path: 'establishment',
+    redirectTo: 'establishments',
     pathMatch: 'full',
   },
   {

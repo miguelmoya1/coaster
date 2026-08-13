@@ -1,4 +1,4 @@
-import type { BarId, OrderId, OrderItemId, TableId } from '@coaster/common';
+import type { EstablishmentId, OrderId, OrderItemId, TableId } from '@coaster/common';
 import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 import { ORDER_RELATIONS } from './order-relations';
@@ -7,10 +7,10 @@ import { ORDER_RELATIONS } from './order-relations';
 export class OrdersReadRepository {
   constructor(private readonly _db: DbService) {}
 
-  public async findByBarId(barId: BarId, status?: DbOrderStatus) {
+  public async findByEstablishmentId(establishmentId: EstablishmentId, status?: DbOrderStatus) {
     return this._db.dbOrder.findMany({
       where: {
-        barId,
+        establishmentId,
         ...(status ? { status } : {}),
       },
       include: ORDER_RELATIONS,
@@ -18,7 +18,7 @@ export class OrdersReadRepository {
     });
   }
 
-  public async findByBarIdAndDate(barId: BarId, date: string) {
+  public async findByEstablishmentIdAndDate(establishmentId: EstablishmentId, date: string) {
     const plainDate = Temporal.PlainDate.from(date);
     const startInstant = plainDate.toZonedDateTime({ timeZone: 'UTC' }).startOfDay().toInstant();
     const endInstant = plainDate
@@ -33,7 +33,7 @@ export class OrdersReadRepository {
 
     return this._db.dbOrder.findMany({
       where: {
-        barId,
+        establishmentId,
         createdAt: { gte: start, lte: end },
       },
       include: ORDER_RELATIONS,
@@ -60,9 +60,9 @@ export class OrdersReadRepository {
     });
   }
 
-  public async findProductsByIds(barId: BarId, productIds: string[]) {
+  public async findProductsByIds(establishmentId: EstablishmentId, productIds: string[]) {
     return this._db.dbProduct.findMany({
-      where: { id: { in: productIds }, deletedAt: null, category: { barId, deletedAt: null } },
+      where: { id: { in: productIds }, deletedAt: null, category: { establishmentId, deletedAt: null } },
     });
   }
 

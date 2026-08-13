@@ -23,7 +23,7 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new BadRequestException(ErrorCodes.INVALID_EXCHANGE);
     }
 
-    if (exchange.shift.barId !== command.barId) {
+    if (exchange.shift.establishmentId !== command.establishmentId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
@@ -35,7 +35,6 @@ export class AcceptExchangeHandler implements ICommandHandler<AcceptExchangeComm
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 
-    // Taking over a shift that is already running helps nobody: the hours are already being worked.
     if (exchange.shift.startTime.getTime() <= Date.now()) {
       throw new BadRequestException(ErrorCodes.EXCHANGE_SHIFT_ALREADY_STARTED);
     }

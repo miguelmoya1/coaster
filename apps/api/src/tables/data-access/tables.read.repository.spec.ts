@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,16 +32,16 @@ describe('TablesReadRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('findByBarId', () => {
+  describe('findByEstablishmentId', () => {
     it('should call dbTable.findMany with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const expectedResult = [{ id: 'table-1' }];
       vi.mocked(dbService.dbTable.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findByBarId(barId);
+      const result = await repository.findByEstablishmentId(establishmentId);
 
       expect(dbService.dbTable.findMany).toHaveBeenCalledWith({
-        where: { barId },
+        where: { establishmentId },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual(expectedResult);

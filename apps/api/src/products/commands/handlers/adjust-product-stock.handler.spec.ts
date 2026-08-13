@@ -1,5 +1,5 @@
 import type { Product } from '@coaster/common';
-import { asBarId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asProductId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -13,7 +13,7 @@ import { AdjustProductStockHandler } from './adjust-product-stock.handler';
 describe('AdjustProductStockHandler', () => {
   let handler: AdjustProductStockHandler;
   const readRepository = {
-    checkProductBelongsToBar: vi.fn(),
+    checkProductBelongsToEstablishment: vi.fn(),
   };
   const repository = {
     update: vi.fn(),
@@ -36,11 +36,13 @@ describe('AdjustProductStockHandler', () => {
     handler = module.get<AdjustProductStockHandler>(AdjustProductStockHandler);
   });
 
-  it('should refuse to touch the stock of a product from another bar', async () => {
-    readRepository.checkProductBelongsToBar.mockResolvedValue(false);
+  it('should refuse to touch the stock of a product from another establishment', async () => {
+    readRepository.checkProductBelongsToEstablishment.mockResolvedValue(false);
 
     await expect(
-      handler.execute(new AdjustProductStockCommand(asBarId('bar-1'), asProductId('prod-of-bar-2'), -3)),
+      handler.execute(
+        new AdjustProductStockCommand(asEstablishmentId('establishment-1'), asProductId('prod-of-establishment-2'), -3),
+      ),
     ).rejects.toThrow(NotFoundException);
 
     expect(repository.update).not.toHaveBeenCalled();
@@ -48,11 +50,11 @@ describe('AdjustProductStockHandler', () => {
   });
 
   it('should adjust stock and publish event', async () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const productId = asProductId('prod-1');
     const delta = -3;
 
-    readRepository.checkProductBelongsToBar.mockResolvedValue(true);
+    readRepository.checkProductBelongsToEstablishment.mockResolvedValue(true);
     repository.update.mockResolvedValue({
       id: 'prod-1',
       categoryId: 'cat-1',
@@ -64,7 +66,7 @@ describe('AdjustProductStockHandler', () => {
       updatedAt: new Date(),
     });
 
-    const cmd = new AdjustProductStockCommand(barId, productId, delta);
+    const cmd = new AdjustProductStockCommand(establishmentId, productId, delta);
     await handler.execute(cmd);
 
     expect(repository.update).toHaveBeenCalledWith(productId, {
@@ -73,7 +75,7 @@ describe('AdjustProductStockHandler', () => {
       },
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new ProductStockChangedEvent(barId, expect.any(Object) as unknown as Product),
+      new ProductStockChangedEvent(establishmentId, expect.any(Object) as unknown as Product),
     );
   });
 });

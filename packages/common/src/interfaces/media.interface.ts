@@ -4,7 +4,7 @@ export interface MediaFileRequest {
 }
 
 export interface GenerateUploadUrlsDto {
-  entityType: 'products' | 'templates' | 'users' | 'bars' | string;
+  entityType: 'products' | 'templates' | 'users' | 'establishments' | string;
   files: MediaFileRequest[];
 }
 

@@ -1,7 +1,13 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import type { BarId, Category, CategoryId } from '@coaster/common';
-import { BarPermission } from '@coaster/common';
-import { BarPermissions, BarPermissionsGuard, commonMapper } from '@coaster/core';
+import type { EstablishmentId, Category, CategoryId } from '@coaster/common';
+import { EstablishmentModule, EstablishmentPermission } from '@coaster/common';
+import {
+  EstablishmentModulesGuard,
+  EstablishmentPermissions,
+  EstablishmentPermissionsGuard,
+  RequiresModule,
+  commonMapper,
+} from '@coaster/core';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCategoryCommand, DeleteCategoryCommand, UpdateCategoryCommand } from '../commands';
@@ -10,8 +16,9 @@ import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { CategoriesMapper } from '../mappers/categories.mapper';
 import { GetCategoriesQuery } from '../queries';
 
-@Controller('bars/:barId/categories')
-@UseGuards(FirebaseAuthGuard, BarPermissionsGuard)
+@Controller('establishments/:establishmentId/categories')
+@UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard, EstablishmentModulesGuard)
+@RequiresModule(EstablishmentModule.INVENTORY)
 export class CategoriesController {
   constructor(
     private readonly _queryBus: QueryBus,
@@ -19,32 +26,42 @@ export class CategoriesController {
   ) {}
 
   @Get()
-  @BarPermissions(BarPermission.BAR_VIEW_CATEGORIES)
-  async getCategories(@Param('barId') barId: BarId) {
-    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(new GetCategoriesQuery(barId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_VIEW_CATEGORIES)
+  async getCategories(@Param('establishmentId') establishmentId: EstablishmentId) {
+    const categories = await this._queryBus.execute<GetCategoriesQuery, Category[]>(
+      new GetCategoriesQuery(establishmentId),
+    );
     return categories.map((category) => CategoriesMapper.toDto(category));
   }
 
   @Post()
-  @BarPermissions(BarPermission.BAR_CREATE_CATEGORY)
-  async createCategory(@Param('barId') barId: BarId, @Body() dto: CreateCategoryDto): Promise<void> {
-    await this._commandBus.execute<CreateCategoryCommand, void>(new CreateCategoryCommand(barId, dto));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CREATE_CATEGORY)
+  async createCategory(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Body() dto: CreateCategoryDto,
+  ): Promise<void> {
+    await this._commandBus.execute<CreateCategoryCommand, void>(new CreateCategoryCommand(establishmentId, dto));
   }
 
   @Patch(':categoryId')
-  @BarPermissions(BarPermission.BAR_UPDATE_CATEGORY)
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY)
   async updateCategory(
-    @Param('barId') barId: BarId,
+    @Param('establishmentId') establishmentId: EstablishmentId,
     @Param('categoryId') categoryId: CategoryId,
     @Body() dto: UpdateCategoryDto,
   ): Promise<void> {
-    await this._commandBus.execute<UpdateCategoryCommand, void>(new UpdateCategoryCommand(barId, categoryId, dto));
+    await this._commandBus.execute<UpdateCategoryCommand, void>(
+      new UpdateCategoryCommand(establishmentId, categoryId, dto),
+    );
   }
 
   @Delete(':categoryId')
-  @BarPermissions(BarPermission.BAR_DELETE_CATEGORY)
-  async deleteCategory(@Param('barId') barId: BarId, @Param('categoryId') categoryId: CategoryId) {
-    await this._commandBus.execute<DeleteCategoryCommand, void>(new DeleteCategoryCommand(barId, categoryId));
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_DELETE_CATEGORY)
+  async deleteCategory(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @Param('categoryId') categoryId: CategoryId,
+  ) {
+    await this._commandBus.execute<DeleteCategoryCommand, void>(new DeleteCategoryCommand(establishmentId, categoryId));
     return commonMapper.getSuccessResponse();
   }
 }

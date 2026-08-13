@@ -2,16 +2,16 @@ import { SocketEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ShiftDeletedEvent } from '@coaster/shifts';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 
 @EventsHandler(ShiftDeletedEvent)
 export class ShiftDeletedHandler implements IEventHandler<ShiftDeletedEvent> {
   readonly #logger = new Logger(ShiftDeletedHandler.name);
 
-  constructor(private readonly _barGateway: BarGateway) {}
+  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
 
   handle(event: ShiftDeletedEvent) {
     this.#logger.debug(`Catching ShiftDeletedEvent...`);
-    this._barGateway.server.to(event.barId).emit(SocketEvents.shiftDeleted, { id: event.shiftId });
+    this._establishmentGateway.server.to(event.establishmentId).emit(SocketEvents.shiftDeleted, { id: event.shiftId });
   }
 }

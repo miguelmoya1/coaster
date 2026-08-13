@@ -12,11 +12,11 @@
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <article class="bg-surface-container rounded-2xl border border-outline-variant/50 p-4 flex flex-col gap-1">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
-          {{ 'admin.overview.total_bars' | translate }}
+          {{ 'admin.overview.total_establishments' | translate }}
         </span>
-        <span class="text-3xl font-bold tabular-nums">{{ m.bars.total }}</span>
+        <span class="text-xl sm:text-3xl font-bold tabular-nums">{{ m.establishments.total }}</span>
         <span class="text-xs text-on-surface-variant">
-          {{ 'admin.overview.new_last_7' | translate: { count: m.bars.createdLast7Days } }}
+          {{ 'admin.overview.new_last_7' | translate: { count: m.establishments.createdLast7Days } }}
         </span>
       </article>
 
@@ -24,7 +24,7 @@
         <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
           {{ 'admin.overview.with_access' | translate }}
         </span>
-        <span class="text-3xl font-bold tabular-nums text-primary">{{ m.subscriptions.withAccess }}</span>
+        <span class="text-xl sm:text-3xl font-bold tabular-nums text-primary">{{ m.subscriptions.withAccess }}</span>
         <span class="text-xs text-on-surface-variant">
           {{ 'admin.overview.without_access' | translate: { count: withoutAccess() } }}
         </span>
@@ -34,7 +34,7 @@
         <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
           {{ 'admin.overview.users' | translate }}
         </span>
-        <span class="text-3xl font-bold tabular-nums">{{ m.users.total }}</span>
+        <span class="text-xl sm:text-3xl font-bold tabular-nums">{{ m.users.total }}</span>
         <span class="text-xs text-on-surface-variant">
           {{ 'admin.overview.active_users' | translate: { count: m.users.active } }}
         </span>
@@ -44,7 +44,7 @@
         <span class="text-xs uppercase tracking-wide text-on-surface-variant font-medium">
           {{ 'admin.overview.revenue_30' | translate }}
         </span>
-        <span class="text-3xl font-bold tabular-nums">{{ m.activity.revenueLast30Days | price }}</span>
+        <span class="text-xl sm:text-3xl font-bold tabular-nums">{{ m.activity.revenueLast30Days | price }}</span>
         <span class="text-xs text-on-surface-variant">
           {{ 'admin.overview.orders_30' | translate: { count: m.activity.ordersLast30Days } }}
         </span>
@@ -60,7 +60,7 @@
 
         <div class="grid grid-cols-2 gap-3">
           <a
-            routerLink="/admin/bars"
+            routerLink="/admin/establishments"
             [queryParams]="{ billingSource: 'STRIPE' }"
             class="rounded-xl border border-outline-variant/50 p-3 hover:bg-surface transition-colors"
           >
@@ -69,7 +69,7 @@
           </a>
 
           <a
-            routerLink="/admin/bars"
+            routerLink="/admin/establishments"
             [queryParams]="{ billingSource: 'MANUAL' }"
             class="rounded-xl border border-outline-variant/50 p-3 hover:bg-surface transition-colors"
           >

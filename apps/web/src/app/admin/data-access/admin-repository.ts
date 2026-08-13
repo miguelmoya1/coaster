@@ -2,14 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
   AdminAuditQuery,
-  AdminBarsQuery,
+  AdminEstablishmentsQuery,
   AdminUsersQuery,
-  BarId,
-  GrantBarPlanDto,
-  RenameBarDto,
-  RevokeBarPlanDto,
+  EstablishmentId,
+  GrantEstablishmentPlanDto,
+  RenameEstablishmentDto,
+  RevokeEstablishmentPlanDto,
   UpdateAdminUserDto,
   UserId,
+  EstablishmentSettings,
+  UpdateEstablishmentSettingsDto,
 } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
@@ -33,26 +35,39 @@ export class AdminRepository {
   public readonly routes = {
     overview: () => '/admin/overview',
     audit: (query: AdminAuditQuery) => `/admin/audit${toQueryString({ ...query })}`,
-    bars: (query: AdminBarsQuery) => `/admin/bars${toQueryString({ ...query })}`,
-    barDetail: (barId: BarId) => `/admin/bars/${barId}`,
-    barPlan: (barId: BarId) => `/admin/bars/${barId}/plan`,
-    revokeBarPlan: (barId: BarId) => `/admin/bars/${barId}/plan/revoke`,
+    establishments: (query: AdminEstablishmentsQuery) => `/admin/establishments${toQueryString({ ...query })}`,
+    establishmentDetail: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}`,
+    establishmentModules: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}/modules`,
+    establishmentPlan: (establishmentId: EstablishmentId) => `/admin/establishments/${establishmentId}/plan`,
+    revokeEstablishmentPlan: (establishmentId: EstablishmentId) =>
+      `/admin/establishments/${establishmentId}/plan/revoke`,
     users: (query: AdminUsersQuery) => `/admin/users${toQueryString({ ...query })}`,
     userDetail: (userId: UserId) => `/admin/users/${userId}`,
   };
 
-  public async grantBarPlan(barId: BarId, dto: GrantBarPlanDto): Promise<void> {
-    await firstValueFrom(this.#http.post<void>(this.routes.barPlan(barId), dto));
+  public async grantEstablishmentPlan(establishmentId: EstablishmentId, dto: GrantEstablishmentPlanDto): Promise<void> {
+    await firstValueFrom(this.#http.post<void>(this.routes.establishmentPlan(establishmentId), dto));
   }
 
-  public async revokeBarPlan(barId: BarId, dto: RevokeBarPlanDto): Promise<void> {
-    await firstValueFrom(this.#http.post<void>(this.routes.revokeBarPlan(barId), dto));
+  public async revokeEstablishmentPlan(
+    establishmentId: EstablishmentId,
+    dto: RevokeEstablishmentPlanDto,
+  ): Promise<void> {
+    await firstValueFrom(this.#http.post<void>(this.routes.revokeEstablishmentPlan(establishmentId), dto));
   }
 
-  public async renameBar(barId: BarId, dto: RenameBarDto): Promise<void> {
-    await firstValueFrom(this.#http.patch<void>(this.routes.barDetail(barId), dto));
+  public async renameEstablishment(establishmentId: EstablishmentId, dto: RenameEstablishmentDto): Promise<void> {
+    await firstValueFrom(this.#http.patch<void>(this.routes.establishmentDetail(establishmentId), dto));
   }
 
+  public updateEstablishmentModules(
+    establishmentId: EstablishmentId,
+    dto: UpdateEstablishmentSettingsDto,
+  ): Promise<EstablishmentSettings> {
+    return firstValueFrom(
+      this.#http.patch<EstablishmentSettings>(this.routes.establishmentModules(establishmentId), dto),
+    );
+  }
 
   public async updateUser(userId: UserId, dto: UpdateAdminUserDto): Promise<void> {
     await firstValueFrom(this.#http.patch<void>(this.routes.userDetail(userId), dto));

@@ -1,6 +1,13 @@
-import { GetMembersQuery } from '@coaster/bar-members';
-import type { BarId, BarMember, TimeEntry, TimeEntrySource, TimeEntryType, UserId } from '@coaster/common';
-import { BarPermission, ErrorCodes, Role, TimeEntryAction, asUserId } from '@coaster/common';
+import { GetMembersQuery } from '@coaster/establishment-members';
+import type {
+  EstablishmentId,
+  EstablishmentMember,
+  TimeEntry,
+  TimeEntrySource,
+  TimeEntryType,
+  UserId,
+} from '@coaster/common';
+import { EstablishmentPermission, ErrorCodes, Role, TimeEntryAction, asUserId } from '@coaster/common';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
@@ -20,9 +27,9 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
   ) {}
 
   async execute(command: AmendTimeEntryCommand): Promise<TimeEntry> {
-    const { barId, entryId, actor, dto } = command;
+    const { establishmentId, entryId, actor, dto } = command;
 
-    const current = await this._readRepo.findCurrentById(barId, entryId);
+    const current = await this._readRepo.findCurrentById(establishmentId, entryId);
 
     if (!current) {
       throw new NotFoundException(ErrorCodes.TIME_ENTRY_NOT_FOUND);
@@ -32,11 +39,7 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
       throw new BadRequestException(ErrorCodes.TIME_ENTRY_NOT_CURRENT);
     }
 
-    /*
-     * Everyone fixes their own hours; touching somebody else's is what needs the bar to trust you.
-     * The guard cannot tell whose mark it is, so the ownership half of the rule lives here.
-     */
-    if (current.userId !== actor.id && !(await this.#canManageOthers(barId, actor.id, actor.role))) {
+    if (current.userId !== actor.id && !(await this.#canManageOthers(establishmentId, actor.id, actor.role))) {
       throw new ForbiddenException(ErrorCodes.NOT_YOUR_TIME_ENTRY);
     }
 
@@ -47,7 +50,12 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
     }
 
     const userId = asUserId(current.userId);
-    const rows = await this._readRepo.findByWorkdayRange(barId, current.workdayDate, current.workdayDate, userId);
+    const rows = await this._readRepo.findByWorkdayRange(
+      establishmentId,
+      current.workdayDate,
+      current.workdayDate,
+      userId,
+    );
     const day = TimeEntriesMapper.groupByRoot(rows).map((entry) =>
       entry.rootId === current.rootId ? { ...entry, occurredAt: occurredAt.toISOString() } : entry,
     );
@@ -59,7 +67,7 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
     const reason = dto.reason.trim();
 
     await this._writeRepo.append({
-      barId,
+      establishmentId,
       userId,
       userSnapshot: current.userSnapshot as { name: string; email: string },
       type: current.type as TimeEntryType,
@@ -75,20 +83,22 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
 
     const entry = TimeEntriesMapper.toDomain(await this._readRepo.findByRoots([current.rootId]));
     this._eventBus.publish(
-      new TimeEntryAmendedEvent(barId, entry, current.occurredAt.toISOString(), actor.id, actor.role, reason),
+      new TimeEntryAmendedEvent(establishmentId, entry, current.occurredAt.toISOString(), actor.id, actor.role, reason),
     );
 
     return entry;
   }
 
-  async #canManageOthers(barId: BarId, userId: UserId, platformRole: Role): Promise<boolean> {
+  async #canManageOthers(establishmentId: EstablishmentId, userId: UserId, platformRole: Role): Promise<boolean> {
     if (platformRole === Role.ADMIN) {
       return true;
     }
 
-    const members = await this._queryBus.execute<GetMembersQuery, BarMember[]>(new GetMembersQuery(barId));
+    const members = await this._queryBus.execute<GetMembersQuery, EstablishmentMember[]>(
+      new GetMembersQuery(establishmentId),
+    );
     const member = members.find((candidate) => candidate.userId === userId);
 
-    return member?.permissions.includes(BarPermission.BAR_MANAGE_TIME_ENTRIES) ?? false;
+    return member?.permissions.includes(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES) ?? false;
   }
 }

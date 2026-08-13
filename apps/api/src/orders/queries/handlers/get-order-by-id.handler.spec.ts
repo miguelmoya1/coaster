@@ -1,4 +1,4 @@
-import { OrderStatus, asBarId, asOrderId } from '@coaster/common';
+import { OrderStatus, asEstablishmentId, asOrderId } from '@coaster/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,22 +23,24 @@ describe('GetOrderByIdHandler', () => {
   it('should throw NotFoundException if order does not exist', async () => {
     repository.findById.mockResolvedValue(null);
 
-    await expect(handler.execute(new GetOrderByIdQuery(asBarId('bar-1'), asOrderId('order-1')))).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      handler.execute(new GetOrderByIdQuery(asEstablishmentId('establishment-1'), asOrderId('order-1'))),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should return mapped order', async () => {
     repository.findById.mockResolvedValue({
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       items: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    const result = await handler.execute(new GetOrderByIdQuery(asBarId('bar-1'), asOrderId('order-1')));
+    const result = await handler.execute(
+      new GetOrderByIdQuery(asEstablishmentId('establishment-1'), asOrderId('order-1')),
+    );
 
     expect(result.id).toBe('order-1');
   });

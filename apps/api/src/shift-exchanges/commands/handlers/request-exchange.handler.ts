@@ -19,7 +19,7 @@ export class RequestExchangeHandler implements ICommandHandler<RequestExchangeCo
       throw new NotFoundException(ErrorCodes.SHIFT_NOT_FOUND);
     }
 
-    if (shift.barId !== command.barId) {
+    if (shift.establishmentId !== command.establishmentId) {
       throw new ForbiddenException(ErrorCodes.UNAUTHORIZED_SHIFT_ACTION);
     }
 

@@ -23,6 +23,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
 
       let user = await this._db.dbUser.findUnique({
         where: { googleId: decodedToken.sub },
+        include: { preferences: true },
       });
 
       if (user) {
@@ -39,6 +40,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
                 ...(nameChanged && { name: decodedToken.name }),
                 ...(photoChanged && { photoUrl: decodedToken.picture }),
               },
+              include: { preferences: true },
             });
           } catch (updateError: any) {
             this.logger.warn(`Could not synchronize data for user ${user.id}: ${updateError?.message}`);
@@ -50,6 +52,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
 
       user = await this._db.dbUser.findUnique({
         where: { email: decodedToken.email },
+        include: { preferences: true },
       });
 
       if (user) {
@@ -67,6 +70,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
           await this._db.dbUser.update({
             where: { id: user.id },
             data: { googleId: decodedToken.sub },
+            include: { preferences: true },
           }),
         );
       }
@@ -78,13 +82,16 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
             googleId: decodedToken.sub,
             name: decodedToken.name || decodedToken.email.split('@')[0],
             photoUrl: decodedToken.picture || null,
+            preferences: { create: {} },
           },
+          include: { preferences: true },
         });
         return UsersMapper.toDomain(user);
       } catch (error: any) {
         if (error?.code === 'P2002') {
           user = await this._db.dbUser.findUnique({
             where: { email: decodedToken.email },
+            include: { preferences: true },
           });
           if (user) return UsersMapper.toDomain(user);
         }

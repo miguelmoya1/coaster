@@ -41,10 +41,10 @@ func (p *recordingPrinter) jobs() [][]byte {
 
 func testConfig(baseURL string) *config.Config {
 	return &config.Config{
-		APIURL:       baseURL,
-		BarID:        "bar-123",
-		DeviceKey:    "key-xyz",
-		PollInterval: time.Millisecond,
+		APIURL:          baseURL,
+		EstablishmentID: "establishment-123",
+		DeviceKey:       "key-xyz",
+		PollInterval:    time.Millisecond,
 	}
 }
 
@@ -53,12 +53,12 @@ func TestNextJob_ReturnsAQueuedJob(t *testing.T) {
 		if got := r.Header.Get("X-Device-Key"); got != "key-xyz" {
 			t.Errorf("expected the device key to be sent, got %q", got)
 		}
-		if got := r.URL.Query().Get("barId"); got != "bar-123" {
-			t.Errorf("expected the bar id in the query, got %q", got)
+		if got := r.URL.Query().Get("establishmentId"); got != "establishment-123" {
+			t.Errorf("expected the establishment id in the query, got %q", got)
 		}
 		json.NewEncoder(w).Encode(Job{
 			ID:      "job-1",
-			Payload: escpos.TicketPayload{Type: "order", BarName: "Bar Central"},
+			Payload: escpos.TicketPayload{Type: "order", EstablishmentName: "Establishment Central"},
 		})
 	}))
 	defer server.Close()
@@ -70,7 +70,7 @@ func TestNextJob_ReturnsAQueuedJob(t *testing.T) {
 	if job == nil || job.ID != "job-1" {
 		t.Fatalf("expected job-1, got %+v", job)
 	}
-	if job.Payload.BarName != "Bar Central" {
+	if job.Payload.EstablishmentName != "Establishment Central" {
 		t.Errorf("expected the payload to be decoded, got %+v", job.Payload)
 	}
 }
@@ -136,7 +136,7 @@ func TestRun_PrintsAJobAndReportsSuccess(t *testing.T) {
 			served = true
 			json.NewEncoder(w).Encode(Job{
 				ID:      "job-1",
-				Payload: escpos.TicketPayload{Type: "order", BarName: "Bar Central", Total: "9.00"},
+				Payload: escpos.TicketPayload{Type: "order", EstablishmentName: "Establishment Central", Total: "9.00"},
 			})
 
 		case r.URL.Path == "/printer/jobs/job-1/result":
@@ -176,7 +176,7 @@ func TestRun_PrintsAJobAndReportsSuccess(t *testing.T) {
 	if len(jobs) != 1 {
 		t.Fatalf("expected exactly one ticket, got %d", len(jobs))
 	}
-	if !bytes.Contains(jobs[0], []byte("Bar Central")) {
+	if !bytes.Contains(jobs[0], []byte("Establishment Central")) {
 		t.Errorf("expected the rendered ticket to reach the printer, got %q", jobs[0])
 	}
 }

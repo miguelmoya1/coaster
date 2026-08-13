@@ -1,11 +1,11 @@
-import { BarRole } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('ShiftExchangesController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let shiftId: string;
 
   beforeAll(async () => {
@@ -25,13 +25,13 @@ describe('ShiftExchangesController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
 
     const shift = await testSetup.prisma.dbShift.create({
       data: {
         userId: mockUser.id,
-        barId,
+        establishmentId,
         // A shift somebody could still take over: offering one that is already running is refused.
         startTime: new Date(Date.now() + 3600 * 1000),
         endTime: new Date(Date.now() + 5 * 3600 * 1000),
@@ -44,17 +44,17 @@ describe('ShiftExchangesController (e2e)', () => {
     await testSetup.teardown();
   });
 
-  describe('POST /api/bars/:barId/shifts/:shiftId/exchanges', () => {
+  describe('POST /api/establishments/:establishmentId/shifts/:shiftId/exchanges', () => {
     it('should request a shift exchange', async () => {
       const dto = {};
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/shifts/${shiftId}/exchanges`)
+        .post(`/api/establishments/${establishmentId}/shifts/${shiftId}/exchanges`)
         .send(dto)
         .expect(201);
 
       const exchanges = await testSetup.prisma.dbShiftExchange.findMany({
-        where: { shift: { barId } },
+        where: { shift: { establishmentId } },
       });
 
       expect(exchanges).toHaveLength(1);
@@ -64,7 +64,7 @@ describe('ShiftExchangesController (e2e)', () => {
     });
   });
 
-  describe('GET /api/bars/:barId/exchanges', () => {
+  describe('GET /api/establishments/:establishmentId/exchanges', () => {
     it('should return pending exchanges', async () => {
       const exchange = await testSetup.prisma.dbShiftExchange.create({
         data: {
@@ -74,14 +74,16 @@ describe('ShiftExchangesController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/exchanges`).expect(200);
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/establishments/${establishmentId}/exchanges`)
+        .expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(exchange.id);
     });
   });
 
-  describe('PATCH /api/bars/:barId/exchanges/:exchangeId/accept', () => {
+  describe('PATCH /api/establishments/:establishmentId/exchanges/:exchangeId/accept', () => {
     it('should accept a shift exchange', async () => {
       const otherUser = await testSetup.prisma.dbUser.create({
         data: {
@@ -90,11 +92,11 @@ describe('ShiftExchangesController (e2e)', () => {
         },
       });
 
-      await testSetup.prisma.dbBarMember.create({
+      await testSetup.prisma.dbEstablishmentMember.create({
         data: {
-          barId,
+          establishmentId,
           userId: otherUser.id,
-          role: BarRole.STAFF,
+          role: EstablishmentRole.STAFF,
         },
       });
 
@@ -108,7 +110,7 @@ describe('ShiftExchangesController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/exchanges/${exchange.id}/accept`)
+        .patch(`/api/establishments/${establishmentId}/exchanges/${exchange.id}/accept`)
         .expect(200);
 
       const updated = await testSetup.prisma.dbShiftExchange.findUnique({
@@ -118,7 +120,7 @@ describe('ShiftExchangesController (e2e)', () => {
     });
   });
 
-  describe('DELETE /api/bars/:barId/exchanges/:exchangeId', () => {
+  describe('DELETE /api/establishments/:establishmentId/exchanges/:exchangeId', () => {
     it('should delete (cancel) a shift exchange', async () => {
       const exchange = await testSetup.prisma.dbShiftExchange.create({
         data: {
@@ -128,7 +130,9 @@ describe('ShiftExchangesController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/exchanges/${exchange.id}`).expect(200);
+      await request(testSetup.app.getHttpServer())
+        .delete(`/api/establishments/${establishmentId}/exchanges/${exchange.id}`)
+        .expect(200);
 
       const deleted = await testSetup.prisma.dbShiftExchange.findUnique({
         where: { id: exchange.id },

@@ -5,7 +5,7 @@ import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 describe('OrdersController (e2e)', () => {
   const testSetup = new E2eTestSetup();
-  let barId: string;
+  let establishmentId: string;
   let tableId: string;
   let categoryId: string;
   let product1Id: string;
@@ -28,13 +28,13 @@ describe('OrdersController (e2e)', () => {
       },
     });
 
-    const bar = await testSetup.createBar('My Bar');
-    barId = bar.id;
+    const establishment = await testSetup.createEstablishment('My Establishment');
+    establishmentId = establishment.id;
 
     const table = await testSetup.prisma.dbTable.create({
       data: {
         name: 'Table 1',
-        barId,
+        establishmentId,
       },
     });
     tableId = table.id;
@@ -42,7 +42,7 @@ describe('OrdersController (e2e)', () => {
     const category = await testSetup.prisma.dbCategory.create({
       data: {
         name: 'Drinks',
-        barId,
+        establishmentId,
       },
     });
     categoryId = category.id;
@@ -70,7 +70,7 @@ describe('OrdersController (e2e)', () => {
     await testSetup.teardown();
   });
 
-  describe('POST /api/bars/:barId/orders', () => {
+  describe('POST /api/establishments/:establishmentId/orders', () => {
     it('should create an order with items', async () => {
       const dto = {
         tableId,
@@ -80,10 +80,13 @@ describe('OrdersController (e2e)', () => {
         ],
       };
 
-      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send(dto).expect(201);
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/orders`)
+        .send(dto)
+        .expect(201);
 
       const orders = await testSetup.prisma.dbOrder.findMany({
-        where: { barId },
+        where: { establishmentId },
         include: { items: true },
       });
 
@@ -95,24 +98,27 @@ describe('OrdersController (e2e)', () => {
     });
 
     it('should reject invalid payloads', async () => {
-      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders`).send({ items: [] }).expect(400);
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/orders`)
+        .send({ items: [] })
+        .expect(400);
     });
 
-    it('should refuse a product that belongs to another bar, leaving its stock alone', async () => {
-      const otherBar = await testSetup.createBar('Other Bar', { ownerId: null });
+    it('should refuse a product that belongs to another establishment, leaving its stock alone', async () => {
+      const otherEstablishment = await testSetup.createEstablishment('Other Establishment', { ownerId: null });
       const otherCategory = await testSetup.prisma.dbCategory.create({
-        data: { name: 'Their drinks', barId: otherBar.id },
+        data: { name: 'Their drinks', establishmentId: otherEstablishment.id },
       });
       const theirProduct = await testSetup.prisma.dbProduct.create({
         data: { name: 'Their beer', price: 5, currentStock: 10, categoryId: otherCategory.id },
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
+        .post(`/api/establishments/${establishmentId}/orders`)
         .send({ items: [{ productId: theirProduct.id, quantity: 4 }] })
         .expect(404);
 
-      expect(await testSetup.prisma.dbOrder.count({ where: { barId } })).toBe(0);
+      expect(await testSetup.prisma.dbOrder.count({ where: { establishmentId } })).toBe(0);
 
       const untouched = await testSetup.prisma.dbProduct.findUnique({ where: { id: theirProduct.id } });
       expect(untouched?.currentStock).toBe(10);
@@ -125,14 +131,14 @@ describe('OrdersController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
+        .post(`/api/establishments/${establishmentId}/orders`)
         .send({ items: [{ productId: product1Id, quantity: 1 }] })
         .expect(404);
     });
 
     it('should accept the same product on two separate lines', async () => {
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders`)
+        .post(`/api/establishments/${establishmentId}/orders`)
         .send({
           items: [
             { productId: product1Id, quantity: 2 },
@@ -141,7 +147,7 @@ describe('OrdersController (e2e)', () => {
         })
         .expect(201);
 
-      const orders = await testSetup.prisma.dbOrder.findMany({ where: { barId }, include: { items: true } });
+      const orders = await testSetup.prisma.dbOrder.findMany({ where: { establishmentId }, include: { items: true } });
 
       expect(orders).toHaveLength(1);
       expect(orders[0].items).toHaveLength(2);
@@ -149,11 +155,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('GET /api/bars/:barId/orders', () => {
+  describe('GET /api/establishments/:establishmentId/orders', () => {
     it('should return a list of orders', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           tableId,
           status: OrderStatus.OPEN,
           totalAmount: 5,
@@ -169,7 +175,9 @@ describe('OrdersController (e2e)', () => {
         },
       });
 
-      const response = await request(testSetup.app.getHttpServer()).get(`/api/bars/${barId}/orders`).expect(200);
+      const response = await request(testSetup.app.getHttpServer())
+        .get(`/api/establishments/${establishmentId}/orders`)
+        .expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].id).toBe(order.id);
@@ -177,11 +185,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('POST /api/bars/:barId/orders/:orderId/items', () => {
+  describe('POST /api/establishments/:establishmentId/orders/:orderId/items', () => {
     it('should add items to an existing order', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           totalAmount: 0,
         },
       });
@@ -191,7 +199,7 @@ describe('OrdersController (e2e)', () => {
       };
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/${order.id}/items`)
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/items`)
         .send(dto)
         .expect(201);
 
@@ -204,11 +212,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('POST /api/bars/:barId/orders/:orderId/cancel', () => {
+  describe('POST /api/establishments/:establishmentId/orders/:orderId/cancel', () => {
     it('should cancel an order', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 5,
           items: {
@@ -223,7 +231,9 @@ describe('OrdersController (e2e)', () => {
         },
       });
 
-      await request(testSetup.app.getHttpServer()).post(`/api/bars/${barId}/orders/${order.id}/cancel`).expect(201);
+      await request(testSetup.app.getHttpServer())
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/cancel`)
+        .expect(201);
 
       const updated = await testSetup.prisma.dbOrder.findUnique({
         where: { id: order.id },
@@ -232,11 +242,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('POST /api/bars/:barId/orders/:orderId/checkout', () => {
+  describe('POST /api/establishments/:establishmentId/orders/:orderId/checkout', () => {
     it('should checkout an order', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 5,
           items: {
@@ -253,7 +263,7 @@ describe('OrdersController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/checkout`)
         .send({ paymentMethod: PaymentMethod.CASH })
         .expect(201);
 
@@ -265,11 +275,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('POST /api/bars/:barId/orders/merge', () => {
+  describe('POST /api/establishments/:establishmentId/orders/merge', () => {
     it('should carry payments, tips and discounts over to the surviving order', async () => {
       const first = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 10,
           amountPaidCash: 400,
@@ -281,7 +291,7 @@ describe('OrdersController (e2e)', () => {
 
       const second = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 3,
           amountPaidCard: 200,
@@ -291,12 +301,12 @@ describe('OrdersController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/merge`)
+        .post(`/api/establishments/${establishmentId}/orders/merge`)
         .send({ orderIds: [first.id, second.id] })
         .expect(201);
 
       const orders = await testSetup.prisma.dbOrder.findMany({
-        where: { barId },
+        where: { establishmentId },
         include: { items: true, adjustments: true },
       });
 
@@ -316,7 +326,7 @@ describe('OrdersController (e2e)', () => {
     it('should keep a percentage discount worth the same euros it was worth before', async () => {
       const discounted = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
           items: { create: [{ productId: product1Id, quantity: 200, priceAtPurchase: 5 }] },
@@ -326,7 +336,7 @@ describe('OrdersController (e2e)', () => {
 
       const plain = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 3,
           items: { create: [{ productId: product2Id, quantity: 1, priceAtPurchase: 3 }] },
@@ -334,7 +344,7 @@ describe('OrdersController (e2e)', () => {
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/merge`)
+        .post(`/api/establishments/${establishmentId}/orders/merge`)
         .send({ orderIds: [discounted.id, plain.id] })
         .expect(201);
 
@@ -346,11 +356,11 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('PATCH /api/bars/:barId/orders/:orderId/items/bulk', () => {
+  describe('PATCH /api/establishments/:establishmentId/orders/:orderId/items/bulk', () => {
     const openOrder = async () =>
       testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
           items: { create: [{ productId: product1Id, quantity: 2, priceAtPurchase: 500 }] },
@@ -362,7 +372,7 @@ describe('OrdersController (e2e)', () => {
       const order = await openOrder();
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .patch(`/api/establishments/${establishmentId}/orders/${order.id}/items/bulk`)
         .send({ items: [{ itemId: order.items[0].id, servedQuantity: 2 }] })
         .expect(200);
 
@@ -375,7 +385,7 @@ describe('OrdersController (e2e)', () => {
       const order = await openOrder();
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .patch(`/api/establishments/${establishmentId}/orders/${order.id}/items/bulk`)
         .send({ items: [{ itemId: order.items[0].id, paidQuantity: 1, paymentMethod: PaymentMethod.CARD }] })
         .expect(200);
 
@@ -392,7 +402,7 @@ describe('OrdersController (e2e)', () => {
       const order = await openOrder();
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .patch(`/api/establishments/${establishmentId}/orders/${order.id}/items/bulk`)
         .send({ items: [{ itemId: order.items[0].id, servedQuantity: 5 }] })
         .expect(400);
     });
@@ -402,7 +412,7 @@ describe('OrdersController (e2e)', () => {
       await testSetup.prisma.dbOrder.update({ where: { id: order.id }, data: { status: OrderStatus.CLOSED } });
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/orders/${order.id}/items/bulk`)
+        .patch(`/api/establishments/${establishmentId}/orders/${order.id}/items/bulk`)
         .send({ items: [{ itemId: order.items[0].id, servedQuantity: 1 }] })
         .expect(400);
     });
@@ -412,7 +422,7 @@ describe('OrdersController (e2e)', () => {
     it('should take the money once and turn the other attempt down', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.OPEN,
           totalAmount: 1000,
           items: { create: [{ productId: product1Id, quantity: 1, priceAtPurchase: 1000 }] },
@@ -421,7 +431,7 @@ describe('OrdersController (e2e)', () => {
 
       const checkout = () =>
         request(testSetup.app.getHttpServer())
-          .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+          .post(`/api/establishments/${establishmentId}/orders/${order.id}/checkout`)
           .send({ paymentMethod: PaymentMethod.CASH });
 
       const results = await Promise.all([checkout(), checkout()]);
@@ -436,11 +446,11 @@ describe('OrdersController (e2e)', () => {
 
     it('should refuse a payment method that says nothing about how it was paid', async () => {
       const order = await testSetup.prisma.dbOrder.create({
-        data: { barId, status: OrderStatus.OPEN, totalAmount: 500 },
+        data: { establishmentId, status: OrderStatus.OPEN, totalAmount: 500 },
       });
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/${order.id}/checkout`)
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/checkout`)
         .send({ paymentMethod: PaymentMethod.NONE })
         .expect(400);
 
@@ -453,7 +463,7 @@ describe('OrdersController (e2e)', () => {
     const closedOrder = async () =>
       testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.CLOSED,
           totalAmount: 10,
           amountPaidCash: 10,
@@ -467,7 +477,7 @@ describe('OrdersController (e2e)', () => {
       const order = await closedOrder();
 
       await request(testSetup.app.getHttpServer())
-        .post(`/api/bars/${barId}/orders/${order.id}/adjustments`)
+        .post(`/api/establishments/${establishmentId}/orders/${order.id}/adjustments`)
         .send({ target: 'ORDER', type: 'PERCENTAGE', value: 50 })
         .expect(400);
 
@@ -479,7 +489,7 @@ describe('OrdersController (e2e)', () => {
       const order = await closedOrder();
 
       await request(testSetup.app.getHttpServer())
-        .delete(`/api/bars/${barId}/orders/${order.id}/adjustments/${order.adjustments[0].id}`)
+        .delete(`/api/establishments/${establishmentId}/orders/${order.id}/adjustments/${order.adjustments[0].id}`)
         .expect(400);
 
       const adjustments = await testSetup.prisma.dbOrderAdjustment.findMany({ where: { orderId: order.id } });
@@ -490,7 +500,7 @@ describe('OrdersController (e2e)', () => {
       const order = await closedOrder();
 
       await request(testSetup.app.getHttpServer())
-        .patch(`/api/bars/${barId}/orders/${order.id}/tip`)
+        .patch(`/api/establishments/${establishmentId}/orders/${order.id}/tip`)
         .send({ tipAmount: 500 })
         .expect(400);
 
@@ -499,16 +509,18 @@ describe('OrdersController (e2e)', () => {
     });
   });
 
-  describe('DELETE /api/bars/:barId/orders/:orderId', () => {
+  describe('DELETE /api/establishments/:establishmentId/orders/:orderId', () => {
     it('should delete an order', async () => {
       const order = await testSetup.prisma.dbOrder.create({
         data: {
-          barId,
+          establishmentId,
           status: OrderStatus.CLOSED,
         },
       });
 
-      await request(testSetup.app.getHttpServer()).delete(`/api/bars/${barId}/orders/${order.id}`).expect(200);
+      await request(testSetup.app.getHttpServer())
+        .delete(`/api/establishments/${establishmentId}/orders/${order.id}`)
+        .expect(200);
 
       const deleted = await testSetup.prisma.dbOrder.findUnique({
         where: { id: order.id },

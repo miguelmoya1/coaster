@@ -3,7 +3,7 @@ import {
   TimeEntryAction,
   TimeEntrySource,
   TimeEntryType,
-  asBarId,
+  asEstablishmentId,
   asShiftId,
   asTimeEntryId,
   asUserId,
@@ -45,7 +45,7 @@ export const TimeEntriesMapper = {
     return {
       id: asTimeEntryId(head.id),
       rootId: asTimeEntryId(head.rootId),
-      barId: asBarId(head.barId),
+      establishmentId: asEstablishmentId(head.establishmentId),
       userId: asUserId(head.userId),
       userName: userSnapshotName(head),
       type: head.type as TimeEntryType,

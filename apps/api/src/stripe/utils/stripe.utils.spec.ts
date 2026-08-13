@@ -47,14 +47,14 @@ describe('stripe.utils', () => {
 
   describe('createIntegrationIdentifier', () => {
     it('should derive the same identifier from the same seed, so a retried request keeps its payload', () => {
-      expect(createIntegrationIdentifier('checkout:bar-1:PRO:42')).toBe(
-        createIntegrationIdentifier('checkout:bar-1:PRO:42'),
+      expect(createIntegrationIdentifier('checkout:establishment-1:PRO:42')).toBe(
+        createIntegrationIdentifier('checkout:establishment-1:PRO:42'),
       );
     });
 
     it('should tell different seeds apart', () => {
-      expect(createIntegrationIdentifier('checkout:bar-1:PRO:42')).not.toBe(
-        createIntegrationIdentifier('checkout:bar-1:PRO:43'),
+      expect(createIntegrationIdentifier('checkout:establishment-1:PRO:42')).not.toBe(
+        createIntegrationIdentifier('checkout:establishment-1:PRO:43'),
       );
     });
 

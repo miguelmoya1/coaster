@@ -1,0 +1,121 @@
+<h2 class="heading-2 mb-4">{{ 'orders.to_serve_title' | translate }}</h2>
+
+@if (isLoading()) {
+  <coaster-loading />
+}
+
+<div class="flex flex-col gap-4 pb-workspace">
+  @for (order of ordersToServe(); track order.id) {
+    <div class="bg-surface-container rounded-2xl p-4 flex flex-col gap-3 shadow-md border border-outline-variant/10">
+      <div class="flex justify-between items-center pb-2 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0!">coffee</mat-icon>
+          </div>
+          <span class="font-bold text-on-surface text-base">{{ order | orderTitle }}</span>
+        </div>
+        <span class="text-xs text-on-surface-variant font-medium bg-surface-container-highest px-2.5 py-1 rounded-lg">
+          {{ formatTime(order.createdAt) }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        @for (item of order.items; track item.id) {
+          <div
+            class="bg-surface-container-low border border-transparent rounded-xl p-4 flex items-center justify-between gap-3 transition-all duration-200"
+            [class.border-primary/20]="isItemSelected(item.id)"
+            [class.bg-primary/5]="isItemSelected(item.id)"
+          >
+            <button
+              type="button"
+              [attr.aria-label]="'orders.select_item' | translate: { name: item.productName }"
+              [attr.aria-pressed]="isItemSelected(item.id)"
+              class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shrink-0"
+              [class.border-primary]="isItemSelected(item.id)"
+              [class.bg-primary]="isItemSelected(item.id)"
+              [class.text-on-primary]="isItemSelected(item.id)"
+              [class.border-on-surface-variant]="!isItemSelected(item.id)"
+              (click)="toggleSelectItem(order.id, item)"
+            >
+              @if (isItemSelected(item.id)) {
+                <mat-icon class="stroke-3 text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
+              }
+            </button>
+
+            <div class="flex-1 flex flex-col min-w-0">
+              <span class="font-semibold text-on-surface text-sm truncate">{{ item.productName }}</span>
+              <div class="flex gap-2 items-center mt-1">
+                <span class="text-xs font-bold text-primary">x{{ item.quantity - item.servedQuantity }}</span>
+                <span class="text-xxs text-on-surface-variant">
+                  {{ 'orders.served_units' | translate: { served: item.servedQuantity, total: item.quantity } }}
+                </span>
+              </div>
+            </div>
+
+            @if (isItemSelected(item.id)) {
+              <div class="w-28">
+                <coaster-number-input
+                  [(value)]="selectedItems().get(item.id)!.serveQty"
+                  (valueChange)="updateSelectedQty(item.id, $event)"
+                  [min]="1"
+                  [max]="item.quantity - item.servedQuantity"
+                  wrapperClass="w-full"
+                />
+              </div>
+            }
+
+            <button
+              mat-icon-button
+              (click)="serveSingleItem(order.id, item)"
+              [title]="'orders.mark_served' | translate"
+            >
+              <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">chef_hat</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  } @empty {
+    @if (!isLoading()) {
+      <div class="flex flex-col items-center gap-4 py-16 text-center">
+        <div class="w-16 h-16 rounded-full bg-success/15 text-success flex items-center justify-center mb-2">
+          <mat-icon class="stroke-3 text-[32px]! w-[32px]! h-[32px]! leading-[32px]! m-0!">check</mat-icon>
+        </div>
+        <span class="text-on-surface font-bold text-lg">{{ 'orders.all_served_title' | translate }}</span>
+        <span class="text-on-surface-variant text-sm max-w-xs">
+          {{ 'orders.all_served_desc' | translate }}
+        </span>
+      </div>
+    }
+  }
+</div>
+
+@if (totalSelectedItemsCount() > 0) {
+  <div
+    class="fixed bottom-24 left-4 right-4 z-50 bg-surface-container/85 backdrop-blur-xl border border-outline/10 rounded-2xl p-4 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
+  >
+    <div class="flex items-center gap-4">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-xs font-bold text-primary tracking-wide uppercase">
+          {{ 'orders.bulk_actions_title' | translate }}
+        </span>
+        <span class="text-sm font-semibold text-on-surface">
+          {{ 'orders.selected_items_count' | translate: { count: totalSelectedItemsCount() } }}
+          ({{ totalSelectedUnitsCount() }} u.)
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <button mat-stroked-button (click)="clearSelection()">
+        <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">close</mat-icon>
+        {{ 'common.cancel' | translate }}
+      </button>
+
+      <button mat-flat-button (click)="applySelectedChanges()">
+        <mat-icon class="text-[14px]! w-[14px]! h-[14px]! leading-[14px]! m-0!">check</mat-icon>
+        {{ 'orders.mark_served' | translate }}
+      </button>
+    </div>
+  </div>
+}

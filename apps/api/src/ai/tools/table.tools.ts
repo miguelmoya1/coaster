@@ -1,6 +1,11 @@
 import type { Table } from '@coaster/common';
 import { asTableId } from '@coaster/common';
-import { CreateTableCommand, DeleteTableCommand, GetTablesByBarIdQuery, UpdateTableCommand } from '@coaster/tables';
+import {
+  CreateTableCommand,
+  DeleteTableCommand,
+  GetTablesByEstablishmentIdQuery,
+  UpdateTableCommand,
+} from '@coaster/tables';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
@@ -14,18 +19,20 @@ export const createTableTools = (context: AiToolsContext) => {
   return {
     listTables: tool({
       description:
-        'List every table of the bar with its UUID and status. Use it to refresh the table list or when a table the user mentions is not in the context above.',
+        'List every table of the establishment with its UUID and status. Use it to refresh the table list or when a table the user mentions is not in the context above.',
       inputSchema: zodSchema(z.object({})),
       execute: async (): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'listTables' called`);
-        return runner.query<Table[]>('bar:view-tables', new GetTablesByBarIdQuery(context.barId), (tables) =>
-          tables.map((table) => ({ id: table.id, name: table.name, status: table.status })),
+        return runner.query<Table[]>(
+          'establishment:view-tables',
+          new GetTablesByEstablishmentIdQuery(context.establishmentId),
+          (tables) => tables.map((table) => ({ id: table.id, name: table.name, status: table.status })),
         );
       },
     }),
 
     createTable: tool({
-      description: 'Create a new table in the bar.',
+      description: 'Create a new table in the establishment.',
       inputSchema: zodSchema(
         z.object({
           name: z
@@ -37,12 +44,12 @@ export const createTableTools = (context: AiToolsContext) => {
       ),
       execute: async ({ name }: { name: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'createTable' called with name="${name}"`);
-        return runner.execute('bar:create-table', new CreateTableCommand(context.barId, { name }));
+        return runner.execute('establishment:create-table', new CreateTableCommand(context.establishmentId, { name }));
       },
     }),
 
     updateTable: tool({
-      description: 'Update details of an existing table in the bar, such as its name.',
+      description: 'Update details of an existing table in the establishment, such as its name.',
       inputSchema: zodSchema(
         z.object({
           tableId: z.string().describe('The UUID of the table to update.'),
@@ -51,12 +58,16 @@ export const createTableTools = (context: AiToolsContext) => {
       ),
       execute: async ({ tableId, name }: { tableId: string; name: string }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'updateTable' called with tableId="${tableId}", name="${name}"`);
-        return runner.execute('bar:update-table', new UpdateTableCommand(context.barId, asTableId(tableId), { name }));
+        return runner.execute(
+          'establishment:update-table',
+          new UpdateTableCommand(context.establishmentId, asTableId(tableId), { name }),
+        );
       },
     }),
 
     deleteTable: tool({
-      description: 'Permanently delete a table from the bar. Destructive: requires the user to confirm first.',
+      description:
+        'Permanently delete a table from the establishment. Destructive: requires the user to confirm first.',
       inputSchema: zodSchema(
         z.object({
           tableId: z.string().describe('The UUID of the table to delete.'),
@@ -68,10 +79,14 @@ export const createTableTools = (context: AiToolsContext) => {
       execute: async ({ tableId, confirmed }: { tableId: string; confirmed: boolean }): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'deleteTable' called with tableId="${tableId}", confirmed=${confirmed}`);
         const table = context.tables.find((candidate) => candidate.id === tableId);
-        return runner.execute('bar:delete-table', new DeleteTableCommand(context.barId, asTableId(tableId)), {
-          confirmed,
-          summary: `permanently delete the table "${table?.name ?? tableId}"`,
-        });
+        return runner.execute(
+          'establishment:delete-table',
+          new DeleteTableCommand(context.establishmentId, asTableId(tableId)),
+          {
+            confirmed,
+            summary: `permanently delete the table "${table?.name ?? tableId}"`,
+          },
+        );
       },
     }),
   };

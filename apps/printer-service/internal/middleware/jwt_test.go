@@ -12,10 +12,10 @@ import (
 	"time"
 )
 
-func genToken(barID string, exp int64, secret []byte) string {
+func genToken(establishmentID string, exp int64, secret []byte) string {
 	now := time.Now().Unix()
 	h := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
-	p := base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf(`{"barId":"%s","iat":%d,"exp":%d}`, barID, now, exp)))
+	p := base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf(`{"establishmentId":"%s","iat":%d,"exp":%d}`, establishmentID, now, exp)))
 	mac := hmac.New(sha256.New, secret)
 	mac.Write([]byte(h + "." + p))
 	s := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
@@ -25,21 +25,21 @@ func genToken(barID string, exp int64, secret []byte) string {
 func TestValidateJWT_Success(t *testing.T) {
 	secret := []byte("my-secret")
 	now := time.Now().Unix()
-	token := genToken("bar-1", now+300, secret)
+	token := genToken("establishment-1", now+300, secret)
 
 	payload, err := ValidateJWT(token, secret)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if payload.BarID != "bar-1" {
-		t.Errorf("expected barId bar-1, got %s", payload.BarID)
+	if payload.EstablishmentID != "establishment-1" {
+		t.Errorf("expected establishmentId establishment-1, got %s", payload.EstablishmentID)
 	}
 }
 
 func TestValidateJWT_Expired(t *testing.T) {
 	secret := []byte("my-secret")
 	now := time.Now().Unix()
-	token := genToken("bar-1", now-10, secret)
+	token := genToken("establishment-1", now-10, secret)
 
 	_, err := ValidateJWT(token, secret)
 	if err == nil {
@@ -49,7 +49,7 @@ func TestValidateJWT_Expired(t *testing.T) {
 
 func TestValidateJWT_WrongSecret(t *testing.T) {
 	now := time.Now().Unix()
-	token := genToken("bar-1", now+300, []byte("wrong-secret"))
+	token := genToken("establishment-1", now+300, []byte("wrong-secret"))
 
 	_, err := ValidateJWT(token, []byte("my-secret"))
 	if err == nil {
@@ -65,7 +65,7 @@ func TestValidateJWT_InvalidFormat(t *testing.T) {
 }
 
 func TestJWTMiddleware_MissingHeader(t *testing.T) {
-	handler := JWT("test-secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("test-secret", "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -79,7 +79,7 @@ func TestJWTMiddleware_MissingHeader(t *testing.T) {
 }
 
 func TestJWTMiddleware_InvalidFormat(t *testing.T) {
-	handler := JWT("test-secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("test-secret", "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -96,10 +96,10 @@ func TestJWTMiddleware_InvalidFormat(t *testing.T) {
 func TestJWTMiddleware_ValidToken(t *testing.T) {
 	secret := "test-secret"
 	now := time.Now().Unix()
-	token := genToken("bar-123", now+300, []byte(secret))
+	token := genToken("establishment-123", now+300, []byte(secret))
 
 	nextCalled := false
-	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT(secret, "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCalled = true
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -119,7 +119,7 @@ func TestJWTMiddleware_ValidToken(t *testing.T) {
 
 func TestJWTMiddleware_OptionsPassthrough(t *testing.T) {
 	nextCalled := false
-	handler := JWT("secret", "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT("secret", "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCalled = true
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -154,31 +154,31 @@ func TestValidateJWT_ChallengeEdgeCases(t *testing.T) {
 	}{
 		{
 			name:        "Valid token",
-			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), secret),
+			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), secret),
 			secret:      secret,
 			expectError: false,
 		},
 		{
 			name:        "Algorithm none",
-			token:       genTokenCustom(`{"alg":"none","typ":"JWT"}`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), secret),
+			token:       genTokenCustom(`{"alg":"none","typ":"JWT"}`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), secret),
 			secret:      secret,
 			expectError: true,
 		},
 		{
 			name:        "Algorithm RS256",
-			token:       genTokenCustom(`{"alg":"RS256","typ":"JWT"}`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), secret),
+			token:       genTokenCustom(`{"alg":"RS256","typ":"JWT"}`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), secret),
 			secret:      secret,
 			expectError: true,
 		},
 		{
 			name:        "Empty header JSON object",
-			token:       genTokenCustom(`{}`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), secret),
+			token:       genTokenCustom(`{}`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), secret),
 			secret:      secret,
 			expectError: true,
 		},
 		{
 			name:        "Header is array",
-			token:       genTokenCustom(`[]`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), secret),
+			token:       genTokenCustom(`[]`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), secret),
 			secret:      secret,
 			expectError: true,
 		},
@@ -190,13 +190,13 @@ func TestValidateJWT_ChallengeEdgeCases(t *testing.T) {
 		},
 		{
 			name:        "Missing exp claim",
-			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, `{"barId":"bar-1"}`, secret),
+			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, `{"establishmentId":"establishment-1"}`, secret),
 			secret:      secret,
 			expectError: true,
 		},
 		{
 			name:        "Negative exp claim",
-			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, `{"barId":"bar-1","exp":-10}`, secret),
+			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, `{"establishmentId":"establishment-1","exp":-10}`, secret),
 			secret:      secret,
 			expectError: true,
 		},
@@ -214,13 +214,13 @@ func TestValidateJWT_ChallengeEdgeCases(t *testing.T) {
 		},
 		{
 			name:        "Base64 standard encoding with padding in signature",
-			token:       base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`)) + "." + base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300))) + "." + base64.StdEncoding.EncodeToString(make([]byte, 32)),
+			token:       base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`)) + "." + base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300))) + "." + base64.StdEncoding.EncodeToString(make([]byte, 32)),
 			secret:      secret,
 			expectError: true,
 		},
 		{
 			name:        "Empty secret key verification",
-			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, fmt.Sprintf(`{"barId":"bar-1","iat":%d,"exp":%d}`, now, now+300), []byte("")),
+			token:       genTokenCustom(`{"alg":"HS256","typ":"JWT"}`, fmt.Sprintf(`{"establishmentId":"establishment-1","iat":%d,"exp":%d}`, now, now+300), []byte("")),
 			secret:      []byte(""),
 			expectError: false,
 		},
@@ -239,9 +239,9 @@ func TestValidateJWT_ChallengeEdgeCases(t *testing.T) {
 func TestJWTMiddleware_ExpiredToken(t *testing.T) {
 	secret := "test-secret"
 	now := time.Now().Unix()
-	token := genToken("bar-1", now-10, []byte(secret))
+	token := genToken("establishment-1", now-10, []byte(secret))
 
-	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT(secret, "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -258,12 +258,12 @@ func TestJWTMiddleware_ExpiredToken(t *testing.T) {
 	}
 }
 
-func TestJWTMiddleware_RejectsATokenFromAnotherBar(t *testing.T) {
+func TestJWTMiddleware_RejectsATokenFromAnotherEstablishment(t *testing.T) {
 	secret := "test-secret"
-	token := genToken("some-other-bar", time.Now().Unix()+300, []byte(secret))
+	token := genToken("some-other-establishment", time.Now().Unix()+300, []byte(secret))
 
 	nextCalled := false
-	handler := JWT(secret, "bar-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := JWT(secret, "establishment-123")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nextCalled = true
 	}))
 
@@ -273,16 +273,16 @@ func TestJWTMiddleware_RejectsATokenFromAnotherBar(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	if w.Code != http.StatusForbidden {
-		t.Errorf("expected 403 for a token from another bar, got %d", w.Code)
+		t.Errorf("expected 403 for a token from another establishment, got %d", w.Code)
 	}
 	if nextCalled {
 		t.Error("expected the request not to reach the print handler")
 	}
 }
 
-func TestJWTMiddleware_SkipsTheBarCheckWhenUnconfigured(t *testing.T) {
+func TestJWTMiddleware_SkipsTheEstablishmentCheckWhenUnconfigured(t *testing.T) {
 	secret := "test-secret"
-	token := genToken("any-bar", time.Now().Unix()+300, []byte(secret))
+	token := genToken("any-establishment", time.Now().Unix()+300, []byte(secret))
 
 	nextCalled := false
 	handler := JWT(secret, "")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -294,6 +294,6 @@ func TestJWTMiddleware_SkipsTheBarCheckWhenUnconfigured(t *testing.T) {
 	handler.ServeHTTP(httptest.NewRecorder(), req)
 
 	if !nextCalled {
-		t.Error("expected the request to be accepted when no bar is configured")
+		t.Error("expected the request to be accepted when no establishment is configured")
 	}
 }

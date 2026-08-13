@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId } from '@coaster/common';
 import { DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -34,13 +34,13 @@ describe('ProductsReadRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('checkCategoryBelongsToBar', () => {
-    it('should return true if category belongs to bar', async () => {
+  describe('checkCategoryBelongsToEstablishment', () => {
+    it('should return true if category belongs to establishment', async () => {
       const categoryId = asCategoryId('cat-1');
-      const barId = asBarId('bar-1');
-      vi.mocked(dbService.dbCategory.findUnique).mockResolvedValue({ id: categoryId, barId } as any);
+      const establishmentId = asEstablishmentId('establishment-1');
+      vi.mocked(dbService.dbCategory.findUnique).mockResolvedValue({ id: categoryId, establishmentId } as any);
 
-      const result = await repository.checkCategoryBelongsToBar(categoryId, barId);
+      const result = await repository.checkCategoryBelongsToEstablishment(categoryId, establishmentId);
 
       expect(dbService.dbCategory.findUnique).toHaveBeenCalledWith({
         where: { id: categoryId },
@@ -48,35 +48,38 @@ describe('ProductsReadRepository', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false if category does not belong to bar', async () => {
+    it('should return false if category does not belong to establishment', async () => {
       const categoryId = asCategoryId('cat-1');
-      const barId = asBarId('bar-1');
-      vi.mocked(dbService.dbCategory.findUnique).mockResolvedValue({ id: categoryId, barId: 'bar-2' } as any);
+      const establishmentId = asEstablishmentId('establishment-1');
+      vi.mocked(dbService.dbCategory.findUnique).mockResolvedValue({
+        id: categoryId,
+        establishmentId: 'establishment-2',
+      } as any);
 
-      const result = await repository.checkCategoryBelongsToBar(categoryId, barId);
+      const result = await repository.checkCategoryBelongsToEstablishment(categoryId, establishmentId);
       expect(result).toBe(false);
     });
 
     it('should return false if category not found', async () => {
       const categoryId = asCategoryId('cat-1');
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       vi.mocked(dbService.dbCategory.findUnique).mockResolvedValue(null as any);
 
-      const result = await repository.checkCategoryBelongsToBar(categoryId, barId);
+      const result = await repository.checkCategoryBelongsToEstablishment(categoryId, establishmentId);
       expect(result).toBe(false);
     });
   });
 
-  describe('findByBarId', () => {
+  describe('findByEstablishmentId', () => {
     it('should call dbProduct.findMany with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const expectedResult = [{ id: 'prod-1' }];
       vi.mocked(dbService.dbProduct.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findByBarId(barId);
+      const result = await repository.findByEstablishmentId(establishmentId);
 
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
-        where: { category: { barId, deletedAt: null }, deletedAt: null },
+        where: { category: { establishmentId, deletedAt: null }, deletedAt: null },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual(expectedResult);

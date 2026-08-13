@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import type {
   AmendTimeEntryDto,
-  BarId,
+  EstablishmentId,
   CreateTimeEntryDto,
   TimeEntryId,
   TimeEntryType,
@@ -18,7 +18,7 @@ import { workdayArrayMapper } from '../mappers/workday.mapper';
 export class TimeTrackingStore {
   readonly #repository = inject(TimeEntryRepository);
 
-  readonly #barId = signal<BarId | undefined>(undefined);
+  readonly #establishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #from = signal<string | undefined>(undefined);
   readonly #to = signal<string | undefined>(undefined);
   readonly #teamUserId = signal<UserId | undefined>(undefined);
@@ -26,23 +26,23 @@ export class TimeTrackingStore {
 
   readonly #mineResource = httpResource(
     () => {
-      const barId = this.#barId();
+      const establishmentId = this.#establishmentId();
       const from = this.#from();
       const to = this.#to();
 
-      return barId && from && to ? this.#repository.routes.mine(barId, from, to) : undefined;
+      return establishmentId && from && to ? this.#repository.routes.mine(establishmentId, from, to) : undefined;
     },
     { parse: workdayArrayMapper },
   );
 
   readonly #teamResource = httpResource(
     () => {
-      const barId = this.#barId();
+      const establishmentId = this.#establishmentId();
       const from = this.#from();
       const to = this.#to();
 
-      return barId && from && to && this.#teamEnabled()
-        ? this.#repository.routes.team(barId, from, to, this.#teamUserId())
+      return establishmentId && from && to && this.#teamEnabled()
+        ? this.#repository.routes.team(establishmentId, from, to, this.#teamUserId())
         : undefined;
     },
     { parse: workdayArrayMapper },
@@ -57,8 +57,8 @@ export class TimeTrackingStore {
 
   public readonly clockState = computed<ClockState>(() => this.myWorkday()?.state ?? ClockState.OUT);
 
-  public setBarId(barId: BarId | undefined) {
-    this.#barId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#establishmentId.set(establishmentId);
   }
 
   public setRange(from: string | undefined, to: string | undefined) {
@@ -83,27 +83,27 @@ export class TimeTrackingStore {
   }
 
   public async clock(type: TimeEntryType, coordinates?: { latitude: number; longitude: number }) {
-    await this.#repository.clock(this.#requireBarId(), { type, ...coordinates });
+    await this.#repository.clock(this.#requireEstablishmentId(), { type, ...coordinates });
     this.reload();
   }
 
   public async createEntry(dto: CreateTimeEntryDto) {
-    await this.#repository.create(this.#requireBarId(), dto);
+    await this.#repository.create(this.#requireEstablishmentId(), dto);
     this.reload();
   }
 
   public async amend(entryId: TimeEntryId, dto: AmendTimeEntryDto) {
-    await this.#repository.amend(this.#requireBarId(), entryId, dto);
+    await this.#repository.amend(this.#requireEstablishmentId(), entryId, dto);
     this.reload();
   }
 
   public async voidEntry(entryId: TimeEntryId, dto: VoidTimeEntryDto) {
-    await this.#repository.void(this.#requireBarId(), entryId, dto);
+    await this.#repository.void(this.#requireEstablishmentId(), entryId, dto);
     this.reload();
   }
 
   public verifyIntegrity() {
-    return this.#repository.integrity(this.#requireBarId());
+    return this.#repository.integrity(this.#requireEstablishmentId());
   }
 
   public exportCsv(range?: { from: string; to: string }) {
@@ -114,16 +114,16 @@ export class TimeTrackingStore {
       throw new Error(ErrorCodes.INVALID_DATE);
     }
 
-    return this.#repository.exportCsv(this.#requireBarId(), from, to, this.#teamUserId());
+    return this.#repository.exportCsv(this.#requireEstablishmentId(), from, to, this.#teamUserId());
   }
 
-  #requireBarId(): BarId {
-    const barId = this.#barId();
+  #requireEstablishmentId(): EstablishmentId {
+    const establishmentId = this.#establishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    return barId;
+    return establishmentId;
   }
 }

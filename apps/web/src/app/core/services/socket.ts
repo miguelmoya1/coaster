@@ -5,14 +5,14 @@ import { environment } from '@coaster/env';
 import { io, Socket as SocketClient } from 'socket.io-client';
 import { Auth } from './auth';
 
-const JOIN_BAR_MAX_ATTEMPTS = 3;
-const JOIN_BAR_RETRY_MS = 1000;
+const JOIN_ESTABLISHMENT_MAX_ATTEMPTS = 3;
+const JOIN_ESTABLISHMENT_RETRY_MS = 1000;
 
 @Service()
 export class Socket implements OnDestroy {
   readonly #auth = inject(Auth);
   #socket: SocketClient | null = null;
-  readonly #currentBarId = signal<string | null>(null);
+  readonly #currentEstablishmentId = signal<string | null>(null);
   readonly #connected = signal(false);
   readonly connected = this.#connected.asReadonly();
 
@@ -40,7 +40,7 @@ export class Socket implements OnDestroy {
   readonly shiftDeleted = signal<{ id: string } | null>(null);
   readonly memberInvited = signal<{ id: string } | null>(null);
   readonly memberRoleChanged = signal<{ id: string; userId: string; role: string } | null>(null);
-  readonly subscriptionUpdated = signal<{ barId: string } | null>(null);
+  readonly subscriptionUpdated = signal<{ establishmentId: string } | null>(null);
 
   constructor() {
     effect(() => {
@@ -55,11 +55,11 @@ export class Socket implements OnDestroy {
     });
 
     effect(() => {
-      const barId = this.#currentBarId();
+      const establishmentId = this.#currentEstablishmentId();
       const isConnected = this.#connected();
 
-      if (barId && isConnected) {
-        this.#joinBar(barId);
+      if (establishmentId && isConnected) {
+        this.#joinEstablishment(establishmentId);
       }
     });
   }
@@ -190,48 +190,51 @@ export class Socket implements OnDestroy {
       this.shiftDeleted.set(payload);
     });
 
-    this.#socket.on(
-      SocketEvents.memberRoleChanged,
-      (payload: { id: string; userId: string; role: string }) => {
-        this.memberRoleChanged.set(payload);
-      },
-    );
+    this.#socket.on(SocketEvents.memberRoleChanged, (payload: { id: string; userId: string; role: string }) => {
+      this.memberRoleChanged.set(payload);
+    });
 
     this.#socket.on(SocketEvents.memberInvited, (payload: { id: string }) => {
       this.memberInvited.set(payload);
     });
 
-    this.#socket.on(SocketEvents.subscriptionUpdated, (payload: { barId: string }) => {
+    this.#socket.on(SocketEvents.subscriptionUpdated, (payload: { establishmentId: string }) => {
       this.subscriptionUpdated.set(payload);
     });
   }
 
-  public joinBar(barId: string) {
-    this.#currentBarId.set(barId);
+  public joinEstablishment(establishmentId: string) {
+    this.#currentEstablishmentId.set(establishmentId);
     this.connect();
   }
 
-  #joinBar(barId: string, attempt = 1) {
-    this.#socket?.emit(SocketEvents.joinBar, barId, (ack?: { status?: string; message?: string }) => {
-      if (ack?.status !== 'error') {
-        return;
-      }
+  #joinEstablishment(establishmentId: string, attempt = 1) {
+    this.#socket?.emit(
+      SocketEvents.joinEstablishment,
+      establishmentId,
+      (ack?: { status?: string; message?: string }) => {
+        if (ack?.status !== 'error') {
+          return;
+        }
 
-      console.error(`Could not join the realtime room for bar ${barId}: ${ack.message ?? 'unknown error'}`);
+        console.error(
+          `Could not join the realtime room for establishment ${establishmentId}: ${ack.message ?? 'unknown error'}`,
+        );
 
-      if (attempt < JOIN_BAR_MAX_ATTEMPTS && this.#currentBarId() === barId) {
-        setTimeout(() => this.#joinBar(barId, attempt + 1), JOIN_BAR_RETRY_MS);
-      }
-    });
+        if (attempt < JOIN_ESTABLISHMENT_MAX_ATTEMPTS && this.#currentEstablishmentId() === establishmentId) {
+          setTimeout(() => this.#joinEstablishment(establishmentId, attempt + 1), JOIN_ESTABLISHMENT_RETRY_MS);
+        }
+      },
+    );
   }
 
-  public leaveBar(barId: string) {
-    if (this.#currentBarId() === barId) {
-      this.#currentBarId.set(null);
+  public leaveEstablishment(establishmentId: string) {
+    if (this.#currentEstablishmentId() === establishmentId) {
+      this.#currentEstablishmentId.set(null);
     }
 
     if (this.#socket?.connected) {
-      this.#socket.emit(SocketEvents.leaveBar, barId);
+      this.#socket.emit(SocketEvents.leaveEstablishment, establishmentId);
     }
   }
 
@@ -246,7 +249,7 @@ export class Socket implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.#currentBarId.set(null);
+    this.#currentEstablishmentId.set(null);
     this.#teardown();
   }
 }

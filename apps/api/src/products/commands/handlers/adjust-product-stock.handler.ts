@@ -20,9 +20,12 @@ export class AdjustProductStockHandler implements ICommandHandler<AdjustProductS
   async execute(command: AdjustProductStockCommand): Promise<void> {
     this.#logger.debug(`Executing adjustProductStock...`);
 
-    const belongsToBar = await this.readRepo.checkProductBelongsToBar(command.productId, command.barId);
+    const belongsToEstablishment = await this.readRepo.checkProductBelongsToEstablishment(
+      command.productId,
+      command.establishmentId,
+    );
 
-    if (!belongsToBar) {
+    if (!belongsToEstablishment) {
       throw new NotFoundException(ErrorCodes.PRODUCT_NOT_FOUND);
     }
 
@@ -33,6 +36,6 @@ export class AdjustProductStockHandler implements ICommandHandler<AdjustProductS
     });
     const mapped = ProductsMapper.toDomain(product);
     this.#logger.debug(`Publishing ProductStockChangedEvent...`);
-    this._eventBus.publish(new ProductStockChangedEvent(command.barId, mapped));
+    this._eventBus.publish(new ProductStockChangedEvent(command.establishmentId, mapped));
   }
 }

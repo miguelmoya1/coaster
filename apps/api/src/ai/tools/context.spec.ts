@@ -1,5 +1,5 @@
 import type { User } from '@coaster/common';
-import { asBarId, asUserId, BarRole } from '@coaster/common';
+import { DEFAULT_ESTABLISHMENT_MODULES, asEstablishmentId, asUserId, EstablishmentRole } from '@coaster/common';
 import type { CommandBus, QueryBus } from '@nestjs/cqrs';
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,10 +10,11 @@ describe('createToolRunner', () => {
   const queryBus = { execute: vi.fn() };
 
   const buildContext = (overrides: Partial<AiToolsContext> = {}): AiToolsContext => ({
-    barId: asBarId('bar-1'),
+    establishmentId: asEstablishmentId('establishment-1'),
+    modules: DEFAULT_ESTABLISHMENT_MODULES,
     user: { id: asUserId('user-1'), name: 'Ana' } as User,
     isAdmin: false,
-    barRole: BarRole.STAFF,
+    establishmentRole: EstablishmentRole.STAFF,
     commandBus: commandBus as unknown as CommandBus,
     queryBus: queryBus as unknown as QueryBus,
     products: [],
@@ -32,16 +33,16 @@ describe('createToolRunner', () => {
       commandBus.execute.mockResolvedValue({ id: 'order-1' });
       const runner = createToolRunner(buildContext());
 
-      const result = await runner.execute('bar:create-order', { type: 'CreateOrder' });
+      const result = await runner.execute('establishment:create-order', { type: 'CreateOrder' });
 
       expect(commandBus.execute).toHaveBeenCalledWith({ type: 'CreateOrder' });
       expect(result.status).toBe('ok');
     });
 
     it('refuses without touching the CommandBus when the role lacks the permission', async () => {
-      const runner = createToolRunner(buildContext({ barRole: BarRole.STAFF }));
+      const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.STAFF }));
 
-      const result = await runner.execute('bar:delete-product', { type: 'DeleteProduct' });
+      const result = await runner.execute('establishment:delete-product', { type: 'DeleteProduct' });
 
       expect(commandBus.execute).not.toHaveBeenCalled();
       expect(result.status).toBe('denied');
@@ -49,19 +50,19 @@ describe('createToolRunner', () => {
 
     it('lets a platform admin through any permission', async () => {
       commandBus.execute.mockResolvedValue(undefined);
-      const runner = createToolRunner(buildContext({ isAdmin: true, barRole: BarRole.STAFF }));
+      const runner = createToolRunner(buildContext({ isAdmin: true, establishmentRole: EstablishmentRole.STAFF }));
 
-      const result = await runner.execute('bar:delete-product', { type: 'DeleteProduct' });
+      const result = await runner.execute('establishment:delete-product', { type: 'DeleteProduct' });
 
       expect(commandBus.execute).toHaveBeenCalled();
       expect(result.status).toBe('ok');
     });
 
     it('holds a destructive action back until the user confirms', async () => {
-      const runner = createToolRunner(buildContext({ barRole: BarRole.OWNER }));
+      const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.OWNER }));
 
       const result = await runner.execute(
-        'bar:delete-table',
+        'establishment:delete-table',
         { type: 'DeleteTable' },
         { confirmed: false, summary: 'delete the table "Mesa 4"' },
       );
@@ -73,10 +74,10 @@ describe('createToolRunner', () => {
 
     it('runs the destructive action once it is confirmed', async () => {
       commandBus.execute.mockResolvedValue(undefined);
-      const runner = createToolRunner(buildContext({ barRole: BarRole.OWNER }));
+      const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.OWNER }));
 
       const result = await runner.execute(
-        'bar:delete-table',
+        'establishment:delete-table',
         { type: 'DeleteTable' },
         { confirmed: true, summary: 'delete the table "Mesa 4"' },
       );
@@ -86,10 +87,10 @@ describe('createToolRunner', () => {
     });
 
     it('checks the permission before the confirmation, so a denial is never framed as a question', async () => {
-      const runner = createToolRunner(buildContext({ barRole: BarRole.STAFF }));
+      const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.STAFF }));
 
       const result = await runner.execute(
-        'bar:delete-table',
+        'establishment:delete-table',
         { type: 'DeleteTable' },
         { confirmed: true, summary: 'delete the table "Mesa 4"' },
       );
@@ -102,7 +103,7 @@ describe('createToolRunner', () => {
       commandBus.execute.mockRejectedValue(new Error('ORDER_NOT_FOUND'));
       const runner = createToolRunner(buildContext());
 
-      const result = await runner.execute('bar:create-order', { type: 'CreateOrder' });
+      const result = await runner.execute('establishment:create-order', { type: 'CreateOrder' });
 
       expect(result.status).toBe('error');
       expect(result).toMatchObject({ errorKey: 'ORDER_NOT_FOUND' });
@@ -111,11 +112,11 @@ describe('createToolRunner', () => {
 
   describe('query', () => {
     it('projects the query result so the model only sees what it needs', async () => {
-      queryBus.execute.mockResolvedValue([{ id: 't-1', name: 'Mesa 1', barId: 'bar-1' }]);
+      queryBus.execute.mockResolvedValue([{ id: 't-1', name: 'Mesa 1', establishmentId: 'establishment-1' }]);
       const runner = createToolRunner(buildContext());
 
       const result = await runner.query<{ id: string; name: string }[]>(
-        'bar:view-tables',
+        'establishment:view-tables',
         { type: 'GetTables' },
         (tables) => tables.map((table) => table.name),
       );
@@ -124,9 +125,9 @@ describe('createToolRunner', () => {
     });
 
     it('refuses a read the role is not allowed to make', async () => {
-      const runner = createToolRunner(buildContext({ barRole: BarRole.STAFF }));
+      const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.STAFF }));
 
-      const result = await runner.query('bar:view-dashboard', { type: 'GetBarStats' });
+      const result = await runner.query('establishment:view-financials', { type: 'GetEstablishmentStats' });
 
       expect(queryBus.execute).not.toHaveBeenCalled();
       expect(result.status).toBe('denied');

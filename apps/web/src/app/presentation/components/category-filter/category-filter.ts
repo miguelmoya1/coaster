@@ -57,7 +57,7 @@ export class CategoryFilter {
   readonly tabs = computed(() => {
     const rawCategories = this.categories() ?? [];
     return [
-      { id: 'ALL', label: 'pantry.all', icon: null },
+      { id: 'ALL', label: 'inventory.all', icon: null },
       ...rawCategories.map((c) => ({ id: c.id, label: c.name, icon: c.icon })),
     ];
   });

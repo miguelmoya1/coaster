@@ -1,4 +1,4 @@
-import type { BarId, UserId } from '@coaster/common';
+import type { EstablishmentId, UserId } from '@coaster/common';
 import { DbRole, DbService, DbSubscriptionPlan } from '@coaster/core/db';
 import { Injectable } from '@nestjs/common';
 
@@ -13,7 +13,7 @@ export interface ManualGrantInput {
 export class AdminWriteRepository {
   constructor(private readonly _db: DbService) {}
 
-  public grantPlan(barId: BarId, grant: ManualGrantInput) {
+  public grantPlan(establishmentId: EstablishmentId, grant: ManualGrantInput) {
     const data = {
       manualPlan: grant.plan,
       manualGrantExpiresAt: grant.expiresAt,
@@ -22,16 +22,16 @@ export class AdminWriteRepository {
       manualGrantedAt: new Date(),
     };
 
-    return this._db.dbBarSubscription.upsert({
-      where: { barId },
-      create: { barId, ...data },
+    return this._db.dbEstablishmentSubscription.upsert({
+      where: { establishmentId },
+      create: { establishmentId, ...data },
       update: data,
     });
   }
 
-  public revokePlan(barId: BarId) {
-    return this._db.dbBarSubscription.update({
-      where: { barId },
+  public revokePlan(establishmentId: EstablishmentId) {
+    return this._db.dbEstablishmentSubscription.update({
+      where: { establishmentId },
       data: {
         manualPlan: null,
         manualGrantExpiresAt: null,
@@ -42,15 +42,15 @@ export class AdminWriteRepository {
     });
   }
 
-  public renameBar(barId: BarId, name: string) {
-    return this._db.dbBar.update({ where: { id: barId }, data: { name } });
+  public renameEstablishment(establishmentId: EstablishmentId, name: string) {
+    return this._db.dbEstablishment.update({ where: { id: establishmentId }, data: { name } });
   }
 
   public updateUser(userId: UserId, data: { role?: DbRole; active?: boolean }) {
     return this._db.dbUser.update({ where: { id: userId }, data });
   }
 
-  public findSubscription(barId: BarId) {
-    return this._db.dbBarSubscription.findUnique({ where: { barId } });
+  public findSubscription(establishmentId: EstablishmentId) {
+    return this._db.dbEstablishmentSubscription.findUnique({ where: { establishmentId } });
   }
 }

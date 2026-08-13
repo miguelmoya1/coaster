@@ -53,20 +53,25 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
-  DbBar: 'DbBar',
-  DbBarMember: 'DbBarMember',
+  DbEstablishment: 'DbEstablishment',
+  DbEstablishmentSettings: 'DbEstablishmentSettings',
+  DbPrinterPairing: 'DbPrinterPairing',
+  DbAiUsage: 'DbAiUsage',
+  DbUserPreferences: 'DbUserPreferences',
+  DbEstablishmentMember: 'DbEstablishmentMember',
   DbShift: 'DbShift',
   DbShiftExchange: 'DbShiftExchange',
+  DbMenu: 'DbMenu',
+  DbMenuSection: 'DbMenuSection',
+  DbMenuItem: 'DbMenuItem',
   DbCategory: 'DbCategory',
   DbProduct: 'DbProduct',
-  DbCategoryTemplate: 'DbCategoryTemplate',
-  DbProductTemplate: 'DbProductTemplate',
   DbTable: 'DbTable',
   DbOrder: 'DbOrder',
   DbOrderItem: 'DbOrderItem',
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
-  DbBarSubscription: 'DbBarSubscription',
+  DbEstablishmentSubscription: 'DbEstablishmentSubscription',
   DbTimeEntry: 'DbTimeEntry',
   DbAdminAuditLog: 'DbAdminAuditLog'
 } as const
@@ -109,7 +114,6 @@ export const DbUserScalarFieldEnum = {
   photoUrl: 'photoUrl',
   active: 'active',
   role: 'role',
-  language: 'language',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -117,28 +121,78 @@ export const DbUserScalarFieldEnum = {
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
 
 
-export const DbBarScalarFieldEnum = {
+export const DbEstablishmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type DbBarScalarFieldEnum = (typeof DbBarScalarFieldEnum)[keyof typeof DbBarScalarFieldEnum]
+export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
 
 
-export const DbBarMemberScalarFieldEnum = {
+export const DbEstablishmentSettingsScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  modules: 'modules',
+  language: 'language',
+  markSoldOut: 'markSoldOut',
+  configuredAt: 'configuredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbEstablishmentSettingsScalarFieldEnum = (typeof DbEstablishmentSettingsScalarFieldEnum)[keyof typeof DbEstablishmentSettingsScalarFieldEnum]
+
+
+export const DbPrinterPairingScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  establishmentId: 'establishmentId',
+  expiresAt: 'expiresAt',
+  redeemedAt: 'redeemedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type DbPrinterPairingScalarFieldEnum = (typeof DbPrinterPairingScalarFieldEnum)[keyof typeof DbPrinterPairingScalarFieldEnum]
+
+
+export const DbAiUsageScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  period: 'period',
+  messages: 'messages',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbAiUsageScalarFieldEnum = (typeof DbAiUsageScalarFieldEnum)[keyof typeof DbAiUsageScalarFieldEnum]
+
+
+export const DbUserPreferencesScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  barId: 'barId',
+  language: 'language',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbUserPreferencesScalarFieldEnum = (typeof DbUserPreferencesScalarFieldEnum)[keyof typeof DbUserPreferencesScalarFieldEnum]
+
+
+export const DbEstablishmentMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  establishmentId: 'establishmentId',
   role: 'role',
   active: 'active',
+  hourlyRateCents: 'hourlyRateCents',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
 } as const
 
-export type DbBarMemberScalarFieldEnum = (typeof DbBarMemberScalarFieldEnum)[keyof typeof DbBarMemberScalarFieldEnum]
+export type DbEstablishmentMemberScalarFieldEnum = (typeof DbEstablishmentMemberScalarFieldEnum)[keyof typeof DbEstablishmentMemberScalarFieldEnum]
 
 
 export const DbShiftScalarFieldEnum = {
@@ -146,7 +200,7 @@ export const DbShiftScalarFieldEnum = {
   startTime: 'startTime',
   endTime: 'endTime',
   userId: 'userId',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -167,9 +221,48 @@ export const DbShiftExchangeScalarFieldEnum = {
 export type DbShiftExchangeScalarFieldEnum = (typeof DbShiftExchangeScalarFieldEnum)[keyof typeof DbShiftExchangeScalarFieldEnum]
 
 
+export const DbMenuScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  slug: 'slug',
+  name: 'name',
+  defaultLanguage: 'defaultLanguage',
+  languages: 'languages',
+  publishedSnapshot: 'publishedSnapshot',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbMenuScalarFieldEnum = (typeof DbMenuScalarFieldEnum)[keyof typeof DbMenuScalarFieldEnum]
+
+
+export const DbMenuSectionScalarFieldEnum = {
+  id: 'id',
+  menuId: 'menuId',
+  position: 'position',
+  translations: 'translations'
+} as const
+
+export type DbMenuSectionScalarFieldEnum = (typeof DbMenuSectionScalarFieldEnum)[keyof typeof DbMenuSectionScalarFieldEnum]
+
+
+export const DbMenuItemScalarFieldEnum = {
+  id: 'id',
+  sectionId: 'sectionId',
+  productId: 'productId',
+  price: 'price',
+  position: 'position',
+  isVisible: 'isVisible',
+  translations: 'translations'
+} as const
+
+export type DbMenuItemScalarFieldEnum = (typeof DbMenuItemScalarFieldEnum)[keyof typeof DbMenuItemScalarFieldEnum]
+
+
 export const DbCategoryScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   name: 'name',
   icon: 'icon',
   deletedAt: 'deletedAt'
@@ -186,6 +279,7 @@ export const DbProductScalarFieldEnum = {
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
   imageUrl: 'imageUrl',
+  allergens: 'allergens',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -194,35 +288,11 @@ export const DbProductScalarFieldEnum = {
 export type DbProductScalarFieldEnum = (typeof DbProductScalarFieldEnum)[keyof typeof DbProductScalarFieldEnum]
 
 
-export const DbCategoryTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  icon: 'icon',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbCategoryTemplateScalarFieldEnum = (typeof DbCategoryTemplateScalarFieldEnum)[keyof typeof DbCategoryTemplateScalarFieldEnum]
-
-
-export const DbProductTemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  price: 'price',
-  categoryId: 'categoryId',
-  imageUrl: 'imageUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DbProductTemplateScalarFieldEnum = (typeof DbProductTemplateScalarFieldEnum)[keyof typeof DbProductTemplateScalarFieldEnum]
-
-
 export const DbTableScalarFieldEnum = {
   id: 'id',
   name: 'name',
   status: 'status',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -232,7 +302,8 @@ export type DbTableScalarFieldEnum = (typeof DbTableScalarFieldEnum)[keyof typeo
 
 export const DbOrderScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
+  createdById: 'createdById',
   tableId: 'tableId',
   tableName: 'tableName',
   status: 'status',
@@ -272,7 +343,7 @@ export type DbOrderItemScalarFieldEnum = (typeof DbOrderItemScalarFieldEnum)[key
 
 export const DbPrinterConfigScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   deviceKey: 'deviceKey',
   ipAddress: 'ipAddress',
   port: 'port',
@@ -286,7 +357,7 @@ export type DbPrinterConfigScalarFieldEnum = (typeof DbPrinterConfigScalarFieldE
 
 export const DbPrintJobScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   payload: 'payload',
   status: 'status',
   attempts: 'attempts',
@@ -299,9 +370,9 @@ export const DbPrintJobScalarFieldEnum = {
 export type DbPrintJobScalarFieldEnum = (typeof DbPrintJobScalarFieldEnum)[keyof typeof DbPrintJobScalarFieldEnum]
 
 
-export const DbBarSubscriptionScalarFieldEnum = {
+export const DbEstablishmentSubscriptionScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   plan: 'plan',
   status: 'status',
   stripeCustomerId: 'stripeCustomerId',
@@ -319,12 +390,12 @@ export const DbBarSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type DbBarSubscriptionScalarFieldEnum = (typeof DbBarSubscriptionScalarFieldEnum)[keyof typeof DbBarSubscriptionScalarFieldEnum]
+export type DbEstablishmentSubscriptionScalarFieldEnum = (typeof DbEstablishmentSubscriptionScalarFieldEnum)[keyof typeof DbEstablishmentSubscriptionScalarFieldEnum]
 
 
 export const DbTimeEntryScalarFieldEnum = {
   id: 'id',
-  barId: 'barId',
+  establishmentId: 'establishmentId',
   userId: 'userId',
   userSnapshot: 'userSnapshot',
   shiftId: 'shiftId',
@@ -371,19 +442,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

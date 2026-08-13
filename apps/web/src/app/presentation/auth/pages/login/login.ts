@@ -11,11 +11,13 @@ import {
 import { Router } from '@angular/router';
 import { Auth } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Spinner } from '../../../components/spinner/spinner';
 import { PageContainer } from '../../../components/page-container/page-container';
 
 @Component({
   selector: 'coaster-login',
   imports: [
+    Spinner,
     MatCard,
     MatCardContent,
     MatCardHeader,
@@ -30,7 +32,7 @@ import { PageContainer } from '../../../components/page-container/page-container
     class: 'min-h-screen w-full flex flex-col justify-center items-center bg-background',
   },
   template: `
-    <coaster-page-container size="sm">
+    <coaster-page-container>
       <div class="flex flex-col items-center justify-center min-h-[80vh]">
         <div class="flex flex-col gap-2 text-center mb-6">
           <h1 class="heading-1 font-extrabold text-primary text-3xl sm:text-4xl tracking-tight">
@@ -64,6 +66,9 @@ import { PageContainer } from '../../../components/page-container/page-container
               data-testid="google-signin-btn"
               class="w-full py-4 text-base font-medium rounded-full"
             >
+              @if (isLoading()) {
+                <coaster-spinner class="mr-2" />
+              }
               {{ 'auth.login.google_button' | translate }}
             </button>
           </mat-card-actions>
@@ -83,7 +88,7 @@ export default class Login {
 
     try {
       await this.#auth.loginWithGoogle();
-      await this.#router.navigate(['/bars/select']);
+      await this.#router.navigate(['/establishments/select']);
     } finally {
       this.isLoading.set(false);
     }

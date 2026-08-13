@@ -1,12 +1,12 @@
 import { TableStatus } from '../constants/table-status.type';
-import { BarId } from './bar.interface';
+import { EstablishmentId } from './establishment.interface';
 import { Brand } from './brand.type';
 
 export type TableId = Brand<string, 'TableId'>;
 
 export interface Table {
   id: TableId;
-  barId: BarId;
+  establishmentId: EstablishmentId;
   name: string;
   status: TableStatus;
   createdAt?: string;

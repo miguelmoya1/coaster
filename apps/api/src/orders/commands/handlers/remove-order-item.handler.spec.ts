@@ -1,5 +1,5 @@
 import type { Order } from '@coaster/common';
-import { asBarId, asOrderId, asOrderItemId, OrderStatus } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, OrderStatus } from '@coaster/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,7 +35,7 @@ describe('RemoveOrderItemHandler', () => {
   it('should remove item', async () => {
     const order = {
       id: 'order-1',
-      barId: 'bar-1',
+      establishmentId: 'establishment-1',
       status: OrderStatus.OPEN,
       tableId: 'table-1',
       createdAt: new Date(),
@@ -73,16 +73,18 @@ describe('RemoveOrderItemHandler', () => {
       items: [order.items[1]],
     });
 
-    await handler.execute(new RemoveOrderItemCommand(asBarId('bar-1'), asOrderId('order-1'), asOrderItemId('item-1')));
+    await handler.execute(
+      new RemoveOrderItemCommand(asEstablishmentId('establishment-1'), asOrderId('order-1'), asOrderItemId('item-1')),
+    );
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        barId: 'bar-1',
+        establishmentId: 'establishment-1',
         removedItem: { productId: 'p1', quantity: 1 },
       }),
     );
     expect(eventBus.publish).toHaveBeenCalledWith(
-      new OrderUpdatedEvent(asBarId('bar-1'), expect.any(Object) as unknown as Order),
+      new OrderUpdatedEvent(asEstablishmentId('establishment-1'), expect.any(Object) as unknown as Order),
     );
   });
 });

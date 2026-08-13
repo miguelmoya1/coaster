@@ -1,0 +1,52 @@
+<mat-dialog-content class="flex flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h2 class="heading-2 font-black text-on-surface">
+      {{ 'onboarding.title' | translate: { name: data.establishmentName } }}
+    </h2>
+    <p class="text-sm text-on-surface-variant">{{ 'onboarding.subtitle' | translate }}</p>
+  </header>
+
+  @if (step() === 'type') {
+    <p class="font-bold text-on-surface">{{ 'onboarding.question_type' | translate }}</p>
+
+    <div class="flex flex-col gap-2">
+      @for (type of types; track type.key) {
+        <button
+          type="button"
+          class="flex items-start gap-3 text-left p-4 rounded-2xl bg-surface-container border border-outline-variant/20 hover:border-primary transition-colors disabled:opacity-50"
+          [disabled]="isSaving()"
+          (click)="choose(type)"
+        >
+          <mat-icon class="text-primary shrink-0">storefront</mat-icon>
+          <span class="min-w-0">
+            <span class="block font-bold text-on-surface">{{ type.labelKey | translate }}</span>
+            <span class="block text-sm text-on-surface-variant">{{ type.descriptionKey | translate }}</span>
+          </span>
+        </button>
+      }
+    </div>
+  } @else {
+    <p class="font-bold text-on-surface">{{ 'onboarding.question_import' | translate }}</p>
+
+    <div class="flex flex-col gap-2">
+      <button mat-flat-button [disabled]="isSaving()" (click)="finish(true)">
+        {{ 'onboarding.import_yes' | translate }}
+      </button>
+      <button mat-button [disabled]="isSaving()" (click)="finish(false)">
+        {{ 'onboarding.import_no' | translate }}
+      </button>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="flex justify-between items-center">
+  @if (step() === 'catalogue' && !isSaving()) {
+    <button mat-button (click)="back()">{{ 'onboarding.back' | translate }}</button>
+  } @else {
+    <span></span>
+  }
+
+  @if (isSaving()) {
+    <coaster-spinner [diameter]="24" />
+  }
+</mat-dialog-actions>

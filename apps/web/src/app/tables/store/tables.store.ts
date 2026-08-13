@@ -1,26 +1,26 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { BarId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
+import type { EstablishmentId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
 import { ErrorCodes, TableStatus } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
-import { BarTables } from '../services/bar-tables';
+import { EstablishmentTables } from '../services/establishment-tables';
 import { CreateTable } from '../services/create-table';
 import { DeleteTable } from '../services/delete-table';
 import { UpdateTable } from '../services/update-table';
 
 @Service()
 export class TablesStore {
-  readonly #barTables = inject(BarTables);
+  readonly #establishmentTables = inject(EstablishmentTables);
   readonly #createTable = inject(CreateTable);
   readonly #deleteTable = inject(DeleteTable);
   readonly #updateTable = inject(UpdateTable);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #currentTableId = signal<TableId | undefined>(undefined);
 
-  readonly #listResource = httpResource(() => this.#barTables.execute(this.#currentBarId()), {
+  readonly #listResource = httpResource(() => this.#establishmentTables.execute(this.#currentEstablishmentId()), {
     parse: tableArrayMapper,
   });
 
@@ -63,7 +63,7 @@ export class TablesStore {
 
     effect(() => {
       const created = this.#socketService.tableCreated();
-      if (created && this.#currentBarId() === created.barId) {
+      if (created && this.#currentEstablishmentId() === created.establishmentId) {
         this.#listResource.update((tables) => {
           if (!tables) {
             return [created];
@@ -76,7 +76,7 @@ export class TablesStore {
 
     effect(() => {
       const updated = this.#socketService.tableUpdated();
-      if (updated && this.#currentBarId() === updated.barId) {
+      if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         this.#listResource.update((tables) => {
           if (!tables) {
             return undefined;
@@ -103,8 +103,8 @@ export class TablesStore {
     this.#listResource.reload();
   }
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public setTableId(tableId: TableId | undefined) {
@@ -112,22 +112,22 @@ export class TablesStore {
   }
 
   public async create(createTableDto: CreateTableDto) {
-    const barId = this.#currentBarId();
+    const establishmentId = this.#currentEstablishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
-    await this.#createTable.execute(barId, createTableDto);
+    await this.#createTable.execute(establishmentId, createTableDto);
     this.reload();
   }
 
   public async delete(tableId: TableId) {
-    const barId = this.#currentBarId();
+    const establishmentId = this.#currentEstablishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
-    await this.#deleteTable.execute(barId, tableId);
+    await this.#deleteTable.execute(establishmentId, tableId);
     this.#listResource.update((tables) => {
       if (!tables) {
         return undefined;
@@ -137,12 +137,12 @@ export class TablesStore {
   }
 
   public async update(tableId: TableId, updateTableDto: UpdateTableDto) {
-    const barId = this.#currentBarId();
+    const establishmentId = this.#currentEstablishmentId();
 
-    if (!barId) {
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+    if (!establishmentId) {
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
-    await this.#updateTable.execute(barId, tableId, updateTableDto);
+    await this.#updateTable.execute(establishmentId, tableId, updateTableDto);
     this.#listResource.update((tables) => {
       if (!tables) {
         return undefined;

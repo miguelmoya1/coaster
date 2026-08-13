@@ -1,0 +1,9 @@
+<coaster-page-container>
+  <coaster-page-header [title]="'nav.dashboard' | translate" [subtitle]="subtitleKey() | translate" />
+
+  <div class="flex flex-col gap-8" data-testid="dashboard-page">
+    @for (widget of widgets(); track widget) {
+      <ng-container *ngComponentOutlet="widget; inputs: widgetInputs()" />
+    }
+  </div>
+</coaster-page-container>

@@ -9,13 +9,13 @@
 * 🟢 You can import this file directly.
 */
 
-export const DbBarRole = {
+export const DbEstablishmentRole = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   STAFF: 'STAFF'
 } as const
 
-export type DbBarRole = (typeof DbBarRole)[keyof typeof DbBarRole]
+export type DbEstablishmentRole = (typeof DbEstablishmentRole)[keyof typeof DbEstablishmentRole]
 
 
 export const DbRole = {
@@ -24,6 +24,35 @@ export const DbRole = {
 } as const
 
 export type DbRole = (typeof DbRole)[keyof typeof DbRole]
+
+
+export const DbEstablishmentModule = {
+  TIME_TRACKING: 'TIME_TRACKING',
+  ORDERS: 'ORDERS',
+  INVENTORY: 'INVENTORY'
+} as const
+
+export type DbEstablishmentModule = (typeof DbEstablishmentModule)[keyof typeof DbEstablishmentModule]
+
+
+export const DbAllergen = {
+  GLUTEN: 'GLUTEN',
+  CRUSTACEANS: 'CRUSTACEANS',
+  EGGS: 'EGGS',
+  FISH: 'FISH',
+  PEANUTS: 'PEANUTS',
+  SOYBEANS: 'SOYBEANS',
+  MILK: 'MILK',
+  NUTS: 'NUTS',
+  CELERY: 'CELERY',
+  MUSTARD: 'MUSTARD',
+  SESAME: 'SESAME',
+  SULPHITES: 'SULPHITES',
+  LUPIN: 'LUPIN',
+  MOLLUSCS: 'MOLLUSCS'
+} as const
+
+export type DbAllergen = (typeof DbAllergen)[keyof typeof DbAllergen]
 
 
 export const DbSubscriptionPlan = {

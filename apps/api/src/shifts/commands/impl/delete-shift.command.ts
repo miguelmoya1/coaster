@@ -1,8 +1,8 @@
-import type { BarId, ShiftId } from '@coaster/common';
+import type { EstablishmentId, ShiftId } from '@coaster/common';
 
 export class DeleteShiftCommand {
   constructor(
-    public readonly barId: BarId,
+    public readonly establishmentId: EstablishmentId,
     public readonly shiftId: ShiftId,
   ) {}
 }

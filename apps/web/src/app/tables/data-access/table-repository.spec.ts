@@ -1,4 +1,4 @@
-import { asBarId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asTableId } from '@coaster/common';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -26,76 +26,76 @@ describe('TableRepository', () => {
 
   describe('routes', () => {
     it('should have the list route', () => {
-      expect(service.routes.list(asBarId('1'))).toBe('/bars/1/tables');
+      expect(service.routes.list(asEstablishmentId('1'))).toBe('/establishments/1/tables');
     });
 
     it('should have the create route', () => {
-      expect(service.routes.create(asBarId('1'))).toBe('/bars/1/tables');
+      expect(service.routes.create(asEstablishmentId('1'))).toBe('/establishments/1/tables');
     });
 
     it('should have the update route', () => {
-      expect(service.routes.update(asBarId('1'), asTableId('2'))).toBe('/bars/1/tables/2');
+      expect(service.routes.update(asEstablishmentId('1'), asTableId('2'))).toBe('/establishments/1/tables/2');
     });
 
     it('should have the delete route', () => {
-      expect(service.routes.delete(asBarId('1'), asTableId('2'))).toBe('/bars/1/tables/2');
+      expect(service.routes.delete(asEstablishmentId('1'), asTableId('2'))).toBe('/establishments/1/tables/2');
     });
   });
 
   describe('create', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const dto = { name: 'Mesa 1' };
 
     it('should call create endpoint', async () => {
-      const promise = service.create(barId, dto);
-      const req = httpMock.expectOne(service.routes.create(barId));
+      const promise = service.create(establishmentId, dto);
+      const req = httpMock.expectOne(service.routes.create(establishmentId));
       expect(req.request.method).toBe('POST');
       req.flush(null);
       await promise;
     });
 
     it('should return void', async () => {
-      const res = service.create(barId, dto);
-      httpMock.expectOne(service.routes.create(barId)).flush(null);
+      const res = service.create(establishmentId, dto);
+      httpMock.expectOne(service.routes.create(establishmentId)).flush(null);
       expect(await res).toBeNull();
     });
   });
 
   describe('update', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const tableId = asTableId('table-1');
     const dto = { name: 'Mesa Actualizada' };
 
     it('should call update endpoint', async () => {
-      const promise = service.update(barId, tableId, dto);
-      const req = httpMock.expectOne(service.routes.update(barId, tableId));
+      const promise = service.update(establishmentId, tableId, dto);
+      const req = httpMock.expectOne(service.routes.update(establishmentId, tableId));
       expect(req.request.method).toBe('PATCH');
       req.flush({ success: true });
       await promise;
     });
 
     it('should return success response', async () => {
-      const res = service.update(barId, tableId, dto);
-      httpMock.expectOne(service.routes.update(barId, tableId)).flush({ success: true });
+      const res = service.update(establishmentId, tableId, dto);
+      httpMock.expectOne(service.routes.update(establishmentId, tableId)).flush({ success: true });
       expect(await res).toEqual({ success: true });
     });
   });
 
   describe('delete', () => {
-    const barId = asBarId('bar-1');
+    const establishmentId = asEstablishmentId('establishment-1');
     const tableId = asTableId('table-1');
 
     it('should call delete endpoint', async () => {
-      const promise = service.delete(barId, tableId);
-      const req = httpMock.expectOne(service.routes.delete(barId, tableId));
+      const promise = service.delete(establishmentId, tableId);
+      const req = httpMock.expectOne(service.routes.delete(establishmentId, tableId));
       expect(req.request.method).toBe('DELETE');
       req.flush({ success: true });
       await promise;
     });
 
     it('should return delete response', async () => {
-      const res = service.delete(barId, tableId);
-      httpMock.expectOne(service.routes.delete(barId, tableId)).flush({ success: true });
+      const res = service.delete(establishmentId, tableId);
+      httpMock.expectOne(service.routes.delete(establishmentId, tableId)).flush({ success: true });
       expect(await res).toEqual({ success: true });
     });
   });

@@ -1,21 +1,21 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { BarId, Order } from '@coaster/common';
+import type { EstablishmentId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
-import { BarOrderHistory } from '../services/bar-order-history';
+import { EstablishmentOrderHistory } from '../services/establishment-order-history';
 
 @Service()
 export class OrderHistoryStore {
-  readonly #barOrderHistory = inject(BarOrderHistory);
+  readonly #establishmentOrderHistory = inject(EstablishmentOrderHistory);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #historyDate = signal<string>(new Date().toISOString().split('T')[0]);
 
   readonly #historyResource = httpResource(
-    () => this.#barOrderHistory.execute(this.#currentBarId(), this.#historyDate()),
+    () => this.#establishmentOrderHistory.execute(this.#currentEstablishmentId(), this.#historyDate()),
     {
       parse: (orders) => orderArrayMapper(orders),
     },
@@ -58,21 +58,21 @@ export class OrderHistoryStore {
 
     effect(() => {
       const created = this.#socketService.orderCreated();
-      if (created && this.#currentBarId() === created.barId) {
+      if (created && this.#currentEstablishmentId() === created.establishmentId) {
         upsertOrderIfMatchesDate(created);
       }
     });
 
     effect(() => {
       const updated = this.#socketService.orderUpdated();
-      if (updated && this.#currentBarId() === updated.barId) {
+      if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         upsertOrderIfMatchesDate(updated);
       }
     });
 
     effect(() => {
       const closed = this.#socketService.orderClosed();
-      if (closed && this.#currentBarId() === closed.barId) {
+      if (closed && this.#currentEstablishmentId() === closed.establishmentId) {
         upsertOrderIfMatchesDate(closed);
       }
     });
@@ -89,7 +89,7 @@ export class OrderHistoryStore {
 
     effect(() => {
       const itemAdded = this.#socketService.orderItemAdded();
-      if (itemAdded && this.#currentBarId() === itemAdded.barId) {
+      if (itemAdded && this.#currentEstablishmentId() === itemAdded.establishmentId) {
         upsertOrderIfMatchesDate(itemAdded);
       }
     });
@@ -105,8 +105,8 @@ export class OrderHistoryStore {
     });
   }
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public setHistoryDate(date: string) {

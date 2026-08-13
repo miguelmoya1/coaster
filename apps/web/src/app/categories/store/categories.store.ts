@@ -2,33 +2,33 @@ import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
 import {
   ErrorCodes,
-  type BarId,
+  type EstablishmentId,
   type CategoryId,
   type CreateCategoryDto,
   type UpdateCategoryDto,
 } from '@coaster/common';
 import { Socket } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
-import { BarCategories } from '../services/bar-categories';
+import { EstablishmentCategories } from '../services/establishment-categories';
 import { CreateCategory } from '../services/create-category';
 import { DeleteCategory } from '../services/delete-category';
 import { UpdateCategory } from '../services/update-category';
 
 @Service()
 export class CategoriesStore {
-  readonly #categories = inject(BarCategories);
+  readonly #categories = inject(EstablishmentCategories);
   readonly #createCategory = inject(CreateCategory);
   readonly #updateCategory = inject(UpdateCategory);
   readonly #deleteCategory = inject(DeleteCategory);
   readonly #socketService = inject(Socket);
 
-  readonly #currentBarId = signal<BarId | undefined>(undefined);
+  readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
-  readonly #categoriesResource = httpResource(() => this.#categories.execute(this.#currentBarId()), {
+  readonly #categoriesResource = httpResource(() => this.#categories.execute(this.#currentEstablishmentId()), {
     parse: categoryArrayMapper,
   });
 
-  public readonly currentBarId = this.#currentBarId.asReadonly();
+  public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
   public readonly list = this.#categoriesResource.asReadonly();
 
   constructor() {
@@ -72,8 +72,8 @@ export class CategoriesStore {
     });
   }
 
-  public setBarId(barId: BarId | undefined) {
-    this.#currentBarId.set(barId);
+  public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
+    this.#currentEstablishmentId.set(establishmentId);
   }
 
   public reloadCategories() {
@@ -81,35 +81,35 @@ export class CategoriesStore {
   }
 
   public async create(createCategoryDto: CreateCategoryDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reloadCategories();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#createCategory.execute(barId, createCategoryDto);
+    await this.#createCategory.execute(establishmentId, createCategoryDto);
     this.reloadCategories();
   }
 
   public async update(categoryId: CategoryId, updateCategoryDto: UpdateCategoryDto) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reloadCategories();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#updateCategory.execute(barId, categoryId, updateCategoryDto);
+    await this.#updateCategory.execute(establishmentId, categoryId, updateCategoryDto);
     this.reloadCategories();
   }
 
   public async delete(categoryId: CategoryId) {
-    const barId = this.#currentBarId();
-    if (!barId) {
+    const establishmentId = this.#currentEstablishmentId();
+    if (!establishmentId) {
       this.reloadCategories();
-      throw new Error(ErrorCodes.MISSING_BAR_ID);
+      throw new Error(ErrorCodes.MISSING_ESTABLISHMENT_ID);
     }
 
-    await this.#deleteCategory.execute(barId, categoryId);
+    await this.#deleteCategory.execute(establishmentId, categoryId);
     this.#categoriesResource.update((categories) => {
       if (!categories) {
         return undefined;

@@ -105,7 +105,7 @@ func TestRoutes_InsecureOptsIn(t *testing.T) {
 }
 
 func TestRoutes_JWTVerification(t *testing.T) {
-	svc := mustBuild(t, "--jwt-secret=test-secret", "--bar-id=bar-123",
+	svc := mustBuild(t, "--jwt-secret=test-secret", "--establishment-id=establishment-123",
 		"--printer-type=network", "--printer-path=127.0.0.1:9")
 	routes := svc.routes()
 
@@ -117,7 +117,7 @@ func TestRoutes_JWTVerification(t *testing.T) {
 	}
 
 	req = httptest.NewRequest(http.MethodPost, "/print", strings.NewReader("payload"))
-	req.Header.Set("Authorization", "Bearer "+token(t, "bar-123", "test-secret"))
+	req.Header.Set("Authorization", "Bearer "+token(t, "establishment-123", "test-secret"))
 	w = httptest.NewRecorder()
 	routes.ServeHTTP(w, req)
 	if w.Code == http.StatusUnauthorized {
@@ -125,16 +125,16 @@ func TestRoutes_JWTVerification(t *testing.T) {
 	}
 
 	req = httptest.NewRequest(http.MethodPost, "/print", strings.NewReader("payload"))
-	req.Header.Set("Authorization", "Bearer "+token(t, "another-bar", "test-secret"))
+	req.Header.Set("Authorization", "Bearer "+token(t, "another-establishment", "test-secret"))
 	w = httptest.NewRecorder()
 	routes.ServeHTTP(w, req)
 	if w.Code != http.StatusForbidden {
-		t.Errorf("expected 403 for another bar's token, got %d", w.Code)
+		t.Errorf("expected 403 for another establishment's token, got %d", w.Code)
 	}
 }
 
 func TestRoutes_Health(t *testing.T) {
-	svc := mustBuild(t, "--bar-id=bar-123")
+	svc := mustBuild(t, "--establishment-id=establishment-123")
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
@@ -148,8 +148,8 @@ func TestRoutes_Health(t *testing.T) {
 	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
 		t.Fatalf("health did not return JSON: %v", err)
 	}
-	if body["barId"] != "bar-123" {
-		t.Errorf("expected the bar id in the health payload, got %v", body["barId"])
+	if body["establishmentId"] != "establishment-123" {
+		t.Errorf("expected the establishment id in the health payload, got %v", body["establishmentId"])
 	}
 	if body["version"] == "" {
 		t.Error("expected a version in the health payload")
@@ -160,11 +160,11 @@ func TestRoutes_JSONPayloadReachesThePrinter(t *testing.T) {
 	svc := mustBuild(t, "--insecure", "--printer-type=network", "--printer-path=127.0.0.1:9")
 
 	body, _ := json.Marshal(escpos.TicketPayload{
-		Type:    "order",
-		BarName: "Test Bar",
-		Table:   "5",
-		Items:   []escpos.TicketItem{{Name: "Beer", Quantity: 1, Price: "3.50", Total: "3.50"}},
-		Total:   "3.50",
+		Type:              "order",
+		EstablishmentName: "Test Establishment",
+		Table:             "5",
+		Items:             []escpos.TicketItem{{Name: "Beer", Quantity: 1, Price: "3.50", Total: "3.50"}},
+		Total:             "3.50",
 	})
 
 	req := httptest.NewRequest(http.MethodPost, "/print", bytes.NewReader(body))
@@ -177,13 +177,13 @@ func TestRoutes_JSONPayloadReachesThePrinter(t *testing.T) {
 	}
 }
 
-func token(t *testing.T, barID, secret string) string {
+func token(t *testing.T, establishmentID, secret string) string {
 	t.Helper()
 
 	now := time.Now().Unix()
 	h := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
 	p := base64.RawURLEncoding.EncodeToString([]byte(
-		fmt.Sprintf(`{"barId":%q,"iat":%d,"exp":%d}`, barID, now, now+300)))
+		fmt.Sprintf(`{"establishmentId":%q,"iat":%d,"exp":%d}`, establishmentID, now, now+300)))
 
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write([]byte(h + "." + p))

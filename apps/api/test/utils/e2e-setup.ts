@@ -1,10 +1,17 @@
+import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
 import { CanActivate, ExecutionContext, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
-import { DbService, DbBarRole, DbSubscriptionPlan, DbSubscriptionStatus } from '../../src/core/db';
+import {
+  DbService,
+  DbEstablishmentModule,
+  DbEstablishmentRole,
+  DbSubscriptionPlan,
+  DbSubscriptionStatus,
+} from '../../src/core/db';
 import { WsAuthService } from '../../src/websockets/services';
 
 const TRIAL_DAYS = 14;
@@ -23,7 +30,7 @@ export class MockWsAuthService {
     return Promise.resolve(typeof token === 'string' && token.length > 0 ? mockUser.id : null);
   }
 
-  canAccessBar(): Promise<boolean> {
+  canAccessEstablishment(): Promise<boolean> {
     return Promise.resolve(true);
   }
 }
@@ -85,11 +92,15 @@ export class E2eTestSetup {
     this.prisma = this.app.get(DbService);
   }
 
-  async createBar(name = 'Test Bar', options: { ownerId?: string | null; role?: DbBarRole } = {}) {
+  async createEstablishment(
+    name = 'Test Establishment',
+    options: { ownerId?: string | null; role?: DbEstablishmentRole; modules?: EstablishmentModule[] } = {},
+  ) {
     const ownerId = options.ownerId === undefined ? mockUser.id : options.ownerId;
-    const role = options.role ?? DbBarRole.OWNER;
+    const role = options.role ?? DbEstablishmentRole.OWNER;
+    const modules = resolveModules(options.modules ?? DEFAULT_ESTABLISHMENT_MODULES);
 
-    return this.prisma.dbBar.create({
+    return this.prisma.dbEstablishment.create({
       data: {
         name,
         ...(ownerId ? { members: { create: { userId: ownerId, role } } } : {}),
@@ -100,6 +111,7 @@ export class E2eTestSetup {
             trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
         },
+        settings: { create: { modules: modules as DbEstablishmentModule[] } },
       },
     });
   }
@@ -109,6 +121,27 @@ export class E2eTestSetup {
     MockAuthGuard.users.set(user.id, { role: 'USER', ...user });
 
     return { 'x-e2e-user-id': user.id };
+  }
+
+  /**
+   * Inviting answers as soon as the command is accepted; the membership itself lands later, when the
+   * saga behind it has run. Tests that look at the row have to wait for it instead of assuming the
+   * response means it is there.
+   */
+  async waitForMembers(establishmentId: string, count: number) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const members = await this.prisma.dbEstablishmentMember.findMany({
+        where: { establishmentId, deletedAt: null },
+      });
+
+      if (members.length >= count) {
+        return members;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+
+    throw new Error(`Establishment ${establishmentId} never reached ${count} members`);
   }
 
   async teardown() {

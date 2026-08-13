@@ -20,7 +20,7 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
   async execute(command: CheckoutOrderCommand): Promise<void> {
     this.#logger.debug(`Executing checkoutOrder...`);
     const existingOrder = await this.readRepo.findById(command.orderId);
-    if (!existingOrder || existingOrder.barId !== command.barId) {
+    if (!existingOrder || existingOrder.establishmentId !== command.establishmentId) {
       throw new NotFoundException(ErrorCodes.ORDER_NOT_FOUND);
     }
     if (existingOrder.status !== OrderStatus.OPEN) {
@@ -31,7 +31,11 @@ export class CheckoutOrderHandler implements ICommandHandler<CheckoutOrderComman
     const mapped = OrdersMapper.toDomain(order);
     this.#logger.debug(`Publishing OrderClosedEvent...`);
     this._eventBus.publish(
-      new OrderClosedEvent(command.barId, mapped, existingOrder.tableId ? asTableId(existingOrder.tableId) : null),
+      new OrderClosedEvent(
+        command.establishmentId,
+        mapped,
+        existingOrder.tableId ? asTableId(existingOrder.tableId) : null,
+      ),
     );
   }
 }

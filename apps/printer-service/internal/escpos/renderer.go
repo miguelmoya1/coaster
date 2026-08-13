@@ -15,15 +15,15 @@ const (
 )
 
 type TicketPayload struct {
-	Type     string       `json:"type"`
-	BarName  string       `json:"barName"`
-	Table    string       `json:"table"`
-	Date     string       `json:"date"`
-	Items    []TicketItem `json:"items"`
-	Total    string       `json:"total"`
-	Currency string       `json:"currency"`
-	Notes    string       `json:"notes"`
-	RawText  string       `json:"rawText"`
+	Type              string       `json:"type"`
+	EstablishmentName string       `json:"establishmentName"`
+	Table             string       `json:"table"`
+	Date              string       `json:"date"`
+	Items             []TicketItem `json:"items"`
+	Total             string       `json:"total"`
+	Currency          string       `json:"currency"`
+	Notes             string       `json:"notes"`
+	RawText           string       `json:"rawText"`
 }
 
 type TicketItem struct {
@@ -84,7 +84,7 @@ func (r *Renderer) renderOrder(payload TicketPayload) []byte {
 	buf = append(buf, Init...)
 	buf = append(buf, SelectCodePage(r.codePage.Command)...)
 
-	if name := r.clean(payload.BarName); name != "" {
+	if name := r.clean(payload.EstablishmentName); name != "" {
 		buf = append(buf, AlignCenter...)
 		buf = append(buf, BoldOn...)
 		buf = append(buf, DoubleHeight...)

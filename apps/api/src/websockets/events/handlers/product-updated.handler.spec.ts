@@ -1,8 +1,8 @@
-import { SocketEvents, asBarId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId } from '@coaster/common';
 import { ProductUpdatedEvent } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BarGateway } from '../../bar.gateway';
+import { EstablishmentGateway } from '../../establishment.gateway';
 import { ProductUpdatedHandler } from './product-updated.handler';
 
 describe('ProductUpdatedHandler', () => {
@@ -16,7 +16,7 @@ describe('ProductUpdatedHandler', () => {
       providers: [
         ProductUpdatedHandler,
         {
-          provide: BarGateway,
+          provide: EstablishmentGateway,
           useValue: {
             server: {
               to: mockTo,
@@ -30,13 +30,13 @@ describe('ProductUpdatedHandler', () => {
     vi.clearAllMocks();
   });
 
-  it('should emit PRODUCT_UPDATED event to the correct bar room', () => {
-    const barId = asBarId('bar-1');
+  it('should emit PRODUCT_UPDATED event to the correct establishment room', () => {
+    const establishmentId = asEstablishmentId('establishment-1');
     const productData = { id: 'prod-1', name: 'Test' } as any;
-    const event = new ProductUpdatedEvent(barId, productData);
+    const event = new ProductUpdatedEvent(establishmentId, productData);
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('bar-1');
+    expect(mockTo).toHaveBeenCalledWith('establishment-1');
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.productUpdated, productData);
   });
 });

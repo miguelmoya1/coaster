@@ -1,4 +1,4 @@
-import { ShiftExchangeStatus, asBarId } from '@coaster/common';
+import { ShiftExchangeStatus, asEstablishmentId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShiftExchangesReadRepository } from '../../data-access/shift-exchanges.read.repository';
@@ -8,7 +8,7 @@ import { GetPendingExchangesHandler } from './get-pending-exchanges.handler';
 describe('GetPendingExchangesHandler', () => {
   let handler: GetPendingExchangesHandler;
   const repository = {
-    findPendingByBarId: vi.fn(),
+    findPendingByEstablishmentId: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,7 +20,7 @@ describe('GetPendingExchangesHandler', () => {
   });
 
   it('should call the repository', async () => {
-    repository.findPendingByBarId.mockResolvedValue([
+    repository.findPendingByEstablishmentId.mockResolvedValue([
       {
         id: 'exc-1',
         shiftId: 'shift-1',
@@ -33,7 +33,7 @@ describe('GetPendingExchangesHandler', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           notes: '',
-          barId: 'bar-1',
+          establishmentId: 'establishment-1',
           userId: 'user-1',
         },
         createdAt: new Date(),
@@ -41,9 +41,9 @@ describe('GetPendingExchangesHandler', () => {
       },
     ]);
 
-    const result = await handler.execute(new GetPendingExchangesQuery(asBarId('bar-1')));
+    const result = await handler.execute(new GetPendingExchangesQuery(asEstablishmentId('establishment-1')));
 
-    expect(repository.findPendingByBarId).toHaveBeenCalledWith('bar-1');
+    expect(repository.findPendingByEstablishmentId).toHaveBeenCalledWith('establishment-1');
     expect(result).toMatchObject([
       {
         id: 'exc-1',

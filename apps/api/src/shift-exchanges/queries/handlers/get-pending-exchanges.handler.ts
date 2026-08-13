@@ -9,7 +9,7 @@ export class GetPendingExchangesHandler implements IQueryHandler<GetPendingExcha
   constructor(private readonly readRepo: ShiftExchangesReadRepository) {}
 
   async execute(query: GetPendingExchangesQuery): Promise<ShiftExchange[]> {
-    const exchanges = await this.readRepo.findPendingByBarId(query.barId);
+    const exchanges = await this.readRepo.findPendingByEstablishmentId(query.establishmentId);
     return exchanges.map((e) => ShiftExchangesMapper.toDomain(e));
   }
 }

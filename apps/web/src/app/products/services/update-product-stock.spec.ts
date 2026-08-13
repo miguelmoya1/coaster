@@ -1,4 +1,4 @@
-import { asBarId, asCategoryId, asProductId } from '@coaster/common';
+import { asEstablishmentId, asCategoryId, asProductId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import type { Product, UpdateProductStockDto } from '@coaster/common';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
@@ -16,6 +16,7 @@ describe('UpdateProductStock', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
+    allergens: [],
     lastUpdated: new Date().toISOString(),
   };
 
@@ -37,14 +38,14 @@ describe('UpdateProductStock', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return the result', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const productId = asProductId('prod-1');
       const dto: UpdateProductStockDto = { currentStock: 15 };
       productRepoMock['updateStock'].mockResolvedValue(mockProduct);
 
-      const result = await service.execute(barId, productId, dto);
+      const result = await service.execute(establishmentId, productId, dto);
 
-      expect(productRepoMock['updateStock']).toHaveBeenCalledWith(barId, productId, dto);
+      expect(productRepoMock['updateStock']).toHaveBeenCalledWith(establishmentId, productId, dto);
       expect(result).toEqual(mockProduct);
     });
   });

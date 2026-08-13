@@ -6,7 +6,7 @@ export const checkIsTable = (table: unknown): table is Table => {
     typeof table === 'object' &&
     table !== null &&
     typeof t['id'] === 'string' &&
-    typeof t['barId'] === 'string' &&
+    typeof t['establishmentId'] === 'string' &&
     typeof t['name'] === 'string' &&
     typeof t['status'] === 'string'
   );

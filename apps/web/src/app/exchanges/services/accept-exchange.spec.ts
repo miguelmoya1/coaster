@@ -1,4 +1,4 @@
-import { asBarId, asShiftExchangeId } from '@coaster/common';
+import { asEstablishmentId, asShiftExchangeId } from '@coaster/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ExchangeRepository } from '../data-access/exchange-repository';
@@ -26,13 +26,13 @@ describe('AcceptExchange', () => {
 
   describe('execute', () => {
     it('should delegate to repository and return void', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const exchangeId = asShiftExchangeId('exchange-1');
       exchangeRepoMock['accept'].mockResolvedValue(undefined);
 
-      const result = await service.execute(barId, exchangeId);
+      const result = await service.execute(establishmentId, exchangeId);
 
-      expect(exchangeRepoMock['accept']).toHaveBeenCalledWith(barId, exchangeId);
+      expect(exchangeRepoMock['accept']).toHaveBeenCalledWith(establishmentId, exchangeId);
       expect(result).toBeUndefined();
     });
   });

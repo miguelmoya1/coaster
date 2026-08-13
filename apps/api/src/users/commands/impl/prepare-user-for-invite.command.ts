@@ -1,9 +1,13 @@
-import type { BarId } from '@coaster/common';
-import { BarRole } from '@coaster/common';
+import type { EstablishmentId } from '@coaster/common';
+import { EstablishmentRole } from '@coaster/common';
 
 export class PrepareUserForInviteCommand {
   constructor(
     public readonly email: string,
-    public readonly extraData: { readonly barId: BarId; readonly role?: BarRole; readonly inviterLanguage: string },
+    public readonly extraData: {
+      readonly establishmentId: EstablishmentId;
+      readonly role?: EstablishmentRole;
+      readonly inviterLanguage: string;
+    },
   ) {}
 }

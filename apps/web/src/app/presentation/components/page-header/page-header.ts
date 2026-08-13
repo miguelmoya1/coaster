@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
   imports: [MatIcon, MatIconButton, RouterLink],
   template: `
     <div
-      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 pb-4 border-b border-outline-variant/40"
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4 sm:mt-6 mb-6 sm:mb-8 pb-4 border-b border-outline-variant/40"
     >
       <div class="flex items-start gap-3 min-w-0">
         @if (backUrl(); as url) {
@@ -33,7 +33,7 @@ import { RouterLink } from '@angular/router';
             </div>
           }
 
-          <h1 class="heading-1 font-bold text-on-surface text-2xl sm:text-3xl tracking-tight truncate">
+          <h1 class="heading-1 font-bold text-on-surface max-sm:text-2xl! tracking-tight truncate">
             {{ title() }}
           </h1>
 

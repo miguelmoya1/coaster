@@ -7,10 +7,10 @@ import { GrantPlanDialog, type GrantPlanResult } from './grant-plan-dialog';
 export class GrantPlanDialogService {
   readonly #dialog = inject(MatDialog);
 
-  async open(barName: string): Promise<GrantPlanResult | null> {
+  async open(establishmentName: string): Promise<GrantPlanResult | null> {
     const dialogRef: MatDialogRef<GrantPlanDialog, GrantPlanResult> = this.#dialog.open(GrantPlanDialog, {
       bindings: [
-        inputBinding('barName', () => barName),
+        inputBinding('establishmentName', () => establishmentName),
         outputBinding<GrantPlanResult>('confirmed', (result) => dialogRef.close(result)),
         outputBinding('canceled', () => dialogRef.close(undefined)),
       ],

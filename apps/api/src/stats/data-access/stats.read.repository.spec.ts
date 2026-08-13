@@ -1,4 +1,4 @@
-import { asBarId } from '@coaster/common';
+import { asEstablishmentId } from '@coaster/common';
 import { DbOrderStatus, DbService } from '@coaster/core/db';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -33,16 +33,16 @@ describe('StatsReadRepository', () => {
 
   describe('findClosedOrdersForStats', () => {
     it('should call dbOrder.findMany with correct parameters', async () => {
-      const barId = asBarId('bar-1');
+      const establishmentId = asEstablishmentId('establishment-1');
       const startOfPrevYear = new Date('2023-01-01');
       const expectedResult = [{ amountPaidCash: 100, amountPaidCard: 0, tipAmount: 0, createdAt: new Date() }];
       vi.mocked(dbService.dbOrder.findMany).mockResolvedValue(expectedResult as any);
 
-      const result = await repository.findClosedOrdersForStats(barId, startOfPrevYear);
+      const result = await repository.findClosedOrdersForStats(establishmentId, startOfPrevYear);
 
       expect(dbService.dbOrder.findMany).toHaveBeenCalledWith({
         where: {
-          barId,
+          establishmentId,
           status: DbOrderStatus.CLOSED,
           createdAt: { gte: startOfPrevYear },
         },

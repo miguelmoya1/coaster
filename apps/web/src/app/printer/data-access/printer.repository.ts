@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { EnqueuePrintJobResponseDto, PrinterStatusDto, PrintJobDto, PrintTicketPayloadDto } from '@coaster/common';
+import type {
+  EnqueuePrintJobResponseDto,
+  PrinterPairingCodeResponse,
+  PrintJobDto,
+  PrintTicketPayloadDto,
+} from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -8,25 +13,29 @@ export class PrinterRepository {
   readonly #http = inject(HttpClient);
 
   public readonly routes = {
-    print: (barId: string) => `/bars/${barId}/printer/jobs`,
-    job: (barId: string, jobId: string) => `/bars/${barId}/printer/jobs/${jobId}`,
-    status: (barId: string) => `/bars/${barId}/printer/status`,
-    deviceKey: (barId: string) => `/bars/${barId}/printer/device-key`,
+    print: (establishmentId: string) => `/establishments/${establishmentId}/printer/jobs`,
+    job: (establishmentId: string, jobId: string) => `/establishments/${establishmentId}/printer/jobs/${jobId}`,
+    status: (establishmentId: string) => `/establishments/${establishmentId}/printer/status`,
+    deviceKey: (establishmentId: string) => `/establishments/${establishmentId}/printer/device-key`,
+    pairing: (establishmentId: string) => `/establishments/${establishmentId}/printer/pairing`,
   };
 
-  public async printTicket(barId: string, payload: PrintTicketPayloadDto): Promise<EnqueuePrintJobResponseDto> {
-    return firstValueFrom(this.#http.post<EnqueuePrintJobResponseDto>(this.routes.print(barId), payload));
+  public async issuePairing(establishmentId: string): Promise<PrinterPairingCodeResponse> {
+    return firstValueFrom(this.#http.post<PrinterPairingCodeResponse>(this.routes.pairing(establishmentId), {}));
   }
 
-  public async getJob(barId: string, jobId: string): Promise<PrintJobDto> {
-    return firstValueFrom(this.#http.get<PrintJobDto>(this.routes.job(barId, jobId)));
+  public async printTicket(
+    establishmentId: string,
+    payload: PrintTicketPayloadDto,
+  ): Promise<EnqueuePrintJobResponseDto> {
+    return firstValueFrom(this.#http.post<EnqueuePrintJobResponseDto>(this.routes.print(establishmentId), payload));
   }
 
-  public async getStatus(barId: string): Promise<PrinterStatusDto> {
-    return firstValueFrom(this.#http.get<PrinterStatusDto>(this.routes.status(barId)));
+  public async getJob(establishmentId: string, jobId: string): Promise<PrintJobDto> {
+    return firstValueFrom(this.#http.get<PrintJobDto>(this.routes.job(establishmentId, jobId)));
   }
 
-  public async generateDeviceKey(barId: string): Promise<{ deviceKey: string }> {
-    return firstValueFrom(this.#http.post<{ deviceKey: string }>(this.routes.deviceKey(barId), {}));
+  public async generateDeviceKey(establishmentId: string): Promise<{ deviceKey: string }> {
+    return firstValueFrom(this.#http.post<{ deviceKey: string }>(this.routes.deviceKey(establishmentId), {}));
   }
 }

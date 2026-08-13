@@ -1,9 +1,9 @@
 import { AdminModule } from '@coaster/admin';
 import { AiModule } from '@coaster/ai';
 import { AuthModule } from '@coaster/auth';
-import { BarMembersModule } from '@coaster/bar-members';
-import { BarSubscriptionModule } from '@coaster/bar-subscription';
-import { BarsModule } from '@coaster/bars';
+import { EstablishmentMembersModule } from '@coaster/establishment-members';
+import { EstablishmentSubscriptionModule } from '@coaster/establishment-subscription';
+import { EstablishmentsModule } from '@coaster/establishments';
 import { CategoriesModule } from '@coaster/categories';
 import { SecurityModule } from '@coaster/core';
 import { DbModule } from '@coaster/core/db';
@@ -17,7 +17,8 @@ import { ShiftsModule } from '@coaster/shifts';
 import { StatsModule } from '@coaster/stats';
 import { StripeModule } from '@coaster/stripe';
 import { TablesModule } from '@coaster/tables';
-import { TemplatesModule } from '@coaster/templates';
+import { CatalogueModule } from '@coaster/catalogue';
+import { MenuModule } from '@coaster/menu';
 import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
 import { WebsocketsModule } from '@coaster/websockets';
@@ -40,15 +41,16 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     WebsocketsModule,
     AuthModule,
     UserModule,
-    BarsModule,
-    BarSubscriptionModule,
-    BarMembersModule,
+    EstablishmentsModule,
+    EstablishmentSubscriptionModule,
+    EstablishmentMembersModule,
     CategoriesModule,
     ProductsModule,
     ShiftsModule,
     ShiftExchangesModule,
     TimeTrackingModule,
-    TemplatesModule,
+    CatalogueModule,
+    MenuModule,
     TablesModule,
     OrdersModule,
     StatsModule,

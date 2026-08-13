@@ -2,7 +2,7 @@ import type { Order, OrderAdjustment, OrderItem } from '@coaster/common';
 import {
   asAdjustmentTarget,
   asAdjustmentType,
-  asBarId,
+  asEstablishmentId,
   asDeliveryStatus,
   asOrderAdjustmentId,
   asOrderId,
@@ -55,7 +55,7 @@ export const OrdersMapper = {
 
     return {
       id: asOrderId(dbOrder.id),
-      barId: asBarId(dbOrder.barId),
+      establishmentId: asEstablishmentId(dbOrder.establishmentId),
       tableId: dbOrder.tableId ? asTableId(dbOrder.tableId) : undefined,
       tableName: dbOrder.tableName ?? dbOrder.table?.name,
       status: asOrderStatus(dbOrder.status),

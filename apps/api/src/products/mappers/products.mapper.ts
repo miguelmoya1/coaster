@@ -1,4 +1,4 @@
-import type { Product } from '@coaster/common';
+import type { Allergen, Product } from '@coaster/common';
 import { asCategoryId, asProductId } from '@coaster/common';
 import { DbProduct as ProductDb } from '@coaster/core/db';
 
@@ -12,6 +12,7 @@ export const ProductsMapper = {
       currentStock: dbProduct.currentStock,
       minStockAlert: dbProduct.minStockAlert,
       imageUrl: dbProduct.imageUrl ?? undefined,
+      allergens: (dbProduct.allergens ?? []) as Allergen[],
       lastUpdated: dbProduct.updatedAt.toISOString(),
     };
   },

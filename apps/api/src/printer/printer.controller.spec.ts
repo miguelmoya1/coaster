@@ -1,5 +1,5 @@
 import { FirebaseAuthGuard } from '@coaster/auth';
-import { BarPermissionsGuard } from '@coaster/core';
+import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import {
   BadRequestException,
   CanActivate,
@@ -39,7 +39,9 @@ describe('Printer Controllers', () => {
     })
       .overrideGuard(FirebaseAuthGuard)
       .useValue(mockGuard)
-      .overrideGuard(BarPermissionsGuard)
+      .overrideGuard(EstablishmentPermissionsGuard)
+      .useValue(mockGuard)
+      .overrideGuard(EstablishmentModulesGuard)
       .useValue(mockGuard)
       .compile();
 
@@ -73,7 +75,10 @@ describe('Printer Controllers', () => {
     describe('registerIp', () => {
       it('should throw UnauthorizedException if device key header is missing', async () => {
         await expect(
-          printerController.registerIp(undefined, { barId: 'bar-1' as any, ipAddress: '192.168.1.100' }),
+          printerController.registerIp(undefined, {
+            establishmentId: 'establishment-1' as any,
+            ipAddress: '192.168.1.100',
+          }),
         ).rejects.toThrow(UnauthorizedException);
       });
 
@@ -81,14 +86,14 @@ describe('Printer Controllers', () => {
         commandBus.execute.mockResolvedValue(undefined);
 
         await printerController.registerIp('my-device-key', {
-          barId: 'bar-1' as any,
+          establishmentId: 'establishment-1' as any,
           ipAddress: '192.168.1.100',
           port: 9090,
         });
 
         const command = commandBus.execute.mock.calls[0][0] as RegisterPrinterIpCommand;
         expect(command).toBeInstanceOf(RegisterPrinterIpCommand);
-        expect(command.barId).toBe('bar-1');
+        expect(command.establishmentId).toBe('establishment-1');
         expect(command.ipAddress).toBe('192.168.1.100');
         expect(command.port).toBe(9090);
         expect(command.deviceKey).toBe('my-device-key');
@@ -99,7 +104,7 @@ describe('Printer Controllers', () => {
 
         await expect(
           printerController.registerIp('wrong-key', {
-            barId: 'bar-1' as any,
+            establishmentId: 'establishment-1' as any,
             ipAddress: '192.168.1.100',
           }),
         ).rejects.toThrow(ForbiddenException);
@@ -112,7 +117,7 @@ describe('Printer Controllers', () => {
         queryBus.execute.mockResolvedValue(job);
         const reply = { status: vi.fn() };
 
-        const result = await printerController.nextJob('key', 'bar-1' as any, reply as any);
+        const result = await printerController.nextJob('key', 'establishment-1' as any, reply as any);
 
         expect(queryBus.execute).toHaveBeenCalledWith(expect.any(ClaimNextPrintJobQuery));
         expect(result).toEqual(job);
@@ -123,13 +128,13 @@ describe('Printer Controllers', () => {
         queryBus.execute.mockResolvedValue(null);
         const reply = { status: vi.fn() };
 
-        const result = await printerController.nextJob('key', 'bar-1' as any, reply as any);
+        const result = await printerController.nextJob('key', 'establishment-1' as any, reply as any);
 
         expect(result).toBeUndefined();
         expect(reply.status).toHaveBeenCalledWith(204);
       });
 
-      it('should require a barId', async () => {
+      it('should require an establishmentId', async () => {
         const reply = { status: vi.fn() };
 
         await expect(printerController.nextJob('key', '' as any, reply as any)).rejects.toThrow(BadRequestException);
@@ -140,7 +145,10 @@ describe('Printer Controllers', () => {
       it('should forward the reported result', async () => {
         commandBus.execute.mockResolvedValue(undefined);
 
-        await printerController.reportResult('key', 'bar-1' as any, 'job-1', { status: 'failed', error: 'no paper' });
+        await printerController.reportResult('key', 'establishment-1' as any, 'job-1', {
+          status: 'failed',
+          error: 'no paper',
+        });
 
         const command = commandBus.execute.mock.calls[0][0] as ReportPrintJobResultCommand;
         expect(command).toBeInstanceOf(ReportPrintJobResultCommand);
@@ -156,7 +164,10 @@ describe('Printer Controllers', () => {
       it('should queue a ticket and return its job id', async () => {
         commandBus.execute.mockResolvedValue({ jobId: 'job-1' });
 
-        const result = await connectionController.print('bar-1' as any, { type: 'order', total: '9.00' } as any);
+        const result = await connectionController.print(
+          'establishment-1' as any,
+          { type: 'order', total: '9.00' } as any,
+        );
 
         expect(commandBus.execute).toHaveBeenCalledWith(expect.any(EnqueuePrintJobCommand));
         expect(result).toEqual({ jobId: 'job-1' });
@@ -168,7 +179,7 @@ describe('Printer Controllers', () => {
         const expected = { ipAddress: '192.168.1.100', port: 8080, token: 'jwt-token' };
         queryBus.execute.mockResolvedValue(expected);
 
-        const result = await connectionController.getConnection('bar-1' as any);
+        const result = await connectionController.getConnection('establishment-1' as any);
 
         expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetPrinterConnectionQuery));
         expect(result).toEqual(expected);
@@ -177,14 +188,14 @@ describe('Printer Controllers', () => {
       it('should propagate NotFoundException if printer not registered', async () => {
         queryBus.execute.mockRejectedValue(new NotFoundException('Printer not connected'));
 
-        await expect(connectionController.getConnection('bar-1' as any)).rejects.toThrow(NotFoundException);
+        await expect(connectionController.getConnection('establishment-1' as any)).rejects.toThrow(NotFoundException);
       });
     });
 
     describe('getStatus', () => {
       it('should return printer status', async () => {
         const expected = {
-          barId: 'bar-1',
+          establishmentId: 'establishment-1',
           isOnline: true,
           ipAddress: '192.168.1.100',
           port: 8080,
@@ -192,7 +203,7 @@ describe('Printer Controllers', () => {
         };
         queryBus.execute.mockResolvedValue(expected);
 
-        const result = await connectionController.getStatus('bar-1' as any);
+        const result = await connectionController.getStatus('establishment-1' as any);
         expect(result).toEqual(expected);
       });
     });
@@ -201,7 +212,7 @@ describe('Printer Controllers', () => {
       it('should return the issued device key', async () => {
         commandBus.execute.mockResolvedValue({ deviceKey: 'uuid-key-123' });
 
-        const result = await connectionController.generateDeviceKey('bar-1' as any);
+        const result = await connectionController.generateDeviceKey('establishment-1' as any);
         expect(result.deviceKey).toBe('uuid-key-123');
       });
     });

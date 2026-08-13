@@ -4,7 +4,7 @@ import {
   AdjustProductStockCommand,
   CreateProductCommand,
   DeleteProductCommand,
-  GetProductsByBarIdQuery,
+  GetProductsByEstablishmentIdQuery,
   UpdateProductCommand,
   UpdateProductStockCommand,
 } from '@coaster/products';
@@ -21,7 +21,7 @@ export const createProductTools = (context: AiToolsContext) => {
   return {
     listProducts: tool({
       description:
-        'List the products of the bar with their UUID, price in euros, current stock and minimum stock alert. Use lowStockOnly to answer questions like "¿qué productos están bajo mínimos?" or "¿de qué me estoy quedando sin stock?".',
+        'List the products of the establishment with their UUID, price in euros, current stock and minimum stock alert. Use lowStockOnly to answer questions like "¿qué productos están bajo mínimos?" or "¿de qué me estoy quedando sin stock?".',
       inputSchema: zodSchema(
         z.object({
           lowStockOnly: z
@@ -35,24 +35,27 @@ export const createProductTools = (context: AiToolsContext) => {
         logger.debug(`[AI Tool] 'listProducts' called with lowStockOnly=${lowStockOnly}, search="${search}"`);
         const needle = search?.trim().toLowerCase();
 
-        return runner.query<Product[]>('bar:view-products', new GetProductsByBarIdQuery(context.barId), (products) =>
-          products
-            .filter((product) => !needle || product.name.toLowerCase().includes(needle))
-            .filter((product) => !lowStockOnly || product.currentStock <= product.minStockAlert)
-            .map((product) => ({
-              id: product.id,
-              name: product.name,
-              price: toEuros(product.price),
-              currentStock: product.currentStock,
-              minStockAlert: product.minStockAlert,
-              categoryId: product.categoryId,
-            })),
+        return runner.query<Product[]>(
+          'establishment:view-products',
+          new GetProductsByEstablishmentIdQuery(context.establishmentId),
+          (products) =>
+            products
+              .filter((product) => !needle || product.name.toLowerCase().includes(needle))
+              .filter((product) => !lowStockOnly || product.currentStock <= product.minStockAlert)
+              .map((product) => ({
+                id: product.id,
+                name: product.name,
+                price: toEuros(product.price),
+                currentStock: product.currentStock,
+                minStockAlert: product.minStockAlert,
+                categoryId: product.categoryId,
+              })),
         );
       },
     }),
 
     createProduct: tool({
-      description: 'Create a new product in the bar menu. The category must already exist.',
+      description: 'Create a new product in the establishment menu. The category must already exist.',
       inputSchema: zodSchema(
         z.object({
           name: z.string().describe('Name of the new product, e.g. "Tarta de queso".'),
@@ -80,12 +83,12 @@ export const createProductTools = (context: AiToolsContext) => {
         logger.debug(`[AI Tool] 'createProduct' called with name="${name}", categoryId="${categoryId}"`);
 
         if (!context.categories.some((category) => category.id === categoryId)) {
-          return failed('That category does not exist in this bar. Create it first or pick an existing one.');
+          return failed('That category does not exist in this establishment. Create it first or pick an existing one.');
         }
 
         return runner.execute(
-          'bar:create-product',
-          new CreateProductCommand(context.barId, {
+          'establishment:create-product',
+          new CreateProductCommand(context.establishmentId, {
             name,
             categoryId: asCategoryId(categoryId),
             price: toCents(price),
@@ -98,7 +101,7 @@ export const createProductTools = (context: AiToolsContext) => {
 
     updateProduct: tool({
       description:
-        'Update details of an existing product in the bar, such as name, categoryId, price (in Euros, e.g. 2.50), or minStockAlert.',
+        'Update details of an existing product in the establishment, such as name, categoryId, price (in Euros, e.g. 2.50), or minStockAlert.',
       inputSchema: zodSchema(
         z.object({
           productId: z.string().describe('The UUID of the product to update.'),
@@ -125,8 +128,8 @@ export const createProductTools = (context: AiToolsContext) => {
           `[AI Tool] 'updateProduct' called with productId="${productId}", name="${name}", categoryId="${categoryId}", price=${price}, minStockAlert=${minStockAlert}`,
         );
         return runner.execute(
-          'bar:update-product',
-          new UpdateProductCommand(context.barId, asProductId(productId), {
+          'establishment:update-product',
+          new UpdateProductCommand(context.establishmentId, asProductId(productId), {
             name,
             categoryId: categoryId ? asCategoryId(categoryId) : undefined,
             price: price !== undefined ? toCents(price) : undefined,
@@ -156,8 +159,8 @@ export const createProductTools = (context: AiToolsContext) => {
           `[AI Tool] 'updateProductStock' called with productId="${productId}", currentStock=${currentStock}`,
         );
         return runner.execute(
-          'bar:update-product-stock',
-          new UpdateProductStockCommand(context.barId, asProductId(productId), { currentStock }),
+          'establishment:update-product-stock',
+          new UpdateProductStockCommand(context.establishmentId, asProductId(productId), { currentStock }),
         );
       },
     }),
@@ -182,14 +185,15 @@ export const createProductTools = (context: AiToolsContext) => {
         }
 
         return runner.execute(
-          'bar:update-product-stock',
-          new AdjustProductStockCommand(context.barId, asProductId(productId), delta),
+          'establishment:update-product-stock',
+          new AdjustProductStockCommand(context.establishmentId, asProductId(productId), delta),
         );
       },
     }),
 
     deleteProduct: tool({
-      description: 'Permanently delete a product from the bar menu. Destructive: requires the user to confirm first.',
+      description:
+        'Permanently delete a product from the establishment menu. Destructive: requires the user to confirm first.',
       inputSchema: zodSchema(
         z.object({
           productId: z.string().describe('The UUID of the product to delete.'),
@@ -202,10 +206,14 @@ export const createProductTools = (context: AiToolsContext) => {
         logger.debug(`[AI Tool] 'deleteProduct' called with productId="${productId}", confirmed=${confirmed}`);
         const product = context.products.find((candidate) => candidate.id === productId);
 
-        return runner.execute('bar:delete-product', new DeleteProductCommand(context.barId, asProductId(productId)), {
-          confirmed,
-          summary: `permanently delete the product "${product?.name ?? productId}" from the menu`,
-        });
+        return runner.execute(
+          'establishment:delete-product',
+          new DeleteProductCommand(context.establishmentId, asProductId(productId)),
+          {
+            confirmed,
+            summary: `permanently delete the product "${product?.name ?? productId}" from the menu`,
+          },
+        );
       },
     }),
   };
