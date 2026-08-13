@@ -35,8 +35,18 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
   `,
   styles: [
     `
-      .content-column {
-        contain: layout;
+      /*
+       * Only the desktop rail needs the content column to be the containing block for its
+       * fixed-position descendants (see AiAssistantPanel's RAIL_BREAKPOINT). Below that width the
+       * assistant is a bottom sheet, not a rail, so containment bought nothing there and instead
+       * left the FAB, the bottom nav and the AI sheet anchored to the content column's own box
+       * instead of the real viewport, which mobile browsers do not keep in sync with it the way
+       * they do the viewport - the bottom nav could end up overlapping them.
+       */
+      @media (min-width: 1024px) {
+        .content-column {
+          contain: layout;
+        }
       }
     `,
   ],
