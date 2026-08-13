@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
 import { ModulesStore } from '@coaster/establishments';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -60,5 +61,18 @@ describe('BottomNav', () => {
     fixture.detectChanges();
 
     expect(renderedSections()).toEqual(['dashboard', 'schedule', 'staff']);
+  });
+
+  it('should give a floor staff member the dashboard alongside the sections they work in', () => {
+    modulesStoreMock.isModuleEnabled.mockImplementation(() => true);
+    myMemberStoreMock.hasPermission.mockImplementation((permission: EstablishmentPermission) =>
+      hasPermission(EstablishmentRole.STAFF, permission),
+    );
+
+    fixture = TestBed.createComponent(BottomNav);
+    fixture.componentRef.setInput('establishmentId', 'establishment-1');
+    fixture.detectChanges();
+
+    expect(renderedSections()).toContain('dashboard');
   });
 });

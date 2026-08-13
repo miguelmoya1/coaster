@@ -20,8 +20,18 @@ export type DbEstablishmentMemberModel = runtime.Types.Result.DefaultSelection<P
 
 export type AggregateDbEstablishmentMember = {
   _count: DbEstablishmentMemberCountAggregateOutputType | null
+  _avg: DbEstablishmentMemberAvgAggregateOutputType | null
+  _sum: DbEstablishmentMemberSumAggregateOutputType | null
   _min: DbEstablishmentMemberMinAggregateOutputType | null
   _max: DbEstablishmentMemberMaxAggregateOutputType | null
+}
+
+export type DbEstablishmentMemberAvgAggregateOutputType = {
+  hourlyRateCents: number | null
+}
+
+export type DbEstablishmentMemberSumAggregateOutputType = {
+  hourlyRateCents: number | null
 }
 
 export type DbEstablishmentMemberMinAggregateOutputType = {
@@ -30,6 +40,7 @@ export type DbEstablishmentMemberMinAggregateOutputType = {
   establishmentId: string | null
   role: $Enums.DbEstablishmentRole | null
   active: boolean | null
+  hourlyRateCents: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -41,6 +52,7 @@ export type DbEstablishmentMemberMaxAggregateOutputType = {
   establishmentId: string | null
   role: $Enums.DbEstablishmentRole | null
   active: boolean | null
+  hourlyRateCents: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -52,6 +64,7 @@ export type DbEstablishmentMemberCountAggregateOutputType = {
   establishmentId: number
   role: number
   active: number
+  hourlyRateCents: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -59,12 +72,21 @@ export type DbEstablishmentMemberCountAggregateOutputType = {
 }
 
 
+export type DbEstablishmentMemberAvgAggregateInputType = {
+  hourlyRateCents?: true
+}
+
+export type DbEstablishmentMemberSumAggregateInputType = {
+  hourlyRateCents?: true
+}
+
 export type DbEstablishmentMemberMinAggregateInputType = {
   id?: true
   userId?: true
   establishmentId?: true
   role?: true
   active?: true
+  hourlyRateCents?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -76,6 +98,7 @@ export type DbEstablishmentMemberMaxAggregateInputType = {
   establishmentId?: true
   role?: true
   active?: true
+  hourlyRateCents?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -87,6 +110,7 @@ export type DbEstablishmentMemberCountAggregateInputType = {
   establishmentId?: true
   role?: true
   active?: true
+  hourlyRateCents?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -131,6 +155,18 @@ export type DbEstablishmentMemberAggregateArgs<ExtArgs extends runtime.Types.Ext
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DbEstablishmentMemberAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DbEstablishmentMemberSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DbEstablishmentMemberMinAggregateInputType
@@ -161,6 +197,8 @@ export type DbEstablishmentMemberGroupByArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   _count?: DbEstablishmentMemberCountAggregateInputType | true
+  _avg?: DbEstablishmentMemberAvgAggregateInputType
+  _sum?: DbEstablishmentMemberSumAggregateInputType
   _min?: DbEstablishmentMemberMinAggregateInputType
   _max?: DbEstablishmentMemberMaxAggregateInputType
 }
@@ -171,10 +209,13 @@ export type DbEstablishmentMemberGroupByOutputType = {
   establishmentId: string
   role: $Enums.DbEstablishmentRole
   active: boolean
+  hourlyRateCents: number | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
   _count: DbEstablishmentMemberCountAggregateOutputType | null
+  _avg: DbEstablishmentMemberAvgAggregateOutputType | null
+  _sum: DbEstablishmentMemberSumAggregateOutputType | null
   _min: DbEstablishmentMemberMinAggregateOutputType | null
   _max: DbEstablishmentMemberMaxAggregateOutputType | null
 }
@@ -203,6 +244,7 @@ export type DbEstablishmentMemberWhereInput = {
   establishmentId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFilter<"DbEstablishmentMember"> | boolean
+  hourlyRateCents?: Prisma.IntNullableFilter<"DbEstablishmentMember"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentMember"> | Date | string | null
@@ -216,6 +258,7 @@ export type DbEstablishmentMemberOrderByWithRelationInput = {
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  hourlyRateCents?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -233,6 +276,7 @@ export type DbEstablishmentMemberWhereUniqueInput = Prisma.AtLeast<{
   establishmentId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFilter<"DbEstablishmentMember"> | boolean
+  hourlyRateCents?: Prisma.IntNullableFilter<"DbEstablishmentMember"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentMember"> | Date | string | null
@@ -246,12 +290,15 @@ export type DbEstablishmentMemberOrderByWithAggregationInput = {
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  hourlyRateCents?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DbEstablishmentMemberCountOrderByAggregateInput
+  _avg?: Prisma.DbEstablishmentMemberAvgOrderByAggregateInput
   _max?: Prisma.DbEstablishmentMemberMaxOrderByAggregateInput
   _min?: Prisma.DbEstablishmentMemberMinOrderByAggregateInput
+  _sum?: Prisma.DbEstablishmentMemberSumOrderByAggregateInput
 }
 
 export type DbEstablishmentMemberScalarWhereWithAggregatesInput = {
@@ -263,6 +310,7 @@ export type DbEstablishmentMemberScalarWhereWithAggregatesInput = {
   establishmentId?: Prisma.StringWithAggregatesFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleWithAggregatesFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
   active?: Prisma.BoolWithAggregatesFilter<"DbEstablishmentMember"> | boolean
+  hourlyRateCents?: Prisma.IntNullableWithAggregatesFilter<"DbEstablishmentMember"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishmentMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishmentMember"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentMember"> | Date | string | null
@@ -272,6 +320,7 @@ export type DbEstablishmentMemberCreateInput = {
   id?: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -285,6 +334,7 @@ export type DbEstablishmentMemberUncheckedCreateInput = {
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -294,6 +344,7 @@ export type DbEstablishmentMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -307,6 +358,7 @@ export type DbEstablishmentMemberUncheckedUpdateInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -318,6 +370,7 @@ export type DbEstablishmentMemberCreateManyInput = {
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -327,6 +380,7 @@ export type DbEstablishmentMemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -338,6 +392,7 @@ export type DbEstablishmentMemberUncheckedUpdateManyInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -364,9 +419,14 @@ export type DbEstablishmentMemberCountOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  hourlyRateCents?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+}
+
+export type DbEstablishmentMemberAvgOrderByAggregateInput = {
+  hourlyRateCents?: Prisma.SortOrder
 }
 
 export type DbEstablishmentMemberMaxOrderByAggregateInput = {
@@ -375,6 +435,7 @@ export type DbEstablishmentMemberMaxOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  hourlyRateCents?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -386,9 +447,14 @@ export type DbEstablishmentMemberMinOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  hourlyRateCents?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+}
+
+export type DbEstablishmentMemberSumOrderByAggregateInput = {
+  hourlyRateCents?: Prisma.SortOrder
 }
 
 export type DbEstablishmentMemberCreateNestedManyWithoutUserInput = {
@@ -479,10 +545,19 @@ export type EnumDbEstablishmentRoleFieldUpdateOperationsInput = {
   set?: $Enums.DbEstablishmentRole
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type DbEstablishmentMemberCreateWithoutUserInput = {
   id?: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -494,6 +569,7 @@ export type DbEstablishmentMemberUncheckedCreateWithoutUserInput = {
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -534,6 +610,7 @@ export type DbEstablishmentMemberScalarWhereInput = {
   establishmentId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFilter<"DbEstablishmentMember"> | boolean
+  hourlyRateCents?: Prisma.IntNullableFilter<"DbEstablishmentMember"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishmentMember"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentMember"> | Date | string | null
@@ -543,6 +620,7 @@ export type DbEstablishmentMemberCreateWithoutEstablishmentInput = {
   id?: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -554,6 +632,7 @@ export type DbEstablishmentMemberUncheckedCreateWithoutEstablishmentInput = {
   userId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -590,6 +669,7 @@ export type DbEstablishmentMemberCreateManyUserInput = {
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -599,6 +679,7 @@ export type DbEstablishmentMemberUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -610,6 +691,7 @@ export type DbEstablishmentMemberUncheckedUpdateWithoutUserInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -620,6 +702,7 @@ export type DbEstablishmentMemberUncheckedUpdateManyWithoutUserInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -630,6 +713,7 @@ export type DbEstablishmentMemberCreateManyEstablishmentInput = {
   userId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
+  hourlyRateCents?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -639,6 +723,7 @@ export type DbEstablishmentMemberUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -650,6 +735,7 @@ export type DbEstablishmentMemberUncheckedUpdateWithoutEstablishmentInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -660,6 +746,7 @@ export type DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentInput = 
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -673,6 +760,7 @@ export type DbEstablishmentMemberSelect<ExtArgs extends runtime.Types.Extensions
   establishmentId?: boolean
   role?: boolean
   active?: boolean
+  hourlyRateCents?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -686,6 +774,7 @@ export type DbEstablishmentMemberSelectCreateManyAndReturn<ExtArgs extends runti
   establishmentId?: boolean
   role?: boolean
   active?: boolean
+  hourlyRateCents?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -699,6 +788,7 @@ export type DbEstablishmentMemberSelectUpdateManyAndReturn<ExtArgs extends runti
   establishmentId?: boolean
   role?: boolean
   active?: boolean
+  hourlyRateCents?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -712,12 +802,13 @@ export type DbEstablishmentMemberSelectScalar = {
   establishmentId?: boolean
   role?: boolean
   active?: boolean
+  hourlyRateCents?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type DbEstablishmentMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "establishmentId" | "role" | "active" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbEstablishmentMember"]>
+export type DbEstablishmentMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "establishmentId" | "role" | "active" | "hourlyRateCents" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbEstablishmentMember"]>
 export type DbEstablishmentMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
@@ -743,6 +834,7 @@ export type $DbEstablishmentMemberPayload<ExtArgs extends runtime.Types.Extensio
     establishmentId: string
     role: $Enums.DbEstablishmentRole
     active: boolean
+    hourlyRateCents: number | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1176,6 +1268,7 @@ export interface DbEstablishmentMemberFieldRefs {
   readonly establishmentId: Prisma.FieldRef<"DbEstablishmentMember", 'String'>
   readonly role: Prisma.FieldRef<"DbEstablishmentMember", 'DbEstablishmentRole'>
   readonly active: Prisma.FieldRef<"DbEstablishmentMember", 'Boolean'>
+  readonly hourlyRateCents: Prisma.FieldRef<"DbEstablishmentMember", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DbEstablishmentMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbEstablishmentMember", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"DbEstablishmentMember", 'DateTime'>

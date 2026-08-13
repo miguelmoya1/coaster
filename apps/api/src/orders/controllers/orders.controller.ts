@@ -1,5 +1,5 @@
-import { FirebaseAuthGuard } from '@coaster/auth';
-import type { EstablishmentId, Order, OrderAdjustmentId, OrderId, OrderItemId } from '@coaster/common';
+import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
+import type { EstablishmentId, Order, OrderAdjustmentId, OrderId, OrderItemId, User } from '@coaster/common';
 import { EstablishmentModule, EstablishmentPermission, OrderStatus } from '@coaster/common';
 import {
   EstablishmentModulesGuard,
@@ -76,8 +76,9 @@ export class OrdersController {
   async createOrder(
     @Param('establishmentId') establishmentId: EstablishmentId,
     @Body() dto: CreateOrderDto,
+    @CurrentUser() user: User,
   ): Promise<void> {
-    await this._commandBus.execute<CreateOrderCommand, void>(new CreateOrderCommand(establishmentId, dto));
+    await this._commandBus.execute<CreateOrderCommand, void>(new CreateOrderCommand(establishmentId, dto, user.id));
   }
 
   @Post(':orderId/items')

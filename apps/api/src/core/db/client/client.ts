@@ -63,8 +63,7 @@ export type DbEstablishment = Prisma.DbEstablishmentModel
 export type DbEstablishmentSettings = Prisma.DbEstablishmentSettingsModel
 /**
  * Model DbPrinterPairing
- * A one-use code that turns a downloaded bridge into this establishment's bridge, so nobody has to
- * type an id or a device key into a console.
+ * 
  */
 export type DbPrinterPairing = Prisma.DbPrinterPairingModel
 /**

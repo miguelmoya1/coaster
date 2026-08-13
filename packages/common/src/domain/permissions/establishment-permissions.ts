@@ -2,6 +2,8 @@ import { EstablishmentPermission } from '../../constants/establishment-permissio
 import { EstablishmentRole } from '../../constants/establishment-role.type';
 
 const STAFF_PERMISSIONS: EstablishmentPermission[] = [
+  'establishment:view-dashboard',
+
   'establishment:view-members',
 
   'establishment:view-tables',
@@ -31,7 +33,27 @@ const STAFF_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:view-printer',
 ];
 
-const OWNER_ONLY_PERMISSIONS: EstablishmentPermission[] = [
+const MANAGER_PERMISSIONS: EstablishmentPermission[] = [
+  'establishment:view-financials',
+
+  'establishment:invite-member',
+
+  'establishment:create-category',
+  'establishment:update-category',
+  'establishment:create-product',
+  'establishment:update-product',
+
+  'establishment:create-shift',
+  'establishment:delete-shift',
+
+  'establishment:view-time-entries',
+  'establishment:manage-time-entries',
+
+  'establishment:manage-printer',
+  'establishment:manage-menu',
+];
+
+const OWNER_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:remove-member',
   'establishment:update-member-role',
 
@@ -45,47 +67,22 @@ const OWNER_ONLY_PERMISSIONS: EstablishmentPermission[] = [
   'establishment:delete-product',
   'establishment:import-catalogue',
 
+  'establishment:view-financials-history',
+  'establishment:view-labor-cost',
+
   'establishment:manage-billing',
   'establishment:manage-settings',
 ];
 
 export const ROLE_PERMISSIONS: Record<EstablishmentRole, EstablishmentPermission[]> = {
-  OWNER: [],
-  MANAGER: [
-    'establishment:view-dashboard',
-
-    'establishment:invite-member',
-
-    'establishment:create-category',
-    'establishment:update-category',
-    'establishment:create-product',
-    'establishment:update-product',
-
-    'establishment:create-shift',
-    'establishment:delete-shift',
-
-    'establishment:view-time-entries',
-    'establishment:manage-time-entries',
-
-    'establishment:manage-printer',
-    'establishment:manage-menu',
-
-    ...STAFF_PERMISSIONS,
-  ],
-  STAFF: STAFF_PERMISSIONS,
+  OWNER: [...OWNER_PERMISSIONS, ...MANAGER_PERMISSIONS, ...STAFF_PERMISSIONS],
+  MANAGER: [...MANAGER_PERMISSIONS, ...STAFF_PERMISSIONS],
+  STAFF: [...STAFF_PERMISSIONS],
 };
 
-export const hasPermission = (role: EstablishmentRole, permission: EstablishmentPermission): boolean => {
-  if (role === EstablishmentRole.OWNER) return true;
-  const permissions = ROLE_PERMISSIONS[role];
-  return permissions ? permissions.includes(permission) : false;
-};
+export const hasPermission = (role: EstablishmentRole, permission: EstablishmentPermission): boolean =>
+  ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 
-export const getRolePermissions = (role: EstablishmentRole): EstablishmentPermission[] => {
-  if (role === EstablishmentRole.OWNER) {
-    return [...ROLE_PERMISSIONS[EstablishmentRole.MANAGER], ...OWNER_ONLY_PERMISSIONS];
-  }
-
-  const permissions = ROLE_PERMISSIONS[role];
-  return permissions ? [...permissions] : [];
-};
+export const getRolePermissions = (role: EstablishmentRole): EstablishmentPermission[] => [
+  ...(ROLE_PERMISSIONS[role] ?? []),
+];

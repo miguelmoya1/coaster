@@ -7,6 +7,7 @@ import type {
   OrderId,
   OrderItemId,
   TableId,
+  UserId,
 } from '@coaster/common';
 import { AddOrderAdjustmentDto, ErrorCodes, OrderPricingEngine, PaymentMethod } from '@coaster/common';
 import {
@@ -74,11 +75,13 @@ export class OrdersWriteRepository {
     priceMap: Map<string, number>,
     totalAmount: number,
     resolvedTableName: string | null,
+    createdById: UserId | null = null,
   ) {
     return this._db.$transaction(async (tx) => {
       const created = await tx.dbOrder.create({
         data: {
           establishmentId,
+          createdById,
           tableId: dto.tableId ?? null,
           tableName: resolvedTableName,
           status: DbOrderStatus.OPEN,

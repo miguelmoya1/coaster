@@ -21,15 +21,23 @@ describe('StatsStore', () => {
   const mockStats: EstablishmentStats = {
     todayRevenue: 100,
     yesterdayRevenue: 50,
+    sameWeekdayLastWeekRevenue: 80,
     weeklyRevenue: 150,
     dailyRevenues: [],
-    currentMonthRevenue: 150,
-    previousMonthRevenue: 200,
-    yearlyRevenue: 1000,
-    monthlyBreakdown: [],
-    percentageChange: 25,
-    isPositiveChange: false,
-    maxMonthRevenue: 200,
+    todayTicketCount: 4,
+    todayAverageTicket: 25,
+    todayCashRevenue: 60,
+    todayCardRevenue: 40,
+    todayTipAmount: 0,
+    history: {
+      currentMonthRevenue: 150,
+      previousMonthRevenue: 200,
+      yearlyRevenue: 1000,
+      monthlyBreakdown: [],
+      percentageChange: 25,
+      isPositiveChange: false,
+      maxMonthRevenue: 200,
+    },
   };
 
   beforeEach(() => {

@@ -2261,6 +2261,7 @@ export const DbEstablishmentMemberScalarFieldEnum = {
   establishmentId: 'establishmentId',
   role: 'role',
   active: 'active',
+  hourlyRateCents: 'hourlyRateCents',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -2377,6 +2378,7 @@ export type DbTableScalarFieldEnum = (typeof DbTableScalarFieldEnum)[keyof typeo
 export const DbOrderScalarFieldEnum = {
   id: 'id',
   establishmentId: 'establishmentId',
+  createdById: 'createdById',
   tableId: 'tableId',
   tableName: 'tableName',
   status: 'status',

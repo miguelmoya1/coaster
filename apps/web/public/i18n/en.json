@@ -206,11 +206,6 @@
     "submitting": "Submitting"
   },
   "dashboard": {
-    "overview": {
-      "establishment_staff": "BAR STAFF",
-      "floor_leads": "FLOOR LEADS",
-      "security": "SECURITY"
-    },
     "schedule": {
       "no_shifts_warning": "Attention! No staff assigned to shifts today.",
       "assign_shifts": "Assign Shifts",
@@ -233,15 +228,42 @@
       "yearly": "This Year",
       "yearly_progress": "Monthly Year Distribution",
       "no_change": "No change",
-      "closed_revenue": "Total revenue"
+      "closed_revenue": "Total revenue",
+      "vs_yesterday": "vs yesterday",
+      "vs_last_week": "vs last {{weekday}}",
+      "tickets": "Tickets",
+      "average_ticket": "Average Ticket",
+      "till": "Till Count",
+      "card": "Card",
+      "cash": "Cash",
+      "tips": "Tips",
+      "till_note": "Cash and card include the tips collected.",
+      "projected_close": "Projected close:"
     },
     "sections": {
-      "financials": "Financial Overview",
       "monthly_yearly": "Monthly & Yearly Analysis",
       "inventory": "Critical Pantry Alerts",
       "inventory_issues": "{{count}} ISSUES",
       "schedule": "Today's Roster",
-      "schedule_full": "FULL SCHEDULE"
+      "schedule_full": "FULL SCHEDULE",
+      "today": "Today's Takings",
+      "my_workday": "My Workday"
+    },
+    "subtitle": {
+      "business": "How the business is doing today",
+      "personal": "Your shift at a glance"
+    },
+    "my_workday": {
+      "state": "Status",
+      "today_worked": "Today",
+      "today_planned": "Your shift:",
+      "no_shift_today": "You have no shift assigned today.",
+      "clock_in": "Clock In",
+      "clock_out": "Clock Out",
+      "break_start": "Start Break",
+      "break_end": "End Break",
+      "week_worked": "This week so far",
+      "upcoming": "Upcoming shifts"
     }
   },
   "history": {

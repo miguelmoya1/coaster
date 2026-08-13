@@ -10,11 +10,7 @@ export interface MonthlyRevenue {
   amount: number;
 }
 
-export interface EstablishmentStats {
-  todayRevenue: number;
-  yesterdayRevenue: number;
-  weeklyRevenue: number;
-  dailyRevenues: DailyRevenue[];
+export interface EstablishmentStatsHistory {
   currentMonthRevenue: number;
   previousMonthRevenue: number;
   yearlyRevenue: number;
@@ -22,4 +18,18 @@ export interface EstablishmentStats {
   percentageChange: number;
   isPositiveChange: boolean;
   maxMonthRevenue: number;
+}
+
+export interface EstablishmentStats {
+  todayRevenue: number;
+  yesterdayRevenue: number;
+  sameWeekdayLastWeekRevenue: number;
+  weeklyRevenue: number;
+  dailyRevenues: DailyRevenue[];
+  todayTicketCount: number;
+  todayAverageTicket: number;
+  todayCashRevenue: number;
+  todayCardRevenue: number;
+  todayTipAmount: number;
+  history: EstablishmentStatsHistory | null;
 }

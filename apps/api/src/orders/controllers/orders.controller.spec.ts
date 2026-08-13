@@ -1,6 +1,6 @@
-import { asEstablishmentId, asOrderId, asOrderItemId, asTableId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId, asTableId, asUserId } from '@coaster/common';
 import { FirebaseAuthGuard } from '@coaster/auth';
-import type { Order } from '@coaster/common';
+import type { Order, User } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
 import { EstablishmentModulesGuard, EstablishmentPermissionsGuard } from '@coaster/core';
 import { CanActivate } from '@nestjs/common';
@@ -84,10 +84,25 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
-    const result = await controller.createOrder(asEstablishmentId('establishment-1'), dto as unknown as CreateOrderDto);
+    const result = await controller.createOrder(
+      asEstablishmentId('establishment-1'),
+      dto as unknown as CreateOrderDto,
+      { id: asUserId('user-1') } as User,
+    );
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateOrderCommand));
     expect(result).toBeUndefined();
+  });
+
+  it('createOrder should record who opened the order', async () => {
+    commandBus.execute.mockResolvedValue(undefined);
+    const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
+
+    await controller.createOrder(asEstablishmentId('establishment-1'), dto as unknown as CreateOrderDto, {
+      id: asUserId('user-1'),
+    } as User);
+
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.objectContaining({ createdById: 'user-1' }));
   });
 
   it('addItems should delegate to command bus', async () => {

@@ -1,8 +1,15 @@
-import type { EstablishmentStats, DailyRevenue, MonthlyRevenue } from '@coaster/common';
+import type { EstablishmentStats, EstablishmentStatsHistory, DailyRevenue, MonthlyRevenue } from '@coaster/common';
 import { Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { StatsReadRepository } from '../../data-access/stats.read.repository';
 import { GetEstablishmentStatsQuery } from '../impl/get-establishment-stats.query';
+
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
 
 @Injectable()
 @QueryHandler(GetEstablishmentStatsQuery)
@@ -14,21 +21,25 @@ export class GetEstablishmentStatsHandler implements IQueryHandler<GetEstablishm
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
 
+    const currentDay = now.getDay();
+    const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - distanceToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+
     const startOfPrevYear = new Date(currentYear - 1, 0, 1);
+    const startOfLastWeek = new Date(startOfWeek);
+    startOfLastWeek.setDate(startOfWeek.getDate() - 7);
 
-    const closedOrders = (await this.readRepo.findClosedOrdersForStats(query.establishmentId, startOfPrevYear)).map(
-      (order) => ({
-        createdAt: order.createdAt,
-        revenue: order.amountPaidCash + order.amountPaidCard - order.tipAmount,
-      }),
-    );
+    const since = query.includeHistory ? startOfPrevYear : startOfLastWeek;
 
-    const formatDate = (date: Date) => {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    };
+    const closedOrders = (await this.readRepo.findClosedOrdersForStats(query.establishmentId, since)).map((order) => ({
+      createdAt: order.createdAt,
+      revenue: order.amountPaidCash + order.amountPaidCard - order.tipAmount,
+      cash: order.amountPaidCash,
+      card: order.amountPaidCard,
+      tip: order.tipAmount,
+    }));
 
     const todayStr = formatDate(now);
 
@@ -36,15 +47,18 @@ export class GetEstablishmentStatsHandler implements IQueryHandler<GetEstablishm
     yesterday.setDate(now.getDate() - 1);
     const yesterdayStr = formatDate(yesterday);
 
-    const currentDay = now.getDay();
-    const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - distanceToMonday);
-    startOfWeek.setHours(0, 0, 0, 0);
+    const sameWeekdayLastWeek = new Date(now);
+    sameWeekdayLastWeek.setDate(now.getDate() - 7);
+    const sameWeekdayLastWeekStr = formatDate(sameWeekdayLastWeek);
 
     let todayRevenue = 0;
     let yesterdayRevenue = 0;
+    let sameWeekdayLastWeekRevenue = 0;
     let weeklyRevenue = 0;
+    let todayTicketCount = 0;
+    let todayCashRevenue = 0;
+    let todayCardRevenue = 0;
+    let todayTipAmount = 0;
 
     const dailyRevenues: DailyRevenue[] = [];
     const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -85,9 +99,16 @@ export class GetEstablishmentStatsHandler implements IQueryHandler<GetEstablishm
 
       if (orderDateStr === todayStr) {
         todayRevenue += order.revenue;
+        todayTicketCount += 1;
+        todayCashRevenue += order.cash;
+        todayCardRevenue += order.card;
+        todayTipAmount += order.tip;
       }
       if (orderDateStr === yesterdayStr) {
         yesterdayRevenue += order.revenue;
+      }
+      if (orderDateStr === sameWeekdayLastWeekStr) {
+        sameWeekdayLastWeekRevenue += order.revenue;
       }
       if (orderDate >= startOfWeek) {
         weeklyRevenue += order.revenue;
@@ -115,6 +136,24 @@ export class GetEstablishmentStatsHandler implements IQueryHandler<GetEstablishm
       }
     });
 
+    const stats: EstablishmentStats = {
+      todayRevenue,
+      yesterdayRevenue,
+      sameWeekdayLastWeekRevenue,
+      weeklyRevenue,
+      dailyRevenues,
+      todayTicketCount,
+      todayAverageTicket: todayTicketCount > 0 ? Math.round(todayRevenue / todayTicketCount) : 0,
+      todayCashRevenue,
+      todayCardRevenue,
+      todayTipAmount,
+      history: null,
+    };
+
+    if (!query.includeHistory) {
+      return stats;
+    }
+
     let percentageChange = 0;
     let isPositiveChange = true;
     if (previousMonthRevenue > 0) {
@@ -125,20 +164,16 @@ export class GetEstablishmentStatsHandler implements IQueryHandler<GetEstablishm
       isPositiveChange = true;
     }
 
-    const maxMonthRevenue = Math.max(...monthlyBreakdown.map((m) => m.amount), 1);
-
-    return {
-      todayRevenue,
-      yesterdayRevenue,
-      weeklyRevenue,
-      dailyRevenues,
+    const history: EstablishmentStatsHistory = {
       currentMonthRevenue,
       previousMonthRevenue,
       yearlyRevenue,
       monthlyBreakdown,
       percentageChange: Math.abs(percentageChange),
       isPositiveChange,
-      maxMonthRevenue,
+      maxMonthRevenue: Math.max(...monthlyBreakdown.map((m) => m.amount), 1),
     };
+
+    return { ...stats, history };
   }
 }

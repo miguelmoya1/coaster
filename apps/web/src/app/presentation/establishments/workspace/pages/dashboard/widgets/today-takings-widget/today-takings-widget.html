@@ -1,0 +1,131 @@
+<section class="flex flex-col gap-4">
+  <header class="flex justify-between items-end">
+    <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+      <mat-icon class="text-primary text-xl">payments</mat-icon>
+      {{ 'dashboard.sections.today' | translate }}
+    </h2>
+  </header>
+
+  @if (stats.isLoading()) {
+    <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
+  } @else if (stats.hasValue()) {
+    <mat-card class="p-5 flex flex-col gap-5 border border-outline-variant/30! relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col gap-2 z-10">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.today' | translate }}
+        </span>
+        <span class="text-4xl font-black text-on-surface tracking-tight leading-none">
+          {{ stats.value().todayRevenue | price }}
+        </span>
+
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+          @if (vsYesterday(); as comparison) {
+            <span class="flex items-center gap-1 text-xxs">
+              @if (comparison.hasBaseline) {
+                <span
+                  class="font-black flex items-center gap-0.5"
+                  [class.text-success]="comparison.isPositive"
+                  [class.text-error]="!comparison.isPositive"
+                >
+                  {{ comparison.isPositive ? '▲' : '▼' }} {{ comparison.percent }}%
+                </span>
+              } @else {
+                <span class="font-black text-on-surface-variant">—</span>
+              }
+              <span class="text-on-surface-variant">{{ 'dashboard.financials.vs_yesterday' | translate }}</span>
+            </span>
+          }
+
+          @if (vsLastWeek(); as comparison) {
+            <span class="flex items-center gap-1 text-xxs">
+              @if (comparison.hasBaseline) {
+                <span
+                  class="font-black flex items-center gap-0.5"
+                  [class.text-success]="comparison.isPositive"
+                  [class.text-error]="!comparison.isPositive"
+                >
+                  {{ comparison.isPositive ? '▲' : '▼' }} {{ comparison.percent }}%
+                </span>
+              } @else {
+                <span class="font-black text-on-surface-variant">—</span>
+              }
+              <span class="text-on-surface-variant">
+                {{ 'dashboard.financials.vs_last_week' | translate: { weekday: weekdayName() } }}
+              </span>
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 z-10">
+        <div class="flex flex-col gap-0.5 p-3 rounded-xl bg-surface-container-high/50 border border-outline-variant/20">
+          <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+            {{ 'dashboard.financials.tickets' | translate }}
+          </span>
+          <span class="text-xl font-black text-on-surface tracking-tight">{{ stats.value().todayTicketCount }}</span>
+        </div>
+        <div class="flex flex-col gap-0.5 p-3 rounded-xl bg-surface-container-high/50 border border-outline-variant/20">
+          <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+            {{ 'dashboard.financials.average_ticket' | translate }}
+          </span>
+          <span class="text-xl font-black text-on-surface tracking-tight">
+            {{ stats.value().todayAverageTicket | price }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2 z-10">
+        <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.till' | translate }}
+        </span>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xxs text-on-surface-variant flex items-center gap-1">
+              <mat-icon class="text-sm">euro</mat-icon>
+              {{ 'dashboard.financials.cash' | translate }}
+            </span>
+            <span class="text-sm font-black text-on-surface">{{ stats.value().todayCashRevenue | price }}</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xxs text-on-surface-variant flex items-center gap-1">
+              <mat-icon class="text-sm">credit_card</mat-icon>
+              {{ 'dashboard.financials.card' | translate }}
+            </span>
+            <span class="text-sm font-black text-on-surface">{{ stats.value().todayCardRevenue | price }}</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xxs text-on-surface-variant flex items-center gap-1">
+              <mat-icon class="text-sm">volunteer_activism</mat-icon>
+              {{ 'dashboard.financials.tips' | translate }}
+            </span>
+            <span class="text-sm font-black text-on-surface">{{ stats.value().todayTipAmount | price }}</span>
+          </div>
+        </div>
+        <span class="text-xxs text-on-surface-variant/70">
+          {{ 'dashboard.financials.till_note' | translate }}
+        </span>
+      </div>
+    </mat-card>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <mat-card class="p-4 flex flex-col gap-1 border-l-4! border-outline-variant">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.yesterday' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight">
+          {{ stats.value().yesterdayRevenue | price }}
+        </span>
+      </mat-card>
+      <mat-card class="p-4 flex flex-col gap-1 border-l-4! border-primary">
+        <span class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.financials.weekly' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight">
+          {{ stats.value().weeklyRevenue | price }}
+        </span>
+      </mat-card>
+    </div>
+  }
+</section>

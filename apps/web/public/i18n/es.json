@@ -206,11 +206,6 @@
     "submitting": "Enviando"
   },
   "dashboard": {
-    "overview": {
-      "establishment_staff": "PERSONAL BAR",
-      "floor_leads": "RESPONSABLES",
-      "security": "SEGURIDAD"
-    },
     "schedule": {
       "no_shifts_warning": "¡Atención! No hay ningún empleado asignado a los turnos de hoy.",
       "assign_shifts": "Programar Turnos",
@@ -233,15 +228,42 @@
       "yearly": "Este Año",
       "yearly_progress": "Distribución Mensual del Año",
       "no_change": "Sin variación",
-      "closed_revenue": "Total facturado"
+      "closed_revenue": "Total facturado",
+      "vs_yesterday": "vs ayer",
+      "vs_last_week": "vs {{weekday}} pasado",
+      "tickets": "Tickets",
+      "average_ticket": "Ticket Medio",
+      "till": "Arqueo de Caja",
+      "till_note": "Efectivo y tarjeta incluyen las propinas cobradas.",
+      "cash": "Efectivo",
+      "card": "Tarjeta",
+      "tips": "Propinas",
+      "projected_close": "Cierre previsto:"
     },
     "sections": {
-      "financials": "Resumen Financiero",
       "monthly_yearly": "Análisis Mensual y Anual",
       "inventory": "Alertas Críticas de Inventario",
       "inventory_issues": "INCIDENCIAS",
       "schedule": "Turnos de Hoy",
-      "schedule_full": "HORARIO COMPLETO"
+      "schedule_full": "HORARIO COMPLETO",
+      "today": "Caja de Hoy",
+      "my_workday": "Mi Jornada"
+    },
+    "subtitle": {
+      "business": "Cómo va el negocio hoy",
+      "personal": "Tu jornada de un vistazo"
+    },
+    "my_workday": {
+      "state": "Estado",
+      "today_worked": "Hoy",
+      "today_planned": "Tu turno:",
+      "no_shift_today": "Hoy no tienes turno asignado.",
+      "clock_in": "Fichar Entrada",
+      "clock_out": "Fichar Salida",
+      "break_start": "Iniciar Descanso",
+      "break_end": "Volver del Descanso",
+      "week_worked": "Acumulado esta semana",
+      "upcoming": "Próximos turnos"
     }
   },
   "history": {

@@ -1,0 +1,61 @@
+<section class="flex flex-col gap-4">
+  <mat-card
+    class="p-5 sm:p-6 border border-outline-variant/30! relative overflow-hidden bg-gradient-to-br from-surface-container/90 via-surface-container/60 to-surface-container-high/40 backdrop-blur-md shadow-elevated rounded-2xl!"
+  >
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs transition-all"
+          [class]="statusIconContainerClass()"
+        >
+          <mat-icon class="text-2xl">workspace_premium</mat-icon>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-lg font-black text-on-surface tracking-tight m-0">
+              {{ planLabelKey() | translate }}
+            </h3>
+            <span
+              class="px-2.5 py-0.5 rounded-full text-xs font-black tracking-wider uppercase border transition-all"
+              [class]="statusBadgeStyleClass()"
+            >
+              {{ statusLabelKey() | translate }}
+            </span>
+          </div>
+          @if (periodInfoKey() && formattedPeriodEnd()) {
+            <span class="text-xs text-on-surface-variant/80 font-medium">
+              {{ periodInfoKey() | translate: { date: formattedPeriodEnd() } }}
+            </span>
+          }
+        </div>
+      </div>
+
+      @if (showBillingAction()) {
+        <div class="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
+          @if (billingAction() === BillingAction.MANAGE) {
+            <button
+              mat-button
+              [disabled]="isOpeningBillingPortal()"
+              [attr.aria-busy]="isOpeningBillingPortal()"
+              (click)="manageBilling()"
+              class="!rounded-xl font-bold border border-outline-variant/30"
+            >
+              @if (isOpeningBillingPortal()) {
+                <coaster-spinner class="mr-1" />
+              } @else {
+                <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
+              }
+              {{ 'billing.manage_billing' | translate }}
+            </button>
+          } @else {
+            <button mat-flat-button color="primary" (click)="activatePro()" class="!rounded-xl font-bold">
+              <mat-icon class="text-sm mr-1">rocket_launch</mat-icon>
+              {{ 'billing.activate_pro_title' | translate }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </mat-card>
+</section>

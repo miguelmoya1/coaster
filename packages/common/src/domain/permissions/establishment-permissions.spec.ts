@@ -15,11 +15,13 @@ const MANAGER_MUST_NOT_HAVE: EstablishmentPermission[] = [
   EstablishmentPermission.ESTABLISHMENT_DELETE_PRODUCT,
   EstablishmentPermission.ESTABLISHMENT_IMPORT_CATALOGUE,
   EstablishmentPermission.ESTABLISHMENT_MANAGE_BILLING,
+  EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS_HISTORY,
+  EstablishmentPermission.ESTABLISHMENT_VIEW_LABOR_COST,
 ];
 
 const STAFF_MUST_NOT_HAVE: EstablishmentPermission[] = [
   ...MANAGER_MUST_NOT_HAVE,
-  EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD,
+  EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
   EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER,
   EstablishmentPermission.ESTABLISHMENT_CREATE_CATEGORY,
   EstablishmentPermission.ESTABLISHMENT_UPDATE_CATEGORY,
@@ -54,6 +56,7 @@ describe('establishment permissions', () => {
   describe('MANAGER', () => {
     it('should run the day to day without owning the establishment', () => {
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD)).toBe(true);
+      expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS)).toBe(true);
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER)).toBe(true);
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_CREATE_PRODUCT)).toBe(true);
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_MANAGE_PRINTER)).toBe(true);
@@ -68,6 +71,7 @@ describe('establishment permissions', () => {
 
   describe('STAFF', () => {
     it('should work the floor', () => {
+      expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD)).toBe(true);
       expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_CREATE_ORDER)).toBe(true);
       expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_CHECKOUT_ORDER)).toBe(true);
       expect(hasPermission(EstablishmentRole.STAFF, EstablishmentPermission.ESTABLISHMENT_UPDATE_PRODUCT_STOCK)).toBe(
@@ -81,6 +85,14 @@ describe('establishment permissions', () => {
         expect(hasPermission(EstablishmentRole.STAFF, permission), permission).toBe(false);
       }
     });
+  });
+
+  it('should grant each permission once per role, so no tier repeats what it inherits', () => {
+    for (const role of Object.values(EstablishmentRole)) {
+      const granted = getRolePermissions(role);
+
+      expect([...new Set(granted)].sort(), role).toEqual([...granted].sort());
+    }
   });
 
   it('should keep every role a subset of the one above it', () => {

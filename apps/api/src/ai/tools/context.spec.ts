@@ -127,7 +127,7 @@ describe('createToolRunner', () => {
     it('refuses a read the role is not allowed to make', async () => {
       const runner = createToolRunner(buildContext({ establishmentRole: EstablishmentRole.STAFF }));
 
-      const result = await runner.query('establishment:view-dashboard', { type: 'GetEstablishmentStats' });
+      const result = await runner.query('establishment:view-financials', { type: 'GetEstablishmentStats' });
 
       expect(queryBus.execute).not.toHaveBeenCalled();
       expect(result.status).toBe('denied');

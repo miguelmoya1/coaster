@@ -1,5 +1,8 @@
 export const EstablishmentPermission = {
   ESTABLISHMENT_VIEW_DASHBOARD: 'establishment:view-dashboard',
+  ESTABLISHMENT_VIEW_FINANCIALS: 'establishment:view-financials',
+  ESTABLISHMENT_VIEW_FINANCIALS_HISTORY: 'establishment:view-financials-history',
+  ESTABLISHMENT_VIEW_LABOR_COST: 'establishment:view-labor-cost',
   ESTABLISHMENT_INVITE_MEMBER: 'establishment:invite-member',
   ESTABLISHMENT_REMOVE_MEMBER: 'establishment:remove-member',
   ESTABLISHMENT_UPDATE_MEMBER_ROLE: 'establishment:update-member-role',

@@ -182,10 +182,14 @@ export const createOrderTools = (context: AiToolsContext) => {
 
         return runner.execute(
           'establishment:create-order',
-          new CreateOrderCommand(context.establishmentId, {
-            tableId: tableId ? asTableId(tableId) : undefined,
-            items: validItems.map((item) => ({ productId: asProductId(item.productId), quantity: item.quantity })),
-          }),
+          new CreateOrderCommand(
+            context.establishmentId,
+            {
+              tableId: tableId ? asTableId(tableId) : undefined,
+              items: validItems.map((item) => ({ productId: asProductId(item.productId), quantity: item.quantity })),
+            },
+            context.user.id,
+          ),
         );
       },
     }),

@@ -50,6 +50,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       priceMap as Map<string, number>,
       totalAmount,
       resolvedTableName,
+      command.createdById,
     );
     const mapped = OrdersMapper.toDomain(order);
 

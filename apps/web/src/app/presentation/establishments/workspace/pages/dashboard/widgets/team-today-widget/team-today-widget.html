@@ -1,0 +1,68 @@
+<section class="flex flex-col gap-4">
+  <header class="flex justify-between items-center">
+    <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+      <mat-icon class="text-on-surface text-xl">group</mat-icon>
+      {{ 'dashboard.sections.schedule' | translate }}
+    </h2>
+    <a
+      [routerLink]="['/establishments', establishmentId(), 'schedule']"
+      class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
+    >
+      {{ 'dashboard.sections.schedule_full' | translate }}
+      <mat-icon>arrow_forward</mat-icon>
+    </a>
+  </header>
+
+  @if (totalAssignedToday() === 0) {
+    <div
+      class="bg-secondary/10 border border-secondary/30 rounded-2xl p-5 flex flex-col gap-4 items-center text-center shadow-lg backdrop-blur-md transition-all hover:bg-secondary/15"
+    >
+      <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary animate-pulse">
+        <mat-icon class="text-2xl">error</mat-icon>
+      </div>
+      <div class="flex flex-col gap-1">
+        <h4 class="text-on-surface font-bold text-sm tracking-tight">
+          {{ 'dashboard.schedule.no_shifts_warning' | translate }}
+        </h4>
+      </div>
+      <a
+        [routerLink]="['/establishments', establishmentId(), 'schedule']"
+        class="w-full bg-primary hover:bg-primary-container text-on-primary font-black py-3 px-4 rounded-xl text-xxs-plus tracking-widest uppercase transition-all shadow-md active:scale-95 text-center"
+      >
+        {{ 'dashboard.schedule.assign_shifts' | translate }}
+      </a>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-3">
+      @for (shift of scheduleOverview(); track shift.id) {
+        <div class="bg-surface-container rounded-2xl p-4 flex gap-4 items-center shadow-md border border-outline-variant/10">
+          <div class="relative">
+            <img
+              [src]="shift.userImage"
+              class="w-14 h-14 rounded-xl object-cover border border-outline-variant bg-surface-container-high"
+              [alt]="shift.userName"
+            />
+          </div>
+
+          <div class="flex-1 flex flex-col justify-center">
+            <h4 class="text-on-surface font-bold text-base leading-tight">{{ shift.userName }}</h4>
+            <p class="text-on-surface-variant text-sm font-medium">{{ shift.roleLabelKey | translate }}</p>
+          </div>
+
+          <div class="flex flex-col items-end gap-1">
+            <span class="text-on-surface font-bold text-sm tracking-tighter">
+              {{ shift.timeRange }}
+            </span>
+            <span
+              class="text-xxs font-black tracking-widest uppercase"
+              [class.text-primary]="shift.status === 'current'"
+              [class.text-on-surface-variant]="shift.status === 'next'"
+            >
+              {{ 'dashboard.schedule.status.' + shift.status | translate }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model DbPrinterPairing
- * A one-use code that turns a downloaded bridge into this establishment's bridge, so nobody has to
- * type an id or a device key into a console.
+ * 
  */
 export type DbPrinterPairingModel = runtime.Types.Result.DefaultSelection<Prisma.$DbPrinterPairingPayload>
 

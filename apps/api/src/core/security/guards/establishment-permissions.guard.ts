@@ -1,4 +1,10 @@
-import { EstablishmentPermission, ErrorCodes, asEstablishmentRole, hasPermission } from '@coaster/common';
+import {
+  EstablishmentPermission,
+  ErrorCodes,
+  asEstablishmentRole,
+  getRolePermissions,
+  hasPermission,
+} from '@coaster/common';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { DbRole } from '../../db';
@@ -8,6 +14,7 @@ import { ESTABLISHMENT_PERMISSIONS_KEY } from '../decorators/establishment-permi
 interface RequestWithUser {
   user: { id: string };
   params: { establishmentId: string };
+  establishmentPermissions?: EstablishmentPermission[];
 }
 
 @Injectable()
@@ -38,6 +45,7 @@ export class EstablishmentPermissionsGuard implements CanActivate {
     const userRole = await this._securityRepository.getUserRole(user.id);
 
     if (userRole === DbRole.ADMIN) {
+      request.establishmentPermissions = Object.values(EstablishmentPermission);
       return true;
     }
 
@@ -51,8 +59,10 @@ export class EstablishmentPermissionsGuard implements CanActivate {
       throw new ForbiddenException(ErrorCodes.MEMBER_NOT_FOUND);
     }
 
+    const role = asEstablishmentRole(membership.role);
+    request.establishmentPermissions = getRolePermissions(role);
+
     if (requiredPermissions && requiredPermissions.length > 0) {
-      const role = asEstablishmentRole(membership.role);
       const hasAllPermissions = requiredPermissions.every((permission) => hasPermission(role, permission));
 
       if (!hasAllPermissions) {

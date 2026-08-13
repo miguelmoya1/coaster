@@ -4,6 +4,7 @@ export * from './permissions/manual-grant';
 export * from './security/data-access/security.repository';
 export * from './security/decorators/admin.decorator';
 export * from './security/decorators/establishment-modules.decorator';
+export * from './security/decorators/establishment-permissions-of.decorator';
 export * from './security/decorators/establishment-permissions.decorator';
 export * from './security/decorators/skip-subscription-check.decorator';
 export * from './security/guards/admin.guard';

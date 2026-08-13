@@ -449,14 +449,6 @@ export type DbMenuItemUncheckedUpdateManyWithoutSectionNestedInput = {
   deleteMany?: Prisma.DbMenuItemScalarWhereInput | Prisma.DbMenuItemScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type DbMenuItemCreateNestedManyWithoutProductInput = {
   create?: Prisma.XOR<Prisma.DbMenuItemCreateWithoutProductInput, Prisma.DbMenuItemUncheckedCreateWithoutProductInput> | Prisma.DbMenuItemCreateWithoutProductInput[] | Prisma.DbMenuItemUncheckedCreateWithoutProductInput[]
   connectOrCreate?: Prisma.DbMenuItemCreateOrConnectWithoutProductInput | Prisma.DbMenuItemCreateOrConnectWithoutProductInput[]

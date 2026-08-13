@@ -159,6 +159,7 @@ model DbUser {
   auditLogs      DbAdminAuditLog[]       @relation("AdminAuditActor")
   timeEntries    DbTimeEntry[]           @relation("TimeEntrySubject")
   timeEntryEdits DbTimeEntry[]           @relation("TimeEntryActor")
+  createdOrders  DbOrder[]               @relation("OrderCreator")
 
   @@map("User")
 }
@@ -244,6 +245,7 @@ model DbEstablishmentMember {
   establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   role            DbEstablishmentRole @default(STAFF)
   active          Boolean             @default(true)
+  hourlyRateCents Int?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   deletedAt       DateTime?
@@ -386,6 +388,8 @@ model DbOrder {
   id              String              @id @default(uuid())
   establishmentId String
   establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdById     String?
+  createdBy       DbUser?             @relation("OrderCreator", fields: [createdById], references: [id], onDelete: SetNull)
   tableId         String?
   table           DbTable?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
   tableName       String?
@@ -403,6 +407,7 @@ model DbOrder {
 
   @@index([establishmentId, status])
   @@index([establishmentId, createdAt])
+  @@index([establishmentId, createdById, createdAt])
   @@index([tableId])
   @@map("Order")
 }

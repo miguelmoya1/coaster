@@ -1,0 +1,153 @@
+<section class="flex flex-col gap-4">
+  <header class="flex justify-between items-center">
+    <h2 class="text-on-surface font-bold tracking-tight text-lg flex items-center gap-2">
+      <mat-icon class="text-primary text-xl">schedule</mat-icon>
+      {{ 'dashboard.sections.my_workday' | translate }}
+    </h2>
+    <a
+      [routerLink]="['/establishments', establishmentId(), 'schedule']"
+      class="text-primary text-xxs-plus font-black tracking-widest uppercase flex items-center gap-1 hover:opacity-80 transition-opacity"
+    >
+      {{ 'dashboard.sections.schedule_full' | translate }}
+      <mat-icon>arrow_forward</mat-icon>
+    </a>
+  </header>
+
+  <mat-card class="p-5 flex flex-col gap-5 border border-outline-variant/30! relative overflow-hidden">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+          [class.bg-emerald-500/15]="clockState() === ClockState.IN"
+          [class.text-emerald-500]="clockState() === ClockState.IN"
+          [class.bg-sky-400/15]="clockState() === ClockState.ON_BREAK"
+          [class.text-sky-400]="clockState() === ClockState.ON_BREAK"
+          [class.bg-surface-container-highest]="clockState() === ClockState.OUT"
+          [class.text-on-surface-variant]="clockState() === ClockState.OUT"
+        >
+          <mat-icon class="text-2xl">
+            @switch (clockState()) {
+              @case (ClockState.IN) {
+                work_history
+              }
+              @case (ClockState.ON_BREAK) {
+                free_breakfast
+              }
+              @default {
+                logout
+              }
+            }
+          </mat-icon>
+        </div>
+
+        <div class="flex flex-col gap-0.5">
+          <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+            {{ 'dashboard.my_workday.state' | translate }}
+          </span>
+          <span class="text-lg font-black text-on-surface tracking-tight leading-none">
+            {{ clockStateLabelKey() | translate }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-end gap-0.5">
+        <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+          {{ 'dashboard.my_workday.today_worked' | translate }}
+        </span>
+        <span class="text-lg font-black text-on-surface tracking-tight leading-none">{{ todayWorkedLabel() }}</span>
+      </div>
+    </div>
+
+    @if (todayPlannedRange(); as range) {
+      <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+        <mat-icon class="text-base">event_available</mat-icon>
+        <span>{{ 'dashboard.my_workday.today_planned' | translate }}</span>
+        <span class="font-black text-on-surface">{{ range }}</span>
+      </div>
+    } @else if (!isLoading()) {
+      <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+        <mat-icon class="text-base">event_busy</mat-icon>
+        <span>{{ 'dashboard.my_workday.no_shift_today' | translate }}</span>
+      </div>
+    }
+
+    <div class="flex flex-col sm:flex-row gap-2">
+      @if (clockState() === ClockState.OUT) {
+        <button
+          mat-flat-button
+          color="primary"
+          class="!rounded-xl font-black flex-1 !py-6"
+          [disabled]="isSubmitting()"
+          (click)="clock(TimeEntryType.CLOCK_IN)"
+        >
+          @if (isSubmitting()) {
+            <coaster-spinner class="mr-1" />
+          } @else {
+            <mat-icon class="mr-1">login</mat-icon>
+          }
+          {{ 'dashboard.my_workday.clock_in' | translate }}
+        </button>
+      } @else {
+        <button
+          mat-flat-button
+          color="primary"
+          class="!rounded-xl font-black flex-1 !py-6"
+          [disabled]="isSubmitting()"
+          (click)="clock(TimeEntryType.CLOCK_OUT)"
+        >
+          @if (isSubmitting()) {
+            <coaster-spinner class="mr-1" />
+          } @else {
+            <mat-icon class="mr-1">logout</mat-icon>
+          }
+          {{ 'dashboard.my_workday.clock_out' | translate }}
+        </button>
+
+        @if (clockState() === ClockState.IN) {
+          <button
+            mat-button
+            class="!rounded-xl font-bold border border-outline-variant/30 flex-1"
+            [disabled]="isSubmitting()"
+            (click)="clock(TimeEntryType.BREAK_START)"
+          >
+            <mat-icon class="mr-1">free_breakfast</mat-icon>
+            {{ 'dashboard.my_workday.break_start' | translate }}
+          </button>
+        } @else {
+          <button
+            mat-button
+            class="!rounded-xl font-bold border border-outline-variant/30 flex-1"
+            [disabled]="isSubmitting()"
+            (click)="clock(TimeEntryType.BREAK_END)"
+          >
+            <mat-icon class="mr-1">play_arrow</mat-icon>
+            {{ 'dashboard.my_workday.break_end' | translate }}
+          </button>
+        }
+      }
+    </div>
+
+    <div class="flex items-center justify-between pt-1 border-t border-outline-variant/20">
+      <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase pt-3">
+        {{ 'dashboard.my_workday.week_worked' | translate }}
+      </span>
+      <span class="text-sm font-black text-on-surface pt-3">{{ weekWorkedLabel() }}</span>
+    </div>
+  </mat-card>
+
+  @if (upcoming().length > 0) {
+    <div class="flex flex-col gap-2">
+      <span class="text-xxs font-bold text-on-surface-variant tracking-widest uppercase">
+        {{ 'dashboard.my_workday.upcoming' | translate }}
+      </span>
+      @for (shift of upcoming(); track shift.date) {
+        <div
+          class="bg-surface-container rounded-xl p-3 flex items-center justify-between border border-outline-variant/10"
+        >
+          <span class="text-sm font-bold text-on-surface">{{ shift.dayLabel }}</span>
+          <span class="text-sm font-black text-on-surface-variant tracking-tighter">{{ shift.timeRange }}</span>
+        </div>
+      }
+    </div>
+  }
+</section>

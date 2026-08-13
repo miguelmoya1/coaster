@@ -1,4 +1,5 @@
 import type { EstablishmentStats } from '@coaster/common';
+import { EstablishmentPermission, hasPermission } from '@coaster/common';
 import { GetEstablishmentStatsQuery } from '@coaster/stats';
 import { Logger } from '@nestjs/common';
 import { tool, zodSchema } from 'ai';
@@ -17,23 +18,38 @@ export const createStatsTools = (context: AiToolsContext) => {
       inputSchema: zodSchema(z.object({})),
       execute: async (): Promise<ToolResult> => {
         logger.debug(`[AI Tool] 'getEstablishmentStats' called`);
+
+        const includeHistory =
+          context.isAdmin ||
+          hasPermission(context.establishmentRole, EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS_HISTORY);
+
         return runner.query<EstablishmentStats>(
-          'establishment:view-dashboard',
-          new GetEstablishmentStatsQuery(context.establishmentId),
+          EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS,
+          new GetEstablishmentStatsQuery(context.establishmentId, includeHistory),
           (stats) => ({
             todayRevenue: toEuros(stats.todayRevenue),
             yesterdayRevenue: toEuros(stats.yesterdayRevenue),
+            sameWeekdayLastWeekRevenue: toEuros(stats.sameWeekdayLastWeekRevenue),
             weeklyRevenue: toEuros(stats.weeklyRevenue),
-            currentMonthRevenue: toEuros(stats.currentMonthRevenue),
-            previousMonthRevenue: toEuros(stats.previousMonthRevenue),
-            yearlyRevenue: toEuros(stats.yearlyRevenue),
-            monthOverMonthChangePercent: stats.percentageChange,
-            isPositiveChange: stats.isPositiveChange,
+            todayTicketCount: stats.todayTicketCount,
+            todayAverageTicket: toEuros(stats.todayAverageTicket),
+            todayCashRevenue: toEuros(stats.todayCashRevenue),
+            todayCardRevenue: toEuros(stats.todayCardRevenue),
+            todayTipAmount: toEuros(stats.todayTipAmount),
             dailyRevenues: stats.dailyRevenues.map((day) => ({
               day: day.dayName,
               date: day.dateStr,
               revenue: toEuros(day.amount),
             })),
+            history: stats.history
+              ? {
+                  currentMonthRevenue: toEuros(stats.history.currentMonthRevenue),
+                  previousMonthRevenue: toEuros(stats.history.previousMonthRevenue),
+                  yearlyRevenue: toEuros(stats.history.yearlyRevenue),
+                  monthOverMonthChangePercent: stats.history.percentageChange,
+                  isPositiveChange: stats.history.isPositiveChange,
+                }
+              : null,
           }),
         );
       },
