@@ -1,15 +1,15 @@
 import { Component, computed, effect, inject, input, untracked } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
-import { OnboardingDialog } from '../components/onboarding/onboarding-dialog';
-import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
+import { RouterOutlet } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
 import { CurrentUser, Socket } from '@coaster/core';
 import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
+import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
 import { AiAssistantPanel } from '../components/ai-assistant/ai-assistant-panel';
 import { AiVoiceService } from '../components/ai-assistant/ai-voice.service';
 import { BottomNav } from '../components/bottom-nav/bottom-nav';
+import { OnboardingDialog } from '../components/onboarding/onboarding-dialog';
 import { SubscriptionBanner } from '../components/subscription-banner/subscription-banner';
 import { TopAppBar } from '../components/top-app-bar/top-app-bar';
 
@@ -35,14 +35,6 @@ import { TopAppBar } from '../components/top-app-bar/top-app-bar';
   `,
   styles: [
     `
-      /*
-       * Only the desktop rail needs the content column to be the containing block for its
-       * fixed-position descendants (see AiAssistantPanel's RAIL_BREAKPOINT). Below that width the
-       * assistant is a bottom sheet, not a rail, so containment bought nothing there and instead
-       * left the FAB, the bottom nav and the AI sheet anchored to the content column's own box
-       * instead of the real viewport, which mobile browsers do not keep in sync with it the way
-       * they do the viewport - the bottom nav could end up overlapping them.
-       */
       @media (min-width: 1024px) {
         .content-column {
           contain: layout;
