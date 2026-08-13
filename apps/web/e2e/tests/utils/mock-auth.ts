@@ -1,9 +1,16 @@
 import { Page } from '@playwright/test';
 import { setupMockApi } from './mock-api';
 
-export async function loginAsTestUser(page: Page, targetRoute: string = '/establishments') {
+export async function loginAsTestUser(
+  page: Page,
+  targetRoute: string = '/establishments',
+  beforeLoad?: (page: Page) => Promise<void>,
+) {
   // Setup API mocks first so signInWithCustomToken intercepts work
   await setupMockApi(page);
+
+  // Anything the test needs to override has to land after the defaults and before the app loads
+  await beforeLoad?.(page);
 
   // Go to the home page or login page to ensure the angular app is loaded
   await page.goto('/login');

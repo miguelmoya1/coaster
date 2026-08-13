@@ -113,9 +113,11 @@ describe('StatsController (e2e)', () => {
       expect(response.body).toBeDefined();
       expect(response.body.todayRevenue).toBeDefined();
       expect(response.body.weeklyRevenue).toBeDefined();
-      expect(response.body.currentMonthRevenue).toBeDefined();
-      expect(response.body.yearlyRevenue).toBeDefined();
-      expect(response.body.monthlyBreakdown).toBeDefined();
+      expect(response.body.todayTicketCount).toBeDefined();
+      expect(response.body.todayAverageTicket).toBeDefined();
+      expect(response.body.history.currentMonthRevenue).toBeDefined();
+      expect(response.body.history.yearlyRevenue).toBeDefined();
+      expect(response.body.history.monthlyBreakdown).toBeDefined();
     });
   });
 });

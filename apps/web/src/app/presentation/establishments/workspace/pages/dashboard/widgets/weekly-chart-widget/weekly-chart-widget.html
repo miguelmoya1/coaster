@@ -1,4 +1,4 @@
-<section class="flex flex-col gap-4">
+<section class="flex flex-col gap-4" data-testid="widget-weekly-chart">
   @if (stats.isLoading()) {
     <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
   } @else if (stats.hasValue()) {

@@ -221,6 +221,35 @@ export async function setupMockApi(page: Page) {
   });
 }
 
+/**
+ * Overrides the membership `setupMockApi` installs, which is always an owner. Playwright matches
+ * routes newest first, so this has to be registered after `setupMockApi` and before the page loads.
+ */
+export async function mockMyMemberRole(page: Page, role: EstablishmentRole) {
+  await page.route('**/api/v1/establishments/*/members/me', async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.fallback();
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        id: 'member-123',
+        userId: 'test-user-123',
+        establishmentId: 'establishment-123',
+        role,
+        active: true,
+        userName: 'Test User',
+        userImage: '',
+        userEmail: 'test@example.com',
+      }),
+    });
+  });
+}
+
 export async function mockApiResponse(page: Page, path: string, method: string, response: unknown, status = 200) {
   const endpoint = `${API_BASE}${path}`;
   await page.route(
