@@ -26,6 +26,7 @@ describe('ProductsStore', () => {
       currentStock: 10,
       minStockAlert: 5,
       categoryId: asCategoryId('cat-1'),
+      allergens: [],
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -35,6 +36,7 @@ describe('ProductsStore', () => {
       currentStock: 3,
       minStockAlert: 5,
       categoryId: asCategoryId('cat-2'),
+      allergens: [],
       lastUpdated: new Date().toISOString(),
     },
   ];

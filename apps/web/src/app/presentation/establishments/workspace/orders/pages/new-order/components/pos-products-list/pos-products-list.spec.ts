@@ -18,6 +18,7 @@ describe('PosProductsList', () => {
       currentStock: 10,
       minStockAlert: 5,
       stockStatus: 'GOOD',
+      allergens: [],
       lastUpdated: new Date().toISOString(),
     },
     {
@@ -28,6 +29,7 @@ describe('PosProductsList', () => {
       currentStock: 0,
       minStockAlert: 10,
       stockStatus: 'WARNING',
+      allergens: [],
       lastUpdated: new Date().toISOString(),
     },
   ];

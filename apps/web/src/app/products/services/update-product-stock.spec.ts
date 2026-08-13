@@ -16,6 +16,7 @@ describe('UpdateProductStock', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
+    allergens: [],
     lastUpdated: new Date().toISOString(),
   };
 

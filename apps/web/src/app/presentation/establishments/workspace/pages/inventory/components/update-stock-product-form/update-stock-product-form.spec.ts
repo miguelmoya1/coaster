@@ -20,6 +20,7 @@ describe('UpdateStockProductForm', () => {
     currentStock: 10,
     minStockAlert: 5,
     stockStatus: 'GOOD',
+    allergens: [],
     lastUpdated: new Date().toISOString(),
   };
 
