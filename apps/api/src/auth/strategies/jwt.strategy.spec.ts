@@ -2,6 +2,7 @@ import { Logger, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FirebaseTokenService } from '@coaster/core';
 import type { DbService } from '@coaster/core/db';
+import { passThroughCache } from '../../../test/utils/passthrough-cache';
 import { JwtStrategy } from './jwt.strategy';
 
 const verifyIdToken = vi.fn();
@@ -30,7 +31,7 @@ describe('JwtStrategy', () => {
     vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
 
     db = { dbUser: { findUnique: vi.fn() } };
-    strategy = new JwtStrategy(new FirebaseTokenService(db as unknown as DbService));
+    strategy = new JwtStrategy(new FirebaseTokenService(db as unknown as DbService, passThroughCache));
 
     verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@establishment.com' });
   });

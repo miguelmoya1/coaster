@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { EstablishmentSubscriptionReadRepository } from '../../data-access/establishment-subscription.read.repository';
 import { EstablishmentSubscriptionWriteRepository } from '../../data-access/establishment-subscription.write.repository';
-import { DuplicateSubscriptionDetectedEvent } from '../../events';
+import { DuplicateSubscriptionDetectedEvent, SubscriptionActivatedEvent } from '../../events';
 import { HandleCheckoutCompletedCommand } from '../impl/handle-checkout-completed.command';
 
 @Injectable()
@@ -63,6 +63,8 @@ export class HandleCheckoutCompletedHandler implements ICommandHandler<HandleChe
     );
 
     await this._writeRepo.upsert(establishmentId, data, data);
+
+    this._eventBus.publish(new SubscriptionActivatedEvent(establishmentId, stripeSubscriptionId));
   }
 
   async #resolveState(stripeCustomerId: string, stripeSubscriptionId: string) {

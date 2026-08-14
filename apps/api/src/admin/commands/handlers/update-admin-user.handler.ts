@@ -1,5 +1,6 @@
 import { AdminAuditAction, AdminAuditTargetType, ErrorCodes, Role } from '@coaster/common';
 import type { DbRole } from '@coaster/core/db';
+import { UserUpdatedEvent } from '@coaster/users';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AdminActionEvent } from '../../events/impl/admin-action.event';
@@ -40,10 +41,12 @@ export class UpdateAdminUserHandler implements ICommandHandler<UpdateAdminUserCo
       return;
     }
 
-    await this._writeRepo.updateUser(userId, {
+    const updated = await this._writeRepo.updateUser(userId, {
       role: dto.role ? (dto.role as DbRole) : undefined,
       active: dto.active,
     });
+
+    this._eventBus.publish(new UserUpdatedEvent(userId, updated.googleId));
 
     if (dto.role && dto.role !== user.role) {
       this._eventBus.publish(

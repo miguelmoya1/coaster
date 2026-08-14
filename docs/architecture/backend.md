@@ -62,9 +62,28 @@ in four places.
 
 The full authorisation picture is in [access model](permissions.md).
 
+### The shared cache
+
+Three things used to live in the memory of one process and therefore broke the moment Cloud Run ran
+more than one instance: the websocket rooms, the throttler's counter, and nothing else — the guards
+were merely slow. All three now go through `core/cache`, and the full picture, including what is
+cached and what deletes it, is in [the shared cache](../operations/redis.md).
+
+Two things are worth knowing before reading any guard:
+
+- **`REDIS_URL` unset means no cache at all**, and the application behaves exactly as it did before.
+  Every read falls back to Postgres, rooms stay local, the throttler counts in memory. The e2e suite
+  runs this way.
+- **`SecurityRepository` is the only place that caches.** Every read on the authenticated preamble —
+  role, membership, module list, subscription row — is a `remember` there, and
+  `FirebaseTokenService` caches the user lookup behind `CurrentUser`. Nothing else in the codebase
+  touches the cache to read; a handful of event handlers touch it to `forget`.
+
 ### Rate limiting
 
-`@nestjs/throttler` is registered globally at **300 requests/minute**. Two exceptions:
+`@nestjs/throttler` is registered globally at **300 requests/minute**, counted in the shared cache so
+the limit is the whole service rather than 300 per instance. If the cache is unreachable it falls
+back to counting in memory rather than answering 500. Two exceptions:
 
 - `POST /establishments/:establishmentId/ai` is capped at **20/minute** — it calls a paid LLM gateway, and without a
   tighter limit any member could burn the budget in a loop.

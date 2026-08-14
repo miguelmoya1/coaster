@@ -1,4 +1,5 @@
 import {
+  SubscriptionActivatedEvent,
   SubscriptionCancelledEvent,
   SubscriptionOverriddenEvent,
   SubscriptionPaymentFailedEvent,
@@ -10,9 +11,14 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { EstablishmentGateway } from '../../establishment.gateway';
 
 type SubscriptionEvent =
-  SubscriptionRenewedEvent | SubscriptionCancelledEvent | SubscriptionPaymentFailedEvent | SubscriptionOverriddenEvent;
+  | SubscriptionActivatedEvent
+  | SubscriptionRenewedEvent
+  | SubscriptionCancelledEvent
+  | SubscriptionPaymentFailedEvent
+  | SubscriptionOverriddenEvent;
 
 @EventsHandler(
+  SubscriptionActivatedEvent,
   SubscriptionRenewedEvent,
   SubscriptionCancelledEvent,
   SubscriptionPaymentFailedEvent,

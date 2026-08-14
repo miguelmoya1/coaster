@@ -1,8 +1,9 @@
 import { ErrorCodes } from '@coaster/common';
 import { Logger, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserReadRepository } from '../../data-access/user.read.repository';
 import { UserWriteRepository } from '../../data-access/user.write.repository';
+import { UserUpdatedEvent } from '../../events/impl/user-updated.event';
 import { UpdateUserCommand } from '../impl/update-user.command';
 
 @CommandHandler(UpdateUserCommand)
@@ -12,6 +13,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, voi
   constructor(
     private readonly readRepo: UserReadRepository,
     private readonly writeRepo: UserWriteRepository,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateUserCommand): Promise<void> {
@@ -33,5 +35,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, voi
       },
       updateUserDto.language,
     );
+
+    this.eventBus.publish(new UserUpdatedEvent(id, userExists.googleId));
   }
 }

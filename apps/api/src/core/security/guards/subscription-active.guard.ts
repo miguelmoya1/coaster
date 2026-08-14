@@ -1,8 +1,9 @@
 import { ErrorCodes } from '@coaster/common';
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { DbRole, DbService, DbSubscriptionPlan, DbSubscriptionStatus } from '../../db';
+import { DbRole, DbSubscriptionStatus } from '../../db';
 import { isManualGrantActive } from '../../permissions/manual-grant';
+import { SecurityRepository, SubscriptionState } from '../data-access/security.repository';
 import { FirebaseTokenService } from '../services/firebase-token.service';
 import { SKIP_SUBSCRIPTION_CHECK_KEY } from '../decorators/skip-subscription-check.decorator';
 
@@ -12,15 +13,6 @@ interface RequestWithParams {
   headers?: { authorization?: string };
   params?: { establishmentId?: string };
   user?: { id: string };
-}
-
-interface SubscriptionState {
-  status: DbSubscriptionStatus;
-  stripeSubscriptionId: string | null;
-  currentPeriodEnd: Date | null;
-  trialEndsAt: Date | null;
-  manualPlan: DbSubscriptionPlan | null;
-  manualGrantExpiresAt: Date | null;
 }
 
 const SUBSCRIPTION_MANAGEMENT_PATH = /\/establishments\/[^/]+\/establishment-subscription(\/|$)/;
@@ -40,7 +32,7 @@ export class SubscriptionActiveGuard implements CanActivate {
 
   constructor(
     private readonly _reflector: Reflector,
-    private readonly _db: DbService,
+    private readonly _securityRepository: SecurityRepository,
     private readonly _tokens: FirebaseTokenService,
   ) {}
 
@@ -70,17 +62,7 @@ export class SubscriptionActiveGuard implements CanActivate {
       return true;
     }
 
-    const subscription = await this._db.dbEstablishmentSubscription.findUnique({
-      where: { establishmentId },
-      select: {
-        status: true,
-        stripeSubscriptionId: true,
-        currentPeriodEnd: true,
-        trialEndsAt: true,
-        manualPlan: true,
-        manualGrantExpiresAt: true,
-      },
-    });
+    const subscription = await this._securityRepository.getSubscriptionState(establishmentId);
 
     if (this.#grantsAccess(subscription)) {
       return true;
@@ -141,8 +123,7 @@ export class SubscriptionActiveGuard implements CanActivate {
 
   async #isPlatformAdmin(request: RequestWithParams): Promise<boolean> {
     if (request.user?.id) {
-      const user = await this._db.dbUser.findUnique({ where: { id: request.user.id }, select: { role: true } });
-      return user?.role === DbRole.ADMIN;
+      return (await this._securityRepository.getUserRole(request.user.id)) === DbRole.ADMIN;
     }
 
     const caller = await this._tokens.resolve(request.headers?.authorization);

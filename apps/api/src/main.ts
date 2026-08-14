@@ -5,7 +5,7 @@ import { PUBLIC_ROOT } from '@coaster/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { IoAdapter } from '@nestjs/platform-socket.io';
+import { SharedIoAdapter } from '@coaster/websockets';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyRawBody from 'fastify-raw-body';
 import { getApps, initializeApp } from 'firebase-admin/app';
@@ -29,7 +29,9 @@ async function bootstrap() {
     logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
-  app.useWebSocketAdapter(new IoAdapter(app));
+  const ioAdapter = new SharedIoAdapter(app);
+  ioAdapter.connect();
+  app.useWebSocketAdapter(ioAdapter);
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

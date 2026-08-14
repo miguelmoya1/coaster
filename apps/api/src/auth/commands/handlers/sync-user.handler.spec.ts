@@ -3,6 +3,8 @@ import { DbService } from '@coaster/core/db';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CacheService } from '@coaster/core';
+import { passThroughCache } from '../../../../test/utils/passthrough-cache';
 import { SyncUserCommand } from '../impl/sync-user.command';
 import { SyncUserHandler } from './sync-user.handler';
 
@@ -34,7 +36,11 @@ describe('SyncUserHandler', () => {
     vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SyncUserHandler, { provide: DbService, useValue: { dbUser } }],
+      providers: [
+        SyncUserHandler,
+        { provide: DbService, useValue: { dbUser } },
+        { provide: CacheService, useValue: passThroughCache },
+      ],
     }).compile();
 
     handler = module.get<SyncUserHandler>(SyncUserHandler);

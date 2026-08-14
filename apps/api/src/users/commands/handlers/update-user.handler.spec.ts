@@ -1,4 +1,5 @@
 import { ErrorCodes, asUserId } from '@coaster/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserReadRepository } from '../../data-access/user.read.repository';
@@ -12,6 +13,7 @@ describe('UpdateUserHandler', () => {
     findById: vi.fn(),
     update: vi.fn(),
   };
+  const eventBus = { publish: vi.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,6 +21,7 @@ describe('UpdateUserHandler', () => {
         UpdateUserHandler,
         { provide: UserWriteRepository, useValue: repository },
         { provide: UserReadRepository, useValue: repository },
+        { provide: EventBus, useValue: eventBus },
       ],
     }).compile();
 

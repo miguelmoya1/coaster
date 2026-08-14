@@ -3,6 +3,7 @@ import { DbRole, type DbService } from '@coaster/core/db';
 import { Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { passThroughCache } from '../../../test/utils/passthrough-cache';
 import { WsAuthService } from './ws-auth.service';
 
 const verifyIdToken = vi.fn();
@@ -25,7 +26,7 @@ describe('WsAuthService', () => {
     securityRepoMock = { getUserRole: vi.fn(), getEstablishmentMemberRole: vi.fn() };
 
     service = new WsAuthService(
-      new FirebaseTokenService(dbMock as unknown as DbService),
+      new FirebaseTokenService(dbMock as unknown as DbService, passThroughCache),
       securityRepoMock as unknown as SecurityRepository,
     );
 

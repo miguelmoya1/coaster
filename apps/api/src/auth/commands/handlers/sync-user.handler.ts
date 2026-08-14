@@ -1,6 +1,6 @@
 import type { User } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { UsersMapper } from '@coaster/core';
+import { CacheKeys, CacheService, DbUserWithPreferences, UsersMapper } from '@coaster/core';
 import { DbService } from '@coaster/core/db';
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
@@ -11,7 +11,10 @@ import { SyncUserCommand } from '../impl/sync-user.command';
 export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
   private readonly logger = new Logger(SyncUserHandler.name);
 
-  constructor(private readonly _db: DbService) {}
+  constructor(
+    private readonly _db: DbService,
+    private readonly _cache: CacheService,
+  ) {}
 
   async execute(command: SyncUserCommand): Promise<User> {
     try {
@@ -66,12 +69,13 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
           throw new UnauthorizedException(ErrorCodes.EMAIL_NOT_VERIFIED);
         }
 
-        return UsersMapper.toDomain(
+        return this.#linked(
           await this._db.dbUser.update({
             where: { id: user.id },
             data: { googleId: decodedToken.sub },
             include: { preferences: true },
           }),
+          decodedToken.sub,
         );
       }
 
@@ -86,14 +90,14 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
           },
           include: { preferences: true },
         });
-        return UsersMapper.toDomain(user);
+        return this.#linked(user, decodedToken.sub);
       } catch (error: any) {
         if (error?.code === 'P2002') {
           user = await this._db.dbUser.findUnique({
             where: { email: decodedToken.email },
             include: { preferences: true },
           });
-          if (user) return UsersMapper.toDomain(user);
+          if (user) return this.#linked(user, decodedToken.sub);
         }
         throw error;
       }
@@ -104,5 +108,11 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
       this.logger.error('Error validating Firebase JWT token:', error);
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
+  }
+
+  async #linked(user: DbUserWithPreferences, googleId: string): Promise<User> {
+    await this._cache.forget(CacheKeys.userByGoogleId(googleId));
+
+    return UsersMapper.toDomain(user);
   }
 }

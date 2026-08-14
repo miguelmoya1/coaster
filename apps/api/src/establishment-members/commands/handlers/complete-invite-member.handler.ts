@@ -30,6 +30,7 @@ export class CompleteInviteMemberHandler implements ICommandHandler<CompleteInvi
         response.establishment.name,
         response.user.name,
         command.inviterLanguage,
+        userId,
       ),
     );
   }

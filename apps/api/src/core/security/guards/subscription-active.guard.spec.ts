@@ -1,6 +1,8 @@
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { passThroughCache } from '../../../../test/utils/passthrough-cache';
 import { DbRole, DbSubscriptionStatus } from '../../db';
+import { SecurityRepository } from '../data-access/security.repository';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
 import { FirebaseTokenService } from '../services/firebase-token.service';
 
@@ -30,7 +32,11 @@ describe('SubscriptionActiveGuard', () => {
       dbEstablishmentSubscription: { findUnique: vi.fn() },
     };
 
-    guard = new SubscriptionActiveGuard(reflector as any, dbService as any, new FirebaseTokenService(dbService as any));
+    guard = new SubscriptionActiveGuard(
+      reflector as any,
+      new SecurityRepository(dbService as any, passThroughCache),
+      new FirebaseTokenService(dbService as any, passThroughCache),
+    );
   });
 
   const createMockContext = (

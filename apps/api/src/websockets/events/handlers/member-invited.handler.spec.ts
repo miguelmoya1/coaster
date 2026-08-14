@@ -1,5 +1,5 @@
 import { MemberInvitedEvent } from '@coaster/establishment-members';
-import { SocketEvents, asEstablishmentId, asEstablishmentMemberId } from '@coaster/common';
+import { SocketEvents, asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentGateway } from '../../establishment.gateway';
@@ -38,6 +38,7 @@ describe('MemberInvitedHandler', () => {
       'Test Establishment',
       'User',
       'en',
+      asUserId('user-1'),
     );
     handler.handle(event);
 

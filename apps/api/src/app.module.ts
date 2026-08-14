@@ -5,7 +5,7 @@ import { EstablishmentMembersModule } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionModule } from '@coaster/establishment-subscription';
 import { EstablishmentsModule } from '@coaster/establishments';
 import { CategoriesModule } from '@coaster/categories';
-import { SecurityModule } from '@coaster/core';
+import { CacheModule, SecurityModule, ThrottlerCacheStorage } from '@coaster/core';
 import { DbModule } from '@coaster/core/db';
 import { EmailModule } from '@coaster/email';
 import { MediaModule } from '@coaster/media';
@@ -32,8 +32,14 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot({
-      throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
+    CacheModule,
+    ThrottlerModule.forRootAsync({
+      imports: [CacheModule],
+      inject: [ThrottlerCacheStorage],
+      useFactory: (storage: ThrottlerCacheStorage) => ({
+        throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
+        storage,
+      }),
     }),
     DbModule,
     StripeModule,

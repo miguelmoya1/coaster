@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { getAuth } from 'firebase-admin/auth';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import type { DbUserWithPreferences } from '../../mappers/users.mapper';
+import { CacheKeys } from '../../cache/cache-keys';
+import { CacheService } from '../../cache/cache.service';
 import { DbService } from '../../db';
 
 export interface VerifiedCaller {
@@ -19,7 +21,10 @@ export const stripBearer = (value: string | undefined | null): string | null => 
 
 @Injectable()
 export class FirebaseTokenService {
-  constructor(private readonly _db: DbService) {}
+  constructor(
+    private readonly _db: DbService,
+    private readonly _cache: CacheService,
+  ) {}
 
   async resolve(token: string | undefined | null): Promise<VerifiedCaller | null> {
     const bearer = stripBearer(token);
@@ -40,10 +45,12 @@ export class FirebaseTokenService {
       return null;
     }
 
-    const user = await this._db.dbUser.findUnique({
-      where: { googleId: decoded.sub },
-      include: { preferences: true },
-    });
+    const user = await this._cache.remember(CacheKeys.userByGoogleId(decoded.sub), () =>
+      this._db.dbUser.findUnique({
+        where: { googleId: decoded.sub },
+        include: { preferences: true },
+      }),
+    );
 
     return { decoded, user };
   }
