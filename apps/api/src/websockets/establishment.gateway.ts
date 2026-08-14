@@ -79,7 +79,7 @@ export class EstablishmentGateway implements OnGatewayInit, OnGatewayConnection 
   }
 
   async evictFromEstablishment(establishmentId: string, userId: string) {
-    const sockets = await this.server.in(establishmentId).fetchSockets();
+    const sockets = await this.#socketsIn(establishmentId);
 
     for (const socket of sockets) {
       if ((socket.data as { userId?: string }).userId === userId) {
@@ -88,6 +88,19 @@ export class EstablishmentGateway implements OnGatewayInit, OnGatewayConnection 
           `Usuario ${userId} sacado de la sala del establishment ${establishmentId} tras perder el acceso`,
         );
       }
+    }
+  }
+
+  async #socketsIn(establishmentId: string) {
+    try {
+      return await this.server.in(establishmentId).fetchSockets();
+    } catch (error) {
+      this._logger.warn(
+        `No se pudo consultar al resto de instancias por la sala ${establishmentId} (${(error as Error).message}); ` +
+          'se expulsa solo a los sockets de esta',
+      );
+
+      return this.server.in(establishmentId).local.fetchSockets();
     }
   }
 

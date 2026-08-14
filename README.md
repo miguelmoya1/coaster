@@ -175,6 +175,7 @@ Environment variables that are easy to get wrong:
 | `TRUST_PROXY_HOPS`      | API       | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
 | `PUBLIC_URL`            | API       | Where printer bridges download updates from; `localhost` reaches no venue                                                                             |
 | `STRIPE_WEBHOOK_SECRET` | API       | Without it every webhook is rejected and subscriptions never activate                                                                                 |
+| `REDIS_URL`             | API       | Optional. Unset, rooms and the rate limit stay per-instance and every guard reads Postgres — see [the shared cache](docs/operations/redis.md)          |
 
 Migrations are not run by the image. Apply them with `prisma migrate deploy` before or during the
 release.

@@ -62,31 +62,6 @@ services:
       - /app/apps/api/node_modules
       - /app/packages/common/node_modules
 
-  api-2:
-    profiles: ['cluster']
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile.dev
-    ports:
-      - '3001:3000'
-    environment:
-      - DATABASE_URL=postgres://admin:admin@db:5432/coaster
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
-      - REDIS_URL=redis://redis:6379
-      - TRUST_PROXY_HOPS=0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      firebase:
-        condition: service_started
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/apps/api/node_modules
-      - /app/packages/common/node_modules
-
   web:
     build:
       context: .

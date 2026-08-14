@@ -30,7 +30,17 @@ export class CacheConnection implements OnModuleDestroy {
       return null;
     }
 
-    const connection = new Redis(url, { connectionName: `coaster-${name}`, ...options });
+    let connection: CacheClient;
+
+    try {
+      connection = new Redis(url, { connectionName: `coaster-${name}`, ...options });
+    } catch (error) {
+      this.#logger.error(
+        `REDIS_URL is not a usable address (${(error as Error).message}); carrying on without a cache`,
+      );
+
+      return null;
+    }
 
     connection.on('error', (error: Error) => {
       if (!this.#failing.has(name)) {
