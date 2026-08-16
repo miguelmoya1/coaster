@@ -41,6 +41,18 @@ import { TranslatePipe } from '@ngx-translate/core';
         </div>
       </div>
 
+      @if (unclosedOn(); as day) {
+        <p
+          class="flex items-start gap-2 rounded-xl bg-tertiary/10 px-3 py-2 text-xs text-on-surface"
+          role="status"
+        >
+          <mat-icon class="text-tertiary text-[18px]! w-[18px]! h-[18px]! leading-[18px]! shrink-0">
+            error_outline
+          </mat-icon>
+          <span>{{ 'schedule.time_tracking.unclosed_workday' | translate: { day: day } }}</span>
+        </p>
+      }
+
       <div class="flex flex-wrap gap-2">
         @if (state() === ClockState.OUT) {
           <button mat-flat-button class="flex-1" [disabled]="disabled()" (click)="clock.emit(TimeEntryType.CLOCK_IN)">
@@ -93,6 +105,7 @@ export class ClockCard {
   public readonly workedMinutes = input(0);
   public readonly breakMinutes = input(0);
   public readonly disabled = input(false);
+  public readonly unclosedOn = input<string | null>(null);
 
   public readonly clock = output<TimeEntryType>();
 

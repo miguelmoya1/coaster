@@ -5,6 +5,7 @@ import { BadRequestException } from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import {
+  closesAt,
   findDiscrepancies,
   formatWorkdayDate,
   parseWorkdayDate,
@@ -92,12 +93,15 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
     return [...days.entries()]
       .map(([key, entries]) => {
         const marks = toDatedMarks(entries);
-        const totals = summariseWorkday(marks, now);
         const shift = planned.get(key) ?? null;
+        const date = entries[0]?.workdayDate ?? shift!.date;
+        const lastPunchableMoment = closesAt(parseWorkdayDate(date));
+        const totals = summariseWorkday(marks, now, lastPunchableMoment);
         const workedMinutes = totals?.workedMinutes ?? 0;
+        const abandoned = totals?.state !== undefined && totals.state !== ClockState.OUT && now > lastPunchableMoment;
 
         return {
-          date: entries[0]?.workdayDate ?? shift!.date,
+          date,
           userId: entries[0]?.userId ?? shift!.userId,
           userName: entries[0]?.userName ?? shift!.userName,
           state: totals?.state ?? ClockState.OUT,
@@ -106,7 +110,7 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
           plannedMinutes: shift?.minutes ?? null,
           plannedStart: shift?.startsAt.toISOString() ?? null,
           plannedEnd: shift?.endsAt.toISOString() ?? null,
-          discrepancies: findDiscrepancies(marks, shift, workedMinutes),
+          discrepancies: findDiscrepancies(marks, shift, workedMinutes, abandoned),
           entries,
         };
       })

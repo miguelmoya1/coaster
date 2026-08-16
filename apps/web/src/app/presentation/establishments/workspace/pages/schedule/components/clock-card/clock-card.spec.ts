@@ -69,6 +69,23 @@ describe('ClockCard', () => {
     expect(emitted).toBe(TimeEntryType.BREAK_START);
   });
 
+  it('should say nothing about other days when the open one is today', () => {
+    render(ClockState.IN);
+
+    expect(fixture.nativeElement.textContent).not.toContain('schedule.time_tracking.unclosed_workday');
+  });
+
+  it('should flag a day nobody closed without taking away the punch for today', () => {
+    fixture.componentRef.setInput('state', ClockState.OUT);
+    fixture.componentRef.setInput('unclosedOn', '14 ago');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain(
+      'schedule.time_tracking.unclosed_workday',
+    );
+    expect(buttonLabels()).toEqual(['schedule.time_tracking.clock_in']);
+  });
+
   it('should block every action while a punch is in flight', () => {
     fixture.componentRef.setInput('state', ClockState.IN);
     fixture.componentRef.setInput('disabled', true);

@@ -57,7 +57,7 @@ export class MyShiftWidget {
     return this.#workdays().find((workday) => workday.date === todayId);
   });
 
-  readonly clockState = computed<ClockState>(() => this.today()?.state ?? ClockState.OUT);
+  readonly clockState = this.#timeTrackingStore.clockState;
 
   readonly clockStateLabelKey = computed(() => `schedule.time_tracking.state_${this.clockState().toLowerCase()}`);
 

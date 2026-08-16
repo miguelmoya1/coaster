@@ -36,6 +36,7 @@ export const WorkdayDiscrepancy = {
   LATE_START: 'LATE_START',
   EARLY_FINISH: 'EARLY_FINISH',
   OVERTIME: 'OVERTIME',
+  NOT_CLOSED: 'NOT_CLOSED',
 } as const;
 
 export type WorkdayDiscrepancy = (typeof WorkdayDiscrepancy)[keyof typeof WorkdayDiscrepancy];

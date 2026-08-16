@@ -1,8 +1,18 @@
-import { Service } from '@angular/core';
-import { format } from 'date-fns';
+import { inject, Service } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { format, type Locale } from 'date-fns';
+import { enUS, es } from 'date-fns/locale';
+
+const LOCALES: Record<string, Locale> = { es, en: enUS };
 
 @Service()
 export class DateFormatterService {
+  readonly #translate = inject(TranslateService, { optional: true });
+
+  get #locale(): Locale {
+    return LOCALES[this.#translate?.getCurrentLang() ?? ''] ?? es;
+  }
+
   public formatTimeRange(startIso: string, endIso: string): string {
     try {
       const start = new Date(startIso);
@@ -14,7 +24,7 @@ export class DateFormatterService {
   }
 
   public formatMonth(iso: string): string {
-    return format(new Date(iso), 'MMM').toUpperCase();
+    return format(new Date(iso), 'MMM', { locale: this.#locale }).toUpperCase();
   }
 
   public formatDay(iso: string): string {
@@ -33,15 +43,15 @@ export class DateFormatterService {
   }
 
   public formatDayName(date: Date): string {
-    return format(date, 'EEE');
+    return format(date, 'EEE', { locale: this.#locale });
   }
 
   public formatMonthYear(date: Date): string {
-    return format(date, 'MMMM yyyy').toUpperCase();
+    return format(date, 'MMMM yyyy', { locale: this.#locale }).toUpperCase();
   }
 
   public formatShortDate(date: Date): string {
-    return format(date, 'MMM d');
+    return format(date, 'd MMM', { locale: this.#locale });
   }
 
   public formatTime(iso: string): string {

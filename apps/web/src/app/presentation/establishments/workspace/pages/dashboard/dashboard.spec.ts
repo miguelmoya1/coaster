@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { ModulesStore, CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore, PlanDialogService } from '@coaster/establishment-subscription';
-import { EstablishmentId, EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
+import { ClockState, EstablishmentId, EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
 import { ProductsStore } from '@coaster/products';
@@ -55,6 +55,8 @@ const statsStoreMock = {
 
 const timeTrackingStoreMock = {
   myWorkdays: emptyResource([]),
+  actionableWorkday: () => undefined,
+  clockState: () => ClockState.OUT,
   setEstablishmentId: vi.fn(),
   setRange: vi.fn(),
   clock: vi.fn(),

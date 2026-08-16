@@ -89,6 +89,13 @@ establishment room, write through `:3000` and the client on `:3001` has to hear 
 (`docker compose stop redis`) and the same test must show the event staying local **while the API
 keeps answering** — that is the degradation working, and it is what production looked like before.
 
+The e2e suite forces `REDIS_URL` to empty in `test/setup.e2e.ts`. It gets a database of its own from
+testcontainers but would otherwise share whatever cache the developer happens to be running, and
+`clearDatabase` cannot reach into it — a role cached by one test then answers for a user the next
+test has already deleted, which shows up as unrelated 403s in the admin suite. Empty rather than
+deleted, because `ConfigModule` only fills in variables that are absent and would hand the job
+straight back to `.env`.
+
 Watch it work:
 
 ```bash

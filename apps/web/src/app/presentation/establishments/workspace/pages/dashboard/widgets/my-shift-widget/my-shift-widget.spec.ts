@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ClockState, Workday } from '@coaster/common';
@@ -14,12 +14,20 @@ const tomorrow = format(new Date(Date.now() + 86400000), 'yyyy-MM-dd');
 
 const workdays = signal<Partial<Workday>[]>([]);
 
+const actionable = computed<Partial<Workday> | undefined>(() => {
+  const open = workdays().find((workday) => workday.state !== ClockState.OUT);
+
+  return open ?? workdays().find((workday) => workday.date === today);
+});
+
 const timeTrackingStoreMock = {
   myWorkdays: {
     value: () => workdays(),
     isLoading: () => false,
     hasValue: () => true,
   },
+  actionableWorkday: actionable,
+  clockState: computed(() => actionable()?.state ?? ClockState.OUT),
   setEstablishmentId: vi.fn(),
   setRange: vi.fn(),
   clock: vi.fn().mockResolvedValue(undefined),

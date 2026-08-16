@@ -18,6 +18,17 @@ function generateMissingSecrets() {
 export async function setup() {
   generateMissingSecrets();
 
+  /*
+   * The suite gets a database of its own but would share whatever cache the developer has running,
+   * and `clearDatabase` cannot reach into it: a role cached in one test then answers for a user the
+   * next test has already deleted. Running without one keeps every test reading Postgres, which is
+   * also what CI does, since there is no cache there to point at.
+   *
+   * Empty rather than deleted: `ConfigModule` only fills in variables that are absent, so deleting
+   * it just hands the job back to `.env`.
+   */
+  process.env.REDIS_URL = '';
+
   console.log('\n🚀 Starting PostgreSQL Testcontainer...');
 
   container = await new PostgreSqlContainer('postgres:16-alpine')

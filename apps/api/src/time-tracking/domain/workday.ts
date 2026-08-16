@@ -23,7 +23,7 @@ export const nextClockState = (state: ClockState, type: TimeEntryType): ClockSta
 
 const byOccurredAt = (a: ClockMark, b: ClockMark) => a.occurredAt.getTime() - b.occurredAt.getTime();
 
-export const summariseWorkday = (marks: ClockMark[], now: Date): WorkdayTotals | null => {
+export const summariseWorkday = (marks: ClockMark[], now: Date, openUntil: Date = now): WorkdayTotals | null => {
   const sorted = [...marks].sort(byOccurredAt);
 
   let state: ClockState = ClockState.OUT;
@@ -53,7 +53,7 @@ export const summariseWorkday = (marks: ClockMark[], now: Date): WorkdayTotals |
   }
 
   if (since && state !== ClockState.OUT) {
-    const elapsed = Math.max(0, now.getTime() - since.getTime());
+    const elapsed = Math.max(0, Math.min(now.getTime(), openUntil.getTime()) - since.getTime());
 
     if (state === ClockState.IN) {
       workedMs += elapsed;
@@ -75,6 +75,36 @@ export const replayClockState = (marks: ClockMark[]): ClockState | null =>
 export const toWorkdayDate = (instant: Date): Date => {
   const local = Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(ESTABLISHMENT_TIME_ZONE);
   return new Date(Date.UTC(local.year, local.month - 1, local.day));
+};
+
+/**
+ * A shift that runs past midnight still belongs to the day it started, but only until the small
+ * hours are over. Without a limit, a day somebody forgot to close would swallow every punch made
+ * after it, and the worker could never open a new one.
+ */
+export const NIGHT_SHIFT_ENDS_AT_HOUR = 6;
+
+const isStillNight = (instant: Date): boolean =>
+  Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(ESTABLISHMENT_TIME_ZONE).hour <
+  NIGHT_SHIFT_ENDS_AT_HOUR;
+
+/** The last instant a workday can still be punched into, once the night it ran into is over. */
+export const closesAt = (workdayDate: Date): Date => {
+  const next = Temporal.Instant.fromEpochMilliseconds(workdayDate.getTime())
+    .toZonedDateTimeISO('UTC')
+    .toPlainDate()
+    .add({ days: 1 });
+
+  return new Date(
+    Temporal.PlainDateTime.from({
+      year: next.year,
+      month: next.month,
+      day: next.day,
+      hour: NIGHT_SHIFT_ENDS_AT_HOUR,
+    })
+      .toZonedDateTime(ESTABLISHMENT_TIME_ZONE)
+      .toInstant().epochMilliseconds,
+  );
 };
 
 export const formatWorkdayDate = (date: Date): string => date.toISOString().slice(0, 10);
@@ -99,7 +129,9 @@ export const planMark = (type: TimeEntryType, occurredAt: Date, day: DatedMark[]
   const previousMarks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(previous));
 
   const inheritsPreviousDay =
-    isDayOpen(previousMarks) && previousMarks.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
+    isStillNight(occurredAt) &&
+    isDayOpen(previousMarks) &&
+    previousMarks.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
   const workdayDate = inheritsPreviousDay ? previous : natural;
   const marks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(workdayDate));
 
@@ -129,16 +161,21 @@ export const findDiscrepancies = (
   marks: DatedMark[],
   planned: PlannedShift | null,
   workedMinutes: number,
+  stillOpen = false,
 ): WorkdayDiscrepancy[] => {
   const worked = [...marks].sort(byOccurredAt);
   const found: WorkdayDiscrepancy[] = [];
 
+  if (stillOpen) {
+    found.push(WorkdayDiscrepancy.NOT_CLOSED);
+  }
+
   if (!planned) {
-    return worked.length > 0 ? [WorkdayDiscrepancy.UNPLANNED] : [];
+    return worked.length > 0 ? [...found, WorkdayDiscrepancy.UNPLANNED] : found;
   }
 
   if (worked.length === 0) {
-    return [WorkdayDiscrepancy.NO_SHOW];
+    return [...found, WorkdayDiscrepancy.NO_SHOW];
   }
 
   if (minutesBetween(planned.startsAt, worked[0].occurredAt) > TOLERANCE_MINUTES) {
