@@ -23,6 +23,7 @@ export * from './constants/time-zone.type';
 export * from './domain/modules';
 export * from './domain/permissions';
 export * from './domain/pricing';
+export * from './domain/workday';
 export * from './interfaces/admin.interface';
 export * from './interfaces/ai.interface';
 export * from './interfaces/establishment-member.interface';
