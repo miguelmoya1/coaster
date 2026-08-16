@@ -23,6 +23,7 @@ export class TimeEntryRepository {
   public readonly routes = {
     mine: (establishmentId: EstablishmentId, from: string, to: string) =>
       `/establishments/${establishmentId}/time-entries/me?${range(from, to)}`,
+    current: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/time-entries/me/current`,
     team: (establishmentId: EstablishmentId, from: string, to: string, userId?: UserId) =>
       `/establishments/${establishmentId}/time-entries?${range(from, to, userId)}`,
     export: (establishmentId: EstablishmentId, from: string, to: string, userId?: UserId) =>

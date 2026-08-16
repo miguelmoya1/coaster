@@ -133,14 +133,8 @@ export default class Schedule {
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly myWorkday = this.#timeTrackingStore.myWorkday;
-  readonly actionableWorkday = this.#timeTrackingStore.actionableWorkday;
+  readonly currentWorkday = this.#timeTrackingStore.currentWorkday;
   readonly clockState = this.#timeTrackingStore.clockState;
-
-  readonly unclosedWorkdayLabel = computed(() => {
-    const workday = this.#timeTrackingStore.unclosedWorkday();
-
-    return workday ? this.#dateFormatter.formatShortDate(new Date(`${workday.date}T00:00:00`)) : null;
-  });
   readonly teamWorkdays = this.#timeTrackingStore.teamWorkdays;
 
   readonly canClockIn = computed(() => this.#hasPermission(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN));

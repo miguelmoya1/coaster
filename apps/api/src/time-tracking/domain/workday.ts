@@ -1,5 +1,13 @@
 import type { TimeEntry } from '@coaster/common';
-import { ESTABLISHMENT_TIME_ZONE, ClockState, TimeEntryType, WorkdayDiscrepancy } from '@coaster/common';
+import {
+  ClockState,
+  isOpen,
+  nextClockState,
+  replayClockState,
+  TimeEntryType,
+  workdayDateOf,
+  WorkdayDiscrepancy,
+} from '@coaster/common';
 
 export interface ClockMark {
   type: TimeEntryType;
@@ -12,18 +20,9 @@ export interface WorkdayTotals {
   breakMinutes: number;
 }
 
-const TRANSITIONS: Record<ClockState, Partial<Record<TimeEntryType, ClockState>>> = {
-  [ClockState.OUT]: { [TimeEntryType.CLOCK_IN]: ClockState.IN },
-  [ClockState.IN]: { [TimeEntryType.BREAK_START]: ClockState.ON_BREAK, [TimeEntryType.CLOCK_OUT]: ClockState.OUT },
-  [ClockState.ON_BREAK]: { [TimeEntryType.BREAK_END]: ClockState.IN, [TimeEntryType.CLOCK_OUT]: ClockState.OUT },
-};
-
-export const nextClockState = (state: ClockState, type: TimeEntryType): ClockState | null =>
-  TRANSITIONS[state][type] ?? null;
-
 const byOccurredAt = (a: ClockMark, b: ClockMark) => a.occurredAt.getTime() - b.occurredAt.getTime();
 
-export const summariseWorkday = (marks: ClockMark[], now: Date, openUntil: Date = now): WorkdayTotals | null => {
+export const summariseWorkday = (marks: ClockMark[], now: Date): WorkdayTotals | null => {
   const sorted = [...marks].sort(byOccurredAt);
 
   let state: ClockState = ClockState.OUT;
@@ -53,7 +52,7 @@ export const summariseWorkday = (marks: ClockMark[], now: Date, openUntil: Date 
   }
 
   if (since && state !== ClockState.OUT) {
-    const elapsed = Math.max(0, Math.min(now.getTime(), openUntil.getTime()) - since.getTime());
+    const elapsed = Math.max(0, now.getTime() - since.getTime());
 
     if (state === ClockState.IN) {
       workedMs += elapsed;
@@ -69,47 +68,11 @@ export const summariseWorkday = (marks: ClockMark[], now: Date, openUntil: Date 
   };
 };
 
-export const replayClockState = (marks: ClockMark[]): ClockState | null =>
-  summariseWorkday(marks, new Date())?.state ?? null;
-
-export const toWorkdayDate = (instant: Date): Date => {
-  const local = Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(ESTABLISHMENT_TIME_ZONE);
-  return new Date(Date.UTC(local.year, local.month - 1, local.day));
-};
-
-/**
- * A shift that runs past midnight still belongs to the day it started, but only until the small
- * hours are over. Without a limit, a day somebody forgot to close would swallow every punch made
- * after it, and the worker could never open a new one.
- */
-export const NIGHT_SHIFT_ENDS_AT_HOUR = 6;
-
-const isStillNight = (instant: Date): boolean =>
-  Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(ESTABLISHMENT_TIME_ZONE).hour <
-  NIGHT_SHIFT_ENDS_AT_HOUR;
-
-/** The last instant a workday can still be punched into, once the night it ran into is over. */
-export const closesAt = (workdayDate: Date): Date => {
-  const next = Temporal.Instant.fromEpochMilliseconds(workdayDate.getTime())
-    .toZonedDateTimeISO('UTC')
-    .toPlainDate()
-    .add({ days: 1 });
-
-  return new Date(
-    Temporal.PlainDateTime.from({
-      year: next.year,
-      month: next.month,
-      day: next.day,
-      hour: NIGHT_SHIFT_ENDS_AT_HOUR,
-    })
-      .toZonedDateTime(ESTABLISHMENT_TIME_ZONE)
-      .toInstant().epochMilliseconds,
-  );
-};
-
 export const formatWorkdayDate = (date: Date): string => date.toISOString().slice(0, 10);
 
 export const parseWorkdayDate = (date: string): Date => new Date(`${date}T00:00:00.000Z`);
+
+export const toWorkdayDate = (instant: Date): Date => parseWorkdayDate(workdayDateOf(instant));
 
 export const shiftWorkdayDate = (date: Date, days: number): Date =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
@@ -118,24 +81,27 @@ export interface DatedMark extends ClockMark {
   workdayDate: string;
 }
 
-const isDayOpen = (marks: ClockMark[]): boolean => {
-  const state = replayClockState(marks);
-  return state !== null && state !== ClockState.OUT;
-};
+const stateOf = (marks: ClockMark[]): ClockState | null =>
+  replayClockState([...marks].sort(byOccurredAt).map((mark) => mark.type));
 
-export const planMark = (type: TimeEntryType, occurredAt: Date, day: DatedMark[]): Date | null => {
-  const natural = toWorkdayDate(occurredAt);
-  const previous = shiftWorkdayDate(natural, -1);
-  const previousMarks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(previous));
+export const isValidSequence = (marks: ClockMark[]): boolean => stateOf(marks) !== null;
 
-  const inheritsPreviousDay =
-    isStillNight(occurredAt) &&
-    isDayOpen(previousMarks) &&
-    previousMarks.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
-  const workdayDate = inheritsPreviousDay ? previous : natural;
-  const marks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(workdayDate));
+export const isDayOpen = (marks: ClockMark[]): boolean => isOpen(stateOf(marks));
 
-  return replayClockState([...marks, { type, occurredAt }]) ? workdayDate : null;
+const daysIn = (marks: DatedMark[]): string[] => [...new Set(marks.map((mark) => mark.workdayDate))].sort().reverse();
+
+const dayStillOpenAt = (marks: DatedMark[], occurredAt: Date): string | undefined =>
+  daysIn(marks).find((day) => {
+    const ofDay = marks.filter((mark) => mark.workdayDate === day);
+
+    return isDayOpen(ofDay) && ofDay.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
+  });
+
+export const planMark = (type: TimeEntryType, occurredAt: Date, candidates: DatedMark[]): Date | null => {
+  const workdayDate = dayStillOpenAt(candidates, occurredAt) ?? formatWorkdayDate(toWorkdayDate(occurredAt));
+  const marks = candidates.filter((mark) => mark.workdayDate === workdayDate);
+
+  return isValidSequence([...marks, { type, occurredAt }]) ? parseWorkdayDate(workdayDate) : null;
 };
 
 export const toDatedMarks = (entries: TimeEntry[]): DatedMark[] =>
@@ -161,21 +127,16 @@ export const findDiscrepancies = (
   marks: DatedMark[],
   planned: PlannedShift | null,
   workedMinutes: number,
-  stillOpen = false,
 ): WorkdayDiscrepancy[] => {
   const worked = [...marks].sort(byOccurredAt);
   const found: WorkdayDiscrepancy[] = [];
 
-  if (stillOpen) {
-    found.push(WorkdayDiscrepancy.NOT_CLOSED);
-  }
-
   if (!planned) {
-    return worked.length > 0 ? [...found, WorkdayDiscrepancy.UNPLANNED] : found;
+    return worked.length > 0 ? [WorkdayDiscrepancy.UNPLANNED] : [];
   }
 
   if (worked.length === 0) {
-    return [...found, WorkdayDiscrepancy.NO_SHOW];
+    return [WorkdayDiscrepancy.NO_SHOW];
   }
 
   if (minutesBetween(planned.startsAt, worked[0].occurredAt) > TOLERANCE_MINUTES) {

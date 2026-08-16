@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import { TimeEntriesWriteRepository } from '../../data-access/time-entries.write.repository';
-import { planMark, shiftWorkdayDate, toDatedMarks, toWorkdayDate } from '../../domain/workday';
+import { planMark, toDatedMarks } from '../../domain/workday';
 import { TimeEntryRecordedEvent } from '../../events/impl/time-entry-recorded.event';
 import { TimeEntriesMapper } from '../../mappers/time-entries.mapper';
 import { ClockCommand } from '../impl/clock.command';
@@ -21,13 +21,7 @@ export class ClockHandler implements ICommandHandler<ClockCommand, TimeEntry> {
     const { establishmentId, actor, dto } = command;
 
     const occurredAt = new Date();
-    const natural = toWorkdayDate(occurredAt);
-    const rows = await this._readRepo.findByWorkdayRange(
-      establishmentId,
-      shiftWorkdayDate(natural, -1),
-      natural,
-      actor.id,
-    );
+    const rows = await this._readRepo.findLatestWorkday(establishmentId, actor.id);
     const workdayDate = planMark(dto.type, occurredAt, toDatedMarks(TimeEntriesMapper.groupByRoot(rows)));
 
     if (!workdayDate) {

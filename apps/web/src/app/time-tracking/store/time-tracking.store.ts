@@ -10,43 +10,9 @@ import type {
   VoidTimeEntryDto,
   Workday,
 } from '@coaster/common';
-import { ClockState, ErrorCodes, ESTABLISHMENT_TIME_ZONE } from '@coaster/common';
+import { ClockState, ErrorCodes } from '@coaster/common';
 import { TimeEntryRepository } from '../data-access/time-entry-repository';
-import { workdayArrayMapper } from '../mappers/workday.mapper';
-
-const A_DAY_IN_MS = 24 * 60 * 60 * 1000;
-
-const workdayDate = (instant: Date): string => {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: ESTABLISHMENT_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(instant);
-
-  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)!.value;
-
-  return `${value('year')}-${value('month')}-${value('day')}`;
-};
-
-export const today = () => workdayDate(new Date());
-export const lastNight = () => workdayDate(new Date(Date.now() - A_DAY_IN_MS));
-
-/**
- * Mirrors the rule the server punches by: a shift that ran past midnight is still the day it started
- * until the small hours are over. After that the worker opens a new day and the old one is left for
- * somebody to correct.
- */
-const NIGHT_SHIFT_ENDS_AT_HOUR = 6;
-
-const stillNight = () =>
-  Number(
-    new Intl.DateTimeFormat('en-US', {
-      timeZone: ESTABLISHMENT_TIME_ZONE,
-      hour: '2-digit',
-      hour12: false,
-    }).format(new Date()),
-  ) < NIGHT_SHIFT_ENDS_AT_HOUR;
+import { workdayArrayMapper, workdayMapper } from '../mappers/workday.mapper';
 
 @Service()
 export class TimeTrackingStore {
@@ -69,13 +35,13 @@ export class TimeTrackingStore {
     { parse: workdayArrayMapper },
   );
 
-  readonly #actionableResource = httpResource(
+  readonly #currentResource = httpResource(
     () => {
       const establishmentId = this.#establishmentId();
 
-      return establishmentId ? this.#repository.routes.mine(establishmentId, lastNight(), today()) : undefined;
+      return establishmentId ? this.#repository.routes.current(establishmentId) : undefined;
     },
-    { parse: workdayArrayMapper },
+    { parse: workdayMapper },
   );
 
   readonly #teamResource = httpResource(
@@ -100,31 +66,11 @@ export class TimeTrackingStore {
     return this.myWorkdays.hasValue() ? this.myWorkdays.value()?.find((workday) => workday.date === day) : undefined;
   });
 
-  readonly #openWorkdays = computed<Workday[]>(() =>
-    this.#actionableResource.hasValue()
-      ? (this.#actionableResource.value() ?? []).filter((workday) => workday.state !== ClockState.OUT)
-      : [],
+  public readonly currentWorkday = computed<Workday | undefined>(() =>
+    this.#currentResource.hasValue() ? (this.#currentResource.value() ?? undefined) : undefined,
   );
 
-  public readonly actionableWorkday = computed<Workday | undefined>(() => {
-    if (!this.#actionableResource.hasValue()) {
-      return undefined;
-    }
-
-    const workdays = this.#actionableResource.value() ?? [];
-    const runningIntoTonight = stillNight()
-      ? this.#openWorkdays().find((workday) => workday.date === lastNight())
-      : undefined;
-
-    return runningIntoTonight ?? workdays.find((workday) => workday.date === today());
-  });
-
-  public readonly clockState = computed<ClockState>(() => this.actionableWorkday()?.state ?? ClockState.OUT);
-
-  /** A day nobody closed: the worker can still clock in today, but somebody has to correct it. */
-  public readonly unclosedWorkday = computed<Workday | undefined>(() =>
-    this.#openWorkdays().find((workday) => workday.date !== this.actionableWorkday()?.date),
-  );
+  public readonly clockState = computed<ClockState>(() => this.currentWorkday()?.state ?? ClockState.OUT);
 
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
     this.#establishmentId.set(establishmentId);
@@ -145,7 +91,7 @@ export class TimeTrackingStore {
 
   public reload() {
     this.#mineResource.reload();
-    this.#actionableResource.reload();
+    this.#currentResource.reload();
 
     if (this.#teamEnabled()) {
       this.#teamResource.reload();

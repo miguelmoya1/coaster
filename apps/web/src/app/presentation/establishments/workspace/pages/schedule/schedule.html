@@ -53,9 +53,8 @@
       @if (isViewingToday()) {
         <coaster-clock-card
           [state]="clockState()"
-          [workedMinutes]="actionableWorkday()?.workedMinutes ?? 0"
-          [breakMinutes]="actionableWorkday()?.breakMinutes ?? 0"
-          [unclosedOn]="unclosedWorkdayLabel()"
+          [workedMinutes]="currentWorkday()?.workedMinutes ?? 0"
+          [breakMinutes]="currentWorkday()?.breakMinutes ?? 0"
           [disabled]="isSubmitting()"
           (clock)="handleClock($event)"
         />

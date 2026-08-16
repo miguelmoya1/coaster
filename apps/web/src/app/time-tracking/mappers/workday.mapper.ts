@@ -8,6 +8,18 @@ const isWorkday = (workday: unknown): workday is Workday =>
   'state' in workday &&
   'entries' in workday;
 
+export const workdayMapper = (workday: unknown): Workday | null => {
+  if (workday === null || workday === undefined) {
+    return null;
+  }
+
+  if (!isWorkday(workday)) {
+    throw new Error('Invalid Workday payload');
+  }
+
+  return workday;
+};
+
 export const workdayArrayMapper = (workdays: unknown): Workday[] => {
   if (!Array.isArray(workdays)) {
     throw new Error('Expected array of Workdays');

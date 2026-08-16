@@ -22,6 +22,7 @@ import { ClockDto } from '../dto/clock.dto';
 import { CreateTimeEntryDto } from '../dto/create-time-entry.dto';
 import { TimeSheetQueryDto } from '../dto/time-sheet-query.dto';
 import { VoidTimeEntryDto } from '../dto/void-time-entry.dto';
+import { GetCurrentWorkdayQuery } from '../queries/impl/get-current-workday.query';
 import { GetTimeSheetIntegrityQuery } from '../queries/impl/get-time-sheet-integrity.query';
 import { GetWorkdaysQuery } from '../queries/impl/get-workdays.query';
 import { toTimeSheetCsv } from '../utils/time-sheet-csv';
@@ -43,6 +44,18 @@ export class TimeEntriesController {
     @CurrentUser() user: User,
   ): Promise<TimeEntry> {
     return this._commandBus.execute<ClockCommand, TimeEntry>(new ClockCommand(establishmentId, user, dto));
+  }
+
+  @Get('me/current')
+  @SkipSubscriptionCheck()
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN)
+  myCurrentWorkday(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @CurrentUser() user: User,
+  ): Promise<Workday | null> {
+    return this._queryBus.execute<GetCurrentWorkdayQuery, Workday | null>(
+      new GetCurrentWorkdayQuery(establishmentId, user.id),
+    );
   }
 
   @Get('me')

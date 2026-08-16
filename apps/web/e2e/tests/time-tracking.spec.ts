@@ -1,4 +1,4 @@
-import { EstablishmentRole, TimeEntryType } from '@coaster/common';
+import { EstablishmentRole, TimeEntryType, workdayDateOf } from '@coaster/common';
 import { expect, Page, test } from '@playwright/test';
 import { mockApiResponse, mockMyMemberRole } from './utils/mock-api';
 import { loginAsTestUser } from './utils/mock-auth';
@@ -17,17 +17,15 @@ const clockCard = (page: Page) => page.getByLabel('Fichaje');
 const stateBadge = (page: Page) => clockCard(page).locator('[aria-live="polite"]');
 const punch = (page: Page, label: string) => clockCard(page).getByRole('button', { name: label });
 
-/* Madrid runs two hours ahead of UTC in August, so 01:00Z is 03:00 and 08:00Z is mid-morning. */
-const DURING_THE_NIGHT = new Date('2026-08-15T01:00:00.000Z');
+/* Madrid runs two hours ahead of UTC in August, so 08:00Z is mid-morning. */
 const MID_MORNING = new Date('2026-08-15T08:00:00.000Z');
 
-const dayIn = (instant: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(instant);
-const theDayBefore = (instant: Date) => dayIn(new Date(instant.getTime() - 24 * 60 * 60 * 1000));
+const theDayBefore = (instant: Date) => workdayDateOf(new Date(instant.getTime() - 24 * 60 * 60 * 1000));
 
 const openScheduleWith = async (page: Page, marks: Mark[] = [], now = MID_MORNING) => {
   let clock!: Awaited<ReturnType<typeof mockTimeTracking>>;
 
-  /* Pinned so "is it still the small hours?" does not depend on when the suite happens to run. */
+  /* Pinned so the workday the screen lands on does not depend on when the suite happens to run. */
   await page.clock.setFixedTime(now);
 
   /* The punch asks the browser where it is; without an answer every click waits out its 3s timeout. */
@@ -109,40 +107,29 @@ test.describe('Clocking across days', () => {
     },
   ];
 
-  test('should stay on last night while the small hours last, so a closing shift can clock out', async ({ page }) => {
-    const clock = await openScheduleWith(page, openedTheDayBefore(DURING_THE_NIGHT), DURING_THE_NIGHT);
+  test('should let a shift left open overnight carry on and clock out the next morning', async ({ page }) => {
+    const yesterday = theDayBefore(MID_MORNING);
+    const clock = await openScheduleWith(page, openedTheDayBefore(MID_MORNING), MID_MORNING);
 
     await expect(stateBadge(page)).toContainText(WORKING);
-    await expect(clockCard(page).getByRole('status')).toHaveCount(0);
     await expect(punch(page, 'Fichar entrada')).toHaveCount(0);
 
     await punch(page, 'Fichar salida').click();
 
     await expect(stateBadge(page)).toContainText(OUT);
-    expect(clock.marks().filter((mark) => mark.workdayDate === theDayBefore(DURING_THE_NIGHT))).toHaveLength(2);
+    expect(clock.marks().filter((mark) => mark.workdayDate === yesterday)).toHaveLength(2);
+    expect(clock.marks().filter((mark) => mark.workdayDate === clock.today())).toHaveLength(0);
   });
 
-  test('should let the worker start today when yesterday was never closed, and say so', async ({ page }) => {
-    const yesterday = theDayBefore(MID_MORNING);
+  test('should start a fresh day only once the open one has been closed', async ({ page }) => {
     const clock = await openScheduleWith(page, openedTheDayBefore(MID_MORNING), MID_MORNING);
 
+    await punch(page, 'Fichar salida').click();
     await expect(stateBadge(page)).toContainText(OUT);
-    await expect(punch(page, 'Fichar entrada')).toBeVisible();
-    await expect(clockCard(page).getByRole('status')).toContainText('sin cerrar');
 
     await punch(page, 'Fichar entrada').click();
 
     await expect(stateBadge(page)).toContainText(WORKING);
     expect(clock.marks().filter((mark) => mark.workdayDate === clock.today())).toHaveLength(1);
-    expect(clock.marks().filter((mark) => mark.workdayDate === yesterday)).toHaveLength(1);
-  });
-
-  test('should keep saying the old day is unclosed while the worker gets on with today', async ({ page }) => {
-    await openScheduleWith(page, openedTheDayBefore(MID_MORNING), MID_MORNING);
-
-    await punch(page, 'Fichar entrada').click();
-    await expect(stateBadge(page)).toContainText(WORKING);
-
-    await expect(clockCard(page).getByRole('status')).toContainText('sin cerrar');
   });
 });

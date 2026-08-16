@@ -55,7 +55,7 @@ const statsStoreMock = {
 
 const timeTrackingStoreMock = {
   myWorkdays: emptyResource([]),
-  actionableWorkday: () => undefined,
+  currentWorkday: () => undefined,
   clockState: () => ClockState.OUT,
   setEstablishmentId: vi.fn(),
   setRange: vi.fn(),

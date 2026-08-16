@@ -1,11 +1,4 @@
-import {
-  EstablishmentRole,
-  ErrorCodes,
-  TimeEntryAction,
-  TimeEntrySource,
-  TimeEntryType,
-  WorkdayDiscrepancy,
-} from '@coaster/common';
+import { EstablishmentRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { formatWorkdayDate, shiftWorkdayDate, toWorkdayDate } from '../../src/time-tracking/domain/workday';
@@ -198,6 +191,15 @@ describe('Time tracking (e2e)', () => {
     const smallHoursAfter = (daysFromToday: number) =>
       new Date(new Date(`${workdayOf(daysFromToday + 1)}T00:00:00.000Z`).getTime() + 3 * HOUR).toISOString();
 
+    const currentWorkday = async () => {
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me/current`)
+        .set(workerHeaders)
+        .expect(200);
+
+      return response.body;
+    };
+
     it('should file a punch made after midnight on the day the shift started', async () => {
       await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
 
@@ -211,33 +213,33 @@ describe('Time tracking (e2e)', () => {
       expect(await workdaysBetween(workdayOf(0), workdayOf(0))).toEqual([]);
     });
 
-    it('should let the worker start today even though yesterday was never closed', async () => {
-      await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
-
-      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
-
-      const [today] = await workdaysBetween(workdayOf(0), workdayOf(0));
-      expect(today.date).toBe(workdayOf(0));
-      expect(today.state).toBe('IN');
-    });
-
-    it('should still hand back the unclosed day, flagged for somebody to correct', async () => {
-      await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
-
-      const [yesterday] = await workdaysBetween(workdayOf(-1), workdayOf(-1));
-
-      expect(yesterday.state).toBe('IN');
-      expect(yesterday.discrepancies).toContain(WorkdayDiscrepancy.NOT_CLOSED);
-    });
-
-    it('should stop an abandoned day from piling up hours forever', async () => {
+    it('should close the day the shift started even days later', async () => {
       await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
 
-      const [abandoned] = await workdaysBetween(workdayOf(-3), workdayOf(-3));
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
 
-      /* Noon UTC to the cut-off at 04:00 UTC next morning: sixteen hours, however long ago it was. */
-      expect(abandoned.workedMinutes).toBe(16 * 60);
-      expect(abandoned.discrepancies).toContain(WorkdayDiscrepancy.NOT_CLOSED);
+      const [opened] = await workdaysBetween(workdayOf(-3), workdayOf(-3));
+      expect(opened.state).toBe('OUT');
+      expect(opened.entries).toHaveLength(2);
+
+      expect(await workdaysBetween(workdayOf(0), workdayOf(0))).toEqual([]);
+    });
+
+    it('should refuse to open a second day while the first is still running', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
+
+      const response = await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(400);
+
+      expect(response.body.message).toContain(ErrorCodes.INVALID_CLOCK_SEQUENCE);
+    });
+
+    it('should keep counting the hours of a day nobody closed', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+
+      const [opened] = await workdaysBetween(workdayOf(-3), workdayOf(-3));
+
+      expect(opened.state).toBe('IN');
+      expect(opened.workedMinutes).toBeGreaterThan(2 * 24 * 60);
     });
 
     it('should leave a day closed two days ago out of the way of today', async () => {
@@ -248,6 +250,44 @@ describe('Time tracking (e2e)', () => {
 
       const [today] = await workdaysBetween(workdayOf(0), workdayOf(0));
       expect(today.state).toBe('IN');
+    });
+
+    describe('the workday the clock card asks for', () => {
+      it('should be nothing at all when no day has been punched', async () => {
+        expect(await currentWorkday()).toBeNull();
+      });
+
+      it('should be today once today has been punched', async () => {
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+        await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+        const current = await currentWorkday();
+
+        expect(current.date).toBe(workdayOf(0));
+        expect(current.state).toBe('OUT');
+      });
+
+      it('should be the running day, whichever day it started on', async () => {
+        await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+
+        const current = await currentWorkday();
+
+        expect(current.date).toBe(workdayOf(-3));
+        expect(current.state).toBe('IN');
+      });
+
+      it('should go back to today once the running day is closed', async () => {
+        await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+        await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+        expect(await currentWorkday()).toBeNull();
+
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+        const current = await currentWorkday();
+        expect(current.date).toBe(workdayOf(0));
+        expect(current.state).toBe('IN');
+      });
     });
   });
 

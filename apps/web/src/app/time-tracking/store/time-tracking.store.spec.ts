@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { asEstablishmentId, asTimeEntryId, ClockState, TimeEntryType } from '@coaster/common';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { lastNight, TimeTrackingStore, today } from './time-tracking.store';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { TimeTrackingStore } from './time-tracking.store';
 
 const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedMinutes = 120) => ({
   date,
@@ -21,6 +21,7 @@ const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedM
 });
 
 const mine = (from: string, to: string) => `/establishments/establishment-1/time-entries/me?from=${from}&to=${to}`;
+const CURRENT = '/establishments/establishment-1/time-entries/me/current';
 
 describe('TimeTrackingStore', () => {
   let store: TimeTrackingStore;
@@ -32,9 +33,7 @@ describe('TimeTrackingStore', () => {
     TestBed.tick();
   };
 
-  /** The clock card asks for last night as well as today, so an unclosed night is still actionable. */
-  const flushActionable = (workdays: unknown[] = []) =>
-    httpMock.expectOne(mine(lastNight(), today())).flush(workdays);
+  const flushCurrent = (current: unknown = null) => httpMock.expectOne(CURRENT).flush(current);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -47,7 +46,6 @@ describe('TimeTrackingStore', () => {
 
   afterEach(() => {
     httpMock.verify();
-    vi.useRealTimers();
   });
 
   it('should not ask for anything until it knows the establishment', () => {
@@ -56,11 +54,11 @@ describe('TimeTrackingStore', () => {
     httpMock.expectNone(() => true);
   });
 
-  it('should ask what can be clocked on as soon as it knows the establishment', () => {
+  it('should ask the server which workday is running as soon as it knows the establishment', () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     TestBed.tick();
 
-    flushActionable();
+    flushCurrent();
   });
 
   it('should load the browsed day once establishment and range are set', async () => {
@@ -68,7 +66,7 @@ describe('TimeTrackingStore', () => {
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
 
-    flushActionable();
+    flushCurrent();
     const request = httpMock.expectOne(mine('2026-08-08', '2026-08-08'));
     expect(request.request.method).toBe('GET');
     request.flush([workday()]);
@@ -83,72 +81,34 @@ describe('TimeTrackingStore', () => {
   });
 
   describe('the workday the clock card acts on', () => {
-    const load = async (workdays: unknown[]) => {
+    const load = async (current: unknown) => {
       store.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
 
-      flushActionable(workdays);
+      flushCurrent(current);
 
       await settle();
     };
 
-    /* Madrid runs two hours ahead of UTC in August: 01:00Z is 03:00, still the small hours. */
-    const DURING_THE_NIGHT = new Date('2026-08-15T01:00:00.000Z');
-    const MID_MORNING = new Date('2026-08-15T08:00:00.000Z');
-
-    it('should follow the day being worked', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(MID_MORNING);
-
-      await load([workday(ClockState.IN, today(), 120)]);
+    it('should follow whatever the server says is running', async () => {
+      await load(workday(ClockState.IN, '2026-08-08', 120));
 
       expect(store.clockState()).toBe(ClockState.IN);
-      expect(store.actionableWorkday()?.workedMinutes).toBe(120);
-      expect(store.unclosedWorkday()).toBeUndefined();
+      expect(store.currentWorkday()?.workedMinutes).toBe(120);
     });
 
-    it('should stay on last night while the small hours last, so a closing shift can clock out', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(DURING_THE_NIGHT);
+    it('should keep acting on a day opened long before today', async () => {
+      await load(workday(ClockState.ON_BREAK, '2026-08-01', 4000));
 
-      await load([workday(ClockState.IN, lastNight(), 300), workday(ClockState.OUT, today(), 0)]);
-
-      expect(store.clockState()).toBe(ClockState.IN);
-      expect(store.actionableWorkday()?.date).toBe(lastNight());
-      expect(store.unclosedWorkday()).toBeUndefined();
+      expect(store.clockState()).toBe(ClockState.ON_BREAK);
+      expect(store.currentWorkday()?.date).toBe('2026-08-01');
     });
 
-    it('should let the worker start today once the night is over, flagging the day nobody closed', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(MID_MORNING);
-
-      await load([workday(ClockState.IN, lastNight(), 300), workday(ClockState.OUT, today(), 0)]);
+    it('should stay out when no day is running', async () => {
+      await load(null);
 
       expect(store.clockState()).toBe(ClockState.OUT);
-      expect(store.actionableWorkday()?.date).toBe(today());
-      expect(store.unclosedWorkday()?.date).toBe(lastNight());
-    });
-
-    it('should show today once the day is closed, keeping what was worked', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(MID_MORNING);
-
-      await load([workday(ClockState.OUT, lastNight(), 300), workday(ClockState.OUT, today(), 480)]);
-
-      expect(store.clockState()).toBe(ClockState.OUT);
-      expect(store.actionableWorkday()?.workedMinutes).toBe(480);
-      expect(store.unclosedWorkday()).toBeUndefined();
-    });
-
-    it('should stay out when neither day has anything on it', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(MID_MORNING);
-
-      await load([]);
-
-      expect(store.clockState()).toBe(ClockState.OUT);
-      expect(store.actionableWorkday()).toBeUndefined();
-      expect(store.unclosedWorkday()).toBeUndefined();
+      expect(store.currentWorkday()).toBeUndefined();
     });
   });
 
@@ -157,7 +117,7 @@ describe('TimeTrackingStore', () => {
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
 
-    flushActionable();
+    flushCurrent();
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
     httpMock.expectNone('/establishments/establishment-1/time-entries?from=2026-08-08&to=2026-08-08');
 
@@ -175,7 +135,7 @@ describe('TimeTrackingStore', () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
-    flushActionable();
+    flushCurrent();
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
 
     const clocked = store.clock(TimeEntryType.CLOCK_IN, { latitude: 40.4, longitude: -3.7 });
@@ -188,14 +148,14 @@ describe('TimeTrackingStore', () => {
     TestBed.tick();
 
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-    flushActionable();
+    flushCurrent();
   });
 
   it('should send the reason when a mark is amended', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
-    flushActionable();
+    flushCurrent();
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
 
     const amended = store.amend(asTimeEntryId('entry-1'), {
@@ -211,14 +171,14 @@ describe('TimeTrackingStore', () => {
     TestBed.tick();
 
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-    flushActionable();
+    flushCurrent();
   });
 
   it('should download the timesheet for the browsed range, not the clock one', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-01', '2026-08-08');
     TestBed.tick();
-    flushActionable();
+    flushCurrent();
     httpMock.expectOne(mine('2026-08-01', '2026-08-08')).flush([]);
 
     const exported = store.exportCsv();
