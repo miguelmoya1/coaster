@@ -257,6 +257,30 @@ describe('Time tracking (e2e)', () => {
         expect(await currentWorkday()).toBeNull();
       });
 
+      it('should ignore a workmate rostered the same day', async () => {
+        const mate = await testSetup.prisma.dbUser.create({ data: { email: 'ana@example.com', name: 'Ana' } });
+        await testSetup.prisma.dbEstablishmentMember.create({
+          data: { establishmentId, userId: mate.id, role: EstablishmentRole.STAFF },
+        });
+        await testSetup.prisma.dbShift.create({
+          data: {
+            establishmentId,
+            userId: mate.id,
+            startTime: new Date(`${workdayOf(0)}T07:00:00.000Z`),
+            endTime: new Date(`${workdayOf(0)}T15:00:00.000Z`),
+          },
+        });
+
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+        const current = await currentWorkday();
+        expect(current.userId).toBe(worker.id);
+        expect(current.state).toBe('IN');
+
+        const mine = await workdaysBetween(workdayOf(0), workdayOf(0));
+        expect(mine.map((day: { userId: string }) => day.userId)).toEqual([worker.id]);
+      });
+
       it('should be today once today has been punched', async () => {
         await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
         await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);

@@ -66,7 +66,7 @@ export class GetWorkdaysHandler implements IQueryHandler<GetWorkdaysQuery, Workd
     const shifts = await this._queryBus.execute<GetShiftsQuery, Shift[]>(
       new GetShiftsQuery(query.establishmentId, from.toISOString(), shiftWorkdayDate(to, 1).toISOString()),
     );
-    const planned = plannedByDay(shifts);
+    const planned = plannedByDay(query.userId ? shifts.filter((shift) => shift.userId === query.userId) : shifts);
 
     const days = new Map<string, TimeEntry[]>();
 
