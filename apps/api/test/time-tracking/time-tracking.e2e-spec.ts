@@ -106,6 +106,83 @@ describe('Time tracking (e2e)', () => {
     });
   });
 
+  /**
+   * Your own timesheet answers for you and for nobody else, whatever you are allowed to see of the
+   * team elsewhere. The rota is the way a workmate gets in: everybody rostered used to be handed
+   * back an empty day, and sorted by name theirs could come first.
+   */
+  describe('a personal timesheet', () => {
+    const today = () => formatWorkdayDate(toWorkdayDate(new Date()));
+
+    /* No header at all is the owner: the member `createEstablishment` puts on the establishment. */
+    const asOwner = {};
+
+    const myWorkdays = async (headers: Record<string, string>, query: Record<string, string> = {}) =>
+      (
+        await request(server())
+          .get(`/api/establishments/${establishmentId}/time-entries/me`)
+          .query({ from: today(), to: today(), ...query })
+          .set(headers)
+          .expect(200)
+      ).body as { userId: string }[];
+
+    const myCurrentWorkday = async (headers: Record<string, string>) =>
+      (
+        await request(server())
+          .get(`/api/establishments/${establishmentId}/time-entries/me/current`)
+          .set(headers)
+          .expect(200)
+      ).body;
+
+    const rosterToday = (userId: string, fromHour: number, toHour: number) =>
+      testSetup.prisma.dbShift.create({
+        data: {
+          establishmentId,
+          userId,
+          startTime: new Date(`${today()}T${String(fromHour).padStart(2, '0')}:00:00.000Z`),
+          endTime: new Date(`${today()}T${String(toHour).padStart(2, '0')}:00:00.000Z`),
+        },
+      });
+
+    it('should hand the owner their own day and not the whole team', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await rosterToday(mockUser.id, 15, 22);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      expect((await myWorkdays(asOwner)).map((day) => day.userId)).toEqual([mockUser.id]);
+      expect((await myWorkdays(workerHeaders)).map((day) => day.userId)).toEqual([worker.id]);
+    });
+
+    it('should read my own clock while a workmate is rostered and clocked in', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      const current = await myCurrentWorkday(asOwner);
+
+      expect(current.userId).toBe(mockUser.id);
+      expect(current.state).toBe('IN');
+    });
+
+    it('should stay empty for me while only a rostered workmate has worked', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      expect(await myWorkdays(asOwner)).toEqual([]);
+      expect(await myCurrentWorkday(asOwner)).toBeNull();
+    });
+
+    it('should answer for me even when asked outright for somebody else', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      const days = await myWorkdays(asOwner, { userId: worker.id });
+
+      expect(days.map((day) => day.userId)).toEqual([mockUser.id]);
+    });
+  });
+
   describe('a whole shift, punch by punch', () => {
     const myWorkday = async () => {
       const response = await request(server())
@@ -255,30 +332,6 @@ describe('Time tracking (e2e)', () => {
     describe('the workday the clock card asks for', () => {
       it('should be nothing at all when no day has been punched', async () => {
         expect(await currentWorkday()).toBeNull();
-      });
-
-      it('should ignore a workmate rostered the same day', async () => {
-        const mate = await testSetup.prisma.dbUser.create({ data: { email: 'ana@example.com', name: 'Ana' } });
-        await testSetup.prisma.dbEstablishmentMember.create({
-          data: { establishmentId, userId: mate.id, role: EstablishmentRole.STAFF },
-        });
-        await testSetup.prisma.dbShift.create({
-          data: {
-            establishmentId,
-            userId: mate.id,
-            startTime: new Date(`${workdayOf(0)}T07:00:00.000Z`),
-            endTime: new Date(`${workdayOf(0)}T15:00:00.000Z`),
-          },
-        });
-
-        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
-
-        const current = await currentWorkday();
-        expect(current.userId).toBe(worker.id);
-        expect(current.state).toBe('IN');
-
-        const mine = await workdaysBetween(workdayOf(0), workdayOf(0));
-        expect(mine.map((day: { userId: string }) => day.userId)).toEqual([worker.id]);
       });
 
       it('should be today once today has been punched', async () => {
