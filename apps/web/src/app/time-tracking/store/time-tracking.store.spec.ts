@@ -151,6 +151,26 @@ describe('TimeTrackingStore', () => {
     flushCurrent();
   });
 
+  it('should go back to the server when a punch is refused, instead of keeping a stale picture', async () => {
+    store.setEstablishmentId(asEstablishmentId('establishment-1'));
+    TestBed.tick();
+    flushCurrent(null);
+
+    const refused = store.clock(TimeEntryType.CLOCK_IN);
+
+    httpMock
+      .expectOne('/establishments/establishment-1/time-entries/clock')
+      .flush({ message: ['INVALID_CLOCK_SEQUENCE'] }, { status: 400, statusText: 'Bad Request' });
+
+    await expect(refused).rejects.toBeDefined();
+    TestBed.tick();
+
+    flushCurrent(workday(ClockState.IN, '2026-08-08', 120));
+    await settle();
+
+    expect(store.clockState()).toBe(ClockState.IN);
+  });
+
   it('should send the reason when a mark is amended', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');

@@ -55,7 +55,7 @@
           [state]="clockState()"
           [workedMinutes]="currentWorkday()?.workedMinutes ?? 0"
           [breakMinutes]="currentWorkday()?.breakMinutes ?? 0"
-          [disabled]="isSubmitting()"
+          [disabled]="isSubmitting() || isClockLoading()"
           (clock)="handleClock($event)"
         />
       } @else {

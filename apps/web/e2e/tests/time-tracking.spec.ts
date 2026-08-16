@@ -121,6 +121,21 @@ test.describe('Clocking across days', () => {
     expect(clock.marks().filter((mark) => mark.workdayDate === clock.today())).toHaveLength(0);
   });
 
+  test('should correct itself when the card is out of step with the server', async ({ page }) => {
+    const clock = await openScheduleWith(page, [], MID_MORNING);
+
+    /* The card loaded while the punch already on the server was unreachable, so it offers the wrong
+     * action. Pressing it is refused, and that refusal is what tells the card to go and look again. */
+    await expect(punch(page, 'Fichar entrada')).toBeVisible();
+    clock.punchBehindTheCardsBack(TimeEntryType.CLOCK_IN);
+
+    await punch(page, 'Fichar entrada').click();
+
+    await expect(stateBadge(page)).toContainText(WORKING);
+    await expect(punch(page, 'Fichar salida')).toBeVisible();
+    await expect(punch(page, 'Fichar entrada')).toHaveCount(0);
+  });
+
   test('should start a fresh day only once the open one has been closed', async ({ page }) => {
     const clock = await openScheduleWith(page, openedTheDayBefore(MID_MORNING), MID_MORNING);
 

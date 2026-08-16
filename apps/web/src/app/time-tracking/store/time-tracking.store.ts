@@ -72,6 +72,8 @@ export class TimeTrackingStore {
 
   public readonly clockState = computed<ClockState>(() => this.currentWorkday()?.state ?? ClockState.OUT);
 
+  public readonly isClockLoading = this.#currentResource.isLoading;
+
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
     this.#establishmentId.set(establishmentId);
   }
@@ -99,8 +101,13 @@ export class TimeTrackingStore {
   }
 
   public async clock(type: TimeEntryType, coordinates?: { latitude: number; longitude: number }) {
-    await this.#repository.clock(this.#requireEstablishmentId(), { type, ...coordinates });
-    this.reload();
+    const establishmentId = this.#requireEstablishmentId();
+
+    try {
+      await this.#repository.clock(establishmentId, { type, ...coordinates });
+    } finally {
+      this.reload();
+    }
   }
 
   public async createEntry(dto: CreateTimeEntryDto) {

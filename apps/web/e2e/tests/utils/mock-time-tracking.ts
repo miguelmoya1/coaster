@@ -114,5 +114,7 @@ export async function mockTimeTracking(page: Page, initialMarks: Mark[] = [], no
   return {
     today,
     marks: () => [...marks],
+    punchBehindTheCardsBack: (type: TimeEntryType) =>
+      marks.push({ type, workdayDate: openDay() ?? today(), occurredAt: now().toISOString() }),
   };
 }
