@@ -1,24 +1,19 @@
 import type { Order } from '@coaster/common';
-import { asEstablishmentId, asProductId, SocketEvents } from '@coaster/common';
+import { asEstablishmentId, asProductId, RealtimeEvents } from '@coaster/common';
 import { OrderItemsAddedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { OrderItemsAddedHandler } from './order-items-added.handler';
 
 describe('OrderItemsAddedHandler', () => {
   let handler: OrderItemsAddedHandler;
-  const establishmentGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
-  };
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrderItemsAddedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
+      providers: [OrderItemsAddedHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<OrderItemsAddedHandler>(OrderItemsAddedHandler);
@@ -32,7 +27,6 @@ describe('OrderItemsAddedHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderItemAdded, order);
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.orderItemAdded, order);
   });
 });

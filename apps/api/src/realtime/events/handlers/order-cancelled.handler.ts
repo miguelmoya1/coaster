@@ -1,21 +1,21 @@
-import { SocketEvents, TableStatus } from '@coaster/common';
+import { RealtimeEvents, TableStatus } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrderCancelledEvent } from '@coaster/orders';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 
 @EventsHandler(OrderCancelledEvent)
 export class OrderCancelledHandler implements IEventHandler<OrderCancelledEvent> {
   readonly #logger = new Logger(OrderCancelledHandler.name);
 
-  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
+  constructor(private readonly _realtime: RealtimeService) {}
 
   handle(event: OrderCancelledEvent) {
     this.#logger.debug(`Catching OrderCancelledEvent...`);
-    this._establishmentGateway.server.to(event.establishmentId).emit(SocketEvents.orderCancelled, event.order);
+    this._realtime.publish(event.establishmentId, RealtimeEvents.orderCancelled, event.order);
 
     if (event.tableId) {
-      this._establishmentGateway.server.to(event.establishmentId).emit(SocketEvents.tableStatusChanged, {
+      this._realtime.publish(event.establishmentId, RealtimeEvents.tableStatusChanged, {
         id: event.tableId,
         status: TableStatus.FREE,
       });

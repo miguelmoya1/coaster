@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { Product } from '@coaster/products';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProductsStore } from './products.store';
@@ -11,7 +11,7 @@ import { ProductsStore } from './products.store';
 describe('ProductsStore', () => {
   let store: ProductsStore;
   let httpMock: HttpTestingController;
-  let mockSocket = {
+  let realtimeMock = {
     productCreated: signal<Product | null>(null),
     productStockChanged: signal<Product | null>(null),
     productDeleted: signal<{ id: string } | null>(null),
@@ -53,7 +53,7 @@ describe('ProductsStore', () => {
   ];
 
   beforeEach(() => {
-    mockSocket = {
+    realtimeMock = {
       productCreated: signal<Product | null>(null),
       productStockChanged: signal<Product | null>(null),
       productDeleted: signal<{ id: string } | null>(null),
@@ -65,7 +65,7 @@ describe('ProductsStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: Socket, useValue: mockSocket },
+        { provide: Realtime, useValue: realtimeMock },
       ],
     });
 
@@ -256,7 +256,7 @@ describe('ProductsStore', () => {
     });
   });
 
-  describe('socket effects', () => {
+  describe('realtime effects', () => {
     it('should handle productCreated socket event', async () => {
       const establishmentId = asEstablishmentId('establishment-1');
       store.setEstablishmentId(establishmentId);
@@ -268,7 +268,7 @@ describe('ProductsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.productCreated.set({ ...mockProducts[0], id: asProductId('new-sock-1') } as any);
+      realtimeMock.productCreated.set({ ...mockProducts[0], id: asProductId('new-sock-1') } as any);
       TestBed.tick();
 
       expect(store.list.value()?.length).toBe(3);
@@ -285,7 +285,7 @@ describe('ProductsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.productDeleted.set({ id: mockProducts[0].id });
+      realtimeMock.productDeleted.set({ id: mockProducts[0].id });
       TestBed.tick();
 
       expect(store.list.value()?.length).toBe(1);

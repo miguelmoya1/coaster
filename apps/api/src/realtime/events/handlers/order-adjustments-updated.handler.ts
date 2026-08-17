@@ -1,14 +1,14 @@
-import { SocketEvents } from '@coaster/common';
+import { RealtimeEvents } from '@coaster/common';
 import { OrderAdjustmentsUpdatedEvent } from '@coaster/orders';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 
 @EventsHandler(OrderAdjustmentsUpdatedEvent)
 export class OrderAdjustmentsUpdatedHandler implements IEventHandler<OrderAdjustmentsUpdatedEvent> {
-  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
+  constructor(private readonly _realtime: RealtimeService) {}
 
   handle(event: OrderAdjustmentsUpdatedEvent) {
-    this._establishmentGateway.server.to(event.establishmentId).emit(SocketEvents.orderAdjustmentsUpdated, {
+    this._realtime.publish(event.establishmentId, RealtimeEvents.orderAdjustmentsUpdated, {
       orderId: event.orderId,
       adjustments: event.adjustments,
     });

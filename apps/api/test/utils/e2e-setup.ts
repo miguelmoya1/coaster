@@ -1,7 +1,6 @@
 import { DEFAULT_ESTABLISHMENT_MODULES, EstablishmentModule, resolveModules } from '@coaster/common';
 import { CanActivate, ExecutionContext, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { FirebaseAuthGuard, OptionalFirebaseAuthGuard } from '../../src/auth';
@@ -12,7 +11,6 @@ import {
   DbSubscriptionPlan,
   DbSubscriptionStatus,
 } from '../../src/core/db';
-import { WsAuthService } from '../../src/websockets/services';
 
 const TRIAL_DAYS = 14;
 
@@ -23,17 +21,6 @@ export const mockUser = {
   active: true,
   role: 'USER',
 };
-
-export class MockWsAuthService {
-  authenticate(client: { handshake?: { auth?: { token?: unknown } } }): Promise<string | null> {
-    const token = client?.handshake?.auth?.token;
-    return Promise.resolve(typeof token === 'string' && token.length > 0 ? mockUser.id : null);
-  }
-
-  canAccessEstablishment(): Promise<boolean> {
-    return Promise.resolve(true);
-  }
-}
 
 /** Tests that need a second person send `x-e2e-user-id`; everything else stays as `mockUser`. */
 export class MockAuthGuard implements CanActivate {
@@ -67,12 +54,9 @@ export class E2eTestSetup {
       .useClass(MockAuthGuard)
       .overrideGuard(OptionalFirebaseAuthGuard)
       .useClass(MockAuthGuard)
-      .overrideProvider(WsAuthService)
-      .useClass(MockWsAuthService)
       .compile();
 
     this.app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
-    this.app.useWebSocketAdapter(new IoAdapter(this.app));
     this.app.setGlobalPrefix('api');
 
     this.app.useGlobalPipes(

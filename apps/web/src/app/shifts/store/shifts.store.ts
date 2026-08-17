@@ -3,7 +3,7 @@ import { httpResource } from '@angular/common/http';
 import { effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId, CreateShiftDto, Shift } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { ShiftRepository } from '../data-access/shift-repository';
 import { shiftArrayMapper } from '../mappers/shift.mapper';
 import { EstablishmentShifts } from '../services/establishment-shifts';
@@ -16,7 +16,7 @@ export class ShiftsStore {
   readonly #createShift = inject(CreateShift);
   readonly #deleteShift = inject(DeleteShift);
   readonly #shiftRepository = inject(ShiftRepository);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #startDate = signal<string | undefined>(undefined);
@@ -33,14 +33,14 @@ export class ShiftsStore {
 
   constructor() {
     effect(() => {
-      const created = this.#socketService.shiftCreated();
+      const created = this.#realtime.shiftCreated();
       if (created) {
         this.reload();
       }
     });
 
     effect(() => {
-      const deleted = this.#socketService.shiftDeleted();
+      const deleted = this.#realtime.shiftDeleted();
       if (deleted) {
         this.#shiftsResource.update((shifts) => {
           if (!shifts) {

@@ -1,24 +1,19 @@
-import { SocketEvents, asEstablishmentId, asTableId } from '@coaster/common';
+import { RealtimeEvents, asEstablishmentId, asTableId } from '@coaster/common';
 import { DbTableStatus } from '@coaster/core/db';
 import { TableUpdatedEvent } from '@coaster/tables';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { TableUpdatedHandler } from './table-updated.handler';
 
 describe('TableUpdatedHandler', () => {
   let handler: TableUpdatedHandler;
-  const establishmentGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
-  };
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TableUpdatedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
+      providers: [TableUpdatedHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<TableUpdatedHandler>(TableUpdatedHandler);
@@ -36,7 +31,6 @@ describe('TableUpdatedHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableUpdated, table);
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableUpdated, table);
   });
 });

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { TableStatus, asEstablishmentId } from '@coaster/common';
@@ -12,10 +12,10 @@ describe('TablesStore', () => {
   let service: TablesStore;
 
   let httpMock: HttpTestingController;
-  let mockSocket: any;
+  let realtimeMock: any;
 
   beforeEach(() => {
-    mockSocket = {
+    realtimeMock = {
       tableStatusChanged: signal<any>(null),
       tableCreated: signal<any>(null),
       tableUpdated: signal<any>(null),
@@ -27,7 +27,7 @@ describe('TablesStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: Socket, useValue: mockSocket },
+        { provide: Realtime, useValue: realtimeMock },
       ],
     });
 
@@ -187,7 +187,7 @@ describe('TablesStore', () => {
     });
   });
 
-  describe('socket effects', () => {
+  describe('realtime effects', () => {
     it('should handle tableStatusChanged', async () => {
       service.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
@@ -209,7 +209,7 @@ describe('TablesStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.tableStatusChanged.set({ id: 't-1', status: TableStatus.OCCUPIED });
+      realtimeMock.tableStatusChanged.set({ id: 't-1', status: TableStatus.OCCUPIED });
       TestBed.tick();
 
       expect(service.tables.value()?.[0].status).toBe(TableStatus.OCCUPIED);
@@ -236,7 +236,7 @@ describe('TablesStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.tableDeleted.set({ id: 't-1' });
+      realtimeMock.tableDeleted.set({ id: 't-1' });
       TestBed.tick();
 
       expect(service.tables.value()?.length).toBe(0);

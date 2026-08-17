@@ -4,7 +4,7 @@ import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { EstablishmentMember } from '@coaster/common';
 import { asEstablishmentId, asEstablishmentMemberId, asUserId, EstablishmentRole } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MembersStore } from './members.store';
 
@@ -44,7 +44,7 @@ describe('MembersStore', () => {
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
         {
-          provide: Socket,
+          provide: Realtime,
           useValue: {
             memberRemoved: signal<any>(null),
             memberInvited: signal<any>(null),

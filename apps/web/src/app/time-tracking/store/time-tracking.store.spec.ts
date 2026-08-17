@@ -6,6 +6,8 @@ import { asEstablishmentId, asTimeEntryId, ClockState, TimeEntryType } from '@co
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TimeTrackingStore } from './time-tracking.store';
 
+type Workday = ReturnType<typeof workday>;
+
 const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedMinutes = 120) => ({
   date,
   userId: 'user-1',
@@ -33,7 +35,7 @@ describe('TimeTrackingStore', () => {
     TestBed.tick();
   };
 
-  const flushCurrent = (current: unknown = null) => httpMock.expectOne(CURRENT).flush(current);
+  const flushCurrent = (current: Workday | null = null) => httpMock.expectOne(CURRENT).flush(current);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -81,7 +83,7 @@ describe('TimeTrackingStore', () => {
   });
 
   describe('the workday the clock card acts on', () => {
-    const load = async (current: unknown) => {
+    const load = async (current: Workday | null) => {
       store.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
 

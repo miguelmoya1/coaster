@@ -52,7 +52,7 @@ export * from './handlers/table-created.handler';
 export * from './handlers/table-deleted.handler';
 export * from './handlers/table-updated.handler';
 
-export const WsEventHandlers = [
+export const RealtimeEventHandlers = [
   CategoryCreatedHandler,
   CategoryDeletedHandler,
   CategoryUpdatedHandler,

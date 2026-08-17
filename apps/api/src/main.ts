@@ -5,7 +5,6 @@ import { PUBLIC_ROOT } from '@coaster/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { SharedIoAdapter } from '@coaster/websockets';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyRawBody from 'fastify-raw-body';
 import { getApps, initializeApp } from 'firebase-admin/app';
@@ -28,10 +27,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({ trustProxy }), {
     logger: isProduction ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug', 'verbose'],
   });
-
-  const ioAdapter = new SharedIoAdapter(app);
-  ioAdapter.connect();
-  app.useWebSocketAdapter(ioAdapter);
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -61,7 +56,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Last-Event-ID'],
     credentials: true,
   });
 

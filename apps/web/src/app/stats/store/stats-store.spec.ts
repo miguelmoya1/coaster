@@ -5,14 +5,14 @@ import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { EstablishmentStats, Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { StatsStore } from './stats-store';
 
 describe('StatsStore', () => {
   let store: StatsStore;
   let httpMock: HttpTestingController;
-  let mockSocket = {
+  let realtimeMock = {
     orderClosed: signal<Order | null>(null),
     orderCancelled: signal<{ id: string } | Order | null>(null),
     orderDeleted: signal<{ id: string } | null>(null),
@@ -41,7 +41,7 @@ describe('StatsStore', () => {
   };
 
   beforeEach(() => {
-    mockSocket = {
+    realtimeMock = {
       orderClosed: signal<Order | null>(null),
       orderCancelled: signal<{ id: string } | Order | null>(null),
       orderDeleted: signal<{ id: string } | null>(null),
@@ -52,7 +52,7 @@ describe('StatsStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: Socket, useValue: mockSocket },
+        { provide: Realtime, useValue: realtimeMock },
       ],
     });
 
@@ -100,7 +100,7 @@ describe('StatsStore', () => {
 
       expect(store.stats.value()?.todayRevenue).toBe(100);
 
-      mockSocket.orderClosed.set({
+      realtimeMock.orderClosed.set({
         id: asOrderId('ord-1'),
         establishmentId: asEstablishmentId('establishment-1'),
         status: OrderStatus.CLOSED,
@@ -139,7 +139,7 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.orderClosed.set({
+      realtimeMock.orderClosed.set({
         id: asOrderId('ord-1'),
         establishmentId: asEstablishmentId('establishment-2'),
         status: OrderStatus.CLOSED,
@@ -171,7 +171,7 @@ describe('StatsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.orderCancelled.set({
+      realtimeMock.orderCancelled.set({
         id: asOrderId('ord-1'),
         establishmentId: asEstablishmentId('establishment-1'),
         status: OrderStatus.CANCELLED,

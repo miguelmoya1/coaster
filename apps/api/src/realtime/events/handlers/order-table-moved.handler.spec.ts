@@ -1,24 +1,19 @@
 import type { Order } from '@coaster/common';
-import { asEstablishmentId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asTableId, RealtimeEvents, TableStatus } from '@coaster/common';
 import { OrderTableMovedEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { OrderTableMovedHandler } from './order-table-moved.handler';
 
 describe('OrderTableMovedHandler', () => {
   let handler: OrderTableMovedHandler;
-  const establishmentGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
-  };
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrderTableMovedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
+      providers: [OrderTableMovedHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<OrderTableMovedHandler>(OrderTableMovedHandler);
@@ -33,13 +28,12 @@ describe('OrderTableMovedHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, order);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.orderUpdated, order);
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableStatusChanged, {
       id: oldTableId,
       status: TableStatus.FREE,
     });
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableStatusChanged, {
       id: newTableId,
       status: TableStatus.OCCUPIED,
     });
@@ -53,13 +47,12 @@ describe('OrderTableMovedHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderUpdated, order);
-    expect(establishmentGateway.server.emit).not.toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.orderUpdated, order);
+    expect(realtime.publish).not.toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableStatusChanged, {
       id: vi.fn(),
       status: TableStatus.FREE,
     });
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableStatusChanged, {
       id: newTableId,
       status: TableStatus.OCCUPIED,
     });

@@ -1,13 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Service, signal, effect } from '@angular/core';
 import type { EstablishmentId, EstablishmentStats as CommonEstablishmentStats } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { EstablishmentStats } from '../services/establishment-stats';
 
 @Service()
 export class StatsStore {
   readonly #establishmentStats = inject(EstablishmentStats);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
@@ -20,21 +20,21 @@ export class StatsStore {
 
   constructor() {
     effect(() => {
-      const closed = this.#socketService.orderClosed();
+      const closed = this.#realtime.orderClosed();
       if (closed && this.#currentEstablishmentId() === closed.establishmentId) {
         this.reloadStats();
       }
     });
 
     effect(() => {
-      const cancelled = this.#socketService.orderCancelled();
+      const cancelled = this.#realtime.orderCancelled();
       if (cancelled) {
         this.reloadStats();
       }
     });
 
     effect(() => {
-      const deleted = this.#socketService.orderDeleted();
+      const deleted = this.#realtime.orderDeleted();
       if (deleted) {
         this.reloadStats();
       }

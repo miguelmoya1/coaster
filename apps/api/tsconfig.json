@@ -39,14 +39,14 @@
       "@coaster/orders": ["./src/orders/index.ts"],
       "@coaster/printer": ["./src/printer/index.ts"],
       "@coaster/products": ["./src/products/index.ts"],
+      "@coaster/realtime": ["./src/realtime/index.ts"],
       "@coaster/shift-exchanges": ["./src/shift-exchanges/index.ts"],
       "@coaster/shifts": ["./src/shifts/index.ts"],
       "@coaster/stats": ["./src/stats/index.ts"],
       "@coaster/stripe": ["./src/stripe/index.ts"],
       "@coaster/tables": ["./src/tables/index.ts"],
       "@coaster/time-tracking": ["./src/time-tracking/index.ts"],
-      "@coaster/users": ["./src/users/index.ts"],
-      "@coaster/websockets": ["./src/websockets/index.ts"]
+      "@coaster/users": ["./src/users/index.ts"]
     }
   }
 }

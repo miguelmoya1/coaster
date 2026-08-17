@@ -12,6 +12,7 @@ import { MediaModule } from '@coaster/media';
 import { OrdersModule } from '@coaster/orders';
 import { PrinterModule } from '@coaster/printer';
 import { ProductsModule } from '@coaster/products';
+import { RealtimeModule } from '@coaster/realtime';
 import { ShiftExchangesModule } from '@coaster/shift-exchanges';
 import { ShiftsModule } from '@coaster/shifts';
 import { StatsModule } from '@coaster/stats';
@@ -21,7 +22,6 @@ import { CatalogueModule } from '@coaster/catalogue';
 import { MenuModule } from '@coaster/menu';
 import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
-import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -44,7 +44,7 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     DbModule,
     StripeModule,
     EmailModule,
-    WebsocketsModule,
+    RealtimeModule,
     AuthModule,
     UserModule,
     EstablishmentsModule,

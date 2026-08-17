@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { Order } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { Socket, Toast } from '@coaster/core';
+import { Realtime, Toast } from '@coaster/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentOrders } from '../services/establishment-orders';
 import { CreateOrder } from '../services/create-order';
@@ -33,7 +33,7 @@ describe('ActiveOrdersStore', () => {
     merge: vi.fn().mockResolvedValue(undefined),
     removeItem: vi.fn().mockResolvedValue(undefined),
   };
-  const socketMock = {
+  const realtimeMock = {
     orderCreated: signal<Order | null>(null),
     orderUpdated: signal<Order | null>(null),
     orderClosed: signal<Order | null>(null),
@@ -51,14 +51,14 @@ describe('ActiveOrdersStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    socketMock.orderCreated.set(null);
-    socketMock.orderUpdated.set(null);
-    socketMock.orderClosed.set(null);
-    socketMock.orderCancelled.set(null);
-    socketMock.orderItemAdded.set(null);
-    socketMock.orderDeleted.set(null);
-    socketMock.orderTipUpdated.set(null);
-    socketMock.orderAdjustmentsUpdated.set(null);
+    realtimeMock.orderCreated.set(null);
+    realtimeMock.orderUpdated.set(null);
+    realtimeMock.orderClosed.set(null);
+    realtimeMock.orderCancelled.set(null);
+    realtimeMock.orderItemAdded.set(null);
+    realtimeMock.orderDeleted.set(null);
+    realtimeMock.orderTipUpdated.set(null);
+    realtimeMock.orderAdjustmentsUpdated.set(null);
 
     TestBed.configureTestingModule({
       providers: [
@@ -67,7 +67,7 @@ describe('ActiveOrdersStore', () => {
         { provide: CreateOrder, useValue: createOrderMock },
         { provide: DeleteOrder, useValue: deleteOrderMock },
         { provide: ManageOrder, useValue: manageOrderMock },
-        { provide: Socket, useValue: socketMock },
+        { provide: Realtime, useValue: realtimeMock },
         { provide: Toast, useValue: toastMock },
       ],
     });

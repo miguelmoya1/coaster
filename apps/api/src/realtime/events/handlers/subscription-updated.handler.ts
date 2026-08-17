@@ -5,10 +5,10 @@ import {
   SubscriptionPaymentFailedEvent,
   SubscriptionRenewedEvent,
 } from '@coaster/establishment-subscription';
-import { SocketEvents } from '@coaster/common';
+import { RealtimeEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 
 type SubscriptionEvent =
   | SubscriptionActivatedEvent
@@ -27,12 +27,12 @@ type SubscriptionEvent =
 export class SubscriptionUpdatedHandler implements IEventHandler<SubscriptionEvent> {
   readonly #logger = new Logger(SubscriptionUpdatedHandler.name);
 
-  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
+  constructor(private readonly _realtime: RealtimeService) {}
 
   handle(event: SubscriptionEvent) {
     this.#logger.debug(`Catching SubscriptionEvent for establishmentId=${event.establishmentId}...`);
-    this._establishmentGateway.server
-      .to(event.establishmentId)
-      .emit(SocketEvents.subscriptionUpdated, { establishmentId: event.establishmentId });
+    this._realtime.publish(event.establishmentId, RealtimeEvents.subscriptionUpdated, {
+      establishmentId: event.establishmentId,
+    });
   }
 }

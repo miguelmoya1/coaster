@@ -39,14 +39,14 @@ about one message of the monthly allowance. Reviewed before it saves.
   was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
   name. Every product is renameable now that names are words rather than keys. The fix is for the
   order line to snapshot the name the way `TimeEntry` snapshots the user.
-- **Open CORS** (`origin: '*'`) on both the API and the websocket gateway, pending a decision on the
-  production domain. Narrow it to an allowlist before onboarding real venues.
+- **Open CORS** (`origin: '*'`) on the API, pending a decision on the production domain. It now also
+  governs the realtime stream, which the browser reaches with a preflighted `Authorization` header. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
   is added, it must require typing the name to confirm and must land in the audit log.
 - **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.
   They answer a button press or an event rather than describing state, so `httpResource` does not
   fit: replicating a rota week, verifying the hash chain, exporting the inspection CSV, polling a
-  print job, and refreshing one order after a socket event.
+  print job, and refreshing one order after a realtime event.
 - **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
   methods directly; dispatched DOM events never reach Angular listeners in that setup, so keyboard
   and click wiring is only ever verified by hand.

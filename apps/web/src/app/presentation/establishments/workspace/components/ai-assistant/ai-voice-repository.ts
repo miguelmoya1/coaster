@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type { AiMessage, AiResponse, EstablishmentId } from '@coaster/common';
-import { Auth } from '@coaster/core';
+import { Auth, readSse } from '@coaster/core';
 import { environment } from '@coaster/env';
 import { firstValueFrom } from 'rxjs';
 
@@ -60,38 +60,15 @@ export class AiVoiceRepository {
       return await this.executeCommand(establishmentId, prompt, messages);
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
     let final: AiResponse | null = null;
 
-    while (true) {
-      const { done, value } = await reader.read();
+    for await (const frame of readSse(response.body)) {
+      const payload = JSON.parse(frame.data) as { delta?: string } & AiResponse;
 
-      if (done) {
-        break;
-      }
-
-      buffer += decoder.decode(value, { stream: true });
-
-      const frames = buffer.split('\n\n');
-      buffer = frames.pop() ?? '';
-
-      for (const frame of frames) {
-        const eventLine = frame.split('\n').find((line) => line.startsWith('event: '));
-        const dataLine = frame.split('\n').find((line) => line.startsWith('data: '));
-
-        if (!eventLine || !dataLine) {
-          continue;
-        }
-
-        const payload = JSON.parse(dataLine.slice(6)) as { delta?: string } & AiResponse;
-
-        if (eventLine.slice(7) === 'delta' && payload.delta) {
-          onDelta(payload.delta);
-        } else if (eventLine.slice(7) === 'done') {
-          final = payload;
-        }
+      if (frame.event === 'delta' && payload.delta) {
+        onDelta(payload.delta);
+      } else if (frame.event === 'done') {
+        final = payload;
       }
     }
 

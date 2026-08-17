@@ -8,7 +8,7 @@ import type {
   UpdateProductStockDto,
 } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { productArrayMapper, productMapper } from '../mappers/product.mapper';
 import { EstablishmentProducts } from '../services/establishment-products';
 import { CreateProduct } from '../services/create-product';
@@ -23,7 +23,7 @@ export class ProductsStore {
   readonly #updateProduct = inject(UpdateProduct);
   readonly #updateProductStock = inject(UpdateProductStock);
   readonly #deleteProduct = inject(DeleteProduct);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | null>(null);
   public readonly currentEstablishmentId = this.#currentEstablishmentId.asReadonly();
@@ -36,7 +36,7 @@ export class ProductsStore {
 
   constructor() {
     effect(() => {
-      const created = this.#socketService.productCreated();
+      const created = this.#realtime.productCreated();
       if (created) {
         const mappedCreated = productMapper(created);
         this.#productsResource.update((products) => {
@@ -50,7 +50,7 @@ export class ProductsStore {
     });
 
     effect(() => {
-      const updated = this.#socketService.productStockChanged();
+      const updated = this.#realtime.productStockChanged();
       if (updated) {
         const mappedUpdated = productMapper(updated);
         this.#productsResource.update((products) => {
@@ -63,7 +63,7 @@ export class ProductsStore {
     });
 
     effect(() => {
-      const deleted = this.#socketService.productDeleted();
+      const deleted = this.#realtime.productDeleted();
       if (deleted) {
         this.#productsResource.update((products) => {
           if (!products) {
@@ -75,7 +75,7 @@ export class ProductsStore {
     });
 
     effect(() => {
-      const updated = this.#socketService.productUpdated();
+      const updated = this.#realtime.productUpdated();
       if (updated) {
         const mappedUpdated = productMapper(updated);
         this.#productsResource.update((products) => {

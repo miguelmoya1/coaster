@@ -1,21 +1,20 @@
 import { MemberRemovedEvent } from '@coaster/establishment-members';
-import { SocketEvents } from '@coaster/common';
+import { RealtimeEvents } from '@coaster/common';
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 
 @EventsHandler(MemberRemovedEvent)
 export class MemberRemovedHandler implements IEventHandler<MemberRemovedEvent> {
   readonly #logger = new Logger(MemberRemovedHandler.name);
 
-  constructor(private readonly _establishmentGateway: EstablishmentGateway) {}
+  constructor(private readonly _realtime: RealtimeService) {}
 
-  async handle(event: MemberRemovedEvent) {
+  handle(event: MemberRemovedEvent) {
     this.#logger.debug(`Catching MemberRemovedEvent...`);
     const { establishmentId, memberId, userId } = event;
 
-    this._establishmentGateway.server.to(establishmentId).emit(SocketEvents.memberRemoved, { id: memberId });
-
-    await this._establishmentGateway.evictFromEstablishment(establishmentId, userId);
+    this._realtime.publish(establishmentId, RealtimeEvents.memberRemoved, { id: memberId });
+    this._realtime.revoke(establishmentId, userId);
   }
 }

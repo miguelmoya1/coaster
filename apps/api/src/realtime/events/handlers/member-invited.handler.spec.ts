@@ -1,36 +1,25 @@
 import { MemberInvitedEvent } from '@coaster/establishment-members';
-import { SocketEvents, asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
+import { RealtimeEvents, asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { MemberInvitedHandler } from './member-invited.handler';
 
 describe('MemberInvitedHandler', () => {
   let handler: MemberInvitedHandler;
 
-  const mockEmit = vi.fn();
-  const mockTo = vi.fn().mockReturnValue({ emit: mockEmit });
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        MemberInvitedHandler,
-        {
-          provide: EstablishmentGateway,
-          useValue: {
-            server: {
-              to: mockTo,
-            },
-          },
-        },
-      ],
+      providers: [MemberInvitedHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<MemberInvitedHandler>(MemberInvitedHandler);
     vi.clearAllMocks();
   });
 
-  it('should emit MEMBER_INVITED event to the correct establishment room', () => {
+  it('should emit MEMBER_INVITED event to the establishment', () => {
     const event = new MemberInvitedEvent(
       asEstablishmentId('establishment-1'),
       asEstablishmentMemberId('mem-1'),
@@ -42,7 +31,6 @@ describe('MemberInvitedHandler', () => {
     );
     handler.handle(event);
 
-    expect(mockTo).toHaveBeenCalledWith('establishment-1');
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.memberInvited, { id: 'mem-1' });
+    expect(realtime.publish).toHaveBeenCalledWith('establishment-1', RealtimeEvents.memberInvited, { id: 'mem-1' });
   });
 });

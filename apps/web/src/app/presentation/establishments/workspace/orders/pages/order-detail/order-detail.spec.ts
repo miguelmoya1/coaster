@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { ActiveOrdersStore, OrderHistoryStore } from '@coaster/orders';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -47,7 +47,7 @@ describe('OrderDetail', () => {
         { provide: ActiveOrdersStore, useValue: activeOrdersStoreMock },
         { provide: OrderHistoryStore, useValue: orderHistoryStoreMock },
         {
-          provide: Socket,
+          provide: Realtime,
           useValue: {
             tableStatusChanged: signal<any>(null),
             tableCreated: signal<any>(null),

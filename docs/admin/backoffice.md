@@ -36,8 +36,8 @@ Consequences:
 Revoking requires a grant to exist; otherwise it answers `NO_MANUAL_GRANT` rather than faking success
 against a Stripe subscription the panel does not manage.
 
-Granting and revoking both publish `SubscriptionOverriddenEvent`, which goes out over the websocket
-as `subscriptionUpdated`, so that establishment's clients refresh immediately.
+Granting and revoking both publish `SubscriptionOverriddenEvent`, which goes out over the realtime
+stream as `subscriptionUpdated`, so that establishment's clients refresh immediately.
 
 ## Billing source
 

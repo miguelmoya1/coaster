@@ -90,7 +90,8 @@ so once it has already decided to reject, so a normal request never pays that co
 
 Verifies the token with Firebase, finds the local user by `googleId` and **rejects when
 `user.active` is `false`**. That check is what makes the backoffice deactivate button real; without
-it a deactivated user kept full access. The same rule applies over websockets (`WsAuthService`).
+it a deactivated user kept full access. The realtime stream is a `GET` behind this same guard, so
+the rule reaches it without a second implementation.
 
 ### 3. `AdminGuard` — platform role
 
@@ -117,7 +118,7 @@ the members list while keeping their full role. The same filter belongs in every
 "is this person still in this establishment": the HTTP guard, `WsAuthService`, the AI handler and the establishment
 list.
 
-Removal also pushes the member out of the establishment's live websocket room, so they stop receiving
+Removal also closes the member's open streams for that establishment, so they stop receiving
 real-time data before their next request is refused.
 
 ## The platform admin

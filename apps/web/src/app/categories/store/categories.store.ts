@@ -7,7 +7,7 @@ import {
   type CreateCategoryDto,
   type UpdateCategoryDto,
 } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { categoryArrayMapper, categoryMapper } from '../mappers/category.mapper';
 import { EstablishmentCategories } from '../services/establishment-categories';
 import { CreateCategory } from '../services/create-category';
@@ -20,7 +20,7 @@ export class CategoriesStore {
   readonly #createCategory = inject(CreateCategory);
   readonly #updateCategory = inject(UpdateCategory);
   readonly #deleteCategory = inject(DeleteCategory);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
@@ -33,7 +33,7 @@ export class CategoriesStore {
 
   constructor() {
     effect(() => {
-      const deleted = this.#socketService.categoryDeleted();
+      const deleted = this.#realtime.categoryDeleted();
       if (deleted) {
         this.#categoriesResource.update((categories) => {
           if (!categories) {
@@ -45,7 +45,7 @@ export class CategoriesStore {
     });
 
     effect(() => {
-      const created = this.#socketService.categoryCreated();
+      const created = this.#realtime.categoryCreated();
       if (created) {
         const mappedCreated = categoryMapper(created);
         this.#categoriesResource.update((categories) => {
@@ -59,7 +59,7 @@ export class CategoriesStore {
     });
 
     effect(() => {
-      const updated = this.#socketService.categoryUpdated();
+      const updated = this.#realtime.categoryUpdated();
       if (updated) {
         const mappedUpdated = categoryMapper(updated);
         this.#categoriesResource.update((categories) => {

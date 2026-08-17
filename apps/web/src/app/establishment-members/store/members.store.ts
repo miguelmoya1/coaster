@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId, EstablishmentMemberId, InviteEstablishmentMemberDto } from '@coaster/common';
 import { EstablishmentRole, ErrorCodes } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { memberArrayMapper } from '../mappers/member.mapper';
 import { EstablishmentMembers } from '../services/establishment-members';
 import { InviteMember } from '../services/invite-member';
@@ -15,7 +15,7 @@ export class MembersStore {
   readonly #inviteMember = inject(InviteMember);
   readonly #removeMember = inject(RemoveMember);
   readonly #updateMemberRole = inject(UpdateMemberRole);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
   readonly #membersResource = httpResource(() => this.#members.execute(this.#currentEstablishmentId()), {
@@ -34,7 +34,7 @@ export class MembersStore {
 
   constructor() {
     effect(() => {
-      const removed = this.#socketService.memberRemoved();
+      const removed = this.#realtime.memberRemoved();
       if (removed) {
         this.#membersResource.update((members) => {
           if (!members) {
@@ -46,14 +46,14 @@ export class MembersStore {
     });
 
     effect(() => {
-      const invited = this.#socketService.memberInvited();
+      const invited = this.#realtime.memberInvited();
       if (invited) {
         this.reload();
       }
     });
 
     effect(() => {
-      const roleChanged = this.#socketService.memberRoleChanged();
+      const roleChanged = this.#realtime.memberRoleChanged();
       if (roleChanged) {
         this.reload();
       }

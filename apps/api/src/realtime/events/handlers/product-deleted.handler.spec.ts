@@ -1,23 +1,18 @@
-import { SocketEvents, asEstablishmentId, asProductId } from '@coaster/common';
+import { RealtimeEvents, asEstablishmentId, asProductId } from '@coaster/common';
 import { ProductDeletedEvent } from '@coaster/products';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { ProductDeletedHandler } from './product-deleted.handler';
 
 describe('ProductDeletedHandler', () => {
   let handler: ProductDeletedHandler;
-  const establishmentGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
-  };
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProductDeletedHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
+      providers: [ProductDeletedHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<ProductDeletedHandler>(ProductDeletedHandler);
@@ -30,7 +25,6 @@ describe('ProductDeletedHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.productDeleted, { id: productId });
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.productDeleted, { id: productId });
   });
 });

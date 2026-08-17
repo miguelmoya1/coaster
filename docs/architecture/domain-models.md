@@ -126,13 +126,13 @@ why idempotency does not need one here.
 - SubscriptionOverriddenEvent — an admin granted or revoked a plan by hand
 
 The first three are emitted while processing webhooks; the fourth from the backoffice. All of them
-end at the same websocket handler, which tells the establishment's clients with `subscriptionUpdated`.
+end at the same realtime handler, which tells the establishment's clients with `subscriptionUpdated`.
 
 ## Member domain events
 
 - MemberInvitedEvent
-- MemberRemovedEvent — also evicts that user from the establishment's websocket room
-- MemberRoleChangedEvent — goes out over the socket as `memberRoleChanged`, so the team list and the
+- MemberRemovedEvent — also closes that user's stream for the establishment
+- MemberRoleChangedEvent — goes out over the stream as `memberRoleChanged`, so the team list and the
   affected person's own permissions refresh without a reload
 
 ## Indexing

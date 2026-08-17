@@ -2,14 +2,14 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentPermission, EstablishmentRole, hasPermission } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { memberMapper } from '../mappers/member.mapper';
 import { MyMember } from '../services/my-member';
 
 @Service()
 export class MyMemberStore {
   readonly #myMember = inject(MyMember);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
   readonly #myMemberResource = httpResource(() => this.#myMember.execute(this.#currentEstablishmentId()), {
@@ -18,7 +18,7 @@ export class MyMemberStore {
 
   constructor() {
     effect(() => {
-      const roleChanged = this.#socketService.memberRoleChanged();
+      const roleChanged = this.#realtime.memberRoleChanged();
       const mine = this.myMember.hasValue() ? this.myMember.value() : undefined;
 
       if (roleChanged && mine && roleChanged.userId === mine.userId) {

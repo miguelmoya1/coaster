@@ -1,24 +1,19 @@
 import type { Order } from '@coaster/common';
-import { asEstablishmentId, asTableId, SocketEvents, TableStatus } from '@coaster/common';
+import { asEstablishmentId, asTableId, RealtimeEvents, TableStatus } from '@coaster/common';
 import { OrderCancelledEvent } from '@coaster/orders';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EstablishmentGateway } from '../../establishment.gateway';
+import { RealtimeService } from '../../services';
 import { OrderCancelledHandler } from './order-cancelled.handler';
 
 describe('OrderCancelledHandler', () => {
   let handler: OrderCancelledHandler;
-  const establishmentGateway = {
-    server: {
-      to: vi.fn().mockReturnThis(),
-      emit: vi.fn(),
-    },
-  };
+  const realtime = { publish: vi.fn(), revoke: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrderCancelledHandler, { provide: EstablishmentGateway, useValue: establishmentGateway }],
+      providers: [OrderCancelledHandler, { provide: RealtimeService, useValue: realtime }],
     }).compile();
 
     handler = module.get<OrderCancelledHandler>(OrderCancelledHandler);
@@ -32,9 +27,8 @@ describe('OrderCancelledHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, order);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.tableStatusChanged, {
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.orderCancelled, order);
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.tableStatusChanged, {
       id: tableId,
       status: TableStatus.FREE,
     });
@@ -47,10 +41,10 @@ describe('OrderCancelledHandler', () => {
 
     handler.handle(event);
 
-    expect(establishmentGateway.server.to).toHaveBeenCalledWith(establishmentId);
-    expect(establishmentGateway.server.emit).toHaveBeenCalledWith(SocketEvents.orderCancelled, order);
-    expect(establishmentGateway.server.emit).not.toHaveBeenCalledWith(
-      SocketEvents.tableStatusChanged,
+    expect(realtime.publish).toHaveBeenCalledWith(establishmentId, RealtimeEvents.orderCancelled, order);
+    expect(realtime.publish).not.toHaveBeenCalledWith(
+      establishmentId,
+      RealtimeEvents.tableStatusChanged,
       expect.any(Object),
     );
   });

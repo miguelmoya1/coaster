@@ -54,8 +54,9 @@ See [backoffice](docs/admin/backoffice.md).
 
 ### 🔔 Real-Time
 
-Live updates over WebSockets (socket.io): orders, tables, stock, members and subscription changes
-propagate to everyone connected to the venue.
+Live updates over Server-Sent Events: orders, tables, stock, members and subscription changes
+propagate to everyone watching the venue. One authenticated `GET` per client, the same guards as
+every other endpoint.
 
 ---
 
