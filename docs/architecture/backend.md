@@ -69,8 +69,8 @@ The full authorisation picture is in [access model](permissions.md).
 
 Two things used to live in the memory of one process and therefore broke the moment Cloud Run ran
 more than one instance: the set of clients watching a venue, and the throttler's counter — the guards
-were merely slow. All three now go through `core/cache`, and the full picture, including what is
-cached and what deletes it, is in [the shared cache](../operations/redis.md).
+were merely slow. Both now go through `core/cache`, and the full picture, including what is cached
+and what deletes it, is in [the shared cache](../operations/redis.md).
 
 Two things are worth knowing before reading any guard:
 

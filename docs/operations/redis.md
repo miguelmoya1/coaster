@@ -14,14 +14,14 @@ of the codebase asks a `CacheService` to `remember` and `forget`.
 
 ## What it holds
 
-| Key | Read by | Dropped by |
-| --- | --- | --- |
-| `user:{userId}:role` | `SecurityRepository.getUserRole` | `UserUpdatedEvent` |
-| `user:google:{googleId}` | `FirebaseTokenService.resolve` | `UserUpdatedEvent`, and `SyncUserHandler` directly |
+| Key                                  | Read by                                         | Dropped by                                                           |
+| ------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
+| `user:{userId}:role`                 | `SecurityRepository.getUserRole`                | `UserUpdatedEvent`                                                   |
+| `user:google:{googleId}`             | `FirebaseTokenService.resolve`                  | `UserUpdatedEvent`, and `SyncUserHandler` directly                   |
 | `establishment:{id}:member:{userId}` | `SecurityRepository.getEstablishmentMemberRole` | `MemberInvitedEvent`, `MemberRemovedEvent`, `MemberRoleChangedEvent` |
-| `establishment:{id}:modules` | `SecurityRepository.getEnabledModules` | `EstablishmentSettingsUpdatedEvent` |
-| `establishment:{id}:subscription` | `SecurityRepository.getSubscriptionState` | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden` |
-| `throttle:{throttler}:{tracker}` | `ThrottlerCacheStorage` | its own 60-second window |
+| `establishment:{id}:modules`         | `SecurityRepository.getEnabledModules`          | `EstablishmentSettingsUpdatedEvent`                                  |
+| `establishment:{id}:subscription`    | `SecurityRepository.getSubscriptionState`       | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden`   |
+| `throttle:{throttler}:{tracker}`     | `ThrottlerCacheStorage`                         | its own 60-second window                                             |
 
 Orders, the catalogue, shifts and stats are **not** cached. They change constantly, few people read
 them at once, and caching them trades latency nobody notices for a stale figure somebody acts on.
@@ -37,7 +37,7 @@ that publishes, and the twenty-six CQRS handlers in `src/realtime/events` are th
 call it.
 
 **Delivery is local first, and the bus is a copy.** `publish` hands the event to the streams open on
-this instance and *then* puts it on the channel; every message carries the id of the instance that
+this instance and _then_ puts it on the channel; every message carries the id of the instance that
 sent it, and a subscriber drops what it recognises as its own. The order matters: a cache that is
 down costs the venue nothing but the clients on the other instances, because the local delivery
 never depended on it.
@@ -100,7 +100,7 @@ hours. Deleting is idempotent and cannot invert.
 
 **Absence is cached too.** `{"v":null}` is a stored answer, distinct from a key that is not there.
 Caching "this person is not a member" is what keeps a non-member hammering an endpoint cheap. The
-one place where that bites is a googleId that has no user *yet* — a first sign-in would cache the
+one place where that bites is a googleId that has no user _yet_ — a first sign-in would cache the
 absence and lock the new account out until the TTL — so `SyncUserHandler` drops that key on the
 paths where it links or creates the account. It is the only writer that clears a key directly rather
 than through an event, because `auth` cannot import `users` without a require-time cycle.

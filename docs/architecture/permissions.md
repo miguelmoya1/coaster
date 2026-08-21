@@ -115,7 +115,7 @@ A route with a `establishmentId` but no `@EstablishmentPermissions` only require
 Membership lookups filter `deletedAt: null`. Removing a member is a soft delete, so without that
 filter the guard kept honouring the membership of somebody who had been removed — they stayed out of
 the members list while keeping their full role. The same filter belongs in every path that answers
-"is this person still in this establishment": the HTTP guard, `WsAuthService`, the AI handler and the establishment
+"is this person still in this establishment": the HTTP guard, the AI handler and the establishment
 list.
 
 Removal also closes the member's open streams for that establishment, so they stop receiving
