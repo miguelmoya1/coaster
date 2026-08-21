@@ -1,4 +1,4 @@
-import { computed, effect, inject, OnDestroy, Service, signal } from '@angular/core';
+import { computed, effect, inject, OnDestroy, Service, signal, untracked } from '@angular/core';
 import type { Category, Order, OrderAdjustment, Product, Shift, Table } from '@coaster/common';
 import { RealtimeEvents } from '@coaster/common';
 import { environment } from '@coaster/env';
@@ -118,7 +118,7 @@ export class Realtime implements OnDestroy {
   }
 
   async #stream(establishmentId: string): Promise<boolean> {
-    const token = this.#auth.idToken();
+    const token = untracked(this.#auth.idToken);
 
     if (!token) {
       return false;

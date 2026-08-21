@@ -244,6 +244,24 @@ describe('Realtime', () => {
     expect(service.connected()).toBe(false);
   });
 
+  it('should hold the stream open when the session token is refreshed', async () => {
+    const stream = openStream();
+    answerWith(stream);
+
+    service.watch('establishment-1');
+    idToken.set('token-123');
+    await settle();
+
+    idToken.set('token-456');
+    await settle();
+
+    const signalPassed = (fetchMock.mock.calls[0][1] as RequestInit).signal;
+
+    expect(signalPassed?.aborted).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(service.connected()).toBe(true);
+  });
+
   it('should move to the stream of the establishment it is asked for next', async () => {
     answerWith(openStream());
 
