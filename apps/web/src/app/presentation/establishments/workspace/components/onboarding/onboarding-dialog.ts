@@ -1,6 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogActions, MatDialogContent } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { EstablishmentId } from '@coaster/common';
 import { EstablishmentModule } from '@coaster/common';
@@ -25,7 +31,7 @@ export interface OnboardingDialogData {
 
 @Component({
   selector: 'coaster-onboarding-dialog',
-  imports: [Spinner, MatButton, MatIcon, MatDialogActions, MatDialogContent, TranslatePipe],
+  imports: [Spinner, MatButton, MatIcon, MatDialogActions, MatDialogContent, MatDialogTitle, TranslatePipe],
   templateUrl: './onboarding-dialog.html',
 })
 export class OnboardingDialog {

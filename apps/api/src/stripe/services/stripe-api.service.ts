@@ -2,7 +2,7 @@ import { ErrorCodes } from '@coaster/common';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import type { Checkout, Subscription } from 'stripe';
 import { StripeClient } from '../utils/stripe-client.provider';
-import { isStripeResourceMissingError } from '../utils/stripe.utils';
+import { describeStripeError, isStripeResourceMissingError } from '../utils/stripe.utils';
 
 @Injectable()
 export class StripeApi {
@@ -24,7 +24,7 @@ export class StripeApi {
       return await this._stripeClient.client.checkout.sessions.create(request, options);
     } catch (error) {
       if (!customerId || !isStripeResourceMissingError(error, 'customer')) {
-        this.#logger.error('Stripe checkout session creation failed');
+        this.#logger.error(`Stripe checkout session creation failed: ${describeStripeError(error)}`);
         throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
       }
 
@@ -38,8 +38,8 @@ export class StripeApi {
           retryRequest,
           idempotencyKey ? { idempotencyKey: `${idempotencyKey}:no-customer` } : undefined,
         );
-      } catch {
-        this.#logger.error('Stripe checkout session retry failed');
+      } catch (retryError) {
+        this.#logger.error(`Stripe checkout session retry failed: ${describeStripeError(retryError)}`);
         throw new InternalServerErrorException(ErrorCodes.STRIPE_CHECKOUT_SESSION_FAILED);
       }
     }
@@ -72,7 +72,9 @@ export class StripeApi {
         return null;
       }
 
-      this.#logger.error(`Stripe billing portal session creation failed for customer ${customerId}`);
+      this.#logger.error(
+        `Stripe billing portal session creation failed for customer ${customerId}: ${describeStripeError(error)}`,
+      );
       throw new InternalServerErrorException(ErrorCodes.STRIPE_BILLING_PORTAL_FAILED);
     }
   }

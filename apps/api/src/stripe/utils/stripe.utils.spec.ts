@@ -3,7 +3,7 @@ import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createIntegrationIdentifier, getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
+import { createIntegrationIdentifier, describeStripeError, getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
 
 describe('stripe.utils', () => {
   let configServiceMock: any;
@@ -66,6 +66,27 @@ describe('stripe.utils', () => {
 
       expect(toDbPlan('', configServiceMock)).toBe(DbSubscriptionPlan.FREE);
       expect(toDbPlan('price_pro_123', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
+    });
+  });
+
+  describe('describeStripeError', () => {
+    it('should carry what Stripe actually complained about', () => {
+      const described = describeStripeError({
+        type: 'invalid_request_error',
+        code: 'parameter_invalid_empty',
+        param: 'line_items[0][price]',
+        message: 'No such price',
+      });
+
+      expect(described).toContain('invalid_request_error');
+      expect(described).toContain('param=line_items[0][price]');
+      expect(described).toContain('No such price');
+    });
+
+    it('should say something for a throw that is not a Stripe error', () => {
+      expect(describeStripeError(new Error('socket hang up'))).toContain('socket hang up');
+      expect(describeStripeError('boom')).toBe('boom');
+      expect(describeStripeError({})).toBe('no details');
     });
   });
 

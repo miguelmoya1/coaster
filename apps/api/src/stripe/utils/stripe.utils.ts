@@ -19,6 +19,20 @@ export function getPriceId(plan: Exclude<SubscriptionPlan, 'FREE'>, configServic
   return priceId;
 }
 
+export function describeStripeError(error: unknown): string {
+  if (!error || typeof error !== 'object') {
+    return String(error);
+  }
+
+  const candidate = error as { type?: string; code?: string; param?: string; message?: string };
+
+  return (
+    [candidate.type, candidate.code, candidate.param && `param=${candidate.param}`, candidate.message]
+      .filter(Boolean)
+      .join(' · ') || 'no details'
+  );
+}
+
 export function isStripeResourceMissingError(error: unknown, resource: 'customer' | 'subscription'): boolean {
   if (!error || typeof error !== 'object') {
     return false;
