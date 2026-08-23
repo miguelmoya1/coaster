@@ -88,8 +88,21 @@ somebody notices.
 
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_PRO`
+- `STRIPE_PRICE_PRO` — the price new checkouts are sold at
+- `STRIPE_PRICE_PRO_LEGACY` — optional, comma separated: prices sold before it that still count as Pro
 - `FRONTEND_URL`
+
+## Tax
+
+The Pro price is **tax exclusive**: Checkout runs with `automatic_tax`, asks for a billing address
+and offers a tax id field, and Stripe adds the VAT of the customer's country on top of the 19,99 €.
+Stripe Tax has to be active and registered in the dashboard — separately in test and in live mode —
+or `checkout.sessions.create` fails outright.
+
+Raising the price means creating a new one in Stripe, never editing the old: a price is immutable
+once a subscription points at it. Move `STRIPE_PRICE_PRO` to the new id and push the old one into
+`STRIPE_PRICE_PRO_LEGACY`, or every subscriber still on it is projected as `FREE` the next time a
+webhook mentions their subscription, and loses Pro without anybody touching their account.
 
 ## Handled events
 

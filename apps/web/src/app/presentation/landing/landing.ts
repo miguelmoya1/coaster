@@ -186,6 +186,7 @@ interface Step {
                 {{ 'landing.pricing.price' | translate }}
               </span>
               <span class="text-sm text-slate-400">{{ 'landing.pricing.period' | translate }}</span>
+              <span class="text-sm font-semibold text-slate-300">{{ 'landing.pricing.tax' | translate }}</span>
             </div>
 
             <p class="-mt-4 text-xs text-slate-400">{{ 'landing.pricing.price_note' | translate }}</p>

@@ -36,6 +36,30 @@ describe('StripeApi', () => {
       );
     });
 
+    it('should let Checkout save the address the tax is computed from', async () => {
+      clientMock.checkout.sessions.create.mockResolvedValue({ id: 'cs_1' });
+
+      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_1');
+
+      expect(clientMock.checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({ customer_update: { address: 'auto' } }),
+        undefined,
+      );
+    });
+
+    it('should drop customer_update on the customer-less retry, which Stripe rejects without a customer', async () => {
+      clientMock.checkout.sessions.create
+        .mockRejectedValueOnce(resourceMissing('customer', 'cus_stale'))
+        .mockResolvedValueOnce({ id: 'cs_recovery' });
+
+      await stripeApi.createCheckoutSession({ mode: 'subscription' } as any, 'cus_stale');
+
+      expect(clientMock.checkout.sessions.create).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ customer_update: expect.anything() }),
+        undefined,
+      );
+    });
+
     it('should omit the customer when none is provided', async () => {
       clientMock.checkout.sessions.create.mockResolvedValue({ id: 'cs_1' });
 

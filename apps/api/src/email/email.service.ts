@@ -16,6 +16,10 @@ export class EmailService {
     this.#resend = new Resend(this._configService.get<string>('RESEND_API_KEY') || 're_123_dummy');
   }
 
+  private get frontendUrl(): string {
+    return (this._configService.get<string>('FRONTEND_URL') || 'http://localhost:4200').replace(/\/+$/, '');
+  }
+
   async sendInviteEmail(to: string, establishmentName: string, inviterName: string, lang = 'es') {
     try {
       const translations = InviteEmailTranslations[lang] || InviteEmailTranslations['es'];
@@ -25,6 +29,7 @@ export class EmailService {
         lang,
         establishmentName,
         inviterName,
+        loginUrl: `${this.frontendUrl}/login`,
       });
 
       await this.#resend.emails.send({

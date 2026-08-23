@@ -165,7 +165,10 @@ npm run build
 
 ### Deploying
 
-The web app goes to Vercel, the API to Google Cloud Run, the database is Neon.
+The web app goes to Vercel, the API to Google Cloud Run, the database is Neon. There are two
+environments: `main` is production, `dev` is beta on `beta.coaster.business` — see
+[production and beta](docs/operations/environments.md) for what they share, what they must not, and
+how to set one up.
 
 Environment variables that are easy to get wrong:
 
@@ -175,6 +178,8 @@ Environment variables that are easy to get wrong:
 | `USE_EMULATORS`         | web build | Must be `false` in production; the build refuses the combination                                                                                      |
 | `TRUST_PROXY_HOPS`      | API       | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
 | `PUBLIC_URL`            | API       | Where printer bridges download updates from; `localhost` reaches no venue                                                                             |
+| `FRONTEND_URL`          | API       | Stripe returns here after checkout, and the invitation email links here — wrong, and beta invites people into production                              |
+| `ALLOW_INDEXING`        | web build | `false` writes a `robots.txt` that disallows everything. Beta sets it; production must not                                                            |
 | `STRIPE_WEBHOOK_SECRET` | API       | Without it every webhook is rejected and subscriptions never activate                                                                                 |
 | `REDIS_URL`             | API       | Optional. Unset, rooms and the rate limit stay per-instance and every guard reads Postgres — see [the shared cache](docs/operations/redis.md)         |
 

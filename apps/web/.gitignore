@@ -50,6 +50,7 @@ Thumbs.db
 
 
 # Environments
+public/robots.txt
 src/environments/environment.ts
 src/environments/environment.development.ts
 .env

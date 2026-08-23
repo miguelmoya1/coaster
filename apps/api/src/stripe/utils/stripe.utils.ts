@@ -37,10 +37,15 @@ export function isLiveSubscription(status: Subscription.Status): boolean {
   return status !== 'canceled' && status !== 'incomplete_expired';
 }
 
-export function toDbPlan(priceId: string | undefined, configService: ConfigService): DbSubscriptionPlan {
-  const proPrice = configService.get<string>('STRIPE_PRICE_PRO');
+export function getProPriceIds(configService: ConfigService): string[] {
+  return [configService.get<string>('STRIPE_PRICE_PRO'), configService.get<string>('STRIPE_PRICE_PRO_LEGACY')]
+    .flatMap((value) => (value ?? '').split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
 
-  if (priceId && proPrice && priceId === proPrice) {
+export function toDbPlan(priceId: string | undefined, configService: ConfigService): DbSubscriptionPlan {
+  if (priceId && getProPriceIds(configService).includes(priceId)) {
     return DbSubscriptionPlan.PRO;
   }
 

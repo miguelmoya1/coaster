@@ -43,6 +43,30 @@ describe('stripe.utils', () => {
       expect(toDbPlan('unknown_price', configServiceMock)).toBe(DbSubscriptionPlan.FREE);
       expect(toDbPlan(undefined, configServiceMock)).toBe(DbSubscriptionPlan.FREE);
     });
+
+    it('should keep subscribers on a price sold before the current one', () => {
+      configServiceMock.get.mockImplementation((key: string) => {
+        if (key === 'STRIPE_PRICE_PRO') return 'price_pro_tax_excluded';
+        if (key === 'STRIPE_PRICE_PRO_LEGACY') return 'price_pro_123, price_pro_older';
+        return undefined;
+      });
+
+      expect(toDbPlan('price_pro_tax_excluded', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
+      expect(toDbPlan('price_pro_123', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
+      expect(toDbPlan('price_pro_older', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
+      expect(toDbPlan('price_of_another_product', configServiceMock)).toBe(DbSubscriptionPlan.FREE);
+    });
+
+    it('should not turn an empty legacy list into a price that matches everything', () => {
+      configServiceMock.get.mockImplementation((key: string) => {
+        if (key === 'STRIPE_PRICE_PRO') return 'price_pro_123';
+        if (key === 'STRIPE_PRICE_PRO_LEGACY') return '  ,  ';
+        return undefined;
+      });
+
+      expect(toDbPlan('', configServiceMock)).toBe(DbSubscriptionPlan.FREE);
+      expect(toDbPlan('price_pro_123', configServiceMock)).toBe(DbSubscriptionPlan.PRO);
+    });
   });
 
   describe('createIntegrationIdentifier', () => {

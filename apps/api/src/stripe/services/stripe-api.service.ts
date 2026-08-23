@@ -15,7 +15,9 @@ export class StripeApi {
     customerId?: string | null,
     idempotencyKey?: string,
   ): Promise<Checkout.Session> {
-    const request = customerId ? { ...params, customer: customerId } : params;
+    const request = customerId
+      ? { ...params, customer: customerId, customer_update: { address: 'auto' as const } }
+      : params;
     const options = idempotencyKey ? { idempotencyKey } : undefined;
 
     try {
@@ -29,6 +31,7 @@ export class StripeApi {
       this.#logger.warn(`Stripe customer ${customerId} is missing; retrying Checkout without a customer`);
       const retryRequest = { ...params };
       delete retryRequest.customer;
+      delete retryRequest.customer_update;
 
       try {
         return await this._stripeClient.client.checkout.sessions.create(

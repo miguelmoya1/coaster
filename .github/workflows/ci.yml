@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
 
 permissions:
@@ -11,11 +12,8 @@ permissions:
   id-token: 'write'
 
 env:
-  GCP_PROJECT_ID: 'coaster-437f2'
   GCP_REGION_SERVICE: 'europe-west1'
   GCP_REGION_JOB: 'europe-southwest1'
-  GCP_SERVICE_NAME: 'api-new'
-  GCP_JOB_NAME: 'api-migrate'
   GCP_IMAGE_NAME: 'europe-west1-docker.pkg.dev/coaster-437f2/coaster-repo/api-new'
 
 jobs:
@@ -87,11 +85,26 @@ jobs:
   deploy-backend:
     name: 🚀 Deploy Backend & Migrate DB
     needs: build-and-test
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
+
+      - name: 🔎 The target environment must be configured
+        env:
+          GCP_SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
+          GCP_JOB_NAME: ${{ vars.GCP_JOB_NAME }}
+          PUBLIC_URL: ${{ vars.PUBLIC_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          for name in GCP_SERVICE_NAME GCP_JOB_NAME PUBLIC_URL DATABASE_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::${name} is empty. Set it on the '${{ github.ref_name == 'main' && 'api-production' || 'api-beta' }}' GitHub environment."
+              exit 1
+            fi
+          done
 
       - name: 🔐 Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -112,19 +125,19 @@ jobs:
 
       - name: 🗄️ Run Prisma Migrations (Cloud Run Job)
         run: |
-          gcloud run jobs update ${{ env.GCP_JOB_NAME }} \
+          gcloud run jobs deploy ${{ vars.GCP_JOB_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_JOB }} \
             --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --command "npx,prisma,migrate,deploy,--config=apps/api/prisma.config.ts"
-            
-          gcloud run jobs execute ${{ env.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
+
+          gcloud run jobs execute ${{ vars.GCP_JOB_NAME }} --region ${{ env.GCP_REGION_JOB }} --wait
 
       - name: 🌐 Deploy API to Cloud Run Service
         run: |
-          gcloud run deploy ${{ env.GCP_SERVICE_NAME }} \
+          gcloud run deploy ${{ vars.GCP_SERVICE_NAME }} \
             --image ${{ env.GCP_IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION_SERVICE }} \
-            --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL || 'https://api.coaster.business' }}" \
+            --update-env-vars="PUBLIC_URL=${{ vars.PUBLIC_URL }}" \
             --timeout=3600 \
             --allow-unauthenticated

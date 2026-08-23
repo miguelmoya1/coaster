@@ -27,9 +27,7 @@ const envConfig: Environment = {
   },
   apiUrl:
     process.env.API_URL ||
-    (process.env.PRODUCTION === 'true'
-      ? 'https://api.coaster.business'
-      : 'http://localhost:3000'),
+    (process.env.PRODUCTION === 'true' ? 'https://api.coaster.business' : 'http://localhost:3000'),
 };
 
 const objectString = JSON.stringify(envConfig, null, 2).replace(/"([^"]+)":/g, '$1:');
@@ -50,6 +48,11 @@ if (!existsSync(dirPath)) {
 }
 
 writeFileSync(targetPath, envFileContent);
+
+const allowIndexing = process.env.ALLOW_INDEXING !== 'false';
+
+writeFileSync('./public/robots.txt', `User-agent: *\n${allowIndexing ? 'Allow' : 'Disallow'}: /\n`);
+
 console.log(
-  `✅ environment.ts generado estricto. Prod: ${envConfig.production}, Emuladores: ${envConfig.useEmulators}`,
+  `✅ environment.ts generado estricto. Prod: ${envConfig.production}, Emuladores: ${envConfig.useEmulators}, Indexable: ${allowIndexing}`,
 );
