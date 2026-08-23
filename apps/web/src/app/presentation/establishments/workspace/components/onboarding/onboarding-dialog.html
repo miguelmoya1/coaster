@@ -1,10 +1,9 @@
+<h2 mat-dialog-title class="text-xl font-bold text-on-surface">
+  {{ 'onboarding.title' | translate: { name: data.establishmentName } }}
+</h2>
+
 <mat-dialog-content class="flex flex-col gap-4">
-  <header class="flex flex-col gap-1">
-    <h2 class="heading-2 font-black text-on-surface">
-      {{ 'onboarding.title' | translate: { name: data.establishmentName } }}
-    </h2>
-    <p class="text-sm text-on-surface-variant">{{ 'onboarding.subtitle' | translate }}</p>
-  </header>
+  <p class="text-sm text-on-surface-variant">{{ 'onboarding.subtitle' | translate }}</p>
 
   @if (step() === 'type') {
     <p class="font-bold text-on-surface">{{ 'onboarding.question_type' | translate }}</p>
@@ -39,14 +38,14 @@
   }
 </mat-dialog-content>
 
-<mat-dialog-actions class="flex justify-between items-center">
-  @if (step() === 'catalogue' && !isSaving()) {
-    <button mat-button (click)="back()">{{ 'onboarding.back' | translate }}</button>
-  } @else {
-    <span></span>
-  }
+@if (step() === 'catalogue' || isSaving()) {
+  <mat-dialog-actions class="flex items-center gap-3">
+    @if (step() === 'catalogue' && !isSaving()) {
+      <button mat-button class="mr-auto" (click)="back()">{{ 'onboarding.back' | translate }}</button>
+    }
 
-  @if (isSaving()) {
-    <coaster-spinner [diameter]="24" />
-  }
-</mat-dialog-actions>
+    @if (isSaving()) {
+      <coaster-spinner class="ml-auto" [diameter]="24" />
+    }
+  </mat-dialog-actions>
+}

@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId, CreateTableDto, TableId, UpdateTableDto } from '@coaster/common';
 import { ErrorCodes, TableStatus } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { tableArrayMapper } from '../mappers/table.mapper';
 import { EstablishmentTables } from '../services/establishment-tables';
 import { CreateTable } from '../services/create-table';
@@ -15,7 +15,7 @@ export class TablesStore {
   readonly #createTable = inject(CreateTable);
   readonly #deleteTable = inject(DeleteTable);
   readonly #updateTable = inject(UpdateTable);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #currentTableId = signal<TableId | undefined>(undefined);
@@ -50,7 +50,7 @@ export class TablesStore {
 
   constructor() {
     effect(() => {
-      const payload = this.#socketService.tableStatusChanged();
+      const payload = this.#realtime.tableStatusChanged();
       if (payload && payload.id) {
         this.#listResource.update((tables) => {
           if (!tables) {
@@ -62,7 +62,7 @@ export class TablesStore {
     });
 
     effect(() => {
-      const created = this.#socketService.tableCreated();
+      const created = this.#realtime.tableCreated();
       if (created && this.#currentEstablishmentId() === created.establishmentId) {
         this.#listResource.update((tables) => {
           if (!tables) {
@@ -75,7 +75,7 @@ export class TablesStore {
     });
 
     effect(() => {
-      const updated = this.#socketService.tableUpdated();
+      const updated = this.#realtime.tableUpdated();
       if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         this.#listResource.update((tables) => {
           if (!tables) {
@@ -87,7 +87,7 @@ export class TablesStore {
     });
 
     effect(() => {
-      const deleted = this.#socketService.tableDeleted();
+      const deleted = this.#realtime.tableDeleted();
       if (deleted) {
         this.#listResource.update((tables) => {
           if (!tables) {

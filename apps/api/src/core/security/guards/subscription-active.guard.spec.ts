@@ -1,6 +1,8 @@
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { passThroughCache } from '../../../../test/utils/passthrough-cache';
 import { DbRole, DbSubscriptionStatus } from '../../db';
+import { SecurityRepository } from '../data-access/security.repository';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
 import { FirebaseTokenService } from '../services/firebase-token.service';
 
@@ -30,7 +32,11 @@ describe('SubscriptionActiveGuard', () => {
       dbEstablishmentSubscription: { findUnique: vi.fn() },
     };
 
-    guard = new SubscriptionActiveGuard(reflector as any, dbService as any, new FirebaseTokenService(dbService as any));
+    guard = new SubscriptionActiveGuard(
+      reflector as any,
+      new SecurityRepository(dbService as any, passThroughCache),
+      new FirebaseTokenService(dbService as any, passThroughCache),
+    );
   });
 
   const createMockContext = (
@@ -187,12 +193,12 @@ describe('SubscriptionActiveGuard', () => {
     it('should let an admin through on a lapsed establishment using only the bearer token', async () => {
       const context = createRealRequestContext('token-admin');
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'google-admin' });
+      verifyIdToken.mockResolvedValue({ sub: 'uid-admin' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.ADMIN });
 
       await expect(guard.canActivate(context)).resolves.toBe(true);
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
-        where: { googleId: 'google-admin' },
+        where: { firebaseUid: 'uid-admin' },
         include: { preferences: true },
       });
     });
@@ -200,7 +206,7 @@ describe('SubscriptionActiveGuard', () => {
     it('should still block a regular user carrying a valid token', async () => {
       const context = createRealRequestContext('token-user');
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'google-user' });
+      verifyIdToken.mockResolvedValue({ sub: 'uid-user' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);

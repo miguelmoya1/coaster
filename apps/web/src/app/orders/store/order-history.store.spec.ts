@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { OrderHistoryStore } from './order-history.store';
 import { EstablishmentOrderHistory } from '../services/establishment-order-history';
 import { OrderStatus, asEstablishmentId } from '@coaster/common';
@@ -14,7 +14,7 @@ describe('OrderHistoryStore', () => {
     execute: vi.fn().mockResolvedValue([]),
   };
 
-  const socketMock = {
+  const realtimeMock = {
     orderCreated: signal<Order | null>(null),
     orderUpdated: signal<Order | null>(null),
     orderClosed: signal<Order | null>(null),
@@ -26,18 +26,18 @@ describe('OrderHistoryStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    socketMock.orderCreated.set(null);
-    socketMock.orderUpdated.set(null);
-    socketMock.orderClosed.set(null);
-    socketMock.orderCancelled.set(null);
-    socketMock.orderItemAdded.set(null);
-    socketMock.orderDeleted.set(null);
+    realtimeMock.orderCreated.set(null);
+    realtimeMock.orderUpdated.set(null);
+    realtimeMock.orderClosed.set(null);
+    realtimeMock.orderCancelled.set(null);
+    realtimeMock.orderItemAdded.set(null);
+    realtimeMock.orderDeleted.set(null);
 
     TestBed.configureTestingModule({
       providers: [
         OrderHistoryStore,
         { provide: EstablishmentOrderHistory, useValue: establishmentOrderHistoryMock },
-        { provide: Socket, useValue: socketMock },
+        { provide: Realtime, useValue: realtimeMock },
       ],
     });
 

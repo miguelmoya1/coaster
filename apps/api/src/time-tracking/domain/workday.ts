@@ -1,5 +1,13 @@
 import type { TimeEntry } from '@coaster/common';
-import { ESTABLISHMENT_TIME_ZONE, ClockState, TimeEntryType, WorkdayDiscrepancy } from '@coaster/common';
+import {
+  ClockState,
+  isOpen,
+  nextClockState,
+  replayClockState,
+  TimeEntryType,
+  workdayDateOf,
+  WorkdayDiscrepancy,
+} from '@coaster/common';
 
 export interface ClockMark {
   type: TimeEntryType;
@@ -11,15 +19,6 @@ export interface WorkdayTotals {
   workedMinutes: number;
   breakMinutes: number;
 }
-
-const TRANSITIONS: Record<ClockState, Partial<Record<TimeEntryType, ClockState>>> = {
-  [ClockState.OUT]: { [TimeEntryType.CLOCK_IN]: ClockState.IN },
-  [ClockState.IN]: { [TimeEntryType.BREAK_START]: ClockState.ON_BREAK, [TimeEntryType.CLOCK_OUT]: ClockState.OUT },
-  [ClockState.ON_BREAK]: { [TimeEntryType.BREAK_END]: ClockState.IN, [TimeEntryType.CLOCK_OUT]: ClockState.OUT },
-};
-
-export const nextClockState = (state: ClockState, type: TimeEntryType): ClockState | null =>
-  TRANSITIONS[state][type] ?? null;
 
 const byOccurredAt = (a: ClockMark, b: ClockMark) => a.occurredAt.getTime() - b.occurredAt.getTime();
 
@@ -69,17 +68,11 @@ export const summariseWorkday = (marks: ClockMark[], now: Date): WorkdayTotals |
   };
 };
 
-export const replayClockState = (marks: ClockMark[]): ClockState | null =>
-  summariseWorkday(marks, new Date())?.state ?? null;
-
-export const toWorkdayDate = (instant: Date): Date => {
-  const local = Temporal.Instant.fromEpochMilliseconds(instant.getTime()).toZonedDateTimeISO(ESTABLISHMENT_TIME_ZONE);
-  return new Date(Date.UTC(local.year, local.month - 1, local.day));
-};
-
 export const formatWorkdayDate = (date: Date): string => date.toISOString().slice(0, 10);
 
 export const parseWorkdayDate = (date: string): Date => new Date(`${date}T00:00:00.000Z`);
+
+export const toWorkdayDate = (instant: Date): Date => parseWorkdayDate(workdayDateOf(instant));
 
 export const shiftWorkdayDate = (date: Date, days: number): Date =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
@@ -88,22 +81,27 @@ export interface DatedMark extends ClockMark {
   workdayDate: string;
 }
 
-const isDayOpen = (marks: ClockMark[]): boolean => {
-  const state = replayClockState(marks);
-  return state !== null && state !== ClockState.OUT;
-};
+const stateOf = (marks: ClockMark[]): ClockState | null =>
+  replayClockState([...marks].sort(byOccurredAt).map((mark) => mark.type));
 
-export const planMark = (type: TimeEntryType, occurredAt: Date, day: DatedMark[]): Date | null => {
-  const natural = toWorkdayDate(occurredAt);
-  const previous = shiftWorkdayDate(natural, -1);
-  const previousMarks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(previous));
+export const isValidSequence = (marks: ClockMark[]): boolean => stateOf(marks) !== null;
 
-  const inheritsPreviousDay =
-    isDayOpen(previousMarks) && previousMarks.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
-  const workdayDate = inheritsPreviousDay ? previous : natural;
-  const marks = day.filter((mark) => mark.workdayDate === formatWorkdayDate(workdayDate));
+export const isDayOpen = (marks: ClockMark[]): boolean => isOpen(stateOf(marks));
 
-  return replayClockState([...marks, { type, occurredAt }]) ? workdayDate : null;
+const daysIn = (marks: DatedMark[]): string[] => [...new Set(marks.map((mark) => mark.workdayDate))].sort().reverse();
+
+const dayStillOpenAt = (marks: DatedMark[], occurredAt: Date): string | undefined =>
+  daysIn(marks).find((day) => {
+    const ofDay = marks.filter((mark) => mark.workdayDate === day);
+
+    return isDayOpen(ofDay) && ofDay.every((mark) => mark.occurredAt.getTime() <= occurredAt.getTime());
+  });
+
+export const planMark = (type: TimeEntryType, occurredAt: Date, candidates: DatedMark[]): Date | null => {
+  const workdayDate = dayStillOpenAt(candidates, occurredAt) ?? formatWorkdayDate(toWorkdayDate(occurredAt));
+  const marks = candidates.filter((mark) => mark.workdayDate === workdayDate);
+
+  return isValidSequence([...marks, { type, occurredAt }]) ? parseWorkdayDate(workdayDate) : null;
 };
 
 export const toDatedMarks = (entries: TimeEntry[]): DatedMark[] =>

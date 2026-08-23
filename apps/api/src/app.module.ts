@@ -5,13 +5,14 @@ import { EstablishmentMembersModule } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionModule } from '@coaster/establishment-subscription';
 import { EstablishmentsModule } from '@coaster/establishments';
 import { CategoriesModule } from '@coaster/categories';
-import { SecurityModule } from '@coaster/core';
+import { CacheModule, SecurityModule, ThrottlerCacheStorage } from '@coaster/core';
 import { DbModule } from '@coaster/core/db';
 import { EmailModule } from '@coaster/email';
 import { MediaModule } from '@coaster/media';
 import { OrdersModule } from '@coaster/orders';
 import { PrinterModule } from '@coaster/printer';
 import { ProductsModule } from '@coaster/products';
+import { RealtimeModule } from '@coaster/realtime';
 import { ShiftExchangesModule } from '@coaster/shift-exchanges';
 import { ShiftsModule } from '@coaster/shifts';
 import { StatsModule } from '@coaster/stats';
@@ -21,7 +22,6 @@ import { CatalogueModule } from '@coaster/catalogue';
 import { MenuModule } from '@coaster/menu';
 import { TimeTrackingModule } from '@coaster/time-tracking';
 import { UserModule } from '@coaster/users';
-import { WebsocketsModule } from '@coaster/websockets';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -32,13 +32,19 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot({
-      throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
+    CacheModule,
+    ThrottlerModule.forRootAsync({
+      imports: [CacheModule],
+      inject: [ThrottlerCacheStorage],
+      useFactory: (storage: ThrottlerCacheStorage) => ({
+        throttlers: [{ name: 'default', ttl: seconds(60), limit: 300 }],
+        storage,
+      }),
     }),
     DbModule,
     StripeModule,
     EmailModule,
-    WebsocketsModule,
+    RealtimeModule,
     AuthModule,
     UserModule,
     EstablishmentsModule,

@@ -26,6 +26,24 @@ export class TimeEntriesReadRepository {
     });
   }
 
+  public async findLatestWorkday(establishmentId: EstablishmentId, userId: UserId) {
+    const latest = await this._db.dbTimeEntry.findFirst({
+      where: { establishmentId, userId },
+      orderBy: { workdayDate: 'desc' },
+      select: { workdayDate: true },
+    });
+
+    if (!latest) {
+      return [];
+    }
+
+    return this._db.dbTimeEntry.findMany({
+      where: { establishmentId, userId, workdayDate: latest.workdayDate },
+      include: entryInclude,
+      orderBy: { sequence: 'asc' },
+    });
+  }
+
   public findByRoots(rootIds: string[]) {
     return this._db.dbTimeEntry.findMany({
       where: { rootId: { in: rootIds } },

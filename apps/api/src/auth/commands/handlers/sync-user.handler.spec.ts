@@ -3,6 +3,8 @@ import { DbService } from '@coaster/core/db';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CacheService } from '@coaster/core';
+import { passThroughCache } from '../../../../test/utils/passthrough-cache';
 import { SyncUserCommand } from '../impl/sync-user.command';
 import { SyncUserHandler } from './sync-user.handler';
 
@@ -23,7 +25,7 @@ describe('SyncUserHandler', () => {
   const invitedUser = {
     id: 'user-1',
     email: 'invited@establishment.com',
-    googleId: null,
+    firebaseUid: null,
     name: 'Invited',
     active: true,
     role: 'USER',
@@ -34,7 +36,11 @@ describe('SyncUserHandler', () => {
     vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SyncUserHandler, { provide: DbService, useValue: { dbUser } }],
+      providers: [
+        SyncUserHandler,
+        { provide: DbService, useValue: { dbUser } },
+        { provide: CacheService, useValue: passThroughCache },
+      ],
     }).compile();
 
     handler = module.get<SyncUserHandler>(SyncUserHandler);
@@ -47,13 +53,13 @@ describe('SyncUserHandler', () => {
 
   it('should let an invited person claim the account waiting for them', async () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(invitedUser);
-    dbUser.update.mockResolvedValue({ ...invitedUser, googleId: 'google-sub', active: true, role: 'USER' });
+    dbUser.update.mockResolvedValue({ ...invitedUser, firebaseUid: 'firebase-sub', active: true, role: 'USER' });
 
-    await signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: true });
+    await signIn({ sub: 'firebase-sub', email: 'invited@establishment.com', email_verified: true });
 
     expect(dbUser.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      data: { googleId: 'google-sub' },
+      data: { firebaseUid: 'firebase-sub' },
       include: { preferences: true },
     });
   });
@@ -62,17 +68,17 @@ describe('SyncUserHandler', () => {
     dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(invitedUser);
 
     await expect(
-      signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: false }),
+      signIn({ sub: 'firebase-sub', email: 'invited@establishment.com', email_verified: false }),
     ).rejects.toThrow(new UnauthorizedException(ErrorCodes.EMAIL_NOT_VERIFIED));
 
     expect(dbUser.update).not.toHaveBeenCalled();
   });
 
   it('should refuse to move an account already linked to another sign-in', async () => {
-    dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({ ...invitedUser, googleId: 'other-sub' });
+    dbUser.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({ ...invitedUser, firebaseUid: 'other-sub' });
 
     await expect(
-      signIn({ sub: 'google-sub', email: 'invited@establishment.com', email_verified: true }),
+      signIn({ sub: 'firebase-sub', email: 'invited@establishment.com', email_verified: true }),
     ).rejects.toThrow(new UnauthorizedException(ErrorCodes.EMAIL_ALREADY_LINKED));
 
     expect(dbUser.update).not.toHaveBeenCalled();
@@ -82,7 +88,7 @@ describe('SyncUserHandler', () => {
     const existing = {
       id: 'user-1',
       email: 'known@establishment.com',
-      googleId: 'google-sub',
+      firebaseUid: 'firebase-sub',
       name: 'Known',
       photoUrl: null,
       active: true,
@@ -92,7 +98,7 @@ describe('SyncUserHandler', () => {
     dbUser.findUnique.mockResolvedValueOnce(existing);
 
     const result = await signIn({
-      sub: 'google-sub',
+      sub: 'firebase-sub',
       email: 'known@establishment.com',
       name: 'Known',
       email_verified: true,
@@ -125,7 +131,7 @@ describe('SyncUserHandler', () => {
     expect(dbUser.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         email: 'new@establishment.com',
-        googleId: 'new-sub',
+        firebaseUid: 'new-sub',
         preferences: { create: {} },
       }),
       include: { preferences: true },
@@ -133,7 +139,7 @@ describe('SyncUserHandler', () => {
   });
 
   it('should reject a token with no email on it', async () => {
-    await expect(signIn({ sub: 'google-sub' })).rejects.toThrow(
+    await expect(signIn({ sub: 'firebase-sub' })).rejects.toThrow(
       new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS),
     );
   });

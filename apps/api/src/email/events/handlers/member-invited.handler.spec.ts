@@ -1,5 +1,5 @@
 import { MemberInvitedEvent } from '@coaster/establishment-members';
-import { asEstablishmentId, asEstablishmentMemberId } from '@coaster/common';
+import { asEstablishmentId, asEstablishmentMemberId, asUserId } from '@coaster/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EmailService } from '../../email.service';
@@ -28,6 +28,7 @@ describe('MemberInvitedHandler', () => {
       'My Establishment',
       'John Doe',
       'es',
+      asUserId('user-1'),
     );
 
     await handler.handle(event);

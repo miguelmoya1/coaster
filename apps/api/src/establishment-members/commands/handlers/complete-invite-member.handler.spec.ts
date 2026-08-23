@@ -60,6 +60,7 @@ describe('CompleteInviteMemberHandler', () => {
         'Test Establishment',
         'User',
         'en',
+        asUserId('user-1'),
       ),
     );
   });

@@ -4,7 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import { TimeEntriesWriteRepository } from '../../data-access/time-entries.write.repository';
-import { replayClockState, toDatedMarks } from '../../domain/workday';
+import { isValidSequence, toDatedMarks } from '../../domain/workday';
 import { TimeEntryVoidedEvent } from '../../events/impl/time-entry-voided.event';
 import { TimeEntriesMapper } from '../../mappers/time-entries.mapper';
 import { VoidTimeEntryCommand } from '../impl/void-time-entry.command';
@@ -39,7 +39,7 @@ export class VoidTimeEntryHandler implements ICommandHandler<VoidTimeEntryComman
     );
     const day = TimeEntriesMapper.groupByRoot(rows).filter((entry) => entry.rootId !== current.rootId);
 
-    if (!replayClockState(toDatedMarks(day))) {
+    if (!isValidSequence(toDatedMarks(day))) {
       throw new BadRequestException(ErrorCodes.INVALID_CLOCK_SEQUENCE);
     }
 

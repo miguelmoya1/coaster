@@ -55,16 +55,38 @@ it becomes an error.
 ### Authentication
 
 `FirebaseTokenService` (in `core/security`) is the single place that verifies a Firebase ID token
-and loads the matching local user. `JwtStrategy` (HTTP), `WsAuthService` (websockets) and
-`SubscriptionActiveGuard` all go through it, and each keeps its own post-conditions — active user,
-platform role, verified email. Before it existed, the same verify-and-look-up pair was written out
-in four places.
+and loads the matching local user. `JwtStrategy` (HTTP) and `SubscriptionActiveGuard` both go
+through it, and each keeps its own post-conditions — active user, platform role, verified email.
+Before it existed, the same verify-and-look-up pair was written out in four places.
+
+The realtime stream adds nothing to this. It is a `GET` like any other, so `FirebaseAuthGuard` and
+`EstablishmentPermissionsGuard` decide who may open it; there is no second authentication path to
+keep in step with this one.
 
 The full authorisation picture is in [access model](permissions.md).
 
+### The shared cache
+
+Two things used to live in the memory of one process and therefore broke the moment Cloud Run ran
+more than one instance: the set of clients watching a venue, and the throttler's counter — the guards
+were merely slow. Both now go through `core/cache`, and the full picture, including what is cached
+and what deletes it, is in [the shared cache](../operations/redis.md).
+
+Two things are worth knowing before reading any guard:
+
+- **`REDIS_URL` unset means no cache at all**, and the application behaves exactly as it did before.
+  Every read falls back to Postgres, rooms stay local, the throttler counts in memory. The e2e suite
+  runs this way.
+- **`SecurityRepository` is the only place that caches.** Every read on the authenticated preamble —
+  role, membership, module list, subscription row — is a `remember` there, and
+  `FirebaseTokenService` caches the user lookup behind `CurrentUser`. Nothing else in the codebase
+  touches the cache to read; a handful of event handlers touch it to `forget`.
+
 ### Rate limiting
 
-`@nestjs/throttler` is registered globally at **300 requests/minute**. Two exceptions:
+`@nestjs/throttler` is registered globally at **300 requests/minute**, counted in the shared cache so
+the limit is the whole service rather than 300 per instance. If the cache is unreachable it falls
+back to counting in memory rather than answering 500. Two exceptions:
 
 - `POST /establishments/:establishmentId/ai` is capped at **20/minute** — it calls a paid LLM gateway, and without a
   tighter limit any member could burn the budget in a loop.
@@ -123,5 +145,6 @@ created with `E2eTestSetup.createEstablishment()`, which mirrors `EstablishmentW
 membership and a 14-day trial subscription. Creating establishments with a bare `prisma.dbEstablishment.create` leaves
 them without a subscription and `SubscriptionActiveGuard` answers 402 to every write.
 
-The websocket gateway is tested with `MockWsAuthService`, which requires a token in the handshake
-but never calls Firebase.
+The realtime stream is tested over real HTTP in `test/realtime`: the suite opens the endpoint with
+`fetch`, reads the frames off the body and checks that a non-member is refused, that an event never
+crosses to another establishment, and that revoking access closes the stream.

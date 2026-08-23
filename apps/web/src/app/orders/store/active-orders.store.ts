@@ -13,7 +13,7 @@ import type {
   OrderItemId,
 } from '@coaster/common';
 import { OrderStatus, PaymentMethod } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { EstablishmentOrders } from '../services/establishment-orders';
 import { CreateOrder } from '../services/create-order';
@@ -26,7 +26,7 @@ export class ActiveOrdersStore {
   readonly #createOrder = inject(CreateOrder);
   readonly #deleteOrder = inject(DeleteOrder);
   readonly #manageOrder = inject(ManageOrder);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
 
@@ -59,28 +59,28 @@ export class ActiveOrdersStore {
     };
 
     effect(() => {
-      const created = this.#socketService.orderCreated();
+      const created = this.#realtime.orderCreated();
       if (created && this.#currentEstablishmentId() === created.establishmentId) {
         upsertOrder(created);
       }
     });
 
     effect(() => {
-      const updated = this.#socketService.orderUpdated();
+      const updated = this.#realtime.orderUpdated();
       if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         upsertOrder(updated);
       }
     });
 
     effect(() => {
-      const closed = this.#socketService.orderClosed();
+      const closed = this.#realtime.orderClosed();
       if (closed && this.#currentEstablishmentId() === closed.establishmentId) {
         upsertOrder(closed);
       }
     });
 
     effect(() => {
-      const cancelled = this.#socketService.orderCancelled();
+      const cancelled = this.#realtime.orderCancelled();
       if (cancelled) {
         this.#ordersResource.update((orders) => {
           if (!orders) return undefined;
@@ -90,14 +90,14 @@ export class ActiveOrdersStore {
     });
 
     effect(() => {
-      const itemAdded = this.#socketService.orderItemAdded();
+      const itemAdded = this.#realtime.orderItemAdded();
       if (itemAdded && this.#currentEstablishmentId() === itemAdded.establishmentId) {
         upsertOrder(itemAdded);
       }
     });
 
     effect(() => {
-      const tipUpdated = this.#socketService.orderTipUpdated();
+      const tipUpdated = this.#realtime.orderTipUpdated();
       if (tipUpdated) {
         this.#ordersResource.update((orders) => {
           if (!orders) return undefined;
@@ -117,7 +117,7 @@ export class ActiveOrdersStore {
     });
 
     effect(() => {
-      const adjUpdated = this.#socketService.orderAdjustmentsUpdated();
+      const adjUpdated = this.#realtime.orderAdjustmentsUpdated();
       if (adjUpdated) {
         const orderId = adjUpdated.orderId as OrderId;
         const currentEstablishmentId = this.#currentEstablishmentId();
@@ -130,7 +130,7 @@ export class ActiveOrdersStore {
     });
 
     effect(() => {
-      const deleted = this.#socketService.orderDeleted();
+      const deleted = this.#realtime.orderDeleted();
       if (deleted) {
         this.#ordersResource.update((orders) => {
           if (!orders) return undefined;

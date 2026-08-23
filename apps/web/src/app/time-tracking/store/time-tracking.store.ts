@@ -12,7 +12,7 @@ import type {
 } from '@coaster/common';
 import { ClockState, ErrorCodes } from '@coaster/common';
 import { TimeEntryRepository } from '../data-access/time-entry-repository';
-import { workdayArrayMapper } from '../mappers/workday.mapper';
+import { workdayArrayMapper, workdayMapper } from '../mappers/workday.mapper';
 
 @Service()
 export class TimeTrackingStore {
@@ -35,6 +35,15 @@ export class TimeTrackingStore {
     { parse: workdayArrayMapper },
   );
 
+  readonly #currentResource = httpResource(
+    () => {
+      const establishmentId = this.#establishmentId();
+
+      return establishmentId ? this.#repository.routes.current(establishmentId) : undefined;
+    },
+    { parse: workdayMapper },
+  );
+
   readonly #teamResource = httpResource(
     () => {
       const establishmentId = this.#establishmentId();
@@ -51,11 +60,19 @@ export class TimeTrackingStore {
   public readonly myWorkdays = this.#mineResource.asReadonly();
   public readonly teamWorkdays = this.#teamResource.asReadonly();
 
-  public readonly myWorkday = computed<Workday | undefined>(() =>
-    this.myWorkdays.hasValue() ? this.myWorkdays.value()?.[0] : undefined,
+  public readonly myWorkday = computed<Workday | undefined>(() => {
+    const day = this.#from();
+
+    return this.myWorkdays.hasValue() ? this.myWorkdays.value()?.find((workday) => workday.date === day) : undefined;
+  });
+
+  public readonly currentWorkday = computed<Workday | undefined>(() =>
+    this.#currentResource.hasValue() ? (this.#currentResource.value() ?? undefined) : undefined,
   );
 
-  public readonly clockState = computed<ClockState>(() => this.myWorkday()?.state ?? ClockState.OUT);
+  public readonly clockState = computed<ClockState>(() => this.currentWorkday()?.state ?? ClockState.OUT);
+
+  public readonly isClockLoading = this.#currentResource.isLoading;
 
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
     this.#establishmentId.set(establishmentId);
@@ -76,6 +93,7 @@ export class TimeTrackingStore {
 
   public reload() {
     this.#mineResource.reload();
+    this.#currentResource.reload();
 
     if (this.#teamEnabled()) {
       this.#teamResource.reload();
@@ -83,8 +101,13 @@ export class TimeTrackingStore {
   }
 
   public async clock(type: TimeEntryType, coordinates?: { latitude: number; longitude: number }) {
-    await this.#repository.clock(this.#requireEstablishmentId(), { type, ...coordinates });
-    this.reload();
+    const establishmentId = this.#requireEstablishmentId();
+
+    try {
+      await this.#repository.clock(establishmentId, { type, ...coordinates });
+    } finally {
+      this.reload();
+    }
   }
 
   public async createEntry(dto: CreateTimeEntryDto) {

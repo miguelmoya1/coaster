@@ -144,7 +144,7 @@ model DbOrderAdjustment {
 model DbUser {
   id             String                  @id @default(uuid())
   email          String                  @unique
-  googleId       String?                 @unique
+  firebaseUid    String?                 @unique
   name           String
   photoUrl       String?
   active         Boolean                 @default(true)

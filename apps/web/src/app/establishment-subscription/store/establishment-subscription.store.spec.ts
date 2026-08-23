@@ -4,7 +4,7 @@ import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { EstablishmentId } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
@@ -14,7 +14,7 @@ import { EstablishmentSubscriptionStore } from './establishment-subscription.sto
 describe('EstablishmentSubscriptionStore', () => {
   let store: EstablishmentSubscriptionStore;
   let httpMock: HttpTestingController;
-  const socketSignal = signal<{ establishmentId: string } | null>(null);
+  const realtimeSignal = signal<{ establishmentId: string } | null>(null);
 
   const establishmentId = 'establishment-1' as EstablishmentId;
   const url = `/establishments/${establishmentId}/establishment-subscription`;
@@ -35,7 +35,7 @@ describe('EstablishmentSubscriptionStore', () => {
   };
 
   beforeEach(() => {
-    socketSignal.set(null);
+    realtimeSignal.set(null);
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,7 +51,7 @@ describe('EstablishmentSubscriptionStore', () => {
         },
         { provide: CreateCustomerPortalSession, useValue: { execute: vi.fn() } },
         { provide: CreateCheckoutSession, useValue: { execute: vi.fn() } },
-        { provide: Socket, useValue: { subscriptionUpdated: socketSignal } },
+        { provide: Realtime, useValue: { subscriptionUpdated: realtimeSignal } },
       ],
     });
 

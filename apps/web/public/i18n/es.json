@@ -657,6 +657,7 @@
       "then": "Después",
       "price": "19,99 €",
       "period": "/ mes",
+      "tax": "+ IVA",
       "price_note": "por establecimiento, sin permanencia",
       "feature1": "Control horario con exportación para inspección",
       "feature2": "Comandas, cobros e impresión sin límite",

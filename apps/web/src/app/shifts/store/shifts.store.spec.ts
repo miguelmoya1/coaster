@@ -4,7 +4,7 @@ import { describe, beforeEach, it, expect, afterEach } from 'vitest';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 
 import { ShiftsStore } from './shifts.store';
 
@@ -12,10 +12,10 @@ describe('ShiftsStore', () => {
   let service: ShiftsStore;
 
   let httpMock: HttpTestingController;
-  let mockSocket: any;
+  let realtimeMock: any;
 
   beforeEach(() => {
-    mockSocket = {
+    realtimeMock = {
       shiftCreated: signal<any>(null),
       shiftDeleted: signal<any>(null),
     };
@@ -25,7 +25,7 @@ describe('ShiftsStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideZonelessChangeDetection(),
-        { provide: Socket, useValue: mockSocket },
+        { provide: Realtime, useValue: realtimeMock },
       ],
     });
 
@@ -114,7 +114,7 @@ describe('ShiftsStore', () => {
     });
   });
 
-  describe('socket effects', () => {
+  describe('realtime effects', () => {
     it('should reload on shiftCreated', async () => {
       service.setEstablishmentId(asEstablishmentId('establishment-1'));
       TestBed.tick();
@@ -126,7 +126,7 @@ describe('ShiftsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.shiftCreated.set({ id: 's-1' });
+      realtimeMock.shiftCreated.set({ id: 's-1' });
       TestBed.tick();
 
       const req2 = httpMock.expectOne((req) => req.url.includes('/establishments/establishment-1/shifts'));
@@ -144,7 +144,7 @@ describe('ShiftsStore', () => {
       await Promise.resolve();
       TestBed.tick();
 
-      mockSocket.shiftDeleted.set({ id: 's-1' });
+      realtimeMock.shiftDeleted.set({ id: 's-1' });
       TestBed.tick();
 
       expect(service.shifts.value()?.length).toBe(0);

@@ -2,14 +2,14 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId, Order } from '@coaster/common';
 import { OrderStatus } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { orderArrayMapper } from '../mappers/order.mapper';
 import { EstablishmentOrderHistory } from '../services/establishment-order-history';
 
 @Service()
 export class OrderHistoryStore {
   readonly #establishmentOrderHistory = inject(EstablishmentOrderHistory);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #historyDate = signal<string>(new Date().toISOString().split('T')[0]);
@@ -57,28 +57,28 @@ export class OrderHistoryStore {
     };
 
     effect(() => {
-      const created = this.#socketService.orderCreated();
+      const created = this.#realtime.orderCreated();
       if (created && this.#currentEstablishmentId() === created.establishmentId) {
         upsertOrderIfMatchesDate(created);
       }
     });
 
     effect(() => {
-      const updated = this.#socketService.orderUpdated();
+      const updated = this.#realtime.orderUpdated();
       if (updated && this.#currentEstablishmentId() === updated.establishmentId) {
         upsertOrderIfMatchesDate(updated);
       }
     });
 
     effect(() => {
-      const closed = this.#socketService.orderClosed();
+      const closed = this.#realtime.orderClosed();
       if (closed && this.#currentEstablishmentId() === closed.establishmentId) {
         upsertOrderIfMatchesDate(closed);
       }
     });
 
     effect(() => {
-      const cancelled = this.#socketService.orderCancelled();
+      const cancelled = this.#realtime.orderCancelled();
       if (cancelled) {
         this.#historyResource.update((orders) => {
           if (!orders) return undefined;
@@ -88,14 +88,14 @@ export class OrderHistoryStore {
     });
 
     effect(() => {
-      const itemAdded = this.#socketService.orderItemAdded();
+      const itemAdded = this.#realtime.orderItemAdded();
       if (itemAdded && this.#currentEstablishmentId() === itemAdded.establishmentId) {
         upsertOrderIfMatchesDate(itemAdded);
       }
     });
 
     effect(() => {
-      const deleted = this.#socketService.orderDeleted();
+      const deleted = this.#realtime.orderDeleted();
       if (deleted) {
         this.#historyResource.update((orders) => {
           if (!orders) return undefined;

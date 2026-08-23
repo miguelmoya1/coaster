@@ -13,26 +13,36 @@ vi.mock('resend', () => ({
 
 describe('EmailService', () => {
   let service: EmailService;
+  let config: Record<string, string | undefined>;
 
   const sentHtml = () => (send.mock.calls[0][0] as { html: string }).html;
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    send.mockResolvedValue({});
-
+  const createService = async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EmailService,
         {
           provide: ConfigService,
           useValue: {
-            get: vi.fn().mockReturnValue('fake-resend-api-key'),
+            get: vi.fn((key: string) => config[key]),
           },
         },
       ],
     }).compile();
 
-    service = module.get<EmailService>(EmailService);
+    return module.get<EmailService>(EmailService);
+  };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    send.mockResolvedValue({});
+
+    config = {
+      RESEND_API_KEY: 'fake-resend-api-key',
+      FRONTEND_URL: 'https://beta.coaster.business',
+    };
+
+    service = await createService();
   });
 
   it('should be defined', () => {
@@ -69,6 +79,21 @@ describe('EmailService', () => {
       await service.sendInviteEmail('nuevo@establishment.com', '<script>alert(1)</script>', 'Miguel', 'es');
 
       expect(sentHtml()).not.toContain('<script>');
+    });
+
+    it('should send the invitee to the environment that invited them', async () => {
+      await service.sendInviteEmail('nuevo@establishment.com', 'Establishment Pepe', 'Miguel', 'es');
+
+      expect(sentHtml()).toContain('https://beta.coaster.business/login');
+    });
+
+    it('should trail no slash when FRONTEND_URL carries one', async () => {
+      config.FRONTEND_URL = 'https://beta.coaster.business/';
+      service = await createService();
+
+      await service.sendInviteEmail('nuevo@establishment.com', 'Establishment Pepe', 'Miguel', 'es');
+
+      expect(sentHtml()).toContain('https://beta.coaster.business/login');
     });
   });
 });

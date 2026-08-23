@@ -125,6 +125,49 @@ describe('planMark', () => {
 
     expect(workday && formatWorkdayDate(workday)).toBe('2026-08-09');
   });
+
+  it('should close the day it started however long the shift ran', () => {
+    const open = [mark(TimeEntryType.CLOCK_IN, '2026-08-08T20:00:00Z', '2026-08-08')];
+    const daysLater = planMark(TimeEntryType.CLOCK_OUT, at('2026-08-11T09:00:00Z'), open);
+
+    expect(daysLater && formatWorkdayDate(daysLater)).toBe('2026-08-08');
+  });
+
+  it('should refuse to start a second day while one is still open', () => {
+    const open = [mark(TimeEntryType.CLOCK_IN, '2026-08-08T20:00:00Z', '2026-08-08')];
+
+    expect(planMark(TimeEntryType.CLOCK_IN, at('2026-08-09T08:00:00Z'), open)).toBe(null);
+  });
+
+  it('should let the worker start a second shift on a day already closed', () => {
+    const closed = [
+      mark(TimeEntryType.CLOCK_IN, '2026-08-08T08:00:00Z', '2026-08-08'),
+      mark(TimeEntryType.CLOCK_OUT, '2026-08-08T12:00:00Z', '2026-08-08'),
+    ];
+    const workday = planMark(TimeEntryType.CLOCK_IN, at('2026-08-08T18:00:00Z'), closed);
+
+    expect(workday && formatWorkdayDate(workday)).toBe('2026-08-08');
+  });
+
+  it('should ignore an open day whose marks come after the one being filed', () => {
+    const later = [mark(TimeEntryType.CLOCK_IN, '2026-08-08T20:00:00Z', '2026-08-08')];
+    const workday = planMark(TimeEntryType.CLOCK_IN, at('2026-08-08T06:00:00Z'), later);
+
+    expect(workday).toBe(null);
+  });
+});
+
+describe('summariseWorkday on a day nobody closed', () => {
+  it('should keep counting for as long as it stays open', () => {
+    const marks = [mark(TimeEntryType.CLOCK_IN, '2026-08-08T08:00:00Z', '2026-08-08')];
+    const daysLater = at('2026-08-11T08:00:00Z');
+
+    expect(summariseWorkday(marks, daysLater)).toEqual({
+      state: ClockState.IN,
+      workedMinutes: 3 * 24 * 60,
+      breakMinutes: 0,
+    });
+  });
 });
 
 describe('findDiscrepancies', () => {

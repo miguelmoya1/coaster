@@ -12,7 +12,7 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { TimeEntriesReadRepository } from '../../data-access/time-entries.read.repository';
 import { TimeEntriesWriteRepository } from '../../data-access/time-entries.write.repository';
-import { replayClockState, toDatedMarks } from '../../domain/workday';
+import { isValidSequence, toDatedMarks } from '../../domain/workday';
 import { TimeEntryAmendedEvent } from '../../events/impl/time-entry-amended.event';
 import { TimeEntriesMapper } from '../../mappers/time-entries.mapper';
 import { AmendTimeEntryCommand } from '../impl/amend-time-entry.command';
@@ -60,7 +60,7 @@ export class AmendTimeEntryHandler implements ICommandHandler<AmendTimeEntryComm
       entry.rootId === current.rootId ? { ...entry, occurredAt: occurredAt.toISOString() } : entry,
     );
 
-    if (!replayClockState(toDatedMarks(day))) {
+    if (!isValidSequence(toDatedMarks(day))) {
       throw new BadRequestException(ErrorCodes.INVALID_CLOCK_SEQUENCE);
     }
 

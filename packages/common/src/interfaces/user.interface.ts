@@ -17,7 +17,7 @@ export interface CreateUserDto {
   name: string;
   email: string;
   photoUrl?: string;
-  googleId?: string;
+  firebaseUid?: string;
 }
 
 export interface UpdateUserDto {

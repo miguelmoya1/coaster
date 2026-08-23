@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
 import type { EstablishmentId } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
-import { Socket } from '@coaster/core';
+import { Realtime } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
@@ -22,7 +22,7 @@ export class EstablishmentSubscriptionStore {
   readonly #establishmentSubscription = inject(EstablishmentSubscription);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
 
   readonly #subscriptionResource = httpResource(
     () => {
@@ -109,7 +109,7 @@ export class EstablishmentSubscriptionStore {
 
   constructor() {
     effect(() => {
-      const event = this.#socketService.subscriptionUpdated();
+      const event = this.#realtime.subscriptionUpdated();
       const currentEstablishmentId = this.#currentEstablishmentId();
       if (event && (!event.establishmentId || event.establishmentId === currentEstablishmentId)) {
         this.reloadSubscription();

@@ -2,6 +2,7 @@ import { Logger, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FirebaseTokenService } from '@coaster/core';
 import type { DbService } from '@coaster/core/db';
+import { passThroughCache } from '../../../test/utils/passthrough-cache';
 import { JwtStrategy } from './jwt.strategy';
 
 const verifyIdToken = vi.fn();
@@ -16,7 +17,7 @@ describe('JwtStrategy', () => {
 
   const activeUser = {
     id: 'user-1',
-    googleId: 'google-1',
+    firebaseUid: 'uid-1',
     email: 'user@establishment.com',
     name: 'Test',
     photoUrl: null,
@@ -30,9 +31,9 @@ describe('JwtStrategy', () => {
     vi.spyOn(Logger.prototype, 'error').mockReturnValue(undefined);
 
     db = { dbUser: { findUnique: vi.fn() } };
-    strategy = new JwtStrategy(new FirebaseTokenService(db as unknown as DbService));
+    strategy = new JwtStrategy(new FirebaseTokenService(db as unknown as DbService, passThroughCache));
 
-    verifyIdToken.mockResolvedValue({ sub: 'google-1', email: 'user@establishment.com' });
+    verifyIdToken.mockResolvedValue({ sub: 'uid-1', email: 'user@establishment.com' });
   });
 
   it('should resolve the domain user, so callers reading user.language get the preference', async () => {

@@ -35,7 +35,7 @@ describe('PrepareUserForInviteHandler', () => {
       name: 'test',
       email: 'test@example.com',
       photoUrl: null,
-      googleId: null,
+      firebaseUid: null,
       active: true,
       createdAt: new Date(),
       updatedAt: new Date(),

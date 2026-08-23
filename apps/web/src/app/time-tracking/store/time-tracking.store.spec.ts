@@ -6,12 +6,14 @@ import { asEstablishmentId, asTimeEntryId, ClockState, TimeEntryType } from '@co
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TimeTrackingStore } from './time-tracking.store';
 
-const workday = (state: ClockState = ClockState.IN) => ({
-  date: '2026-08-08',
+type Workday = ReturnType<typeof workday>;
+
+const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedMinutes = 120) => ({
+  date,
   userId: 'user-1',
   userName: 'Luis',
   state,
-  workedMinutes: 120,
+  workedMinutes,
   breakMinutes: 15,
   plannedMinutes: 480,
   plannedStart: null,
@@ -20,9 +22,20 @@ const workday = (state: ClockState = ClockState.IN) => ({
   entries: [],
 });
 
+const mine = (from: string, to: string) => `/establishments/establishment-1/time-entries/me?from=${from}&to=${to}`;
+const CURRENT = '/establishments/establishment-1/time-entries/me/current';
+
 describe('TimeTrackingStore', () => {
   let store: TimeTrackingStore;
   let httpMock: HttpTestingController;
+
+  const settle = async () => {
+    TestBed.tick();
+    await Promise.resolve();
+    TestBed.tick();
+  };
+
+  const flushCurrent = (current: Workday | null = null) => httpMock.expectOne(CURRENT).flush(current);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,31 +50,68 @@ describe('TimeTrackingStore', () => {
     httpMock.verify();
   });
 
-  it('should not ask for anything until it knows the establishment and the range', () => {
+  it('should not ask for anything until it knows the establishment', () => {
     TestBed.tick();
 
     httpMock.expectNone(() => true);
   });
 
-  it('should load my own workday once establishment and range are set', async () => {
+  it('should ask the server which workday is running as soon as it knows the establishment', () => {
+    store.setEstablishmentId(asEstablishmentId('establishment-1'));
+    TestBed.tick();
+
+    flushCurrent();
+  });
+
+  it('should load the browsed day once establishment and range are set', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
 
-    const request = httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08');
+    flushCurrent();
+    const request = httpMock.expectOne(mine('2026-08-08', '2026-08-08'));
     expect(request.request.method).toBe('GET');
     request.flush([workday()]);
 
-    TestBed.tick();
-    await Promise.resolve();
-    TestBed.tick();
+    await settle();
 
     expect(store.myWorkday()?.workedMinutes).toBe(120);
-    expect(store.clockState()).toBe(ClockState.IN);
   });
 
   it('should report the clock as out while nothing has loaded', () => {
     expect(store.clockState()).toBe(ClockState.OUT);
+  });
+
+  describe('the workday the clock card acts on', () => {
+    const load = async (current: Workday | null) => {
+      store.setEstablishmentId(asEstablishmentId('establishment-1'));
+      TestBed.tick();
+
+      flushCurrent(current);
+
+      await settle();
+    };
+
+    it('should follow whatever the server says is running', async () => {
+      await load(workday(ClockState.IN, '2026-08-08', 120));
+
+      expect(store.clockState()).toBe(ClockState.IN);
+      expect(store.currentWorkday()?.workedMinutes).toBe(120);
+    });
+
+    it('should keep acting on a day opened long before today', async () => {
+      await load(workday(ClockState.ON_BREAK, '2026-08-01', 4000));
+
+      expect(store.clockState()).toBe(ClockState.ON_BREAK);
+      expect(store.currentWorkday()?.date).toBe('2026-08-01');
+    });
+
+    it('should stay out when no day is running', async () => {
+      await load(null);
+
+      expect(store.clockState()).toBe(ClockState.OUT);
+      expect(store.currentWorkday()).toBeUndefined();
+    });
   });
 
   it('should leave the team timesheet alone until it is enabled', async () => {
@@ -69,25 +119,26 @@ describe('TimeTrackingStore', () => {
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
 
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08').flush([]);
+    flushCurrent();
+    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
     httpMock.expectNone('/establishments/establishment-1/time-entries?from=2026-08-08&to=2026-08-08');
 
     store.setTeamEnabled(true);
     TestBed.tick();
 
     httpMock.expectOne('/establishments/establishment-1/time-entries?from=2026-08-08&to=2026-08-08').flush([workday()]);
-    TestBed.tick();
-    await Promise.resolve();
-    TestBed.tick();
+
+    await settle();
 
     expect(store.teamWorkdays.value()?.length).toBe(1);
   });
 
-  it('should post a punch and refresh what it shows', async () => {
+  it('should post a punch and refresh both what it browses and what it can act on', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08').flush([]);
+    flushCurrent();
+    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
 
     const clocked = store.clock(TimeEntryType.CLOCK_IN, { latitude: 40.4, longitude: -3.7 });
 
@@ -98,14 +149,36 @@ describe('TimeTrackingStore', () => {
     await clocked;
     TestBed.tick();
 
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08').flush([]);
+    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+    flushCurrent();
+  });
+
+  it('should go back to the server when a punch is refused, instead of keeping a stale picture', async () => {
+    store.setEstablishmentId(asEstablishmentId('establishment-1'));
+    TestBed.tick();
+    flushCurrent(null);
+
+    const refused = store.clock(TimeEntryType.CLOCK_IN);
+
+    httpMock
+      .expectOne('/establishments/establishment-1/time-entries/clock')
+      .flush({ message: ['INVALID_CLOCK_SEQUENCE'] }, { status: 400, statusText: 'Bad Request' });
+
+    await expect(refused).rejects.toBeDefined();
+    TestBed.tick();
+
+    flushCurrent(workday(ClockState.IN, '2026-08-08', 120));
+    await settle();
+
+    expect(store.clockState()).toBe(ClockState.IN);
   });
 
   it('should send the reason when a mark is amended', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-08', '2026-08-08');
     TestBed.tick();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08').flush([]);
+    flushCurrent();
+    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
 
     const amended = store.amend(asTimeEntryId('entry-1'), {
       occurredAt: '2026-08-08T09:00:00.000Z',
@@ -118,14 +191,17 @@ describe('TimeTrackingStore', () => {
 
     await amended;
     TestBed.tick();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-08&to=2026-08-08').flush([]);
+
+    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+    flushCurrent();
   });
 
-  it('should download the timesheet as a file', async () => {
+  it('should download the timesheet for the browsed range, not the clock one', async () => {
     store.setEstablishmentId(asEstablishmentId('establishment-1'));
     store.setRange('2026-08-01', '2026-08-08');
     TestBed.tick();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me?from=2026-08-01&to=2026-08-08').flush([]);
+    flushCurrent();
+    httpMock.expectOne(mine('2026-08-01', '2026-08-08')).flush([]);
 
     const exported = store.exportCsv();
 

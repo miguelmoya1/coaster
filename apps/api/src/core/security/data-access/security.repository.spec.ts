@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { passThroughCache } from '../../../../test/utils/passthrough-cache';
+import { CacheService } from '../../cache/cache.service';
 import { DbService } from '../../db';
 import { SecurityRepository } from './security.repository';
 
@@ -18,6 +20,7 @@ describe('SecurityRepository', () => {
             dbEstablishmentMember: { findUnique: vi.fn() },
           },
         },
+        { provide: CacheService, useValue: passThroughCache },
       ],
     }).compile();
 

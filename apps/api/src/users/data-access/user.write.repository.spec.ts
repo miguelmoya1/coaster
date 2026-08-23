@@ -72,7 +72,7 @@ describe('UserWriteRepository', () => {
       const data = {
         email,
         name: 'New User',
-        googleId: 'g-123',
+        firebaseUid: 'uid-123',
         photoUrl: 'http://example.com/photo.jpg',
         active: true,
         role: 'USER' as const,
@@ -85,7 +85,7 @@ describe('UserWriteRepository', () => {
       expect(dbService.dbUser.upsert).toHaveBeenCalledWith({
         where: { email },
         update: {
-          googleId: data.googleId,
+          firebaseUid: data.firebaseUid,
           name: data.name,
           photoUrl: data.photoUrl,
           active: data.active,

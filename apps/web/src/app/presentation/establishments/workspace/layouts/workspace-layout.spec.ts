@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
-import { Auth, CurrentUser, Socket } from '@coaster/core';
+import { Auth, CurrentUser, Realtime } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -46,9 +46,9 @@ describe('WorkspaceLayout', () => {
     setEstablishmentId: vi.fn(),
   };
 
-  const socketMock = {
-    joinEstablishment: vi.fn(),
-    leaveEstablishment: vi.fn(),
+  const realtimeMock = {
+    watch: vi.fn(),
+    unwatch: vi.fn(),
     subscriptionUpdated: signal(null),
   };
 
@@ -83,7 +83,7 @@ describe('WorkspaceLayout', () => {
         { provide: EstablishmentSubscriptionStore, useValue: establishmentSubscriptionStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: MembersStore, useValue: membersStoreMock },
-        { provide: Socket, useValue: socketMock },
+        { provide: Realtime, useValue: realtimeMock },
         { provide: Auth, useValue: authMock },
       ],
     }).compileComponents();

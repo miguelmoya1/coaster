@@ -5,6 +5,7 @@ import { EstablishmentsController } from './controllers/establishments.controlle
 import { EstablishmentSettingsRepository } from './data-access/establishment-settings.repository';
 import { EstablishmentReadRepository } from './data-access/establishment.read.repository';
 import { EstablishmentWriteRepository } from './data-access/establishment.write.repository';
+import { EventHandlers } from './events';
 import { QueryHandlers } from './queries';
 
 @Module({
@@ -16,6 +17,7 @@ import { QueryHandlers } from './queries';
     EstablishmentWriteRepository,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
   exports: [EstablishmentSettingsRepository],
 })

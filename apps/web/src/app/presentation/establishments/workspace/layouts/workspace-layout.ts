@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, untracked } from '@angular/
 import { MatDialog } from '@angular/material/dialog';
 import { RouterOutlet } from '@angular/router';
 import type { EstablishmentId } from '@coaster/common';
-import { CurrentUser, Socket } from '@coaster/core';
+import { CurrentUser, Realtime } from '@coaster/core';
 import { MembersStore, MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { CurrentEstablishmentStore, ModulesStore } from '@coaster/establishments';
@@ -57,7 +57,7 @@ export default class WorkspaceLayout {
   readonly #myMemberStore = inject(MyMemberStore);
   readonly #membersStore = inject(MembersStore);
   readonly #establishmentSubscriptionStore = inject(EstablishmentSubscriptionStore);
-  readonly #socketService = inject(Socket);
+  readonly #realtime = inject(Realtime);
   readonly #aiVoiceService = inject(AiVoiceService);
 
   protected readonly currentUser = this.#currentUser.current;
@@ -110,7 +110,7 @@ export default class WorkspaceLayout {
       const establishmentId = this.establishmentId();
       this.#currentEstablishmentStore.setEstablishmentId(establishmentId);
       this.#modulesStore.setEstablishmentId(establishmentId);
-      this.#socketService.joinEstablishment(establishmentId);
+      this.#realtime.watch(establishmentId);
       this.#membersStore.setEstablishmentId(establishmentId);
       this.#myMemberStore.setEstablishmentId(establishmentId);
       this.#establishmentSubscriptionStore.setEstablishmentId(establishmentId);
@@ -118,7 +118,7 @@ export default class WorkspaceLayout {
       cleanup(() => {
         this.#currentEstablishmentStore.setEstablishmentId(undefined);
         this.#modulesStore.setEstablishmentId(undefined);
-        this.#socketService.leaveEstablishment(establishmentId);
+        this.#realtime.unwatch(establishmentId);
         this.#membersStore.setEstablishmentId(undefined);
         this.#myMemberStore.setEstablishmentId(undefined);
         this.#establishmentSubscriptionStore.setEstablishmentId(undefined);

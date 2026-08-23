@@ -52,7 +52,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 
 describe('ClockHandler', () => {
   let handler: ClockHandler;
-  let readRepo: { findByWorkdayRange: ReturnType<typeof vi.fn> };
+  let readRepo: { findLatestWorkday: ReturnType<typeof vi.fn> };
   let writeRepo: { append: ReturnType<typeof vi.fn> };
   let eventBus: { publish: ReturnType<typeof vi.fn> };
 
@@ -60,7 +60,7 @@ describe('ClockHandler', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-09T00:30:00Z'));
 
-    readRepo = { findByWorkdayRange: vi.fn().mockResolvedValue([]) };
+    readRepo = { findLatestWorkday: vi.fn().mockResolvedValue([]) };
     writeRepo = { append: vi.fn().mockResolvedValue(row()) };
     eventBus = { publish: vi.fn() };
     handler = new ClockHandler(readRepo as never, writeRepo as never, eventBus as never);
@@ -85,13 +85,33 @@ describe('ClockHandler', () => {
   });
 
   it('should keep a night shift on the workday it started', async () => {
-    readRepo.findByWorkdayRange.mockResolvedValue([row()]);
+    readRepo.findLatestWorkday.mockResolvedValue([row()]);
 
     await handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_OUT }));
 
     expect(writeRepo.append).toHaveBeenCalledWith(
       expect.objectContaining({ workdayDate: new Date('2026-08-08T00:00:00Z') }),
     );
+  });
+
+  it('should close the open workday however many days ago it was opened', async () => {
+    vi.setSystemTime(new Date('2026-08-12T09:00:00Z'));
+    readRepo.findLatestWorkday.mockResolvedValue([row()]);
+
+    await handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_OUT }));
+
+    expect(writeRepo.append).toHaveBeenCalledWith(
+      expect.objectContaining({ workdayDate: new Date('2026-08-08T00:00:00Z') }),
+    );
+  });
+
+  it('should refuse to open a second workday while one is still running', async () => {
+    readRepo.findLatestWorkday.mockResolvedValue([row()]);
+
+    await expect(
+      handler.execute(new ClockCommand(establishmentId, actor, { type: TimeEntryType.CLOCK_IN })),
+    ).rejects.toThrow(new BadRequestException(ErrorCodes.INVALID_CLOCK_SEQUENCE));
+    expect(writeRepo.append).not.toHaveBeenCalled();
   });
 
   it('should refuse a break from someone who never clocked in', async () => {

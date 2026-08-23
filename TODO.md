@@ -5,35 +5,7 @@ this file is only the running order.
 
 ## Next
 
-### 1. Redis in front of the hot path
-
-**Not a cache over everything.** Orders, the catalogue, shifts and stats keep going straight to
-Postgres: they change constantly, they are read by few people at once, and caching them buys latency
-nobody notices in exchange for a stale figure somebody acts on. What goes in Redis is the preamble
-every authenticated request pays before its handler even starts.
-
-- **What is cached.** `getUserRole`, `getEstablishmentMemberRole`, the establishment's module list
-  and its subscription state — all four run inside guards, on every single request, and all four
-  change a few times a month at most. Read them from cache and every endpoint in the app loses two or
-  three round-trips at once. The user record behind `CurrentUser` is the same shape of data and joins
-  them.
-- **A miss is not an error.** Not in Redis means ask Postgres, hand back the answer and store it on
-  the way out. Nothing changes for the caller, and Redis being down has to degrade into today's
-  behaviour rather than into an outage.
-- **A change deletes the key, it never rewrites it.** Change a role, remove a member, toggle a module
-  and the event handler drops that key; the next request repopulates from Postgres. Writing the new
-  value from the event instead lets two commands arriving out of order leave the older one in Redis,
-  where the TTL would keep it for hours. Deleting is idempotent and cannot invert.
-- **The events those deletions hang off.** `MemberRoleChanged` and `MemberRemoved` already exist.
-  `update-establishment-settings` and `update-user` publish nothing today and will have to. Fifteen
-  more command handlers are silent — mostly `printer` and `shift-exchanges`; every command should end
-  up emitting its event even where nothing listens, but only those two block this step.
-- **8 hours of TTL** as the backstop, roughly a working day, so a missed invalidation cannot outlive
-  the shift that saw it and the instance stays small enough to stay cheap.
-- Redis also fixes something already broken: `ThrottlerModule` counts in memory, so across more than
-  one Cloud Run instance the 300/min limit is really 300 per instance.
-
-### 2. Help with the translations
+### 1. Help with the translations
 
 The editor already counts what is unwritten in each language. What is missing is the assistant
 translating a menu in one pass — once per item rather than once per request, so a 50-item menu is
@@ -58,18 +30,23 @@ about one message of the monthly allowance. Reviewed before it saves.
 
 ## Known debt
 
+- **Thirteen command handlers still publish nothing** — mostly `printer` and `shift-exchanges`.
+  Every command should end up emitting its event even where nothing listens. The three that blocked
+  the cache are done: `update-user`, `update-establishment-settings` and `handle-checkout-completed`,
+  the last of which was writing an activated subscription in silence and would have left a venue that
+  had just paid looking unpaid for as long as the TTL.
 - **Renaming a product rewrites history.** `OrderItem` stores `priceAtPurchase` but never the name it
   was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
   name. Every product is renameable now that names are words rather than keys. The fix is for the
   order line to snapshot the name the way `TimeEntry` snapshots the user.
-- **Open CORS** (`origin: '*'`) on both the API and the websocket gateway, pending a decision on the
-  production domain. Narrow it to an allowlist before onboarding real venues.
+- **Open CORS** (`origin: '*'`) on the API, pending a decision on the production domain. It now also
+  governs the realtime stream, which the browser reaches with a preflighted `Authorization` header. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
   is added, it must require typing the name to confirm and must land in the audit log.
 - **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.
   They answer a button press or an event rather than describing state, so `httpResource` does not
   fit: replicating a rota week, verifying the hash chain, exporting the inspection CSV, polling a
-  print job, and refreshing one order after a socket event.
+  print job, and refreshing one order after a realtime event.
 - **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
   methods directly; dispatched DOM events never reach Angular listeners in that setup, so keyboard
   and click wiring is only ever verified by hand.

@@ -119,6 +119,17 @@ describe('CreateCheckoutSessionHandler (establishment-subscription)', () => {
     expect(params.subscription_data.metadata).toEqual({ establishmentId, plan: SubscriptionPlan.PRO });
   });
 
+  it('should let Stripe add the tax the price no longer includes', async () => {
+    readRepoMock.findByEstablishmentId.mockResolvedValue(null);
+
+    await handler.execute(new CreateCheckoutSessionCommand(establishmentId, SubscriptionPlan.PRO));
+
+    const [params] = stripeApiMock.createCheckoutSession.mock.calls[0];
+    expect(params.automatic_tax).toEqual({ enabled: true });
+    expect(params.billing_address_collection).toBe('required');
+    expect(params.tax_id_collection).toEqual({ enabled: true });
+  });
+
   it('should throw InternalServerErrorException if session url is missing', async () => {
     readRepoMock.findByEstablishmentId.mockResolvedValue({ stripeCustomerId: 'cus_existing' });
     stripeApiMock.createCheckoutSession.mockResolvedValue({ id: 'cs_123', url: null });

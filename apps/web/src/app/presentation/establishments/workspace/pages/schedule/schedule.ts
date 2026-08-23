@@ -133,7 +133,9 @@ export default class Schedule {
 
   readonly shifts = this.#shiftsStore.shifts;
   readonly myWorkday = this.#timeTrackingStore.myWorkday;
+  readonly currentWorkday = this.#timeTrackingStore.currentWorkday;
   readonly clockState = this.#timeTrackingStore.clockState;
+  readonly isClockLoading = this.#timeTrackingStore.isClockLoading;
   readonly teamWorkdays = this.#timeTrackingStore.teamWorkdays;
 
   readonly canClockIn = computed(() => this.#hasPermission(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN));

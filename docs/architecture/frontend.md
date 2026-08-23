@@ -12,7 +12,7 @@ core  <--  domains  <--  presentation
 
 ### `core/` — base layer
 
-Cross-cutting infrastructure: utilities, mappers, errors, session services (`Auth`, `Socket`,
+Cross-cutting infrastructure: utilities, mappers, errors, session services (`Auth`, `Realtime`,
 `Toast`), generic guards and HTTP interceptors.
 
 It knows no domain and no screen. **It cannot import `@coaster/<domain>` or anything from

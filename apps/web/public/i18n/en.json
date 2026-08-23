@@ -657,6 +657,7 @@
       "then": "After that",
       "price": "€19.99",
       "period": "/ month",
+      "tax": "+ VAT",
       "price_note": "per establishment, no lock-in",
       "feature1": "Time tracking with an export for inspections",
       "feature2": "Orders, payments and printing, unlimited",

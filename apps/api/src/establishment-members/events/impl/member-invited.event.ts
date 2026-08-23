@@ -1,4 +1,4 @@
-import type { EstablishmentId, EstablishmentMemberId } from '@coaster/common';
+import type { EstablishmentId, EstablishmentMemberId, UserId } from '@coaster/common';
 
 export class MemberInvitedEvent {
   constructor(
@@ -8,5 +8,6 @@ export class MemberInvitedEvent {
     public readonly establishmentName: string,
     public readonly inviterName: string,
     public readonly inviterLanguage: string,
+    public readonly userId: UserId,
   ) {}
 }

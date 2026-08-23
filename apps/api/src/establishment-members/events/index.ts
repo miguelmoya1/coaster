@@ -3,4 +3,8 @@ export * from './impl/member-invited.event';
 export * from './impl/member-removed.event';
 export * from './impl/member-role-changed.event';
 
-export const EventHandlers = [];
+export * from './handlers/forget-member-cache.handler';
+
+import { ForgetMemberCacheHandler } from './handlers/forget-member-cache.handler';
+
+export const EventHandlers = [ForgetMemberCacheHandler];

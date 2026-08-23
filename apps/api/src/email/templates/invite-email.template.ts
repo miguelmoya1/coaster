@@ -101,7 +101,7 @@ export const InviteEmailTemplate = `
                   <tr>
                     <td align="center">
                       <a
-                        href="https://coaster.business/login"
+                        href="{{loginUrl}}"
                         class="button"
                         target="_blank"
                         style="display: inline-block; background-color: #ff9159; color: #000000; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 32px; border-radius: 8px;"

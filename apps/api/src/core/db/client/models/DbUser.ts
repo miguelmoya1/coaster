@@ -27,7 +27,7 @@ export type AggregateDbUser = {
 export type DbUserMinAggregateOutputType = {
   id: string | null
   email: string | null
-  googleId: string | null
+  firebaseUid: string | null
   name: string | null
   photoUrl: string | null
   active: boolean | null
@@ -39,7 +39,7 @@ export type DbUserMinAggregateOutputType = {
 export type DbUserMaxAggregateOutputType = {
   id: string | null
   email: string | null
-  googleId: string | null
+  firebaseUid: string | null
   name: string | null
   photoUrl: string | null
   active: boolean | null
@@ -51,7 +51,7 @@ export type DbUserMaxAggregateOutputType = {
 export type DbUserCountAggregateOutputType = {
   id: number
   email: number
-  googleId: number
+  firebaseUid: number
   name: number
   photoUrl: number
   active: number
@@ -65,7 +65,7 @@ export type DbUserCountAggregateOutputType = {
 export type DbUserMinAggregateInputType = {
   id?: true
   email?: true
-  googleId?: true
+  firebaseUid?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -77,7 +77,7 @@ export type DbUserMinAggregateInputType = {
 export type DbUserMaxAggregateInputType = {
   id?: true
   email?: true
-  googleId?: true
+  firebaseUid?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -89,7 +89,7 @@ export type DbUserMaxAggregateInputType = {
 export type DbUserCountAggregateInputType = {
   id?: true
   email?: true
-  googleId?: true
+  firebaseUid?: true
   name?: true
   photoUrl?: true
   active?: true
@@ -174,7 +174,7 @@ export type DbUserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type DbUserGroupByOutputType = {
   id: string
   email: string
-  googleId: string | null
+  firebaseUid: string | null
   name: string
   photoUrl: string | null
   active: boolean
@@ -207,7 +207,7 @@ export type DbUserWhereInput = {
   NOT?: Prisma.DbUserWhereInput | Prisma.DbUserWhereInput[]
   id?: Prisma.StringFilter<"DbUser"> | string
   email?: Prisma.StringFilter<"DbUser"> | string
-  googleId?: Prisma.StringNullableFilter<"DbUser"> | string | null
+  firebaseUid?: Prisma.StringNullableFilter<"DbUser"> | string | null
   name?: Prisma.StringFilter<"DbUser"> | string
   photoUrl?: Prisma.StringNullableFilter<"DbUser"> | string | null
   active?: Prisma.BoolFilter<"DbUser"> | boolean
@@ -228,7 +228,7 @@ export type DbUserWhereInput = {
 export type DbUserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  firebaseUid?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -249,7 +249,7 @@ export type DbUserOrderByWithRelationInput = {
 export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
-  googleId?: string
+  firebaseUid?: string
   AND?: Prisma.DbUserWhereInput | Prisma.DbUserWhereInput[]
   OR?: Prisma.DbUserWhereInput[]
   NOT?: Prisma.DbUserWhereInput | Prisma.DbUserWhereInput[]
@@ -268,12 +268,12 @@ export type DbUserWhereUniqueInput = Prisma.AtLeast<{
   timeEntries?: Prisma.DbTimeEntryListRelationFilter
   timeEntryEdits?: Prisma.DbTimeEntryListRelationFilter
   createdOrders?: Prisma.DbOrderListRelationFilter
-}, "id" | "email" | "googleId">
+}, "id" | "email" | "firebaseUid">
 
 export type DbUserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  firebaseUid?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -291,7 +291,7 @@ export type DbUserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DbUserScalarWhereWithAggregatesInput | Prisma.DbUserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   email?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
-  googleId?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
+  firebaseUid?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"DbUser"> | string
   photoUrl?: Prisma.StringNullableWithAggregatesFilter<"DbUser"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"DbUser"> | boolean
@@ -303,7 +303,7 @@ export type DbUserScalarWhereWithAggregatesInput = {
 export type DbUserCreateInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -324,7 +324,7 @@ export type DbUserCreateInput = {
 export type DbUserUncheckedCreateInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -345,7 +345,7 @@ export type DbUserUncheckedCreateInput = {
 export type DbUserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -366,7 +366,7 @@ export type DbUserUpdateInput = {
 export type DbUserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -387,7 +387,7 @@ export type DbUserUncheckedUpdateInput = {
 export type DbUserCreateManyInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -399,7 +399,7 @@ export type DbUserCreateManyInput = {
 export type DbUserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -411,7 +411,7 @@ export type DbUserUpdateManyMutationInput = {
 export type DbUserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -423,7 +423,7 @@ export type DbUserUncheckedUpdateManyInput = {
 export type DbUserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  googleId?: Prisma.SortOrder
+  firebaseUid?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -435,7 +435,7 @@ export type DbUserCountOrderByAggregateInput = {
 export type DbUserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  googleId?: Prisma.SortOrder
+  firebaseUid?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -447,7 +447,7 @@ export type DbUserMaxOrderByAggregateInput = {
 export type DbUserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  googleId?: Prisma.SortOrder
+  firebaseUid?: Prisma.SortOrder
   name?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -607,7 +607,7 @@ export type DbUserUpdateOneRequiredWithoutAuditLogsNestedInput = {
 export type DbUserCreateWithoutPreferencesInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -627,7 +627,7 @@ export type DbUserCreateWithoutPreferencesInput = {
 export type DbUserUncheckedCreateWithoutPreferencesInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -663,7 +663,7 @@ export type DbUserUpdateToOneWithWhereWithoutPreferencesInput = {
 export type DbUserUpdateWithoutPreferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -683,7 +683,7 @@ export type DbUserUpdateWithoutPreferencesInput = {
 export type DbUserUncheckedUpdateWithoutPreferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -703,7 +703,7 @@ export type DbUserUncheckedUpdateWithoutPreferencesInput = {
 export type DbUserCreateWithoutMembershipsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -723,7 +723,7 @@ export type DbUserCreateWithoutMembershipsInput = {
 export type DbUserUncheckedCreateWithoutMembershipsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -759,7 +759,7 @@ export type DbUserUpdateToOneWithWhereWithoutMembershipsInput = {
 export type DbUserUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -779,7 +779,7 @@ export type DbUserUpdateWithoutMembershipsInput = {
 export type DbUserUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -799,7 +799,7 @@ export type DbUserUncheckedUpdateWithoutMembershipsInput = {
 export type DbUserCreateWithoutShiftsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -819,7 +819,7 @@ export type DbUserCreateWithoutShiftsInput = {
 export type DbUserUncheckedCreateWithoutShiftsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -855,7 +855,7 @@ export type DbUserUpdateToOneWithWhereWithoutShiftsInput = {
 export type DbUserUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -875,7 +875,7 @@ export type DbUserUpdateWithoutShiftsInput = {
 export type DbUserUncheckedUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -895,7 +895,7 @@ export type DbUserUncheckedUpdateWithoutShiftsInput = {
 export type DbUserCreateWithoutShiftRequestsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -915,7 +915,7 @@ export type DbUserCreateWithoutShiftRequestsInput = {
 export type DbUserUncheckedCreateWithoutShiftRequestsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -940,7 +940,7 @@ export type DbUserCreateOrConnectWithoutShiftRequestsInput = {
 export type DbUserCreateWithoutShiftApprovalsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -960,7 +960,7 @@ export type DbUserCreateWithoutShiftApprovalsInput = {
 export type DbUserUncheckedCreateWithoutShiftApprovalsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -996,7 +996,7 @@ export type DbUserUpdateToOneWithWhereWithoutShiftRequestsInput = {
 export type DbUserUpdateWithoutShiftRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1016,7 +1016,7 @@ export type DbUserUpdateWithoutShiftRequestsInput = {
 export type DbUserUncheckedUpdateWithoutShiftRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1047,7 +1047,7 @@ export type DbUserUpdateToOneWithWhereWithoutShiftApprovalsInput = {
 export type DbUserUpdateWithoutShiftApprovalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1067,7 +1067,7 @@ export type DbUserUpdateWithoutShiftApprovalsInput = {
 export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1087,7 +1087,7 @@ export type DbUserUncheckedUpdateWithoutShiftApprovalsInput = {
 export type DbUserCreateWithoutCreatedOrdersInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1107,7 +1107,7 @@ export type DbUserCreateWithoutCreatedOrdersInput = {
 export type DbUserUncheckedCreateWithoutCreatedOrdersInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1143,7 +1143,7 @@ export type DbUserUpdateToOneWithWhereWithoutCreatedOrdersInput = {
 export type DbUserUpdateWithoutCreatedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1163,7 +1163,7 @@ export type DbUserUpdateWithoutCreatedOrdersInput = {
 export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1183,7 +1183,7 @@ export type DbUserUncheckedUpdateWithoutCreatedOrdersInput = {
 export type DbUserCreateWithoutTimeEntriesInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1203,7 +1203,7 @@ export type DbUserCreateWithoutTimeEntriesInput = {
 export type DbUserUncheckedCreateWithoutTimeEntriesInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1228,7 +1228,7 @@ export type DbUserCreateOrConnectWithoutTimeEntriesInput = {
 export type DbUserCreateWithoutTimeEntryEditsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1248,7 +1248,7 @@ export type DbUserCreateWithoutTimeEntryEditsInput = {
 export type DbUserUncheckedCreateWithoutTimeEntryEditsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1284,7 +1284,7 @@ export type DbUserUpdateToOneWithWhereWithoutTimeEntriesInput = {
 export type DbUserUpdateWithoutTimeEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1304,7 +1304,7 @@ export type DbUserUpdateWithoutTimeEntriesInput = {
 export type DbUserUncheckedUpdateWithoutTimeEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1335,7 +1335,7 @@ export type DbUserUpdateToOneWithWhereWithoutTimeEntryEditsInput = {
 export type DbUserUpdateWithoutTimeEntryEditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1355,7 +1355,7 @@ export type DbUserUpdateWithoutTimeEntryEditsInput = {
 export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1375,7 +1375,7 @@ export type DbUserUncheckedUpdateWithoutTimeEntryEditsInput = {
 export type DbUserCreateWithoutAuditLogsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1395,7 +1395,7 @@ export type DbUserCreateWithoutAuditLogsInput = {
 export type DbUserUncheckedCreateWithoutAuditLogsInput = {
   id?: string
   email: string
-  googleId?: string | null
+  firebaseUid?: string | null
   name: string
   photoUrl?: string | null
   active?: boolean
@@ -1431,7 +1431,7 @@ export type DbUserUpdateToOneWithWhereWithoutAuditLogsInput = {
 export type DbUserUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1451,7 +1451,7 @@ export type DbUserUpdateWithoutAuditLogsInput = {
 export type DbUserUncheckedUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firebaseUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1565,7 +1565,7 @@ export type DbUserCountOutputTypeCountCreatedOrdersArgs<ExtArgs extends runtime.
 export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   email?: boolean
-  googleId?: boolean
+  firebaseUid?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1587,7 +1587,7 @@ export type DbUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type DbUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   email?: boolean
-  googleId?: boolean
+  firebaseUid?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1599,7 +1599,7 @@ export type DbUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type DbUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   email?: boolean
-  googleId?: boolean
+  firebaseUid?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1611,7 +1611,7 @@ export type DbUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type DbUserSelectScalar = {
   id?: boolean
   email?: boolean
-  googleId?: boolean
+  firebaseUid?: boolean
   name?: boolean
   photoUrl?: boolean
   active?: boolean
@@ -1620,7 +1620,7 @@ export type DbUserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
+export type DbUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firebaseUid" | "name" | "photoUrl" | "active" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["dbUser"]>
 export type DbUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   preferences?: boolean | Prisma.DbUser$preferencesArgs<ExtArgs>
   memberships?: boolean | Prisma.DbUser$membershipsArgs<ExtArgs>
@@ -1652,7 +1652,7 @@ export type $DbUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     email: string
-    googleId: string | null
+    firebaseUid: string | null
     name: string
     photoUrl: string | null
     active: boolean
@@ -2093,7 +2093,7 @@ export interface Prisma__DbUserClient<T, Null = never, ExtArgs extends runtime.T
 export interface DbUserFieldRefs {
   readonly id: Prisma.FieldRef<"DbUser", 'String'>
   readonly email: Prisma.FieldRef<"DbUser", 'String'>
-  readonly googleId: Prisma.FieldRef<"DbUser", 'String'>
+  readonly firebaseUid: Prisma.FieldRef<"DbUser", 'String'>
   readonly name: Prisma.FieldRef<"DbUser", 'String'>
   readonly photoUrl: Prisma.FieldRef<"DbUser", 'String'>
   readonly active: Prisma.FieldRef<"DbUser", 'Boolean'>

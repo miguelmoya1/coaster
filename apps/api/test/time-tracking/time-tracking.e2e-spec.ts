@@ -1,7 +1,7 @@
 import { EstablishmentRole, ErrorCodes, TimeEntryAction, TimeEntrySource, TimeEntryType } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { formatWorkdayDate, toWorkdayDate } from '../../src/time-tracking/domain/workday';
+import { formatWorkdayDate, shiftWorkdayDate, toWorkdayDate } from '../../src/time-tracking/domain/workday';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
 
 const HOUR = 60 * 60 * 1000;
@@ -103,6 +103,268 @@ describe('Time tracking (e2e)', () => {
       expect(entries[0].prevHash).toBe('0'.repeat(64));
       expect(entries[1].prevHash).toBe(entries[0].hash);
       expect(entries[1].sequence - entries[0].sequence).toBe(1n);
+    });
+  });
+
+  /**
+   * Your own timesheet answers for you and for nobody else, whatever you are allowed to see of the
+   * team elsewhere. The rota is the way a workmate gets in: everybody rostered used to be handed
+   * back an empty day, and sorted by name theirs could come first.
+   */
+  describe('a personal timesheet', () => {
+    const today = () => formatWorkdayDate(toWorkdayDate(new Date()));
+
+    /* No header at all is the owner: the member `createEstablishment` puts on the establishment. */
+    const asOwner = {};
+
+    const myWorkdays = async (headers: Record<string, string>, query: Record<string, string> = {}) =>
+      (
+        await request(server())
+          .get(`/api/establishments/${establishmentId}/time-entries/me`)
+          .query({ from: today(), to: today(), ...query })
+          .set(headers)
+          .expect(200)
+      ).body as { userId: string }[];
+
+    const myCurrentWorkday = async (headers: Record<string, string>) =>
+      (
+        await request(server())
+          .get(`/api/establishments/${establishmentId}/time-entries/me/current`)
+          .set(headers)
+          .expect(200)
+      ).body;
+
+    const rosterToday = (userId: string, fromHour: number, toHour: number) =>
+      testSetup.prisma.dbShift.create({
+        data: {
+          establishmentId,
+          userId,
+          startTime: new Date(`${today()}T${String(fromHour).padStart(2, '0')}:00:00.000Z`),
+          endTime: new Date(`${today()}T${String(toHour).padStart(2, '0')}:00:00.000Z`),
+        },
+      });
+
+    it('should hand the owner their own day and not the whole team', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await rosterToday(mockUser.id, 15, 22);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      expect((await myWorkdays(asOwner)).map((day) => day.userId)).toEqual([mockUser.id]);
+      expect((await myWorkdays(workerHeaders)).map((day) => day.userId)).toEqual([worker.id]);
+    });
+
+    it('should read my own clock while a workmate is rostered and clocked in', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      const current = await myCurrentWorkday(asOwner);
+
+      expect(current.userId).toBe(mockUser.id);
+      expect(current.state).toBe('IN');
+    });
+
+    it('should stay empty for me while only a rostered workmate has worked', async () => {
+      await rosterToday(worker.id, 7, 15);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      expect(await myWorkdays(asOwner)).toEqual([]);
+      expect(await myCurrentWorkday(asOwner)).toBeNull();
+    });
+
+    it('should answer for me even when asked outright for somebody else', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, asOwner).expect(201);
+
+      const days = await myWorkdays(asOwner, { userId: worker.id });
+
+      expect(days.map((day) => day.userId)).toEqual([mockUser.id]);
+    });
+  });
+
+  describe('a whole shift, punch by punch', () => {
+    const myWorkday = async () => {
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me`)
+        .set(workerHeaders)
+        .expect(200);
+
+      return response.body[0];
+    };
+
+    it('should move the worker through in, break, back and out, reporting each step as it happens', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      expect((await myWorkday()).state).toBe('IN');
+
+      await clockAs(TimeEntryType.BREAK_START, workerHeaders).expect(201);
+      expect((await myWorkday()).state).toBe('ON_BREAK');
+
+      await clockAs(TimeEntryType.BREAK_END, workerHeaders).expect(201);
+      expect((await myWorkday()).state).toBe('IN');
+
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+      const closed = await myWorkday();
+      expect(closed.state).toBe('OUT');
+      expect(closed.entries).toHaveLength(4);
+      expect(closed.entries.map((entry: { type: string }) => entry.type)).toEqual([
+        TimeEntryType.CLOCK_IN,
+        TimeEntryType.BREAK_START,
+        TimeEntryType.BREAK_END,
+        TimeEntryType.CLOCK_OUT,
+      ]);
+    });
+
+    it('should refuse the punches that make no sense at each step, leaving the day as it was', async () => {
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(400);
+      await clockAs(TimeEntryType.BREAK_END, workerHeaders).expect(400);
+
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(400);
+      await clockAs(TimeEntryType.BREAK_END, workerHeaders).expect(400);
+
+      await clockAs(TimeEntryType.BREAK_START, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.BREAK_START, workerHeaders).expect(400);
+
+      const day = await myWorkday();
+      expect(day.state).toBe('ON_BREAK');
+      expect(day.entries).toHaveLength(2);
+    });
+
+    it('should let the worker close the day straight from a break', async () => {
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.BREAK_START, workerHeaders).expect(201);
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+      expect((await myWorkday()).state).toBe('OUT');
+    });
+  });
+
+  describe('shifts that run into the next day', () => {
+    const workdayOf = (daysFromToday: number) =>
+      formatWorkdayDate(shiftWorkdayDate(toWorkdayDate(new Date()), daysFromToday));
+
+    /** Noon UTC on that workday is comfortably inside it in Madrid, whatever the season. */
+    const middayOf = (daysFromToday: number) =>
+      new Date(new Date(`${workdayOf(daysFromToday)}T00:00:00.000Z`).getTime() + 12 * HOUR).toISOString();
+
+    const addMark = (type: TimeEntryType, occurredAt: string) =>
+      request(server())
+        .post(`/api/establishments/${establishmentId}/time-entries`)
+        .send({ userId: worker.id, type, occurredAt, reason: 'Alta manual del responsable' });
+
+    const workdaysBetween = async (from: string, to: string) => {
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me`)
+        .query({ from, to })
+        .set(workerHeaders)
+        .expect(200);
+
+      return response.body;
+    };
+
+    /* 03:00 UTC is 05:00 in Madrid: the small hours, whatever time of day the suite happens to run. */
+    const smallHoursAfter = (daysFromToday: number) =>
+      new Date(new Date(`${workdayOf(daysFromToday + 1)}T00:00:00.000Z`).getTime() + 3 * HOUR).toISOString();
+
+    const currentWorkday = async () => {
+      const response = await request(server())
+        .get(`/api/establishments/${establishmentId}/time-entries/me/current`)
+        .set(workerHeaders)
+        .expect(200);
+
+      return response.body;
+    };
+
+    it('should file a punch made after midnight on the day the shift started', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
+
+      await addMark(TimeEntryType.CLOCK_OUT, smallHoursAfter(-1)).expect(201);
+
+      const [yesterday] = await workdaysBetween(workdayOf(-1), workdayOf(-1));
+      expect(yesterday.date).toBe(workdayOf(-1));
+      expect(yesterday.state).toBe('OUT');
+      expect(yesterday.entries).toHaveLength(2);
+
+      expect(await workdaysBetween(workdayOf(0), workdayOf(0))).toEqual([]);
+    });
+
+    it('should close the day the shift started even days later', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+
+      await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+      const [opened] = await workdaysBetween(workdayOf(-3), workdayOf(-3));
+      expect(opened.state).toBe('OUT');
+      expect(opened.entries).toHaveLength(2);
+
+      expect(await workdaysBetween(workdayOf(0), workdayOf(0))).toEqual([]);
+    });
+
+    it('should refuse to open a second day while the first is still running', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-1)).expect(201);
+
+      const response = await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(400);
+
+      expect(response.body.message).toContain(ErrorCodes.INVALID_CLOCK_SEQUENCE);
+    });
+
+    it('should keep counting the hours of a day nobody closed', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+
+      const [opened] = await workdaysBetween(workdayOf(-3), workdayOf(-3));
+
+      expect(opened.state).toBe('IN');
+      expect(opened.workedMinutes).toBeGreaterThan(2 * 24 * 60);
+    });
+
+    it('should leave a day closed two days ago out of the way of today', async () => {
+      await addMark(TimeEntryType.CLOCK_IN, middayOf(-2)).expect(201);
+      await addMark(TimeEntryType.CLOCK_OUT, middayOf(-2)).expect(201);
+
+      await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+      const [today] = await workdaysBetween(workdayOf(0), workdayOf(0));
+      expect(today.state).toBe('IN');
+    });
+
+    describe('the workday the clock card asks for', () => {
+      it('should be nothing at all when no day has been punched', async () => {
+        expect(await currentWorkday()).toBeNull();
+      });
+
+      it('should be today once today has been punched', async () => {
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+        await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+        const current = await currentWorkday();
+
+        expect(current.date).toBe(workdayOf(0));
+        expect(current.state).toBe('OUT');
+      });
+
+      it('should be the running day, whichever day it started on', async () => {
+        await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+
+        const current = await currentWorkday();
+
+        expect(current.date).toBe(workdayOf(-3));
+        expect(current.state).toBe('IN');
+      });
+
+      it('should go back to today once the running day is closed', async () => {
+        await addMark(TimeEntryType.CLOCK_IN, middayOf(-3)).expect(201);
+        await clockAs(TimeEntryType.CLOCK_OUT, workerHeaders).expect(201);
+
+        expect(await currentWorkday()).toBeNull();
+
+        await clockAs(TimeEntryType.CLOCK_IN, workerHeaders).expect(201);
+
+        const current = await currentWorkday();
+        expect(current.date).toBe(workdayOf(0));
+        expect(current.state).toBe('IN');
+      });
     });
   });
 
