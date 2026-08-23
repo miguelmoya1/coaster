@@ -32,7 +32,7 @@ describe('UpdateAdminUserHandler', () => {
       findUserById: vi.fn().mockResolvedValue(target),
       countAdmins: vi.fn().mockResolvedValue(3),
     };
-    writeRepo = { updateUser: vi.fn().mockResolvedValue({ ...target, googleId: 'google-2' }) };
+    writeRepo = { updateUser: vi.fn().mockResolvedValue({ ...target, firebaseUid: 'uid-2' }) };
     eventBus = { publish: vi.fn() };
 
     handler = new UpdateAdminUserHandler(readRepo as any, writeRepo as any, eventBus as any);
@@ -56,7 +56,7 @@ describe('UpdateAdminUserHandler', () => {
     await handler.execute(new UpdateAdminUserCommand(asUserId('user-2'), { active: false }, actor));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'user-2', googleId: 'google-2' }),
+      expect.objectContaining({ userId: 'user-2', firebaseUid: 'uid-2' }),
     );
   });
 

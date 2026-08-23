@@ -3,17 +3,52 @@ import { Router } from '@angular/router';
 import { environment } from '@coaster/env';
 import { Language } from '@ngx-translate/core';
 import {
+  AuthError,
   Auth as FirebaseAuth,
   GoogleAuthProvider,
+  OAuthCredential,
+  OAuthProvider,
   onAuthStateChanged,
   onIdTokenChanged,
   signInWithPopup,
   signOut,
   User,
+  UserCredential,
 } from 'firebase/auth';
 import { Observable } from 'rxjs';
 import { AuthRepository } from '../data-access/auth-repository';
 export const FIREBASE_AUTH = new InjectionToken<FirebaseAuth>('FIREBASE_AUTH');
+
+export const SIGN_IN_PROVIDERS = {
+  google: () => new GoogleAuthProvider(),
+  apple: () => new OAuthProvider('apple.com'),
+  microsoft: () => new OAuthProvider('microsoft.com'),
+} as const;
+
+export type SignInProvider = keyof typeof SIGN_IN_PROVIDERS;
+
+export class AccountExistsWithDifferentProviderError extends Error {
+  constructor(
+    readonly email: string,
+    readonly pendingCredential: OAuthCredential | null,
+  ) {
+    super('auth/account-exists-with-different-credential');
+    this.name = 'AccountExistsWithDifferentProviderError';
+  }
+}
+
+function asSignInError(error: unknown): unknown {
+  if ((error as AuthError)?.code !== 'auth/account-exists-with-different-credential') {
+    return error;
+  }
+
+  const authError = error as AuthError;
+
+  return new AccountExistsWithDifferentProviderError(
+    authError.customData?.email ?? '',
+    OAuthProvider.credentialFromError(authError),
+  );
+}
 
 export interface UserProfile {
   name: string;
@@ -125,9 +160,14 @@ export class Auth {
     return userReturn;
   });
 
-  public async loginWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    const credentials = await signInWithPopup(this.#auth, provider);
+  public async login(provider: SignInProvider) {
+    let credentials: UserCredential;
+
+    try {
+      credentials = await signInWithPopup(this.#auth, SIGN_IN_PROVIDERS[provider]());
+    } catch (error) {
+      throw asSignInError(error);
+    }
 
     const token = await credentials.user.getIdToken();
 

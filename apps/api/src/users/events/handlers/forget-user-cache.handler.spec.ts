@@ -17,9 +17,9 @@ describe('ForgetUserCacheHandler', () => {
   });
 
   it('should drop both the role and the record the token lookup reads', async () => {
-    await handler.handle(new UserUpdatedEvent(asUserId('user-1'), 'google-1'));
+    await handler.handle(new UserUpdatedEvent(asUserId('user-1'), 'firebase-uid-1'));
 
-    expect(cache.forget).toHaveBeenCalledWith('user:user-1:role', 'user:google:google-1');
+    expect(cache.forget).toHaveBeenCalledWith('user:user-1:role', 'user:firebase:firebase-uid-1');
   });
 
   it('should drop only the role when the account has no sign-in linked yet', async () => {

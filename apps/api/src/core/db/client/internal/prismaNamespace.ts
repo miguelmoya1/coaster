@@ -2184,7 +2184,7 @@ export type DbOrderAdjustmentScalarFieldEnum = (typeof DbOrderAdjustmentScalarFi
 export const DbUserScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  googleId: 'googleId',
+  firebaseUid: 'firebaseUid',
   name: 'name',
   photoUrl: 'photoUrl',
   active: 'active',

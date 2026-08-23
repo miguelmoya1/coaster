@@ -193,12 +193,12 @@ describe('SubscriptionActiveGuard', () => {
     it('should let an admin through on a lapsed establishment using only the bearer token', async () => {
       const context = createRealRequestContext('token-admin');
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'google-admin' });
+      verifyIdToken.mockResolvedValue({ sub: 'uid-admin' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.ADMIN });
 
       await expect(guard.canActivate(context)).resolves.toBe(true);
       expect(dbService.dbUser.findUnique).toHaveBeenCalledWith({
-        where: { googleId: 'google-admin' },
+        where: { firebaseUid: 'uid-admin' },
         include: { preferences: true },
       });
     });
@@ -206,7 +206,7 @@ describe('SubscriptionActiveGuard', () => {
     it('should still block a regular user carrying a valid token', async () => {
       const context = createRealRequestContext('token-user');
       dbService.dbEstablishmentSubscription.findUnique.mockResolvedValue(expiredSubscription);
-      verifyIdToken.mockResolvedValue({ sub: 'google-user' });
+      verifyIdToken.mockResolvedValue({ sub: 'uid-user' });
       dbService.dbUser.findUnique.mockResolvedValue({ role: DbRole.USER });
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);

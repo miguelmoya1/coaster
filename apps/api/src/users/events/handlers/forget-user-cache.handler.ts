@@ -14,8 +14,8 @@ export class ForgetUserCacheHandler implements IEventHandler<UserUpdatedEvent> {
 
     const keys = [CacheKeys.userRole(event.userId)];
 
-    if (event.googleId) {
-      keys.push(CacheKeys.userByGoogleId(event.googleId));
+    if (event.firebaseUid) {
+      keys.push(CacheKeys.userByFirebaseUid(event.firebaseUid));
     }
 
     await this._cache.forget(...keys);

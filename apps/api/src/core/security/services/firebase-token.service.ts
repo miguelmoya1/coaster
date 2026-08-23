@@ -45,9 +45,9 @@ export class FirebaseTokenService {
       return null;
     }
 
-    const user = await this._cache.remember(CacheKeys.userByGoogleId(decoded.sub), () =>
+    const user = await this._cache.remember(CacheKeys.userByFirebaseUid(decoded.sub), () =>
       this._db.dbUser.findUnique({
-        where: { googleId: decoded.sub },
+        where: { firebaseUid: decoded.sub },
         include: { preferences: true },
       }),
     );

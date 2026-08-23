@@ -46,7 +46,7 @@ export class UpdateAdminUserHandler implements ICommandHandler<UpdateAdminUserCo
       active: dto.active,
     });
 
-    this._eventBus.publish(new UserUpdatedEvent(userId, updated.googleId));
+    this._eventBus.publish(new UserUpdatedEvent(userId, updated.firebaseUid));
 
     if (dto.role && dto.role !== user.role) {
       this._eventBus.publish(

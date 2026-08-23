@@ -9,7 +9,7 @@ describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
   const authMock = {
-    loginWithGoogle: vi.fn().mockResolvedValue({}),
+    login: vi.fn().mockResolvedValue({}),
   };
   const routerMock = {
     navigate: vi.fn().mockResolvedValue(true),
@@ -60,28 +60,28 @@ describe('Login', () => {
   });
 
   describe('actions', () => {
-    it('should call auth.loginWithGoogle on signIn', async () => {
-      await component.signIn();
+    it('should call auth.login with the chosen provider on signIn', async () => {
+      await component.signIn('google');
 
-      expect(authMock.loginWithGoogle).toHaveBeenCalled();
+      expect(authMock.login).toHaveBeenCalledWith('google');
     });
 
     it('should navigate to /establishments/select after successful signIn', async () => {
-      await component.signIn();
+      await component.signIn('google');
 
       expect(routerMock.navigate).toHaveBeenCalledWith(['/establishments/select']);
     });
 
     it('should set isLoading to false after signIn completes', async () => {
-      await component.signIn();
+      await component.signIn('google');
 
       expect(component['isLoading']()).toBe(false);
     });
 
     it('should set isLoading to false even if login fails', async () => {
-      authMock.loginWithGoogle.mockRejectedValueOnce(new Error('fail'));
+      authMock.login.mockRejectedValueOnce(new Error('fail'));
 
-      await component.signIn().catch(() => undefined);
+      await component.signIn('google').catch(() => undefined);
 
       expect(component['isLoading']()).toBe(false);
     });

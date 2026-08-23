@@ -34,7 +34,7 @@ describe('GetUserByEmailHandler', () => {
       id: 'user-1',
       email: 'test@mail.com',
       name: 'Test',
-      googleId: 'g-123',
+      firebaseUid: 'uid-123',
       photoUrl: 'http://photo.com/1',
       active: true,
       role: 'USER',

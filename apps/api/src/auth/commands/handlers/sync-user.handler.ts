@@ -25,7 +25,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
       }
 
       let user = await this._db.dbUser.findUnique({
-        where: { googleId: decodedToken.sub },
+        where: { firebaseUid: decodedToken.sub },
         include: { preferences: true },
       });
 
@@ -59,7 +59,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
       });
 
       if (user) {
-        if (user.googleId) {
+        if (user.firebaseUid) {
           this.logger.warn(`Refusing to move ${decodedToken.email} onto a different sign-in account`);
           throw new UnauthorizedException(ErrorCodes.EMAIL_ALREADY_LINKED);
         }
@@ -72,7 +72,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
         return this.#linked(
           await this._db.dbUser.update({
             where: { id: user.id },
-            data: { googleId: decodedToken.sub },
+            data: { firebaseUid: decodedToken.sub },
             include: { preferences: true },
           }),
           decodedToken.sub,
@@ -83,7 +83,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
         user = await this._db.dbUser.create({
           data: {
             email: decodedToken.email,
-            googleId: decodedToken.sub,
+            firebaseUid: decodedToken.sub,
             name: decodedToken.name || decodedToken.email.split('@')[0],
             photoUrl: decodedToken.picture || null,
             preferences: { create: {} },
@@ -110,8 +110,8 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
     }
   }
 
-  async #linked(user: DbUserWithPreferences, googleId: string): Promise<User> {
-    await this._cache.forget(CacheKeys.userByGoogleId(googleId));
+  async #linked(user: DbUserWithPreferences, firebaseUid: string): Promise<User> {
+    await this._cache.forget(CacheKeys.userByFirebaseUid(firebaseUid));
 
     return UsersMapper.toDomain(user);
   }

@@ -9,7 +9,7 @@ import {
   MatCardTitle,
 } from '@angular/material/card';
 import { Router } from '@angular/router';
-import { Auth } from '@coaster/core';
+import { Auth, SignInProvider } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Spinner } from '../../../components/spinner/spinner';
 import { PageContainer } from '../../../components/page-container/page-container';
@@ -61,7 +61,7 @@ import { PageContainer } from '../../../components/page-container/page-container
           <mat-card-actions align="end" class="w-full pt-2">
             <button
               mat-flat-button
-              (click)="signIn()"
+              (click)="signIn('google')"
               [disabled]="isLoading()"
               data-testid="google-signin-btn"
               class="w-full py-4 text-base font-medium rounded-full"
@@ -83,11 +83,11 @@ export default class Login {
 
   protected readonly isLoading = signal(false);
 
-  public async signIn() {
+  public async signIn(provider: SignInProvider) {
     this.isLoading.set(true);
 
     try {
-      await this.#auth.loginWithGoogle();
+      await this.#auth.login(provider);
       await this.#router.navigate(['/establishments/select']);
     } finally {
       this.isLoading.set(false);
