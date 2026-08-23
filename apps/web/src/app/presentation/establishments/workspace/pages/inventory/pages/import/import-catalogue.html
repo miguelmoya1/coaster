@@ -147,20 +147,20 @@
 
   <button
     mat-flat-button
-    class="w-48"
+    class="w-48 gap-2 whitespace-nowrap"
     [disabled]="selectedCategoriesCount() === 0 || isSubmitting()"
     (click)="importSelected()"
   >
     @if (isSubmitting()) {
-      <div class="flex items-center gap-2">
-        <coaster-spinner />
-        <span>{{ 'common.submitting' | translate }}...</span>
-      </div>
+      <coaster-spinner />
     } @else {
-      <div class="flex items-center gap-2 justify-center">
-        <mat-icon class="text-base">download</mat-icon>
-        <span>{{ 'inventory.import_action' | translate }}</span>
-      </div>
+      <mat-icon class="text-base">download</mat-icon>
+    }
+
+    @if (isSubmitting()) {
+      <span>{{ 'common.submitting' | translate }}...</span>
+    } @else {
+      <span>{{ 'inventory.import_action' | translate }}</span>
     }
   </button>
 </div>

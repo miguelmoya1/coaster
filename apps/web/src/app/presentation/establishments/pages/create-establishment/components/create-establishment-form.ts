@@ -56,6 +56,7 @@ import { Spinner } from '../../../../components/spinner/spinner';
           [attr.data-testid]="'submit-btn'"
           mat-flat-button
           type="submit"
+          class="gap-2 whitespace-nowrap"
           [disabled]="
             establishmentForm().disabled() || establishmentForm().submitting() || establishmentForm().invalid()
           "

@@ -285,6 +285,8 @@ describe('Admin backoffice (e2e)', () => {
 
       await request(http()).patch(`/api/admin/users/${OTHER_USER_ID}`).send({ role: 'ADMIN' }).expect(200);
 
+      expect(await waitForAudit()).toBe(1);
+
       const audit = await request(http()).get('/api/admin/audit').expect(200);
 
       expect(audit.body.items[0]).toMatchObject({
