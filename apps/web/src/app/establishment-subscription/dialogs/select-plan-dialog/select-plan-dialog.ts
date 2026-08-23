@@ -56,10 +56,11 @@ import { TranslatePipe } from '@ngx-translate/core';
         color="primary"
         [disabled]="loading()"
         [attr.aria-busy]="loading()"
+        class="gap-2 whitespace-nowrap"
         (click)="selected.emit(SubscriptionPlan.PRO)"
       >
         @if (loading()) {
-          <mat-progress-spinner mode="indeterminate" [diameter]="18" [strokeWidth]="2" class="inline-flex shrink-0" />
+          <mat-progress-spinner mode="indeterminate" [diameter]="18" [strokeWidth]="2" />
         }
         {{ 'billing.continue_to_checkout' | translate }}
       </button>
@@ -67,6 +68,11 @@ import { TranslatePipe } from '@ngx-translate/core';
   `,
   styles: [
     `
+      mat-progress-spinner {
+        display: inline-flex;
+        flex-shrink: 0;
+      }
+
       mat-progress-spinner ::ng-deep .mdc-circular-progress {
         display: block;
       }

@@ -39,18 +39,23 @@
               [disabled]="isOpeningBillingPortal()"
               [attr.aria-busy]="isOpeningBillingPortal()"
               (click)="manageBilling()"
-              class="!rounded-xl font-bold border border-outline-variant/30"
+              class="!rounded-xl font-bold border border-outline-variant/30 gap-2 whitespace-nowrap"
             >
               @if (isOpeningBillingPortal()) {
-                <coaster-spinner class="mr-1" />
+                <coaster-spinner />
               } @else {
-                <mat-icon class="text-sm mr-1">receipt_long</mat-icon>
+                <mat-icon class="text-sm">receipt_long</mat-icon>
               }
               {{ 'billing.manage_billing' | translate }}
             </button>
           } @else {
-            <button mat-flat-button color="primary" (click)="activatePro()" class="!rounded-xl font-bold">
-              <mat-icon class="text-sm mr-1">rocket_launch</mat-icon>
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="activatePro()"
+              class="!rounded-xl font-bold gap-2 whitespace-nowrap"
+            >
+              <mat-icon class="text-sm">rocket_launch</mat-icon>
               {{ 'billing.activate_pro_title' | translate }}
             </button>
           }

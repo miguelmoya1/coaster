@@ -64,10 +64,10 @@ import { PageContainer } from '../../../components/page-container/page-container
               (click)="signIn('google')"
               [disabled]="isLoading()"
               data-testid="google-signin-btn"
-              class="w-full py-4 text-base font-medium rounded-full"
+              class="w-full py-4 text-base font-medium rounded-full gap-2 whitespace-nowrap"
             >
               @if (isLoading()) {
-                <coaster-spinner class="mr-2" />
+                <coaster-spinner />
               }
               {{ 'auth.login.google_button' | translate }}
             </button>

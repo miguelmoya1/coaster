@@ -76,14 +76,14 @@
         <button
           mat-flat-button
           color="primary"
-          class="!rounded-xl font-black flex-1 !py-6"
+          class="!rounded-xl font-black flex-1 !py-6 gap-2 whitespace-nowrap"
           [disabled]="isSubmitting()"
           (click)="clock(TimeEntryType.CLOCK_IN)"
         >
           @if (isSubmitting()) {
-            <coaster-spinner class="mr-1" />
+            <coaster-spinner />
           } @else {
-            <mat-icon class="mr-1">login</mat-icon>
+            <mat-icon>login</mat-icon>
           }
           {{ 'dashboard.my_workday.clock_in' | translate }}
         </button>
@@ -91,14 +91,14 @@
         <button
           mat-flat-button
           color="primary"
-          class="!rounded-xl font-black flex-1 !py-6"
+          class="!rounded-xl font-black flex-1 !py-6 gap-2 whitespace-nowrap"
           [disabled]="isSubmitting()"
           (click)="clock(TimeEntryType.CLOCK_OUT)"
         >
           @if (isSubmitting()) {
-            <coaster-spinner class="mr-1" />
+            <coaster-spinner />
           } @else {
-            <mat-icon class="mr-1">logout</mat-icon>
+            <mat-icon>logout</mat-icon>
           }
           {{ 'dashboard.my_workday.clock_out' | translate }}
         </button>
@@ -106,21 +106,21 @@
         @if (clockState() === ClockState.IN) {
           <button
             mat-button
-            class="!rounded-xl font-bold border border-outline-variant/30 flex-1"
+            class="!rounded-xl font-bold border border-outline-variant/30 flex-1 gap-2 whitespace-nowrap"
             [disabled]="isSubmitting()"
             (click)="clock(TimeEntryType.BREAK_START)"
           >
-            <mat-icon class="mr-1">free_breakfast</mat-icon>
+            <mat-icon>free_breakfast</mat-icon>
             {{ 'dashboard.my_workday.break_start' | translate }}
           </button>
         } @else {
           <button
             mat-button
-            class="!rounded-xl font-bold border border-outline-variant/30 flex-1"
+            class="!rounded-xl font-bold border border-outline-variant/30 flex-1 gap-2 whitespace-nowrap"
             [disabled]="isSubmitting()"
             (click)="clock(TimeEntryType.BREAK_END)"
           >
-            <mat-icon class="mr-1">play_arrow</mat-icon>
+            <mat-icon>play_arrow</mat-icon>
             {{ 'dashboard.my_workday.break_end' | translate }}
           </button>
         }
