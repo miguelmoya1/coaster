@@ -11,6 +11,8 @@ import type {
   Order,
   OrderId,
   OrderItemId,
+  UpdateOrderItemNotesDto,
+  UpdateOrderNotesDto,
   UpdateOrderTipDto,
   AddOrderAdjustmentDto,
 } from '@coaster/common';
@@ -46,6 +48,10 @@ export class OrderRepository {
       `/establishments/${establishmentId}/orders/${orderId}/items/${itemId}`,
     updateTip: (establishmentId: EstablishmentId, orderId: OrderId) =>
       `/establishments/${establishmentId}/orders/${orderId}/tip`,
+    updateNotes: (establishmentId: EstablishmentId, orderId: OrderId) =>
+      `/establishments/${establishmentId}/orders/${orderId}/notes`,
+    updateItemNotes: (establishmentId: EstablishmentId, orderId: OrderId, itemId: OrderItemId) =>
+      `/establishments/${establishmentId}/orders/${orderId}/items/${itemId}/notes`,
     addAdjustment: (establishmentId: EstablishmentId, orderId: OrderId) =>
       `/establishments/${establishmentId}/orders/${orderId}/adjustments`,
     removeAdjustment: (establishmentId: EstablishmentId, orderId: OrderId, adjustmentId: string) =>
@@ -96,6 +102,23 @@ export class OrderRepository {
 
   public async updateTip(establishmentId: EstablishmentId, orderId: OrderId, dto: UpdateOrderTipDto): Promise<void> {
     return firstValueFrom(this.#http.patch<void>(this.routes.updateTip(establishmentId, orderId), dto));
+  }
+
+  public async updateNotes(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    dto: UpdateOrderNotesDto,
+  ): Promise<void> {
+    return firstValueFrom(this.#http.patch<void>(this.routes.updateNotes(establishmentId, orderId), dto));
+  }
+
+  public async updateItemNotes(
+    establishmentId: EstablishmentId,
+    orderId: OrderId,
+    itemId: OrderItemId,
+    dto: UpdateOrderItemNotesDto,
+  ): Promise<void> {
+    return firstValueFrom(this.#http.patch<void>(this.routes.updateItemNotes(establishmentId, orderId, itemId), dto));
   }
 
   public async addAdjustment(

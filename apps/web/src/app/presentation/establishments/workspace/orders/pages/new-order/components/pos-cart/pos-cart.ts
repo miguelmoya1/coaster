@@ -75,6 +75,9 @@ export interface CartItem {
                   (blur)="closeNoteEditor(item.productId)"
                   (keydown.enter)="closeNoteEditor(item.productId)"
                 />
+                <span class="px-1 text-xxs text-on-surface-variant/70">
+                  {{ 'orders.notes_internal' | translate }}
+                </span>
               } @else if (item.notes) {
                 <p class="text-xs text-primary/90 truncate">{{ item.notes }}</p>
               }
@@ -119,6 +122,9 @@ export interface CartItem {
             [placeholder]="'orders.order_notes_placeholder' | translate"
             (input)="onOrderNotesChange($event)"
           ></textarea>
+          <span class="px-1 text-xxs text-on-surface-variant/70">
+            {{ 'orders.notes_internal' | translate }}
+          </span>
         }
 
         @if (orderNotes() && !orderNotesOpen()) {

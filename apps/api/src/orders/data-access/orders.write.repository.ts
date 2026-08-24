@@ -577,6 +577,22 @@ export class OrdersWriteRepository {
     });
   }
 
+  public async updateOrderNotes(orderId: string, data: { notes?: string | null; ticketNotes?: string | null }) {
+    return this._db.dbOrder.update({
+      where: { id: orderId },
+      data,
+      include: ORDER_RELATIONS,
+    });
+  }
+
+  public async updateOrderItemNotes(orderId: string, itemId: OrderItemId, notes: string | null) {
+    return this._db.dbOrder.update({
+      where: { id: orderId },
+      data: { items: { update: { where: { id: itemId }, data: { notes } } } },
+      include: ORDER_RELATIONS,
+    });
+  }
+
   public async updateOrderTip(orderId: string, tipAmount: number) {
     return this._db.dbOrder.update({
       where: { id: orderId },

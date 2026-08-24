@@ -3,11 +3,12 @@ import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Order, OrderStatus, AdjustmentTarget, AdjustmentType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NoteEditor } from '../../../../../../../components/note-editor/note-editor';
 import { PricePipe } from '../../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-order-summary-card',
-  imports: [TranslatePipe, MatIcon, PricePipe, MatIconButton, MatButton],
+  imports: [TranslatePipe, MatIcon, PricePipe, MatIconButton, MatButton, NoteEditor],
   template: `
     <div class="flex flex-col bg-surface-container rounded-2xl p-4 gap-4">
       <div class="flex justify-between items-start">
@@ -47,14 +48,14 @@ import { PricePipe } from '../../../../../pipes/price/price';
               </span>
             }
           </div>
-          @if (order().notes) {
-            <div
-              class="flex items-start gap-1 mt-2 text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg"
-            >
-              <mat-icon class="text-[16px]! w-[16px]! h-[16px]! leading-[16px]! m-0! shrink-0">notes</mat-icon>
-              <span class="leading-tight break-all">{{ order().notes }}</span>
-            </div>
-          }
+          <coaster-note-editor
+            class="mt-2"
+            [notes]="order().notes || ''"
+            [editable]="order().status === OrderStatus.OPEN"
+            [placeholder]="'orders.order_notes_placeholder' | translate"
+            [hint]="'orders.notes_internal' | translate"
+            (notesChanged)="notesChanged.emit($event)"
+          />
         </div>
 
         <div class="flex flex-col items-end gap-1">
@@ -119,6 +120,7 @@ export class OrderSummaryCard {
   public readonly updateTip = output<number>();
   public readonly addAdjustment = output<void>();
   public readonly removeAdjustment = output<string>();
+  public readonly notesChanged = output<string>();
 
   globalAdjustments() {
     return this.order().adjustments?.filter((a) => a.target === AdjustmentTarget.ORDER) || [];

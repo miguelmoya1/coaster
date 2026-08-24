@@ -52,6 +52,7 @@ export type DbOrderMinAggregateOutputType = {
   amountPaidCard: number | null
   paymentMethod: $Enums.DbPaymentMethod | null
   notes: string | null
+  ticketNotes: string | null
   tipAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -69,6 +70,7 @@ export type DbOrderMaxAggregateOutputType = {
   amountPaidCard: number | null
   paymentMethod: $Enums.DbPaymentMethod | null
   notes: string | null
+  ticketNotes: string | null
   tipAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -86,6 +88,7 @@ export type DbOrderCountAggregateOutputType = {
   amountPaidCard: number
   paymentMethod: number
   notes: number
+  ticketNotes: number
   tipAmount: number
   createdAt: number
   updatedAt: number
@@ -119,6 +122,7 @@ export type DbOrderMinAggregateInputType = {
   amountPaidCard?: true
   paymentMethod?: true
   notes?: true
+  ticketNotes?: true
   tipAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -136,6 +140,7 @@ export type DbOrderMaxAggregateInputType = {
   amountPaidCard?: true
   paymentMethod?: true
   notes?: true
+  ticketNotes?: true
   tipAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -153,6 +158,7 @@ export type DbOrderCountAggregateInputType = {
   amountPaidCard?: true
   paymentMethod?: true
   notes?: true
+  ticketNotes?: true
   tipAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -257,6 +263,7 @@ export type DbOrderGroupByOutputType = {
   amountPaidCard: number
   paymentMethod: $Enums.DbPaymentMethod
   notes: string | null
+  ticketNotes: string | null
   tipAmount: number
   createdAt: Date
   updatedAt: Date
@@ -297,6 +304,7 @@ export type DbOrderWhereInput = {
   amountPaidCard?: Prisma.IntFilter<"DbOrder"> | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFilter<"DbOrder"> | $Enums.DbPaymentMethod
   notes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
+  ticketNotes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
   tipAmount?: Prisma.IntFilter<"DbOrder"> | number
   createdAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
@@ -319,6 +327,7 @@ export type DbOrderOrderByWithRelationInput = {
   amountPaidCard?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  ticketNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   tipAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -344,6 +353,7 @@ export type DbOrderWhereUniqueInput = Prisma.AtLeast<{
   amountPaidCard?: Prisma.IntFilter<"DbOrder"> | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFilter<"DbOrder"> | $Enums.DbPaymentMethod
   notes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
+  ticketNotes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
   tipAmount?: Prisma.IntFilter<"DbOrder"> | number
   createdAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
@@ -366,6 +376,7 @@ export type DbOrderOrderByWithAggregationInput = {
   amountPaidCard?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  ticketNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   tipAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -391,6 +402,7 @@ export type DbOrderScalarWhereWithAggregatesInput = {
   amountPaidCard?: Prisma.IntWithAggregatesFilter<"DbOrder"> | number
   paymentMethod?: Prisma.EnumDbPaymentMethodWithAggregatesFilter<"DbOrder"> | $Enums.DbPaymentMethod
   notes?: Prisma.StringNullableWithAggregatesFilter<"DbOrder"> | string | null
+  ticketNotes?: Prisma.StringNullableWithAggregatesFilter<"DbOrder"> | string | null
   tipAmount?: Prisma.IntWithAggregatesFilter<"DbOrder"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbOrder"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbOrder"> | Date | string
@@ -405,6 +417,7 @@ export type DbOrderCreateInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -427,6 +440,7 @@ export type DbOrderUncheckedCreateInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -443,6 +457,7 @@ export type DbOrderUpdateInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,6 +480,7 @@ export type DbOrderUncheckedUpdateInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -484,6 +500,7 @@ export type DbOrderCreateManyInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -498,6 +515,7 @@ export type DbOrderUpdateManyMutationInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -515,6 +533,7 @@ export type DbOrderUncheckedUpdateManyInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -547,6 +566,7 @@ export type DbOrderCountOrderByAggregateInput = {
   amountPaidCard?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ticketNotes?: Prisma.SortOrder
   tipAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -571,6 +591,7 @@ export type DbOrderMaxOrderByAggregateInput = {
   amountPaidCard?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ticketNotes?: Prisma.SortOrder
   tipAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -588,6 +609,7 @@ export type DbOrderMinOrderByAggregateInput = {
   amountPaidCard?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  ticketNotes?: Prisma.SortOrder
   tipAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -771,6 +793,7 @@ export type DbOrderCreateWithoutAdjustmentsInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -792,6 +815,7 @@ export type DbOrderUncheckedCreateWithoutAdjustmentsInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -823,6 +847,7 @@ export type DbOrderUpdateWithoutAdjustmentsInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -844,6 +869,7 @@ export type DbOrderUncheckedUpdateWithoutAdjustmentsInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -859,6 +885,7 @@ export type DbOrderCreateWithoutCreatedByInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -879,6 +906,7 @@ export type DbOrderUncheckedCreateWithoutCreatedByInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -927,6 +955,7 @@ export type DbOrderScalarWhereInput = {
   amountPaidCard?: Prisma.IntFilter<"DbOrder"> | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFilter<"DbOrder"> | $Enums.DbPaymentMethod
   notes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
+  ticketNotes?: Prisma.StringNullableFilter<"DbOrder"> | string | null
   tipAmount?: Prisma.IntFilter<"DbOrder"> | number
   createdAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbOrder"> | Date | string
@@ -941,6 +970,7 @@ export type DbOrderCreateWithoutEstablishmentInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -961,6 +991,7 @@ export type DbOrderUncheckedCreateWithoutEstablishmentInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1003,6 +1034,7 @@ export type DbOrderCreateWithoutTableInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1023,6 +1055,7 @@ export type DbOrderUncheckedCreateWithoutTableInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1065,6 +1098,7 @@ export type DbOrderCreateWithoutItemsInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1086,6 +1120,7 @@ export type DbOrderUncheckedCreateWithoutItemsInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1117,6 +1152,7 @@ export type DbOrderUpdateWithoutItemsInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1138,6 +1174,7 @@ export type DbOrderUncheckedUpdateWithoutItemsInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1155,6 +1192,7 @@ export type DbOrderCreateManyCreatedByInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1169,6 +1207,7 @@ export type DbOrderUpdateWithoutCreatedByInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1189,6 +1228,7 @@ export type DbOrderUncheckedUpdateWithoutCreatedByInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1207,6 +1247,7 @@ export type DbOrderUncheckedUpdateManyWithoutCreatedByInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1223,6 +1264,7 @@ export type DbOrderCreateManyEstablishmentInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1237,6 +1279,7 @@ export type DbOrderUpdateWithoutEstablishmentInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1257,6 +1300,7 @@ export type DbOrderUncheckedUpdateWithoutEstablishmentInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1275,6 +1319,7 @@ export type DbOrderUncheckedUpdateManyWithoutEstablishmentInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1291,6 +1336,7 @@ export type DbOrderCreateManyTableInput = {
   amountPaidCard?: number
   paymentMethod?: $Enums.DbPaymentMethod
   notes?: string | null
+  ticketNotes?: string | null
   tipAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1305,6 +1351,7 @@ export type DbOrderUpdateWithoutTableInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1325,6 +1372,7 @@ export type DbOrderUncheckedUpdateWithoutTableInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1343,6 +1391,7 @@ export type DbOrderUncheckedUpdateManyWithoutTableInput = {
   amountPaidCard?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumDbPaymentMethodFieldUpdateOperationsInput | $Enums.DbPaymentMethod
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ticketNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tipAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1400,6 +1449,7 @@ export type DbOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   amountPaidCard?: boolean
   paymentMethod?: boolean
   notes?: boolean
+  ticketNotes?: boolean
   tipAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1423,6 +1473,7 @@ export type DbOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   amountPaidCard?: boolean
   paymentMethod?: boolean
   notes?: boolean
+  ticketNotes?: boolean
   tipAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1443,6 +1494,7 @@ export type DbOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   amountPaidCard?: boolean
   paymentMethod?: boolean
   notes?: boolean
+  ticketNotes?: boolean
   tipAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1463,12 +1515,13 @@ export type DbOrderSelectScalar = {
   amountPaidCard?: boolean
   paymentMethod?: boolean
   notes?: boolean
+  ticketNotes?: boolean
   tipAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "createdById" | "tableId" | "tableName" | "status" | "totalAmount" | "amountPaidCash" | "amountPaidCard" | "paymentMethod" | "notes" | "tipAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["dbOrder"]>
+export type DbOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "createdById" | "tableId" | "tableName" | "status" | "totalAmount" | "amountPaidCash" | "amountPaidCard" | "paymentMethod" | "notes" | "ticketNotes" | "tipAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["dbOrder"]>
 export type DbOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.DbOrder$createdByArgs<ExtArgs>
@@ -1509,6 +1562,7 @@ export type $DbOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     amountPaidCard: number
     paymentMethod: $Enums.DbPaymentMethod
     notes: string | null
+    ticketNotes: string | null
     tipAmount: number
     createdAt: Date
     updatedAt: Date
@@ -1951,6 +2005,7 @@ export interface DbOrderFieldRefs {
   readonly amountPaidCard: Prisma.FieldRef<"DbOrder", 'Int'>
   readonly paymentMethod: Prisma.FieldRef<"DbOrder", 'DbPaymentMethod'>
   readonly notes: Prisma.FieldRef<"DbOrder", 'String'>
+  readonly ticketNotes: Prisma.FieldRef<"DbOrder", 'String'>
   readonly tipAmount: Prisma.FieldRef<"DbOrder", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DbOrder", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbOrder", 'DateTime'>

@@ -2387,6 +2387,7 @@ export const DbOrderScalarFieldEnum = {
   amountPaidCard: 'amountPaidCard',
   paymentMethod: 'paymentMethod',
   notes: 'notes',
+  ticketNotes: 'ticketNotes',
   tipAmount: 'tipAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

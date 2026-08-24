@@ -148,12 +148,34 @@ describe('PrintTicket', () => {
     expect(payload.currency).toBe('EUR');
   });
 
-  it('should include notes when present', async () => {
-    const order = createMockOrder({ notes: 'Sin hielo' });
+  it('should print the note written for the ticket', async () => {
+    const order = createMockOrder({ ticketNotes: 'Para llevar' });
     await service.execute(order);
 
     const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
-    expect(payload.notes).toBe('Sin hielo');
+    expect(payload.notes).toBe('Para llevar');
+  });
+
+  it('should keep the internal notes off the ticket', async () => {
+    const order = createMockOrder({
+      notes: 'mesa exterior, son pesados',
+      items: [
+        {
+          id: 'item-1',
+          productId: 'product-1',
+          productName: 'Negroni',
+          quantity: 1,
+          priceAtPurchase: 600,
+          notes: 'sin hielo',
+        },
+      ],
+    } as Partial<Order>);
+    await service.execute(order);
+
+    const payload: PrintTicketPayloadDto = printerRepositoryMock.printTicket.mock.calls[0][1];
+    expect(payload.notes).toBeUndefined();
+    expect(JSON.stringify(payload)).not.toContain('mesa exterior');
+    expect(JSON.stringify(payload)).not.toContain('sin hielo');
   });
 
   it('should wait for the bridge to confirm the ticket printed', async () => {

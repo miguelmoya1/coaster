@@ -65,7 +65,7 @@ export class PrintTicket {
       items,
       total: this.formatPrice(order.totalAmount),
       currency: 'EUR',
-      notes: order.notes ?? undefined,
+      notes: order.ticketNotes ?? undefined,
     };
   }
 

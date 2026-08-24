@@ -1,4 +1,4 @@
-import { asEstablishmentId, asOrderId } from '@coaster/common';
+import { asEstablishmentId, asOrderId, asOrderItemId } from '@coaster/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { Order } from '@coaster/common';
@@ -32,6 +32,8 @@ describe('ActiveOrdersStore', () => {
     moveTable: vi.fn().mockResolvedValue(undefined),
     merge: vi.fn().mockResolvedValue(undefined),
     removeItem: vi.fn().mockResolvedValue(undefined),
+    updateNotes: vi.fn().mockResolvedValue(undefined),
+    updateItemNotes: vi.fn().mockResolvedValue(undefined),
   };
   const realtimeMock = {
     orderCreated: signal<Order | null>(null),
@@ -111,6 +113,42 @@ describe('ActiveOrdersStore', () => {
     it('should propagate manageOrder errors', async () => {
       manageOrderMock.checkout.mockRejectedValueOnce(new Error('Checkout error'));
       await expect(store.checkout(establishmentId, orderId, PaymentMethod.CASH)).rejects.toThrow('Checkout error');
+    });
+
+    it('should send the internal note on its own, leaving the ticket note alone', async () => {
+      await store.updateNotes(establishmentId, orderId, { notes: 'mesa exterior' });
+
+      expect(manageOrderMock.updateNotes).toHaveBeenCalledWith(establishmentId, orderId, { notes: 'mesa exterior' });
+    });
+
+    it('should send the ticket note on its own', async () => {
+      await store.updateNotes(establishmentId, orderId, { ticketNotes: 'para llevar' });
+
+      expect(manageOrderMock.updateNotes).toHaveBeenCalledWith(establishmentId, orderId, {
+        ticketNotes: 'para llevar',
+      });
+    });
+
+    it('should send an item note against its item', async () => {
+      await store.updateItemNotes(establishmentId, orderId, asOrderItemId('item-1'), 'sin hielo');
+
+      expect(manageOrderMock.updateItemNotes).toHaveBeenCalledWith(establishmentId, orderId, 'item-1', {
+        notes: 'sin hielo',
+      });
+    });
+
+    it('should give the note back when the server rejects it', async () => {
+      manageOrderMock.updateNotes.mockRejectedValueOnce(new Error('Notes error'));
+
+      await expect(store.updateNotes(establishmentId, orderId, { notes: 'x' })).rejects.toThrow('Notes error');
+    });
+
+    it('should give an item note back when the server rejects it', async () => {
+      manageOrderMock.updateItemNotes.mockRejectedValueOnce(new Error('Item notes error'));
+
+      await expect(store.updateItemNotes(establishmentId, orderId, asOrderItemId('item-1'), 'x')).rejects.toThrow(
+        'Item notes error',
+      );
     });
   });
 });

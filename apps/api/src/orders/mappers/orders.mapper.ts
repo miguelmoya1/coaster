@@ -66,6 +66,7 @@ export const OrdersMapper = {
       adjustments,
       paymentMethod: asPaymentMethod(dbOrder.paymentMethod),
       notes: dbOrder.notes || undefined,
+      ticketNotes: dbOrder.ticketNotes || undefined,
       tipAmount: dbOrder.tipAmount,
       orderTotal: pricing.orderTotal,
       payableTotal: pricing.payableTotal,

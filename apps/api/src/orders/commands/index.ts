@@ -10,6 +10,8 @@ import { DeleteOrderHandler } from './handlers/delete-order.handler';
 import { MergeOrdersHandler } from './handlers/merge-orders.handler';
 import { MoveOrderTableHandler } from './handlers/move-order-table.handler';
 import { RemoveOrderItemHandler } from './handlers/remove-order-item.handler';
+import { UpdateOrderItemNotesHandler } from './handlers/update-order-item-notes.handler';
+import { UpdateOrderNotesHandler } from './handlers/update-order-notes.handler';
 
 export { AddOrderItemsCommand } from './impl/add-order-items.command';
 export * from './impl/bulk-update-order.command';
@@ -23,6 +25,8 @@ export { DeleteOrderCommand } from './impl/delete-order.command';
 export { MergeOrdersCommand } from './impl/merge-orders.command';
 export { MoveOrderTableCommand } from './impl/move-order-table.command';
 export { RemoveOrderItemCommand } from './impl/remove-order-item.command';
+export { UpdateOrderItemNotesCommand } from './impl/update-order-item-notes.command';
+export { UpdateOrderNotesCommand } from './impl/update-order-notes.command';
 
 export const CommandHandlers = [
   AddOrderItemsHandler,
@@ -37,4 +41,6 @@ export const CommandHandlers = [
   MergeOrdersHandler,
   MoveOrderTableHandler,
   RemoveOrderItemHandler,
+  UpdateOrderNotesHandler,
+  UpdateOrderItemNotesHandler,
 ];
