@@ -14,6 +14,7 @@ const NAV_ITEMS: AdminNavItem[] = [
   { path: 'overview', icon: 'monitoring', labelKey: 'admin.nav.overview' },
   { path: 'establishments', icon: 'storefront', labelKey: 'admin.nav.establishments' },
   { path: 'users', icon: 'group', labelKey: 'admin.nav.users' },
+  { path: 'beta-testers', icon: 'science', labelKey: 'admin.nav.beta_testers' },
   { path: 'audit', icon: 'history', labelKey: 'admin.nav.audit' },
 ];
 

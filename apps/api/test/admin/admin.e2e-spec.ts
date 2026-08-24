@@ -43,7 +43,13 @@ describe('Admin backoffice (e2e)', () => {
   });
 
   describe('access control', () => {
-    const routes = ['/api/admin/overview', '/api/admin/audit', '/api/admin/establishments', '/api/admin/users'];
+    const routes = [
+      '/api/admin/overview',
+      '/api/admin/audit',
+      '/api/admin/establishments',
+      '/api/admin/users',
+      '/api/admin/beta-testers',
+    ];
 
     it('should refuse every admin route to a plain user', async () => {
       for (const route of routes) {
@@ -71,6 +77,8 @@ describe('Admin backoffice (e2e)', () => {
         .patch(`/api/admin/establishments/${establishment.id}`)
         .send({ name: 'Hijacked' })
         .expect(403);
+
+      await request(http()).post('/api/admin/beta-testers').send({ email: 'sneaky@bar.com' }).expect(403);
     });
   });
 
@@ -311,6 +319,88 @@ describe('Admin backoffice (e2e)', () => {
       await testSetup.prisma.dbUser.update({ where: { id: mockUser.id }, data: { active: false } });
 
       await request(http()).patch(`/api/admin/users/${OTHER_USER_ID}`).send({ role: 'USER' }).expect(400);
+    });
+  });
+
+  describe('beta testers', () => {
+    const add = (body: Record<string, unknown>) => request(http()).post('/api/admin/beta-testers').send(body);
+
+    it('should keep the list of who may open an account', async () => {
+      await becomeAdmin();
+
+      await add({ email: 'Tester@Bar.com', note: 'Bar Pepe' }).expect(204);
+
+      const list = await request(http()).get('/api/admin/beta-testers').expect(200);
+
+      expect(list.body.total).toBe(1);
+      expect(list.body.items[0]).toMatchObject({
+        email: 'tester@bar.com',
+        note: 'Bar Pepe',
+        invitedByName: mockUser.name,
+        userId: null,
+        signedUpAt: null,
+      });
+    });
+
+    it('should refuse the same address twice', async () => {
+      await becomeAdmin();
+
+      await add({ email: 'tester@bar.com' }).expect(204);
+      await add({ email: 'tester@bar.com' }).expect(409);
+    });
+
+    it('should refuse something that is not an address', async () => {
+      await becomeAdmin();
+
+      await add({ email: 'not-an-email' }).expect(400);
+    });
+
+    it('should show which invitations have already been used', async () => {
+      await becomeAdmin();
+      await add({ email: mockUser.email }).expect(204);
+
+      const list = await request(http()).get('/api/admin/beta-testers').expect(200);
+
+      expect(list.body.items[0]).toMatchObject({ email: mockUser.email, userId: mockUser.id });
+      expect(list.body.items[0].signedUpAt).not.toBeNull();
+    });
+
+    it('should drop an address from the list and record who did it', async () => {
+      await becomeAdmin();
+      await add({ email: 'tester@bar.com' }).expect(204);
+
+      const list = await request(http()).get('/api/admin/beta-testers').expect(200);
+      const [tester] = list.body.items;
+
+      await request(http()).delete(`/api/admin/beta-testers/${tester.id}`).expect(204);
+
+      const after = await request(http()).get('/api/admin/beta-testers').expect(200);
+
+      expect(after.body.total).toBe(0);
+      expect(await waitForAudit()).toBeGreaterThan(0);
+
+      const audit = await request(http()).get('/api/admin/audit').expect(200);
+
+      expect(audit.body.items.map((entry: { action: string }) => entry.action)).toContain(
+        AdminAuditAction.BETA_TESTER_REMOVED,
+      );
+    });
+
+    it('should complain about removing an address that is not on the list', async () => {
+      await becomeAdmin();
+
+      await request(http()).delete('/api/admin/beta-testers/00000000-0000-4000-8000-0000000000ff').expect(404);
+    });
+
+    it('should find a tester by the note as well as the address', async () => {
+      await becomeAdmin();
+      await add({ email: 'tester@bar.com', note: 'Bar Pepe' }).expect(204);
+      await add({ email: 'other@bar.com', note: 'Cafe Luna' }).expect(204);
+
+      const byNote = await request(http()).get('/api/admin/beta-testers?q=Luna').expect(200);
+
+      expect(byNote.body.total).toBe(1);
+      expect(byNote.body.items[0].email).toBe('other@bar.com');
     });
   });
 });

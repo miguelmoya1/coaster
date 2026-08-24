@@ -28,6 +28,11 @@ export type DbOrderAdjustment = Prisma.DbOrderAdjustmentModel
  */
 export type DbUser = Prisma.DbUserModel
 /**
+ * Model DbBetaTester
+ * 
+ */
+export type DbBetaTester = Prisma.DbBetaTesterModel
+/**
  * Model DbEstablishment
  * 
  */

@@ -85,6 +85,10 @@ async function bootstrap() {
     SwaggerModule.setup('api/docs', app, documentFactory);
   }
 
+  if (process.env.BETA_ALLOWLIST_ENABLED === 'true') {
+    Logger.warn('Beta allowlist is ON: only emails on the BetaTester table can open a new account');
+  }
+
   await app.listen(port, '0.0.0.0');
 
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);

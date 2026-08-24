@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
+  DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
@@ -119,6 +120,17 @@ export const DbUserScalarFieldEnum = {
 } as const
 
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
+
+
+export const DbBetaTesterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  note: 'note',
+  invitedById: 'invitedById',
+  createdAt: 'createdAt'
+} as const
+
+export type DbBetaTesterScalarFieldEnum = (typeof DbBetaTesterScalarFieldEnum)[keyof typeof DbBetaTesterScalarFieldEnum]
 
 
 export const DbEstablishmentScalarFieldEnum = {

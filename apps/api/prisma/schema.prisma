@@ -160,8 +160,20 @@ model DbUser {
   timeEntries    DbTimeEntry[]           @relation("TimeEntrySubject")
   timeEntryEdits DbTimeEntry[]           @relation("TimeEntryActor")
   createdOrders  DbOrder[]               @relation("OrderCreator")
+  betaInvites    DbBetaTester[]          @relation("BetaTesterInviter")
 
   @@map("User")
+}
+
+model DbBetaTester {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  note        String?
+  invitedById String?
+  invitedBy   DbUser?  @relation("BetaTesterInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@map("BetaTester")
 }
 
 model DbEstablishment {

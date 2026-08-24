@@ -6,6 +6,8 @@ import type {
   AdminEstablishmentSummary,
   AdminUserEstablishmentMembership,
   AdminUserSummary,
+  BetaTester,
+  BetaTesterId,
   EstablishmentId,
   EstablishmentMemberId,
   UserId,
@@ -21,6 +23,19 @@ import { isManualGrantActive } from '@coaster/core';
 import { DbSubscriptionStatus } from '@coaster/core/db';
 import { EstablishmentSubscriptionMapper } from '@coaster/establishment-subscription';
 import type { DbEstablishmentListRow } from '../data-access/admin-establishment.read.repository';
+
+interface BetaTesterRow {
+  id: string;
+  email: string;
+  note: string | null;
+  createdAt: Date;
+  invitedBy: { name: string } | null;
+}
+
+interface SignUpRow {
+  id: string;
+  createdAt: Date;
+}
 
 interface AuditRow {
   id: string;
@@ -151,6 +166,18 @@ export const AdminMapper = {
       role: row.role as EstablishmentRole,
       active: row.active,
       joinedAt: row.createdAt.toISOString(),
+    };
+  },
+
+  toBetaTester(row: BetaTesterRow, signUp: SignUpRow | null): BetaTester {
+    return {
+      id: row.id as BetaTesterId,
+      email: row.email,
+      note: row.note,
+      createdAt: row.createdAt.toISOString(),
+      invitedByName: row.invitedBy?.name ?? null,
+      userId: (signUp?.id as UserId) ?? null,
+      signedUpAt: signUp?.createdAt.toISOString() ?? null,
     };
   },
 

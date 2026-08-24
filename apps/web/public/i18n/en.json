@@ -685,7 +685,8 @@
       "establishments": "Establishments",
       "users": "Users",
       "audit": "Audit log",
-      "open_panel": "Admin panel"
+      "open_panel": "Admin panel",
+      "beta_testers": "Testers"
     },
     "billing_source": {
       "manual": "Manual",
@@ -715,7 +716,9 @@
       "user_activation_changed": "User activation changed",
       "time_entry_created": "Punch created",
       "time_entry_amended": "Punch corrected",
-      "time_entry_voided": "Punch voided"
+      "time_entry_voided": "Punch voided",
+      "beta_tester_added": "Tester added",
+      "beta_tester_removed": "Tester removed"
     },
     "pagination": {
       "range": "{{ from }}–{{ to }} of {{ total }}",
@@ -837,6 +840,32 @@
       "subtitle": "Everything that has been done from the admin panel.",
       "filter_all": "All",
       "empty": "No activity recorded yet."
+    },
+    "beta_testers": {
+      "title": "Beta testers",
+      "subtitle": "Only these emails can open a new account while the beta is closed.",
+      "search_placeholder": "Email or note...",
+      "col_email": "Email",
+      "col_status": "Status",
+      "col_added": "Added",
+      "actions": "Actions",
+      "empty": "You haven't invited anyone yet.",
+      "empty_search": "No tester matches that search.",
+      "add": "Add tester",
+      "add_email": "Email",
+      "add_note": "Note (optional)",
+      "add_note_hint": "The name of the venue, for instance.",
+      "add_confirm": "Add",
+      "add_success": "Tester added",
+      "cancel": "Cancel",
+      "signed_up": "Signed up",
+      "pending": "Unused",
+      "invited_by": "Invited by {{ name }}",
+      "remove": "Remove from the list",
+      "remove_title": "Remove from the list",
+      "remove_text": "{{ email }} will no longer be able to open an account. If they already signed in, their account keeps working: to cut their access, deactivate it under Users.",
+      "remove_confirm": "Remove",
+      "remove_success": "Tester removed"
     }
   },
   "NO_MANUAL_GRANT": "This establishment has no hand-granted plan.",
@@ -916,5 +945,8 @@
   "public_menu": {
     "allergens": "Allergens",
     "allergen_notice": "If you have an allergy or intolerance, ask the staff before ordering."
-  }
+  },
+  "BETA_ACCESS_REQUIRED": "Coaster is in closed beta. Get in touch if you want to take part.",
+  "BETA_TESTER_ALREADY_EXISTS": "That email is already on the tester list.",
+  "BETA_TESTER_NOT_FOUND": "That tester is no longer on the list."
 }

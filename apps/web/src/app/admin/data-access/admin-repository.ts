@@ -1,13 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import type {
+  AddBetaTesterDto,
   AdminAuditQuery,
+  AdminBetaTestersQuery,
   AdminEstablishmentsQuery,
   AdminUsersQuery,
   EstablishmentId,
   GrantEstablishmentPlanDto,
   RenameEstablishmentDto,
   RevokeEstablishmentPlanDto,
+  BetaTesterId,
   UpdateAdminUserDto,
   UserId,
   EstablishmentSettings,
@@ -43,6 +46,8 @@ export class AdminRepository {
       `/admin/establishments/${establishmentId}/plan/revoke`,
     users: (query: AdminUsersQuery) => `/admin/users${toQueryString({ ...query })}`,
     userDetail: (userId: UserId) => `/admin/users/${userId}`,
+    betaTesters: (query: AdminBetaTestersQuery) => `/admin/beta-testers${toQueryString({ ...query })}`,
+    betaTester: (betaTesterId: BetaTesterId) => `/admin/beta-testers/${betaTesterId}`,
   };
 
   public async grantEstablishmentPlan(establishmentId: EstablishmentId, dto: GrantEstablishmentPlanDto): Promise<void> {
@@ -71,5 +76,13 @@ export class AdminRepository {
 
   public async updateUser(userId: UserId, dto: UpdateAdminUserDto): Promise<void> {
     await firstValueFrom(this.#http.patch<void>(this.routes.userDetail(userId), dto));
+  }
+
+  public async addBetaTester(dto: AddBetaTesterDto): Promise<void> {
+    await firstValueFrom(this.#http.post<void>(this.routes.betaTesters({}), dto));
+  }
+
+  public async removeBetaTester(betaTesterId: BetaTesterId): Promise<void> {
+    await firstValueFrom(this.#http.delete<void>(this.routes.betaTester(betaTesterId)));
   }
 }

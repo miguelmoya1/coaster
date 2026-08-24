@@ -27,6 +27,10 @@ const adminRoutes: Routes = [
         loadComponent: () => import('./pages/admin-users/admin-users'),
       },
       {
+        path: 'beta-testers',
+        loadComponent: () => import('./pages/admin-beta-testers/admin-beta-testers'),
+      },
+      {
         path: 'audit',
         loadComponent: () => import('./pages/admin-audit/admin-audit'),
       },

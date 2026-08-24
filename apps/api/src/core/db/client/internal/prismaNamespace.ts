@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   DbOrderAdjustment: 'DbOrderAdjustment',
   DbUser: 'DbUser',
+  DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbTimeEntry" | "dbAdminAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -571,6 +572,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbUserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbUserCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbBetaTester: {
+      payload: Prisma.$DbBetaTesterPayload<ExtArgs>
+      fields: Prisma.DbBetaTesterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbBetaTesterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbBetaTesterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        findFirst: {
+          args: Prisma.DbBetaTesterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbBetaTesterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        findMany: {
+          args: Prisma.DbBetaTesterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        create: {
+          args: Prisma.DbBetaTesterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        createMany: {
+          args: Prisma.DbBetaTesterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbBetaTesterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        delete: {
+          args: Prisma.DbBetaTesterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        update: {
+          args: Prisma.DbBetaTesterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbBetaTesterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbBetaTesterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbBetaTesterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbBetaTesterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbBetaTesterPayload>
+        }
+        aggregate: {
+          args: Prisma.DbBetaTesterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbBetaTester>
+        }
+        groupBy: {
+          args: Prisma.DbBetaTesterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBetaTesterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbBetaTesterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbBetaTesterCountAggregateOutputType> | number
         }
       }
     }
@@ -2196,6 +2271,17 @@ export const DbUserScalarFieldEnum = {
 export type DbUserScalarFieldEnum = (typeof DbUserScalarFieldEnum)[keyof typeof DbUserScalarFieldEnum]
 
 
+export const DbBetaTesterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  note: 'note',
+  invitedById: 'invitedById',
+  createdAt: 'createdAt'
+} as const
+
+export type DbBetaTesterScalarFieldEnum = (typeof DbBetaTesterScalarFieldEnum)[keyof typeof DbBetaTesterScalarFieldEnum]
+
+
 export const DbEstablishmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2962,6 +3048,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   dbOrderAdjustment?: Prisma.DbOrderAdjustmentOmit
   dbUser?: Prisma.DbUserOmit
+  dbBetaTester?: Prisma.DbBetaTesterOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit
   dbPrinterPairing?: Prisma.DbPrinterPairingOmit

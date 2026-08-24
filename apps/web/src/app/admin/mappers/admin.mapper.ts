@@ -5,6 +5,7 @@ import type {
   AdminPlatformMetrics,
   AdminUserDetail,
   AdminUserSummary,
+  BetaTester,
   Paginated,
 } from '@coaster/common';
 
@@ -28,6 +29,9 @@ export const adminEstablishmentsMapper = (payload: unknown): Paginated<AdminEsta
 
 export const adminUsersMapper = (payload: unknown): Paginated<AdminUserSummary> =>
   paginatedMapper<AdminUserSummary>(payload, 'AdminUsers');
+
+export const adminBetaTestersMapper = (payload: unknown): Paginated<BetaTester> =>
+  paginatedMapper<BetaTester>(payload, 'AdminBetaTesters');
 
 export const adminAuditMapper = (payload: unknown): Paginated<AdminAuditLogEntry> =>
   paginatedMapper<AdminAuditLogEntry>(payload, 'AdminAudit');
