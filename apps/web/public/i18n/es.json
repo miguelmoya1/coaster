@@ -844,6 +844,8 @@
     "beta_testers": {
       "title": "Testers de la beta",
       "subtitle": "Solo estos emails pueden crear una cuenta nueva mientras la beta esté cerrada.",
+      "open_title": "La lista no está filtrando ahora mismo",
+      "open_text": "Cualquiera puede crear una cuenta en este entorno. Prepara aquí la lista y enciéndela con BETA_ALLOWLIST_ENABLED cuando quieras cerrar la beta.",
       "search_placeholder": "Email o nota...",
       "col_email": "Email",
       "col_status": "Estado",

@@ -342,6 +342,14 @@ describe('Admin backoffice (e2e)', () => {
       });
     });
 
+    it('should say the list is not gating anything while the switch is off', async () => {
+      await becomeAdmin();
+
+      const list = await request(http()).get('/api/admin/beta-testers').expect(200);
+
+      expect(list.body.enforcing).toBe(false);
+    });
+
     it('should refuse the same address twice', async () => {
       await becomeAdmin();
 

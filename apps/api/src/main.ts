@@ -1,7 +1,7 @@
 import compression from '@fastify/compress';
 import helmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
-import { PUBLIC_ROOT } from '@coaster/core';
+import { BETA_ALLOWLIST_ENABLED, isBetaAllowlistEnabled, PUBLIC_ROOT } from '@coaster/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -85,7 +85,7 @@ async function bootstrap() {
     SwaggerModule.setup('api/docs', app, documentFactory);
   }
 
-  if (process.env.BETA_ALLOWLIST_ENABLED === 'true') {
+  if (isBetaAllowlistEnabled(process.env[BETA_ALLOWLIST_ENABLED])) {
     Logger.warn('Beta allowlist is ON: only emails on the BetaTester table can open a new account');
   }
 

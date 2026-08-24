@@ -1,5 +1,5 @@
 import { CurrentUser, FirebaseAuthGuard } from '@coaster/auth';
-import type { BetaTester, BetaTesterId, Paginated, User } from '@coaster/common';
+import type { AdminBetaTesters, BetaTesterId, User } from '@coaster/common';
 import { Admin, AdminGuard } from '@coaster/core';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -17,7 +17,7 @@ export class AdminBetaTestersController {
   ) {}
 
   @Get()
-  async listBetaTesters(@Query() query: AdminBetaTestersQueryDto): Promise<Paginated<BetaTester>> {
+  async listBetaTesters(@Query() query: AdminBetaTestersQueryDto): Promise<AdminBetaTesters> {
     return await this._queryBus.execute(new ListBetaTestersQuery(query));
   }
 

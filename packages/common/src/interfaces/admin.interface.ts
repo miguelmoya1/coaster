@@ -187,6 +187,10 @@ export interface BetaTester {
   signedUpAt: string | null;
 }
 
+export interface AdminBetaTesters extends Paginated<BetaTester> {
+  enforcing: boolean;
+}
+
 export interface AddBetaTesterDto {
   email: string;
   note?: string;

@@ -1,6 +1,13 @@
 import type { User } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
-import { CacheKeys, CacheService, DbUserWithPreferences, UsersMapper } from '@coaster/core';
+import {
+  BETA_ALLOWLIST_ENABLED,
+  CacheKeys,
+  CacheService,
+  DbUserWithPreferences,
+  isBetaAllowlistEnabled,
+  UsersMapper,
+} from '@coaster/core';
 import { DbService } from '@coaster/core/db';
 import { ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -118,7 +125,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand, User> {
   }
 
   async #outsideBeta(email: string): Promise<boolean> {
-    if (this._config.get<string>('BETA_ALLOWLIST_ENABLED') !== 'true') {
+    if (!isBetaAllowlistEnabled(this._config.get<string>(BETA_ALLOWLIST_ENABLED))) {
       return false;
     }
 

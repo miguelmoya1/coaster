@@ -51,6 +51,10 @@ check sits on the branch that creates a brand new user, which means:
 - Someone an owner invited to their venue already has a row waiting for them, so they never reach
   the check. Testers can staff their own venues without going through you.
 
+The screen stays available whether the switch is on or off, and says which. Hiding it while the
+allowlist is idle would be a trap: you would have no way to fill the list before turning the switch
+on, and turning it on against an empty list locks out everybody, you included.
+
 ## Two different questions
 
 | Question                                   | Where it is answered                                   |

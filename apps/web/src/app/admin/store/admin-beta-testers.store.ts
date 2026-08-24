@@ -28,6 +28,7 @@ export class AdminBetaTestersStore {
 
   public readonly pageSize = PAGE_SIZE;
   public readonly testers = computed(() => this.#testersResource.value()?.items ?? []);
+  public readonly enforcing = computed(() => this.#testersResource.value()?.enforcing ?? false);
   public readonly total = computed(() => this.#testersResource.value()?.total ?? 0);
   public readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / PAGE_SIZE)));
   public readonly hasLoaded = computed(() => this.#testersResource.hasValue());

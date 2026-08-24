@@ -39,6 +39,7 @@ export default class AdminBetaTesters {
   readonly #translate = inject(TranslateService);
 
   protected readonly testers = this.#store.testers;
+  protected readonly enforcing = this.#store.enforcing;
   protected readonly total = this.#store.total;
   protected readonly page = this.#store.page;
   protected readonly pageSize = this.#store.pageSize;

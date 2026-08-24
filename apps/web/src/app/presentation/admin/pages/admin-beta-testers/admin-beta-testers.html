@@ -4,6 +4,19 @@
 />
 
 <div class="flex flex-col gap-4">
+  @if (hasLoaded() && !enforcing()) {
+    <aside
+      class="flex items-start gap-3 rounded-2xl border border-outline-variant/50 bg-surface-container px-4 py-3"
+      role="status"
+    >
+      <mat-icon class="text-on-surface-variant shrink-0">info</mat-icon>
+      <div class="flex flex-col gap-0.5 min-w-0">
+        <span class="text-sm font-semibold text-on-surface">{{ 'admin.beta_testers.open_title' | translate }}</span>
+        <span class="text-xs text-on-surface-variant">{{ 'admin.beta_testers.open_text' | translate }}</span>
+      </div>
+    </aside>
+  }
+
   <section class="flex flex-col sm:flex-row sm:items-center gap-3">
     <div class="relative flex-1">
       <input

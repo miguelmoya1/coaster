@@ -4,6 +4,7 @@ import type {
   AdminEstablishmentSummary,
   AdminPlatformMetrics,
   AdminUserDetail,
+  AdminBetaTesters,
   AdminUserSummary,
   BetaTester,
   Paginated,
@@ -30,8 +31,10 @@ export const adminEstablishmentsMapper = (payload: unknown): Paginated<AdminEsta
 export const adminUsersMapper = (payload: unknown): Paginated<AdminUserSummary> =>
   paginatedMapper<AdminUserSummary>(payload, 'AdminUsers');
 
-export const adminBetaTestersMapper = (payload: unknown): Paginated<BetaTester> =>
-  paginatedMapper<BetaTester>(payload, 'AdminBetaTesters');
+export const adminBetaTestersMapper = (payload: unknown): AdminBetaTesters => ({
+  ...paginatedMapper<BetaTester>(payload, 'AdminBetaTesters'),
+  enforcing: isRecord(payload) && payload['enforcing'] === true,
+});
 
 export const adminAuditMapper = (payload: unknown): Paginated<AdminAuditLogEntry> =>
   paginatedMapper<AdminAuditLogEntry>(payload, 'AdminAudit');

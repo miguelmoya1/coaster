@@ -844,6 +844,8 @@
     "beta_testers": {
       "title": "Beta testers",
       "subtitle": "Only these emails can open a new account while the beta is closed.",
+      "open_title": "The list is not gating anything right now",
+      "open_text": "Anyone can open an account on this environment. Prepare the list here and turn it on with BETA_ALLOWLIST_ENABLED when you want the beta closed.",
       "search_placeholder": "Email or note...",
       "col_email": "Email",
       "col_status": "Status",
