@@ -1,10 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AdminEstablishmentDetailStore } from '@coaster/admin';
@@ -18,6 +16,7 @@ import {
 } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterInput } from '../../../components/field/input.directive';
 import { PricePipe } from '../../../establishments/workspace/pipes/price/price';
 import { ConfirmationDialog } from '../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../components/loading/loading';
@@ -34,9 +33,6 @@ import { StatusChip } from '../../components/status-chip/status-chip';
     MatIcon,
     MatButton,
     MatIconButton,
-    MatFormField,
-    MatLabel,
-    MatInput,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
@@ -48,6 +44,7 @@ import { StatusChip } from '../../components/status-chip/status-chip';
     AuditList,
     BillingBadge,
     StatusChip,
+    CoasterInput,
   ],
   templateUrl: './admin-establishment-detail.html',
   host: {

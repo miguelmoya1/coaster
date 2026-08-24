@@ -534,7 +534,6 @@
       "export": "Download",
       "export_from": "From",
       "export_hint": "Pick the period the inspection asked for",
-      "export_range": "Period",
       "export_title": "Download the time register",
       "export_to": "To",
       "history": "History",

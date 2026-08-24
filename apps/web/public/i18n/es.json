@@ -534,7 +534,6 @@
       "export": "Descargar",
       "export_from": "Desde",
       "export_hint": "Elige el periodo que necesitas para la Inspeccion",
-      "export_range": "Periodo",
       "export_title": "Descargar registro horario",
       "export_to": "Hasta",
       "history": "Historial",

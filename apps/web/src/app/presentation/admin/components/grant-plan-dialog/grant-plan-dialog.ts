@@ -1,11 +1,11 @@
 import { Component, input, output, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { SubscriptionPlan } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../components/field/field';
+import { CoasterInput } from '../../../components/field/input.directive';
 
 export interface GrantPlanResult {
   durationDays: number | null;
@@ -22,17 +22,7 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
 
 @Component({
   selector: 'coaster-grant-plan-dialog',
-  imports: [
-    MatButton,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    TranslatePipe,
-  ],
+  imports: [MatButton, MatIcon, MatDialogTitle, MatDialogContent, MatDialogActions, TranslatePipe, Field, CoasterInput],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-3 m-0 p-0 text-xl font-bold text-on-surface">
       <span class="w-10 h-10 rounded-2xl bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
@@ -70,10 +60,9 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
         </div>
       </fieldset>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>{{ 'admin.grant_dialog.reason_label' | translate }}</mat-label>
-        <input matInput maxlength="280" [value]="reason()" (input)="onReasonInput($event)" />
-      </mat-form-field>
+      <coaster-field [label]="'admin.grant_dialog.reason_label' | translate">
+        <input coasterInput maxlength="280" [value]="reason()" (input)="onReasonInput($event)" />
+      </coaster-field>
     </mat-dialog-content>
 
     <mat-dialog-actions class="flex justify-end gap-3 mt-2 p-0 border-none">

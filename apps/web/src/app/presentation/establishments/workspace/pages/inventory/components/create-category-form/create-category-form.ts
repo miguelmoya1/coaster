@@ -1,34 +1,28 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { CategoriesStore } from '@coaster/categories';
 import type { CreateCategoryDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 import { IconPicker } from '../../../../../../components/icon-picker/icon-picker';
 
 @Component({
   selector: 'coaster-create-category-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe, IconPicker],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, IconPicker, Field, CoasterInput],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.create_category.name_label' | translate }}</mat-label>
+        <coaster-field [label]="'inventory.create_category.name_label' | translate">
           <input
-            matInput
+            coasterInput
             data-testid="category-name-input"
             [formField]="form.name"
             [placeholder]="'inventory.create_category.name_placeholder' | translate"
           />
-          @if (form.name().errors().length > 0) {
-            <mat-error>{{
-              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
         <coaster-icon-picker
           [formField]="form.icon"

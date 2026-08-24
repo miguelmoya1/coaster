@@ -116,11 +116,12 @@
                 }
               </span>
               <input
+                coasterInput
                 type="text"
+                class="font-semibold"
                 [value]="section.translations[editingLanguage()]?.name ?? ''"
                 (input)="setSectionName(sectionIndex, $any($event.target).value)"
                 [placeholder]="'menu.section_placeholder' | translate"
-                class="w-full bg-surface-container-highest rounded-xl px-3 py-2 text-sm font-semibold border-none outline-none"
               />
             </label>
 
@@ -190,11 +191,11 @@
               <label class="flex flex-col gap-1">
                 <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.item_name' | translate }}</span>
                 <input
+                  coasterInput
                   type="text"
                   [value]="item.translations[editingLanguage()]?.name ?? ''"
                   (input)="setItemWording(sectionIndex, itemIndex, 'name', $any($event.target).value)"
                   [placeholder]="itemPlaceholder(item)"
-                  class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-sm border-none outline-none"
                 />
               </label>
 
@@ -203,11 +204,11 @@
                   {{ 'menu.item_description' | translate }}
                 </span>
                 <input
+                  coasterInput
                   type="text"
                   [value]="item.translations[editingLanguage()]?.description ?? ''"
                   (input)="setItemWording(sectionIndex, itemIndex, 'description', $any($event.target).value)"
                   [placeholder]="'menu.item_description_placeholder' | translate"
-                  class="bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
                 />
               </label>
 
@@ -217,12 +218,13 @@
                 </span>
                 <div class="flex items-center gap-2">
                   <input
+                    coasterInput
                     type="number"
                     min="0"
+                    class="w-32"
                     [value]="item.price ?? ''"
                     (input)="setItemPrice(sectionIndex, itemIndex, $any($event.target).value)"
                     [placeholder]="'menu.item_price_placeholder' | translate"
-                    class="w-32 bg-surface-container-highest rounded-xl px-3 py-1.5 text-xs border-none outline-none"
                   />
                   <span class="text-sm font-semibold">{{ priceOf(item) | price }}</span>
                 </div>
@@ -233,7 +235,7 @@
           <label class="flex flex-col gap-1">
             <span class="text-xs font-semibold text-on-surface-variant">{{ 'menu.add_item' | translate }}</span>
             <select
-              class="bg-surface-container-highest rounded-xl px-3 py-2 text-xs border-none outline-none"
+              coasterInput
               [value]="''"
               (change)="addItem(sectionIndex, $any($event.target).value); $any($event.target).value = ''"
             >

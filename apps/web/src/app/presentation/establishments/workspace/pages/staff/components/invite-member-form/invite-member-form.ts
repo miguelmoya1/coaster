@@ -1,17 +1,17 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { email, form, FormField, FormRoot, maxLength, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
 import { EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { MembersStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, MatFormField, MatLabel, MatInput, MatError, FormField, MatButton, TranslatePipe],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-2 mb-6">
@@ -21,15 +21,9 @@ import { TranslatePipe } from '@ngx-translate/core';
         </p>
       </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Email</mat-label>
-        <input matInput [formField]="form.email" placeholder="Email" />
-        @if (form.email().errors().length > 0) {
-          <mat-error>{{
-            form.email().errors()[0].message || form.email().errors()[0].kind | translate: form.email().errors()[0]
-          }}</mat-error>
-        }
-      </mat-form-field>
+      <coaster-field label="Email">
+        <input coasterInput [formField]="form.email" placeholder="Email" />
+      </coaster-field>
 
       <fieldset class="border-0 p-0 m-0 mt-2">
         <legend class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">

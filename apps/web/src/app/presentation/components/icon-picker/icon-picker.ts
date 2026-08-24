@@ -1,9 +1,9 @@
 import { Component, input, model } from '@angular/core';
 import { ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../field/field';
+import { CoasterInput } from '../field/input.directive';
 
 export const AVAILABLE_ICONS = [
   'category',
@@ -26,47 +26,39 @@ export const AVAILABLE_ICONS = [
 
 @Component({
   selector: 'coaster-icon-picker',
-  imports: [MatFormField, MatLabel, MatHint, MatError, TranslatePipe, MatIcon, MatSelectModule],
+  imports: [TranslatePipe, MatIcon, Field, CoasterInput],
   template: `
     @if (!hidden()) {
-      <mat-form-field [class]="wrapperClass()" appearance="outline">
-        @if (label()) {
-          <mat-label>{{ label() }}</mat-label>
-        }
+      <coaster-field
+        [class]="wrapperClass()"
+        [label]="label()"
+        [hint]="hint()"
+        [errors]="touched() && invalid() ? errors() : []"
+      >
+        <div class="relative">
+          <mat-icon
+            class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant"
+            fontSet="material-symbols-outlined"
+          >
+            {{ value() || 'category' }}
+          </mat-icon>
 
-        <mat-select
-          [id]="id()"
-          [value]="value()"
-          (selectionChange)="onSelectionChange($event.value)"
-          (openedChange)="onOpenedChange($event)"
-          [placeholder]="placeholder()"
-          [disabled]="disabled() || readonly()"
-        >
-          <mat-select-trigger>
-            <div class="flex items-center gap-2">
-              <mat-icon fontSet="material-symbols-outlined">{{ value() || 'category' }}</mat-icon>
-              <span>{{ value() || 'category' | translate }}</span>
-            </div>
-          </mat-select-trigger>
-
-          @for (icon of availableIcons; track icon) {
-            <mat-option [value]="icon">
-              <div class="flex items-center gap-2">
-                <mat-icon fontSet="material-symbols-outlined">{{ icon }}</mat-icon>
-                <span>{{ icon }}</span>
-              </div>
-            </mat-option>
-          }
-        </mat-select>
-
-        @if (invalid() && errors().length > 0) {
-          @for (error of errors(); track error) {
-            <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
-          }
-        } @else if (hint() && !invalid()) {
-          <mat-hint>{{ hint() }}</mat-hint>
-        }
-      </mat-form-field>
+          <select
+            coasterInput
+            class="pl-12"
+            [id]="id()"
+            [value]="value()"
+            [disabled]="disabled() || readonly()"
+            (change)="onSelectionChange($event)"
+            (blur)="touched.set(true)"
+          >
+            <option value="" disabled>{{ placeholder() }}</option>
+            @for (icon of availableIcons; track icon) {
+              <option [value]="icon">{{ icon | translate }}</option>
+            }
+          </select>
+        </div>
+      </coaster-field>
     }
   `,
 })
@@ -90,14 +82,8 @@ export class IconPicker {
 
   readonly availableIcons = AVAILABLE_ICONS;
 
-  onSelectionChange(newValue: string) {
-    this.value.set(newValue);
+  onSelectionChange(event: Event) {
+    this.value.set((event.target as HTMLSelectElement).value);
     this.touched.set(true);
-  }
-
-  onOpenedChange(opened: boolean) {
-    if (!opened) {
-      this.touched.set(true);
-    }
   }
 }

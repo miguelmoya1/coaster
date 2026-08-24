@@ -21,10 +21,13 @@
         <h2 class="font-semibold">{{ 'admin.establishment_detail.rename' | translate }}</h2>
 
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <mat-form-field appearance="outline" class="flex-1 -mb-[1.25em]">
-            <mat-label>{{ 'admin.establishment_detail.rename_label' | translate }}</mat-label>
-            <input matInput [value]="renameValue()" (input)="onRenameInput($event)" />
-          </mat-form-field>
+          <input
+            coasterInput
+            class="flex-1"
+            [placeholder]="'admin.establishment_detail.rename_label' | translate"
+            [value]="renameValue()"
+            (input)="onRenameInput($event)"
+          />
 
           <div class="flex items-center gap-2">
             <button mat-button type="button" [disabled]="isSaving()" (click)="cancelRename()">

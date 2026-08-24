@@ -106,6 +106,25 @@ describe('PosCart', () => {
       expect(emitted).toEqual([{ productId: 'p-1', notes: 'extra cold' }]);
     });
 
+    it('should not let the notes icon steal focus from the open input', () => {
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      query('[data-testid="item-notes-btn"]').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('should ignore a blur from an item that is no longer being edited', () => {
+      click('[data-testid="item-notes-btn"]');
+      fixture.nativeElement.querySelectorAll('[data-testid="item-notes-btn"]')[1].click();
+      fixture.detectChanges();
+
+      component['closeNoteEditor']('p-1');
+      fixture.detectChanges();
+
+      expect(component.editingNotesFor()).toBe('p-2');
+      expect(query('[data-testid="item-notes-input"]')).toBeTruthy();
+    });
+
     it('should hide the order notes textarea until its button is clicked', () => {
       expect(query('[data-testid="order-notes-input"]')).toBeNull();
 

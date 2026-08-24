@@ -3,9 +3,7 @@ import { Component, ElementRef, computed, effect, inject, input, signal, viewChi
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { MatFormField, MatHint, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import type { EstablishmentId } from '@coaster/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
@@ -24,19 +22,7 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
 
 @Component({
   selector: 'coaster-ai-assistant-panel',
-  imports: [
-    Spinner,
-    MatIconButton,
-    MatIcon,
-    MatFormField,
-    MatInput,
-    MatPrefix,
-    MatSuffix,
-    MatHint,
-    CdkTextareaAutosize,
-    MarkdownMessage,
-    TranslatePipe,
-  ],
+  imports: [Spinner, MatIconButton, MatIcon, CdkTextareaAutosize, MarkdownMessage, TranslatePipe],
   template: `
     @if (service.isOpen()) {
       <aside
@@ -227,10 +213,11 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
             </div>
           }
 
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <div
+            class="flex items-end gap-1 w-full rounded-2xl bg-surface-container-highest border border-outline-variant/30 px-1.5 py-1 transition-colors focus-within:border-primary"
+          >
             @if (service.isSupported()) {
               <button
-                matPrefix
                 mat-icon-button
                 type="button"
                 (click)="toggleListening()"
@@ -243,13 +230,12 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
             }
 
             <textarea
-              matInput
               cdkTextareaAutosize
               cdkAutosizeMinRows="1"
               cdkAutosizeMaxRows="6"
               name="draft"
               autocomplete="off"
-              class="resize-none"
+              class="flex-1 min-w-0 resize-none bg-transparent text-on-surface text-sm placeholder:text-on-surface-variant/50 outline-none border-none py-2.5 disabled:opacity-50"
               [value]="draft()"
               (input)="onDraftInput($event)"
               (keydown)="onComposerKeydown($event)"
@@ -260,7 +246,6 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
             ></textarea>
 
             <button
-              matSuffix
               mat-icon-button
               type="submit"
               [disabled]="!draft().trim() || service.status() === 'processing'"
@@ -274,11 +259,11 @@ const SNAP_HEIGHTS: Record<Exclude<AiSheetSnap, 'peek'>, string> = {
                 <mat-icon>send</mat-icon>
               }
             </button>
+          </div>
 
-            @if (!service.isSupported()) {
-              <mat-hint>{{ 'ai_voice.voice_unavailable' | translate }}</mat-hint>
-            }
-          </mat-form-field>
+          @if (!service.isSupported()) {
+            <span class="text-on-surface-variant text-xs px-2">{{ 'ai_voice.voice_unavailable' | translate }}</span>
+          }
         </form>
       </aside>
     }

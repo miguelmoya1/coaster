@@ -3,10 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatButton as MatBtn } from '@angular/material/button';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { AdjustmentType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Field } from '../../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../../components/field/input.directive';
 import { NumberInput } from '../../../../../../../components/number-input/number-input';
 
 export interface AddAdjustmentResult {
@@ -27,9 +27,8 @@ export interface AddAdjustmentResult {
     MatDialogActions,
     FormsModule,
     NumberInput,
-    MatFormField,
-    MatLabel,
-    MatInput,
+    Field,
+    CoasterInput,
   ],
   template: `
     <h2 mat-dialog-title>Añadir Descuento / Ajuste</h2>
@@ -66,10 +65,9 @@ export interface AddAdjustmentResult {
       </div>
 
       <div class="w-full mt-2">
-        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-          <mat-label>Motivo (opcional)</mat-label>
-          <input matInput [ngModel]="reason()" (ngModelChange)="reason.set($event)" placeholder="Ej. Invitación" />
-        </mat-form-field>
+        <coaster-field label="Motivo (opcional)">
+          <input coasterInput [ngModel]="reason()" (ngModelChange)="reason.set($event)" placeholder="Ej. Invitación" />
+        </coaster-field>
       </div>
     </mat-dialog-content>
 

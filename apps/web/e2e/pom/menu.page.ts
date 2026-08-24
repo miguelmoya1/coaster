@@ -11,6 +11,7 @@ export class MenuPage {
 
   readonly productNameInput: Locator;
   readonly productPriceInput: Locator;
+  readonly productCategorySelect: Locator;
   readonly confirmProductButton: Locator;
 
   constructor(page: Page) {
@@ -24,6 +25,7 @@ export class MenuPage {
 
     this.productNameInput = page.getByTestId('product-name-input');
     this.productPriceInput = page.getByTestId('product-price-input').locator('input');
+    this.productCategorySelect = page.locator('coaster-create-product-form select');
     this.confirmProductButton = page.getByTestId('submit-btn');
   }
 

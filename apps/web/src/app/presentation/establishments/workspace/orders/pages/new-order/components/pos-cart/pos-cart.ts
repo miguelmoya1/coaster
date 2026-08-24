@@ -5,6 +5,7 @@ import { TableStatus, type EstablishmentId, type Table } from '@coaster/common';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PricePipe } from '../../../../../pipes/price/price';
+import { CoasterInput } from '../../../../../../../components/field/input.directive';
 
 export interface CartItem {
   productId: string;
@@ -16,7 +17,7 @@ export interface CartItem {
 
 @Component({
   selector: 'coaster-pos-cart',
-  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, PricePipe, RequireSubscriptionDirective],
+  imports: [MatIcon, TranslatePipe, MatButton, MatIconButton, PricePipe, RequireSubscriptionDirective, CoasterInput],
   template: `
     @if (expanded() && items().length > 0) {
       <div class="flex flex-col gap-2 border-b border-outline-variant/20 pb-3 mb-2">
@@ -33,6 +34,7 @@ export interface CartItem {
                   mat-icon-button
                   data-testid="item-notes-btn"
                   [attr.aria-label]="'orders.item_notes' | translate"
+                  (mousedown)="preventFocusSteal($event)"
                   (click)="toggleNoteEditor(item.productId)"
                 >
                   <mat-icon
@@ -64,13 +66,14 @@ export interface CartItem {
                 <input
                   #noteInput
                   type="text"
+                  coasterInput
                   data-testid="item-notes-input"
-                  class="w-full bg-surface-container-highest text-on-surface placeholder:text-on-surface-variant/50 rounded-lg px-3 py-1.5 text-xs border-none outline-none focus:ring-2 focus:ring-primary/20"
+                  class="py-1.5 text-xs"
                   [value]="item.notes || ''"
                   [placeholder]="'orders.item_notes_placeholder' | translate"
                   (input)="onItemNotesChange(item.productId, $event)"
-                  (blur)="editingNotesFor.set(undefined)"
-                  (keydown.enter)="editingNotesFor.set(undefined)"
+                  (blur)="closeNoteEditor(item.productId)"
+                  (keydown.enter)="closeNoteEditor(item.productId)"
                 />
               } @else if (item.notes) {
                 <p class="text-xs text-primary/90 truncate">{{ item.notes }}</p>
@@ -82,7 +85,8 @@ export interface CartItem {
         <div class="flex items-center gap-2">
           @if (showsTableSelect()) {
             <select
-              class="flex-1 min-w-0 rounded-xl bg-surface-container-highest text-on-surface px-3 py-2.5 text-sm font-medium border border-outline-variant/30 outline-none focus:border-primary"
+              coasterInput
+              class="flex-1 min-w-0 font-medium"
               [value]="selectedTableId() ?? ''"
               (change)="onTableChange($event)"
             >
@@ -108,8 +112,9 @@ export interface CartItem {
 
         @if (orderNotesOpen()) {
           <textarea
+            coasterInput
             data-testid="order-notes-input"
-            class="w-full bg-surface-container-highest text-on-surface placeholder:text-on-surface-variant/50 rounded-xl px-3 py-2 text-sm resize-none h-16 border-none outline-none focus:ring-2 focus:ring-primary/20"
+            class="resize-none h-16"
             [value]="orderNotes() || ''"
             [placeholder]="'orders.order_notes_placeholder' | translate"
             (change)="onOrderNotesChange($event)"
@@ -199,8 +204,18 @@ export class PosCart {
     effect(() => this.noteInput()?.nativeElement.focus());
   }
 
+  protected preventFocusSteal(event: Event) {
+    event.preventDefault();
+  }
+
   protected toggleNoteEditor(productId: string) {
     this.editingNotesFor.update((current) => (current === productId ? undefined : productId));
+  }
+
+  protected closeNoteEditor(productId: string) {
+    if (this.editingNotesFor() === productId) {
+      this.editingNotesFor.set(undefined);
+    }
   }
 
   protected onTableChange(event: Event) {

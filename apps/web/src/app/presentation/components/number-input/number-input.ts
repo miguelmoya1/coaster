@@ -1,83 +1,69 @@
 import { Component, input, model } from '@angular/core';
 import { DisabledReason, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { MatIconButton } from '@angular/material/button';
-import { TranslatePipe } from '@ngx-translate/core';
 import { MatIcon } from '@angular/material/icon';
+import { Field } from '../field/field';
+import { CoasterInput } from '../field/input.directive';
 
 @Component({
   selector: 'coaster-number-input',
-  imports: [
-    MatFormField,
-    MatLabel,
-    MatHint,
-    MatError,
-    MatPrefix,
-    MatSuffix,
-    MatInput,
-    MatIconButton,
-    TranslatePipe,
-    MatIcon,
-  ],
+  imports: [MatIconButton, MatIcon, Field, CoasterInput],
   host: {
     '(click)': 'onHostClick($event)',
   },
   template: `
     @if (!hidden()) {
-      <mat-form-field [class]="wrapperClass()" appearance="outline" subscriptSizing="dynamic">
-        @if (label()) {
-          <mat-label>{{ label() }}</mat-label>
-        }
+      <coaster-field
+        [class]="wrapperClass()"
+        [label]="label()"
+        [hint]="hint()"
+        [errors]="touched() && invalid() ? errors() : []"
+      >
+        <div class="relative">
+          <button
+            mat-icon-button
+            type="button"
+            class="absolute! left-1 top-1/2 -translate-y-1/2"
+            (click)="decrement($event)"
+            [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
 
-        <button
-          mat-icon-button
-          matPrefix
-          type="button"
-          (click)="decrement($event)"
-          [disabled]="disabled() || readonly() || (min() !== undefined && value() <= min()!)"
-        >
-          <mat-icon>remove</mat-icon>
-        </button>
+          <input
+            coasterInput
+            type="number"
+            class="px-12 text-center font-bold"
+            [id]="id()"
+            [value]="value()"
+            (input)="onInput($event)"
+            (blur)="touched.set(true)"
+            [placeholder]="placeholder()"
+            [disabled]="disabled()"
+            [readonly]="readonly()"
+            [min]="min()"
+            [max]="max()"
+          />
 
-        <input
-          matInput
-          type="number"
-          [id]="id()"
-          [value]="value()"
-          (input)="onInput($event)"
-          (blur)="touched.set(true)"
-          [placeholder]="placeholder()"
-          [disabled]="disabled()"
-          [readonly]="readonly()"
-          [min]="min()"
-          [max]="max()"
-          class="text-center font-bold"
-          style="appearance: textfield; -moz-appearance: textfield;"
-        />
-
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          (click)="increment($event)"
-          [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
-        >
-          <mat-icon>add</mat-icon>
-        </button>
-
-        @if (invalid() && errors().length > 0) {
-          @for (error of errors(); track error) {
-            <mat-error>{{ error.message || error.kind | translate: error }}</mat-error>
-          }
-        } @else if (hint() && !invalid()) {
-          <mat-hint>{{ hint() }}</mat-hint>
-        }
-      </mat-form-field>
+          <button
+            mat-icon-button
+            type="button"
+            class="absolute! right-1 top-1/2 -translate-y-1/2"
+            (click)="increment($event)"
+            [disabled]="disabled() || readonly() || (max() !== undefined && value() >= max()!)"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </coaster-field>
     }
   `,
   styles: [
     `
+      input[type='number'] {
+        appearance: textfield;
+      }
+
       input[type='number']::-webkit-inner-spin-button,
       input[type='number']::-webkit-outer-spin-button {
         -webkit-appearance: none;

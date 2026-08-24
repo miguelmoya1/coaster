@@ -2,72 +2,42 @@ import { ALLERGENS, asCategoryId } from '@coaster/common';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { form, FormField, FormRoot, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
 import type { Category, CreateProductDto } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
 import { ProductsStore } from '@coaster/products';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ChipSelect } from '../../../../../../components/chip-select/chip-select';
 import { NumberInput } from '../../../../../../components/number-input/number-input';
+import { Field } from '../../../../../../components/field/field';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-create-product-form',
-  imports: [
-    FormRoot,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatSelect,
-    MatOption,
-    NumberInput,
-    ChipSelect,
-    FormField,
-    MatButton,
-    TranslatePipe,
-  ],
+  imports: [FormRoot, NumberInput, ChipSelect, FormField, MatButton, TranslatePipe, Field, CoasterInput],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.create_product.name_label' | translate }}</mat-label>
+        <coaster-field [label]="'inventory.create_product.name_label' | translate">
           <input
-            matInput
+            coasterInput
             data-testid="product-name-input"
             [formField]="form.name"
             [placeholder]="'inventory.create_product.name_placeholder' | translate"
           />
-          @if (form.name().errors().length > 0) {
-            <mat-error>{{
-              form.name().errors()[0].message || form.name().errors()[0].kind | translate: form.name().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.create_product.category_label' | translate }}</mat-label>
-          <mat-select
-            [formField]="form.categoryId"
-            [placeholder]="'inventory.create_product.category_placeholder' | translate"
-          >
+        <coaster-field [label]="'inventory.create_product.category_label' | translate">
+          <select coasterInput [formField]="form.categoryId">
+            <option value="" disabled>{{ 'inventory.create_product.category_placeholder' | translate }}</option>
             @for (option of categoryOptions(); track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              <option [value]="option.value">{{ option.label }}</option>
             }
-          </mat-select>
-          @if (form.categoryId().errors().length > 0) {
-            <mat-error>{{
-              form.categoryId().errors()[0].message || form.categoryId().errors()[0].kind
-                | translate: form.categoryId().errors()[0]
-            }}</mat-error>
-          }
-        </mat-form-field>
+          </select>
+        </coaster-field>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>{{ 'inventory.create_product.image_url_label' | translate }}</mat-label>
-          <input matInput [formField]="form.imageUrl" placeholder="https://..." />
-        </mat-form-field>
+        <coaster-field [label]="'inventory.create_product.image_url_label' | translate">
+          <input coasterInput [formField]="form.imageUrl" placeholder="https://..." />
+        </coaster-field>
 
         <coaster-chip-select
           [formField]="form.allergens"

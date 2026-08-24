@@ -1,14 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { AdminUsersStore } from '@coaster/admin';
 import type { AdminUserSummary, Role } from '@coaster/common';
 import { Role as UserRole } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CoasterInput } from '../../../components/field/input.directive';
 import { ConfirmationDialog } from '../../../components/confirm-dialog/confirmation-dialog.service';
 import { Loading } from '../../../components/loading/loading';
 import { PageHeader } from '../../../components/page-header/page-header';
@@ -27,10 +26,6 @@ const ACTIVE_FILTERS: { value: boolean | undefined; labelKey: string }[] = [
     MatIcon,
     MatButton,
     MatIconButton,
-    MatFormField,
-    MatLabel,
-    MatSuffix,
-    MatInput,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
@@ -38,6 +33,7 @@ const ACTIVE_FILTERS: { value: boolean | undefined; labelKey: string }[] = [
     Loading,
     PageHeader,
     AdminPagination,
+    CoasterInput,
   ],
   templateUrl: './admin-users.html',
   host: {

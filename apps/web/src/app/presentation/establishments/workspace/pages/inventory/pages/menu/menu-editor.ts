@@ -14,6 +14,7 @@ import { PageContainer } from '../../../../../../components/page-container/page-
 import { PageHeader } from '../../../../../../components/page-header/page-header';
 import { QrCode } from '../../../../../../components/qr-code/qr-code';
 import { PricePipe } from '../../../../pipes/price/price';
+import { CoasterInput } from '../../../../../../components/field/input.directive';
 
 @Component({
   selector: 'coaster-menu-editor',
@@ -28,6 +29,7 @@ import { PricePipe } from '../../../../pipes/price/price';
     PageHeader,
     PricePipe,
     QrCode,
+    CoasterInput,
   ],
   host: { class: 'flex flex-col gap-2' },
   templateUrl: './menu-editor.html',

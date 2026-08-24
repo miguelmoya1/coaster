@@ -5,10 +5,11 @@ import { ActionFeedback } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MediaRepository } from '../../../core/data-access/media-repository';
 import { Spinner } from '../spinner/spinner';
+import { CoasterInput } from '../field/input.directive';
 
 @Component({
   selector: 'coaster-image-uploader',
-  imports: [MatIcon, Spinner, TranslatePipe],
+  imports: [MatIcon, Spinner, TranslatePipe, CoasterInput],
   host: {
     class: 'flex flex-col gap-2 w-full',
   },
@@ -63,8 +64,9 @@ import { Spinner } from '../spinner/spinner';
     </label>
 
     <input
+      coasterInput
       type="text"
-      class="mt-2 flex-1 text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+      class="mt-2"
       [placeholder]="'UPLOAD_OR_PASTE_URL' | translate"
       [value]="value()"
       (input)="onUrlPaste($event)"

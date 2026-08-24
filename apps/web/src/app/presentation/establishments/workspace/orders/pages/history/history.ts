@@ -3,7 +3,6 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { RequireSubscriptionDirective } from '@coaster/establishment-subscription';
@@ -23,7 +22,6 @@ import { PricePipe } from '../../../pipes/price/price';
     MatDatepicker,
     MatDatepickerInput,
     MatDatepickerToggle,
-    MatInput,
     Loading,
     TranslatePipe,
     MatIcon,

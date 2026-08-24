@@ -1,0 +1,39 @@
+import { computed, Directive, ElementRef, inject, input } from '@angular/core';
+import { FormField, type ValidationError, type WithOptionalFieldTree } from '@angular/forms/signals';
+
+const BASE =
+  'w-full rounded-xl bg-surface-container-highest text-on-surface text-sm ' +
+  'placeholder:text-on-surface-variant/50 px-3 py-2.5 border outline-none transition-colors ' +
+  'disabled:opacity-50 disabled:cursor-not-allowed';
+
+const VALID = 'border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/20';
+
+const INVALID = 'border-error focus:border-error focus:ring-2 focus:ring-error/20';
+
+let nextId = 0;
+
+@Directive({
+  selector: 'input[coasterInput], textarea[coasterInput], select[coasterInput]',
+  host: {
+    class: BASE,
+    '[class]': 'stateClass()',
+    '[id]': 'id()',
+    '[attr.aria-invalid]': 'invalid() || null',
+  },
+})
+export class CoasterInput {
+  readonly #element = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly #formField = inject<FormField<unknown>>(FormField, { optional: true, self: true });
+
+  readonly id = input<string>(this.#element.nativeElement.id || `coaster-input-${++nextId}`);
+
+  readonly error = computed<WithOptionalFieldTree<ValidationError> | undefined>(() => {
+    const state = this.#formField?.state();
+    if (!state?.touched()) return undefined;
+    return state.errors()[0];
+  });
+
+  readonly invalid = computed(() => !!this.error());
+
+  protected readonly stateClass = computed(() => (this.invalid() ? INVALID : VALID));
+}
