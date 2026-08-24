@@ -22,7 +22,14 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
       </div>
 
       <coaster-field label="Email">
-        <input coasterInput type="email" autocomplete="email" [formField]="form.email" placeholder="Email" />
+        <input
+          coasterInput
+          type="email"
+          autocomplete="email"
+          enterkeyhint="send"
+          [formField]="form.email"
+          placeholder="Email"
+        />
       </coaster-field>
 
       <fieldset class="border-0 p-0 m-0 mt-2">

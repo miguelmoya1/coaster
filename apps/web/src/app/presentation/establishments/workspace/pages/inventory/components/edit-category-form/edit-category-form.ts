@@ -21,6 +21,7 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
         <coaster-field [label]="'inventory.edit_category.name_label' | translate">
           <input
             coasterInput
+            enterkeyhint="send"
             [formField]="form.name"
             [placeholder]="'inventory.edit_category.name_placeholder' | translate"
           />

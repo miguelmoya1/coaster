@@ -114,7 +114,7 @@ export interface CartItem {
           <textarea
             coasterInput
             data-testid="order-notes-input"
-            class="resize-none h-16"
+            class="h-16"
             [value]="orderNotes() || ''"
             [placeholder]="'orders.order_notes_placeholder' | translate"
             (change)="onOrderNotesChange($event)"

@@ -4,7 +4,7 @@ import { FormField, type ValidationError, type WithOptionalFieldTree } from '@an
 const BASE =
   'coaster-input w-full rounded-xl bg-surface-container-highest text-on-surface text-sm ' +
   'placeholder:text-on-surface-variant/50 px-3 py-2.5 border outline-none transition-colors ' +
-  'disabled:opacity-50 disabled:cursor-not-allowed';
+  'resize-y disabled:opacity-50 disabled:cursor-not-allowed';
 
 const VALID = 'border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/20';
 

@@ -13,6 +13,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
         <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">search</mat-icon>
         <input
           coasterInput
+          enterkeyhint="search"
           class="pl-11"
           [formField]="searchForm.query"
           [placeholder]="'inventory.search_placeholder' | translate"

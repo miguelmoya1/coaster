@@ -66,7 +66,14 @@ export interface AddAdjustmentResult {
 
       <div class="w-full mt-2">
         <coaster-field label="Motivo (opcional)">
-          <input coasterInput [ngModel]="reason()" (ngModelChange)="reason.set($event)" placeholder="Ej. Invitación" />
+          <input
+            coasterInput
+            enterkeyhint="send"
+            [ngModel]="reason()"
+            (ngModelChange)="reason.set($event)"
+            (keydown.enter)="onConfirm()"
+            placeholder="Ej. Invitación"
+          />
         </coaster-field>
       </div>
     </mat-dialog-content>
@@ -106,6 +113,10 @@ export class AddAdjustmentDialog {
   }
 
   onConfirm() {
+    if (!this.isValid()) {
+      return;
+    }
+
     this.confirmed.emit({
       type: this.type(),
       value: this.type() === AdjustmentType.FIXED_AMOUNT ? this.valueCents() : this.valuePercentage(),

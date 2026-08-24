@@ -23,6 +23,7 @@ import { Spinner } from '../../../../components/spinner/spinner';
           <input
             coasterInput
             data-testid="establishment-name-input"
+            enterkeyhint="send"
             [formField]="establishmentForm.name"
             [placeholder]="'establishments.create.fields.name_placeholder' | translate"
           />

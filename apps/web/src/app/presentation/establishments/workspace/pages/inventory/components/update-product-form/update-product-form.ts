@@ -23,6 +23,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
         <coaster-field [label]="'inventory.edit_product.name_label' | translate">
           <input
             coasterInput
+            enterkeyhint="next"
             [formField]="form.name"
             [placeholder]="'inventory.edit_product.name_placeholder' | translate"
           />

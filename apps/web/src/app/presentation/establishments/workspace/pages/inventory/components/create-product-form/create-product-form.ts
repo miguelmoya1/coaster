@@ -21,6 +21,7 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
           <input
             coasterInput
             data-testid="product-name-input"
+            enterkeyhint="next"
             [formField]="form.name"
             [placeholder]="'inventory.create_product.name_placeholder' | translate"
           />

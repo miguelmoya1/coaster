@@ -19,6 +19,7 @@ import { IconPicker } from '../../../../../../components/icon-picker/icon-picker
           <input
             coasterInput
             data-testid="category-name-input"
+            enterkeyhint="send"
             [formField]="form.name"
             [placeholder]="'inventory.create_category.name_placeholder' | translate"
           />

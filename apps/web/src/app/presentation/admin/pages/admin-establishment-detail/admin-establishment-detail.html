@@ -24,9 +24,11 @@
           <input
             coasterInput
             class="flex-1"
+            enterkeyhint="send"
             [placeholder]="'admin.establishment_detail.rename_label' | translate"
             [value]="renameValue()"
             (input)="onRenameInput($event)"
+            (keydown.enter)="saveRename()"
           />
 
           <div class="flex items-center gap-2">

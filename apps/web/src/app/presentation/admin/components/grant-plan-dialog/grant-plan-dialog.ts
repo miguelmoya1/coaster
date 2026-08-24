@@ -61,7 +61,14 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
       </fieldset>
 
       <coaster-field [label]="'admin.grant_dialog.reason_label' | translate">
-        <input coasterInput maxlength="280" [value]="reason()" (input)="onReasonInput($event)" />
+        <input
+          coasterInput
+          maxlength="280"
+          enterkeyhint="send"
+          [value]="reason()"
+          (input)="onReasonInput($event)"
+          (keydown.enter)="confirm()"
+        />
       </coaster-field>
     </mat-dialog-content>
 
@@ -69,13 +76,7 @@ const DURATION_OPTIONS: { days: number | null; labelKey: string }[] = [
       <button mat-button type="button" [disabled]="loading()" (click)="canceled.emit()">
         {{ 'common.cancel' | translate }}
       </button>
-      <button
-        mat-flat-button
-        type="button"
-        [disabled]="loading()"
-        [attr.aria-busy]="loading()"
-        (click)="confirmed.emit({ durationDays: selectedDuration(), reason: reason().trim() })"
-      >
+      <button mat-flat-button type="button" [disabled]="loading()" [attr.aria-busy]="loading()" (click)="confirm()">
         {{ 'admin.grant_dialog.confirm' | translate }}
       </button>
     </mat-dialog-actions>
@@ -95,5 +96,13 @@ export class GrantPlanDialog {
 
   protected onReasonInput(event: Event) {
     this.reason.set((event.target as HTMLInputElement).value);
+  }
+
+  protected confirm() {
+    if (this.loading()) {
+      return;
+    }
+
+    this.confirmed.emit({ durationDays: this.selectedDuration(), reason: this.reason().trim() });
   }
 }

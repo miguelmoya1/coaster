@@ -11,7 +11,13 @@ import { CoasterInput } from '../../../../../../../components/field/input.direct
     <div class="flex flex-col gap-4 px-2 pb-4 pt-2">
       <h3 class="text-lg font-bold text-on-surface">{{ 'orders.create_table' | translate }}</h3>
       <coaster-field [label]="'orders.table_name_placeholder' | translate">
-        <input coasterInput #tableNameInput type="text" />
+        <input
+          coasterInput
+          #tableNameInput
+          type="text"
+          enterkeyhint="send"
+          (keydown.enter)="submit(tableNameInput.value)"
+        />
       </coaster-field>
       <button mat-flat-button class="w-full" [disabled]="isSubmitting()" (click)="submit(tableNameInput.value)">
         {{ 'common.create' | translate }}
@@ -24,7 +30,7 @@ export class CreateTableForm {
   public readonly created = output<string>();
 
   submit(name: string) {
-    if (!name.trim()) {
+    if (!name.trim() || this.isSubmitting()) {
       return;
     }
 

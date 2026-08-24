@@ -13,6 +13,7 @@ import { CoasterInput } from '../../../../../../../components/field/input.direct
       <input
         coasterInput
         type="text"
+        enterkeyhint="search"
         class="pl-10 pr-10"
         [value]="query()"
         (input)="onSearchInput($event)"
