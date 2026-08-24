@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type {
   EnqueuePrintJobResponseDto,
   PrinterPairingCodeResponse,
@@ -8,7 +8,7 @@ import type {
 } from '@coaster/common';
 import { firstValueFrom } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PrinterRepository {
   readonly #http = inject(HttpClient);
 

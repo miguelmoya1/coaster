@@ -1,7 +1,7 @@
 import { Component, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { form, FormField, FormRoot, max, min, required } from '@angular/forms/signals';
 import { MatButton as MatBtn } from '@angular/material/button';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialogActions, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { AdjustmentType } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -15,6 +15,13 @@ export interface AddAdjustmentResult {
   reason?: string;
 }
 
+interface AddAdjustmentFormValue {
+  type: AdjustmentType;
+  amount: number;
+  percentage: number;
+  reason: string;
+}
+
 @Component({
   selector: 'coaster-add-adjustment-dialog',
   imports: [
@@ -25,65 +32,52 @@ export interface AddAdjustmentResult {
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    FormsModule,
+    FormRoot,
+    FormField,
     NumberInput,
     Field,
     CoasterInput,
   ],
   template: `
-    <h2 mat-dialog-title>Añadir Descuento / Ajuste</h2>
+    <form [formRoot]="form">
+      <h2 mat-dialog-title>Añadir Descuento / Ajuste</h2>
 
-    <mat-dialog-content class="flex flex-col gap-4 !pt-2">
-      <div class="flex justify-center mb-2">
-        <mat-button-toggle-group [value]="type()" (change)="type.set($event.value)" class="w-full">
-          <mat-button-toggle class="w-1/2" [value]="AdjustmentType.FIXED_AMOUNT">Fijo (€)</mat-button-toggle>
-          <mat-button-toggle class="w-1/2" [value]="AdjustmentType.PERCENTAGE">Porcentaje (%)</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
+      <mat-dialog-content class="flex flex-col gap-4 !pt-2">
+        <div class="flex justify-center mb-2">
+          <mat-button-toggle-group
+            [value]="form.type().value()"
+            (change)="form.type().value.set($event.value)"
+            class="w-full"
+          >
+            <mat-button-toggle class="w-1/2" [value]="AdjustmentType.FIXED_AMOUNT">Fijo (€)</mat-button-toggle>
+            <mat-button-toggle class="w-1/2" [value]="AdjustmentType.PERCENTAGE">Porcentaje (%)</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
 
-      <div class="flex items-center gap-4 w-full">
-        @if (type() === AdjustmentType.FIXED_AMOUNT) {
-          <coaster-number-input
-            [value]="(valueCents() || 0) / 100"
-            (valueChange)="updateFromEuros($event)"
-            [min]="0"
-            [step]="0.5"
-            wrapperClass="w-full"
-          />
-          <span class="text-xl font-bold text-on-surface w-8">€</span>
-        } @else {
-          <coaster-number-input
-            [value]="valuePercentage() || 0"
-            (valueChange)="valuePercentage.set($event)"
-            [min]="0"
-            [max]="100"
-            [step]="5"
-            wrapperClass="w-full"
-          />
-          <span class="text-xl font-bold text-on-surface w-8">%</span>
-        }
-      </div>
+        <div class="flex items-center gap-4 w-full">
+          @if (form.type().value() === AdjustmentType.FIXED_AMOUNT) {
+            <coaster-number-input [formField]="form.amount" [step]="0.5" wrapperClass="w-full" />
+            <span class="text-xl font-bold text-on-surface w-8">€</span>
+          } @else {
+            <coaster-number-input [formField]="form.percentage" [step]="5" wrapperClass="w-full" />
+            <span class="text-xl font-bold text-on-surface w-8">%</span>
+          }
+        </div>
 
-      <div class="w-full mt-2">
-        <coaster-field label="Motivo (opcional)">
-          <input
-            coasterInput
-            enterkeyhint="send"
-            [ngModel]="reason()"
-            (ngModelChange)="reason.set($event)"
-            (keydown.enter)="onConfirm()"
-            placeholder="Ej. Invitación"
-          />
-        </coaster-field>
-      </div>
-    </mat-dialog-content>
+        <div class="w-full mt-2">
+          <coaster-field label="Motivo (opcional)">
+            <input coasterInput enterkeyhint="send" [formField]="form.reason" placeholder="Ej. Invitación" />
+          </coaster-field>
+        </div>
+      </mat-dialog-content>
 
-    <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
-      <button mat-button (click)="canceled.emit()">
-        {{ 'common.cancel' | translate }}
-      </button>
-      <button mat-flat-button color="primary" (click)="onConfirm()" [disabled]="!isValid()">Aplicar</button>
-    </mat-dialog-actions>
+      <mat-dialog-actions class="flex justify-end gap-3 mt-4 p-0 border-none">
+        <button mat-button type="button" (click)="canceled.emit()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form().submitting()">Aplicar</button>
+      </mat-dialog-actions>
+    </form>
   `,
   host: {
     class: 'block',
@@ -92,35 +86,44 @@ export interface AddAdjustmentResult {
 export class AddAdjustmentDialog {
   protected readonly AdjustmentType = AdjustmentType;
 
-  public readonly type = signal<AdjustmentType>(AdjustmentType.FIXED_AMOUNT);
-  public readonly valueCents = signal<number>(0);
-  public readonly valuePercentage = signal<number>(0);
-  public readonly reason = signal<string>('');
-
   public readonly confirmed = output<AddAdjustmentResult>();
   public readonly canceled = output<void>();
 
-  updateFromEuros(euros: number) {
-    this.valueCents.set(Math.round(euros * 100));
-  }
+  readonly #formBase = signal<AddAdjustmentFormValue>({
+    type: AdjustmentType.FIXED_AMOUNT,
+    amount: 0,
+    percentage: 0,
+    reason: '',
+  });
 
-  isValid() {
-    if (this.type() === AdjustmentType.FIXED_AMOUNT) {
-      return this.valueCents() > 0;
-    } else {
-      return this.valuePercentage() > 0 && this.valuePercentage() <= 100;
-    }
-  }
+  readonly form = form(
+    this.#formBase,
+    (fields) => {
+      required(fields.type);
+      min(fields.amount, 0.01, {
+        when: (ctx) => ctx.valueOf(fields.type) === AdjustmentType.FIXED_AMOUNT,
+      });
+      min(fields.percentage, 1, {
+        when: (ctx) => ctx.valueOf(fields.type) === AdjustmentType.PERCENTAGE,
+      });
+      max(fields.percentage, 100, {
+        when: (ctx) => ctx.valueOf(fields.type) === AdjustmentType.PERCENTAGE,
+      });
+    },
+    {
+      submission: {
+        action: async (form) => {
+          const { type, amount, percentage, reason } = form().value();
 
-  onConfirm() {
-    if (!this.isValid()) {
-      return;
-    }
+          this.confirmed.emit({
+            type,
+            value: type === AdjustmentType.FIXED_AMOUNT ? Math.round(amount * 100) : percentage,
+            reason: reason.trim() || undefined,
+          });
 
-    this.confirmed.emit({
-      type: this.type(),
-      value: this.type() === AdjustmentType.FIXED_AMOUNT ? this.valueCents() : this.valuePercentage(),
-      reason: this.reason() || undefined,
-    });
-  }
+          return null;
+        },
+      },
+    },
+  );
 }

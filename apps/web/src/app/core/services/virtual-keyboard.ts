@@ -1,4 +1,4 @@
-import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { DOCUMENT, inject, Service } from '@angular/core';
 
 const CONTROLS = 'input, textarea, select';
 
@@ -6,7 +6,7 @@ const MARGIN = 12;
 
 const SETTLE_MS = 150;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class VirtualKeyboard {
   readonly #document = inject(DOCUMENT);
 

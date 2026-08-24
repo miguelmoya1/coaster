@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import type { Order, OrderItem, PrintJobDto, PrintTicketItemDto, PrintTicketPayloadDto } from '@coaster/common';
 import { ErrorCodes } from '@coaster/common';
 import { PrinterRepository } from '../data-access/printer.repository';
@@ -8,7 +8,7 @@ const POLL_INTERVAL_MS = 700;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PrintTicket {
   readonly #printerRepository = inject(PrinterRepository);
 
