@@ -53,6 +53,10 @@ describe('Field', () => {
     expect(input().className).toContain('bg-surface-container-highest');
   });
 
+  it('should keep the hook the global select styles are written against', () => {
+    expect(input().classList.contains('coaster-input')).toBe(true);
+  });
+
   it('should stay silent while the field is untouched', () => {
     expect(element.querySelector('[role="alert"]')).toBeNull();
     expect(input().className).not.toContain('border-error');

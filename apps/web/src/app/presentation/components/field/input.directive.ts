@@ -2,7 +2,7 @@ import { computed, Directive, ElementRef, inject, input } from '@angular/core';
 import { FormField, type ValidationError, type WithOptionalFieldTree } from '@angular/forms/signals';
 
 const BASE =
-  'w-full rounded-xl bg-surface-container-highest text-on-surface text-sm ' +
+  'coaster-input w-full rounded-xl bg-surface-container-highest text-on-surface text-sm ' +
   'placeholder:text-on-surface-variant/50 px-3 py-2.5 border outline-none transition-colors ' +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
