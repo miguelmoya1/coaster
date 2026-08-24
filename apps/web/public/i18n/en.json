@@ -326,7 +326,9 @@
     "add_items_title": "Add Items to Order",
     "assign_table": "Assign Table",
     "bar_order": "Bar Order",
+    "item_notes": "Item notes",
     "item_notes_placeholder": "Notes (e.g. no ice)",
+    "order_notes": "Notes",
     "order_notes_placeholder": "Order notes (e.g. outside table)",
     "bar_order_title": "Bar Order",
     "bar_orders": "Bar Orders",
@@ -334,7 +336,6 @@
     "cancel_message": "Are you sure you want to cancel this order? This cannot be undone.",
     "cancel_order": "Cancel",
     "cancel_title": "Cancel Order",
-    "cart": "Order",
     "checkout": "Pay All",
     "create_table": "Create Table",
     "delete_table_message": "Are you sure you want to delete the table \"{{name}}\"? All associated orders and data will be permanently lost and this action cannot be undone.",
@@ -387,8 +388,7 @@
     "tables_title": "Tables",
     "to_serve_title": "To serve",
     "all_served_title": "All served!",
-    "all_served_desc": "There are no pending orders to serve at the establishment right now.",
-    "total": "Total"
+    "all_served_desc": "There are no pending orders to serve at the establishment right now."
   },
   "inventory": {
     "status": {
