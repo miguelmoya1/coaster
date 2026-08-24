@@ -1,7 +1,9 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
+  inject,
   Injector,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -15,6 +17,7 @@ import {
   PAYWALL_HANDLER,
   unauthorizedInterceptor,
   urlInterceptor,
+  VirtualKeyboard,
 } from '@coaster/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -37,6 +40,7 @@ export const appConfig: ApplicationConfig = {
       deps: [Injector],
     },
     provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => inject(VirtualKeyboard).watch()),
     provideZonelessChangeDetection(),
     provideHttpClient(
       withInterceptors([urlInterceptor, idTokenInterceptor, errorInterceptor, unauthorizedInterceptor]),

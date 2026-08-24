@@ -14,6 +14,7 @@ export * from './services/current-user';
 export * from './services/date-formatter';
 export * from './services/realtime';
 export * from './services/toast';
+export * from './services/virtual-keyboard';
 export * from './utils/errors.utils';
 export * from './utils/sse.utils';
 export * from './utils/user.utils';

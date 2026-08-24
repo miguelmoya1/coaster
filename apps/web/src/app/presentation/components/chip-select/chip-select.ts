@@ -1,6 +1,7 @@
 import { Component, input, model } from '@angular/core';
 import { DisabledReason, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { MatChipListbox, MatChipOption } from '@angular/material/chips';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface ChipOption<T extends string = string> {
   value: T;
@@ -9,12 +10,12 @@ export interface ChipOption<T extends string = string> {
 
 @Component({
   selector: 'coaster-chip-select',
-  imports: [MatChipListbox, MatChipOption],
+  imports: [MatChipListbox, MatChipOption, TranslatePipe],
   template: `
     @if (!hidden()) {
-      <fieldset class="flex flex-col gap-1">
+      <fieldset class="flex flex-col gap-1.5">
         @if (label()) {
-          <legend class="text-xs font-semibold text-on-surface-variant mb-1">{{ label() }}</legend>
+          <legend class="text-xs font-semibold text-on-surface-variant mb-1.5">{{ label() }}</legend>
         }
 
         <mat-chip-listbox
@@ -29,12 +30,12 @@ export interface ChipOption<T extends string = string> {
           }
         </mat-chip-listbox>
 
-        @if (hint()) {
+        @if (touched() && invalid() && errors().length > 0) {
+          <p class="text-error text-xs" role="alert">
+            {{ errors()[0].message || errors()[0].kind | translate: errors()[0] }}
+          </p>
+        } @else if (hint()) {
           <p class="text-xs text-on-surface-variant">{{ hint() }}</p>
-        }
-
-        @if (invalid() && errors().length > 0) {
-          <p class="text-error text-xs font-medium" role="alert">{{ errors()[0].message || errors()[0].kind }}</p>
         }
       </fieldset>
     }

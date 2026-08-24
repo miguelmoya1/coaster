@@ -15,16 +15,17 @@ import { CoasterInput } from '../field/input.directive';
   },
   template: `
     @if (label()) {
-      <span class="text-sm font-medium text-gray-700">{{ label() }}</span>
+      <span class="text-xs font-semibold text-on-surface-variant">{{ label() }}</span>
     }
 
     <label
       [attr.for]="fileInputId"
-      class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg transition-colors overflow-hidden group cursor-pointer"
-      [class.border-primary-500]="isDragging()"
-      [class.bg-primary-50]="isDragging()"
-      [class.border-gray-300]="!isDragging()"
-      [class.hover:bg-gray-50]="!isDragging()"
+      class="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl transition-colors overflow-hidden group cursor-pointer"
+      [class]="
+        isDragging()
+          ? 'border-primary bg-primary/10'
+          : 'border-outline-variant/40 bg-surface-container-highest hover:bg-surface-container-high'
+      "
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
@@ -47,17 +48,17 @@ import { CoasterInput } from '../field/input.directive';
         </div>
       } @else {
         <div class="flex flex-col items-center justify-center p-4 text-center">
-          <mat-icon class="text-gray-400 mb-2">cloud_upload</mat-icon>
-          <p class="text-sm text-gray-600">
+          <mat-icon class="text-on-surface-variant mb-2">cloud_upload</mat-icon>
+          <p class="text-sm text-on-surface-variant">
             <span class="font-semibold">{{ 'UPLOAD_CLICK_TO_UPLOAD' | translate }}</span>
             {{ 'UPLOAD_DRAG_DROP' | translate }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP</p>
+          <p class="text-xs text-on-surface-variant/70 mt-1">PNG, JPG, WEBP</p>
         </div>
       }
 
       @if (uploading()) {
-        <div class="absolute inset-0 bg-white/70 flex items-center justify-center">
+        <div class="absolute inset-0 bg-surface/70 flex items-center justify-center">
           <coaster-spinner [diameter]="32" />
         </div>
       }

@@ -33,6 +33,7 @@ import { CoasterInput } from '../field/input.directive';
           <input
             coasterInput
             type="number"
+            inputmode="decimal"
             class="px-12 text-center font-bold"
             [id]="id()"
             [value]="value()"

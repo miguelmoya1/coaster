@@ -1,6 +1,5 @@
 import { Component, input, model } from '@angular/core';
 import { ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
-import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../field/field';
 import { CoasterInput } from '../field/input.directive';
 
@@ -25,7 +24,7 @@ export const AVAILABLE_ICONS = [
 
 @Component({
   selector: 'coaster-icon-picker',
-  imports: [TranslatePipe, Field, CoasterInput],
+  imports: [Field, CoasterInput],
   template: `
     @if (!hidden()) {
       <coaster-field
