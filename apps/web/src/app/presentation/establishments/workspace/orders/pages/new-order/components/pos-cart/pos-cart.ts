@@ -96,19 +96,19 @@ export interface CartItem {
               }
             </select>
           }
-
-          <button
-            type="button"
-            data-testid="order-notes-btn"
-            class="flex items-center gap-1.5 shrink-0 rounded-xl bg-surface-container-highest px-3 py-2.5 text-sm font-medium border border-outline-variant/30 cursor-pointer"
-            [class.text-primary]="!!orderNotes()"
-            [class.border-primary]="!!orderNotes()"
-            (click)="orderNotesOpen.set(!orderNotesOpen())"
-          >
-            <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">sticky_note_2</mat-icon>
-            {{ 'orders.order_notes' | translate }}
-          </button>
         </div>
+
+        <button
+          type="button"
+          data-testid="order-notes-btn"
+          class="flex w-full items-center gap-1.5 rounded-xl bg-surface-container-highest px-3 py-2.5 text-sm font-medium border border-outline-variant/30 cursor-pointer"
+          [class.text-primary]="!!orderNotes()"
+          [class.border-primary]="!!orderNotes()"
+          (click)="orderNotesOpen.set(!orderNotesOpen())"
+        >
+          <mat-icon class="text-[18px]! w-[18px]! h-[18px]! leading-[18px]! m-0!">receipt_long</mat-icon>
+          {{ 'orders.order_notes' | translate }}
+        </button>
 
         @if (orderNotesOpen()) {
           <textarea
@@ -117,7 +117,7 @@ export interface CartItem {
             class="h-16"
             [value]="orderNotes() || ''"
             [placeholder]="'orders.order_notes_placeholder' | translate"
-            (change)="onOrderNotesChange($event)"
+            (input)="onOrderNotesChange($event)"
           ></textarea>
         }
 
