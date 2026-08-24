@@ -24,6 +24,14 @@ describe('Admin backoffice (e2e)', () => {
     return 0;
   };
 
+  const waitForAuditAction = async (action: AdminAuditAction): Promise<boolean> => {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      if ((await testSetup.prisma.dbAdminAuditLog.count({ where: { action } })) > 0) return true;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    return false;
+  };
+
   beforeAll(async () => {
     await testSetup.setup();
   });
@@ -385,7 +393,7 @@ describe('Admin backoffice (e2e)', () => {
       const after = await request(http()).get('/api/admin/beta-testers').expect(200);
 
       expect(after.body.total).toBe(0);
-      expect(await waitForAudit()).toBeGreaterThan(0);
+      expect(await waitForAuditAction(AdminAuditAction.BETA_TESTER_REMOVED)).toBe(true);
 
       const audit = await request(http()).get('/api/admin/audit').expect(200);
 
