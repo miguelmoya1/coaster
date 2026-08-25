@@ -12,9 +12,9 @@ only has an `http://` address on the local network, which every browser blocks a
 the bridge calls outwards and is never called in:
 
 ```text
-Waiter (app)  ──POST /bars/:id/printer/jobs──►  API  ──┐
-                                                        │  queue in Postgres
-Bridge (this service)  ──GET /printer/jobs/next─────────┘
+Waiter (app)  ──POST /establishments/:id/printer/jobs──►  API  ──┐
+                                                                  │  queue in Postgres
+Bridge (this service)  ──GET /printer/jobs/next───────────────────┘
         │  long-poll: the API holds the request open for up to 25s
         ▼
    Thermal printer
@@ -34,13 +34,31 @@ by default**: it needs `-jwt-secret`, or `-insecure` to accept unauthenticated r
 
 ## Setting up a venue
 
-1. In the app, with printer management permission, generate the bar's **device key**. It is shown
-   once; if it is lost, generate it again (the previous one stops working).
-2. Start the bridge on the venue's computer:
+Nobody types a UUID into a terminal at a bar. **The download is the pairing.**
+
+1. In the app, with `establishment:manage-printer`, ask for the bridge. The API issues a pairing
+   code valid for an hour and serves the binary named after it — `coaster-printer-K7QM3XBD.exe`.
+2. Run it on the venue's computer. On first start it reads the code out of its own filename,
+   exchanges it for the establishment id and device key (`POST /printer/pair`), and writes
+   `coaster-printer.json` next to the executable. It never needs the code again — not after a
+   restart, not after a self-update.
 
 ```bash
-./printer-service --bar-id=<BAR_ID> --device-key=<DEVICE_KEY> --print-width=48
+./coaster-printer-K7QM3XBD --print-width=48
 ```
+
+If the file was renamed on the way down, or the code expired, the bridge says so and waits: open
+**http://localhost:8080/setup** and paste a fresh code.
+
+The flags are still there for a machine set up by hand or for development:
+
+```bash
+./printer-service -establishment-id=<ESTABLISHMENT_ID> -device-key=<DEVICE_KEY> -print-width=48
+```
+
+Both are also read from `ESTABLISHMENT_ID` and `PRINTER_DEVICE_KEY`. A saved
+`coaster-printer.json` fills in whatever the flags and the environment left empty, so it never
+overrides an explicit flag.
 
 Check it is alive:
 
@@ -55,21 +73,29 @@ And what printers it can see (USB, serial, Bluetooth, and a scan of the local ne
 curl http://localhost:8080/printers
 ```
 
+The local endpoints are `/health`, `/printers`, `/setup` and `/print`. Only the last one is a way in:
+it is closed unless the bridge was started with `-jwt-secret` (or `-insecure`), and CORS is limited
+to `-allowed-origins`.
+
 ## Options
 
-| Flag               | Default  | What it does                                                                        |
-| ------------------ | -------- | ----------------------------------------------------------------------------------- |
-| `-bar-id`          | —        | Which bar the bridge belongs to. Without it, it picks up no tickets.                 |
-| `-device-key`      | —        | Key issued by the API. Also read from `PRINTER_DEVICE_KEY`.                           |
-| `-printer-type`    | `usb`    | `usb` or `network`.                                                                  |
-| `-printer-path`    | —        | Path (`/dev/usb/lp0`), Windows queue name, or `IP[:port]`. Empty means autodetect.   |
-| `-print-width`     | `32`     | Characters per line: **32 for 58 mm paper, 48 for 80 mm**.                            |
-| `-code-page`       | `cp858`  | Character table: `cp858`, `cp850`, `cp437`, `cp1252`.                                 |
-| `-port`            | `8080`   | Local server port. Registered with the API alongside the IP.                          |
-| `-jwt-secret`      | —        | Enables `POST /print`. Must match the API's `PRINTER_JWT_SECRET`.                     |
-| `-insecure`        | `false`  | Opens `POST /print` with no authentication. Debugging only.                           |
-| `-update-interval` | `6h`     | How often to check for a new version. `0` means only at startup.                      |
-| `-local`           | `false`  | Points at `http://localhost:3000` instead of production.                              |
+| Flag                | Default                                          | What it does                                                                       |
+| ------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `-establishment-id` | from the pairing file                            | Which establishment the bridge belongs to. Without it, it picks up no tickets.     |
+| `-device-key`       | from the pairing file                            | Key issued by the API. Also read from `PRINTER_DEVICE_KEY`.                        |
+| `-printer-type`     | `usb`                                            | `usb` or `network`. `network` requires `-printer-path`.                            |
+| `-printer-path`     | —                                                | Path (`/dev/usb/lp0`), Windows queue name, or `IP[:port]`. Empty means autodetect. |
+| `-print-width`      | `32`                                             | Characters per line: **32 for 58 mm paper, 48 for 80 mm**. Accepted range 16–96.   |
+| `-code-page`        | `cp858`                                          | Character table: `cp858`, `cp850`, `cp437`, `cp1252`.                              |
+| `-port`             | `8080`                                           | Local server port. Registered with the API alongside the IP.                       |
+| `-api-url`          | `https://api.coaster.business/api/v1`            | Which API to talk to.                                                              |
+| `-local`            | `false`                                          | Shorthand for `-api-url=http://localhost:3000/api/v1`.                             |
+| `-ip-address`       | autodetected                                     | Override the local address reported in the heartbeat.                              |
+| `-allowed-origins`  | `https://coaster.business,http://localhost:4200` | Comma-separated CORS allowlist for the local endpoints.                            |
+| `-jwt-secret`       | —                                                | Enables `POST /print`. Must match the API's `PRINTER_JWT_SECRET`.                  |
+| `-insecure`         | `false`                                          | Opens `POST /print` with no authentication. Debugging only.                        |
+| `-poll-interval`    | `2s`                                             | Wait before polling again after the API answers with no job.                       |
+| `-update-interval`  | `6h`                                             | How often to check for a new version. `0` means only at startup.                   |
 
 ### Accents and the euro sign
 
@@ -117,7 +143,11 @@ In production `PUBLIC_URL` has to point at an address reachable from the venue; 
 ## Layout
 
 - `cmd/server` — startup, routes and graceful shutdown.
-- `internal/config` — flags, environment variables and validation.
+- `internal/config` — flags, environment variables, the saved pairing and validation.
+- `internal/pairing` — the code in the filename, `POST /printer/pair`, and `coaster-printer.json`.
+- `internal/domain` and `internal/usecase` — ticket model and the printing use case.
+- `internal/handler` — the local HTTP endpoints (`/print`, `/health`, `/printers`, `/setup`).
+- `internal/middleware` — CORS and JWT verification for those endpoints.
 - `internal/escpos` — ticket rendering, character tables and ESC/POS commands.
 - `internal/infrastructure/printer` — USB/network/Windows drivers and discovery.
 - `internal/relay` — the loop that collects tickets from the API.

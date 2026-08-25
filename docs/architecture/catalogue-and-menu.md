@@ -30,11 +30,11 @@ that makes this a redesign rather than a patch.
 
 ## Three kinds of text, three owners
 
-| Text | Whose language | Where it is decided |
-| --- | --- | --- |
-| Buttons, labels, errors | The user's | `UserPreferences.language`, already built |
-| The starter catalogue Coaster ships | The establishment's, at import | A file in this repository |
-| What the establishment sells | Its own words | Not translated; the menu carries translations |
+| Text                                | Whose language                 | Where it is decided                           |
+| ----------------------------------- | ------------------------------ | --------------------------------------------- |
+| Buttons, labels, errors             | The user's                     | `UserPreferences.language`, already built     |
+| The starter catalogue Coaster ships | The establishment's, at import | A file in this repository                     |
+| What the establishment sells        | Its own words                  | Not translated; the menu carries translations |
 
 Staff read products, and staff work in the establishment's language, so **the product itself is never
 translated**. Customers read the menu, so translations belong to the menu. That split is what keeps
@@ -65,8 +65,11 @@ in every language, unique category keys, whole positive prices, no empty categor
 the whole catalogue, which is what onboarding asks for; a selection names categories by key. Both are
 idempotent, so importing twice adds nothing.
 
-When the menu arrives, the same file fills a draft menu's translations at import: a bar that imports
-the standard catalogue gets a menu already written in both languages for free.
+The plan was for the same file to fill a draft menu's translations at import — a venue that imports
+the standard catalogue would get a menu already written in both languages for free. **That has not
+been built**: `ImportStarterCatalogueHandler` writes categories and products and stops there, so an
+establishment that imported the catalogue still starts its menu empty. The languages are sitting in
+the file; nothing reads them for the menu yet.
 
 ## The menu is its own document
 
@@ -118,17 +121,22 @@ one to begin with.
 
 **Allergens live on the product**, not the menu: they are a fact about the food. Spanish law obliges
 an establishment to inform customers about the fourteen listed ones, and a published menu is where
-people will look. A nullable column costs nothing now and is a migration plus a data-entry campaign
-once venues have real catalogues. Whether to display them stays a switch on the menu.
+people will look. `Product.allergens` is an array of the `Allergen` enum, added while catalogues were
+still empty precisely so it would never need a data-entry campaign. Whether to display them stays a
+switch on the menu.
 
 ## The public surface
 
-- `GET /m/:slug?lang=` — outside every guard, and the first thing a stranger can reach, so it needs
-  its own rate limit rather than the authenticated one.
+- `GET /api/v1/menus/:slug?lang=` — outside every guard, and the first thing a stranger can reach,
+  so it carries its own rate limit (60/minute) rather than the authenticated one. The page a customer
+  scans is the Angular route `/m/:slug`, which reads it. A spec asserts the controller has no guards,
+  so it cannot acquire one by accident either.
 - A slug, never the internal UUID, so the QR points at something printable.
 - Shows section, name, description, price, image, allergens. **Never** stock, takings or staff.
-- Unpublished is a 404, not an empty menu.
-- Requires the `INVENTORY` module and an explicit switch: off until somebody turns it on.
+- Unpublished is a 404, not an empty menu — publishing **is** the switch, and unpublishing takes it
+  back off without deleting the draft.
+- The editor requires the `INVENTORY` module (`@RequiresModule`) and `establishment:manage-menu`,
+  which is a MANAGER permission. The public read requires neither, by definition.
 - **Not ordering.** A customer ordering from the QR is a different product, with payments, fraud and
   table state in it. A menu is a menu.
 
@@ -155,4 +163,6 @@ coastal bar may want French on the menu without Coaster being translated into Fr
    publish that renders every language into `publishedSnapshot`, and `GET /menus/:slug` outside every
    guard with its own rate limit. The editor lives under inventory; the public page at `/m/:slug`.
 3. **Translation help**: the editor already counts what is unwritten; the assistant's batch pass is
-   what remains.
+   what remains. The starter catalogue seeding a draft menu (step 2's free lunch) did not ship with
+   the menu either, and belongs here — it is the same problem answered from a file instead of a
+   model.

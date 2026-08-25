@@ -22,8 +22,51 @@ the raw key to a user.
 
 ## Contexts
 
-Establishments and memberships · menu (categories and products) · tables and orders · shifts and exchanges ·
-time tracking · printing · billing (Stripe and manual grants) · platform administration.
+Establishments, their settings and memberships · the catalogue (categories and products) · the
+published menu · tables and orders · shifts and exchanges · time tracking · printing · media
+uploads · takings and statistics · the AI assistant · billing (Stripe and manual grants) · platform
+administration.
+
+## The establishment and its settings
+
+- Establishment — a name, and everything else hangs off it.
+- EstablishmentSettings — one row per establishment, created with it:
+  - `modules`: which of `TIME_TRACKING`, `ORDERS`, `INVENTORY` the venue runs. Enforced by
+    `EstablishmentModulesGuard` — see [access model](permissions.md).
+  - `language`: the establishment's own language, inherited from its creator. It decides what the
+    starter catalogue is imported as and what a draft menu's default language is. It is **not** the
+    language of the interface, which is `UserPreferences.language`, per person.
+  - `markSoldOut`: whether a product at zero stock is shown as sold out on the order screen.
+  - `configuredAt`: null until onboarding has been through. It is what makes the business-type
+    dialog appear exactly once.
+
+`EstablishmentMember` carries `hourlyRateCents`, which is what the labour-cost figure
+(`establishment:view-labor-cost`) is computed from, and `deletedAt`, because removing a member is a
+soft delete — the guards, the AI handler and the members list all filter on it.
+
+## Accounts
+
+There is **no `Account` table, on purpose**. `User.firebaseUid` is the Firebase UID, and Firebase is
+the account layer: adding a sign-in provider is a Firebase setting, not a migration. `User` rows can
+exist before their owner has ever signed in — that is how an invitation works — and the claim rules
+are in [access model](permissions.md).
+
+`UserPreferences` holds the interface language, one row per user.
+
+`BetaTester` is an allowlist of email addresses that may open a **new** account while the beta is
+closed. It gates sign-up only, and only when `BETA_ALLOWLIST_ENABLED` is on. See
+[closed beta](../saas/closed-beta.md).
+
+## The catalogue and the menu
+
+Two different documents, deliberately — the catalogue is operational and private, the menu is
+published. `Category` and `Product` are the catalogue; `Menu`, `MenuSection` and `MenuItem` are the
+menu, with their text in JSON `translations` columns and a whole rendered `publishedSnapshot` the
+public page reads. `Product.allergens` carries the fourteen the Spanish rules list. The reasoning and
+the shape are in [catalogue and menu](catalogue-and-menu.md).
+
+Both `Category` and `Product` are soft-deleted (`deletedAt`), because an order line points at a
+product and history must survive the product being retired.
 
 ## Orders and pricing
 
@@ -111,6 +154,21 @@ all — otherwise an absence, which is exactly what you want to see, would be in
 There is no local copy of Stripe events. See [Stripe integration](../saas/stripe-integration.md) for
 why idempotency does not need one here.
 
+## Printing
+
+- PrinterConfig — one per establishment: the `deviceKey` a bridge authenticates with, plus the
+  address and port it last reported.
+- PrinterPairing — a short-lived, single-use code that a bridge exchanges for the device key on
+  first run, so nobody has to copy a UUID onto a computer at the venue.
+- PrintJob — the queue: payload, status, attempts and the last error.
+
+See [printing bridge](printing-bridge.md).
+
+## The assistant
+
+- AiUsage — one row per establishment per calendar month (`period` is `YYYY-MM`), holding the count
+  of messages. It is the monthly allowance; it stores no conversation and no prompt.
+
 ## Administration
 
 - AdminAuditLog
@@ -138,7 +196,11 @@ end at the same realtime handler, which tells the establishment's clients with `
 ## Indexing
 
 PostgreSQL does not index foreign keys on its own and Prisma does not add them. Every hot filter has
-an explicit index: `Order(establishmentId, status)` and `Order(establishmentId, createdAt)`, `OrderItem(orderId)`,
-`OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)`, `Category(establishmentId, deletedAt)`,
-`Product(categoryId, deletedAt)`, `EstablishmentMember(establishmentId, deletedAt)`. Without them the orders screen was
-a sequential scan of the whole table.
+an explicit index: `Order(establishmentId, status)`, `Order(establishmentId, createdAt)` and
+`Order(establishmentId, createdById, createdAt)` for one waiter's own takings, `OrderItem(orderId)`,
+`OrderAdjustment(orderId)`, `Shift(establishmentId, startTime)` and `Shift(userId, startTime)`,
+`Category(establishmentId, deletedAt)`, `Product(categoryId, deletedAt)`,
+`EstablishmentMember(establishmentId, deletedAt)`, `PrintJob(establishmentId, status, createdAt)` for
+the bridge's long-poll, and on `TimeEntry` both `(establishmentId, userId, workdayDate)` and
+`(establishmentId, workdayDate)`. Without them the orders screen was a sequential scan of the whole
+table.

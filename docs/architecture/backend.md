@@ -63,7 +63,19 @@ The realtime stream adds nothing to this. It is a `GET` like any other, so `Fire
 `EstablishmentPermissionsGuard` decide who may open it; there is no second authentication path to
 keep in step with this one.
 
-The full authorisation picture is in [access model](permissions.md).
+The full authorisation picture — five guards, in the order Nest runs them — is in
+[access model](permissions.md).
+
+### What is reachable without a token
+
+Three surfaces, and each one is deliberate:
+
+- `GET /menus/:slug` — the published menu a customer scans. Outside every guard, and throttled on
+  its own at 60/minute because it is the first thing a stranger can reach. A spec asserts it carries
+  no guards, so it cannot acquire one by accident either.
+- The printer bridge's routes, which authenticate per device with `X-Device-Key` rather than per
+  user — see [printing bridge](printing-bridge.md).
+- `POST /stripe/webhook`, where the signature is the gate.
 
 ### The shared cache
 

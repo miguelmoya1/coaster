@@ -7,7 +7,9 @@ covers the floor (tables, orders, payments) and the back office (staff, rota, st
 run its day without WhatsApp groups and paper.
 
 It is sold as a SaaS: each venue subscribes to a plan, and the platform is operated from an internal
-admin backoffice.
+admin backoffice. It is currently in **closed beta** — while `BETA_ALLOWLIST_ENABLED` is on, only
+addresses on the allowlist can open a new account, and people invited to an existing venue are
+unaffected. See [closed beta](docs/saas/closed-beta.md).
 
 ## ✨ What Can Coaster Do?
 
@@ -39,16 +41,30 @@ See [time tracking](docs/operations/time-tracking.md).
 - **Visual Catalog:** large icons for fast use on touch screens.
 - **Traffic Light System:** stock state at a glance — OK, low, or out.
 - **Smart Ordering:** groups missing items into a message ready to send to a supplier.
+- **Starter catalogue:** a venue that opens on Monday does not start with an empty screen. Coaster
+  ships a catalogue in the repository and imports it in the establishment's language, as words —
+  see [catalogue and menu](docs/architecture/catalogue-and-menu.md).
+- **Allergens:** the fourteen Spanish law obliges a venue to declare, on the product itself.
 
-### 🤖 Voice Assistant
+### 📱 Public Menu
 
-An in-app assistant that reads the venue's live state and executes actions on it, bounded by the
-caller's own permissions.
+A menu customers read from a QR code, at `/m/:slug` — its own document, not a view over the
+catalogue, with its own translations and its own prices. Publishing renders it once into a snapshot,
+so the public page is one column read with no joins and nothing to invalidate. Off until somebody
+turns it on, and never showing stock, takings or staff.
+
+### 🤖 Assistant
+
+An in-app assistant, by text or by voice, that reads the venue's live state and executes actions on
+it. Every one of its tools dispatches the same command an HTTP route would and checks the same
+permission first, so it can never do more than the caller can. See
+[the assistant](docs/architecture/assistant.md).
 
 ### 🛡️ Admin Backoffice
 
 Platform operations at `/admin`, for users with the `ADMIN` role: metrics, venue and user
-management, granting PRO by hand without Stripe, and an audit log of every action taken.
+management, granting PRO by hand without Stripe, the beta allowlist, and an audit log of every action
+taken.
 
 See [backoffice](docs/admin/backoffice.md).
 
@@ -56,34 +72,62 @@ See [backoffice](docs/admin/backoffice.md).
 
 Live updates over Server-Sent Events: orders, tables, stock, members and subscription changes
 propagate to everyone watching the venue. One authenticated `GET` per client, the same guards as
-every other endpoint.
+every other endpoint. A reconnect replays a two-minute buffer, so nothing is missed across a tunnel
+or a screen lock.
+
+---
+
+## 🧩 One Product, Three Modules
+
+Not every venue sells at a till, and none of them should pay in screen space for what they do not
+do. An establishment picks a business type at onboarding, and that turns on modules:
+
+| Module          | Turns on                              | Hospitality | Retail | Other |
+| --------------- | ------------------------------------- | :---------: | :----: | :---: |
+| `TIME_TRACKING` | clocking and the legal register       |      ✓      |   ✓    |   ✓   |
+| `ORDERS`        | tables, orders, payments, the printer |      ✓      |        |       |
+| `INVENTORY`     | catalogue, stock, the public menu     |      ✓      |   ✓    |       |
+
+It is enforced, not merely hidden: `EstablishmentModulesGuard` answers `403 MODULE_NOT_ENABLED` on
+the API, `moduleGuard` blocks the route in the browser, and the assistant is not even offered the
+tools. Changing it later is the owner's call, under **Settings**.
 
 ---
 
 ## 🔐 Access Model
 
-Three independent axes, all of which a request must pass:
+Four independent axes, all of which a request must pass:
 
-| Axis          | Values                      |
-| ------------- | --------------------------- |
-| Platform role | `USER`, `ADMIN`             |
-| Venue role    | `OWNER`, `MANAGER`, `STAFF` |
-| Subscription  | Stripe, manual grant, none  |
+| Axis           | Values                                 |
+| -------------- | -------------------------------------- |
+| Platform role  | `USER`, `ADMIN`                        |
+| Venue role     | `OWNER`, `MANAGER`, `STAFF`            |
+| Subscription   | Stripe, manual grant, none             |
+| Enabled module | `TIME_TRACKING`, `ORDERS`, `INVENTORY` |
 
-An unpaid venue keeps **read** access to its history — it only loses writes. Full detail in
+An unpaid venue keeps **read** access to its history — it only loses writes. And it never loses the
+working-time register: clocking in carries `@SkipSubscriptionCheck()`, because the legal obligation
+does not depend on the invoice being paid. Full detail in
 [Access model](docs/architecture/permissions.md).
 
 ---
 
 ## 🛠️ The Golden Stack (Architecture)
 
-- **Monorepo Strategy:** npm workspaces.
-- **Backend:** NestJS (CQRS) + Prisma ORM + PostgreSQL.
-- **Frontend:** Angular 22 + Tailwind CSS v4 + Signals.
+- **Monorepo Strategy:** npm workspaces — `apps/{api,web,printer-service,firebase}` and
+  `packages/common`, which holds everything both sides must agree on (the permission table, the
+  pricing engine, the error codes).
+- **Backend:** NestJS 11 on Fastify, CQRS + Prisma 7 over PostgreSQL.
+- **Frontend:** Angular 22 — standalone, signals, zoneless — with Material and Tailwind CSS v4.
+- **Identity:** Firebase Auth. There is no `Account` table on purpose: `User.firebaseUid` is the
+  Firebase UID, so adding a provider is a setting rather than a migration.
+- **Realtime and cache:** Server-Sent Events over an optional Redis bus.
 - **Billing:** Stripe Checkout, Customer Portal and webhooks.
-- **Printer bridge:** Go service polling a job queue.
-- **Testing:** Vitest (unit) + Supertest/Playwright (E2E).
-- **Infrastructure:** Docker (local) / Google Cloud Run + Neon (production).
+- **Assistant:** the Vercel AI SDK against the AI Gateway, calling CQRS commands as tools.
+- **Printer bridge:** a Go service polling a job queue from inside the venue.
+- **Testing:** Vitest for unit tests, Vitest + testcontainers (a real Postgres, real migrations) for
+  API e2e, Playwright for the browser, `go test` for the bridge.
+- **Infrastructure:** Docker (local) · Vercel + Google Cloud Run + Neon (production).
 
 Architecture notes live in [`docs/`](docs/README.md).
 
@@ -98,9 +142,19 @@ Firebase emulator, and printer service.
 
 To run the frontend/backend servers for your app, use:
 
+The simplest thing that works is to run all of it in containers:
+
+```sh
+docker compose up
+```
+
+That brings up Postgres, Redis, the Firebase emulator, the API on `:3000`, the web app on `:4200`
+and the Stripe CLI forwarding webhooks. To run an application on the host instead, start the
+infrastructure it needs and then the app:
+
 ```sh
 # Start local infrastructure
-docker compose up db firebase
+docker compose up db redis firebase
 
 # Run the Backend API
 npm run dev:api
@@ -108,6 +162,12 @@ npm run dev:api
 # Run the Frontend App
 npm run dev:web
 ```
+
+`redis` is optional. With `REDIS_URL` unset the application behaves exactly as it did before the
+cache existed: every guard reads Postgres, the rate limit counts per process, and realtime events
+reach only the clients of the instance that raised them — see
+[the shared cache](docs/operations/redis.md). To reproduce the multi-instance behaviour locally,
+`docker compose --profile cluster up` adds a second API on `:3001`.
 
 > **Upgrading an existing checkout:** the `db` service moved from `postgres:16-alpine` to
 > `postgres:18-alpine`. A `postgres_data` volume created by 16 will not start under 18, so drop it
@@ -136,7 +196,7 @@ sign-in gets a new id, and `SyncUserHandler` refuses to move an email onto a dif
 the stored id once so the next sign-in claims it again:
 
 ```sh
-docker compose exec db psql -U admin -d coaster -c "UPDATE \"User\" SET \"googleId\" = NULL WHERE email = 'you@example.com'"
+docker compose exec db psql -U admin -d coaster -c "UPDATE \"User\" SET \"firebaseUid\" = NULL WHERE email = 'you@example.com'"
 ```
 
 After changing `packages/common`, rebuild it and restart the API — both apps consume its `dist`, not
@@ -157,11 +217,15 @@ npm run build
 ### Useful Commands
 
 - Run Unit Tests: `npm test`
-- Run API E2E Tests: `npm run test:e2e -w @coaster/api`
+- Lint (includes the layering rules on both sides): `npm run lint`
+- Run API E2E Tests: `npm run test:e2e -w @coaster/api` — brings up a database with testcontainers
 - Run Web E2E Tests: `cd apps/web && npx playwright test`
 - Run Printer Tests: `cd apps/printer-service && go test ./...`
-- Generate Prisma Client: `npm run db:generate`
+- Generate Prisma Client: `npm run db:generate` (in the container) or `cd apps/api && npx prisma generate` (on the host, which is where the unit tests run)
 - Apply Migrations: `npm run db:migrate`
+
+CI runs all of the above except the Playwright suite, which is currently commented out in
+[`ci.yml`](.github/workflows/ci.yml).
 
 ### Deploying
 
@@ -172,28 +236,39 @@ how to set one up.
 
 Environment variables that are easy to get wrong:
 
-| Variable                | Where     | Why it matters                                                                                                                                        |
-| ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PRODUCTION`            | web build | The build refuses to run without it, so a production bundle can never be silently built as a development one                                          |
-| `USE_EMULATORS`         | web build | Must be `false` in production; the build refuses the combination                                                                                      |
-| `TRUST_PROXY_HOPS`      | API       | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md) |
-| `PUBLIC_URL`            | API       | Where printer bridges download updates from; `localhost` reaches no venue                                                                             |
-| `FRONTEND_URL`          | API       | Stripe returns here after checkout, and the invitation email links here — wrong, and beta invites people into production                              |
-| `ALLOW_INDEXING`        | web build | `false` writes a `robots.txt` that disallows everything. Beta sets it; production must not                                                            |
-| `STRIPE_WEBHOOK_SECRET` | API       | Without it every webhook is rejected and subscriptions never activate                                                                                 |
-| `REDIS_URL`             | API       | Optional. Unset, rooms and the rate limit stay per-instance and every guard reads Postgres — see [the shared cache](docs/operations/redis.md)         |
+| Variable                 | Where     | Why it matters                                                                                                                                                                                                       |
+| ------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PRODUCTION`             | web build | The build refuses to run without it, so a production bundle can never be silently built as a development one                                                                                                         |
+| `USE_EMULATORS`          | web build | Must be `false` in production; the build refuses the combination                                                                                                                                                     |
+| `ALLOW_INDEXING`         | web build | `false` writes a `robots.txt` that disallows everything. Beta sets it; production must not                                                                                                                           |
+| `TRUST_PROXY_HOPS`       | API       | Defaults to `1`, correct for Cloud Run. Too high and the rate limit counts a header the caller controls — see [backend](docs/architecture/backend.md)                                                                |
+| `PUBLIC_URL`             | API       | Where printer bridges download updates from; `localhost` reaches no venue                                                                                                                                            |
+| `FRONTEND_URL`           | API       | Stripe returns here after checkout, and the invitation email links here — wrong, and beta invites people into production                                                                                             |
+| `STRIPE_WEBHOOK_SECRET`  | API       | Without it every webhook is rejected and subscriptions never activate                                                                                                                                                |
+| `STRIPE_PRICE_PRO`       | API       | What new checkouts are sold at. Raising it means a **new** price and the old one moved to `STRIPE_PRICE_PRO_LEGACY`, or subscribers silently drop to FREE                                                            |
+| `PRINTER_JWT_SECRET`     | API       | Signs the LAN printing token. Shared between environments, a beta pairing prints on a real venue's printer                                                                                                           |
+| `MEDIA_BUCKET`           | API       | Signed upload URLs for product images                                                                                                                                                                                |
+| `AI_GATEWAY_API_KEY`     | API       | The assistant. Read by the AI SDK, not by our code, so a missing key only shows up as a failed answer                                                                                                                |
+| `RESEND_API_KEY`         | API       | Invitation emails. Beta needs its own, or its invites spend production's quota                                                                                                                                       |
+| `REDIS_URL`              | API       | Optional, and **never shared between environments** — keys carry no environment. Unset, rooms and the rate limit stay per-instance and every guard reads Postgres — see [the shared cache](docs/operations/redis.md) |
+| `BETA_ALLOWLIST_ENABLED` | API       | Closes sign-up to the `BetaTester` table. Default off; on with an empty list locks everybody out — see [closed beta](docs/saas/closed-beta.md)                                                                       |
 
 Migrations are not run by the image. Apply them with `prisma migrate deploy` before or during the
 release.
 
 ## 📚 Documentation
 
-- [Access model](docs/architecture/permissions.md) — roles, guards and plan grants
-- [Backend architecture](docs/architecture/backend.md)
-- [Frontend architecture](docs/architecture/frontend.md)
+Everything is indexed in [`docs/`](docs/README.md).
+
+- [Access model](docs/architecture/permissions.md) — roles, guards, enabled modules, plan grants
+- [Backend architecture](docs/architecture/backend.md) · [Frontend architecture](docs/architecture/frontend.md)
 - [Domain models](docs/architecture/domain-models.md)
-- [Time tracking](docs/operations/time-tracking.md)
+- [Catalogue and menu](docs/architecture/catalogue-and-menu.md) — and the languages between them
+- [The assistant](docs/architecture/assistant.md)
 - [Printing bridge](docs/architecture/printing-bridge.md)
-- [Stripe integration](docs/saas/stripe-integration.md) · [Stripe setup](docs/saas/stripe-local-setup.md)
+- [Time tracking](docs/operations/time-tracking.md) — the legal working-time register
+- [The shared cache](docs/operations/redis.md) — realtime bus, rate limit, guard preamble
+- [Production and beta](docs/operations/environments.md)
+- [Stripe integration](docs/saas/stripe-integration.md) · [Stripe setup](docs/saas/stripe-local-setup.md) · [Closed beta](docs/saas/closed-beta.md)
 - [Admin backoffice](docs/admin/backoffice.md)
-- [Roadmap](docs/roadmap.md)
+- [Roadmap](TODO.md) — what is next, what is parked, what is owed

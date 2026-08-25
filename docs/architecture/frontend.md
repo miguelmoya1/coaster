@@ -38,17 +38,29 @@ repositories), `store/` (signal state), `services/`, `mappers/` and, where relev
 
 Around an establishment the split is:
 
-| Domain                       | Contains                                                                          |
-| ---------------------------- | --------------------------------------------------------------------------------- |
-| `establishments`             | creating and listing establishments, current establishment                        |
-| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                     |
-| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive            |
-| `admin`                      | platform backoffice (establishments, users, metrics, audit) and `adminGuard`      |
-| `time-tracking`              | clocking: own workday, team register, corrections and export                      |
-| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them |
+| Domain                       | Contains                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `establishments`             | creating and listing establishments, current establishment, `ModulesStore` and `moduleGuard` |
+| `establishment-members`      | members, invitations, my own membership and `permissionGuard`                                |
+| `establishment-subscription` | subscription, checkout, customer portal, plan dialog and its directive                       |
+| `admin`                      | platform backoffice (establishments, users, beta testers, metrics, audit) and `adminGuard`   |
+| `time-tracking`              | clocking: own workday, team register, corrections and export                                 |
+| `schedule`                   | `ScheduleStateService`: selected date, view mode and the ranges derived from them            |
+| `categories`, `products`     | the catalogue                                                                                |
+| `catalogue`                  | importing the starter catalogue Coaster ships                                                |
+| `menu`                       | the menu editor's draft, publishing, and the public page's read                              |
+| `tables`, `orders`           | the floor                                                                                    |
+| `shifts`, `exchanges`        | the rota and the shift marketplace                                                           |
+| `stats`                      | takings and the dashboard figures                                                            |
+| `printer`                    | pairing, device key, print jobs                                                              |
 
 `permissionGuard` lives in `establishment-members` (not `establishments`) because it depends on `MyMemberStore`; in
 `establishments` it would form a `establishments -> establishment-members -> establishments` cycle.
+
+`moduleGuard` is its counterpart for the fourth access axis: it keeps a route out of reach when the
+establishment does not run that module, mirroring `EstablishmentModulesGuard` on the API — see
+[access model](permissions.md). It lives in `establishments` because the module list is the
+establishment's, not the member's.
 
 A domain may import `@coaster/core` and other domains by alias. **It cannot import from
 `presentation/`**: if a domain service opens a dialog, that dialog's component lives in the domain
@@ -190,8 +202,14 @@ Two more container traps, both of which look like "my change did not apply":
 - **Adding an npm dependency.** `node_modules` are anonymous volumes, so the host install is
   invisible inside the container. Run `docker compose exec api npm install` (or `web`).
 - **Adding or removing an export in `@coaster/common`.** Vite pre-bundles dependencies into
-  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts. The
-  browser then reports `does not provide an export named '...'`. Clear it:
+  `.angular/cache`, which `compose.yaml` keeps in a **named** volume that survives restarts, so the
+  browser reported `does not provide an export named '...'` for a symbol that plainly existed. This
+  one is fixed at the root: `angular.json` now lists `@coaster/common` under the dev server's
+  `prebundle.exclude`, so it is compiled with the application and picks changes up on the spot.
+
+  If it ever comes back, the cache is stale. Delete it **from inside the container** — removing it
+  from the host while the container holds it open detaches the bind mount, and everything you do
+  afterwards on the host is silently ignored:
 
   ```bash
   docker compose exec web rm -rf /app/apps/web/.angular/cache && docker compose restart web

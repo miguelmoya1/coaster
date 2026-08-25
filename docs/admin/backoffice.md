@@ -12,7 +12,13 @@ The full access story is in [access model](../architecture/permissions.md).
 | `/admin/overview`       | Establishments, users, how many have access and by which route, 30-day billing |
 | `/admin/establishments` | Searchable list with filters; detail page with plan and team actions           |
 | `/admin/users`          | Find people, promote or demote admins, activate and deactivate                 |
+| `/admin/beta-testers`   | The sign-up allowlist while the beta is closed                                 |
 | `/admin/audit`          | Everything done from the panel                                                 |
+
+`/admin/beta-testers` stays visible whether `BETA_ALLOWLIST_ENABLED` is on or off, and says which.
+Hiding it while the allowlist is idle would be a trap: there would be no way to fill the list before
+turning the switch on, and turning it on against an empty list locks out everybody, you included.
+See [closed beta](../saas/closed-beta.md).
 
 The starter catalogue an establishment can import is no longer edited here: it ships with the API as
 [`starter-catalogue.ts`](../../apps/api/src/catalogue/starter-catalogue.ts), so changing it is a

@@ -17,7 +17,7 @@ of the codebase asks a `CacheService` to `remember` and `forget`.
 | Key                                  | Read by                                         | Dropped by                                                           |
 | ------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
 | `user:{userId}:role`                 | `SecurityRepository.getUserRole`                | `UserUpdatedEvent`                                                   |
-| `user:google:{googleId}`             | `FirebaseTokenService.resolve`                  | `UserUpdatedEvent`, and `SyncUserHandler` directly                   |
+| `user:firebase:{firebaseUid}`        | `FirebaseTokenService.resolve`                  | `UserUpdatedEvent`, and `SyncUserHandler` directly                   |
 | `establishment:{id}:member:{userId}` | `SecurityRepository.getEstablishmentMemberRole` | `MemberInvitedEvent`, `MemberRemovedEvent`, `MemberRoleChangedEvent` |
 | `establishment:{id}:modules`         | `SecurityRepository.getEnabledModules`          | `EstablishmentSettingsUpdatedEvent`                                  |
 | `establishment:{id}:subscription`    | `SecurityRepository.getSubscriptionState`       | `SubscriptionActivated/Renewed/Cancelled/PaymentFailed/Overridden`   |
@@ -100,7 +100,7 @@ hours. Deleting is idempotent and cannot invert.
 
 **Absence is cached too.** `{"v":null}` is a stored answer, distinct from a key that is not there.
 Caching "this person is not a member" is what keeps a non-member hammering an endpoint cheap. The
-one place where that bites is a googleId that has no user _yet_ — a first sign-in would cache the
+one place where that bites is a `firebaseUid` that has no user _yet_ — a first sign-in would cache the
 absence and lock the new account out until the TTL — so `SyncUserHandler` drops that key on the
 paths where it links or creates the account. It is the only writer that clears a key directly rather
 than through an event, because `auth` cannot import `users` without a require-time cycle.

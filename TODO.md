@@ -1,7 +1,8 @@
 # Coaster roadmap
 
-What is left, in the order it should be built. Technical detail lives in [`docs/`](docs/README.md);
-this file is only the running order.
+What is left, in the order it should be built. What is **already built** is recorded in
+[`docs/roadmap.md`](docs/roadmap.md); technical detail lives in [`docs/`](docs/README.md). This file
+is only the running order.
 
 ## Next
 
@@ -10,6 +11,11 @@ this file is only the running order.
 The editor already counts what is unwritten in each language. What is missing is the assistant
 translating a menu in one pass — once per item rather than once per request, so a 50-item menu is
 about one message of the monthly allowance. Reviewed before it saves.
+
+The cheaper half of the same problem is still open too: `starter-catalogue.ts` carries every name in
+every language, and importing it was meant to leave a draft menu already written in both.
+`ImportStarterCatalogueHandler` writes categories and products and stops, so a venue that took the
+standard catalogue still starts its menu empty. Free translations, sitting in a file nothing reads.
 
 ## Later
 
@@ -30,11 +36,15 @@ about one message of the monthly allowance. Reviewed before it saves.
 
 ## Known debt
 
-- **Thirteen command handlers still publish nothing** — mostly `printer` and `shift-exchanges`.
-  Every command should end up emitting its event even where nothing listens. The three that blocked
-  the cache are done: `update-user`, `update-establishment-settings` and `handle-checkout-completed`,
-  the last of which was writing an activated subscription in silence and would have left a venue that
-  had just paid looking unpaid for as long as the TTL.
+- **Sixteen command handlers still publish nothing** out of sixty-six — six in `printer`, three in
+  `shift-exchanges`, and the rest one apiece in `catalogue`, `menu`, `establishments`,
+  `establishment-subscription` and `auth`. Every command should end up emitting its event even where
+  nothing listens. The three that blocked the cache are done: `update-user`,
+  `update-establishment-settings` and `handle-checkout-completed`, the last of which was writing an
+  activated subscription in silence and would have left a venue that had just paid looking unpaid for
+  as long as the TTL. Not all sixteen are debt of the same weight — `execute-ai` and
+  `create-checkout-session` have nothing anybody would subscribe to — but the printer and exchange
+  ones are the reason the realtime stream says nothing when a ticket fails or a shift changes hands.
 - **Renaming a product rewrites history.** `OrderItem` stores `priceAtPurchase` but never the name it
   was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
   name. Every product is renameable now that names are words rather than keys. The fix is for the
@@ -50,9 +60,11 @@ about one message of the monthly allowance. Reviewed before it saves.
 - **Event bindings are not covered by the web tests.** Component specs assert rendered DOM and call
   methods directly; dispatched DOM events never reach Angular listeners in that setup, so keyboard
   and click wiring is only ever verified by hand.
-- **Browser e2e run against mocked HTTP.** The Playwright suite stubs every API response, so nothing
-  automated exercises browser → API → database end to end. Printer pairing is covered on the API
-  side and in Go, but no test drives a real binary against a real server.
+- **Browser e2e run against mocked HTTP, and not in CI.** The Playwright suite stubs every API
+  response, so nothing automated exercises browser → API → database end to end — and the step that
+  would run it is commented out in `ci.yml`, so today it only runs when somebody runs it. Printer
+  pairing is covered on the API side and in Go, but no test drives a real binary against a real
+  server.
 - **`member-roles.e2e-spec.ts` failed once** and has passed every run since. Its siblings had a real
   race — asserting on a membership the invite saga writes asynchronously — fixed with
   `E2eTestSetup.waitForMembers`. This one asserts no member counts, so if it returns it is something
