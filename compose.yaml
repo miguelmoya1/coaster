@@ -50,6 +50,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - TRUST_PROXY_HOPS=0
       - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
     depends_on:
       db:
         condition: service_healthy
@@ -76,6 +77,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - TRUST_PROXY_HOPS=0
       - BETA_ALLOWLIST_ENABLED=${BETA_ALLOWLIST_ENABLED:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
     depends_on:
       db:
         condition: service_healthy

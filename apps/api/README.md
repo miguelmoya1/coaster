@@ -49,20 +49,21 @@ written in raw SQL (the append-only triggers on `TimeEntry`, the partial unique 
 travels in git nor enters the image. Production reads real environment variables — see
 [production and beta](../../docs/operations/environments.md).
 
-| Variable                                                         | Needed for                                                 |
-| ---------------------------------------------------------------- | ---------------------------------------------------------- |
-| `DATABASE_URL`                                                   | Everything                                                 |
-| `FIREBASE_AUTH_EMULATOR_HOST`                                    | Local sign-in against the emulator                         |
-| `FRONTEND_URL`                                                   | Stripe return URLs and invitation links                    |
-| `PUBLIC_URL`                                                     | Where printer bridges download updates from                |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` | Billing                                                    |
-| `RESEND_API_KEY`                                                 | Invitation emails                                          |
-| `PRINTER_JWT_SECRET`                                             | The LAN printing fallback                                  |
-| `MEDIA_BUCKET`                                                   | Signed upload URLs for product images                      |
-| `AI_GATEWAY_API_KEY`                                             | The assistant (read by the AI SDK, not by our code)        |
-| `REDIS_URL`                                                      | Optional — unset means no cache and no shared realtime bus |
-| `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`       |
-| `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist               |
+| Variable                                                         | Needed for                                                          |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `DATABASE_URL`                                                   | Everything                                                          |
+| `FIREBASE_AUTH_EMULATOR_HOST`                                    | Local sign-in against the emulator                                  |
+| `FRONTEND_URL`                                                   | Stripe return URLs and invitation links                             |
+| `PUBLIC_URL`                                                     | Where printer bridges download updates from                         |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` | Billing                                                             |
+| `RESEND_API_KEY`                                                 | Invitation emails                                                   |
+| `PRINTER_JWT_SECRET`                                             | The LAN printing fallback                                           |
+| `MEDIA_BUCKET`                                                   | Signed upload URLs for product images                               |
+| `AI_GATEWAY_API_KEY`                                             | The assistant (read by the AI SDK, not by our code)                 |
+| `REDIS_URL`                                                      | Optional — unset means no cache and no shared realtime bus          |
+| `CORS_ORIGINS`                                                   | Browser origins allowed to call the API; fails closed in production |
+| `TRUST_PROXY_HOPS`                                               | Defaults to `1` (Cloud Run); `compose.yaml` sets `0`                |
+| `BETA_ALLOWLIST_ENABLED`                                         | Closes sign-up to the `BetaTester` allowlist                        |
 
 Migrations are **not** run by the image. Apply them with `prisma migrate deploy` before or during
 the release.

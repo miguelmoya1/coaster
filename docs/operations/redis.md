@@ -157,8 +157,7 @@ is not a preference: a database on another continent turns every cached read int
 trip, which is slower than the Postgres query it was meant to replace, and the cache becomes a
 pessimisation.
 
-The free 30MB plan is what runs today, deliberately, while there are no real venues on the platform
-and therefore no employee or order data worth intercepting. Two things change the day there are, and
+The free 30MB plan is what runs today — deliberately, and with the exposure described in the decision below. Two things change the day there are, and
 both are a plan upgrade rather than a code change:
 
 - **TLS is not offered on the free tier.** Until it is on, the roles, memberships, employee names
@@ -174,19 +173,22 @@ Upgrading is the slider in the database's Configuration tab; TLS then lives unde
 with client certificate authentication left off. The URL becomes `rediss://` with two esses, and
 setting it is the only step that touches the service.
 
-Then set it on the service once, the same way `STRIPE_SECRET_KEY` and the rest are set:
+### The decision taken, 2026-08-25: stay on the free tier
 
-```bash
-gcloud run services update api-new --region europe-west1 \
-  --update-env-vars="REDIS_URL=rediss://default:<password>@<host>:<port>"
-```
+The upgrade is a cost and the platform has no revenue yet, so **the free tier stays and TLS stays
+off** until there is some. That is a deliberate, informed trade, not an oversight, and it is written
+here so nobody has to rediscover it.
 
-It survives every deploy because the workflow uses `--update-env-vars`, which only touches the
-variables it names. `--set-env-vars` would wipe everything else, which is why it is not used.
+What it means in the meantime: roles, memberships, employee names and order payloads cross the
+public internet in clear, the AUTH password goes with every connect, and anyone on the path can
+inject pub/sub messages. Today that is beta testers' data, which is why the trade is acceptable.
 
-The `.env` file has nothing to do with production: it is in `.gitignore` and in `.dockerignore`, so
-it neither travels in git nor enters the image. In production `ConfigModule` reads only real
-environment variables.
+**The gate is unchanged: upgrade before a real venue is onboarded.** Order: upgrade the plan, enable
+TLS, then set `REDIS_URL` to the `rediss://` URL.
+
+If revenue arrives later than the first venue, the free fallback is to unset `REDIS_URL` entirely —
+the application degrades to reading Postgres, which is what it did until recently. It costs the
+two-minute replay buffer and nothing else while Cloud Run runs one instance.
 
 ### Cloud Run settings this depends on
 

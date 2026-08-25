@@ -19,5 +19,6 @@ export * from './security/guards/subscription-active.guard';
 export * from './security/security.module';
 export * from './security/services/firebase-token.service';
 export * from './utils/beta-allowlist';
+export * from './utils/cors';
 export * from './utils/prisma-errors';
 export * from './utils/public-assets';

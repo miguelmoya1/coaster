@@ -105,6 +105,40 @@ back to counting in memory rather than answering 500. Two exceptions:
 - The Stripe webhook and the printer bridge long-poll are exempt with `@SkipThrottle()`. Stripe
   retries on failure and the bridge holds a request open for 25 seconds by design.
 
+### Cross-origin requests
+
+`CORS_ORIGINS` is a comma-separated allowlist, and there is no wildcard anywhere: `origin: '*'` used
+to be the setting, which meant any page on the internet could call the API with a token it had got
+hold of, and — once the realtime stream arrived — hold a stream open too.
+
+It **fails closed in production**. An unset variable resolves to an empty list, every cross-origin
+request is refused, and the boot logs an error naming the variable. That is deliberate and follows
+the same lesson as `AdminGuard`: a security control that falls back to permissive when
+misconfigured protects nothing, and the failure is invisible precisely when it matters. Outside
+production it falls back to `http://localhost:4200`, so a fresh checkout and CI need no
+configuration.
+
+Set it **before** deploying the change, not after — the variable is ignored by any revision that
+predates it, so there is no window where the two disagree.
+
+Its value contains commas, which is exactly what `gcloud`'s env-var flags use to separate one
+variable from the next. Passed plainly, `CORS_ORIGINS=https://a,https://b` silently becomes two
+variables and the allowlist ends up holding one origin. Declare another delimiter with the `^d^`
+prefix:
+
+```bash
+gcloud run services update api-new --region europe-west1 \
+  --update-env-vars "^@^CORS_ORIGINS=https://www.coaster.business,https://coaster.business"
+```
+
+The `--env-vars-file` form used in [production and beta](../operations/environments.md) does not have
+the problem, because YAML quotes the value.
+
+The list needs every origin a browser loads the app from, which includes the apex if the site
+answers there: the public menu at `/m/:slug` is a normal cross-origin caller like every other page.
+The printer bridge is not affected — it is a Go process, not a browser, and authenticates with
+`X-Device-Key`.
+
 ### Proxies in front of the API
 
 `TRUST_PROXY_HOPS` says how many proxies sit in front. It defaults to **1**, which is what Cloud Run

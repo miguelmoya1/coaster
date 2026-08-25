@@ -34,6 +34,18 @@ standard catalogue still starts its menu empty. Free translations, sitting in a 
   Nothing to do until there is real usage: if nobody approaches 500, raise it; if many exhaust it,
   that is an argument for a price tier rather than a problem.
 
+## Before a real venue signs up
+
+Two gates, neither of which is a feature. Both are in the docs already; they are here because they
+are conditions on onboarding rather than work in a queue.
+
+- **Redis runs on the free tier, without TLS, until there is revenue.** Employee names and order
+  payloads therefore cross the internet in clear. Acceptable while the data is beta testers';
+  **upgrade the plan before the first real venue is onboarded.** Detail in
+  [the shared cache](docs/operations/redis.md).
+- **`CORS_ORIGINS` must be set on the service before the revision that reads it is deployed.** It
+  fails closed, so an unset variable in production refuses every browser request.
+
 ## Known debt
 
 - **Sixteen command handlers still publish nothing** out of sixty-six — six in `printer`, three in
@@ -49,8 +61,6 @@ standard catalogue still starts its menu empty. Free translations, sitting in a 
   was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
   name. Every product is renameable now that names are words rather than keys. The fix is for the
   order line to snapshot the name the way `TimeEntry` snapshots the user.
-- **Open CORS** (`origin: '*'`) on the API, pending a decision on the production domain. It now also
-  governs the realtime stream, which the browser reaches with a preflighted `Authorization` header. Narrow it to an allowlist before onboarding real venues.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
   is added, it must require typing the name to confirm and must land in the audit log.
 - **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.
