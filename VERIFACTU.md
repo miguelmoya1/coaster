@@ -1,300 +1,751 @@
-# Guía Técnica y Normativa: Sistema de Facturación y Veri*factu para TPV SaaS
+# Veri*factu en Coaster
 
-## 1. Comunicación con la AEAT: Identificación, Formato y Certificados
+Documento de trabajo para llevar la facturación de la sección de bares a Veri*factu. Está escrito
+contra el código tal y como está hoy, no contra un proyecto genérico: los modelos son Prisma, el
+dinero son céntimos enteros y cada pieza que ya existe se referencia en vez de reinventarse.
 
-Para que la Agencia Tributaria identifique al emisor, al software y valide la información, la integración se realiza en tres capas:
+La última sección parte el trabajo en paquetes con sus dependencias. Un agente puede leer su paquete
+y las secciones que este cita, y trabajar sin más contexto.
 
-### A. Identificación y Autenticación
+## 0. Estrategia
 
-1. **Conexión (mTLS con Certificado X.509):** La llamada al Web Service de la AEAT se autentica mediante HTTPS con certificado de cliente. Puede ser:
+No es obligatorio todavía para este caso y no hay prisa, así que el orden lo decide el valor y no la
+fecha. El trabajo se parte en dos mitades con perfiles muy distintos:
 
-- El certificado digital del cliente final (obligado tributario).
-- El certificado de tu empresa SaaS si actúas como **colaborador social / apoderado** para presentar en nombre de los bares.
+- **El código.** Desglose de IVA, numeración correlativa, huella encadenada, ticket generado en
+  servidor, QR en la impresora, anulaciones justificadas, arqueo de caja. Casi todo esto es un TPV
+  mejor con o sin AEAT, y se puede hacer en paralelo.
+- **La AEAT.** Certificado X.509, entorno de pruebas, declaración responsable como fabricante. Está
+  bloqueado por trámites, no por escribir código, y avanza en paralelo sin estar en el camino crítico.
 
-2. **Cuerpo del mensaje (Payload XML):** Dentro de la estructura XML se identifican explícitamente el emisor y el desarrollador.
+Por eso el interruptor de la sección 8 no es un adorno: permite terminar y usar toda la primera mitad
+mientras la segunda espera al certificado.
 
-### B. Formato de datos obligatorio
+Un detalle que ahorra la mayor parte del susto: **la generación del XML se valida contra el XSD
+oficial en local, sin certificado y sin red**. Cuando el certificado llegue solo queda el transporte.
 
-- **Protocolo:** Web Service **SOAP** sobre HTTPS con llamadas síncronas.
-- **Formato:** **XML estructurado** validado contra el esquema oficial XSD de la AEAT (`SuministroLR.xsd` / `RegistroFacturacionAlta`).
-- **Nodos principales del XML:**
-- **`Cabecera`:** NIF y Razón Social del obligado tributario y tipo de comunicación.
-- **`SistemaInformatico`:** NIF del desarrollador, nombre del SaaS, versión comercial e ID de instalación.
-- **`RegistroFactura`:** Serie, número correlativo, timestamp ISO con huso horario, tipo de factura (`F1`/`F2`), desglose de bases e IVA, huella anterior y huella actual.
+## 1. Lo que ya está resuelto en el repo
 
-## 2. Algoritmo Criptográfico: Hash SHA-256 y Encadenamiento
+Antes de escribir nada, lo que no hay que inventar:
 
-```text
-[ Invoice N-1 ] ──► SHA-256 (Previous Hash)
-                          │
-                          ▼
-[ Invoice N ]   ──► Canonical string + Previous Hash ──► SHA-256 (Current Hash)
-                          │
-                          ▼
-[ Invoice N+1 ] ──► Canonical string + Current Hash  ──► SHA-256 (Next Hash)
+| Necesidad | Ya existe en |
+| --------- | ------------ |
+| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts) |
+| Correlativo sin huecos bajo concurrencia | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
+| Corrección inmutable (registro nuevo que referencia al viejo) | `supersedesId` / `rootId` en `DbTimeEntry` |
+| Cálculo de totales, descuentos y pagos | `OrderPricingEngine` en [`order-pricing.engine.ts`](packages/common/src/domain/pricing/order-pricing.engine.ts) |
+| Cobro parcial y división de cuenta | `paidQuantityCash` / `paidQuantityCard` por línea |
+| Cola de impresión y bridge en el local | módulo `printer` + `apps/printer-service` (Go) |
+| Renderizado de QR | `coaster-qr-code` en web (`qrcode-generator`) |
+| Interruptor por establecimiento | `DbEstablishmentSettings` + `resolveModules` |
+| Registro de acciones sensibles | `DbAdminAuditLog` (patrón, no la tabla) |
 
+La sección 4 es, en la práctica, copiar el primer bloque cambiando el ámbito del lock. No se escribe
+un algoritmo nuevo.
+
+## 2. Modelo de datos
+
+Convenciones que no se negocian, porque son las del repo: prefijo `Db`, `@@map` al nombre sin
+prefijo, campos en camelCase, ids `uuid`, **dinero siempre en céntimos enteros**. Nada de `DECIMAL`.
+
+### A. Identidad fiscal del emisor
+
+Hoy `DbEstablishment` es `id + name`. Una factura necesita más:
+
+```prisma
+model DbEstablishment {
+  // ...campos actuales
+  taxId       String?  // NIF/CIF del obligado tributario
+  legalName   String?  // razón social, distinta del nombre comercial
+  fiscalAddress String?
+}
 ```
 
-### A. Cadena canónica para el cálculo de la huella
+Nullable porque los establecimientos existentes no lo tienen. La emisión con Veri*factu activo exige
+los tres; el flag no se puede encender sin ellos.
 
-Se concatenan los campos normalizados en orden estricto, separados por `&`, en UTF-8 y sin espacios:
+### B. Interruptor
 
-```text
-IDEmisorFactura=B12345678&NumSerieFactura=T2026-0042&FechaExpedicionFactura=25-08-2026&TipoFactura=F2&CuotaTotal=1.20&ImporteTotal=13.20&Huella=PREVIOUS_HEX_HASH&FechaHoraHusoGenRegistro=2026-08-25T14:30:00+02:00
-
+```prisma
+model DbEstablishmentSettings {
+  // ...campos actuales
+  verifactuEnabled Boolean @default(false)
+  invoiceSeries    String  @default("VF")
+}
 ```
 
-_Si es el primer registro de una serie, el parámetro `Huella` se envía vacío (`Huella=&`)._
+### C. Tipo de IVA en el catálogo
 
-### B. Generación del Hash
-
-Se aplica `SHA-256` sobre la cadena resultante. El resultado es un string hexadecimal de 64 caracteres en mayúsculas (ej. `3A7F92B...C81`).
-
-### C. Código QR impreso
-
-Cada factura simplificada u ordinaria incluye un código QR con la URL de cotejo de la AEAT:
-
-```text
-https://sede.agenciatributaria.gob.es/verifactu/consulta?nif=B12345678&numserie=T2026-0042&fecha=25-08-2026&importe=13.20&huella=3A7F92B5
-
+```prisma
+model DbProduct {
+  // ...campos actuales
+  taxRate Int @default(1000) // puntos básicos: 2100 = 21%, 1000 = 10%, 400 = 4%
+}
 ```
 
-## 3. Arquitectura del TPV: Comandas, Cobros Parciales y Facturación
+Puntos básicos enteros, por la misma razón que el dinero: nunca un float en un cálculo fiscal. El
+defecto de 10% cubre la mayoría de una carta de bar; las bebidas alcohólicas van al 21% y hay que
+marcarlas producto a producto.
 
-Separar la **gestión de cobros de caja** de la **emisión de la factura fiscal** evita problemas de redondeo en el IVA y simplifica el encadenamiento.
+`DbOrderItem` necesita **congelar el tipo en el momento de la venta**, igual que congela el precio.
+Si mañana se recategoriza un producto, un ticket reimpreso no puede cambiar de IVA:
+
+```prisma
+model DbOrderItem {
+  // ...campos actuales
+  taxRateAtPurchase Int
+}
+```
+
+Esto es la misma deuda que `TODO.md` ya reconoce con el nombre del producto. Merece la pena
+arreglar las dos a la vez: añadir también `productNameAtPurchase` sale casi gratis en esta migración.
+
+### D. El registro de facturación
+
+Una sola tabla para toda la cadena, incluidos los registros de anulación, porque comparten
+secuencia, lock y función de verificación. Partirla en dos obligaría a coordinar dos correlativos.
+
+```prisma
+enum DbInvoiceRecordType {
+  ALTA
+  ANULACION
+
+  @@map("InvoiceRecordType")
+}
+
+enum DbInvoiceType {
+  F1  // ordinaria completa
+  F2  // simplificada
+  F3  // emitida en sustitución de facturas simplificadas (el canje)
+  R1  // rectificativa: error fundado en derecho, art. 80.1/80.2/80.6 LIVA
+  R2  // rectificativa: art. 80.3 (concurso)
+  R3  // rectificativa: art. 80.4 (créditos incobrables)
+  R4  // rectificativa: resto de causas
+  R5  // rectificativa sobre facturas simplificadas
+
+  @@map("InvoiceType")
+}
+
+enum DbRectificationType {
+  S  // por sustitución
+  I  // por diferencias
+
+  @@map("RectificationType")
+}
+
+enum DbAeatStatus {
+  NOT_SENT
+  PENDING
+  ACCEPTED
+  ACCEPTED_WITH_ERRORS
+  REJECTED
+
+  @@map("AeatStatus")
+}
+
+model DbInvoice {
+  id              String              @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Restrict)
+  orderId         String?
+  order           DbOrder?            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  idVersion       String              // IDVersion del esquema vigente al emitir
+  recordType      DbInvoiceRecordType @default(ALTA)
+  type            DbInvoiceType
+  series          String
+  number          Int
+  sequence        BigInt
+
+  issuerTaxId     String              // IDEmisorFactura
+  issuerLegalName String              // NombreRazonEmisor
+  issuerAddress   String
+
+  operationText   String              // DescripcionOperacion · OBLIGATORIO
+  externalRef     String?             // RefExterna · aquí va el orderId
+
+  customerTaxId   String?             // NIF del destinatario
+  customerName    String?             // NombreRazon
+  customerAddress String?
+  customerCountry String?             // IDOtro/CodigoPais si no es NIF español
+  customerIdType  String?             // IDOtro/IDType
+
+  simplifiedArt7273       Boolean     @default(false) // FacturaSimplificadaArt7273
+  noCustomerIdArt61d      Boolean     @default(false) // FacturaSinIdentifDestinatarioArt61d
+  macrodato               Boolean     @default(false) // Macrodato (> 100M €)
+  issuedByThirdParty      String?     // EmitidaPorTerceroODestinatario: 'T' | 'D'
+  thirdPartyTaxId         String?     // Tercero/NIF
+  thirdPartyName          String?     // Tercero/NombreRazon
+
+  taxLines        DbInvoiceTaxLine[]
+  taxBaseTotal    Int
+  taxAmountTotal  Int                 // CuotaTotal
+  totalAmount     Int                 // ImporteTotal
+
+  prevHash        String              // Encadenamiento/RegistroAnterior/Huella
+  hash            String              // Huella
+  hashType        String              @default("01") // TipoHuella: 01 = SHA-256
+  prevSeries      String?
+  prevNumber      Int?
+  prevIssuedAt    DateTime?
+  isFirstRecord   Boolean             @default(false) // Encadenamiento/PrimerRegistro
+
+  softwareVersion     String          // SistemaInformatico/Version al emitir
+  installationNumber  String          // SistemaInformatico/NumeroInstalacion
+
+  qrPayload       String
+
+  subsanacion     Boolean             @default(false) // reenvío tras corregir
+  rechazoPrevio   Boolean             @default(false) // el anterior fue rechazado
+
+  aeatStatus      DbAeatStatus        @default(NOT_SENT)
+  aeatCsv         String?             // CSV · el SIF está obligado a conservarlo
+  aeatRecordState String?             // EstadoRegistro
+  aeatErrorCode   String?             // CodigoErrorRegistro
+  aeatErrorText   String?             // DescripcionErrorRegistro
+  aeatSentAt      DateTime?
+  aeatAttempts    Int                 @default(0)
+
+  substitutesId   String?             @unique
+  substitutes     DbInvoice?          @relation("InvoiceSubstitution", fields: [substitutesId], references: [id], onDelete: Restrict)
+  substitutedBy   DbInvoice?          @relation("InvoiceSubstitution")
+
+  rectifiesId     String?             @unique
+  rectifies       DbInvoice?          @relation("InvoiceRectification", fields: [rectifiesId], references: [id], onDelete: Restrict)
+  rectifiedBy     DbInvoice?          @relation("InvoiceRectification")
+  rectificationType   DbRectificationType? // TipoRectificativa
+  rectifiedBase       Int?            // ImporteRectificacion/BaseRectificada
+  rectifiedTaxAmount  Int?            // ImporteRectificacion/CuotaRectificada
+
+  cancelsId       String?             @unique
+  cancels         DbInvoice?          @relation("InvoiceCancellation", fields: [cancelsId], references: [id], onDelete: Restrict)
+  cancelledBy     DbInvoice?          @relation("InvoiceCancellation")
+  noPreviousRecord Boolean            @default(false) // SinRegistroPrevio
+  generatedBy     String?             // GeneradoPor: 'E' | 'D' | 'T'
+
+  issuedAt        DateTime            // FechaExpedicionFactura
+  recordedAt      DateTime            // FechaHoraHusoGenRegistro · con huso
+  operationDate   DateTime?           @db.Date // FechaOperacion
+  createdAt       DateTime            @default(now())
+
+  @@unique([establishmentId, series, number])
+  @@unique([establishmentId, series, sequence])
+  @@index([establishmentId, issuedAt])
+  @@index([establishmentId, aeatStatus])
+  @@index([orderId])
+  @@map("Invoice")
+}
+
+model DbInvoiceTaxLine {
+  id           String    @id @default(uuid())
+  invoiceId    String
+  invoice      DbInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  taxType      String    @default("01") // Impuesto: 01 = IVA
+  regimeKey    String    @default("01") // ClaveRegimen: 01 = régimen general
+  qualification String?  // CalificacionOperacion: S1 | S2 | N1 | N2
+  exemption    String?   // OperacionExenta: E1..E6 · excluyente con qualification
+  taxRate      Int       // TipoImpositivo, en puntos básicos
+  taxBase      Int       // BaseImponibleOimporteNoSujeto
+  taxAmount    Int       // CuotaRepercutida
+
+  @@unique([invoiceId, taxRate, regimeKey])
+  @@index([invoiceId])
+  @@map("InvoiceTaxLine")
+}
+```
+
+Decisiones que conviene entender antes de tocarlas:
+
+- **`taxLines` es una tabla, no tres columnas.** Una caña y una tapa en el mismo ticket son 21% y
+  10%. Un `taxRate` escalar en la factura sería incorrecto en el caso más común de un bar.
+- **`prevSeries`, `prevNumber` y `prevIssuedAt` acompañan a `prevHash`.** `Encadenamiento` identifica
+  la factura anterior por emisor, serie, fecha **y** huella, no solo por la huella.
+- **`issuedAt` y `recordedAt` son campos distintos.** `FechaExpedicionFactura` es una fecha
+  (dd-mm-yyyy) y `FechaHoraHusoGenRegistro` es un instante con huso horario. Casi siempre caen el
+  mismo día, pero el XML pide los dos y uno de ellos entra en la huella.
+- **`operationText` es obligatorio.** `DescripcionOperacion` no admite vacío. Para un bar es una
+  constante razonable ("Consumiciones en establecimiento"), pero hay que persistirla: un reenvío
+  tiene que reproducir el XML original byte a byte.
+- **`idVersion`, `softwareVersion` e `installationNumber` se congelan en la factura.** El esquema y
+  vuestra versión cambian con el tiempo; un registro reenviado dos años después debe salir con los
+  valores que tenía al emitirse, no con los de hoy.
+- **`aeatCsv` no es opcional.** La especificación dice expresamente que el CSV devuelto por la AEAT
+  debe ser conservado por el sistema de facturación.
+- **No hay tabla de pagos.** El repo cobra por cantidad de línea, no por apunte de caja, y eso ya
+  resuelve la división de cuenta. Ver sección 5.
+
+### E. Registro de acciones sobre comandas
+
+`DbAdminAuditLog` es del backoffice de plataforma. Hace falta el equivalente a nivel de
+establecimiento, con la misma forma:
+
+```prisma
+model DbOrderAuditLog {
+  id              String          @id @default(uuid())
+  establishmentId String
+  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  actorId         String
+  actor           DbUser          @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  action          String          // VOID_ORDER, VOID_ITEM, APPLY_DISCOUNT, REPRINT_TICKET
+  targetType      String
+  targetId        String
+  reason          String?
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+
+  @@index([establishmentId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@map("OrderAuditLog")
+}
+```
+
+### F. El bloque `SistemaInformatico`
+
+Va en **cada** registro y describe vuestro software, no al bar. Nueve campos: `NombreRazon` y `NIF`
+del productor, `NombreSistemaInformatico`, `IdSistemaInformatico`, `Version`, `NumeroInstalacion`,
+`TipoUsoPosibleSoloVerifactu`, `TipoUsoPosibleMultiOT` e `IndicadorMultiplesOT`.
+
+Los siete primeros son constantes del producto y viven en configuración. Los dos que varían —
+`Version` y `NumeroInstalacion`— se congelan en `DbInvoice` por la razón del punto anterior.
+`NumeroInstalacion` identifica la instalación concreta: con un SaaS multiestablecimiento, decidid
+pronto si es una por establecimiento y dejadlo escrito, porque cambia el significado de la cadena.
+
+### G. Correspondencia con el XSD
+
+Checklist para W9. Cada elemento de `RegistroAlta`, y de dónde sale:
+
+| Elemento XSD | Obligatorio | De dónde sale |
+| ------------ | :---------: | ------------- |
+| `IDVersion` | sí | `idVersion` |
+| `IDFactura/IDEmisorFactura` | sí | `issuerTaxId` |
+| `IDFactura/NumSerieFactura` | sí | `series` + `number`, con formato fijo |
+| `IDFactura/FechaExpedicionFactura` | sí | `issuedAt`, formato `dd-mm-yyyy` |
+| `RefExterna` | no | `externalRef` (el `orderId`) |
+| `NombreRazonEmisor` | sí | `issuerLegalName` |
+| `Subsanacion` | no | `subsanacion` |
+| `RechazoPrevio` | no | `rechazoPrevio` |
+| `TipoFactura` | sí | `type` |
+| `TipoRectificativa` | condicional | `rectificationType` |
+| `FacturasRectificadas` | condicional | vía `rectifiesId` |
+| `FacturasSustituidas` | condicional | vía `substitutesId` |
+| `ImporteRectificacion` | condicional | `rectifiedBase`, `rectifiedTaxAmount` |
+| `FechaOperacion` | no | `operationDate` |
+| `DescripcionOperacion` | **sí** | `operationText` |
+| `FacturaSimplificadaArt7273` | no | `simplifiedArt7273` |
+| `FacturaSinIdentifDestinatarioArt61d` | no | `noCustomerIdArt61d` |
+| `Macrodato` | no | `macrodato` |
+| `EmitidaPorTerceroODestinatario` | no | `issuedByThirdParty` |
+| `Tercero` | condicional | `thirdPartyTaxId`, `thirdPartyName` |
+| `Destinatarios` | condicional | campos `customer*` |
+| `Cupon` | no | no aplica |
+| `Desglose/DetalleDesglose` | sí | `DbInvoiceTaxLine[]` |
+| `CuotaTotal` | sí | `taxAmountTotal` |
+| `ImporteTotal` | sí | `totalAmount` |
+| `Encadenamiento` | sí | `isFirstRecord` o `prev*` |
+| `SistemaInformatico` | sí | config + `softwareVersion`, `installationNumber` |
+| `FechaHoraHusoGenRegistro` | sí | `recordedAt` |
+| `TipoHuella` | sí | `hashType` |
+| `Huella` | sí | `hash` |
+| `Signature` | no | **no hace falta en Veri*factu** |
+
+Dos avisos sobre esta tabla:
+
+- **"No obligatorio" en el XSD no significa que se pueda omitir.** `ClaveRegimen` y
+  `CalificacionOperacion` son `minOccurs=0` en el esquema y sin embargo las reglas de validación los
+  exigen para operaciones de IVA. El XSD marca el suelo; las validaciones publicadas marcan el
+  techo, y son un documento aparte.
+- **`Signature` es opcional**, lo cual confirma que en remisión Veri*factu no hace falta firmar el
+  XML con XAdES. Eso se lo ahorra el proyecto entero.
+
+Para `RegistroAnulacion` la lista es más corta: `IDVersion`, `IDFactura` (la que se anula),
+`RefExterna`, `SinRegistroPrevio`, `RechazoPrevio`, `GeneradoPor`, `Generador`, `Encadenamiento`,
+`SistemaInformatico`, `FechaHoraHusoGenRegistro`, `TipoHuella` y `Huella`. Cubierta por
+`noPreviousRecord`, `generatedBy` y los campos comunes.
+
+## 3. IVA: desglose y prorrateo
+
+**Los precios del catálogo son lo que paga el cliente, IVA incluido.** Así funciona un bar y así se
+comporta ya la aplicación. La consecuencia es la mejor noticia del documento: **ningún precio
+existente cambia y ningún total existente cambia**. El IVA se *deriva* del precio bruto, no se suma.
+La única entrada nueva es el `taxRate` por producto.
+
+El cálculo va dentro de `OrderPricingEngine`, que ya es el único calculador y lo usan las dos partes.
+No se escribe un motor nuevo al lado.
+
+### A. De bruto a base
+
+Para cada tipo, sobre el total bruto ya descontado:
 
 ```text
-                          [ OPEN ORDER / TABLE ]
+base  = round(brutoDelTipo * 10000 / (10000 + taxRate))
+cuota = brutoDelTipo - base
+```
+
+La cuota se obtiene restando, nunca calculándola aparte, para que base y cuota sumen exactamente el
+bruto sin descuadre de un céntimo.
+
+### B. Descuentos
+
+Los descuentos de línea ya salen resueltos: `PricingItemOutput.finalTotal` viene con el descuento
+aplicado, y esa línea tiene un único tipo. Se agrupa y ya está.
+
+Los descuentos de comanda (`target: ORDER`) son el trabajo real: rebajan el conjunto y hay que
+repartirlos entre tipos **en proporción al peso de cada tipo** en la base sobre la que se aplican.
+El céntimo que sobra del reparto se asigna al tipo de mayor importe, de forma determinista, para que
+dos cálculos de la misma comanda den siempre lo mismo.
+
+### C. La propina no lleva IVA
+
+`tipAmount` queda fuera de la base imponible y fuera del total de la factura. Se cobra, se contabiliza
+en el arqueo, pero no es contraprestación de la entrega.
+
+### D. Los códigos que acompañan a cada línea
+
+Cada `DetalleDesglose` no lleva solo tipo, base y cuota. Lleva también `ClaveRegimen`
+(`01` = régimen general, que es lo que aplica a un bar) y `CalificacionOperacion` (`S1` = sujeta y no
+exenta, sin inversión del sujeto pasivo). Ambos son `minOccurs=0` en el esquema y aun así las
+validaciones los exigen para IVA: dejarlos fuera es rechazo garantizado.
+
+Son constantes para el caso normal, pero se persisten por línea en vez de asumirse, porque el día que
+aparezca una exención o un régimen distinto no habrá que migrar facturas ya emitidas.
+
+Este paquete es funciones puras con tests de tabla. Es el único que no delegaría sin revisar.
+
+## 4. Huella encadenada y numeración
+
+Copia directa de [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts), con
+tres cambios:
+
+1. **El lock va por serie**, no solo por establecimiento:
+   `pg_advisory_xact_lock(hashtext(establishmentId || ':' || series))`. Cada serie lleva su propio
+   correlativo y dos series no deben bloquearse entre sí.
+2. **Dos contadores**, no uno. `sequence` es la posición en la cadena; `number` es el número de
+   factura que ve el cliente. Coinciden mientras nada se anule, pero conceptualmente son distintos y
+   el registro de anulación consume `sequence` sin consumir `number`.
+3. **La cadena canónica sale del XSD**, no de este documento.
+
+Sobre el punto 3, en serio: la cadena canónica es la única parte de todo esto que no admite
+aproximación. Un separador de más, un formato de fecha distinto o un orden de campos alterado y la
+AEAT rechaza **todos** los registros, no uno. La forma es esta —
+
+```text
+IDEmisorFactura=B12345678&NumSerieFactura=VF26-0042&FechaExpedicionFactura=25-08-2026&...&Huella=HEX_ANTERIOR
+```
+
+— pero los campos exactos, su orden y el tratamiento del primer registro de la serie se copian del
+esquema oficial vigente y se fijan con un test de vector conocido antes de construir nada encima.
+
+El resultado es hexadecimal en mayúsculas. El primer registro de una serie va con la huella anterior
+vacía; en base de datos se guarda el `GENESIS_HASH` de sesenta y cuatro ceros que ya usa
+`time-entry-chain`, para no tener que distinguir nulos al verificar.
+
+## 5. De la comanda a la factura
+
+```text
+                          [ COMANDA ABIERTA ]
+                     sin número, sin huella, sin factura
                                      │
            ┌─────────────────────────┴─────────────────────────┐
            ▼                                                   ▼
-[ Partial Payment 1: 20€ Card ]                     [ Partial Payment 2: 15€ Cash ]
-(Saves internal payment record)                     (Saves internal payment record)
+  [ Cobro parcial: 3 cañas ]                        [ Cobro parcial: resto ]
+   paidQuantityCard += 3                             paidQuantityCash += n
            │                                                   │
            └─────────────────────────┬─────────────────────────┘
                                      │
-                         [ PENDING BALANCE = 0.00 € ]
+                          [ pendingAmount === 0 ]
                                      │
                                      ▼
-                      [ FISCAL CLOSURE (Atomic DB Tx) ]
-                     1. Assign sequential invoice number
-                     2. Fetch last hash for tenant/series
-                     3. Compute new SHA-256 hash
-                     4. Save record in `invoices` table
-                     5. Dispatch XML to AEAT (Background Job)
+                    [ CIERRE FISCAL · transacción atómica ]
+              1. advisory lock por (establecimiento, serie)
+              2. leer cabeza de la cadena
+              3. desglosar IVA con OrderPricingEngine
+              4. asignar number y sequence
+              5. calcular huella encadenada
+              6. escribir DbInvoice + DbInvoiceTaxLine
+              7. construir el payload del QR
                                      │
                     ┌────────────────┴────────────────┐
                     ▼                                 ▼
-         [ Thermal Printer ]               [ Reprint / PDF Export ]
-          Send ESC/POS to printer          Generate PDF from DB
-          (0 requests to AEAT)             (0 requests to AEAT)
-
+          [ Ticket térmico ]                [ Reimpresión / PDF ]
+           payload desde la API              desde DbInvoice
+           (0 llamadas a la AEAT)            (0 llamadas a la AEAT)
+                                     │
+                                     ▼
+                       [ Despacho a la AEAT · asíncrono ]
 ```
 
-### Reglas de negocio:
+Reglas:
 
-1. **Comanda abierta (`status: OPEN`):** Los camareros añaden o modifican consumiciones. No hay factura, no hay hash, no hay número correlativo.
-2. **Cobros parciales (`status: PARTIALLY_PAID`):** Los pagos de 10 €, 20 €, etc., se guardan en la tabla `payments` vinculados a la comanda.
-3. **Cierre de comanda (`status: CLOSED`):** Al llegar el saldo pendiente a 0 €, una transacción atómica emite **una única Factura Simplificada (`F2`)** por el total consolidado.
-4. **División de cuenta (_Split Bill_ estricto):** Si los clientes exigen tickets fiscales independientes, el sistema emite $N$ facturas simplificadas (`F2`), cada una con su número correlativo y su hash encadenado.
+1. **Comanda abierta.** No hay factura, no hay huella, no hay número. Lo que se imprime aquí es una
+   nota de consumo, no un documento fiscal, y debe decirlo.
+2. **Cobros parciales.** El estado vive en `paidQuantity` por línea; `DbPaymentStatus` ya distingue
+   `PENDING`, `PARTIAL` y `PAID` sin necesidad de un estado nuevo en la comanda.
+3. **Cierre.** Al llegar el pendiente a cero se emite **una única factura simplificada F2** por el
+   total consolidado.
+4. **División de cuenta.** Si los clientes quieren tickets independientes, cada cobro parcial emite
+   su propia F2 con su número y su huella. El modelo por cantidad de línea ya soporta esto; lo que
+   falta es que el cobro parcial, y no solo el cierre, pueda disparar una emisión.
 
-## 4. Tipos de Factura y Flujo de Canje / Sustitución
+La concurrencia del cierre ya está resuelta en
+[`orders.write.repository.ts`](apps/api/src/orders/data-access/orders.write.repository.ts): el
+checkout reclama la comanda con un `updateMany ... where status = 'OPEN'` y el cobro parcial toma un
+`SELECT ... FOR UPDATE`. La emisión entra en esa misma transacción, no en una posterior.
 
-| Tipo     | Denominación                 | Uso                                                                    | Datos requeridos del cliente                       |
-| -------- | ---------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------- |
-| **`F2`** | Factura Simplificada         | El 99% de las ventas en barra/mesa (tickets estándar).                 | Ninguno. Solo datos del establecimiento emisor.    |
-| **`F1`** | Factura Ordinaria (Completa) | Cuando una empresa o autónomo solicita factura con sus datos fiscales. | NIF/CIF, Nombre o Razón Social y Domicilio Fiscal. |
+## 6. Tipos de factura y correcciones
 
-### A. Emisión directa de `F1` (En el cobro)
+| Tipo | Uso | Datos del cliente |
+| ---- | --- | ----------------- |
+| `F2` | Simplificada. El 99% de la barra y las mesas. | Ninguno |
+| `F1` | Ordinaria. Cuando una empresa o autónomo la pide. | NIF, razón social, domicilio |
+| `R1` | Rectificativa por error fundado en derecho. | Los de la factura rectificada |
+| `R2` | Rectificativa por el resto de causas. | Los de la factura rectificada |
 
-1. El camarero activa el toggle _"Factura a empresa"_ en el TPV.
-2. Introduce NIF, Razón Social y Dirección en el modal.
-3. El backend genera directamente un registro `invoice_type: 'F1'`, calcula su hash y despacha a la AEAT.
+**Regla que gobierna las tres correcciones: un registro emitido no se modifica jamás.** Se emite uno
+nuevo que lo referencia. Es el mismo principio que `supersedesId` en `DbTimeEntry`.
 
-### B. Canje posterior (El cliente vuelve días después con un ticket `F2`)
+### A. F1 directa
 
-- **Regla de inmutabilidad:** No se puede modificar el registro `F2` original en la base de datos para no romper la cadena criptográfica ya generada.
-- **Procedimiento:**
+Interruptor "factura a empresa" en el cobro, modal con NIF, razón social y domicilio, y el cierre
+emite `type: F1` en vez de `F2`. Nada más cambia.
 
-1. El sistema busca el ticket original `F2` en la base de datos.
-2. Verifica que `is_substituted == false` para evitar duplicidades.
-3. Genera un **nuevo registro `F1**` con nuevo número de serie y fecha actual.
-4. En el XML de Veri*factu se cumplimenta el nodo `FacturasSustituidas` referenciando el número y serie del ticket `F2`.
-5. Se calcula el nuevo hash encadenado y se envía a la AEAT.
-6. En la base de datos se actualiza el ticket original: `is_substituted = true` y `substituted_by_invoice_id = new_invoice.id`.
+### B. Canje: el cliente vuelve con un ticket F2
 
-## 5. Impresión en Papel Térmico y Generación de PDF
+Ojo aquí, porque es el error fácil: **el canje es `F3`, no `F1`.** `F3` es exactamente "factura
+emitida en sustitución de facturas simplificadas". Una `F1` es una ordinaria que nace ordinaria.
 
-- **Impresión Térmica (ESC/POS):**
-- Se imprime directamente en papel continuo de 80mm o 58mm.
-- El pie del ticket incluye:
+1. Se localiza la F2 original y se comprueba que `substitutedBy` está vacío.
+2. Se emite una **F3 nueva**, con su propio número y la fecha de hoy.
+3. El XML rellena `FacturasSustituidas` referenciando emisor, serie y fecha de la F2.
+4. Se enlaza `substitutesId` en la nueva. La original no se toca.
 
-1. Desglose de Bases Imponibles e importes de IVA.
-2. Código QR generado mediante comandos nativos ESC/POS.
-3. Leyenda: `"Factura verificable en la sede electrónica de la AEAT"` y texto `"VERI*FACTU"`.
-4. Huella SHA-256 (completa o primeros/últimos caracteres).
+### C. Rectificativa
 
-- **Descarga de PDF / Envío por Email:**
-- Se genera al vuelo en el servidor a partir de los datos almacenados en la tabla `invoices`.
-- **Reimprimir un ticket o descargar el PDF no genera ninguna llamada a la AEAT.**
+Cuando lo emitido está mal —importe equivocado, producto que no era, devolución— se emite una
+rectificativa que referencia la original vía `rectifiesId`. La original sigue en la cadena, intacta.
 
-## 6. Estrategia de Feature Flag (Modo Clásico vs. Modo Veri*factu)
+Dos cosas que hay que decidir en cada rectificativa y que no son lo mismo:
 
-El SaaS puede operar bajo un interruptor de configuración por cliente (`tenant_settings.is_verifactu_enabled`):
+- **Qué tipo.** `R1` a `R4` rectifican facturas ordinarias según la causa; **`R5` es la que rectifica
+  facturas simplificadas**, que es el caso normal de un bar.
+- **`TipoRectificativa`**, que es un eje distinto: `S` por sustitución (la nueva reemplaza el
+  importe íntegro) o `I` por diferencias (la nueva lleva solo el delta). Si es por sustitución hay
+  que informar además `ImporteRectificacion` con la base y la cuota **rectificadas**, es decir las
+  de la factura original, no las nuevas.
+
+### D. Anulación
+
+Cuando la factura no debió existir, se escribe una fila con `recordType: ANULACION` que apunta a la
+original con `cancelsId`. Consume `sequence` y huella, no consume `number`, y se envía a la AEAT como
+registro de anulación. No confundir con la sección 9: **esto solo aplica a facturas ya emitidas**.
+
+## 7. Impresión y PDF
+
+### A. El payload se construye en el servidor
+
+Hoy `PrintTicket` en web monta el ticket en el navegador y lo manda a imprimir. Un ticket fiscal no
+puede salir de ahí: número, huella y QR se calculan en servidor o no valen nada. La construcción se
+mueve a la API y `PrintTicketDto` crece con desglose por tipo, serie y número, huella y payload del
+QR. El navegador pasa a pedir "imprime la factura X".
+
+### B. El pie del ticket fiscal
+
+1. Desglose de bases y cuotas, una línea por tipo de IVA.
+2. Código QR de cotejo.
+3. Leyenda de verificación en la sede electrónica y la marca `VERI*FACTU`.
+4. Huella, completa o sus primeros caracteres.
+
+La URL del QR y sus parámetros se copian de la especificación oficial vigente, igual que la cadena
+canónica.
+
+### C. QR en la impresora
+
+El renderer de `apps/printer-service` es solo texto: no tiene ni QR ni imagen. Hay que implementar
+el juego de comandos `GS ( k` en Go, con sus tests, y desplegarlo a los equipos ya instalados. El
+updater existe, pero es un ciclo de release sobre hardware que está en los locales, así que conviene
+que salga pronto y no el último día.
+
+### D. Reimpresión y PDF
+
+Se generan desde `DbInvoice`. **Ni la reimpresión ni el PDF llaman a la AEAT.** Una reimpresión sí
+deja rastro en `DbOrderAuditLog`.
+
+## 8. Envío a la AEAT
+
+### A. El interruptor
 
 ```text
-[ Process Payment / Close Order ]
-                │
-                ▼
-  ¿is_verifactu_enabled == TRUE?
-   ├── NO (Legacy / Classic Mode):
-   │     1. Assign classic sequential ticket number
-   │     2. Persist order and payments in DB
-   │     3. Print standard thermal receipt (No AEAT QR / No SHA-256)
-   │     4. [END] (0 hashes computed, 0 requests to AEAT)
-   │
-   └── SÍ (Official Veri*factu Mode):
-         1. Open atomic DB transaction
-         2. Assign Veri*factu series correlative number
-         3. Fetch last hash for tenant & series
-         4. Build canonical string and compute SHA-256
-         5. Persist immutable record in `invoices` table
-         6. Generate official AEAT QR payload
-         7. Print receipt with "VERI*FACTU" badge & QR
-         8. Dispatch XML to AEAT SOAP Web Service
-
+[ Cierre de comanda ]
+          │
+   ¿verifactuEnabled?
+    ├── NO · modo clásico
+    │     ticket estándar, sin QR ni huella, 0 llamadas a la AEAT
+    │
+    └── SÍ · modo oficial
+          emisión de la sección 5 + despacho asíncrono
 ```
 
-### Reglas de activación inicial (_Genesis Record_):
+Al encender el interruptor por primera vez se arranca **serie nueva** (`VF26-` frente a la anterior),
+para que la trazabilidad histórica quede separada y la cadena empiece limpia. Estando en beta cerrada
+esto sale gratis: no hay histórico que migrar.
 
-- **Primera factura de la serie:** Al no existir hash previo, el parámetro `Huella` se deja vacío en la cadena canónica (`Huella=&`) y el XML omite la referencia previa.
-- **Series diferenciadas:** Al activar Veri*factu por primera vez, se recomienda iniciar una serie nueva (ej. `VF26-` en lugar de `T-`) para mantener separada la trazabilidad histórica.
+El flag no se puede encender sin los tres campos fiscales de la sección 2.A.
 
-## 7. Modelo de Datos Relacional (PostgreSQL Schema)
+### B. Lo que se puede hacer sin certificado
+
+Casi todo. El constructor del XML se escribe y se valida contra el XSD oficial en local, con tests
+sobre facturas de ejemplo. Esto saca la integración del camino crítico.
+
+### C. Lo que necesita certificado
+
+El transporte: SOAP sobre HTTPS con certificado de cliente X.509. No hace falta firmar el XML: en
+remisión Veri*factu el nodo `Signature` es opcional y el certificado del canal ya autentica.
+
+Dos vías, y hay que elegir pronto porque cambian el modelo de datos y el de negocio:
+
+- **Certificado del cliente final.** Cada bar sube el suyo. Obliga a custodiarlos cifrados, con KMS,
+  avisos de caducidad y un procedimiento de rotación.
+- **Colaborador social.** Presentáis en nombre de los bares con vuestro certificado. Menos custodia,
+  pero es un trámite administrativo con sus propias obligaciones.
+
+### D. Dónde corre el despacho
+
+`TODO.md` ya lo advierte para otra cosa y aquí importa igual: Cloud Run para el contenedor cuando no
+hay tráfico, así que **un cron en proceso no dispara nunca**. El despacho necesita Cloud Tasks o
+Scheduler golpeando un endpoint. La máquina de estados de `aeatStatus` cubre el reintento con
+retroceso exponencial, el rechazo y el aviso cuando algo lleva demasiado tiempo sin aceptarse.
+
+Tres cosas de la respuesta que no son opcionales:
+
+- **El `CSV`.** La AEAT devuelve un código seguro de verificación por envío y **el sistema de
+  facturación está obligado a conservarlo**. Va en `aeatCsv`.
+- **`TiempoEsperaEnvio`.** La respuesta indica cuántos segundos hay que esperar antes del siguiente
+  envío. No es una sugerencia: el despachador tiene que guardarlo y respetarlo, o acabáis limitados.
+  Es estado del emisor, no de la factura, así que vive fuera de `DbInvoice`.
+- **Rechazo y reenvío.** Cuando un registro se rechaza se corrige y se reenvía con `Subsanacion` y
+  `RechazoPrevio` marcados. Sin esos flags el reenvío se trata como un alta nueva y se duplica.
+
+Que una factura tarde en enviarse no bloquea al cliente: el ticket ya está impreso y la huella ya
+está calculada. Lo que no puede pasar es que un rechazo se quede en silencio.
+
+## 9. Comandas que nunca se cobran
+
+Si una comanda abierta no llega a cobrarse **no se genera factura, no se calcula huella y no se envía
+nada a la AEAT**. Aquí no hay nada que anular porque nunca hubo nada emitido.
 
 ```text
-Table: tenants
-  - id: UUID (PK)
-  - business_name: VARCHAR(255)
-  - tax_id: VARCHAR(20)
-  - address: TEXT
-  - is_verifactu_enabled: BOOLEAN DEFAULT FALSE
-  - created_at: TIMESTAMPTZ
-
-Table: orders
-  - id: UUID (PK)
-  - tenant_id: UUID (FK -> tenants.id)
-  - table_number: VARCHAR(50)
-  - status: VARCHAR(30) -- 'OPEN', 'PARTIALLY_PAID', 'CLOSED', 'VOIDED_UNPAID', 'VOIDED_ERROR', 'COMPLIMENTARY'
-  - subtotal_amount: DECIMAL(10,2)
-  - tax_amount: DECIMAL(10,2)
-  - total_amount: DECIMAL(10,2)
-  - closed_at: TIMESTAMPTZ
-  - created_at: TIMESTAMPTZ
-
-Table: order_items
-  - id: UUID (PK)
-  - order_id: UUID (FK -> orders.id)
-  - product_name: VARCHAR(255)
-  - quantity: INTEGER
-  - unit_price: DECIMAL(10,2)
-  - tax_rate: DECIMAL(5,2) -- e.g. 10.00
-  - total_price: DECIMAL(10,2)
-
-Table: payments
-  - id: UUID (PK)
-  - order_id: UUID (FK -> orders.id)
-  - tenant_id: UUID (FK -> tenants.id)
-  - payment_method: VARCHAR(30) -- 'CASH', 'CREDIT_CARD', 'BIZUM', 'CUSTOMER_CREDIT'
-  - amount: DECIMAL(10,2)
-  - status: VARCHAR(30) -- 'COMPLETED', 'REFUNDED'
-  - created_at: TIMESTAMPTZ
-
-Table: invoices
-  - id: UUID (PK)
-  - tenant_id: UUID (FK -> tenants.id)
-  - order_id: UUID (FK -> orders.id, NULLABLE for external replacements)
-  - issuer_tax_id: VARCHAR(20)
-  - series: VARCHAR(20)
-  - invoice_number: INTEGER
-  - invoice_type: VARCHAR(10) -- 'F1', 'F2', 'R1', 'R2'
-  - customer_tax_id: VARCHAR(20) NULLABLE
-  - customer_name: VARCHAR(255) NULLABLE
-  - customer_address: TEXT NULLABLE
-  - tax_base: DECIMAL(10,2)
-  - tax_rate: DECIMAL(5,2)
-  - tax_amount: DECIMAL(10,2)
-  - total_amount: DECIMAL(10,2)
-  - previous_hash: VARCHAR(64) NULLABLE
-  - current_hash: VARCHAR(64) -- SHA-256 Hex
-  - qr_payload: TEXT
-  - is_verifactu: BOOLEAN DEFAULT TRUE
-  - aeat_status: VARCHAR(30) -- 'NOT_SENT', 'PENDING', 'ACCEPTED', 'REJECTED'
-  - aeat_response_code: VARCHAR(50) NULLABLE
-  - is_substituted: BOOLEAN DEFAULT FALSE
-  - substituted_by_invoice_id: UUID (FK -> invoices.id, NULLABLE)
-  - issued_at: TIMESTAMPTZ
-  - operation_date: DATE NULLABLE
-  - created_at: TIMESTAMPTZ
-
-Table: audit_logs
-  - id: UUID (PK)
-  - tenant_id: UUID (FK -> tenants.id)
-  - user_id: UUID
-  - action: VARCHAR(50) -- 'VOID_ORDER', 'VOID_ITEM', 'APPLY_DISCOUNT', 'DRAWER_OPENED'
-  - entity_type: VARCHAR(50) -- 'orders', 'order_items', 'invoices'
-  - entity_id: UUID
-  - reason: TEXT
-  - metadata: JSONB
-  - created_at: TIMESTAMPTZ
-
+                                [ COMANDA ABIERTA ]
+                                        │
+        ┌───────────────────────────────┼───────────────────────────────┐
+        ▼                               ▼                               ▼
+ [ IMPAGO / "SIMPA" ]            [ ERROR DE COMANDA ]           [ INVITACIÓN ]
+   motivo obligatorio              motivo obligatorio             total 0,00 €
+   0 facturas                      0 facturas                     0 facturas
+   → DbOrderAuditLog               → DbOrderAuditLog              → DbOrderAuditLog
 ```
 
-## 8. Gestión de Cobros Tardíos y Desfase Temporal de Fechas
+`DbOrderStatus` es hoy `OPEN | CLOSED | CANCELLED`. En vez de multiplicar estados, `CANCELLED` se
+queda y el motivo vive en el registro de auditoría, que es donde se puede consultar y auditar.
+Motivos: `UNPAID_CUSTOMER`, `DUPLICATE_ORDER`, `STAFF_ERROR`, `WASTE`, `COMPLIMENTARY`.
 
-Está prohibido registrar facturas con timestamps pasados. Si una comanda se cobra con días de retraso, se emplean dos fechas en el XML:
+Control antifraude: anular líneas o mesas con consumiciones exige PIN de encargado o administrador,
+motivo obligatorio y registro automático. El PIN no existe todavía; el sistema de roles sí.
 
-- **`FechaExpedicionFactura` (`issued_at`):** Timestamp exacto del momento en que se procesa el cobro y se calcula el SHA-256 (ej. `2026-09-15T12:00:00+02:00`).
-- **`FechaOperacion` (`operation_date`):** Fecha en que se realizó el consumo en el bar (ej. `2026-09-01`). Solo se incluye si difiere de la fecha de expedición.
+## 10. Cierre de caja
 
-| Escenario                                | Tratamiento en el Backend                                             | Implicación Fiscal                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| **Cobro olvidado en el mismo trimestre** | `issued_at` = fecha actual, calcula hash.                             | El IVA se liquida en el modelo 303 en curso.                                                |
-| **Cobro olvidado cruzando trimestre**    | `issued_at` = fecha actual, `operation_date` = fecha real de consumo. | El registro es válido en la AEAT y permite imputar el devengo fiscal al trimestre correcto. |
+Al ejecutar el cierre diario:
 
-## 9. Comandas Nunca Cobradas (Impagos, Errores y Cortesías)
+1. Se comprueba si quedan comandas abiertas o parcialmente cobradas.
+2. Si las hay, el cierre se bloquea y exige liquidarlas o anularlas con motivo.
+3. El informe totaliza por método de pago, y en modo Veri*factu añade el rango de números emitidos,
+   el desglose por tipo de IVA y cuántas facturas siguen sin aceptar en la AEAT.
 
-Si una comanda abierta nunca llega a cobrarse, **no se genera factura, no se calcula hash y no se envía nada a la AEAT**:
+Este último dato es el que convierte el arqueo en la red de seguridad del despacho asíncrono.
+
+## 11. Cobros tardíos
+
+Está prohibido registrar facturas con fecha pasada. Si una comanda se cobra con días de retraso se
+usan dos fechas:
+
+- **`issuedAt`** — el momento real en que se cobra y se calcula la huella.
+- **`operationDate`** — el día en que se consumió. Solo se informa si difiere de la anterior.
+
+| Escenario | Tratamiento | Implicación |
+| --------- | ----------- | ----------- |
+| Cobro olvidado dentro del trimestre | `issuedAt` = hoy | El IVA se liquida en el 303 en curso |
+| Cobro olvidado cruzando trimestre | `issuedAt` = hoy, `operationDate` = día del consumo | Permite imputar el devengo al trimestre correcto |
+
+## 12. Ventas a crédito
+
+Se factura el día del consumo, F2 o F1, y el cobro se registra como crédito de cliente. Cuando el
+cliente salda semanas después, eso es **un movimiento de tesorería y nada más**: no se toca
+`DbInvoice`, no se emite nada nuevo y no se calcula ninguna huella.
+
+## 13. Obligaciones que no se resuelven programando
+
+Como fabricante del software pasáis a tener obligaciones propias, no solo el bar. Declaración
+responsable, vuestro NIF y los datos del sistema informático en cada registro, y las
+responsabilidades que eso conlleva. Corre en paralelo al código y conviene empezarlo pronto, porque
+no depende de vosotros terminarlo.
+
+Las fechas de obligatoriedad que apliquen a este caso hay que confirmarlas con la normativa vigente:
+se han movido varias veces.
+
+## 14. Paquetes de trabajo
 
 ```text
-                                [ OPEN ORDER ]
-                                       │
-        ┌──────────────────────────────┼──────────────────────────────┐
-        ▼                              ▼                              ▼
- [ UNPAID / "SIMPA" ]           [ ORDER ERROR ]             [ COMPLIMENTARY ]
-   - status: VOIDED_UNPAID        - status: VOIDED_ERROR      - status: COMPLIMENTARY
-   - Mandatory reason code        - Mandatory reason code     - Total: 0.00 €
-   - 0 Invoices generated         - 0 Invoices generated      - 0 Invoices generated
-   - Write to `audit_logs`        - Write to `audit_logs`     - Write to `audit_logs`
-
+                        [ W0 · Schema + identidad fiscal ]
+                                      │
+        ┌──────────┬──────────┬───────┴───────┬──────────┬──────────┐
+        ▼          ▼          ▼               ▼          ▼          ▼
+     [ W1 ]     [ W2 ]     [ W4 ]          [ W5 ]     [ W6 ]     [ W9 ]
+      IVA       cadena     QR en Go       anulacs.    arqueo Z   XML+XSD
+        └──────────┘                                                │
+             ▼                                                      │
+          [ W3 ] ticket en servidor                                 │
+             │                                                      │
+        ┌────┴────┐                                                 │
+        ▼         ▼                                                 ▼
+     [ W7 ]    [ W8 ]                                           [ W10 ]
+    F1+canje    PDF                                          SOAP + mTLS
+    rectific.                                          ← bloqueado por certificado
 ```
 
-- **Control antifraude en el software:**
+| # | Paquete | Depende de | Notas |
+| - | ------- | ---------- | ----- |
+| W0 | Migración única: identidad fiscal, `taxRate`, `DbInvoice`, `DbInvoiceTaxLine`, `DbOrderAuditLog` | — | Bloquea a todos. Sale primero y sale entera. |
+| W1 | Desglose de IVA y prorrateo en `OrderPricingEngine` | W0 | Sección 3. Funciones puras. **Revisar a mano.** |
+| W2 | Cadena de huellas y correlativo por serie | W0 | Sección 4. Calca `time-entry-chain`. |
+| W3 | Construcción del ticket en la API | W1, W2 | Sección 7.A. |
+| W4 | `GS ( k` en el renderer Go | — | Sección 7.C. Otro lenguaje, aislado del resto. |
+| W5 | Anulación de comandas: PIN, motivo, auditoría | W0 | Sección 9. |
+| W6 | Cierre de caja | W0, W1 | Sección 10. |
+| W7 | F1 directa, canje, rectificativas, anulación fiscal | W2 | Sección 6. |
+| W8 | PDF desde `DbInvoice` | W2 | Sección 7.D. |
+| W9 | Constructor de XML validado contra XSD y contra las validaciones publicadas | W1, W2 | Secciones 2.G, 8.B y 15. **Sin certificado.** |
+| W10 | Transporte SOAP, mTLS, despacho y reintentos | W9 + certificado | Sección 8.C y 8.D. |
 
-1. Anular líneas o mesas con consumiciones requiere código PIN de encargado o administrador.
-2. Selección de motivo obligatorio (`UNPAID_CUSTOMER`, `DUPLICATE_ORDER`, `STAFF_ERROR`, `WASTE`).
-3. Registro automático en la tabla `audit_logs`.
+W1, W2, W4, W5, W6 y W9 arrancan a la vez en cuanto W0 esté en `main`. No comparten ficheros.
 
-## 10. Control de Cierre Diario (Z-Report) y Ventas a Crédito
+Todo lo que hay entre W0 y W8 tiene valor por sí solo aunque Veri*factu no llegara nunca: desglose
+de IVA en el ticket, número de factura, QR, PDF, arqueo y trazabilidad de anulaciones. Solo W9 y W10
+son específicos de la AEAT.
 
-### A. Control de mesas en el Cierre de Caja (Z-Report)
+## 15. Fuentes
 
-Al ejecutar el cierre diario (`Close Shift / Z-Report`):
+Los tres documentos que mandan sobre este. Si algo de aquí los contradice, ganan ellos:
 
-1. El backend comprueba si existen registros en `orders` con `status IN ('OPEN', 'PARTIALLY_PAID')`.
-2. Si existen comandas pendientes, el sistema bloquea el cierre o exige su liquidación/anulación justificada.
-3. El informe Z totaliza las ventas agrupando por `payment_method` (`CASH`, `CREDIT_CARD`, `BIZUM`).
+- [Esquemas de los servicios web](https://www.agenciatributaria.es/AEAT.desarrolladores/Desarrolladores/_menu_/Documentacion/Sistemas_Informaticos_de_Facturacion_y_Sistemas_VERI_FACTU/Esquemas_de_los_servicios_web/Esquemas_de_los_servicios_web.html)
+  — de aquí salen `SuministroInformacion.xsd` (tipos comunes, donde está `RegistroAlta`) y
+  `SuministroLR.xsd`. Descargadlos al repo y validad contra ellos en CI: es lo que convierte W9 en
+  trabajo verificable sin certificado.
+- [Descripción del servicio web](https://sede.agenciatributaria.gob.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/Veri-Factu_Descripcion_SWeb.pdf)
+  — estructura de la petición y de la respuesta, y los ejemplos completos de sobre SOAP.
+- [Validaciones y errores](https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/Validaciones_Errores_Veri-Factu.pdf)
+  — **el que de verdad decide si un registro entra.** El XSD marca lo que es sintácticamente válido;
+  este marca lo que se acepta. Los campos que el esquema da por opcionales y que en realidad son
+  obligatorios están aquí.
+- [Contenido del registro de alta](https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu/cuestiones-generales/contenido-registro-facturacion-alta_.html)
+  — la lista normativa en prosa, útil para contrastar que no falta nada de fondo.
 
-### B. Ventas a crédito / Clientes habituales ("Apuntado")
-
-- **Flujo estándar:** Se emite la factura simplificada (`F2`) u ordinaria (`F1`) en el día del consumo. En `payments` se registra con `payment_method: 'CUSTOMER_CREDIT'`. Cuando el cliente liquida la deuda semanas después, solo se genera un movimiento de tesorería interno en caja, **sin alterar la tabla `invoices` ni emitir nuevos hashes**.
+Hay además un `EventosSIF.xsd` para registros de evento. Queda por comprobar si aplica a remisión
+Veri*factu o solo a sistemas no verificables; si aplicara, es un paquete más.
