@@ -7,7 +7,9 @@
   </header>
 
   @if (stats.isLoading()) {
-    <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
+    <coaster-loading
+      containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
+    />
   } @else if (stats.hasValue()) {
     <mat-card class="p-5 flex flex-col gap-5 border border-outline-variant/30! relative overflow-hidden">
       <div class="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>

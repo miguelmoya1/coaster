@@ -161,3 +161,18 @@ export type DbTimeEntry = Prisma.DbTimeEntryModel
  * 
  */
 export type DbAdminAuditLog = Prisma.DbAdminAuditLogModel
+/**
+ * Model DbInvoice
+ * 
+ */
+export type DbInvoice = Prisma.DbInvoiceModel
+/**
+ * Model DbInvoiceTaxLine
+ * 
+ */
+export type DbInvoiceTaxLine = Prisma.DbInvoiceTaxLineModel
+/**
+ * Model DbOrderAuditLog
+ * 
+ */
+export type DbOrderAuditLog = Prisma.DbOrderAuditLogModel

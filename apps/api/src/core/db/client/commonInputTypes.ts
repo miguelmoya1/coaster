@@ -579,6 +579,74 @@ export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBigIntFilter<$PrismaModel>
 }
 
+export type EnumDbInvoiceRecordTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceRecordType | Prisma.EnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel> | $Enums.DbInvoiceRecordType
+}
+
+export type EnumDbInvoiceTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceType | Prisma.EnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel> | $Enums.DbInvoiceType
+}
+
+export type EnumDbAeatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbAeatStatus | Prisma.EnumDbAeatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel> | $Enums.DbAeatStatus
+}
+
+export type EnumDbRectificationTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbRectificationType | Prisma.EnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel> | $Enums.DbRectificationType | null
+}
+
+export type EnumDbInvoiceRecordTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceRecordType | Prisma.EnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceRecordTypeWithAggregatesFilter<$PrismaModel> | $Enums.DbInvoiceRecordType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel>
+}
+
+export type EnumDbInvoiceTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceType | Prisma.EnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceTypeWithAggregatesFilter<$PrismaModel> | $Enums.DbInvoiceType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel>
+}
+
+export type EnumDbAeatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbAeatStatus | Prisma.EnumDbAeatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbAeatStatusWithAggregatesFilter<$PrismaModel> | $Enums.DbAeatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel>
+}
+
+export type EnumDbRectificationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbRectificationType | Prisma.EnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDbRectificationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.DbRectificationType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -1090,6 +1158,74 @@ export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedBigIntFilter<$PrismaModel>
   _min?: Prisma.NestedBigIntFilter<$PrismaModel>
   _max?: Prisma.NestedBigIntFilter<$PrismaModel>
+}
+
+export type NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceRecordType | Prisma.EnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel> | $Enums.DbInvoiceRecordType
+}
+
+export type NestedEnumDbInvoiceTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceType | Prisma.EnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel> | $Enums.DbInvoiceType
+}
+
+export type NestedEnumDbAeatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbAeatStatus | Prisma.EnumDbAeatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel> | $Enums.DbAeatStatus
+}
+
+export type NestedEnumDbRectificationTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbRectificationType | Prisma.EnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel> | $Enums.DbRectificationType | null
+}
+
+export type NestedEnumDbInvoiceRecordTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceRecordType | Prisma.EnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceRecordType[] | Prisma.ListEnumDbInvoiceRecordTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceRecordTypeWithAggregatesFilter<$PrismaModel> | $Enums.DbInvoiceRecordType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbInvoiceRecordTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumDbInvoiceTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbInvoiceType | Prisma.EnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbInvoiceType[] | Prisma.ListEnumDbInvoiceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbInvoiceTypeWithAggregatesFilter<$PrismaModel> | $Enums.DbInvoiceType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbInvoiceTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumDbAeatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbAeatStatus | Prisma.EnumDbAeatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DbAeatStatus[] | Prisma.ListEnumDbAeatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDbAeatStatusWithAggregatesFilter<$PrismaModel> | $Enums.DbAeatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbAeatStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDbRectificationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DbRectificationType | Prisma.EnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DbRectificationType[] | Prisma.ListEnumDbRectificationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDbRectificationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.DbRectificationType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDbRectificationTypeNullableFilter<$PrismaModel>
 }
 
 

@@ -13,6 +13,9 @@ export interface Product {
   currentStock: number;
   minStockAlert: number;
   imageUrl?: string;
+  icon?: string;
+  taxRate: number;
+  ownTaxRate?: number;
   allergens: Allergen[];
   lastUpdated: string;
 }
@@ -24,6 +27,8 @@ export interface UpdateProductDto {
   minStockAlert?: number;
   imageUrl?: string;
   allergens?: Allergen[];
+  icon?: string;
+  ownTaxRate?: number | null;
 }
 
 export interface UpdateProductStockDto {
@@ -38,4 +43,6 @@ export interface CreateProductDto {
   minStockAlert?: number;
   imageUrl?: string;
   allergens?: Allergen[];
+  icon?: string;
+  ownTaxRate?: number | null;
 }

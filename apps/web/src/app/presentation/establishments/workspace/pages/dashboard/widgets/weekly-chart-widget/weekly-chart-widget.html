@@ -1,6 +1,8 @@
 <section class="flex flex-col gap-4" data-testid="widget-weekly-chart">
   @if (stats.isLoading()) {
-    <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
+    <coaster-loading
+      containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
+    />
   } @else if (stats.hasValue()) {
     <mat-card class="p-5 flex flex-col gap-4 border border-outline-variant/30! overflow-hidden">
       <mat-card-header class="flex justify-between items-center p-0">
@@ -20,9 +22,33 @@
               </linearGradient>
             </defs>
 
-            <line x1="0" y1="20" x2="380" y2="20" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
-            <line x1="0" y1="55" x2="380" y2="55" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
-            <line x1="0" y1="90" x2="380" y2="90" stroke="var(--color-border-ghost)" stroke-opacity="0.2" stroke-dasharray="3" />
+            <line
+              x1="0"
+              y1="20"
+              x2="380"
+              y2="20"
+              stroke="var(--color-border-ghost)"
+              stroke-opacity="0.2"
+              stroke-dasharray="3"
+            />
+            <line
+              x1="0"
+              y1="55"
+              x2="380"
+              y2="55"
+              stroke="var(--color-border-ghost)"
+              stroke-opacity="0.2"
+              stroke-dasharray="3"
+            />
+            <line
+              x1="0"
+              y1="90"
+              x2="380"
+              y2="90"
+              stroke="var(--color-border-ghost)"
+              stroke-opacity="0.2"
+              stroke-dasharray="3"
+            />
 
             @if (chartPaths().points.length > 0) {
               <path [attr.d]="chartPaths().areaPath" fill="url(#chartGradient)" />

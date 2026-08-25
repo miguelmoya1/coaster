@@ -28,17 +28,17 @@ oficial en local, sin certificado y sin red**. Cuando el certificado llegue solo
 
 Antes de escribir nada, lo que no hay que inventar:
 
-| Necesidad | Ya existe en |
-| --------- | ------------ |
-| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts) |
-| Correlativo sin huecos bajo concurrencia | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
-| Corrección inmutable (registro nuevo que referencia al viejo) | `supersedesId` / `rootId` en `DbTimeEntry` |
-| Cálculo de totales, descuentos y pagos | `OrderPricingEngine` en [`order-pricing.engine.ts`](packages/common/src/domain/pricing/order-pricing.engine.ts) |
-| Cobro parcial y división de cuenta | `paidQuantityCash` / `paidQuantityCard` por línea |
-| Cola de impresión y bridge en el local | módulo `printer` + `apps/printer-service` (Go) |
-| Renderizado de QR | `coaster-qr-code` en web (`qrcode-generator`) |
-| Interruptor por establecimiento | `DbEstablishmentSettings` + `resolveModules` |
-| Registro de acciones sensibles | `DbAdminAuditLog` (patrón, no la tabla) |
+| Necesidad                                                         | Ya existe en                                                                                                                             |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Cadena de huellas SHA-256, genesis, cadena canónica, verificación | [`time-entry-chain.ts`](apps/api/src/time-tracking/domain/time-entry-chain.ts)                                                           |
+| Correlativo sin huecos bajo concurrencia                          | `pg_advisory_xact_lock` en [`time-entries.write.repository.ts`](apps/api/src/time-tracking/data-access/time-entries.write.repository.ts) |
+| Corrección inmutable (registro nuevo que referencia al viejo)     | `supersedesId` / `rootId` en `DbTimeEntry`                                                                                               |
+| Cálculo de totales, descuentos y pagos                            | `OrderPricingEngine` en [`order-pricing.engine.ts`](packages/common/src/domain/pricing/order-pricing.engine.ts)                          |
+| Cobro parcial y división de cuenta                                | `paidQuantityCash` / `paidQuantityCard` por línea                                                                                        |
+| Cola de impresión y bridge en el local                            | módulo `printer` + `apps/printer-service` (Go)                                                                                           |
+| Renderizado de QR                                                 | `coaster-qr-code` en web (`qrcode-generator`)                                                                                            |
+| Interruptor por establecimiento                                   | `DbEstablishmentSettings` + `resolveModules`                                                                                             |
+| Registro de acciones sensibles                                    | `DbAdminAuditLog` (patrón, no la tabla)                                                                                                  |
 
 La sección 4 es, en la práctica, copiar el primer bloque cambiando el ámbito del lock. No se escribe
 un algoritmo nuevo.
@@ -83,22 +83,35 @@ model DbProduct {
 }
 ```
 
-Puntos básicos enteros, por la misma razón que el dinero: nunca un float en un cálculo fiscal. El
-defecto de 10% cubre la mayoría de una carta de bar; las bebidas alcohólicas van al 21% y hay que
-marcarlas producto a producto.
+Puntos básicos enteros, por la misma razón que el dinero: nunca un float en un cálculo fiscal.
 
-`DbOrderItem` necesita **congelar el tipo en el momento de la venta**, igual que congela el precio.
-Si mañana se recategoriza un producto, un ticket reimpreso no puede cambiar de IVA:
+El defecto de 10% cubre **toda** la carta de un bar, alcohol incluido. Es el punto donde más fácil
+es equivocarse: en hostelería lo que manda es el servicio, no el producto. El art. 91.Uno.2.2º LIVA
+grava al 10% «el suministro de comidas y bebidas para consumir en el acto», así que una caña servida
+en barra es 10% aunque esa misma botella en un supermercado sea 21%.
 
-```prisma
-model DbOrderItem {
-  // ...campos actuales
-  taxRateAtPurchase Int
-}
-```
+La columna existe para lo que se sale de ahí, que un bar también hace: botella cerrada que el
+cliente se lleva sin descorchar, merchandising, entradas de espectáculo. Eso es venta, no
+restauración, y va al 21%. Son pocos productos y los marca el propio local.
 
-Esto es la misma deuda que `TODO.md` ya reconoce con el nombre del producto. Merece la pena
-arreglar las dos a la vez: añadir también `productNameAtPurchase` sale casi gratis en esta migración.
+### Un tipo en la categoría, y el producto lo pisa si hace falta
+
+La categoría lleva su tipo y el producto lo hereda. Si un producto concreto tributa distinto, lleva el
+suyo y ese gana. `Product.taxRate` es **nullable**: vacío significa «el de mi categoría», que es lo
+que permite cambiar una categoría entera de una vez.
+
+Hubo un intento de meter tramos con nombre (`HOSPITALITY`, `ALCOHOL`, `RETAIL`) para que el motivo
+quedara escrito. Se retiró, por dos razones:
+
+- **Coaster ya no es solo de bares.** Una tienda de velas usa el fichaje y el stock sin comandas.
+  Ponerle _hostelería_ a una vela es meter el vocabulario de un sector en algo compartido.
+- **El tramo compraba menos de lo que parecía.** El tipo se copia en la fila del producto al
+  importarlo, así que cambiar la tabla de tramos no tocaba los productos ya creados de ningún local.
+  Solo habilitaba un «actualízame todos los marcados como alcohol», y eso es cambiarle a un negocio
+  sus datos fiscales en masa: se avisa y lo revisa él.
+
+Lo que sí se conserva de aquello: **puntos básicos enteros** (2100, nunca 21.0), por la misma razón
+que el dinero son céntimos, y el tipo **congelado en la línea de comanda**.
 
 ### D. El registro de facturación
 
@@ -256,8 +269,10 @@ model DbInvoiceTaxLine {
 
 Decisiones que conviene entender antes de tocarlas:
 
-- **`taxLines` es una tabla, no tres columnas.** Una caña y una tapa en el mismo ticket son 21% y
-  10%. Un `taxRate` escalar en la factura sería incorrecto en el caso más común de un bar.
+- **`taxLines` es una tabla, no tres columnas.** Casi todos los tickets saldrán con una sola línea
+  al 10%, pero basta con que alguien se lleve una botella cerrada (21%) junto a lo que ha consumido
+  para que el mismo ticket tenga dos bases. Un `taxRate` escalar en la factura haría imposible ese
+  ticket.
 - **`prevSeries`, `prevNumber` y `prevIssuedAt` acompañan a `prevHash`.** `Encadenamiento` identifica
   la factura anterior por emisor, serie, fecha **y** huella, no solo por la huella.
 - **`issuedAt` y `recordedAt` son campos distintos.** `FechaExpedicionFactura` es una fecha
@@ -314,39 +329,39 @@ pronto si es una por establecimiento y dejadlo escrito, porque cambia el signifi
 
 Checklist para W9. Cada elemento de `RegistroAlta`, y de dónde sale:
 
-| Elemento XSD | Obligatorio | De dónde sale |
-| ------------ | :---------: | ------------- |
-| `IDVersion` | sí | `idVersion` |
-| `IDFactura/IDEmisorFactura` | sí | `issuerTaxId` |
-| `IDFactura/NumSerieFactura` | sí | `series` + `number`, con formato fijo |
-| `IDFactura/FechaExpedicionFactura` | sí | `issuedAt`, formato `dd-mm-yyyy` |
-| `RefExterna` | no | `externalRef` (el `orderId`) |
-| `NombreRazonEmisor` | sí | `issuerLegalName` |
-| `Subsanacion` | no | `subsanacion` |
-| `RechazoPrevio` | no | `rechazoPrevio` |
-| `TipoFactura` | sí | `type` |
-| `TipoRectificativa` | condicional | `rectificationType` |
-| `FacturasRectificadas` | condicional | vía `rectifiesId` |
-| `FacturasSustituidas` | condicional | vía `substitutesId` |
-| `ImporteRectificacion` | condicional | `rectifiedBase`, `rectifiedTaxAmount` |
-| `FechaOperacion` | no | `operationDate` |
-| `DescripcionOperacion` | **sí** | `operationText` |
-| `FacturaSimplificadaArt7273` | no | `simplifiedArt7273` |
-| `FacturaSinIdentifDestinatarioArt61d` | no | `noCustomerIdArt61d` |
-| `Macrodato` | no | `macrodato` |
-| `EmitidaPorTerceroODestinatario` | no | `issuedByThirdParty` |
-| `Tercero` | condicional | `thirdPartyTaxId`, `thirdPartyName` |
-| `Destinatarios` | condicional | campos `customer*` |
-| `Cupon` | no | no aplica |
-| `Desglose/DetalleDesglose` | sí | `DbInvoiceTaxLine[]` |
-| `CuotaTotal` | sí | `taxAmountTotal` |
-| `ImporteTotal` | sí | `totalAmount` |
-| `Encadenamiento` | sí | `isFirstRecord` o `prev*` |
-| `SistemaInformatico` | sí | config + `softwareVersion`, `installationNumber` |
-| `FechaHoraHusoGenRegistro` | sí | `recordedAt` |
-| `TipoHuella` | sí | `hashType` |
-| `Huella` | sí | `hash` |
-| `Signature` | no | **no hace falta en Veri*factu** |
+| Elemento XSD                          | Obligatorio | De dónde sale                                    |
+| ------------------------------------- | :---------: | ------------------------------------------------ |
+| `IDVersion`                           |     sí      | `idVersion`                                      |
+| `IDFactura/IDEmisorFactura`           |     sí      | `issuerTaxId`                                    |
+| `IDFactura/NumSerieFactura`           |     sí      | `series` + `number`, con formato fijo            |
+| `IDFactura/FechaExpedicionFactura`    |     sí      | `issuedAt`, formato `dd-mm-yyyy`                 |
+| `RefExterna`                          |     no      | `externalRef` (el `orderId`)                     |
+| `NombreRazonEmisor`                   |     sí      | `issuerLegalName`                                |
+| `Subsanacion`                         |     no      | `subsanacion`                                    |
+| `RechazoPrevio`                       |     no      | `rechazoPrevio`                                  |
+| `TipoFactura`                         |     sí      | `type`                                           |
+| `TipoRectificativa`                   | condicional | `rectificationType`                              |
+| `FacturasRectificadas`                | condicional | vía `rectifiesId`                                |
+| `FacturasSustituidas`                 | condicional | vía `substitutesId`                              |
+| `ImporteRectificacion`                | condicional | `rectifiedBase`, `rectifiedTaxAmount`            |
+| `FechaOperacion`                      |     no      | `operationDate`                                  |
+| `DescripcionOperacion`                |   **sí**    | `operationText`                                  |
+| `FacturaSimplificadaArt7273`          |     no      | `simplifiedArt7273`                              |
+| `FacturaSinIdentifDestinatarioArt61d` |     no      | `noCustomerIdArt61d`                             |
+| `Macrodato`                           |     no      | `macrodato`                                      |
+| `EmitidaPorTerceroODestinatario`      |     no      | `issuedByThirdParty`                             |
+| `Tercero`                             | condicional | `thirdPartyTaxId`, `thirdPartyName`              |
+| `Destinatarios`                       | condicional | campos `customer*`                               |
+| `Cupon`                               |     no      | no aplica                                        |
+| `Desglose/DetalleDesglose`            |     sí      | `DbInvoiceTaxLine[]`                             |
+| `CuotaTotal`                          |     sí      | `taxAmountTotal`                                 |
+| `ImporteTotal`                        |     sí      | `totalAmount`                                    |
+| `Encadenamiento`                      |     sí      | `isFirstRecord` o `prev*`                        |
+| `SistemaInformatico`                  |     sí      | config + `softwareVersion`, `installationNumber` |
+| `FechaHoraHusoGenRegistro`            |     sí      | `recordedAt`                                     |
+| `TipoHuella`                          |     sí      | `hashType`                                       |
+| `Huella`                              |     sí      | `hash`                                           |
+| `Signature`                           |     no      | **no hace falta en Veri\*factu**                 |
 
 Dos avisos sobre esta tabla:
 
@@ -364,30 +379,40 @@ Para `RegistroAnulacion` la lista es más corta: `IDVersion`, `IDFactura` (la qu
 
 ## 3. IVA: desglose y prorrateo
 
-**Los precios del catálogo son lo que paga el cliente, IVA incluido.** Así funciona un bar y así se
-comporta ya la aplicación. La consecuencia es la mejor noticia del documento: **ningún precio
-existente cambia y ningún total existente cambia**. El IVA se *deriva* del precio bruto, no se suma.
-La única entrada nueva es el `taxRate` por producto.
+**Los precios del catálogo son la base imponible, sin IVA.** El IVA se suma encima, que es como se
+factura de forma estándar y lo que permite que una factura cuadre sin ingeniería inversa: la base es
+un dato, no un resultado de dividir.
+
+Se hizo así tras probar lo contrario. La primera versión guardaba el precio con el IVA dentro y lo
+extraía —cómodo para la carta de un bar, donde el cliente paga lo que pone— pero convierte la base en
+un cociente redondeado y arrastra ese redondeo a cada línea de la factura. Con la plataforma todavía
+en beta cerrada se migraron los precios existentes dividiendo, y quedó cerrado.
+
+La contrapartida, que conviene conocer: **no todo precio final es alcanzable**. Al 10%, una base de
+0,94 € da 1,03 € y una de 0,95 € da 1,05 €; 1,04 € no se puede expresar. De 152 productos migrados,
+132 volvieron al céntimo exacto y 20 se movieron uno.
 
 El cálculo va dentro de `OrderPricingEngine`, que ya es el único calculador y lo usan las dos partes.
 No se escribe un motor nuevo al lado.
 
-### A. De bruto a base
+### A. De base a cuota
 
-Para cada tipo, sobre el total bruto ya descontado:
+Para cada tipo, sobre la base ya descontada:
 
 ```text
-base  = round(brutoDelTipo * 10000 / (10000 + taxRate))
-cuota = brutoDelTipo - base
+cuota = round(baseDelTipo * taxRate / 10000)
+total = baseDelTipo + cuota
 ```
 
-La cuota se obtiene restando, nunca calculándola aparte, para que base y cuota sumen exactamente el
-bruto sin descuadre de un céntimo.
+**Una sola cuota por tipo, sobre la base sumada**, nunca línea a línea y luego sumadas: siete líneas
+de 0,33 € al 21% dan 0,49 € de cuota, no siete redondeos de 0,07 € que darían 0,49 € por casualidad y
+otra cifra en cuanto cambie una cantidad.
 
 ### B. Descuentos
 
-Los descuentos de línea ya salen resueltos: `PricingItemOutput.finalTotal` viene con el descuento
-aplicado, y esa línea tiene un único tipo. Se agrupa y ya está.
+Los descuentos se aplican **sobre la base y luego se grava lo que queda**, nunca al revés. Los de
+línea ya salen resueltos: `PricingItemOutput.finalTotal` viene con el descuento aplicado y esa línea
+tiene un único tipo, así que se agrupa y ya está.
 
 Los descuentos de comanda (`target: ORDER`) son el trabajo real: rebajan el conjunto y hay que
 repartirlos entre tipos **en proporción al peso de cada tipo** en la base sobre la que se aplican.
@@ -410,6 +435,21 @@ Son constantes para el caso normal, pero se persisten por línea en vez de asumi
 aparezca una exención o un régimen distinto no habrá que migrar facturas ya emitidas.
 
 Este paquete es funciones puras con tests de tabla. Es el único que no delegaría sin revisar.
+
+### Lo construido, y una decisión que conviene no deshacer
+
+`OrderPricingEngine` devuelve ahora `taxBreakdown` (una línea por tipo, con `regimeKey` y
+`qualification` persistidos por línea), `taxBaseTotal` y `taxAmountTotal`. La línea de comanda lleva
+su tipo en `taxRateAtPurchase`, así que el desglose se calcula sobre el tipo **congelado en la
+venta**, no sobre el que el producto tenga hoy.
+
+Los tests fijan lo que importa: base y cuota suman siempre el bruto al céntimo, la propina queda
+fuera, un descuento de comanda se reparte en proporción, el céntimo sobrante va al tipo más pesado, y
+el resultado no depende del orden de las líneas.
+
+El tipo efectivo de una línea se resuelve con `resolveTaxRate(producto, categoría)` en el momento de
+la venta y se congela en `taxRateAtPurchase`. Reclasificar un producto, o cambiar el IVA de su
+categoría, no toca ningún ticket ya emitido.
 
 ## 4. Huella encadenada y numeración
 
@@ -493,12 +533,12 @@ checkout reclama la comanda con un `updateMany ... where status = 'OPEN'` y el c
 
 ## 6. Tipos de factura y correcciones
 
-| Tipo | Uso | Datos del cliente |
-| ---- | --- | ----------------- |
-| `F2` | Simplificada. El 99% de la barra y las mesas. | Ninguno |
-| `F1` | Ordinaria. Cuando una empresa o autónomo la pide. | NIF, razón social, domicilio |
-| `R1` | Rectificativa por error fundado en derecho. | Los de la factura rectificada |
-| `R2` | Rectificativa por el resto de causas. | Los de la factura rectificada |
+| Tipo | Uso                                               | Datos del cliente             |
+| ---- | ------------------------------------------------- | ----------------------------- |
+| `F2` | Simplificada. El 99% de la barra y las mesas.     | Ninguno                       |
+| `F1` | Ordinaria. Cuando una empresa o autónomo la pide. | NIF, razón social, domicilio  |
+| `R1` | Rectificativa por error fundado en derecho.       | Los de la factura rectificada |
+| `R2` | Rectificativa por el resto de causas.             | Los de la factura rectificada |
 
 **Regla que gobierna las tres correcciones: un registro emitido no se modifica jamás.** Se emite uno
 nuevo que lo referencia. Es el mismo principio que `supersedesId` en `DbTimeEntry`.
@@ -669,10 +709,10 @@ usan dos fechas:
 - **`issuedAt`** — el momento real en que se cobra y se calcula la huella.
 - **`operationDate`** — el día en que se consumió. Solo se informa si difiere de la anterior.
 
-| Escenario | Tratamiento | Implicación |
-| --------- | ----------- | ----------- |
-| Cobro olvidado dentro del trimestre | `issuedAt` = hoy | El IVA se liquida en el 303 en curso |
-| Cobro olvidado cruzando trimestre | `issuedAt` = hoy, `operationDate` = día del consumo | Permite imputar el devengo al trimestre correcto |
+| Escenario                           | Tratamiento                                         | Implicación                                      |
+| ----------------------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| Cobro olvidado dentro del trimestre | `issuedAt` = hoy                                    | El IVA se liquida en el 303 en curso             |
+| Cobro olvidado cruzando trimestre   | `issuedAt` = hoy, `operationDate` = día del consumo | Permite imputar el devengo al trimestre correcto |
 
 ## 12. Ventas a crédito
 
@@ -710,19 +750,19 @@ se han movido varias veces.
     rectific.                                          ← bloqueado por certificado
 ```
 
-| # | Paquete | Depende de | Notas |
-| - | ------- | ---------- | ----- |
-| W0 | Migración única: identidad fiscal, `taxRate`, `DbInvoice`, `DbInvoiceTaxLine`, `DbOrderAuditLog` | — | Bloquea a todos. Sale primero y sale entera. |
-| W1 | Desglose de IVA y prorrateo en `OrderPricingEngine` | W0 | Sección 3. Funciones puras. **Revisar a mano.** |
-| W2 | Cadena de huellas y correlativo por serie | W0 | Sección 4. Calca `time-entry-chain`. |
-| W3 | Construcción del ticket en la API | W1, W2 | Sección 7.A. |
-| W4 | `GS ( k` en el renderer Go | — | Sección 7.C. Otro lenguaje, aislado del resto. |
-| W5 | Anulación de comandas: PIN, motivo, auditoría | W0 | Sección 9. |
-| W6 | Cierre de caja | W0, W1 | Sección 10. |
-| W7 | F1 directa, canje, rectificativas, anulación fiscal | W2 | Sección 6. |
-| W8 | PDF desde `DbInvoice` | W2 | Sección 7.D. |
-| W9 | Constructor de XML validado contra XSD y contra las validaciones publicadas | W1, W2 | Secciones 2.G, 8.B y 15. **Sin certificado.** |
-| W10 | Transporte SOAP, mTLS, despacho y reintentos | W9 + certificado | Sección 8.C y 8.D. |
+| #   | Paquete                                                                                                                     | Depende de       | Notas                                                                                                                                 |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| W0  | ~~Migración única: identidad fiscal, `taxRate`, `DbInvoice`, `DbInvoiceTaxLine`, `DbOrderAuditLog`~~ **Hecho** (2026-08-25) | —                | Salió entera, más `icon` en `DbProduct` y `productNameAtPurchase` en `DbOrderItem`. El backfill del nombre va dentro de la migración. |
+| W1  | ~~Desglose de IVA y prorrateo en `OrderPricingEngine`, más el IVA editable en categoría y producto~~ **Hecho** (2026-08-25) | W0               | Sección 3. Funciones puras, con tests de tabla. El tipo vive en la categoría y el producto lo pisa si hace falta.                     |
+| W2  | Cadena de huellas y correlativo por serie                                                                                   | W0               | Sección 4. Calca `time-entry-chain`.                                                                                                  |
+| W3  | Construcción del ticket en la API                                                                                           | W1, W2           | Sección 7.A.                                                                                                                          |
+| W4  | `GS ( k` en el renderer Go                                                                                                  | —                | Sección 7.C. Otro lenguaje, aislado del resto.                                                                                        |
+| W5  | Anulación de comandas: PIN, motivo, auditoría                                                                               | W0               | Sección 9.                                                                                                                            |
+| W6  | Cierre de caja                                                                                                              | W0, W1           | Sección 10.                                                                                                                           |
+| W7  | F1 directa, canje, rectificativas, anulación fiscal                                                                         | W2               | Sección 6.                                                                                                                            |
+| W8  | PDF desde `DbInvoice`                                                                                                       | W2               | Sección 7.D.                                                                                                                          |
+| W9  | Constructor de XML validado contra XSD y contra las validaciones publicadas                                                 | W1, W2           | Secciones 2.G, 8.B y 15. **Sin certificado.**                                                                                         |
+| W10 | Transporte SOAP, mTLS, despacho y reintentos                                                                                | W9 + certificado | Sección 8.C y 8.D.                                                                                                                    |
 
 W1, W2, W4, W5, W6 y W9 arrancan a la vez en cuanto W0 esté en `main`. No comparten ficheros.
 

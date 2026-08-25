@@ -46,6 +46,9 @@ describe('PrintTicket', () => {
     amountPaidCard: 0,
     paymentMethod: PaymentMethod.NONE,
     tipAmount: 0,
+    netTotal: 2550,
+    taxBreakdown: [],
+    taxAmountTotal: 0,
     orderTotal: 2550,
     payableTotal: 2550,
     items: [

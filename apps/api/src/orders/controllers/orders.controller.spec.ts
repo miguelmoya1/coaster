@@ -98,9 +98,13 @@ describe('OrdersController', () => {
     commandBus.execute.mockResolvedValue(undefined);
     const dto = { items: [{ productId: 'prod-1', quantity: 2 }] };
 
-    await controller.createOrder(asEstablishmentId('establishment-1'), dto as unknown as CreateOrderDto, {
-      id: asUserId('user-1'),
-    } as User);
+    await controller.createOrder(
+      asEstablishmentId('establishment-1'),
+      dto as unknown as CreateOrderDto,
+      {
+        id: asUserId('user-1'),
+      } as User,
+    );
 
     expect(commandBus.execute).toHaveBeenCalledWith(expect.objectContaining({ createdById: 'user-1' }));
   });

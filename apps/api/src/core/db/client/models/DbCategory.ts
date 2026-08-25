@@ -20,8 +20,18 @@ export type DbCategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$DbCa
 
 export type AggregateDbCategory = {
   _count: DbCategoryCountAggregateOutputType | null
+  _avg: DbCategoryAvgAggregateOutputType | null
+  _sum: DbCategorySumAggregateOutputType | null
   _min: DbCategoryMinAggregateOutputType | null
   _max: DbCategoryMaxAggregateOutputType | null
+}
+
+export type DbCategoryAvgAggregateOutputType = {
+  taxRate: number | null
+}
+
+export type DbCategorySumAggregateOutputType = {
+  taxRate: number | null
 }
 
 export type DbCategoryMinAggregateOutputType = {
@@ -29,6 +39,7 @@ export type DbCategoryMinAggregateOutputType = {
   establishmentId: string | null
   name: string | null
   icon: string | null
+  taxRate: number | null
   deletedAt: Date | null
 }
 
@@ -37,6 +48,7 @@ export type DbCategoryMaxAggregateOutputType = {
   establishmentId: string | null
   name: string | null
   icon: string | null
+  taxRate: number | null
   deletedAt: Date | null
 }
 
@@ -45,16 +57,26 @@ export type DbCategoryCountAggregateOutputType = {
   establishmentId: number
   name: number
   icon: number
+  taxRate: number
   deletedAt: number
   _all: number
 }
 
+
+export type DbCategoryAvgAggregateInputType = {
+  taxRate?: true
+}
+
+export type DbCategorySumAggregateInputType = {
+  taxRate?: true
+}
 
 export type DbCategoryMinAggregateInputType = {
   id?: true
   establishmentId?: true
   name?: true
   icon?: true
+  taxRate?: true
   deletedAt?: true
 }
 
@@ -63,6 +85,7 @@ export type DbCategoryMaxAggregateInputType = {
   establishmentId?: true
   name?: true
   icon?: true
+  taxRate?: true
   deletedAt?: true
 }
 
@@ -71,6 +94,7 @@ export type DbCategoryCountAggregateInputType = {
   establishmentId?: true
   name?: true
   icon?: true
+  taxRate?: true
   deletedAt?: true
   _all?: true
 }
@@ -113,6 +137,18 @@ export type DbCategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DbCategoryAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DbCategorySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DbCategoryMinAggregateInputType
@@ -143,6 +179,8 @@ export type DbCategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: DbCategoryCountAggregateInputType | true
+  _avg?: DbCategoryAvgAggregateInputType
+  _sum?: DbCategorySumAggregateInputType
   _min?: DbCategoryMinAggregateInputType
   _max?: DbCategoryMaxAggregateInputType
 }
@@ -152,8 +190,11 @@ export type DbCategoryGroupByOutputType = {
   establishmentId: string
   name: string
   icon: string | null
+  taxRate: number
   deletedAt: Date | null
   _count: DbCategoryCountAggregateOutputType | null
+  _avg: DbCategoryAvgAggregateOutputType | null
+  _sum: DbCategorySumAggregateOutputType | null
   _min: DbCategoryMinAggregateOutputType | null
   _max: DbCategoryMaxAggregateOutputType | null
 }
@@ -181,6 +222,7 @@ export type DbCategoryWhereInput = {
   establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  taxRate?: Prisma.IntFilter<"DbCategory"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   products?: Prisma.DbProductListRelationFilter
@@ -191,6 +233,7 @@ export type DbCategoryOrderByWithRelationInput = {
   establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
   products?: Prisma.DbProductOrderByRelationAggregateInput
@@ -204,6 +247,7 @@ export type DbCategoryWhereUniqueInput = Prisma.AtLeast<{
   establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  taxRate?: Prisma.IntFilter<"DbCategory"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   products?: Prisma.DbProductListRelationFilter
@@ -214,10 +258,13 @@ export type DbCategoryOrderByWithAggregationInput = {
   establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DbCategoryCountOrderByAggregateInput
+  _avg?: Prisma.DbCategoryAvgOrderByAggregateInput
   _max?: Prisma.DbCategoryMaxOrderByAggregateInput
   _min?: Prisma.DbCategoryMinOrderByAggregateInput
+  _sum?: Prisma.DbCategorySumOrderByAggregateInput
 }
 
 export type DbCategoryScalarWhereWithAggregatesInput = {
@@ -228,6 +275,7 @@ export type DbCategoryScalarWhereWithAggregatesInput = {
   establishmentId?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableWithAggregatesFilter<"DbCategory"> | string | null
+  taxRate?: Prisma.IntWithAggregatesFilter<"DbCategory"> | number
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbCategory"> | Date | string | null
 }
 
@@ -235,6 +283,7 @@ export type DbCategoryCreateInput = {
   id?: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutCategoriesInput
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
@@ -245,6 +294,7 @@ export type DbCategoryUncheckedCreateInput = {
   establishmentId: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
   products?: Prisma.DbProductUncheckedCreateNestedManyWithoutCategoryInput
 }
@@ -253,6 +303,7 @@ export type DbCategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutCategoriesNestedInput
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
@@ -263,6 +314,7 @@ export type DbCategoryUncheckedUpdateInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
@@ -272,6 +324,7 @@ export type DbCategoryCreateManyInput = {
   establishmentId: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
 }
 
@@ -279,6 +332,7 @@ export type DbCategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -287,6 +341,7 @@ export type DbCategoryUncheckedUpdateManyInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -305,7 +360,12 @@ export type DbCategoryCountOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+}
+
+export type DbCategoryAvgOrderByAggregateInput = {
+  taxRate?: Prisma.SortOrder
 }
 
 export type DbCategoryMaxOrderByAggregateInput = {
@@ -313,6 +373,7 @@ export type DbCategoryMaxOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
 }
 
@@ -321,7 +382,12 @@ export type DbCategoryMinOrderByAggregateInput = {
   establishmentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+}
+
+export type DbCategorySumOrderByAggregateInput = {
+  taxRate?: Prisma.SortOrder
 }
 
 export type DbCategoryScalarRelationFilter = {
@@ -389,6 +455,7 @@ export type DbCategoryCreateWithoutEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
   products?: Prisma.DbProductCreateNestedManyWithoutCategoryInput
 }
@@ -397,6 +464,7 @@ export type DbCategoryUncheckedCreateWithoutEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
   products?: Prisma.DbProductUncheckedCreateNestedManyWithoutCategoryInput
 }
@@ -435,6 +503,7 @@ export type DbCategoryScalarWhereInput = {
   establishmentId?: Prisma.StringFilter<"DbCategory"> | string
   name?: Prisma.StringFilter<"DbCategory"> | string
   icon?: Prisma.StringNullableFilter<"DbCategory"> | string | null
+  taxRate?: Prisma.IntFilter<"DbCategory"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"DbCategory"> | Date | string | null
 }
 
@@ -442,6 +511,7 @@ export type DbCategoryCreateWithoutProductsInput = {
   id?: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutCategoriesInput
 }
@@ -451,6 +521,7 @@ export type DbCategoryUncheckedCreateWithoutProductsInput = {
   establishmentId: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
 }
 
@@ -474,6 +545,7 @@ export type DbCategoryUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutCategoriesNestedInput
 }
@@ -483,6 +555,7 @@ export type DbCategoryUncheckedUpdateWithoutProductsInput = {
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -490,6 +563,7 @@ export type DbCategoryCreateManyEstablishmentInput = {
   id?: string
   name: string
   icon?: string | null
+  taxRate?: number
   deletedAt?: Date | string | null
 }
 
@@ -497,6 +571,7 @@ export type DbCategoryUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUpdateManyWithoutCategoryNestedInput
 }
@@ -505,6 +580,7 @@ export type DbCategoryUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   products?: Prisma.DbProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
@@ -513,6 +589,7 @@ export type DbCategoryUncheckedUpdateManyWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -552,6 +629,7 @@ export type DbCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   establishmentId?: boolean
   name?: boolean
   icon?: boolean
+  taxRate?: boolean
   deletedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
@@ -563,6 +641,7 @@ export type DbCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   establishmentId?: boolean
   name?: boolean
   icon?: boolean
+  taxRate?: boolean
   deletedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
@@ -572,6 +651,7 @@ export type DbCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   establishmentId?: boolean
   name?: boolean
   icon?: boolean
+  taxRate?: boolean
   deletedAt?: boolean
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbCategory"]>
@@ -581,10 +661,11 @@ export type DbCategorySelectScalar = {
   establishmentId?: boolean
   name?: boolean
   icon?: boolean
+  taxRate?: boolean
   deletedAt?: boolean
 }
 
-export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "name" | "icon" | "deletedAt", ExtArgs["result"]["dbCategory"]>
+export type DbCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "name" | "icon" | "taxRate" | "deletedAt", ExtArgs["result"]["dbCategory"]>
 export type DbCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   products?: boolean | Prisma.DbCategory$productsArgs<ExtArgs>
@@ -608,6 +689,7 @@ export type $DbCategoryPayload<ExtArgs extends runtime.Types.Extensions.Internal
     establishmentId: string
     name: string
     icon: string | null
+    taxRate: number
     deletedAt: Date | null
   }, ExtArgs["result"]["dbCategory"]>
   composites: {}
@@ -1038,6 +1120,7 @@ export interface DbCategoryFieldRefs {
   readonly establishmentId: Prisma.FieldRef<"DbCategory", 'String'>
   readonly name: Prisma.FieldRef<"DbCategory", 'String'>
   readonly icon: Prisma.FieldRef<"DbCategory", 'String'>
+  readonly taxRate: Prisma.FieldRef<"DbCategory", 'Int'>
   readonly deletedAt: Prisma.FieldRef<"DbCategory", 'DateTime'>
 }
     

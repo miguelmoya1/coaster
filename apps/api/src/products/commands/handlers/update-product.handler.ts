@@ -41,7 +41,11 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
       }
     }
 
-    const product = await this.writeRepo.update(command.productId, command.dto);
+    const { ownTaxRate, ...rest } = command.dto;
+    const product = await this.writeRepo.update(command.productId, {
+      ...rest,
+      ...(ownTaxRate === undefined ? {} : { taxRate: ownTaxRate }),
+    });
     const mapped = ProductsMapper.toDomain(product);
     this.#logger.debug(`Publishing ProductUpdatedEvent...`);
     this._eventBus.publish(new ProductUpdatedEvent(command.establishmentId, mapped));

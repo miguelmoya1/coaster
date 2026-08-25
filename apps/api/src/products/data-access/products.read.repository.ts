@@ -29,6 +29,7 @@ export class ProductsReadRepository {
   public async findByEstablishmentId(establishmentId: EstablishmentId) {
     return this._db.dbProduct.findMany({
       where: { category: { establishmentId, deletedAt: null }, deletedAt: null },
+      include: { category: { select: { taxRate: true } } },
       orderBy: { name: 'asc' },
     });
   }

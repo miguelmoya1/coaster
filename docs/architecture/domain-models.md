@@ -176,6 +176,74 @@ See [printing bridge](printing-bridge.md).
   - optional reason and a JSON `metadata` with before and after
   - indexed by date and by target
 
+## Invoicing
+
+`Invoice` is the Veri*factu billing record: one table for the whole chain, cancellations included,
+because they share a sequence, a lock and a verification function. `InvoiceTaxLine` is a table rather
+than three columns on the invoice — most tickets carry one 10% line, but a closed bottle taken away
+(21%) alongside what was consumed gives the same ticket two bases.
+
+`OrderAuditLog` is the establishment-level counterpart of `AdminAuditLog`: who voided a line, applied
+a discount or reprinted a ticket, and why.
+
+The full design, and the eleven work packages it is split into, are in
+[`VERIFACTU.md`](../../VERIFACTU.md).
+
+### Where the tax rate lives
+
+`Category.taxRate` carries the rate, in whole basis points, and its products inherit it.
+`Product.taxRate` is **nullable**: null means "whatever my category says", and a value means this one
+product is different. `resolveTaxRate(product, category)` is the only thing that decides.
+
+That shape exists because Coaster is no longer only for bars. A shop that uses the clock-in register
+and stock control without ever taking an order sets 21% once on its category rather than on every
+product. An earlier attempt used named brackets (`HOSPITALITY`, `ALCOHOL`, …); it was withdrawn
+because it wrote one sector's vocabulary into a shared domain, and because the rate is copied onto
+the product row at import anyway, so editing the bracket table never reached venues that had already
+imported.
+
+Over the wire the two are told apart by name, so neither can be used by mistake: `Product.taxRate` is
+the **effective** rate, always present, resolved by the API; `Product.ownTaxRate` is the override the
+row actually stores, and it is what the edit form reads and writes.
+
+### Prices are net, and the tax is added on top
+
+**`Product.price` is the base**, without tax. The customer pays base + tax: a product at 2,00 € with
+10% is charged at 2,20 €.
+
+The screens show the customer-facing figure, because a price without its tax is not a price anyone
+recognises. The till and the inventory list render `grossFromNet(price, taxRate)`, and the product
+form shows the resulting final price live while you type the base and the rate.
+
+The consequence worth knowing: **not every final price is reachable.** At 10%, a base of 0,94 € gives
+1,03 € and 0,95 € gives 1,05 €, so 1,04 € cannot be expressed. That is inherent to quoting net, and
+it is the trade for having the tax computed rather than buried inside the price.
+
+### The breakdown is computed, never stored twice
+
+`OrderPricingEngine` returns `netTotal`, a `taxBreakdown` of one line per rate, and `orderTotal`,
+which is the gross the customer owes. `taxBaseTotal + taxAmountTotal === orderTotal` always holds.
+
+Two rules keep the arithmetic honest:
+
+- **Each rate is taxed once, on its summed base**, not line by line and then added up, so seven lines
+  of 0,33 € at 21% give 0,49 € of tax rather than seven separate roundings of 0,07 €.
+- **Discounts come off the net, and what is left is taxed.** An order-level discount is spread across
+  rates in proportion to their weight, and the leftover cent goes to the heaviest rate, so the same
+  order always produces the same breakdown whatever the item ordering.
+
+The tip sits outside the base and outside the tax; it reaches `payableTotal` only.
+
+## What an order line freezes
+
+`OrderItem` snapshots what it was sold as, not just what it cost:
+
+- `priceAtPurchase`
+- `productNameAtPurchase` — renaming a product no longer rewrites history. A receipt reprinted after
+  a rename shows the name it was actually sold under, the same way `TimeEntry` snapshots the worker.
+- `taxRateAtPurchase` — a product moved to another bracket does not retroactively change the VAT on
+  a ticket that has already been issued.
+
 ## Billing domain events
 
 - SubscriptionRenewedEvent

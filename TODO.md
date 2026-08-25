@@ -57,10 +57,6 @@ are conditions on onboarding rather than work in a queue.
   as long as the TTL. Not all sixteen are debt of the same weight — `execute-ai` and
   `create-checkout-session` have nothing anybody would subscribe to — but the printer and exchange
   ones are the reason the realtime stream says nothing when a ticket fails or a shift changes hands.
-- **Renaming a product rewrites history.** `OrderItem` stores `priceAtPurchase` but never the name it
-  was sold under, so a receipt reprinted after a rename shows a sale that never happened under that
-  name. Every product is renameable now that names are words rather than keys. The fix is for the
-  order line to snapshot the name the way `TimeEntry` snapshots the user.
 - **Destructive backoffice actions** were deliberately left out. If deleting establishments or users
   is added, it must require typing the name to confirm and must land in the audit log.
 - **Five imperative GETs remain**, all in `data-access`, all through `routes`, none in a component.

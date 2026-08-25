@@ -17,6 +17,7 @@
           [itemName]="product.name"
           [qty]="product.currentStock"
           [statusLevel]="product.stockStatus"
+          [icon]="product.icon || 'inventory_2'"
           [price]="product.price"
           [routerLink]="['/establishments', establishmentId(), 'inventory']"
         />

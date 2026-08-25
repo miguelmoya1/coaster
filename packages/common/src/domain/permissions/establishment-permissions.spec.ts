@@ -56,7 +56,9 @@ describe('establishment permissions', () => {
   describe('MANAGER', () => {
     it('should run the day to day without owning the establishment', () => {
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_VIEW_DASHBOARD)).toBe(true);
-      expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS)).toBe(true);
+      expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_VIEW_FINANCIALS)).toBe(
+        true,
+      );
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_INVITE_MEMBER)).toBe(true);
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_CREATE_PRODUCT)).toBe(true);
       expect(hasPermission(EstablishmentRole.MANAGER, EstablishmentPermission.ESTABLISHMENT_MANAGE_PRINTER)).toBe(true);

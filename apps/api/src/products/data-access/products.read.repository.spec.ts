@@ -80,6 +80,7 @@ describe('ProductsReadRepository', () => {
 
       expect(dbService.dbProduct.findMany).toHaveBeenCalledWith({
         where: { category: { establishmentId, deletedAt: null }, deletedAt: null },
+        include: { category: { select: { taxRate: true } } },
         orderBy: { name: 'asc' },
       });
       expect(result).toEqual(expectedResult);

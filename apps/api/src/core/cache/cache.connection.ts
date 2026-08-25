@@ -61,8 +61,6 @@ export class CacheConnection implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await Promise.all(
-      this.#connections.map((connection) => connection.quit().catch(() => connection.disconnect())),
-    );
+    await Promise.all(this.#connections.map((connection) => connection.quit().catch(() => connection.disconnect())));
   }
 }

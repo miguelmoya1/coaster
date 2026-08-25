@@ -27,6 +27,26 @@ describe('resolveCatalogue', () => {
   });
 });
 
+describe('tax resolution', () => {
+  it('should carry the rate the category declares', () => {
+    const beers = resolveCatalogue('es').find((category) => category.key === 'cervezas');
+
+    expect(beers?.taxRate).toBe(1000);
+  });
+
+  it('should leave a product rate unset when it just follows its category', () => {
+    const products = resolveCatalogue('es').flatMap((category) => category.products);
+
+    expect(products.every((product) => product.taxRate === undefined)).toBe(true);
+  });
+
+  it('should give every category a rate, since a product with none falls back to it', () => {
+    const rateless = resolveCatalogue('es').filter((category) => typeof category.taxRate !== 'number');
+
+    expect(rateless).toEqual([]);
+  });
+});
+
 describe('resolveCategories', () => {
   it('should return only what was asked for', () => {
     const resolved = resolveCategories(['cafeteria'], 'es');

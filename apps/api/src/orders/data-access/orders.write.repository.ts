@@ -1,3 +1,4 @@
+import { DEFAULT_TAX_RATE } from '@coaster/common';
 import type {
   AddOrderItemsDto,
   AdjustmentTarget,
@@ -22,6 +23,12 @@ import {
 } from '@coaster/core/db';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ORDER_RELATIONS, paymentMethodFor } from './order-relations';
+
+export interface ProductSnapshot {
+  price: number;
+  name: string;
+  taxRate: number;
+}
 
 @Injectable()
 export class OrdersWriteRepository {
@@ -72,7 +79,7 @@ export class OrdersWriteRepository {
   public async createOrder(
     establishmentId: EstablishmentId,
     dto: CreateOrderDto,
-    priceMap: Map<string, number>,
+    snapshots: Map<string, ProductSnapshot>,
     totalAmount: number,
     resolvedTableName: string | null,
     createdById: UserId | null = null,
@@ -87,12 +94,18 @@ export class OrdersWriteRepository {
           status: DbOrderStatus.OPEN,
           totalAmount,
           items: {
-            create: dto.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              priceAtPurchase: priceMap.get(item.productId) ?? 0,
-              notes: item.notes?.substring(0, 500) || null,
-            })),
+            create: dto.items.map((item) => {
+              const snapshot = snapshots.get(item.productId);
+
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                priceAtPurchase: snapshot?.price ?? 0,
+                productNameAtPurchase: snapshot?.name ?? '',
+                taxRateAtPurchase: snapshot?.taxRate ?? DEFAULT_TAX_RATE,
+                notes: item.notes?.substring(0, 500) || null,
+              };
+            }),
           },
           adjustments: dto.adjustments
             ? {
@@ -126,18 +139,24 @@ export class OrdersWriteRepository {
     orderId: OrderId,
     additionalAmount: number,
     dto: AddOrderItemsDto,
-    priceMap: Map<string, number>,
+    snapshots: Map<string, ProductSnapshot>,
     currentTotalAmount: number,
   ) {
     return this._db.$transaction(async (tx) => {
       await tx.dbOrderItem.createMany({
-        data: dto.items.map((item) => ({
-          orderId,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtPurchase: priceMap.get(item.productId) ?? 0,
-          notes: item.notes?.substring(0, 500) || null,
-        })),
+        data: dto.items.map((item) => {
+          const snapshot = snapshots.get(item.productId);
+
+          return {
+            orderId,
+            productId: item.productId,
+            quantity: item.quantity,
+            priceAtPurchase: snapshot?.price ?? 0,
+            productNameAtPurchase: snapshot?.name ?? '',
+            taxRateAtPurchase: snapshot?.taxRate ?? DEFAULT_TAX_RATE,
+            notes: item.notes?.substring(0, 500) || null,
+          };
+        }),
       });
 
       return tx.dbOrder.update({
@@ -269,6 +288,7 @@ export class OrdersWriteRepository {
             priceAtPurchase: i.priceAtPurchase,
             quantity: i.quantity,
             paidQuantity: i.paidQuantity,
+            taxRate: i.taxRateAtPurchase,
           })),
           adjustments: orderInfo.adjustments.map((a) => ({
             id: a.id,
@@ -527,6 +547,7 @@ export class OrdersWriteRepository {
             priceAtPurchase: i.priceAtPurchase,
             quantity: i.quantity,
             paidQuantity: i.paidQuantity,
+            taxRate: i.taxRateAtPurchase,
           })),
           adjustments: orderInfo.adjustments.map((a) => ({
             id: a.id,

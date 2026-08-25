@@ -22,13 +22,14 @@ describe('UpdateProductForm', () => {
     price: 1050,
     currentStock: 10,
     minStockAlert: 5,
+    taxRate: 1000,
     allergens: [],
     stockStatus: 'GOOD',
     lastUpdated: '2022-01-01T00:00:00.000Z',
   };
 
   const mockCategories: Category[] = [
-    { id: asCategoryId('cat-1'), name: 'Drinks', establishmentId: asEstablishmentId('establishment-1') },
+    { id: asCategoryId('cat-1'), name: 'Drinks', establishmentId: asEstablishmentId('establishment-1'), taxRate: 1000 },
   ];
 
   beforeEach(async () => {
@@ -131,6 +132,8 @@ describe('UpdateProductForm', () => {
         price: 1050,
         imageUrl: '',
         allergens: [],
+        icon: '',
+        ownTaxRate: null,
       });
     });
   });

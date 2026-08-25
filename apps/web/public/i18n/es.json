@@ -392,7 +392,11 @@
     "tables_title": "Mesas",
     "to_serve_title": "Para servir",
     "all_served_title": "¡Todo servido!",
-    "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento."
+    "all_served_desc": "No hay pedidos pendientes de servir en la barra en este momento.",
+    "summary": {
+      "net_total": "Base imponible",
+      "tax_line": "IVA ({{rate}}%)"
+    }
   },
   "inventory": {
     "status": {
@@ -459,7 +463,14 @@
       "current_stock_label": "Stock Actual"
     },
     "allergens_label": "Alérgenos",
-    "allergens_hint": "Se muestran en la carta pública. Si cambias esto, vuelve a publicar la carta para que los clientes lo vean."
+    "allergens_hint": "Se muestran en la carta pública. Si cambias esto, vuelve a publicar la carta para que los clientes lo vean.",
+    "icon_label": "Icono",
+    "icon_none": "Sin icono",
+    "product_tax_rate_label": "IVA propio (%)",
+    "product_tax_rate_hint": "Déjalo vacío para usar el de la categoría",
+    "category_tax_rate_label": "IVA de la categoría (%)",
+    "category_tax_rate_hint": "Se aplica a sus productos salvo que alguno tenga el suyo",
+    "gross_price_label": "Precio final (con IVA)"
   },
   "schedule": {
     "create_shift": {
@@ -950,5 +961,13 @@
   },
   "BETA_ACCESS_REQUIRED": "Coaster está en beta cerrada. Escríbenos si quieres participar.",
   "BETA_TESTER_ALREADY_EXISTS": "Ese email ya está en la lista de testers.",
-  "BETA_TESTER_NOT_FOUND": "Ese tester ya no está en la lista."
+  "BETA_TESTER_NOT_FOUND": "Ese tester ya no está en la lista.",
+  "components": {
+    "icon_picker": {
+      "search": "Buscar icono",
+      "loading": "Cargando iconos…",
+      "empty": "Ningún icono coincide",
+      "more": "Mostrando {{shown}} de {{total}}. Afina la búsqueda."
+    }
+  }
 }

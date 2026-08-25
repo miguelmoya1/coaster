@@ -51,14 +51,39 @@ written out, no keys and no slugs.
 {
   key: 'cafeteria',
   icon: 'coffee',
+  taxRate: 1000,
   names: { es: 'Cafetería', en: 'Coffee Shop' },
-  products: [{ names: { es: 'Café Solo', en: 'Black Coffee' }, price: 120 }],
+  products: [{ names: { es: 'Café Solo', en: 'Black Coffee' }, price: 120, icon: 'coffee' }],
 }
 ```
 
+A category declares the tax rate its products inherit, in whole basis points, and a product only
+carries one of its own when it genuinely differs. Nothing in the starter catalogue does today: in
+hostelería the rate follows the service, not the product.
+
+Icons are **Material Symbols names**, which is why the spec pins their shape: they are ligatures, so
+`water-drop` renders nothing at all where `water_drop` renders a drop, and a name the font does not
+know is painted as its own text. Four of the seven categories carried a name that did not exist
+before this was checked against the published set.
+
+The picker offers **the whole Material set**, not a curated shortlist. A hand-picked list of sixteen
+sounds tidy and is not: a venue whose category is "Refrescos y Aguas" ends up choosing a wine glass
+because nothing closer was on offer. The names ship as `material-icon-names.ts`, which the component
+pulls in with a dynamic `import()` the first time the panel opens — so the 4226 names are their own
+lazy chunk (~17 kB transferred) rather than weight every screen pays for. Without a search term the
+panel shows the trade-relevant icons; with one it filters the lot and caps the grid, because a wall
+of four thousand glyphs is not browsable and refining the search is.
+
+The screens fall back in this order: **the venue's own photo, then the icon, then nothing.** The icon
+is what a freshly imported catalogue has and the photo is what a venue uploads later, so a new bar
+gets a legible till on day one without hotlinking anybody's product photography — a URL imported
+into every venue's rows cannot be fixed centrally once it rots.
+
 Changing the catalogue is a reviewed commit rather than a paste into production. It is product
 content, so a deploy is the right gate. A spec guards what a hand edit can break: every name present
-in every language, unique category keys, whole positive prices, no empty category.
+in every language, unique category keys, whole positive prices, no empty category, an icon on
+everything and shaped the way Material Symbols names are, and a tax bracket that actually carries a
+rate.
 
 `GET /establishments/:id/catalogue` serves it resolved to the establishment's language, and
 `POST .../catalogue/import` writes `Category.name` and `Product.name` as words. No selection means

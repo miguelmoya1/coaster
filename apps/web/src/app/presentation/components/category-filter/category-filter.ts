@@ -3,7 +3,7 @@ import { MatChipListbox, MatChipListboxChange, MatChipOption, MatChipTrailingIco
 import { MatIcon } from '@angular/material/icon';
 import type { Category } from '@coaster/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AVAILABLE_ICONS } from '../icon-picker/icon-picker';
+import { isMaterialIconName } from '../icon-picker/icon-picker';
 
 @Component({
   selector: 'coaster-category-filter',
@@ -63,7 +63,7 @@ export class CategoryFilter {
   });
 
   isAvailableIcon(icon: string) {
-    return AVAILABLE_ICONS.includes(icon);
+    return isMaterialIconName(icon);
   }
 
   getInitials(name: string) {

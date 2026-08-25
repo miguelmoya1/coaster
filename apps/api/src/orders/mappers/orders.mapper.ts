@@ -40,6 +40,7 @@ export const OrdersMapper = {
         priceAtPurchase: i.priceAtPurchase,
         quantity: i.quantity,
         paidQuantity: i.paidQuantity,
+        taxRate: i.taxRateAtPurchase,
       })),
       adjustments: adjustments.map((a) => ({
         id: a.id,
@@ -68,6 +69,9 @@ export const OrdersMapper = {
       notes: dbOrder.notes || undefined,
       ticketNotes: dbOrder.ticketNotes || undefined,
       tipAmount: dbOrder.tipAmount,
+      netTotal: pricing.netTotal,
+      taxBreakdown: pricing.taxBreakdown,
+      taxAmountTotal: pricing.taxAmountTotal,
       orderTotal: pricing.orderTotal,
       payableTotal: pricing.payableTotal,
       createdAt: Temporal.Instant.fromEpochMilliseconds(dbOrder.createdAt.getTime()).toString(),

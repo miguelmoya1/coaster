@@ -28,12 +28,7 @@ describe('replayClockState', () => {
   });
 
   it('should land on the state the punches add up to', () => {
-    const day = [
-      TimeEntryType.CLOCK_IN,
-      TimeEntryType.BREAK_START,
-      TimeEntryType.BREAK_END,
-      TimeEntryType.CLOCK_OUT,
-    ];
+    const day = [TimeEntryType.CLOCK_IN, TimeEntryType.BREAK_START, TimeEntryType.BREAK_END, TimeEntryType.CLOCK_OUT];
 
     expect(replayClockState(day)).toBe(ClockState.OUT);
   });

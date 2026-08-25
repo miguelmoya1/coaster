@@ -7,7 +7,9 @@
   </header>
 
   @if (stats.isLoading()) {
-    <coaster-loading containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30" />
+    <coaster-loading
+      containerClasses="min-h-[220px] bg-surface-container rounded-2xl border border-outline-variant/30"
+    />
   } @else if (history(); as revenue) {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <mat-card
@@ -66,7 +68,9 @@
 
       <mat-card-header class="flex justify-between items-center z-10 p-0">
         <div class="flex flex-col">
-          <h3 class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5">
+          <h3
+            class="text-xxs-plus font-bold text-on-surface-variant tracking-widest uppercase flex items-center gap-1.5"
+          >
             <mat-icon class="text-primary text-sm">calendar_today</mat-icon>
             {{ 'dashboard.financials.yearly' | translate }}
           </h3>

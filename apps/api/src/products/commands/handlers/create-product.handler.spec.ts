@@ -65,6 +65,9 @@ describe('CreateProductHandler', () => {
       currentStock: 0,
       minStockAlert: 0,
       imageUrl: null,
+      icon: null,
+      allergens: [],
+      taxRate: null,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
       new ProductCreatedEvent(establishmentId, expect.any(Object) as unknown as Product),

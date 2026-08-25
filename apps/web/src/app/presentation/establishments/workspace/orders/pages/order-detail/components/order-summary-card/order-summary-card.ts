@@ -60,9 +60,16 @@ import { PricePipe } from '../../../../../pipes/price/price';
 
         <div class="flex flex-col items-end gap-1">
           <div class="text-sm text-on-surface-variant flex items-center gap-2">
-            <span>Subtotal</span>
-            <span class="font-semibold">{{ order().orderTotal | price }}</span>
+            <span>{{ 'orders.summary.net_total' | translate }}</span>
+            <span class="font-semibold">{{ order().netTotal | price }}</span>
           </div>
+
+          @for (line of order().taxBreakdown; track line.taxRate) {
+            <div class="text-sm text-on-surface-variant flex items-center gap-2">
+              <span>{{ 'orders.summary.tax_line' | translate: { rate: line.taxRate / 100 } }}</span>
+              <span class="font-semibold">{{ line.taxAmount | price }}</span>
+            </div>
+          }
 
           @for (adj of globalAdjustments(); track adj.id) {
             <div class="text-sm text-tertiary flex items-center gap-2">

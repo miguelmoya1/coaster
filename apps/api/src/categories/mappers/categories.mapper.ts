@@ -9,6 +9,7 @@ export const CategoriesMapper = {
       establishmentId: asEstablishmentId(dbCategory.establishmentId),
       name: dbCategory.name,
       icon: dbCategory.icon ?? undefined,
+      taxRate: dbCategory.taxRate,
     };
   },
 

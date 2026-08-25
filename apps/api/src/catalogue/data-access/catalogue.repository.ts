@@ -30,11 +30,11 @@ export class CatalogueRepository {
     });
   }
 
-  public createCategories(data: { establishmentId: string; name: string; icon: string | null }[]) {
+  public createCategories(data: { establishmentId: string; name: string; icon: string | null; taxRate: number }[]) {
     return this._db.dbCategory.createMany({ data, skipDuplicates: true });
   }
 
-  public createProducts(data: { categoryId: string; name: string; price: number }[]) {
+  public createProducts(data: { categoryId: string; name: string; price: number; icon: string; taxRate?: number }[]) {
     return this._db.dbProduct.createMany({ data, skipDuplicates: true });
   }
 }

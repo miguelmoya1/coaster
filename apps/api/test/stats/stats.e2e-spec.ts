@@ -73,16 +73,16 @@ describe('StatsController (e2e)', () => {
       return body as { todayRevenue: number };
     };
 
-    it('should report the full price when nothing was discounted', async () => {
-      expect((await sellOneProduct(1000)).todayRevenue).toBe(1000);
+    it('should report what the till took, tax included, not the net price', async () => {
+      expect((await sellOneProduct(1000)).todayRevenue).toBe(1100);
     });
 
     it('should report what was charged after a discount, not the menu price', async () => {
-      expect((await sellOneProduct(1000, 20)).todayRevenue).toBe(800);
+      expect((await sellOneProduct(1000, 20)).todayRevenue).toBe(880);
     });
 
     it('should not count the tip as revenue', async () => {
-      expect((await sellOneProduct(1000, undefined, 300)).todayRevenue).toBe(1000);
+      expect((await sellOneProduct(1000, undefined, 300)).todayRevenue).toBe(1100);
     });
   });
 

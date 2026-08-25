@@ -10,10 +10,16 @@ const VALID = 'border-outline-variant/30 focus:border-primary focus:ring-2 focus
 
 const INVALID = 'border-error focus:border-error focus:ring-2 focus:ring-error/20';
 
+const CLICKABLE_TAGS = ['SELECT', 'BUTTON'];
+
+// El preflight de Tailwind resetea `[type="button"]` con la misma especificidad que una clase,
+// y su regla va después, así que el fondo y el borde de arriba se pierden sin el `!`.
+const BUTTON_OVERRIDES = 'bg-surface-container-highest! border!';
+
 let nextId = 0;
 
 @Directive({
-  selector: 'input[coasterInput], textarea[coasterInput], select[coasterInput]',
+  selector: 'input[coasterInput], textarea[coasterInput], select[coasterInput], button[coasterInput]',
   host: {
     class: BASE,
     '[class]': 'stateClass()',
@@ -35,5 +41,14 @@ export class CoasterInput {
 
   readonly invalid = computed(() => !!this.error());
 
-  protected readonly stateClass = computed(() => (this.invalid() ? INVALID : VALID));
+  readonly #tagName = this.#element.nativeElement.tagName;
+
+  readonly #tagClass = [
+    CLICKABLE_TAGS.includes(this.#tagName) ? 'cursor-pointer' : 'cursor-text',
+    this.#tagName === 'BUTTON' ? BUTTON_OVERRIDES : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  protected readonly stateClass = computed(() => `${this.invalid() ? INVALID : VALID} ${this.#tagClass}`);
 }

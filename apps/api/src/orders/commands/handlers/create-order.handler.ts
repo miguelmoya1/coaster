@@ -6,6 +6,8 @@ import { OrdersWriteRepository } from '../../data-access/orders.write.repository
 import { OrderCreatedEvent } from '../../events';
 import { OrdersMapper } from '../../mappers/orders.mapper';
 import { CreateOrderCommand } from '../impl/create-order.command';
+import type { ProductSnapshot } from '../../data-access/orders.write.repository';
+import { resolveTaxRate } from '@coaster/common';
 
 @CommandHandler(CreateOrderCommand)
 export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, void> {
@@ -38,16 +40,21 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand, v
       resolvedTableName = table.name;
     }
 
-    const priceMap = new Map<string, number>(products.map((p) => [p.id, p.price]));
+    const snapshots = new Map<string, ProductSnapshot>(
+      products.map((p) => [
+        p.id,
+        { price: p.price, name: p.name, taxRate: resolveTaxRate(p.taxRate, p.category.taxRate) },
+      ]),
+    );
     const totalAmount = command.dto.items.reduce(
-      (sum, item) => sum + (priceMap.get(item.productId) ?? 0) * item.quantity,
+      (sum, item) => sum + (snapshots.get(item.productId)?.price ?? 0) * item.quantity,
       0,
     );
 
     const order = await this.writeRepo.createOrder(
       command.establishmentId,
       command.dto,
-      priceMap as Map<string, number>,
+      snapshots,
       totalAmount,
       resolvedTableName,
       command.createdById,

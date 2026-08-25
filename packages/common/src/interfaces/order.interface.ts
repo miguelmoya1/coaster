@@ -58,10 +58,19 @@ export interface Order {
   notes?: string;
   ticketNotes?: string;
   tipAmount: number;
+  netTotal: number;
+  taxBreakdown: OrderTaxLine[];
+  taxAmountTotal: number;
   orderTotal: number;
   payableTotal: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface OrderTaxLine {
+  taxRate: number;
+  taxBase: number;
+  taxAmount: number;
 }
 
 export interface CreateOrderItemDto {

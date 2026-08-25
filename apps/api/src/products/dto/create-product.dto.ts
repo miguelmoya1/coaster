@@ -1,6 +1,6 @@
 import type { Allergen, CategoryId, CreateProductDto as ICreateProductDto } from '@coaster/common';
-import { ALLERGENS, ErrorCodes } from '@coaster/common';
-import { IsArray, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ALLERGENS, ErrorCodes, MAX_TAX_RATE } from '@coaster/common';
+import { IsArray, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class CreateProductDto implements ICreateProductDto {
   @IsString({ message: ErrorCodes.INVALID_TYPE })
@@ -31,4 +31,14 @@ export class CreateProductDto implements ICreateProductDto {
   @IsIn(ALLERGENS, { each: true, message: ErrorCodes.INVALID_TYPE })
   @IsOptional()
   declare allergens?: Allergen[];
+
+  @IsString({ message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare icon?: string;
+
+  @IsNumber({}, { message: ErrorCodes.INVALID_TYPE })
+  @Min(0, { message: ErrorCodes.INVALID_TYPE })
+  @Max(MAX_TAX_RATE, { message: ErrorCodes.INVALID_TYPE })
+  @IsOptional()
+  declare ownTaxRate?: number | null;
 }

@@ -74,7 +74,10 @@ export const ModelName = {
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
   DbTimeEntry: 'DbTimeEntry',
-  DbAdminAuditLog: 'DbAdminAuditLog'
+  DbAdminAuditLog: 'DbAdminAuditLog',
+  DbInvoice: 'DbInvoice',
+  DbInvoiceTaxLine: 'DbInvoiceTaxLine',
+  DbOrderAuditLog: 'DbOrderAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -136,6 +139,9 @@ export type DbBetaTesterScalarFieldEnum = (typeof DbBetaTesterScalarFieldEnum)[k
 export const DbEstablishmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  taxId: 'taxId',
+  legalName: 'legalName',
+  fiscalAddress: 'fiscalAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -277,6 +283,7 @@ export const DbCategoryScalarFieldEnum = {
   establishmentId: 'establishmentId',
   name: 'name',
   icon: 'icon',
+  taxRate: 'taxRate',
   deletedAt: 'deletedAt'
 } as const
 
@@ -291,6 +298,8 @@ export const DbProductScalarFieldEnum = {
   currentStock: 'currentStock',
   minStockAlert: 'minStockAlert',
   imageUrl: 'imageUrl',
+  icon: 'icon',
+  taxRate: 'taxRate',
   allergens: 'allergens',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -339,6 +348,8 @@ export const DbOrderItemScalarFieldEnum = {
   productId: 'productId',
   quantity: 'quantity',
   priceAtPurchase: 'priceAtPurchase',
+  productNameAtPurchase: 'productNameAtPurchase',
+  taxRateAtPurchase: 'taxRateAtPurchase',
   paidQuantity: 'paidQuantity',
   paidQuantityCash: 'paidQuantityCash',
   paidQuantityCard: 'paidQuantityCard',
@@ -445,6 +456,101 @@ export const DbAdminAuditLogScalarFieldEnum = {
 } as const
 
 export type DbAdminAuditLogScalarFieldEnum = (typeof DbAdminAuditLogScalarFieldEnum)[keyof typeof DbAdminAuditLogScalarFieldEnum]
+
+
+export const DbInvoiceScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  orderId: 'orderId',
+  idVersion: 'idVersion',
+  recordType: 'recordType',
+  type: 'type',
+  series: 'series',
+  number: 'number',
+  sequence: 'sequence',
+  issuerTaxId: 'issuerTaxId',
+  issuerLegalName: 'issuerLegalName',
+  issuerAddress: 'issuerAddress',
+  operationText: 'operationText',
+  externalRef: 'externalRef',
+  customerTaxId: 'customerTaxId',
+  customerName: 'customerName',
+  customerAddress: 'customerAddress',
+  customerCountry: 'customerCountry',
+  customerIdType: 'customerIdType',
+  simplifiedArt7273: 'simplifiedArt7273',
+  noCustomerIdArt61d: 'noCustomerIdArt61d',
+  macrodato: 'macrodato',
+  issuedByThirdParty: 'issuedByThirdParty',
+  thirdPartyTaxId: 'thirdPartyTaxId',
+  thirdPartyName: 'thirdPartyName',
+  taxBaseTotal: 'taxBaseTotal',
+  taxAmountTotal: 'taxAmountTotal',
+  totalAmount: 'totalAmount',
+  prevHash: 'prevHash',
+  hash: 'hash',
+  hashType: 'hashType',
+  prevSeries: 'prevSeries',
+  prevNumber: 'prevNumber',
+  prevIssuedAt: 'prevIssuedAt',
+  isFirstRecord: 'isFirstRecord',
+  softwareVersion: 'softwareVersion',
+  installationNumber: 'installationNumber',
+  qrPayload: 'qrPayload',
+  subsanacion: 'subsanacion',
+  rechazoPrevio: 'rechazoPrevio',
+  aeatStatus: 'aeatStatus',
+  aeatCsv: 'aeatCsv',
+  aeatRecordState: 'aeatRecordState',
+  aeatErrorCode: 'aeatErrorCode',
+  aeatErrorText: 'aeatErrorText',
+  aeatSentAt: 'aeatSentAt',
+  aeatAttempts: 'aeatAttempts',
+  substitutesId: 'substitutesId',
+  rectifiesId: 'rectifiesId',
+  rectificationType: 'rectificationType',
+  rectifiedBase: 'rectifiedBase',
+  rectifiedTaxAmount: 'rectifiedTaxAmount',
+  cancelsId: 'cancelsId',
+  noPreviousRecord: 'noPreviousRecord',
+  generatedBy: 'generatedBy',
+  issuedAt: 'issuedAt',
+  recordedAt: 'recordedAt',
+  operationDate: 'operationDate',
+  createdAt: 'createdAt'
+} as const
+
+export type DbInvoiceScalarFieldEnum = (typeof DbInvoiceScalarFieldEnum)[keyof typeof DbInvoiceScalarFieldEnum]
+
+
+export const DbInvoiceTaxLineScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  taxType: 'taxType',
+  regimeKey: 'regimeKey',
+  qualification: 'qualification',
+  exemption: 'exemption',
+  taxRate: 'taxRate',
+  taxBase: 'taxBase',
+  taxAmount: 'taxAmount'
+} as const
+
+export type DbInvoiceTaxLineScalarFieldEnum = (typeof DbInvoiceTaxLineScalarFieldEnum)[keyof typeof DbInvoiceTaxLineScalarFieldEnum]
+
+
+export const DbOrderAuditLogScalarFieldEnum = {
+  id: 'id',
+  establishmentId: 'establishmentId',
+  actorId: 'actorId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  reason: 'reason',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type DbOrderAuditLogScalarFieldEnum = (typeof DbOrderAuditLogScalarFieldEnum)[keyof typeof DbOrderAuditLogScalarFieldEnum]
 
 
 export const SortOrder = {

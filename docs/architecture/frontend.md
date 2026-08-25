@@ -122,6 +122,35 @@ The attributes to watch: `matSuffix` / `matIconSuffix` need `MatSuffix`, `matPre
 `matIconPrefix` need `MatPrefix`, and likewise `matInput`, `matTooltip`, `matBadge`, `matRipple`,
 `matStartDate` and `matEndDate`.
 
+## Icons
+
+Every icon in the product is a **Material Symbols ligature**, referenced by its snake_case name.
+Two consequences that have both bitten already:
+
+- A kebab-case name (`water-drop`) renders nothing, and a name the font does not know (`beer`) is
+  painted as the literal word. Neither fails a build, so both shipped once.
+- Any check that a stored icon is "valid" can only test its shape. `isMaterialIconName` does exactly
+  that and nothing more; correctness comes from `coaster-icon-picker` only ever offering names that
+  exist.
+
+The picker loads the full catalogue through a dynamic `import()` on first open, keeping it out of
+every chunk that merely renders an icon, and grows the grid a batch at a time as you scroll.
+
+## Tailwind's preflight beats a class on `<button>`
+
+`coasterInput` styles inputs, textareas, selects **and buttons**, so a control that opens a panel
+looks like the field next to it rather than like a link.
+
+A button needs two of those utilities marked `!`. Preflight's reset is
+`button, [type="button"], … { background-color: transparent; border-width: 0 }`, and `[type="button"]`
+is an attribute selector — the same specificity as a class — declared after the utilities, so it wins
+on any button that names its type. The symptom is a control with the right radius and padding and no
+fill or border at all.
+
+This is the same shape as the Material case in
+[Material buttons and Tailwind](#material-directives-that-fail-silently): on a button, assume a plain
+utility may lose and check the computed style rather than the class list.
+
 ## Typecheck
 
 `apps/web/tsconfig.json` is a _solution config_: it has `"files": []` and only references. So
