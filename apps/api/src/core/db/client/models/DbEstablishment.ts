@@ -31,6 +31,7 @@ export type DbEstablishmentMinAggregateOutputType = {
   legalName: string | null
   fiscalAddress: string | null
   fichitCompanyId: string | null
+  fichitClockingSince: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +43,7 @@ export type DbEstablishmentMaxAggregateOutputType = {
   legalName: string | null
   fiscalAddress: string | null
   fichitCompanyId: string | null
+  fichitClockingSince: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +55,7 @@ export type DbEstablishmentCountAggregateOutputType = {
   legalName: number
   fiscalAddress: number
   fichitCompanyId: number
+  fichitClockingSince: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +69,7 @@ export type DbEstablishmentMinAggregateInputType = {
   legalName?: true
   fiscalAddress?: true
   fichitCompanyId?: true
+  fichitClockingSince?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +81,7 @@ export type DbEstablishmentMaxAggregateInputType = {
   legalName?: true
   fiscalAddress?: true
   fichitCompanyId?: true
+  fichitClockingSince?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +93,7 @@ export type DbEstablishmentCountAggregateInputType = {
   legalName?: true
   fiscalAddress?: true
   fichitCompanyId?: true
+  fichitClockingSince?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +178,7 @@ export type DbEstablishmentGroupByOutputType = {
   legalName: string | null
   fiscalAddress: string | null
   fichitCompanyId: string | null
+  fichitClockingSince: Date | null
   createdAt: Date
   updatedAt: Date
   _count: DbEstablishmentCountAggregateOutputType | null
@@ -204,6 +211,7 @@ export type DbEstablishmentWhereInput = {
   legalName?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
   fiscalAddress?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
   fichitCompanyId?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
+  fichitClockingSince?: Prisma.DateTimeNullableFilter<"DbEstablishment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishment"> | Date | string
   members?: Prisma.DbEstablishmentMemberListRelationFilter
@@ -230,6 +238,7 @@ export type DbEstablishmentOrderByWithRelationInput = {
   legalName?: Prisma.SortOrderInput | Prisma.SortOrder
   fiscalAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   fichitCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fichitClockingSince?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.DbEstablishmentMemberOrderByRelationAggregateInput
@@ -259,6 +268,7 @@ export type DbEstablishmentWhereUniqueInput = Prisma.AtLeast<{
   taxId?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
   legalName?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
   fiscalAddress?: Prisma.StringNullableFilter<"DbEstablishment"> | string | null
+  fichitClockingSince?: Prisma.DateTimeNullableFilter<"DbEstablishment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DbEstablishment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DbEstablishment"> | Date | string
   members?: Prisma.DbEstablishmentMemberListRelationFilter
@@ -285,6 +295,7 @@ export type DbEstablishmentOrderByWithAggregationInput = {
   legalName?: Prisma.SortOrderInput | Prisma.SortOrder
   fiscalAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   fichitCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fichitClockingSince?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbEstablishmentCountOrderByAggregateInput
@@ -302,6 +313,7 @@ export type DbEstablishmentScalarWhereWithAggregatesInput = {
   legalName?: Prisma.StringNullableWithAggregatesFilter<"DbEstablishment"> | string | null
   fiscalAddress?: Prisma.StringNullableWithAggregatesFilter<"DbEstablishment"> | string | null
   fichitCompanyId?: Prisma.StringNullableWithAggregatesFilter<"DbEstablishment"> | string | null
+  fichitClockingSince?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishment"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DbEstablishment"> | Date | string
 }
@@ -313,6 +325,7 @@ export type DbEstablishmentCreateInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -339,6 +352,7 @@ export type DbEstablishmentUncheckedCreateInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -365,6 +379,7 @@ export type DbEstablishmentUpdateInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -391,6 +406,7 @@ export type DbEstablishmentUncheckedUpdateInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -417,6 +433,7 @@ export type DbEstablishmentCreateManyInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -428,6 +445,7 @@ export type DbEstablishmentUpdateManyMutationInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,6 +457,7 @@ export type DbEstablishmentUncheckedUpdateManyInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -450,6 +469,7 @@ export type DbEstablishmentCountOrderByAggregateInput = {
   legalName?: Prisma.SortOrder
   fiscalAddress?: Prisma.SortOrder
   fichitCompanyId?: Prisma.SortOrder
+  fichitClockingSince?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -461,6 +481,7 @@ export type DbEstablishmentMaxOrderByAggregateInput = {
   legalName?: Prisma.SortOrder
   fiscalAddress?: Prisma.SortOrder
   fichitCompanyId?: Prisma.SortOrder
+  fichitClockingSince?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -472,6 +493,7 @@ export type DbEstablishmentMinOrderByAggregateInput = {
   legalName?: Prisma.SortOrder
   fiscalAddress?: Prisma.SortOrder
   fichitCompanyId?: Prisma.SortOrder
+  fichitClockingSince?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -479,6 +501,10 @@ export type DbEstablishmentMinOrderByAggregateInput = {
 export type DbEstablishmentScalarRelationFilter = {
   is?: Prisma.DbEstablishmentWhereInput
   isNot?: Prisma.DbEstablishmentWhereInput
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DbEstablishmentCreateNestedOneWithoutSettingsInput = {
@@ -698,6 +724,7 @@ export type DbEstablishmentCreateWithoutSettingsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -723,6 +750,7 @@ export type DbEstablishmentUncheckedCreateWithoutSettingsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -764,6 +792,7 @@ export type DbEstablishmentUpdateWithoutSettingsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -789,6 +818,7 @@ export type DbEstablishmentUncheckedUpdateWithoutSettingsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -814,6 +844,7 @@ export type DbEstablishmentCreateWithoutPairingsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -839,6 +870,7 @@ export type DbEstablishmentUncheckedCreateWithoutPairingsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -880,6 +912,7 @@ export type DbEstablishmentUpdateWithoutPairingsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -905,6 +938,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPairingsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -930,6 +964,7 @@ export type DbEstablishmentCreateWithoutAiUsageInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -955,6 +990,7 @@ export type DbEstablishmentUncheckedCreateWithoutAiUsageInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -996,6 +1032,7 @@ export type DbEstablishmentUpdateWithoutAiUsageInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1021,6 +1058,7 @@ export type DbEstablishmentUncheckedUpdateWithoutAiUsageInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1046,6 +1084,7 @@ export type DbEstablishmentCreateWithoutMembersInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   shifts?: Prisma.DbShiftCreateNestedManyWithoutEstablishmentInput
@@ -1071,6 +1110,7 @@ export type DbEstablishmentUncheckedCreateWithoutMembersInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   shifts?: Prisma.DbShiftUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1112,6 +1152,7 @@ export type DbEstablishmentUpdateWithoutMembersInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.DbShiftUpdateManyWithoutEstablishmentNestedInput
@@ -1137,6 +1178,7 @@ export type DbEstablishmentUncheckedUpdateWithoutMembersInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shifts?: Prisma.DbShiftUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1162,6 +1204,7 @@ export type DbEstablishmentCreateWithoutShiftsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1187,6 +1230,7 @@ export type DbEstablishmentUncheckedCreateWithoutShiftsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1228,6 +1272,7 @@ export type DbEstablishmentUpdateWithoutShiftsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1253,6 +1298,7 @@ export type DbEstablishmentUncheckedUpdateWithoutShiftsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1278,6 +1324,7 @@ export type DbEstablishmentCreateWithoutMenusInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1303,6 +1350,7 @@ export type DbEstablishmentUncheckedCreateWithoutMenusInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1344,6 +1392,7 @@ export type DbEstablishmentUpdateWithoutMenusInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1369,6 +1418,7 @@ export type DbEstablishmentUncheckedUpdateWithoutMenusInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1394,6 +1444,7 @@ export type DbEstablishmentCreateWithoutCategoriesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1419,6 +1470,7 @@ export type DbEstablishmentUncheckedCreateWithoutCategoriesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1460,6 +1512,7 @@ export type DbEstablishmentUpdateWithoutCategoriesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1485,6 +1538,7 @@ export type DbEstablishmentUncheckedUpdateWithoutCategoriesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1510,6 +1564,7 @@ export type DbEstablishmentCreateWithoutTablesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1535,6 +1590,7 @@ export type DbEstablishmentUncheckedCreateWithoutTablesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1576,6 +1632,7 @@ export type DbEstablishmentUpdateWithoutTablesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1601,6 +1658,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTablesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1626,6 +1684,7 @@ export type DbEstablishmentCreateWithoutOrdersInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1651,6 +1710,7 @@ export type DbEstablishmentUncheckedCreateWithoutOrdersInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1692,6 +1752,7 @@ export type DbEstablishmentUpdateWithoutOrdersInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1717,6 +1778,7 @@ export type DbEstablishmentUncheckedUpdateWithoutOrdersInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1742,6 +1804,7 @@ export type DbEstablishmentCreateWithoutPrinterInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1767,6 +1830,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrinterInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1808,6 +1872,7 @@ export type DbEstablishmentUpdateWithoutPrinterInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1833,6 +1898,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrinterInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1858,6 +1924,7 @@ export type DbEstablishmentCreateWithoutPrintJobsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1883,6 +1950,7 @@ export type DbEstablishmentUncheckedCreateWithoutPrintJobsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -1924,6 +1992,7 @@ export type DbEstablishmentUpdateWithoutPrintJobsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -1949,6 +2018,7 @@ export type DbEstablishmentUncheckedUpdateWithoutPrintJobsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -1974,6 +2044,7 @@ export type DbEstablishmentCreateWithoutBillingInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -1999,6 +2070,7 @@ export type DbEstablishmentUncheckedCreateWithoutBillingInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -2040,6 +2112,7 @@ export type DbEstablishmentUpdateWithoutBillingInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -2065,6 +2138,7 @@ export type DbEstablishmentUncheckedUpdateWithoutBillingInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -2090,6 +2164,7 @@ export type DbEstablishmentCreateWithoutTimeEntriesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -2115,6 +2190,7 @@ export type DbEstablishmentUncheckedCreateWithoutTimeEntriesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -2156,6 +2232,7 @@ export type DbEstablishmentUpdateWithoutTimeEntriesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -2181,6 +2258,7 @@ export type DbEstablishmentUncheckedUpdateWithoutTimeEntriesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -2206,6 +2284,7 @@ export type DbEstablishmentCreateWithoutInvoicesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -2231,6 +2310,7 @@ export type DbEstablishmentUncheckedCreateWithoutInvoicesInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -2272,6 +2352,7 @@ export type DbEstablishmentUpdateWithoutInvoicesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -2297,6 +2378,7 @@ export type DbEstablishmentUncheckedUpdateWithoutInvoicesInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -2322,6 +2404,7 @@ export type DbEstablishmentCreateWithoutOrderAuditsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberCreateNestedManyWithoutEstablishmentInput
@@ -2347,6 +2430,7 @@ export type DbEstablishmentUncheckedCreateWithoutOrderAuditsInput = {
   legalName?: string | null
   fiscalAddress?: string | null
   fichitCompanyId?: string | null
+  fichitClockingSince?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedCreateNestedManyWithoutEstablishmentInput
@@ -2388,6 +2472,7 @@ export type DbEstablishmentUpdateWithoutOrderAuditsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUpdateManyWithoutEstablishmentNestedInput
@@ -2413,6 +2498,7 @@ export type DbEstablishmentUncheckedUpdateWithoutOrderAuditsInput = {
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fiscalAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fichitCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fichitClockingSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentNestedInput
@@ -2568,6 +2654,7 @@ export type DbEstablishmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   legalName?: boolean
   fiscalAddress?: boolean
   fichitCompanyId?: boolean
+  fichitClockingSince?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.DbEstablishment$membersArgs<ExtArgs>
@@ -2595,6 +2682,7 @@ export type DbEstablishmentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   legalName?: boolean
   fiscalAddress?: boolean
   fichitCompanyId?: boolean
+  fichitClockingSince?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dbEstablishment"]>
@@ -2606,6 +2694,7 @@ export type DbEstablishmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   legalName?: boolean
   fiscalAddress?: boolean
   fichitCompanyId?: boolean
+  fichitClockingSince?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dbEstablishment"]>
@@ -2617,11 +2706,12 @@ export type DbEstablishmentSelectScalar = {
   legalName?: boolean
   fiscalAddress?: boolean
   fichitCompanyId?: boolean
+  fichitClockingSince?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DbEstablishmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "taxId" | "legalName" | "fiscalAddress" | "fichitCompanyId" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishment"]>
+export type DbEstablishmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "taxId" | "legalName" | "fiscalAddress" | "fichitCompanyId" | "fichitClockingSince" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishment"]>
 export type DbEstablishmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.DbEstablishment$membersArgs<ExtArgs>
   shifts?: boolean | Prisma.DbEstablishment$shiftsArgs<ExtArgs>
@@ -2669,6 +2759,7 @@ export type $DbEstablishmentPayload<ExtArgs extends runtime.Types.Extensions.Int
     legalName: string | null
     fiscalAddress: string | null
     fichitCompanyId: string | null
+    fichitClockingSince: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dbEstablishment"]>
@@ -3115,6 +3206,7 @@ export interface DbEstablishmentFieldRefs {
   readonly legalName: Prisma.FieldRef<"DbEstablishment", 'String'>
   readonly fiscalAddress: Prisma.FieldRef<"DbEstablishment", 'String'>
   readonly fichitCompanyId: Prisma.FieldRef<"DbEstablishment", 'String'>
+  readonly fichitClockingSince: Prisma.FieldRef<"DbEstablishment", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DbEstablishment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DbEstablishment", 'DateTime'>
 }

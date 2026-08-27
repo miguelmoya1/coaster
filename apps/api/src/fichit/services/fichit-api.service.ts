@@ -32,10 +32,29 @@ export interface NewFichitCompany {
   ownerEmail: string;
 }
 
+export interface FichitSession {
+  access_token: string;
+  expires_at: string;
+  refresh_token: string;
+  subject_type: string;
+  company_id: string;
+}
+
 export interface FichitEmployeeSync {
   externalId: string;
   fullName: string;
   email?: string | null;
+}
+
+export interface NewFichitShift {
+  employeeId: string;
+  startsAt: string;
+  endsAt: string;
+  note?: string | null;
+}
+
+export interface FichitShiftResult {
+  id: string;
 }
 
 export class FichitError extends Error {
@@ -94,6 +113,39 @@ export class FichitApi {
         email: employee.email ?? null,
       },
     });
+  }
+
+  public get baseUrl(): string {
+    return this.#baseUrl;
+  }
+
+  public async openEmployeeSession(companyId: string, employeeId: string): Promise<FichitSession> {
+    return this.#request<FichitSession>('POST', `/api/v1/partner/companies/${companyId}/sessions`, {
+      body: { subject: 'employee', employee_id: employeeId },
+    });
+  }
+
+  public async hasPunches(companyId: string): Promise<boolean> {
+    const page = await this.#request<{ punches?: unknown[] }>('GET', '/api/v1/admin/punches?limit=1', {
+      companyId,
+    });
+    return (page.punches ?? []).length > 0;
+  }
+
+  public async createShift(companyId: string, shift: NewFichitShift): Promise<FichitShiftResult> {
+    return this.#request<FichitShiftResult>('POST', '/api/v1/admin/shifts', {
+      companyId,
+      body: {
+        employee_id: shift.employeeId,
+        starts_at: shift.startsAt,
+        ends_at: shift.endsAt,
+        note: shift.note ?? null,
+      },
+    });
+  }
+
+  public async deleteShift(companyId: string, shiftId: string): Promise<void> {
+    await this.#request<void>('DELETE', `/api/v1/admin/shifts/${shiftId}`, { companyId });
   }
 
   public async deactivateEmployee(companyId: string, employeeId: string): Promise<void> {

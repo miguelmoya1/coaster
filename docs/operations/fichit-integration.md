@@ -96,6 +96,8 @@ linked by the first run. It works in batches of 200 and is safe to run as many t
 | `EstablishmentCreatedEvent` | company created, its owner registered as an employee     |
 | `MemberInvitedEvent`      | employee created or updated                                |
 | `MemberRemovedEvent`      | employee deactivated                                       |
+| `ShiftCreatedEvent`       | shift mirrored — only once the venue has moved              |
+| `ShiftDeletedEvent`       | mirrored shift removed                                      |
 
 `EstablishmentCreatedEvent` was added for this. Establishment creation used to write to the database
 and say nothing, so there was nothing to react to.
@@ -109,11 +111,80 @@ knows about (`404`) counts as already retired; any other failure is raised so th
 1. In Fichit's platform panel, create the partner and issue it a key —
    `POST /api/v1/platform/partners`, then `/keys`. **The key is shown once.**
 2. Put `FICHIT_API_URL` and `FICHIT_API_KEY` on the Cloud Run service for that environment.
-3. Deploy, then `POST /admin/fichit/backfill` and read the report.
-4. Check the numbers against `GET /api/v1/platform/partners/{id}` in Fichit's panel: the count of
+3. Add the environment's web origins to Fichit's `FICHIT_CORS_ORIGINS`, or the browser will refuse
+   the punch before it leaves.
+4. Deploy, then `POST /admin/fichit/backfill` and read the report.
+5. Check the numbers against `GET /api/v1/platform/partners/{id}` in Fichit's panel: the count of
    companies and active employees should match what Coaster has.
+6. Move one venue, watch it for a week, then move the next.
+
+## Moving the clocking
+
+`Establishment.fichitClockingSince` is the switch. `NULL` means the venue still clocks here; a date
+means it clocked in Fichit from that instant.
+
+**It is a date and not a boolean because the history does not move.** Coaster's hash chain cannot be
+rewritten, and it cannot be imported into Fichit's without faking the sequence and the seals that
+give it its legal value. So each side keeps its stretch, and this column is the border between the
+two: everything before it is read here, everything after it lives in Fichit.
+
+That is why the move is one venue at a time, and why it is a decision rather than a deploy:
+
+```
+POST   /admin/fichit/establishments/:id/clocking   → { since }
+DELETE /admin/fichit/establishments/:id/clocking   → undo
+```
+
+**Undo only works while Fichit has recorded nothing.** Once someone has clocked there, moving back
+would leave the venue's register split across two services with a gap in the middle, and no report
+would show the whole thing. The endpoint checks and answers `409`.
+
+### What closes, and what stays open
+
+Once a venue has moved, `ClockingMovedGuard` closes Coaster's four write routes — `clock`, the
+manual entry, the amendment and the void — with `409 CLOCKING_MOVED_TO_FICHIT`. The read routes stay
+open, unchanged, serving the history Coaster recorded. The append-only trigger stays too: it is what
+guarantees that history is still the one that was written.
+
+Coaster's timesheet becomes an **archive** of its own stretch. It does not federate Fichit's data
+into it — translating between two domain models would be the same duplication this migration exists
+to remove, with a seam in the middle where the numbers could disagree. The period after the switch
+is read in Fichit, which has its own reports, its CSV and the PDF for the inspectorate.
+
+### The punch goes straight there
+
+From the worker's browser to Fichit, without passing through Coaster's server. If Coaster is down,
+its customers keep meeting their legal duty — which is the whole point of moving this out.
+
+```
+POST /establishments/:id/time-entries/session   → { baseUrl, companyId, employeeId, session }
+```
+
+Coaster mints the session with its partner key and hands it over; the browser then talks to Fichit
+on its own. Three details make that safe, and all three are load-bearing:
+
+- The **Firebase token never reaches Fichit**. `idTokenInterceptor` only attaches it to URLs that are
+  ours, and the handover URL is absolute.
+- A **401 from Fichit does not log you out of Coaster**. It used to: `unauthorizedInterceptor` logged
+  out on any 401 anywhere, so an expired Fichit token would have thrown the user out of the app. It
+  now only reacts to our own origins.
+- An expired session **re-mints instead of refreshing**. The store drops the handover on a 401 and
+  asks Coaster for a new one, which works for as long as the user is logged into Coaster and keeps
+  one fewer long-lived credential sitting in the browser.
+
+Fichit's `FICHIT_CORS_ORIGINS` has to list the web origins for that environment, or the browser will
+refuse the call before it leaves.
+
+### The roster crosses too
+
+Planned against worked is a contrast that now spans two services, so **the shifts go to Fichit** and
+the report is drawn in one place. `Shift.fichitShiftId` holds the mirror, and it is only filled for
+venues that have already moved: rostering a shift in a venue that still clocks here changes nothing.
+
+The alternative — Coaster asking Fichit for the worked hours to draw its own comparison — would have
+meant two services queried to paint one row, and two implementations of the same contrast.
 
 ## What has not moved yet
 
-Clocking. `TimeEntry` is still written by Coaster, and Fichit's register for these companies is
-empty. That comes next, one establishment at a time behind a switch — not all at once.
+The manual side of the register: creating an entry someone forgot, amending one, voiding one. Those
+still exist in Coaster for its own history, and in Fichit for its own. Nothing reads across.

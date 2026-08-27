@@ -1,3 +1,4 @@
+import { FichitModule } from '@coaster/fichit';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
@@ -7,7 +8,7 @@ import { TimeEntriesWriteRepository } from './data-access/time-entries.write.rep
 import { QueryHandlers } from './queries';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, FichitModule],
   controllers: [TimeEntriesController],
   providers: [TimeEntriesReadRepository, TimeEntriesWriteRepository, ...CommandHandlers, ...QueryHandlers],
 })

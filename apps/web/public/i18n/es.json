@@ -22,6 +22,8 @@
   "STRIPE_WEBHOOK_SIGNATURE_INVALID": "La firma del evento de facturación no es válida.",
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "Falta la firma del evento de facturación.",
   "SUBSCRIPTION_EXPIRED": "Tu prueba o suscripción ha finalizado. Activa Coaster Pro para continuar.",
+  "CLOCKING_MOVED_TO_FICHIT": "El registro horario de este local se lleva ahora en Fichit. Ficha desde allí.",
+  "FICHIT_NOT_AVAILABLE": "No se ha podido conectar con Fichit para fichar. Inténtalo de nuevo en un momento.",
   "email": "Introduce un email válido.",
   "EXCHANGE_ALREADY_PENDING": "Este turno ya tiene una solicitud de intercambio pendiente.",
   "EXCHANGE_NOT_FOUND": "No existe la solicitud de intercambio especificada.",

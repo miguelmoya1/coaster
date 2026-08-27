@@ -213,29 +213,30 @@ model DbBetaTester {
 }
 
 model DbEstablishment {
-  id              String                       @id @default(uuid())
-  name            String
-  taxId           String?
-  legalName       String?
-  fiscalAddress   String?
-  fichitCompanyId String?                      @unique
-  createdAt       DateTime                     @default(now())
-  updatedAt       DateTime                     @updatedAt
-  members         DbEstablishmentMember[]
-  shifts          DbShift[]
-  categories      DbCategory[]
-  tables          DbTable[]
-  orders          DbOrder[]
-  printer         DbPrinterConfig?
-  printJobs       DbPrintJob[]
-  billing         DbEstablishmentSubscription?
-  settings        DbEstablishmentSettings?
-  aiUsage         DbAiUsage[]
-  pairings        DbPrinterPairing[]
-  timeEntries     DbTimeEntry[]
-  menus           DbMenu[]
-  invoices        DbInvoice[]
-  orderAudits     DbOrderAuditLog[]
+  id                  String                       @id @default(uuid())
+  name                String
+  taxId               String?
+  legalName           String?
+  fiscalAddress       String?
+  fichitCompanyId     String?                      @unique
+  fichitClockingSince DateTime?
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+  members             DbEstablishmentMember[]
+  shifts              DbShift[]
+  categories          DbCategory[]
+  tables              DbTable[]
+  orders              DbOrder[]
+  printer             DbPrinterConfig?
+  printJobs           DbPrintJob[]
+  billing             DbEstablishmentSubscription?
+  settings            DbEstablishmentSettings?
+  aiUsage             DbAiUsage[]
+  pairings            DbPrinterPairing[]
+  timeEntries         DbTimeEntry[]
+  menus               DbMenu[]
+  invoices            DbInvoice[]
+  orderAudits         DbOrderAuditLog[]
 
   @@map("Establishment")
 }
@@ -312,6 +313,7 @@ model DbEstablishmentMember {
 
 model DbShift {
   id              String            @id @default(uuid())
+  fichitShiftId   String?           @unique
   startTime       DateTime
   endTime         DateTime
   userId          String

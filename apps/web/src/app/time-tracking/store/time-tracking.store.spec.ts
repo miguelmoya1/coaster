@@ -218,3 +218,125 @@ describe('TimeTrackingStore', () => {
     await expect(store.clock(TimeEntryType.CLOCK_IN)).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
   });
 });
+
+describe('TimeTrackingStore once clocking moved to Fichit', () => {
+  let store: TimeTrackingStore;
+  let httpMock: HttpTestingController;
+
+  const SESSION = '/establishments/establishment-1/time-entries/session';
+  const handover = {
+    baseUrl: 'https://api.fichit.es',
+    companyId: 'c_1',
+    employeeId: 'e_1',
+    session: { access_token: 'jwt', expires_at: '2026-08-08T10:00:00Z', refresh_token: 'r' },
+  };
+
+  const settle = async () => {
+    for (let round = 0; round < 5; round += 1) {
+      TestBed.tick();
+      await Promise.resolve();
+    }
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideZonelessChangeDetection()],
+    });
+
+    store = TestBed.inject(TimeTrackingStore);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    store.setEstablishmentId(asEstablishmentId('establishment-1'));
+    TestBed.tick();
+    httpMock.expectOne('/establishments/establishment-1/time-entries/me/current').flush(null);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  const handItOver = () => httpMock.expectOne(SESSION).flush(handover);
+
+  it('asks Coaster for a Fichit session and reads the state from there', async () => {
+    store.setClocksInFichit(true);
+    await settle();
+
+    handItOver();
+    await settle();
+
+    const status = httpMock.expectOne('https://api.fichit.es/api/v1/me/status');
+    expect(status.request.headers.get('Authorization')).toBe('Bearer jwt');
+    status.flush({ state: 'on_break', state_label: 'en pausa' });
+
+    await settle();
+    expect(store.clockState()).toBe(ClockState.ON_BREAK);
+  });
+
+  it('punches straight against Fichit, never through Coaster', async () => {
+    store.setClocksInFichit(true);
+    await settle();
+    handItOver();
+    await settle();
+    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'out', state_label: 'fuera' });
+    await settle();
+
+    const punching = store.clock(TimeEntryType.CLOCK_IN);
+    await settle();
+
+    const punch = httpMock.expectOne('https://api.fichit.es/api/v1/me/punches');
+    expect(punch.request.method).toBe('POST');
+    expect(punch.request.body).toEqual({ kind: 'in' });
+    expect(punch.request.headers.get('Idempotency-Key')).toBeTruthy();
+    punch.flush({});
+
+    await settle();
+    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'in', state_label: 'trabajando' });
+
+    await punching;
+    await settle();
+    expect(store.clockState()).toBe(ClockState.IN);
+  });
+
+  it('mints a new session and retries when the Fichit one has expired', async () => {
+    store.setClocksInFichit(true);
+    await settle();
+    handItOver();
+    await settle();
+    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'out', state_label: 'fuera' });
+    await settle();
+
+    const punching = store.clock(TimeEntryType.CLOCK_IN);
+    await settle();
+
+    httpMock
+      .expectOne('https://api.fichit.es/api/v1/me/punches')
+      .flush({ error: { code: 'unauthorized' } }, { status: 401, statusText: 'Unauthorized' });
+    await settle();
+
+    handItOver();
+    await settle();
+    httpMock.expectOne('https://api.fichit.es/api/v1/me/punches').flush({});
+
+    await settle();
+    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'in', state_label: 'trabajando' });
+
+    await punching;
+    await settle();
+    expect(store.clockState()).toBe(ClockState.IN);
+  });
+
+  it('keeps clocking through Coaster while the establishment has not moved', async () => {
+    store.setClocksInFichit(false);
+    await settle();
+
+    const punching = store.clock(TimeEntryType.CLOCK_IN);
+    await settle();
+
+    httpMock.expectOne('/establishments/establishment-1/time-entries/clock').flush({});
+    await settle();
+    httpMock.expectOne('/establishments/establishment-1/time-entries/me/current').flush(null);
+
+    await punching;
+  });
+});

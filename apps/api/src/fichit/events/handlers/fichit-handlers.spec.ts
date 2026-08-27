@@ -1,10 +1,12 @@
 import type { EstablishmentId, EstablishmentMemberId, UserId } from '@coaster/common';
 import { MemberInvitedEvent, MemberRemovedEvent } from '@coaster/establishment-members';
 import { EstablishmentCreatedEvent } from '@coaster/establishments';
+import { ShiftCreatedEvent, ShiftDeletedEvent } from '@coaster/shifts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FichitSync } from '../../services/fichit-sync.service';
 import { LinkEstablishmentHandler } from './link-establishment.handler';
 import { LinkMemberHandler } from './link-member.handler';
+import { MirrorShiftHandler, RemoveMirroredShiftHandler } from './mirror-shift.handler';
 import { RetireMemberHandler } from './retire-member.handler';
 
 const establishmentId = 'est_1' as EstablishmentId;
@@ -69,6 +71,49 @@ describe('Fichit event handlers', () => {
     await expect(
       new RetireMemberHandler(sync as unknown as FichitSync).handle(
         new MemberRemovedEvent(establishmentId, memberId, userId),
+      ),
+    ).resolves.toBeUndefined();
+  });
+});
+
+describe('Fichit shift handlers', () => {
+  let sync: any;
+
+  beforeEach(() => {
+    sync = {
+      mirrorShift: vi.fn().mockResolvedValue('fs_1'),
+      removeMirroredShift: vi.fn().mockResolvedValue(undefined),
+    };
+  });
+
+  const shift = { id: 'sh_1' } as never;
+
+  it('mirrors a shift the moment it is rostered', async () => {
+    await new MirrorShiftHandler(sync as unknown as FichitSync).handle(
+      new ShiftCreatedEvent(establishmentId, shift),
+    );
+
+    expect(sync.mirrorShift).toHaveBeenCalledWith('sh_1');
+  });
+
+  it('removes it when the shift is dropped', async () => {
+    await new RemoveMirroredShiftHandler(sync as unknown as FichitSync).handle(
+      new ShiftDeletedEvent(establishmentId, 'sh_1' as never),
+    );
+
+    expect(sync.removeMirroredShift).toHaveBeenCalledWith(establishmentId, 'sh_1');
+  });
+
+  it('never lets the roster fail because Fichit did', async () => {
+    sync.mirrorShift.mockRejectedValue(new Error('Fichit no responde'));
+    sync.removeMirroredShift.mockRejectedValue(new Error('Fichit no responde'));
+
+    await expect(
+      new MirrorShiftHandler(sync as unknown as FichitSync).handle(new ShiftCreatedEvent(establishmentId, shift)),
+    ).resolves.toBeUndefined();
+    await expect(
+      new RemoveMirroredShiftHandler(sync as unknown as FichitSync).handle(
+        new ShiftDeletedEvent(establishmentId, 'sh_1' as never),
       ),
     ).resolves.toBeUndefined();
   });

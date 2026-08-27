@@ -7,6 +7,7 @@ export const EstablishmentsMapper = {
     return {
       id: asEstablishmentId(dbEstablishment.id),
       name: dbEstablishment.name,
+      clocksInFichit: Boolean(dbEstablishment.fichitClockingSince),
       createdAt: dbEstablishment.createdAt.toISOString(),
       updatedAt: dbEstablishment.updatedAt.toISOString(),
     };

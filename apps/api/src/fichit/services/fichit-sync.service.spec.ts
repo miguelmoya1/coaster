@@ -190,3 +190,233 @@ describe('FichitSync', () => {
     });
   });
 });
+
+describe('FichitSync clocking', () => {
+  let api: any;
+  let repository: any;
+  let sync: FichitSync;
+
+  const linked = { id: 'est_1', name: 'Bar Pepe', taxId: null, fichitCompanyId: 'c_1', fichitClockingSince: null };
+  const member = {
+    id: 'mem_1',
+    userId: 'usr_1',
+    deletedAt: null,
+    fichitEmployeeId: 'e_1',
+    user: { name: 'Ana García', email: 'ana@ejemplo.es' },
+  };
+
+  beforeEach(() => {
+    api = {
+      enabled: true,
+      baseUrl: 'https://api.fichit.es',
+      createCompany: vi.fn(),
+      syncEmployee: vi.fn().mockResolvedValue({ created: false, employee: { id: 'e_1' } }),
+      openEmployeeSession: vi.fn().mockResolvedValue({ access_token: 'jwt', refresh_token: 'r' }),
+      hasPunches: vi.fn().mockResolvedValue(false),
+      deactivateEmployee: vi.fn(),
+    };
+    repository = {
+      establishment: vi.fn().mockResolvedValue(linked),
+      owner: vi.fn(),
+      linkCompany: vi.fn(),
+      member: vi.fn().mockResolvedValue(member),
+      linkEmployee: vi.fn(),
+      moveClocking: vi.fn(),
+      establishmentsWithoutCompany: vi.fn().mockResolvedValue([]),
+      membersWithoutEmployee: vi.fn().mockResolvedValue([]),
+    };
+    sync = new FichitSync(api as unknown as FichitApi, repository as unknown as FichitRepository);
+  });
+
+  describe('clocksInFichit', () => {
+    it('is false while the switch has not been thrown', async () => {
+      expect(await sync.clocksInFichit(establishmentId)).toBe(false);
+    });
+
+    it('is true once the establishment carries a date', async () => {
+      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
+
+      expect(await sync.clocksInFichit(establishmentId)).toBe(true);
+    });
+
+    it('is false when the integration is off, so nothing is ever blocked by accident', async () => {
+      api.enabled = false;
+      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
+
+      expect(await sync.clocksInFichit(establishmentId)).toBe(false);
+    });
+  });
+
+  describe('handOverClocking', () => {
+    it('hands the worker a session of their own plus where to spend it', async () => {
+      const handover = await sync.handOverClocking(establishmentId, userId);
+
+      expect(api.openEmployeeSession).toHaveBeenCalledWith('c_1', 'e_1');
+      expect(handover).toMatchObject({
+        baseUrl: 'https://api.fichit.es',
+        companyId: 'c_1',
+        employeeId: 'e_1',
+      });
+    });
+
+    it('makes sure the employee exists before minting anything', async () => {
+      repository.member.mockResolvedValue({ ...member, fichitEmployeeId: null });
+
+      await sync.handOverClocking(establishmentId, userId);
+
+      expect(api.syncEmployee).toHaveBeenCalled();
+      expect(repository.linkEmployee).toHaveBeenCalledWith('mem_1', 'e_1');
+    });
+
+    it('hands nothing over for someone who is not a member any more', async () => {
+      repository.member.mockResolvedValue({ ...member, deletedAt: new Date() });
+
+      expect(await sync.handOverClocking(establishmentId, userId)).toBeNull();
+      expect(api.openEmployeeSession).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('moveClocking', () => {
+    it('records the instant the register changed hands', async () => {
+      const since = await sync.moveClocking(establishmentId);
+
+      expect(repository.moveClocking).toHaveBeenCalledWith(establishmentId, since);
+    });
+
+    it('refuses to move an establishment that is not linked yet', async () => {
+      repository.establishment.mockResolvedValue({ ...linked, fichitCompanyId: null });
+      repository.owner.mockResolvedValue(null);
+
+      await expect(sync.moveClocking(establishmentId)).rejects.toThrow();
+      expect(repository.moveClocking).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('undoClockingMove', () => {
+    it('gives the register back while Fichit has nothing recorded', async () => {
+      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
+
+      await sync.undoClockingMove(establishmentId);
+
+      expect(repository.moveClocking).toHaveBeenCalledWith(establishmentId, null);
+    });
+
+    it('refuses once someone has clocked in Fichit, which would split the register in two', async () => {
+      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
+      api.hasPunches.mockResolvedValue(true);
+
+      await expect(sync.undoClockingMove(establishmentId)).rejects.toMatchObject({
+        code: 'ALREADY_CLOCKED_IN_FICHIT',
+      });
+      expect(repository.moveClocking).not.toHaveBeenCalled();
+    });
+
+    it('does nothing for an establishment that never moved', async () => {
+      await sync.undoClockingMove(establishmentId);
+
+      expect(api.hasPunches).not.toHaveBeenCalled();
+      expect(repository.moveClocking).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe('FichitSync shifts', () => {
+  let api: any;
+  let repository: any;
+  let sync: FichitSync;
+
+  const moved = {
+    id: 'est_1',
+    name: 'Bar Pepe',
+    taxId: null,
+    fichitCompanyId: 'c_1',
+    fichitClockingSince: new Date('2026-08-01T00:00:00Z'),
+  };
+  const shift = {
+    id: 'sh_1',
+    establishmentId: 'est_1',
+    userId: 'usr_1',
+    startTime: new Date('2026-08-10T08:00:00Z'),
+    endTime: new Date('2026-08-10T16:00:00Z'),
+    notes: 'turno de mañana',
+    fichitShiftId: null,
+  };
+
+  beforeEach(() => {
+    api = {
+      enabled: true,
+      createShift: vi.fn().mockResolvedValue({ id: 'fs_1' }),
+      deleteShift: vi.fn(),
+      createCompany: vi.fn(),
+      syncEmployee: vi.fn().mockResolvedValue({ created: false, employee: { id: 'e_1' } }),
+    };
+    repository = {
+      establishment: vi.fn().mockResolvedValue(moved),
+      owner: vi.fn(),
+      linkCompany: vi.fn(),
+      member: vi.fn().mockResolvedValue({
+        id: 'mem_1',
+        userId: 'usr_1',
+        deletedAt: null,
+        fichitEmployeeId: 'e_1',
+        user: { name: 'Ana García', email: 'ana@ejemplo.es' },
+      }),
+      linkEmployee: vi.fn(),
+      shift: vi.fn().mockResolvedValue(shift),
+      linkShift: vi.fn(),
+      moveClocking: vi.fn(),
+      establishmentsWithoutCompany: vi.fn().mockResolvedValue([]),
+      membersWithoutEmployee: vi.fn().mockResolvedValue([]),
+    };
+    sync = new FichitSync(api as unknown as FichitApi, repository as unknown as FichitRepository);
+  });
+
+  it('mirrors a shift so the report can contrast planned against worked', async () => {
+    expect(await sync.mirrorShift('sh_1')).toBe('fs_1');
+
+    expect(api.createShift).toHaveBeenCalledWith('c_1', {
+      employeeId: 'e_1',
+      startsAt: '2026-08-10T08:00:00.000Z',
+      endsAt: '2026-08-10T16:00:00.000Z',
+      note: 'turno de mañana',
+    });
+    expect(repository.linkShift).toHaveBeenCalledWith('sh_1', 'fs_1');
+  });
+
+  it('leaves the roster alone while the establishment still clocks here', async () => {
+    repository.establishment.mockResolvedValue({ ...moved, fichitClockingSince: null });
+
+    expect(await sync.mirrorShift('sh_1')).toBeNull();
+    expect(api.createShift).not.toHaveBeenCalled();
+  });
+
+  it('does not mirror the same shift twice', async () => {
+    repository.shift.mockResolvedValue({ ...shift, fichitShiftId: 'fs_1' });
+
+    expect(await sync.mirrorShift('sh_1')).toBe('fs_1');
+    expect(api.createShift).not.toHaveBeenCalled();
+  });
+
+  it('removes the mirrored shift and forgets the link', async () => {
+    repository.shift.mockResolvedValue({ ...shift, fichitShiftId: 'fs_1' });
+
+    await sync.removeMirroredShift(establishmentId, 'sh_1');
+
+    expect(api.deleteShift).toHaveBeenCalledWith('c_1', 'fs_1');
+    expect(repository.linkShift).toHaveBeenCalledWith('sh_1', null);
+  });
+
+  it('treats a shift Fichit no longer has as already gone', async () => {
+    repository.shift.mockResolvedValue({ ...shift, fichitShiftId: 'fs_1' });
+    api.deleteShift.mockRejectedValue(new FichitError(404, 'not_found', 'no está'));
+
+    await expect(sync.removeMirroredShift(establishmentId, 'sh_1')).resolves.toBeUndefined();
+    expect(repository.linkShift).toHaveBeenCalledWith('sh_1', null);
+  });
+
+  it('says nothing about a shift that was never mirrored', async () => {
+    await sync.removeMirroredShift(establishmentId, 'sh_1');
+
+    expect(api.deleteShift).not.toHaveBeenCalled();
+  });
+});

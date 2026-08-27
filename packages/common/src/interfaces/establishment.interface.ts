@@ -9,6 +9,7 @@ export type EstablishmentId = Brand<string, 'EstablishmentId'>;
 export interface Establishment {
   id: EstablishmentId;
   name: string;
+  clocksInFichit?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

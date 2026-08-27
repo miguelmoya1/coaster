@@ -8,9 +8,20 @@ import type {
   UserId,
   Workday,
 } from '@coaster/common';
-import { EstablishmentPermission } from '@coaster/common';
+import { ErrorCodes, EstablishmentPermission } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard, SkipSubscriptionCheck } from '@coaster/core';
-import { Body, Controller, Get, Header, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ClockingHandover, ClockingMovedGuard, FichitSync } from '@coaster/fichit';
+import {
+  Body,
+  Controller,
+  Get,
+  Header,
+  Param,
+  Post,
+  Query,
+  ServiceUnavailableException,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AmendTimeEntryCommand } from '../commands/impl/amend-time-entry.command';
 import { ClockCommand } from '../commands/impl/clock.command';
@@ -33,10 +44,26 @@ export class TimeEntriesController {
   constructor(
     private readonly _queryBus: QueryBus,
     private readonly _commandBus: CommandBus,
+    private readonly _fichit: FichitSync,
   ) {}
+
+  @Post('session')
+  @SkipSubscriptionCheck()
+  @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN)
+  async session(
+    @Param('establishmentId') establishmentId: EstablishmentId,
+    @CurrentUser() user: User,
+  ): Promise<ClockingHandover> {
+    const handover = await this._fichit.handOverClocking(establishmentId, user.id);
+    if (!handover) {
+      throw new ServiceUnavailableException(ErrorCodes.FICHIT_NOT_AVAILABLE);
+    }
+    return handover;
+  }
 
   @Post('clock')
   @SkipSubscriptionCheck()
+  @UseGuards(ClockingMovedGuard)
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_CLOCK_IN)
   clock(
     @Param('establishmentId') establishmentId: EstablishmentId,
@@ -96,6 +123,7 @@ export class TimeEntriesController {
   }
 
   @Post()
+  @UseGuards(ClockingMovedGuard)
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES)
   create(
     @Param('establishmentId') establishmentId: EstablishmentId,
@@ -108,6 +136,7 @@ export class TimeEntriesController {
   }
 
   @Post(':entryId/amend')
+  @UseGuards(ClockingMovedGuard)
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_AMEND_OWN_TIME_ENTRY)
   amend(
     @Param('establishmentId') establishmentId: EstablishmentId,
@@ -121,6 +150,7 @@ export class TimeEntriesController {
   }
 
   @Post(':entryId/void')
+  @UseGuards(ClockingMovedGuard)
   @EstablishmentPermissions(EstablishmentPermission.ESTABLISHMENT_MANAGE_TIME_ENTRIES)
   voidEntry(
     @Param('establishmentId') establishmentId: EstablishmentId,

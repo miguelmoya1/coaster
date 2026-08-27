@@ -1,7 +1,14 @@
 import type { EstablishmentId, UserId } from '@coaster/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { FichitRepository } from '../data-access/fichit.repository';
-import { FichitApi, FichitError } from './fichit-api.service';
+import { FichitApi, FichitError, FichitSession } from './fichit-api.service';
+
+export interface ClockingHandover {
+  baseUrl: string;
+  companyId: string;
+  employeeId: string;
+  session: FichitSession;
+}
 
 export interface BackfillReport {
   companies: number;
@@ -106,6 +113,117 @@ export class FichitSync {
       }
       throw error;
     }
+  }
+
+  public async clocksInFichit(establishmentId: EstablishmentId): Promise<boolean> {
+    if (!this.enabled) {
+      return false;
+    }
+    const establishment = await this.repository.establishment(establishmentId);
+    return Boolean(establishment?.fichitClockingSince);
+  }
+
+  public async handOverClocking(
+    establishmentId: EstablishmentId,
+    userId: UserId,
+  ): Promise<ClockingHandover | null> {
+    const companyId = await this.ensureCompany(establishmentId);
+    const employeeId = await this.ensureEmployee(establishmentId, userId);
+    if (!companyId || !employeeId) {
+      return null;
+    }
+
+    return {
+      baseUrl: this.api.baseUrl,
+      companyId,
+      employeeId,
+      session: await this.api.openEmployeeSession(companyId, employeeId),
+    };
+  }
+
+  public async moveClocking(establishmentId: EstablishmentId): Promise<Date> {
+    const companyId = await this.ensureCompany(establishmentId);
+    if (!companyId) {
+      throw new FichitError(0, 'NOT_LINKED', 'el establecimiento no está enlazado con Fichit');
+    }
+
+    const since = new Date();
+    await this.repository.moveClocking(establishmentId, since);
+    this.#logger.log(`Establishment ${establishmentId} clocks in Fichit from ${since.toISOString()}`);
+
+    return since;
+  }
+
+  public async undoClockingMove(establishmentId: EstablishmentId): Promise<void> {
+    const establishment = await this.repository.establishment(establishmentId);
+    if (!establishment?.fichitClockingSince || !establishment.fichitCompanyId) {
+      return;
+    }
+
+    if (await this.api.hasPunches(establishment.fichitCompanyId)) {
+      throw new FichitError(
+        409,
+        'ALREADY_CLOCKED_IN_FICHIT',
+        'ya hay fichajes en Fichit: deshacerlo partiría el registro en dos',
+      );
+    }
+
+    await this.repository.moveClocking(establishmentId, null);
+    this.#logger.log(`Establishment ${establishmentId} clocks in Coaster again`);
+  }
+
+  public async mirrorShift(shiftId: string): Promise<string | null> {
+    if (!this.enabled) {
+      return null;
+    }
+
+    const shift = await this.repository.shift(shiftId);
+    if (!shift || shift.fichitShiftId) {
+      return shift?.fichitShiftId ?? null;
+    }
+
+    const establishmentId = shift.establishmentId as EstablishmentId;
+    if (!(await this.clocksInFichit(establishmentId))) {
+      return null;
+    }
+
+    const companyId = await this.ensureCompany(establishmentId);
+    const employeeId = await this.ensureEmployee(establishmentId, shift.userId as UserId);
+    if (!companyId || !employeeId) {
+      return null;
+    }
+
+    const created = await this.api.createShift(companyId, {
+      employeeId,
+      startsAt: shift.startTime.toISOString(),
+      endsAt: shift.endTime.toISOString(),
+      note: shift.notes,
+    });
+
+    await this.repository.linkShift(shift.id, created.id);
+    return created.id;
+  }
+
+  public async removeMirroredShift(establishmentId: EstablishmentId, shiftId: string): Promise<void> {
+    if (!this.enabled) {
+      return;
+    }
+
+    const shift = await this.repository.shift(shiftId);
+    const establishment = await this.repository.establishment(establishmentId);
+    if (!shift?.fichitShiftId || !establishment?.fichitCompanyId) {
+      return;
+    }
+
+    try {
+      await this.api.deleteShift(establishment.fichitCompanyId, shift.fichitShiftId);
+    } catch (error) {
+      if (!(error instanceof FichitError) || error.status !== 404) {
+        throw error;
+      }
+    }
+
+    await this.repository.linkShift(shift.id, null);
   }
 
   public async backfill(): Promise<BackfillReport> {

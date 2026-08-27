@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ClockState, Workday } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
+import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { TimeTrackingStore } from '@coaster/time-tracking';
 import { provideTranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
@@ -49,6 +50,7 @@ describe('MyShiftWidget', () => {
         provideTranslateService(),
         provideRouter([]),
         { provide: TimeTrackingStore, useValue: timeTrackingStoreMock },
+        { provide: CurrentEstablishmentStore, useValue: { clocksInFichit: signal(false).asReadonly() } },
         { provide: ActionFeedback, useValue: { success: vi.fn(), error: vi.fn() } },
       ],
     }).compileComponents();

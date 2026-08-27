@@ -22,6 +22,8 @@
   "STRIPE_WEBHOOK_SIGNATURE_INVALID": "The billing event signature is invalid.",
   "STRIPE_WEBHOOK_SIGNATURE_MISSING": "The billing event signature is missing.",
   "SUBSCRIPTION_EXPIRED": "Your trial or subscription has ended. Activate Coaster Pro to continue.",
+  "CLOCKING_MOVED_TO_FICHIT": "This venue now keeps its working-time register in Fichit. Clock in from there.",
+  "FICHIT_NOT_AVAILABLE": "Could not reach Fichit to clock in. Try again in a moment.",
   "email": "Please enter a valid email.",
   "EXCHANGE_ALREADY_PENDING": "This shift already has a pending exchange request.",
   "EXCHANGE_NOT_FOUND": "The specified exchange request does not exist.",

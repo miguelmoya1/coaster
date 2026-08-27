@@ -9,7 +9,13 @@ export class FichitRepository {
   public async establishment(establishmentId: EstablishmentId) {
     return this._db.dbEstablishment.findUnique({
       where: { id: establishmentId },
-      select: { id: true, name: true, taxId: true, fichitCompanyId: true },
+      select: {
+        id: true,
+        name: true,
+        taxId: true,
+        fichitCompanyId: true,
+        fichitClockingSince: true,
+      },
     });
   }
 
@@ -26,6 +32,13 @@ export class FichitRepository {
     await this._db.dbEstablishment.update({
       where: { id: establishmentId },
       data: { fichitCompanyId },
+    });
+  }
+
+  public async moveClocking(establishmentId: EstablishmentId, since: Date | null) {
+    await this._db.dbEstablishment.update({
+      where: { id: establishmentId },
+      data: { fichitClockingSince: since },
     });
   }
 
@@ -46,6 +59,28 @@ export class FichitRepository {
     await this._db.dbEstablishmentMember.update({
       where: { id: memberId },
       data: { fichitEmployeeId },
+    });
+  }
+
+  public async shift(shiftId: string) {
+    return this._db.dbShift.findUnique({
+      where: { id: shiftId },
+      select: {
+        id: true,
+        establishmentId: true,
+        userId: true,
+        startTime: true,
+        endTime: true,
+        notes: true,
+        fichitShiftId: true,
+      },
+    });
+  }
+
+  public async linkShift(shiftId: string, fichitShiftId: string | null) {
+    await this._db.dbShift.update({
+      where: { id: shiftId },
+      data: { fichitShiftId },
     });
   }
 
