@@ -1,3 +1,4 @@
+export { EstablishmentCreatedEvent } from './events/impl/establishment-created.event';
 export { EstablishmentSettingsUpdatedEvent } from './events/impl/establishment-settings-updated.event';
 export { EstablishmentSettingsRepository } from './data-access/establishment-settings.repository';
 export { EstablishmentSettingsMapper } from './mappers/establishment-settings.mapper';

@@ -1,5 +1,8 @@
 # Time tracking
 
+> Being moved out to [Fichit](fichit-integration.md), which does this as its whole
+> product. Establishments and members are already mirrored there; clocking is not, yet.
+
 The working-time register required by art. 34.9 of the Spanish Workers' Statute (as amended by
 RD-ley 8/2019). The law asks for three things, and they drive the whole design: the original
 clock-in must not be overwritable, every correction must record who / when / what / why, and the

@@ -27,6 +27,7 @@ what is known to be owed.
   they must not
 - [The shared cache](operations/redis.md) — the realtime bus, rate limit and the guards' preamble
 - [Time tracking](operations/time-tracking.md) — the legal working-time register
+- [Fichit](operations/fichit-integration.md) — the register moving out to its own service
 - [Stripe integration](saas/stripe-integration.md)
 - [Stripe locally](saas/stripe-local-setup.md)
 - [Closed beta](saas/closed-beta.md)

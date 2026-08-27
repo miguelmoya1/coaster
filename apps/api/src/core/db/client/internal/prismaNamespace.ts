@@ -2513,6 +2513,7 @@ export const DbEstablishmentScalarFieldEnum = {
   taxId: 'taxId',
   legalName: 'legalName',
   fiscalAddress: 'fiscalAddress',
+  fichitCompanyId: 'fichitCompanyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2571,6 +2572,7 @@ export type DbUserPreferencesScalarFieldEnum = (typeof DbUserPreferencesScalarFi
 
 export const DbEstablishmentMemberScalarFieldEnum = {
   id: 'id',
+  fichitEmployeeId: 'fichitEmployeeId',
   userId: 'userId',
   establishmentId: 'establishmentId',
   role: 'role',

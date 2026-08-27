@@ -213,28 +213,29 @@ model DbBetaTester {
 }
 
 model DbEstablishment {
-  id            String                       @id @default(uuid())
-  name          String
-  taxId         String?
-  legalName     String?
-  fiscalAddress String?
-  createdAt     DateTime                     @default(now())
-  updatedAt     DateTime                     @updatedAt
-  members       DbEstablishmentMember[]
-  shifts        DbShift[]
-  categories    DbCategory[]
-  tables        DbTable[]
-  orders        DbOrder[]
-  printer       DbPrinterConfig?
-  printJobs     DbPrintJob[]
-  billing       DbEstablishmentSubscription?
-  settings      DbEstablishmentSettings?
-  aiUsage       DbAiUsage[]
-  pairings      DbPrinterPairing[]
-  timeEntries   DbTimeEntry[]
-  menus         DbMenu[]
-  invoices      DbInvoice[]
-  orderAudits   DbOrderAuditLog[]
+  id              String                       @id @default(uuid())
+  name            String
+  taxId           String?
+  legalName       String?
+  fiscalAddress   String?
+  fichitCompanyId String?                      @unique
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  members         DbEstablishmentMember[]
+  shifts          DbShift[]
+  categories      DbCategory[]
+  tables          DbTable[]
+  orders          DbOrder[]
+  printer         DbPrinterConfig?
+  printJobs       DbPrintJob[]
+  billing         DbEstablishmentSubscription?
+  settings        DbEstablishmentSettings?
+  aiUsage         DbAiUsage[]
+  pairings        DbPrinterPairing[]
+  timeEntries     DbTimeEntry[]
+  menus           DbMenu[]
+  invoices        DbInvoice[]
+  orderAudits     DbOrderAuditLog[]
 
   @@map("Establishment")
 }
@@ -291,17 +292,18 @@ model DbUserPreferences {
 }
 
 model DbEstablishmentMember {
-  id              String              @id @default(uuid())
-  userId          String
-  user            DbUser              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  establishmentId String
-  establishment   DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  role            DbEstablishmentRole @default(STAFF)
-  active          Boolean             @default(true)
-  hourlyRateCents Int?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  deletedAt       DateTime?
+  id               String              @id @default(uuid())
+  fichitEmployeeId String?             @unique
+  userId           String
+  user             DbUser              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishmentId  String
+  establishment    DbEstablishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  role             DbEstablishmentRole @default(STAFF)
+  active           Boolean             @default(true)
+  hourlyRateCents  Int?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  deletedAt        DateTime?
 
   @@unique([userId, establishmentId])
   @@index([establishmentId, deletedAt])

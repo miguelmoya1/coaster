@@ -1,4 +1,5 @@
 import { EstablishmentsModule } from '@coaster/establishments';
+import { FichitModule } from '@coaster/fichit';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands';
@@ -15,7 +16,7 @@ import { EventHandlers } from './events';
 import { QueryHandlers } from './queries';
 
 @Module({
-  imports: [CqrsModule, EstablishmentsModule],
+  imports: [CqrsModule, EstablishmentsModule, FichitModule],
   controllers: [...AdminControllers],
   providers: [
     AdminAuditRepository,

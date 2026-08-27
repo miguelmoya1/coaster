@@ -36,6 +36,7 @@ export type DbEstablishmentMemberSumAggregateOutputType = {
 
 export type DbEstablishmentMemberMinAggregateOutputType = {
   id: string | null
+  fichitEmployeeId: string | null
   userId: string | null
   establishmentId: string | null
   role: $Enums.DbEstablishmentRole | null
@@ -48,6 +49,7 @@ export type DbEstablishmentMemberMinAggregateOutputType = {
 
 export type DbEstablishmentMemberMaxAggregateOutputType = {
   id: string | null
+  fichitEmployeeId: string | null
   userId: string | null
   establishmentId: string | null
   role: $Enums.DbEstablishmentRole | null
@@ -60,6 +62,7 @@ export type DbEstablishmentMemberMaxAggregateOutputType = {
 
 export type DbEstablishmentMemberCountAggregateOutputType = {
   id: number
+  fichitEmployeeId: number
   userId: number
   establishmentId: number
   role: number
@@ -82,6 +85,7 @@ export type DbEstablishmentMemberSumAggregateInputType = {
 
 export type DbEstablishmentMemberMinAggregateInputType = {
   id?: true
+  fichitEmployeeId?: true
   userId?: true
   establishmentId?: true
   role?: true
@@ -94,6 +98,7 @@ export type DbEstablishmentMemberMinAggregateInputType = {
 
 export type DbEstablishmentMemberMaxAggregateInputType = {
   id?: true
+  fichitEmployeeId?: true
   userId?: true
   establishmentId?: true
   role?: true
@@ -106,6 +111,7 @@ export type DbEstablishmentMemberMaxAggregateInputType = {
 
 export type DbEstablishmentMemberCountAggregateInputType = {
   id?: true
+  fichitEmployeeId?: true
   userId?: true
   establishmentId?: true
   role?: true
@@ -205,6 +211,7 @@ export type DbEstablishmentMemberGroupByArgs<ExtArgs extends runtime.Types.Exten
 
 export type DbEstablishmentMemberGroupByOutputType = {
   id: string
+  fichitEmployeeId: string | null
   userId: string
   establishmentId: string
   role: $Enums.DbEstablishmentRole
@@ -240,6 +247,7 @@ export type DbEstablishmentMemberWhereInput = {
   OR?: Prisma.DbEstablishmentMemberWhereInput[]
   NOT?: Prisma.DbEstablishmentMemberWhereInput | Prisma.DbEstablishmentMemberWhereInput[]
   id?: Prisma.StringFilter<"DbEstablishmentMember"> | string
+  fichitEmployeeId?: Prisma.StringNullableFilter<"DbEstablishmentMember"> | string | null
   userId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   establishmentId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
@@ -254,6 +262,7 @@ export type DbEstablishmentMemberWhereInput = {
 
 export type DbEstablishmentMemberOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  fichitEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -268,6 +277,7 @@ export type DbEstablishmentMemberOrderByWithRelationInput = {
 
 export type DbEstablishmentMemberWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  fichitEmployeeId?: string
   userId_establishmentId?: Prisma.DbEstablishmentMemberUserIdEstablishmentIdCompoundUniqueInput
   AND?: Prisma.DbEstablishmentMemberWhereInput | Prisma.DbEstablishmentMemberWhereInput[]
   OR?: Prisma.DbEstablishmentMemberWhereInput[]
@@ -282,10 +292,11 @@ export type DbEstablishmentMemberWhereUniqueInput = Prisma.AtLeast<{
   deletedAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentMember"> | Date | string | null
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
-}, "id" | "userId_establishmentId">
+}, "id" | "fichitEmployeeId" | "userId_establishmentId">
 
 export type DbEstablishmentMemberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  fichitEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -306,6 +317,7 @@ export type DbEstablishmentMemberScalarWhereWithAggregatesInput = {
   OR?: Prisma.DbEstablishmentMemberScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DbEstablishmentMemberScalarWhereWithAggregatesInput | Prisma.DbEstablishmentMemberScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DbEstablishmentMember"> | string
+  fichitEmployeeId?: Prisma.StringNullableWithAggregatesFilter<"DbEstablishmentMember"> | string | null
   userId?: Prisma.StringWithAggregatesFilter<"DbEstablishmentMember"> | string
   establishmentId?: Prisma.StringWithAggregatesFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleWithAggregatesFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
@@ -318,6 +330,7 @@ export type DbEstablishmentMemberScalarWhereWithAggregatesInput = {
 
 export type DbEstablishmentMemberCreateInput = {
   id?: string
+  fichitEmployeeId?: string | null
   role?: $Enums.DbEstablishmentRole
   active?: boolean
   hourlyRateCents?: number | null
@@ -330,6 +343,7 @@ export type DbEstablishmentMemberCreateInput = {
 
 export type DbEstablishmentMemberUncheckedCreateInput = {
   id?: string
+  fichitEmployeeId?: string | null
   userId: string
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
@@ -342,6 +356,7 @@ export type DbEstablishmentMemberUncheckedCreateInput = {
 
 export type DbEstablishmentMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -354,6 +369,7 @@ export type DbEstablishmentMemberUpdateInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
@@ -366,6 +382,7 @@ export type DbEstablishmentMemberUncheckedUpdateInput = {
 
 export type DbEstablishmentMemberCreateManyInput = {
   id?: string
+  fichitEmployeeId?: string | null
   userId: string
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
@@ -378,6 +395,7 @@ export type DbEstablishmentMemberCreateManyInput = {
 
 export type DbEstablishmentMemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -388,6 +406,7 @@ export type DbEstablishmentMemberUpdateManyMutationInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
@@ -415,6 +434,7 @@ export type DbEstablishmentMemberUserIdEstablishmentIdCompoundUniqueInput = {
 
 export type DbEstablishmentMemberCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  fichitEmployeeId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -431,6 +451,7 @@ export type DbEstablishmentMemberAvgOrderByAggregateInput = {
 
 export type DbEstablishmentMemberMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  fichitEmployeeId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -443,6 +464,7 @@ export type DbEstablishmentMemberMaxOrderByAggregateInput = {
 
 export type DbEstablishmentMemberMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  fichitEmployeeId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   establishmentId?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -555,6 +577,7 @@ export type NullableIntFieldUpdateOperationsInput = {
 
 export type DbEstablishmentMemberCreateWithoutUserInput = {
   id?: string
+  fichitEmployeeId?: string | null
   role?: $Enums.DbEstablishmentRole
   active?: boolean
   hourlyRateCents?: number | null
@@ -566,6 +589,7 @@ export type DbEstablishmentMemberCreateWithoutUserInput = {
 
 export type DbEstablishmentMemberUncheckedCreateWithoutUserInput = {
   id?: string
+  fichitEmployeeId?: string | null
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
@@ -606,6 +630,7 @@ export type DbEstablishmentMemberScalarWhereInput = {
   OR?: Prisma.DbEstablishmentMemberScalarWhereInput[]
   NOT?: Prisma.DbEstablishmentMemberScalarWhereInput | Prisma.DbEstablishmentMemberScalarWhereInput[]
   id?: Prisma.StringFilter<"DbEstablishmentMember"> | string
+  fichitEmployeeId?: Prisma.StringNullableFilter<"DbEstablishmentMember"> | string | null
   userId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   establishmentId?: Prisma.StringFilter<"DbEstablishmentMember"> | string
   role?: Prisma.EnumDbEstablishmentRoleFilter<"DbEstablishmentMember"> | $Enums.DbEstablishmentRole
@@ -618,6 +643,7 @@ export type DbEstablishmentMemberScalarWhereInput = {
 
 export type DbEstablishmentMemberCreateWithoutEstablishmentInput = {
   id?: string
+  fichitEmployeeId?: string | null
   role?: $Enums.DbEstablishmentRole
   active?: boolean
   hourlyRateCents?: number | null
@@ -629,6 +655,7 @@ export type DbEstablishmentMemberCreateWithoutEstablishmentInput = {
 
 export type DbEstablishmentMemberUncheckedCreateWithoutEstablishmentInput = {
   id?: string
+  fichitEmployeeId?: string | null
   userId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
@@ -666,6 +693,7 @@ export type DbEstablishmentMemberUpdateManyWithWhereWithoutEstablishmentInput = 
 
 export type DbEstablishmentMemberCreateManyUserInput = {
   id?: string
+  fichitEmployeeId?: string | null
   establishmentId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
@@ -677,6 +705,7 @@ export type DbEstablishmentMemberCreateManyUserInput = {
 
 export type DbEstablishmentMemberUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -688,6 +717,7 @@ export type DbEstablishmentMemberUpdateWithoutUserInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -699,6 +729,7 @@ export type DbEstablishmentMemberUncheckedUpdateWithoutUserInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -710,6 +741,7 @@ export type DbEstablishmentMemberUncheckedUpdateManyWithoutUserInput = {
 
 export type DbEstablishmentMemberCreateManyEstablishmentInput = {
   id?: string
+  fichitEmployeeId?: string | null
   userId: string
   role?: $Enums.DbEstablishmentRole
   active?: boolean
@@ -721,6 +753,7 @@ export type DbEstablishmentMemberCreateManyEstablishmentInput = {
 
 export type DbEstablishmentMemberUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hourlyRateCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -732,6 +765,7 @@ export type DbEstablishmentMemberUpdateWithoutEstablishmentInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -743,6 +777,7 @@ export type DbEstablishmentMemberUncheckedUpdateWithoutEstablishmentInput = {
 
 export type DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fichitEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumDbEstablishmentRoleFieldUpdateOperationsInput | $Enums.DbEstablishmentRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -756,6 +791,7 @@ export type DbEstablishmentMemberUncheckedUpdateManyWithoutEstablishmentInput = 
 
 export type DbEstablishmentMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  fichitEmployeeId?: boolean
   userId?: boolean
   establishmentId?: boolean
   role?: boolean
@@ -770,6 +806,7 @@ export type DbEstablishmentMemberSelect<ExtArgs extends runtime.Types.Extensions
 
 export type DbEstablishmentMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  fichitEmployeeId?: boolean
   userId?: boolean
   establishmentId?: boolean
   role?: boolean
@@ -784,6 +821,7 @@ export type DbEstablishmentMemberSelectCreateManyAndReturn<ExtArgs extends runti
 
 export type DbEstablishmentMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  fichitEmployeeId?: boolean
   userId?: boolean
   establishmentId?: boolean
   role?: boolean
@@ -798,6 +836,7 @@ export type DbEstablishmentMemberSelectUpdateManyAndReturn<ExtArgs extends runti
 
 export type DbEstablishmentMemberSelectScalar = {
   id?: boolean
+  fichitEmployeeId?: boolean
   userId?: boolean
   establishmentId?: boolean
   role?: boolean
@@ -808,7 +847,7 @@ export type DbEstablishmentMemberSelectScalar = {
   deletedAt?: boolean
 }
 
-export type DbEstablishmentMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "establishmentId" | "role" | "active" | "hourlyRateCents" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbEstablishmentMember"]>
+export type DbEstablishmentMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fichitEmployeeId" | "userId" | "establishmentId" | "role" | "active" | "hourlyRateCents" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dbEstablishmentMember"]>
 export type DbEstablishmentMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
@@ -830,6 +869,7 @@ export type $DbEstablishmentMemberPayload<ExtArgs extends runtime.Types.Extensio
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    fichitEmployeeId: string | null
     userId: string
     establishmentId: string
     role: $Enums.DbEstablishmentRole
@@ -1264,6 +1304,7 @@ export interface Prisma__DbEstablishmentMemberClient<T, Null = never, ExtArgs ex
  */
 export interface DbEstablishmentMemberFieldRefs {
   readonly id: Prisma.FieldRef<"DbEstablishmentMember", 'String'>
+  readonly fichitEmployeeId: Prisma.FieldRef<"DbEstablishmentMember", 'String'>
   readonly userId: Prisma.FieldRef<"DbEstablishmentMember", 'String'>
   readonly establishmentId: Prisma.FieldRef<"DbEstablishmentMember", 'String'>
   readonly role: Prisma.FieldRef<"DbEstablishmentMember", 'DbEstablishmentRole'>
