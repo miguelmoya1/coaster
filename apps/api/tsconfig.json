@@ -46,7 +46,6 @@
       "@coaster/stats": ["./src/stats/index.ts"],
       "@coaster/stripe": ["./src/stripe/index.ts"],
       "@coaster/tables": ["./src/tables/index.ts"],
-      "@coaster/time-tracking": ["./src/time-tracking/index.ts"],
       "@coaster/users": ["./src/users/index.ts"]
     }
   }

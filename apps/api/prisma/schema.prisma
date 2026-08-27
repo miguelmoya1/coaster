@@ -192,8 +192,6 @@ model DbUser {
   shiftRequests  DbShiftExchange[]       @relation("Requester")
   shiftApprovals DbShiftExchange[]       @relation("Target")
   auditLogs      DbAdminAuditLog[]       @relation("AdminAuditActor")
-  timeEntries    DbTimeEntry[]           @relation("TimeEntrySubject")
-  timeEntryEdits DbTimeEntry[]           @relation("TimeEntryActor")
   createdOrders  DbOrder[]               @relation("OrderCreator")
   betaInvites    DbBetaTester[]          @relation("BetaTesterInviter")
   orderAudits    DbOrderAuditLog[]
@@ -219,7 +217,6 @@ model DbEstablishment {
   legalName           String?
   fiscalAddress       String?
   fichitCompanyId     String?                      @unique
-  fichitClockingSince DateTime?
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @updatedAt
   members             DbEstablishmentMember[]
@@ -233,7 +230,6 @@ model DbEstablishment {
   settings            DbEstablishmentSettings?
   aiUsage             DbAiUsage[]
   pairings            DbPrinterPairing[]
-  timeEntries         DbTimeEntry[]
   menus               DbMenu[]
   invoices            DbInvoice[]
   orderAudits         DbOrderAuditLog[]
@@ -322,7 +318,6 @@ model DbShift {
   establishment   DbEstablishment   @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   notes           String?
   exchanges       DbShiftExchange[]
-  timeEntries     DbTimeEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -564,41 +559,6 @@ model DbEstablishmentSubscription {
   @@index([status])
   @@index([manualPlan])
   @@map("EstablishmentSubscription")
-}
-
-model DbTimeEntry {
-  id              String          @id
-  establishmentId String
-  establishment   DbEstablishment @relation(fields: [establishmentId], references: [id], onDelete: Restrict)
-  userId          String
-  user            DbUser          @relation("TimeEntrySubject", fields: [userId], references: [id], onDelete: Restrict)
-  userSnapshot    Json
-  shiftId         String?
-  shift           DbShift?        @relation(fields: [shiftId], references: [id], onDelete: SetNull)
-  type            String
-  action          String
-  occurredAt      DateTime
-  recordedAt      DateTime
-  workdayDate     DateTime        @db.Date
-  source          String
-  latitude        Float?
-  longitude       Float?
-  rootId          String
-  supersedesId    String?         @unique
-  supersedes      DbTimeEntry?    @relation("TimeEntryRevision", fields: [supersedesId], references: [id], onDelete: Restrict)
-  supersededBy    DbTimeEntry?    @relation("TimeEntryRevision")
-  actorId         String
-  actor           DbUser          @relation("TimeEntryActor", fields: [actorId], references: [id], onDelete: Restrict)
-  reason          String?
-  sequence        BigInt
-  prevHash        String
-  hash            String
-
-  @@unique([establishmentId, sequence])
-  @@index([rootId])
-  @@index([establishmentId, userId, workdayDate])
-  @@index([establishmentId, workdayDate])
-  @@map("TimeEntry")
 }
 
 model DbAdminAuditLog {

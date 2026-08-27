@@ -1,5 +1,4 @@
 export { FichitModule } from './fichit.module';
-export { ClockingMovedGuard } from './guards/clocking-moved.guard';
 export { FichitApi, FichitError } from './services/fichit-api.service';
 export type {
   FichitCompany,
@@ -11,4 +10,5 @@ export type {
   NewFichitCompany,
 } from './services/fichit-api.service';
 export { FichitSync } from './services/fichit-sync.service';
+export { FichitTimeSheet } from './services/fichit-timesheet.service';
 export type { BackfillReport, ClockingHandover } from './services/fichit-sync.service';

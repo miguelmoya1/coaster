@@ -73,7 +73,6 @@ export const ModelName = {
   DbPrinterConfig: 'DbPrinterConfig',
   DbPrintJob: 'DbPrintJob',
   DbEstablishmentSubscription: 'DbEstablishmentSubscription',
-  DbTimeEntry: 'DbTimeEntry',
   DbAdminAuditLog: 'DbAdminAuditLog',
   DbInvoice: 'DbInvoice',
   DbInvoiceTaxLine: 'DbInvoiceTaxLine',
@@ -143,7 +142,6 @@ export const DbEstablishmentScalarFieldEnum = {
   legalName: 'legalName',
   fiscalAddress: 'fiscalAddress',
   fichitCompanyId: 'fichitCompanyId',
-  fichitClockingSince: 'fichitClockingSince',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -419,32 +417,6 @@ export const DbEstablishmentSubscriptionScalarFieldEnum = {
 } as const
 
 export type DbEstablishmentSubscriptionScalarFieldEnum = (typeof DbEstablishmentSubscriptionScalarFieldEnum)[keyof typeof DbEstablishmentSubscriptionScalarFieldEnum]
-
-
-export const DbTimeEntryScalarFieldEnum = {
-  id: 'id',
-  establishmentId: 'establishmentId',
-  userId: 'userId',
-  userSnapshot: 'userSnapshot',
-  shiftId: 'shiftId',
-  type: 'type',
-  action: 'action',
-  occurredAt: 'occurredAt',
-  recordedAt: 'recordedAt',
-  workdayDate: 'workdayDate',
-  source: 'source',
-  latitude: 'latitude',
-  longitude: 'longitude',
-  rootId: 'rootId',
-  supersedesId: 'supersedesId',
-  actorId: 'actorId',
-  reason: 'reason',
-  sequence: 'sequence',
-  prevHash: 'prevHash',
-  hash: 'hash'
-} as const
-
-export type DbTimeEntryScalarFieldEnum = (typeof DbTimeEntryScalarFieldEnum)[keyof typeof DbTimeEntryScalarFieldEnum]
 
 
 export const DbAdminAuditLogScalarFieldEnum = {

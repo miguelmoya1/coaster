@@ -217,7 +217,6 @@ export type DbShiftWhereInput = {
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   exchanges?: Prisma.DbShiftExchangeListRelationFilter
-  timeEntries?: Prisma.DbTimeEntryListRelationFilter
 }
 
 export type DbShiftOrderByWithRelationInput = {
@@ -233,7 +232,6 @@ export type DbShiftOrderByWithRelationInput = {
   user?: Prisma.DbUserOrderByWithRelationInput
   establishment?: Prisma.DbEstablishmentOrderByWithRelationInput
   exchanges?: Prisma.DbShiftExchangeOrderByRelationAggregateInput
-  timeEntries?: Prisma.DbTimeEntryOrderByRelationAggregateInput
 }
 
 export type DbShiftWhereUniqueInput = Prisma.AtLeast<{
@@ -252,7 +250,6 @@ export type DbShiftWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.DbUserScalarRelationFilter, Prisma.DbUserWhereInput>
   establishment?: Prisma.XOR<Prisma.DbEstablishmentScalarRelationFilter, Prisma.DbEstablishmentWhereInput>
   exchanges?: Prisma.DbShiftExchangeListRelationFilter
-  timeEntries?: Prisma.DbTimeEntryListRelationFilter
 }, "id" | "fichitShiftId">
 
 export type DbShiftOrderByWithAggregationInput = {
@@ -296,7 +293,6 @@ export type DbShiftCreateInput = {
   user: Prisma.DbUserCreateNestedOneWithoutShiftsInput
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutShiftsInput
   exchanges?: Prisma.DbShiftExchangeCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftUncheckedCreateInput = {
@@ -310,7 +306,6 @@ export type DbShiftUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftUpdateInput = {
@@ -324,7 +319,6 @@ export type DbShiftUpdateInput = {
   user?: Prisma.DbUserUpdateOneRequiredWithoutShiftsNestedInput
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutShiftsNestedInput
   exchanges?: Prisma.DbShiftExchangeUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateInput = {
@@ -338,7 +332,6 @@ export type DbShiftUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftCreateManyInput = {
@@ -424,11 +417,6 @@ export type DbShiftMinOrderByAggregateInput = {
 export type DbShiftScalarRelationFilter = {
   is?: Prisma.DbShiftWhereInput
   isNot?: Prisma.DbShiftWhereInput
-}
-
-export type DbShiftNullableScalarRelationFilter = {
-  is?: Prisma.DbShiftWhereInput | null
-  isNot?: Prisma.DbShiftWhereInput | null
 }
 
 export type DbShiftCreateNestedManyWithoutUserInput = {
@@ -529,22 +517,6 @@ export type DbShiftUpdateOneRequiredWithoutExchangesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DbShiftUpdateToOneWithWhereWithoutExchangesInput, Prisma.DbShiftUpdateWithoutExchangesInput>, Prisma.DbShiftUncheckedUpdateWithoutExchangesInput>
 }
 
-export type DbShiftCreateNestedOneWithoutTimeEntriesInput = {
-  create?: Prisma.XOR<Prisma.DbShiftCreateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedCreateWithoutTimeEntriesInput>
-  connectOrCreate?: Prisma.DbShiftCreateOrConnectWithoutTimeEntriesInput
-  connect?: Prisma.DbShiftWhereUniqueInput
-}
-
-export type DbShiftUpdateOneWithoutTimeEntriesNestedInput = {
-  create?: Prisma.XOR<Prisma.DbShiftCreateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedCreateWithoutTimeEntriesInput>
-  connectOrCreate?: Prisma.DbShiftCreateOrConnectWithoutTimeEntriesInput
-  upsert?: Prisma.DbShiftUpsertWithoutTimeEntriesInput
-  disconnect?: Prisma.DbShiftWhereInput | boolean
-  delete?: Prisma.DbShiftWhereInput | boolean
-  connect?: Prisma.DbShiftWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DbShiftUpdateToOneWithWhereWithoutTimeEntriesInput, Prisma.DbShiftUpdateWithoutTimeEntriesInput>, Prisma.DbShiftUncheckedUpdateWithoutTimeEntriesInput>
-}
-
 export type DbShiftCreateWithoutUserInput = {
   id?: string
   fichitShiftId?: string | null
@@ -555,7 +527,6 @@ export type DbShiftCreateWithoutUserInput = {
   updatedAt?: Date | string
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutShiftsInput
   exchanges?: Prisma.DbShiftExchangeCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftUncheckedCreateWithoutUserInput = {
@@ -568,7 +539,6 @@ export type DbShiftUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftCreateOrConnectWithoutUserInput = {
@@ -622,7 +592,6 @@ export type DbShiftCreateWithoutEstablishmentInput = {
   updatedAt?: Date | string
   user: Prisma.DbUserCreateNestedOneWithoutShiftsInput
   exchanges?: Prisma.DbShiftExchangeCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftUncheckedCreateWithoutEstablishmentInput = {
@@ -635,7 +604,6 @@ export type DbShiftUncheckedCreateWithoutEstablishmentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutShiftInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftCreateOrConnectWithoutEstablishmentInput = {
@@ -674,7 +642,6 @@ export type DbShiftCreateWithoutExchangesInput = {
   updatedAt?: Date | string
   user: Prisma.DbUserCreateNestedOneWithoutShiftsInput
   establishment: Prisma.DbEstablishmentCreateNestedOneWithoutShiftsInput
-  timeEntries?: Prisma.DbTimeEntryCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftUncheckedCreateWithoutExchangesInput = {
@@ -687,7 +654,6 @@ export type DbShiftUncheckedCreateWithoutExchangesInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  timeEntries?: Prisma.DbTimeEntryUncheckedCreateNestedManyWithoutShiftInput
 }
 
 export type DbShiftCreateOrConnectWithoutExchangesInput = {
@@ -716,7 +682,6 @@ export type DbShiftUpdateWithoutExchangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.DbUserUpdateOneRequiredWithoutShiftsNestedInput
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutShiftsNestedInput
-  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateWithoutExchangesInput = {
@@ -729,75 +694,6 @@ export type DbShiftUncheckedUpdateWithoutExchangesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutShiftNestedInput
-}
-
-export type DbShiftCreateWithoutTimeEntriesInput = {
-  id?: string
-  fichitShiftId?: string | null
-  startTime: Date | string
-  endTime: Date | string
-  notes?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.DbUserCreateNestedOneWithoutShiftsInput
-  establishment: Prisma.DbEstablishmentCreateNestedOneWithoutShiftsInput
-  exchanges?: Prisma.DbShiftExchangeCreateNestedManyWithoutShiftInput
-}
-
-export type DbShiftUncheckedCreateWithoutTimeEntriesInput = {
-  id?: string
-  fichitShiftId?: string | null
-  startTime: Date | string
-  endTime: Date | string
-  userId: string
-  establishmentId: string
-  notes?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  exchanges?: Prisma.DbShiftExchangeUncheckedCreateNestedManyWithoutShiftInput
-}
-
-export type DbShiftCreateOrConnectWithoutTimeEntriesInput = {
-  where: Prisma.DbShiftWhereUniqueInput
-  create: Prisma.XOR<Prisma.DbShiftCreateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedCreateWithoutTimeEntriesInput>
-}
-
-export type DbShiftUpsertWithoutTimeEntriesInput = {
-  update: Prisma.XOR<Prisma.DbShiftUpdateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedUpdateWithoutTimeEntriesInput>
-  create: Prisma.XOR<Prisma.DbShiftCreateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedCreateWithoutTimeEntriesInput>
-  where?: Prisma.DbShiftWhereInput
-}
-
-export type DbShiftUpdateToOneWithWhereWithoutTimeEntriesInput = {
-  where?: Prisma.DbShiftWhereInput
-  data: Prisma.XOR<Prisma.DbShiftUpdateWithoutTimeEntriesInput, Prisma.DbShiftUncheckedUpdateWithoutTimeEntriesInput>
-}
-
-export type DbShiftUpdateWithoutTimeEntriesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  fichitShiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.DbUserUpdateOneRequiredWithoutShiftsNestedInput
-  establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutShiftsNestedInput
-  exchanges?: Prisma.DbShiftExchangeUpdateManyWithoutShiftNestedInput
-}
-
-export type DbShiftUncheckedUpdateWithoutTimeEntriesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  fichitShiftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  establishmentId?: Prisma.StringFieldUpdateOperationsInput | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exchanges?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftCreateManyUserInput = {
@@ -821,7 +717,6 @@ export type DbShiftUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   establishment?: Prisma.DbEstablishmentUpdateOneRequiredWithoutShiftsNestedInput
   exchanges?: Prisma.DbShiftExchangeUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateWithoutUserInput = {
@@ -834,7 +729,6 @@ export type DbShiftUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateManyWithoutUserInput = {
@@ -869,7 +763,6 @@ export type DbShiftUpdateWithoutEstablishmentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.DbUserUpdateOneRequiredWithoutShiftsNestedInput
   exchanges?: Prisma.DbShiftExchangeUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateWithoutEstablishmentInput = {
@@ -882,7 +775,6 @@ export type DbShiftUncheckedUpdateWithoutEstablishmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchanges?: Prisma.DbShiftExchangeUncheckedUpdateManyWithoutShiftNestedInput
-  timeEntries?: Prisma.DbTimeEntryUncheckedUpdateManyWithoutShiftNestedInput
 }
 
 export type DbShiftUncheckedUpdateManyWithoutEstablishmentInput = {
@@ -903,12 +795,10 @@ export type DbShiftUncheckedUpdateManyWithoutEstablishmentInput = {
 
 export type DbShiftCountOutputType = {
   exchanges: number
-  timeEntries: number
 }
 
 export type DbShiftCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   exchanges?: boolean | DbShiftCountOutputTypeCountExchangesArgs
-  timeEntries?: boolean | DbShiftCountOutputTypeCountTimeEntriesArgs
 }
 
 /**
@@ -928,13 +818,6 @@ export type DbShiftCountOutputTypeCountExchangesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DbShiftExchangeWhereInput
 }
 
-/**
- * DbShiftCountOutputType without action
- */
-export type DbShiftCountOutputTypeCountTimeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DbTimeEntryWhereInput
-}
-
 
 export type DbShiftSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -949,7 +832,6 @@ export type DbShiftSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   exchanges?: boolean | Prisma.DbShift$exchangesArgs<ExtArgs>
-  timeEntries?: boolean | Prisma.DbShift$timeEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.DbShiftCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dbShift"]>
 
@@ -998,7 +880,6 @@ export type DbShiftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.DbUserDefaultArgs<ExtArgs>
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
   exchanges?: boolean | Prisma.DbShift$exchangesArgs<ExtArgs>
-  timeEntries?: boolean | Prisma.DbShift$timeEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.DbShiftCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DbShiftIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1016,7 +897,6 @@ export type $DbShiftPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     user: Prisma.$DbUserPayload<ExtArgs>
     establishment: Prisma.$DbEstablishmentPayload<ExtArgs>
     exchanges: Prisma.$DbShiftExchangePayload<ExtArgs>[]
-    timeEntries: Prisma.$DbTimeEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1425,7 +1305,6 @@ export interface Prisma__DbShiftClient<T, Null = never, ExtArgs extends runtime.
   user<T extends Prisma.DbUserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbUserDefaultArgs<ExtArgs>>): Prisma.Prisma__DbUserClient<runtime.Types.Result.GetResult<Prisma.$DbUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   establishment<T extends Prisma.DbEstablishmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbEstablishmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DbEstablishmentClient<runtime.Types.Result.GetResult<Prisma.$DbEstablishmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   exchanges<T extends Prisma.DbShift$exchangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbShift$exchangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbShiftExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  timeEntries<T extends Prisma.DbShift$timeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DbShift$timeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DbTimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1886,30 +1765,6 @@ export type DbShift$exchangesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DbShiftExchangeScalarFieldEnum | Prisma.DbShiftExchangeScalarFieldEnum[]
-}
-
-/**
- * DbShift.timeEntries
- */
-export type DbShift$timeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DbTimeEntry
-   */
-  select?: Prisma.DbTimeEntrySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the DbTimeEntry
-   */
-  omit?: Prisma.DbTimeEntryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DbTimeEntryInclude<ExtArgs> | null
-  where?: Prisma.DbTimeEntryWhereInput
-  orderBy?: Prisma.DbTimeEntryOrderByWithRelationInput | Prisma.DbTimeEntryOrderByWithRelationInput[]
-  cursor?: Prisma.DbTimeEntryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DbTimeEntryScalarFieldEnum | Prisma.DbTimeEntryScalarFieldEnum[]
 }
 
 /**

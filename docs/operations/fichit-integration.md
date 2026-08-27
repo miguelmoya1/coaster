@@ -1,13 +1,12 @@
 # Fichit
 
-Coaster keeps its own working-time register, described in [time tracking](time-tracking.md). Fichit
-is a service that does the same job — the art. 34.9 register, hash-chained and sealed — and does it
-as its whole product rather than as one module of eight. The two implementations are the same law
-written twice, so one of them has to go.
+Coaster used to keep its own working-time register — the art. 34.9 one, hash-chained and
+append-only. Fichit does the same job as its whole product rather than as one module of eight, so
+the two implementations were the same law written twice.
 
-This is the first half of that move. Coaster registers with Fichit **as a partner**: every
-establishment becomes a company there, every member becomes an employee, and the data stays in step.
-Clocking has not moved yet — that is the next step, and it is the delicate one.
+**The move is done.** Coaster stores no time at all: no table, no chain, no triggers. It registers
+with Fichit **as a partner**, every establishment is a company there and every member an employee,
+and the register is Fichit's from the first clock-in.
 
 ## What a partner is
 
@@ -96,7 +95,7 @@ linked by the first run. It works in batches of 200 and is safe to run as many t
 | `EstablishmentCreatedEvent` | company created, its owner registered as an employee     |
 | `MemberInvitedEvent`      | employee created or updated                                |
 | `MemberRemovedEvent`      | employee deactivated                                       |
-| `ShiftCreatedEvent`       | shift mirrored — only once the venue has moved              |
+| `ShiftCreatedEvent`       | shift mirrored, so the report can contrast it                |
 | `ShiftDeletedEvent`       | mirrored shift removed                                      |
 
 `EstablishmentCreatedEvent` was added for this. Establishment creation used to write to the database
@@ -116,52 +115,30 @@ knows about (`404`) counts as already retired; any other failure is raised so th
 4. Deploy, then `POST /admin/fichit/backfill` and read the report.
 5. Check the numbers against `GET /api/v1/platform/partners/{id}` in Fichit's panel: the count of
    companies and active employees should match what Coaster has.
-6. Move one venue, watch it for a week, then move the next.
+6. Clock in from one venue and check the mark landed in Fichit.
 
-## Moving the clocking
+## Who owns what
 
-`Establishment.fichitClockingSince` is the switch. `NULL` means the venue still clocks here; a date
-means it clocked in Fichit from that instant.
+The line runs through the middle of the feature, and it is the thing to keep straight:
 
-**It is a date and not a boolean because the history does not move.** Coaster's hash chain cannot be
-rewritten, and it cannot be imported into Fichit's without faking the sequence and the seals that
-give it its legal value. So each side keeps its stretch, and this column is the border between the
-two: everything before it is read here, everything after it lives in Fichit.
+| | Coaster | Fichit |
+| :--- | :--- | :--- |
+| Who may clock, who may correct | **owns it** | trusts Coaster |
+| The marks, the chain, the seals | stores nothing | **owns it** |
+| The rota | **owns it**, mirrors it over | draws the contrast |
+| Reports, CSV, the inspection PDF | asks for them | **produces them** |
 
-That is why the move is one venue at a time, and why it is a decision rather than a deploy:
-
-```
-POST   /admin/fichit/establishments/:id/clocking   → { since }
-DELETE /admin/fichit/establishments/:id/clocking   → undo
-```
-
-**Undo only works while Fichit has recorded nothing.** Once someone has clocked there, moving back
-would leave the venue's register split across two services with a gap in the middle, and no report
-would show the whole thing. The endpoint checks and answers `409`.
-
-### What closes, and what stays open
-
-Once a venue has moved, `ClockingMovedGuard` closes Coaster's four write routes — `clock`, the
-manual entry, the amendment and the void — with `409 CLOCKING_MOVED_TO_FICHIT`. The read routes stay
-open, unchanged, serving the history Coaster recorded. The append-only trigger stays too: it is what
-guarantees that history is still the one that was written.
-
-Coaster's timesheet becomes an **archive** of its own stretch. It does not federate Fichit's data
-into it — translating between two domain models would be the same duplication this migration exists
-to remove, with a seam in the middle where the numbers could disagree. The period after the switch
-is read in Fichit, which has its own reports, its CSV and the PDF for the inspectorate.
-
-### The punch goes straight there
+## The clock-in goes straight there
 
 From the worker's browser to Fichit, without passing through Coaster's server. If Coaster is down,
-its customers keep meeting their legal duty — which is the whole point of moving this out.
+its customers keep meeting their legal duty — which is the whole reason this moved out.
 
 ```
 POST /establishments/:id/time-entries/session   → { baseUrl, companyId, employeeId, session }
 ```
 
-Coaster mints the session with its partner key and hands it over; the browser then talks to Fichit
-on its own. Three details make that safe, and all three are load-bearing:
+Coaster mints an **employee** session with its partner key and hands it over; the browser then talks
+to Fichit on its own. Three details make that safe, and all three are load-bearing:
 
 - The **Firebase token never reaches Fichit**. `idTokenInterceptor` only attaches it to URLs that are
   ours, and the handover URL is absolute.
@@ -175,16 +152,43 @@ on its own. Three details make that safe, and all three are load-bearing:
 Fichit's `FICHIT_CORS_ORIGINS` has to list the web origins for that environment, or the browser will
 refuse the call before it leaves.
 
-### The roster crosses too
+## Everything else reads through Coaster
 
-Planned against worked is a contrast that now spans two services, so **the shifts go to Fichit** and
-the report is drawn in one place. `Shift.fichitShiftId` holds the mirror, and it is only filled for
-venues that have already moved: rostering a shift in a venue that still clocks here changes nothing.
+The timesheet, the export, the integrity check and the manual corrections go to Coaster, which
+checks its own permissions and then calls Fichit with the partner key. **It stores nothing**; it
+maps Fichit's report into the shape the screens already draw and passes it on.
+
+```
+GET  /establishments/:id/time-entries?from&to[&userId]   the team's days
+GET  /establishments/:id/time-entries/me?from&to         your own
+GET  /establishments/:id/time-entries/punches?from&to    the marks behind them
+GET  /establishments/:id/time-entries/export?from&to     CSV for an inspection
+GET  /establishments/:id/time-entries/integrity          the chain, as Fichit verified it
+POST /establishments/:id/time-entries                    a mark someone forgot
+POST /establishments/:id/time-entries/:punchId/amend
+POST /establishments/:id/time-entries/:punchId/void
+```
+
+**Why not hand the browser a Fichit admin session too?** Because a Fichit admin session grants
+everything on that company — employees, punches, reports, billing — and a Coaster `MANAGER` would
+end up with more power over there than they have here. Coaster's roles have to stay the authority on
+what a manager can do, and the only way to keep that true is to make the call itself. The clock-in is
+the exception on purpose: it uses an *employee* session, which can do nothing but clock, and it earns
+the exception by surviving a Coaster outage.
+
+Fichit is month-based and the screens ask for a date range, so a range that spans months fetches each
+month and keeps the days that fall inside it.
+
+## The rota crosses too
+
+Planned against worked is a contrast that spans two services, so **the shifts go to Fichit** and the
+report is drawn in one place. `Shift.fichitShiftId` holds the mirror.
 
 The alternative — Coaster asking Fichit for the worked hours to draw its own comparison — would have
 meant two services queried to paint one row, and two implementations of the same contrast.
 
-## What has not moved yet
+## What is left in Coaster
 
-The manual side of the register: creating an entry someone forgot, amending one, voiding one. Those
-still exist in Coaster for its own history, and in Fichit for its own. Nothing reads across.
+The link columns, the permissions and the screens. No marks, no chain, no triggers. If you go looking
+for a working day in Coaster's database you will not find one, and that is the point: half an
+implementation left switched off is worse than none, because it looks like it is keeping something.

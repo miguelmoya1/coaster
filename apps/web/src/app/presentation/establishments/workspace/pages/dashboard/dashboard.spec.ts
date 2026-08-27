@@ -64,7 +64,6 @@ const timeTrackingStoreMock = {
   currentWorkday: () => undefined,
   clockState: () => ClockState.OUT,
   setEstablishmentId: vi.fn(),
-  setClocksInFichit: vi.fn(),
   setRange: vi.fn(),
   clock: vi.fn(),
 };
@@ -79,7 +78,6 @@ const establishmentSubscriptionStoreMock = {
 
 const currentEstablishmentStoreMock = {
   currentId: signal<EstablishmentId | undefined>('establishment-1' as EstablishmentId).asReadonly(),
-  clocksInFichit: signal(false).asReadonly(),
 };
 
 const buildFixture = async (role: EstablishmentRole): Promise<ComponentFixture<Dashboard>> => {

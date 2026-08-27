@@ -2,17 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { asEstablishmentId, asTimeEntryId, ClockState, TimeEntryType } from '@coaster/common';
+import { asEstablishmentId, asTimeEntryId, asUserId, ClockState, TimeEntryType } from '@coaster/common';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TimeTrackingStore } from './time-tracking.store';
 
-type Workday = ReturnType<typeof workday>;
-
-const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedMinutes = 120) => ({
+const workday = (date = '2026-08-08', workedMinutes = 120) => ({
   date,
   userId: 'user-1',
   userName: 'Luis',
-  state,
+  state: ClockState.OUT,
   workedMinutes,
   breakMinutes: 15,
   plannedMinutes: 480,
@@ -22,20 +20,42 @@ const workday = (state: ClockState = ClockState.IN, date = '2026-08-08', workedM
   entries: [],
 });
 
-const mine = (from: string, to: string) => `/establishments/establishment-1/time-entries/me?from=${from}&to=${to}`;
-const CURRENT = '/establishments/establishment-1/time-entries/me/current';
+const ESTABLISHMENT = 'establishment-1';
+const base = `/establishments/${ESTABLISHMENT}/time-entries`;
+const mine = (from: string, to: string) => `${base}/me?from=${from}&to=${to}`;
+
+const SESSION = `${base}/session`;
+const FICHIT = 'https://api.fichit.es';
+const HANDOVER = {
+  baseUrl: FICHIT,
+  companyId: 'c_1',
+  employeeId: 'e_1',
+  session: { access_token: 'jwt', expires_at: '2026-08-08T10:00:00Z', refresh_token: 'r' },
+};
 
 describe('TimeTrackingStore', () => {
   let store: TimeTrackingStore;
   let httpMock: HttpTestingController;
 
   const settle = async () => {
-    TestBed.tick();
-    await Promise.resolve();
+    for (let round = 0; round < 5; round += 1) {
+      TestBed.tick();
+      await Promise.resolve();
+    }
     TestBed.tick();
   };
 
-  const flushCurrent = (current: Workday | null = null) => httpMock.expectOne(CURRENT).flush(current);
+  const handItOver = () => httpMock.expectOne(SESSION).flush(HANDOVER);
+  const sayState = (state: string) => httpMock.expectOne(`${FICHIT}/api/v1/me/status`).flush({ state });
+
+  const openOn = async (state = 'out') => {
+    store.setEstablishmentId(asEstablishmentId(ESTABLISHMENT));
+    await settle();
+    handItOver();
+    await settle();
+    sayState(state);
+    await settle();
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -56,287 +76,188 @@ describe('TimeTrackingStore', () => {
     httpMock.expectNone(() => true);
   });
 
-  it('should ask the server which workday is running as soon as it knows the establishment', () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    TestBed.tick();
-
-    flushCurrent();
+  it('should report the clock as out while nothing has loaded', () => {
+    expect(store.clockState()).toBe(ClockState.OUT);
   });
 
-  it('should load the browsed day once establishment and range are set', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    store.setRange('2026-08-08', '2026-08-08');
-    TestBed.tick();
+  it('should ask Coaster for a Fichit session as soon as it knows the establishment', async () => {
+    await openOn('in');
 
-    flushCurrent();
+    expect(store.clockState()).toBe(ClockState.IN);
+  });
+
+  it('should read a worker on a break as on a break', async () => {
+    await openOn('on_break');
+
+    expect(store.clockState()).toBe(ClockState.ON_BREAK);
+  });
+
+  it('should stay out when Fichit cannot be reached at all', async () => {
+    store.setEstablishmentId(asEstablishmentId(ESTABLISHMENT));
+    await settle();
+    httpMock.expectOne(SESSION).flush({}, { status: 503, statusText: 'Service Unavailable' });
+    await settle();
+
+    expect(store.clockState()).toBe(ClockState.OUT);
+  });
+
+  it('should load the browsed range through Coaster', async () => {
+    await openOn();
+    store.setRange('2026-08-08', '2026-08-08');
+    await settle();
+
     const request = httpMock.expectOne(mine('2026-08-08', '2026-08-08'));
     expect(request.request.method).toBe('GET');
     request.flush([workday()]);
-
     await settle();
 
     expect(store.myWorkday()?.workedMinutes).toBe(120);
   });
 
-  it('should report the clock as out while nothing has loaded', () => {
-    expect(store.clockState()).toBe(ClockState.OUT);
-  });
-
-  describe('the workday the clock card acts on', () => {
-    const load = async (current: Workday | null) => {
-      store.setEstablishmentId(asEstablishmentId('establishment-1'));
-      TestBed.tick();
-
-      flushCurrent(current);
-
-      await settle();
-    };
-
-    it('should follow whatever the server says is running', async () => {
-      await load(workday(ClockState.IN, '2026-08-08', 120));
-
-      expect(store.clockState()).toBe(ClockState.IN);
-      expect(store.currentWorkday()?.workedMinutes).toBe(120);
-    });
-
-    it('should keep acting on a day opened long before today', async () => {
-      await load(workday(ClockState.ON_BREAK, '2026-08-01', 4000));
-
-      expect(store.clockState()).toBe(ClockState.ON_BREAK);
-      expect(store.currentWorkday()?.date).toBe('2026-08-01');
-    });
-
-    it('should stay out when no day is running', async () => {
-      await load(null);
-
-      expect(store.clockState()).toBe(ClockState.OUT);
-      expect(store.currentWorkday()).toBeUndefined();
-    });
-  });
-
   it('should leave the team timesheet alone until it is enabled', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
+    await openOn();
     store.setRange('2026-08-08', '2026-08-08');
-    TestBed.tick();
-
-    flushCurrent();
+    await settle();
     httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-    httpMock.expectNone('/establishments/establishment-1/time-entries?from=2026-08-08&to=2026-08-08');
+    await settle();
+
+    httpMock.expectNone(`${base}?from=2026-08-08&to=2026-08-08`);
 
     store.setTeamEnabled(true);
-    TestBed.tick();
-
-    httpMock.expectOne('/establishments/establishment-1/time-entries?from=2026-08-08&to=2026-08-08').flush([workday()]);
-
     await settle();
-
-    expect(store.teamWorkdays.value()?.length).toBe(1);
+    httpMock.expectOne(`${base}?from=2026-08-08&to=2026-08-08`).flush([]);
   });
 
-  it('should post a punch and refresh both what it browses and what it can act on', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    store.setRange('2026-08-08', '2026-08-08');
-    TestBed.tick();
-    flushCurrent();
-    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+  describe('punching', () => {
+    it('should go straight to Fichit, never through Coaster', async () => {
+      await openOn();
 
-    const clocked = store.clock(TimeEntryType.CLOCK_IN, { latitude: 40.4, longitude: -3.7 });
+      const punching = store.clock(TimeEntryType.CLOCK_IN, { latitude: 40.4, longitude: -3.7 });
+      await settle();
 
-    const request = httpMock.expectOne('/establishments/establishment-1/time-entries/clock');
-    expect(request.request.body).toEqual({ type: TimeEntryType.CLOCK_IN, latitude: 40.4, longitude: -3.7 });
-    request.flush({});
+      const punch = httpMock.expectOne(`${FICHIT}/api/v1/me/punches`);
+      expect(punch.request.method).toBe('POST');
+      expect(punch.request.body).toEqual({ kind: 'in', latitude: 40.4, longitude: -3.7 });
+      expect(punch.request.headers.get('Authorization')).toBe('Bearer jwt');
+      expect(punch.request.headers.get('Idempotency-Key')).toBeTruthy();
+      punch.flush({});
+      await settle();
 
-    await clocked;
-    TestBed.tick();
+      sayState('in');
+      await punching;
+      await settle();
 
-    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-    flushCurrent();
-  });
-
-  it('should go back to the server when a punch is refused, instead of keeping a stale picture', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    TestBed.tick();
-    flushCurrent(null);
-
-    const refused = store.clock(TimeEntryType.CLOCK_IN);
-
-    httpMock
-      .expectOne('/establishments/establishment-1/time-entries/clock')
-      .flush({ message: ['INVALID_CLOCK_SEQUENCE'] }, { status: 400, statusText: 'Bad Request' });
-
-    await expect(refused).rejects.toBeDefined();
-    TestBed.tick();
-
-    flushCurrent(workday(ClockState.IN, '2026-08-08', 120));
-    await settle();
-
-    expect(store.clockState()).toBe(ClockState.IN);
-  });
-
-  it('should send the reason when a mark is amended', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    store.setRange('2026-08-08', '2026-08-08');
-    TestBed.tick();
-    flushCurrent();
-    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-
-    const amended = store.amend(asTimeEntryId('entry-1'), {
-      occurredAt: '2026-08-08T09:00:00.000Z',
-      reason: 'Olvido fichar',
+      expect(store.clockState()).toBe(ClockState.IN);
     });
 
-    const request = httpMock.expectOne('/establishments/establishment-1/time-entries/entry-1/amend');
-    expect(request.request.body).toEqual({ occurredAt: '2026-08-08T09:00:00.000Z', reason: 'Olvido fichar' });
-    request.flush({});
+    it('should mint a new session and retry when the Fichit one has expired', async () => {
+      await openOn();
 
-    await amended;
-    TestBed.tick();
+      const punching = store.clock(TimeEntryType.CLOCK_IN);
+      await settle();
 
-    httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
-    flushCurrent();
+      httpMock
+        .expectOne(`${FICHIT}/api/v1/me/punches`)
+        .flush({ error: { code: 'unauthorized' } }, { status: 401, statusText: 'Unauthorized' });
+      await settle();
+
+      handItOver();
+      await settle();
+      httpMock.expectOne(`${FICHIT}/api/v1/me/punches`).flush({});
+      await settle();
+
+      sayState('in');
+      await punching;
+      await settle();
+
+      expect(store.clockState()).toBe(ClockState.IN);
+    });
+
+    it('should go back for the real state even when the punch was refused', async () => {
+      await openOn();
+
+      const punching = store.clock(TimeEntryType.CLOCK_OUT);
+      await settle();
+
+      httpMock
+        .expectOne(`${FICHIT}/api/v1/me/punches`)
+        .flush({ error: { code: 'invalid_sequence' } }, { status: 409, statusText: 'Conflict' });
+      await settle();
+
+      sayState('in');
+      await expect(punching).rejects.toBeDefined();
+      await settle();
+
+      expect(store.clockState()).toBe(ClockState.IN);
+    });
   });
 
-  it('should download the timesheet for the browsed range, not the clock one', async () => {
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    store.setRange('2026-08-01', '2026-08-08');
-    TestBed.tick();
-    flushCurrent();
-    httpMock.expectOne(mine('2026-08-01', '2026-08-08')).flush([]);
+  describe('correcting the register', () => {
+    it('should send a manual mark through Coaster, which owns the permission', async () => {
+      await openOn();
+      store.setRange('2026-08-08', '2026-08-08');
+      await settle();
+      httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+      await settle();
 
-    const exported = store.exportCsv();
+      const creating = store.createEntry({
+        userId: asUserId('user-1'),
+        type: TimeEntryType.CLOCK_IN,
+        occurredAt: '2026-08-08T08:00:00.000Z',
+        reason: 'se le olvidó fichar',
+      });
+      await settle();
 
-    const request = httpMock.expectOne(
-      '/establishments/establishment-1/time-entries/export?from=2026-08-01&to=2026-08-08',
-    );
+      const request = httpMock.expectOne(base);
+      expect(request.request.body).toMatchObject({ type: TimeEntryType.CLOCK_IN, reason: 'se le olvidó fichar' });
+      request.flush(null);
+      await settle();
+
+      httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+      await creating;
+    });
+
+    it('should send the reason when a mark is amended', async () => {
+      await openOn();
+      store.setRange('2026-08-08', '2026-08-08');
+      await settle();
+      httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+      await settle();
+
+      const amending = store.amend(asTimeEntryId('entry-1'), {
+        occurredAt: '2026-08-08T08:05:00.000Z',
+        reason: 'fichó cinco minutos tarde',
+      });
+      await settle();
+
+      const request = httpMock.expectOne(`${base}/entry-1/amend`);
+      expect(request.request.body).toMatchObject({ reason: 'fichó cinco minutos tarde' });
+      request.flush(null);
+      await settle();
+
+      httpMock.expectOne(mine('2026-08-08', '2026-08-08')).flush([]);
+      await amending;
+    });
+  });
+
+  it('should download the timesheet for the browsed range', async () => {
+    await openOn();
+    store.setRange('2026-08-01', '2026-08-31');
+    await settle();
+    httpMock.expectOne(mine('2026-08-01', '2026-08-31')).flush([]);
+    await settle();
+
+    const downloading = store.exportCsv();
+    await settle();
+
+    const request = httpMock.expectOne(`${base}/export?from=2026-08-01&to=2026-08-31`);
     expect(request.request.responseType).toBe('blob');
-    request.flush(new Blob(['dia;empleado'], { type: 'text/csv' }));
+    request.flush(new Blob(['dia;empleado']));
 
-    expect(await exported).toBeInstanceOf(Blob);
+    await downloading;
   });
 
   it('should refuse to act without an establishment', async () => {
-    await expect(store.clock(TimeEntryType.CLOCK_IN)).rejects.toThrow('MISSING_ESTABLISHMENT_ID');
-  });
-});
-
-describe('TimeTrackingStore once clocking moved to Fichit', () => {
-  let store: TimeTrackingStore;
-  let httpMock: HttpTestingController;
-
-  const SESSION = '/establishments/establishment-1/time-entries/session';
-  const handover = {
-    baseUrl: 'https://api.fichit.es',
-    companyId: 'c_1',
-    employeeId: 'e_1',
-    session: { access_token: 'jwt', expires_at: '2026-08-08T10:00:00Z', refresh_token: 'r' },
-  };
-
-  const settle = async () => {
-    for (let round = 0; round < 5; round += 1) {
-      TestBed.tick();
-      await Promise.resolve();
-    }
-    TestBed.tick();
-  };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideZonelessChangeDetection()],
-    });
-
-    store = TestBed.inject(TimeTrackingStore);
-    httpMock = TestBed.inject(HttpTestingController);
-
-    store.setEstablishmentId(asEstablishmentId('establishment-1'));
-    TestBed.tick();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me/current').flush(null);
-  });
-
-  afterEach(() => {
-    httpMock.verify();
-  });
-
-  const handItOver = () => httpMock.expectOne(SESSION).flush(handover);
-
-  it('asks Coaster for a Fichit session and reads the state from there', async () => {
-    store.setClocksInFichit(true);
-    await settle();
-
-    handItOver();
-    await settle();
-
-    const status = httpMock.expectOne('https://api.fichit.es/api/v1/me/status');
-    expect(status.request.headers.get('Authorization')).toBe('Bearer jwt');
-    status.flush({ state: 'on_break', state_label: 'en pausa' });
-
-    await settle();
-    expect(store.clockState()).toBe(ClockState.ON_BREAK);
-  });
-
-  it('punches straight against Fichit, never through Coaster', async () => {
-    store.setClocksInFichit(true);
-    await settle();
-    handItOver();
-    await settle();
-    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'out', state_label: 'fuera' });
-    await settle();
-
-    const punching = store.clock(TimeEntryType.CLOCK_IN);
-    await settle();
-
-    const punch = httpMock.expectOne('https://api.fichit.es/api/v1/me/punches');
-    expect(punch.request.method).toBe('POST');
-    expect(punch.request.body).toEqual({ kind: 'in' });
-    expect(punch.request.headers.get('Idempotency-Key')).toBeTruthy();
-    punch.flush({});
-
-    await settle();
-    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'in', state_label: 'trabajando' });
-
-    await punching;
-    await settle();
-    expect(store.clockState()).toBe(ClockState.IN);
-  });
-
-  it('mints a new session and retries when the Fichit one has expired', async () => {
-    store.setClocksInFichit(true);
-    await settle();
-    handItOver();
-    await settle();
-    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'out', state_label: 'fuera' });
-    await settle();
-
-    const punching = store.clock(TimeEntryType.CLOCK_IN);
-    await settle();
-
-    httpMock
-      .expectOne('https://api.fichit.es/api/v1/me/punches')
-      .flush({ error: { code: 'unauthorized' } }, { status: 401, statusText: 'Unauthorized' });
-    await settle();
-
-    handItOver();
-    await settle();
-    httpMock.expectOne('https://api.fichit.es/api/v1/me/punches').flush({});
-
-    await settle();
-    httpMock.expectOne('https://api.fichit.es/api/v1/me/status').flush({ state: 'in', state_label: 'trabajando' });
-
-    await punching;
-    await settle();
-    expect(store.clockState()).toBe(ClockState.IN);
-  });
-
-  it('keeps clocking through Coaster while the establishment has not moved', async () => {
-    store.setClocksInFichit(false);
-    await settle();
-
-    const punching = store.clock(TimeEntryType.CLOCK_IN);
-    await settle();
-
-    httpMock.expectOne('/establishments/establishment-1/time-entries/clock').flush({});
-    await settle();
-    httpMock.expectOne('/establishments/establishment-1/time-entries/me/current').flush(null);
-
-    await punching;
+    await expect(store.clock(TimeEntryType.CLOCK_IN)).rejects.toThrow();
   });
 });

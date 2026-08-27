@@ -46,6 +46,13 @@ export interface FichitEmployeeSync {
   email?: string | null;
 }
 
+export interface NewFichitPunch {
+  employeeId: string;
+  kind: string;
+  occurredAt: string;
+  reason: string;
+}
+
 export interface NewFichitShift {
   employeeId: string;
   startsAt: string;
@@ -130,6 +137,38 @@ export class FichitApi {
       companyId,
     });
     return (page.punches ?? []).length > 0;
+  }
+
+  public async monthlyReport(companyId: string, year: number, month: number): Promise<unknown> {
+    return this.#request('GET', `/api/v1/admin/reports/monthly?year=${year}&month=${month}`, { companyId });
+  }
+
+  public async punches(companyId: string, query: string): Promise<{ punches: unknown[] }> {
+    return this.#request<{ punches: unknown[] }>('GET', `/api/v1/admin/punches?${query}`, { companyId });
+  }
+
+  public async integrity(companyId: string): Promise<unknown> {
+    return this.#request('GET', '/api/v1/admin/integrity/verify', { companyId });
+  }
+
+  public async recordPunch(companyId: string, punch: NewFichitPunch): Promise<unknown> {
+    return this.#request('POST', '/api/v1/admin/punches', {
+      companyId,
+      body: {
+        employee_id: punch.employeeId,
+        kind: punch.kind,
+        occurred_at: punch.occurredAt,
+        reason: punch.reason,
+      },
+    });
+  }
+
+  public async correctPunch(companyId: string, punchId: string, body: unknown): Promise<unknown> {
+    return this.#request('POST', `/api/v1/admin/punches/${punchId}/corrections`, { companyId, body });
+  }
+
+  public async voidPunch(companyId: string, punchId: string, body: unknown): Promise<unknown> {
+    return this.#request('POST', `/api/v1/admin/punches/${punchId}/void`, { companyId, body });
   }
 
   public async createShift(companyId: string, shift: NewFichitShift): Promise<FichitShiftResult> {

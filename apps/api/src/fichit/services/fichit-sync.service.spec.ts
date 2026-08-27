@@ -191,12 +191,12 @@ describe('FichitSync', () => {
   });
 });
 
-describe('FichitSync clocking', () => {
+describe('FichitSync handover', () => {
   let api: any;
   let repository: any;
   let sync: FichitSync;
 
-  const linked = { id: 'est_1', name: 'Bar Pepe', taxId: null, fichitCompanyId: 'c_1', fichitClockingSince: null };
+  const linked = { id: 'est_1', name: 'Bar Pepe', taxId: null, fichitCompanyId: 'c_1' };
   const member = {
     id: 'mem_1',
     userId: 'usr_1',
@@ -212,7 +212,6 @@ describe('FichitSync clocking', () => {
       createCompany: vi.fn(),
       syncEmployee: vi.fn().mockResolvedValue({ created: false, employee: { id: 'e_1' } }),
       openEmployeeSession: vi.fn().mockResolvedValue({ access_token: 'jwt', refresh_token: 'r' }),
-      hasPunches: vi.fn().mockResolvedValue(false),
       deactivateEmployee: vi.fn(),
     };
     repository = {
@@ -221,30 +220,10 @@ describe('FichitSync clocking', () => {
       linkCompany: vi.fn(),
       member: vi.fn().mockResolvedValue(member),
       linkEmployee: vi.fn(),
-      moveClocking: vi.fn(),
       establishmentsWithoutCompany: vi.fn().mockResolvedValue([]),
       membersWithoutEmployee: vi.fn().mockResolvedValue([]),
     };
     sync = new FichitSync(api as unknown as FichitApi, repository as unknown as FichitRepository);
-  });
-
-  describe('clocksInFichit', () => {
-    it('is false while the switch has not been thrown', async () => {
-      expect(await sync.clocksInFichit(establishmentId)).toBe(false);
-    });
-
-    it('is true once the establishment carries a date', async () => {
-      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
-
-      expect(await sync.clocksInFichit(establishmentId)).toBe(true);
-    });
-
-    it('is false when the integration is off, so nothing is ever blocked by accident', async () => {
-      api.enabled = false;
-      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
-
-      expect(await sync.clocksInFichit(establishmentId)).toBe(false);
-    });
   });
 
   describe('handOverClocking', () => {
@@ -276,48 +255,6 @@ describe('FichitSync clocking', () => {
     });
   });
 
-  describe('moveClocking', () => {
-    it('records the instant the register changed hands', async () => {
-      const since = await sync.moveClocking(establishmentId);
-
-      expect(repository.moveClocking).toHaveBeenCalledWith(establishmentId, since);
-    });
-
-    it('refuses to move an establishment that is not linked yet', async () => {
-      repository.establishment.mockResolvedValue({ ...linked, fichitCompanyId: null });
-      repository.owner.mockResolvedValue(null);
-
-      await expect(sync.moveClocking(establishmentId)).rejects.toThrow();
-      expect(repository.moveClocking).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('undoClockingMove', () => {
-    it('gives the register back while Fichit has nothing recorded', async () => {
-      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
-
-      await sync.undoClockingMove(establishmentId);
-
-      expect(repository.moveClocking).toHaveBeenCalledWith(establishmentId, null);
-    });
-
-    it('refuses once someone has clocked in Fichit, which would split the register in two', async () => {
-      repository.establishment.mockResolvedValue({ ...linked, fichitClockingSince: new Date() });
-      api.hasPunches.mockResolvedValue(true);
-
-      await expect(sync.undoClockingMove(establishmentId)).rejects.toMatchObject({
-        code: 'ALREADY_CLOCKED_IN_FICHIT',
-      });
-      expect(repository.moveClocking).not.toHaveBeenCalled();
-    });
-
-    it('does nothing for an establishment that never moved', async () => {
-      await sync.undoClockingMove(establishmentId);
-
-      expect(api.hasPunches).not.toHaveBeenCalled();
-      expect(repository.moveClocking).not.toHaveBeenCalled();
-    });
-  });
 });
 
 describe('FichitSync shifts', () => {
@@ -325,13 +262,7 @@ describe('FichitSync shifts', () => {
   let repository: any;
   let sync: FichitSync;
 
-  const moved = {
-    id: 'est_1',
-    name: 'Bar Pepe',
-    taxId: null,
-    fichitCompanyId: 'c_1',
-    fichitClockingSince: new Date('2026-08-01T00:00:00Z'),
-  };
+  const moved = { id: 'est_1', name: 'Bar Pepe', taxId: null, fichitCompanyId: 'c_1' };
   const shift = {
     id: 'sh_1',
     establishmentId: 'est_1',
@@ -364,7 +295,6 @@ describe('FichitSync shifts', () => {
       linkEmployee: vi.fn(),
       shift: vi.fn().mockResolvedValue(shift),
       linkShift: vi.fn(),
-      moveClocking: vi.fn(),
       establishmentsWithoutCompany: vi.fn().mockResolvedValue([]),
       membersWithoutEmployee: vi.fn().mockResolvedValue([]),
     };
@@ -381,13 +311,6 @@ describe('FichitSync shifts', () => {
       note: 'turno de mañana',
     });
     expect(repository.linkShift).toHaveBeenCalledWith('sh_1', 'fs_1');
-  });
-
-  it('leaves the roster alone while the establishment still clocks here', async () => {
-    repository.establishment.mockResolvedValue({ ...moved, fichitClockingSince: null });
-
-    expect(await sync.mirrorShift('sh_1')).toBeNull();
-    expect(api.createShift).not.toHaveBeenCalled();
   });
 
   it('does not mirror the same shift twice', async () => {

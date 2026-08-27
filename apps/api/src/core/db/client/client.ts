@@ -152,11 +152,6 @@ export type DbPrintJob = Prisma.DbPrintJobModel
  */
 export type DbEstablishmentSubscription = Prisma.DbEstablishmentSubscriptionModel
 /**
- * Model DbTimeEntry
- * 
- */
-export type DbTimeEntry = Prisma.DbTimeEntryModel
-/**
  * Model DbAdminAuditLog
  * 
  */

@@ -6,7 +6,6 @@ import { RouterLink } from '@angular/router';
 import type { EstablishmentId, Workday } from '@coaster/common';
 import { ClockState, TimeEntryType } from '@coaster/common';
 import { ActionFeedback } from '@coaster/core';
-import { CurrentEstablishmentStore } from '@coaster/establishments';
 import { TimeTrackingStore } from '@coaster/time-tracking';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { endOfWeek, format, startOfWeek } from 'date-fns';
@@ -25,7 +24,6 @@ export class MyShiftWidget {
   public readonly establishmentId = input.required<EstablishmentId>();
 
   readonly #timeTrackingStore = inject(TimeTrackingStore);
-  readonly #establishments = inject(CurrentEstablishmentStore);
   readonly #feedback = inject(ActionFeedback);
   readonly #translate = inject(TranslateService);
 
@@ -37,10 +35,6 @@ export class MyShiftWidget {
   constructor() {
     effect(() => {
       this.#timeTrackingStore.setEstablishmentId(this.establishmentId());
-    });
-
-    effect(() => {
-      this.#timeTrackingStore.setClocksInFichit(this.#establishments.clocksInFichit());
     });
 
     effect(() => {

@@ -37,7 +37,8 @@ The working-time register required by art. 34.9 of the Spanish Workers' Statute:
 - Free date range for both the on-screen register and the CSV export for labour inspections.
 - The rota contrasted against what was actually worked (no-show, off-rota, late, early, overtime).
 
-See [time tracking](operations/time-tracking.md).
+Kept by [Fichit](operations/fichit-integration.md), which does this as its whole product. Coaster
+owns the permissions; Fichit owns the register.
 
 ### One product, three modules
 

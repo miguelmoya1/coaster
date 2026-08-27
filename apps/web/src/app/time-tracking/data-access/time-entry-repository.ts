@@ -3,9 +3,7 @@ import { inject, Service } from '@angular/core';
 import type {
   AmendTimeEntryDto,
   EstablishmentId,
-  ClockDto,
   CreateTimeEntryDto,
-  TimeEntry,
   TimeEntryId,
   TimeSheetIntegrity,
   UserId,
@@ -23,7 +21,6 @@ export class TimeEntryRepository {
   public readonly routes = {
     mine: (establishmentId: EstablishmentId, from: string, to: string) =>
       `/establishments/${establishmentId}/time-entries/me?${range(from, to)}`,
-    current: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/time-entries/me/current`,
     team: (establishmentId: EstablishmentId, from: string, to: string, userId?: UserId) =>
       `/establishments/${establishmentId}/time-entries?${range(from, to, userId)}`,
     export: (establishmentId: EstablishmentId, from: string, to: string, userId?: UserId) =>
@@ -37,20 +34,16 @@ export class TimeEntryRepository {
       `/establishments/${establishmentId}/time-entries/${entryId}/void`,
   };
 
-  public clock(establishmentId: EstablishmentId, dto: ClockDto): Promise<TimeEntry> {
-    return firstValueFrom(this.#http.post<TimeEntry>(this.routes.clock(establishmentId), dto));
+  public create(establishmentId: EstablishmentId, dto: CreateTimeEntryDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.create(establishmentId), dto));
   }
 
-  public create(establishmentId: EstablishmentId, dto: CreateTimeEntryDto): Promise<TimeEntry> {
-    return firstValueFrom(this.#http.post<TimeEntry>(this.routes.create(establishmentId), dto));
+  public amend(establishmentId: EstablishmentId, entryId: TimeEntryId, dto: AmendTimeEntryDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.amend(establishmentId, entryId), dto));
   }
 
-  public amend(establishmentId: EstablishmentId, entryId: TimeEntryId, dto: AmendTimeEntryDto): Promise<TimeEntry> {
-    return firstValueFrom(this.#http.post<TimeEntry>(this.routes.amend(establishmentId, entryId), dto));
-  }
-
-  public void(establishmentId: EstablishmentId, entryId: TimeEntryId, dto: VoidTimeEntryDto): Promise<TimeEntry> {
-    return firstValueFrom(this.#http.post<TimeEntry>(this.routes.void(establishmentId, entryId), dto));
+  public void(establishmentId: EstablishmentId, entryId: TimeEntryId, dto: VoidTimeEntryDto): Promise<void> {
+    return firstValueFrom(this.#http.post<void>(this.routes.void(establishmentId, entryId), dto));
   }
 
   public integrity(establishmentId: EstablishmentId): Promise<TimeSheetIntegrity> {

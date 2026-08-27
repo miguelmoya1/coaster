@@ -47,11 +47,15 @@ export class FichitClockRepository {
     );
   }
 
-  public punch(handover: ClockingHandover, type: TimeEntryType): Promise<unknown> {
+  public punch(
+    handover: ClockingHandover,
+    type: TimeEntryType,
+    where?: { latitude: number; longitude: number },
+  ): Promise<unknown> {
     return firstValueFrom(
       this.#http.post(
         `${handover.baseUrl}/api/v1/me/punches`,
-        { kind: KIND[type] ?? type },
+        { kind: KIND[type] ?? type, ...where },
         {
           headers: {
             Authorization: `Bearer ${handover.session.access_token}`,

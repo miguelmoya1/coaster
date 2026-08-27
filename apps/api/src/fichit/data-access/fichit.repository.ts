@@ -14,7 +14,6 @@ export class FichitRepository {
         name: true,
         taxId: true,
         fichitCompanyId: true,
-        fichitClockingSince: true,
       },
     });
   }
@@ -35,13 +34,6 @@ export class FichitRepository {
     });
   }
 
-  public async moveClocking(establishmentId: EstablishmentId, since: Date | null) {
-    await this._db.dbEstablishment.update({
-      where: { id: establishmentId },
-      data: { fichitClockingSince: since },
-    });
-  }
-
   public async member(establishmentId: EstablishmentId, userId: UserId) {
     return this._db.dbEstablishmentMember.findUnique({
       where: { userId_establishmentId: { userId, establishmentId } },
@@ -59,6 +51,13 @@ export class FichitRepository {
     await this._db.dbEstablishmentMember.update({
       where: { id: memberId },
       data: { fichitEmployeeId },
+    });
+  }
+
+  public async linkedMembers(establishmentId: EstablishmentId) {
+    return this._db.dbEstablishmentMember.findMany({
+      where: { establishmentId, fichitEmployeeId: { not: null } },
+      select: { userId: true, fichitEmployeeId: true },
     });
   }
 

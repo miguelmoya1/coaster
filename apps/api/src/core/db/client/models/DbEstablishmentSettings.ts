@@ -421,6 +421,10 @@ export type DbEstablishmentSettingsUpdatemodulesInput = {
   push?: $Enums.DbEstablishmentModule | $Enums.DbEstablishmentModule[]
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type DbEstablishmentSettingsCreateWithoutEstablishmentInput = {
   id?: string
   modules?: Prisma.DbEstablishmentSettingsCreatemodulesInput | $Enums.DbEstablishmentModule[]

@@ -13,7 +13,7 @@ import type {
 import { ClockState, ErrorCodes } from '@coaster/common';
 import { CLOCK_STATE, ClockingHandover, FichitClockRepository } from '../data-access/fichit-clock-repository';
 import { TimeEntryRepository } from '../data-access/time-entry-repository';
-import { workdayArrayMapper, workdayMapper } from '../mappers/workday.mapper';
+import { workdayArrayMapper } from '../mappers/workday.mapper';
 
 @Service()
 export class TimeTrackingStore {
@@ -25,8 +25,8 @@ export class TimeTrackingStore {
   readonly #to = signal<string | undefined>(undefined);
   readonly #teamUserId = signal<UserId | undefined>(undefined);
   readonly #teamEnabled = signal(false);
-  readonly #clocksInFichit = signal(false);
   readonly #fichitState = signal<ClockState | undefined>(undefined);
+  readonly #loadingState = signal(false);
   #handover?: ClockingHandover;
 
   readonly #mineResource = httpResource(
@@ -38,15 +38,6 @@ export class TimeTrackingStore {
       return establishmentId && from && to ? this.#repository.routes.mine(establishmentId, from, to) : undefined;
     },
     { parse: workdayArrayMapper },
-  );
-
-  readonly #currentResource = httpResource(
-    () => {
-      const establishmentId = this.#establishmentId();
-
-      return establishmentId ? this.#repository.routes.current(establishmentId) : undefined;
-    },
-    { parse: workdayMapper },
   );
 
   readonly #teamResource = httpResource(
@@ -71,28 +62,24 @@ export class TimeTrackingStore {
     return this.myWorkdays.hasValue() ? this.myWorkdays.value()?.find((workday) => workday.date === day) : undefined;
   });
 
-  public readonly currentWorkday = computed<Workday | undefined>(() =>
-    this.#currentResource.hasValue() ? (this.#currentResource.value() ?? undefined) : undefined,
-  );
+  public readonly currentWorkday = computed<Workday | undefined>(() => {
+    const today = new Date().toISOString().slice(0, 10);
 
-  public readonly clockState = computed<ClockState>(() =>
-    this.#clocksInFichit()
-      ? (this.#fichitState() ?? ClockState.OUT)
-      : (this.currentWorkday()?.state ?? ClockState.OUT),
-  );
+    return this.myWorkdays.hasValue()
+      ? this.myWorkdays.value()?.find((workday) => workday.date === today)
+      : undefined;
+  });
 
-  public readonly isClockLoading = this.#currentResource.isLoading;
+  public readonly clockState = computed<ClockState>(() => this.#fichitState() ?? ClockState.OUT);
+
+  public readonly isClockLoading = this.#loadingState.asReadonly();
 
   public setEstablishmentId(establishmentId: EstablishmentId | undefined) {
     this.#establishmentId.set(establishmentId);
     this.#handover = undefined;
     this.#fichitState.set(undefined);
-  }
 
-  public setClocksInFichit(moved: boolean) {
-    this.#clocksInFichit.set(moved);
-
-    if (moved) {
+    if (establishmentId) {
       void this.#readFichitState();
     }
   }
@@ -112,28 +99,19 @@ export class TimeTrackingStore {
 
   public reload() {
     this.#mineResource.reload();
-    this.#currentResource.reload();
 
     if (this.#teamEnabled()) {
       this.#teamResource.reload();
     }
   }
 
-  public async clock(type: TimeEntryType, coordinates?: { latitude: number; longitude: number }) {
-    const establishmentId = this.#requireEstablishmentId();
-
-    if (this.#clocksInFichit()) {
-      try {
-        await this.#inFichit((handover) => this.#fichit.punch(handover, type));
-      } finally {
-        await this.#readFichitState();
-      }
-      return;
-    }
+  public async clock(type: TimeEntryType, where?: { latitude: number; longitude: number }) {
+    this.#requireEstablishmentId();
 
     try {
-      await this.#repository.clock(establishmentId, { type, ...coordinates });
+      await this.#inFichit((handover) => this.#fichit.punch(handover, type, where));
     } finally {
+      await this.#readFichitState();
       this.reload();
     }
   }
@@ -157,12 +135,15 @@ export class TimeTrackingStore {
   }
 
   async #readFichitState() {
+    this.#loadingState.set(true);
     try {
       const status = await this.#inFichit((handover) => this.#fichit.status(handover));
       this.#fichitState.set(CLOCK_STATE[status.state] ?? ClockState.OUT);
     } catch {
       this.#handover = undefined;
       this.#fichitState.set(undefined);
+    } finally {
+      this.#loadingState.set(false);
     }
   }
 

@@ -128,14 +128,19 @@ name and photo into another venue's rota.
 
 ## Time tracking
 
-`TimeEntry` is append-only and hash-chained per establishment. It has its own document —
-[time tracking](../operations/time-tracking.md) — because it is the one context with a legal
-obligation attached.
+**Coaster stores none of it.** There is no `TimeEntry` table, no hash chain and no append-only
+trigger: the register lives in [Fichit](../operations/fichit-integration.md), which does this as its
+whole product. Keeping two implementations of one legal obligation was the duplication that had to
+go, and half an implementation left switched off is worse than none — it looks like it is keeping
+something when it is not.
 
-`Workday` is not stored; it is derived per user and day from the marks, and carries the contrast
-against the rota: planned minutes and window, plus discrepancies (`NO_SHOW`, `UNPLANNED`,
-`LATE_START`, `EARLY_FINISH`, `OVERTIME`). Days seeded from the rota appear even with no marks at
-all — otherwise an absence, which is exactly what you want to see, would be invisible.
+What Coaster keeps is the **link** and the **permissions**. `Establishment.fichitCompanyId` and
+`EstablishmentMember.fichitEmployeeId` say which company and which employee this is over there;
+`Shift.fichitShiftId` mirrors the rota so the contrast is drawn in one place. Who may clock and who
+may correct is still Coaster's `EstablishmentRole`, because that is Coaster's model of the venue.
+
+`Workday` still exists as a **shape the screens draw**, mapped from Fichit's report on the way
+through. It is stored nowhere on either side.
 
 ## Billing
 

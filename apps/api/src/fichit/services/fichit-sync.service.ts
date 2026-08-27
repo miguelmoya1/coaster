@@ -115,14 +115,6 @@ export class FichitSync {
     }
   }
 
-  public async clocksInFichit(establishmentId: EstablishmentId): Promise<boolean> {
-    if (!this.enabled) {
-      return false;
-    }
-    const establishment = await this.repository.establishment(establishmentId);
-    return Boolean(establishment?.fichitClockingSince);
-  }
-
   public async handOverClocking(
     establishmentId: EstablishmentId,
     userId: UserId,
@@ -141,37 +133,6 @@ export class FichitSync {
     };
   }
 
-  public async moveClocking(establishmentId: EstablishmentId): Promise<Date> {
-    const companyId = await this.ensureCompany(establishmentId);
-    if (!companyId) {
-      throw new FichitError(0, 'NOT_LINKED', 'el establecimiento no está enlazado con Fichit');
-    }
-
-    const since = new Date();
-    await this.repository.moveClocking(establishmentId, since);
-    this.#logger.log(`Establishment ${establishmentId} clocks in Fichit from ${since.toISOString()}`);
-
-    return since;
-  }
-
-  public async undoClockingMove(establishmentId: EstablishmentId): Promise<void> {
-    const establishment = await this.repository.establishment(establishmentId);
-    if (!establishment?.fichitClockingSince || !establishment.fichitCompanyId) {
-      return;
-    }
-
-    if (await this.api.hasPunches(establishment.fichitCompanyId)) {
-      throw new FichitError(
-        409,
-        'ALREADY_CLOCKED_IN_FICHIT',
-        'ya hay fichajes en Fichit: deshacerlo partiría el registro en dos',
-      );
-    }
-
-    await this.repository.moveClocking(establishmentId, null);
-    this.#logger.log(`Establishment ${establishmentId} clocks in Coaster again`);
-  }
-
   public async mirrorShift(shiftId: string): Promise<string | null> {
     if (!this.enabled) {
       return null;
@@ -183,9 +144,6 @@ export class FichitSync {
     }
 
     const establishmentId = shift.establishmentId as EstablishmentId;
-    if (!(await this.clocksInFichit(establishmentId))) {
-      return null;
-    }
 
     const companyId = await this.ensureCompany(establishmentId);
     const employeeId = await this.ensureEmployee(establishmentId, shift.userId as UserId);

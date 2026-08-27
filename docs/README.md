@@ -26,8 +26,7 @@ what is known to be owed.
 - [Production and beta](operations/environments.md) — the two environments, what they share and what
   they must not
 - [The shared cache](operations/redis.md) — the realtime bus, rate limit and the guards' preamble
-- [Time tracking](operations/time-tracking.md) — the legal working-time register
-- [Fichit](operations/fichit-integration.md) — the register moving out to its own service
+- [Fichit](operations/fichit-integration.md) — the working-time register, which lives there now
 - [Stripe integration](saas/stripe-integration.md)
 - [Stripe locally](saas/stripe-local-setup.md)
 - [Closed beta](saas/closed-beta.md)

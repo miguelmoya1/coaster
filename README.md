@@ -29,12 +29,13 @@ unaffected. See [closed beta](docs/saas/closed-beta.md).
 
 ### ⏱️ Time Tracking (Legal Working-Time Register)
 
-The register required by art. 34.9 of the Spanish Workers' Statute: append-only marks enforced by
-database triggers, corrections that never overwrite the original and carry who/when/what/why, a
-per-establishment hash chain, CSV export over any date range for labour inspections, and the rota contrasted
-against what was actually worked.
+The register required by art. 34.9 of the Spanish Workers' Statute: append-only marks, corrections
+that never overwrite the original and carry who/when/what/why, a hash chain over every mark, CSV
+export for labour inspections, and the rota contrasted against what was actually worked.
 
-See [time tracking](docs/operations/time-tracking.md).
+**It is kept by [Fichit](docs/operations/fichit-integration.md), not by Coaster.** Coaster owns who
+may clock and who may correct; Fichit owns the register itself. The clock-in goes from the worker's
+browser straight there, so a Coaster outage never stops anyone meeting a legal duty.
 
 ### 📦 Inventory Module
 
@@ -267,7 +268,7 @@ Everything is indexed in [`docs/`](docs/README.md).
 - [Catalogue and menu](docs/architecture/catalogue-and-menu.md) — and the languages between them
 - [The assistant](docs/architecture/assistant.md)
 - [Printing bridge](docs/architecture/printing-bridge.md)
-- [Time tracking](docs/operations/time-tracking.md) — the legal working-time register
+- [Fichit](docs/operations/fichit-integration.md) — the working-time register, kept in its own service
 - [The shared cache](docs/operations/redis.md) — realtime bus, rate limit, guard preamble
 - [Production and beta](docs/operations/environments.md)
 - [Stripe integration](docs/saas/stripe-integration.md) · [Stripe setup](docs/saas/stripe-local-setup.md) · [Closed beta](docs/saas/closed-beta.md)
