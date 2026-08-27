@@ -1,4 +1,4 @@
-import { EstablishmentModule, ErrorCodes, TimeEntryType } from '@coaster/common';
+import { EstablishmentModule, ErrorCodes } from '@coaster/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { E2eTestSetup, mockUser } from '../utils/e2e-setup';
@@ -57,11 +57,13 @@ describe('Module gating (e2e)', () => {
       await request(http()).get(`/api/establishments/${timeTrackingOnlyId}/categories`).expect(403);
     });
 
-    it('should still let its staff clock in, which is the reason it is here at all', async () => {
-      await request(http())
-        .post(`/api/establishments/${timeTrackingOnlyId}/time-entries/clock`)
-        .send({ type: TimeEntryType.CLOCK_IN })
-        .expect(201);
+    it('should still let its staff reach the clock, which is the reason it is here at all', async () => {
+      const response = await request(http())
+        .post(`/api/establishments/${timeTrackingOnlyId}/time-entries/session`)
+        .send({});
+
+      expect(response.status).not.toBe(403);
+      expect(response.body.message).toBe(ErrorCodes.FICHIT_NOT_AVAILABLE);
     });
 
     it('should still list its members', async () => {
