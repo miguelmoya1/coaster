@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { FichitSettings } from './fichit-settings.service';
 
 export interface FichitCompany {
   id: string;
@@ -81,18 +81,15 @@ const COMPANY_HEADER = 'Fichit-Company';
 export class FichitApi {
   readonly #logger = new Logger(FichitApi.name);
 
-  constructor(private readonly _configService: ConfigService) {}
+  constructor(private readonly settings: FichitSettings) {}
 
-  public get enabled(): boolean {
-    return Boolean(this.#baseUrl && this.#apiKey);
+  public async isEnabled(): Promise<boolean> {
+    const { apiUrl, apiKey } = await this.settings.current();
+    return Boolean(apiUrl && apiKey);
   }
 
-  get #baseUrl(): string {
-    return (this._configService.get<string>('FICHIT_API_URL') ?? '').replace(/\/+$/, '');
-  }
-
-  get #apiKey(): string {
-    return this._configService.get<string>('FICHIT_API_KEY') ?? '';
+  public async currentBaseUrl(): Promise<string> {
+    return (await this.settings.current()).apiUrl;
   }
 
   public async createCompany(company: NewFichitCompany): Promise<FichitCompanyResult> {
@@ -120,10 +117,6 @@ export class FichitApi {
         email: employee.email ?? null,
       },
     });
-  }
-
-  public get baseUrl(): string {
-    return this.#baseUrl;
   }
 
   public async openEmployeeSession(companyId: string, employeeId: string): Promise<FichitSession> {
@@ -196,7 +189,8 @@ export class FichitApi {
     path: string,
     options: { companyId?: string; body?: unknown } = {},
   ): Promise<T> {
-    const headers: Record<string, string> = { Authorization: `Bearer ${this.#apiKey}` };
+    const { apiUrl, apiKey } = await this.settings.current();
+    const headers: Record<string, string> = { Authorization: `Bearer ${apiKey}` };
     if (options.companyId) {
       headers[COMPANY_HEADER] = options.companyId;
     }
@@ -206,7 +200,7 @@ export class FichitApi {
 
     let response: Response;
     try {
-      response = await fetch(`${this.#baseUrl}${path}`, {
+      response = await fetch(`${apiUrl}${path}`, {
         method,
         headers,
         body: options.body === undefined ? undefined : JSON.stringify(options.body),

@@ -55,6 +55,7 @@ export const ModelName = {
   DbUser: 'DbUser',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
+  DbFichitSettings: 'DbFichitSettings',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
   DbAiUsage: 'DbAiUsage',
@@ -147,6 +148,17 @@ export const DbEstablishmentScalarFieldEnum = {
 } as const
 
 export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
+
+
+export const DbFichitSettingsScalarFieldEnum = {
+  id: 'id',
+  apiUrl: 'apiUrl',
+  apiKeyCipher: 'apiKeyCipher',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbFichitSettingsScalarFieldEnum = (typeof DbFichitSettingsScalarFieldEnum)[keyof typeof DbFichitSettingsScalarFieldEnum]
 
 
 export const DbEstablishmentSettingsScalarFieldEnum = {

@@ -388,6 +388,7 @@ export const ModelName = {
   DbUser: 'DbUser',
   DbBetaTester: 'DbBetaTester',
   DbEstablishment: 'DbEstablishment',
+  DbFichitSettings: 'DbFichitSettings',
   DbEstablishmentSettings: 'DbEstablishmentSettings',
   DbPrinterPairing: 'DbPrinterPairing',
   DbAiUsage: 'DbAiUsage',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBetaTester" | "dbEstablishment" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
+    modelProps: "dbOrderAdjustment" | "dbUser" | "dbBetaTester" | "dbEstablishment" | "dbFichitSettings" | "dbEstablishmentSettings" | "dbPrinterPairing" | "dbAiUsage" | "dbUserPreferences" | "dbEstablishmentMember" | "dbShift" | "dbShiftExchange" | "dbMenu" | "dbMenuSection" | "dbMenuItem" | "dbCategory" | "dbProduct" | "dbTable" | "dbOrder" | "dbOrderItem" | "dbPrinterConfig" | "dbPrintJob" | "dbEstablishmentSubscription" | "dbAdminAuditLog" | "dbInvoice" | "dbInvoiceTaxLine" | "dbOrderAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -722,6 +723,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DbEstablishmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DbEstablishmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    DbFichitSettings: {
+      payload: Prisma.$DbFichitSettingsPayload<ExtArgs>
+      fields: Prisma.DbFichitSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DbFichitSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DbFichitSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.DbFichitSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DbFichitSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.DbFichitSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.DbFichitSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.DbFichitSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DbFichitSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.DbFichitSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        update: {
+          args: Prisma.DbFichitSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.DbFichitSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DbFichitSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DbFichitSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.DbFichitSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DbFichitSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.DbFichitSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDbFichitSettings>
+        }
+        groupBy: {
+          args: Prisma.DbFichitSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbFichitSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DbFichitSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DbFichitSettingsCountAggregateOutputType> | number
         }
       }
     }
@@ -2446,6 +2521,17 @@ export const DbEstablishmentScalarFieldEnum = {
 export type DbEstablishmentScalarFieldEnum = (typeof DbEstablishmentScalarFieldEnum)[keyof typeof DbEstablishmentScalarFieldEnum]
 
 
+export const DbFichitSettingsScalarFieldEnum = {
+  id: 'id',
+  apiUrl: 'apiUrl',
+  apiKeyCipher: 'apiKeyCipher',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DbFichitSettingsScalarFieldEnum = (typeof DbFichitSettingsScalarFieldEnum)[keyof typeof DbFichitSettingsScalarFieldEnum]
+
+
 export const DbEstablishmentSettingsScalarFieldEnum = {
   id: 'id',
   establishmentId: 'establishmentId',
@@ -3336,6 +3422,7 @@ export type GlobalOmitConfig = {
   dbUser?: Prisma.DbUserOmit
   dbBetaTester?: Prisma.DbBetaTesterOmit
   dbEstablishment?: Prisma.DbEstablishmentOmit
+  dbFichitSettings?: Prisma.DbFichitSettingsOmit
   dbEstablishmentSettings?: Prisma.DbEstablishmentSettingsOmit
   dbPrinterPairing?: Prisma.DbPrinterPairingOmit
   dbAiUsage?: Prisma.DbAiUsageOmit

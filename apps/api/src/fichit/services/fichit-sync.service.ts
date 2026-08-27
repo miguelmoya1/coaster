@@ -27,12 +27,12 @@ export class FichitSync {
     private readonly repository: FichitRepository,
   ) {}
 
-  public get enabled(): boolean {
-    return this.api.enabled;
+  public enabled(): Promise<boolean> {
+    return this.api.isEnabled();
   }
 
   public async ensureCompany(establishmentId: EstablishmentId): Promise<string | null> {
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return null;
     }
 
@@ -67,7 +67,7 @@ export class FichitSync {
   }
 
   public async ensureEmployee(establishmentId: EstablishmentId, userId: UserId): Promise<string | null> {
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return null;
     }
 
@@ -95,7 +95,7 @@ export class FichitSync {
   }
 
   public async retireEmployee(establishmentId: EstablishmentId, userId: UserId): Promise<void> {
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return;
     }
 
@@ -126,7 +126,7 @@ export class FichitSync {
     }
 
     return {
-      baseUrl: this.api.baseUrl,
+      baseUrl: await this.api.currentBaseUrl(),
       companyId,
       employeeId,
       session: await this.api.openEmployeeSession(companyId, employeeId),
@@ -134,7 +134,7 @@ export class FichitSync {
   }
 
   public async mirrorShift(shiftId: string): Promise<string | null> {
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return null;
     }
 
@@ -163,7 +163,7 @@ export class FichitSync {
   }
 
   public async removeMirroredShift(establishmentId: EstablishmentId, shiftId: string): Promise<void> {
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return;
     }
 
@@ -186,7 +186,7 @@ export class FichitSync {
 
   public async backfill(): Promise<BackfillReport> {
     const report: BackfillReport = { companies: 0, employees: 0, failed: 0 };
-    if (!this.enabled) {
+    if (!(await this.enabled())) {
       return report;
     }
 

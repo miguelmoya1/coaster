@@ -38,6 +38,11 @@ export type DbBetaTester = Prisma.DbBetaTesterModel
  */
 export type DbEstablishment = Prisma.DbEstablishmentModel
 /**
+ * Model DbFichitSettings
+ * 
+ */
+export type DbFichitSettings = Prisma.DbFichitSettingsModel
+/**
  * Model DbEstablishmentSettings
  * 
  */

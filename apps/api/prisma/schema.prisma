@@ -195,6 +195,7 @@ model DbUser {
   createdOrders  DbOrder[]               @relation("OrderCreator")
   betaInvites    DbBetaTester[]          @relation("BetaTesterInviter")
   orderAudits    DbOrderAuditLog[]
+  fichitSettings DbFichitSettings[]      @relation("FichitSettingsEditor")
 
   @@map("User")
 }
@@ -211,30 +212,41 @@ model DbBetaTester {
 }
 
 model DbEstablishment {
-  id                  String                       @id @default(uuid())
-  name                String
-  taxId               String?
-  legalName           String?
-  fiscalAddress       String?
-  fichitCompanyId     String?                      @unique
-  createdAt           DateTime                     @default(now())
-  updatedAt           DateTime                     @updatedAt
-  members             DbEstablishmentMember[]
-  shifts              DbShift[]
-  categories          DbCategory[]
-  tables              DbTable[]
-  orders              DbOrder[]
-  printer             DbPrinterConfig?
-  printJobs           DbPrintJob[]
-  billing             DbEstablishmentSubscription?
-  settings            DbEstablishmentSettings?
-  aiUsage             DbAiUsage[]
-  pairings            DbPrinterPairing[]
-  menus               DbMenu[]
-  invoices            DbInvoice[]
-  orderAudits         DbOrderAuditLog[]
+  id              String                       @id @default(uuid())
+  name            String
+  taxId           String?
+  legalName       String?
+  fiscalAddress   String?
+  fichitCompanyId String?                      @unique
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  members         DbEstablishmentMember[]
+  shifts          DbShift[]
+  categories      DbCategory[]
+  tables          DbTable[]
+  orders          DbOrder[]
+  printer         DbPrinterConfig?
+  printJobs       DbPrintJob[]
+  billing         DbEstablishmentSubscription?
+  settings        DbEstablishmentSettings?
+  aiUsage         DbAiUsage[]
+  pairings        DbPrinterPairing[]
+  menus           DbMenu[]
+  invoices        DbInvoice[]
+  orderAudits     DbOrderAuditLog[]
 
   @@map("Establishment")
+}
+
+model DbFichitSettings {
+  id           String   @id @default("fichit")
+  apiUrl       String?
+  apiKeyCipher String?
+  updatedById  String?
+  updatedBy    DbUser?  @relation("FichitSettingsEditor", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@map("FichitSettings")
 }
 
 model DbEstablishmentSettings {

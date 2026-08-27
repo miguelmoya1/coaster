@@ -35,7 +35,28 @@ adding this module could not break a single existing test.
 ```
 FICHIT_API_URL=https://api.fichit.es
 FICHIT_API_KEY=fk_...
+SETTINGS_ENCRYPTION_KEY=...        # openssl rand -base64 32
 ```
+
+**Las dos primeras son el respaldo.** Lo normal es configurarlo desde el panel, que lo guarda en la
+base de datos y manda sobre el entorno:
+
+```
+GET    /admin/fichit    { enabled, apiUrl, hasApiKey, storedInDatabase, updatedAt }
+PUT    /admin/fichit    { apiUrl, apiKey }
+DELETE /admin/fichit    vuelve al entorno
+```
+
+Rotar la clave es entrar, pegar la nueva y guardar: surte efecto en la siguiente petición, sin
+desplegar y sin reiniciar nada. No hay caché que invalidar porque no hay caché — se lee de la base
+en cada llamada, que junto a una llamada de red no se nota, y así una instancia no puede quedarse
+con la clave vieja mientras otra usa la nueva.
+
+**La clave se guarda cifrada** (AES-256-GCM) con `SETTINGS_ENCRYPTION_KEY`. Un cliente tiene que
+poder presentar su credencial, así que no se puede hashear como hace Fichit con las suyas; y en
+claro sería peor que la variable de entorno, porque un volcado de la base se llevaría la credencial
+que administra todas las empresas. Sin esa variable el panel **falla al guardar** en vez de
+escribirla en claro. Y nunca se devuelve: el panel solo dice si hay una y cuándo se cambió.
 
 **One key per environment.** Beta points at Fichit's beta and holds a beta key; the key that beta
 holds must not be able to touch production data. It goes in the Cloud Run service like the other

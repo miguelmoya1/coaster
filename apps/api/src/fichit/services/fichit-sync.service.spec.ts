@@ -14,7 +14,8 @@ describe('FichitSync', () => {
 
   beforeEach(() => {
     api = {
-      enabled: true,
+      isEnabled: vi.fn().mockResolvedValue(true),
+      currentBaseUrl: vi.fn().mockResolvedValue('https://api.fichit.es'),
       createCompany: vi.fn(),
       syncEmployee: vi.fn(),
       deactivateEmployee: vi.fn(),
@@ -43,7 +44,7 @@ describe('FichitSync', () => {
 
   describe('ensureCompany', () => {
     it('does nothing at all when the integration is off', async () => {
-      api.enabled = false;
+      api.isEnabled.mockResolvedValue(false);
 
       expect(await sync.ensureCompany(establishmentId)).toBeNull();
       expect(repository.establishment).not.toHaveBeenCalled();
@@ -183,7 +184,7 @@ describe('FichitSync', () => {
     });
 
     it('reports nothing when the integration is off', async () => {
-      api.enabled = false;
+      api.isEnabled.mockResolvedValue(false);
 
       expect(await sync.backfill()).toEqual({ companies: 0, employees: 0, failed: 0 });
       expect(repository.establishmentsWithoutCompany).not.toHaveBeenCalled();
@@ -207,8 +208,8 @@ describe('FichitSync handover', () => {
 
   beforeEach(() => {
     api = {
-      enabled: true,
-      baseUrl: 'https://api.fichit.es',
+      isEnabled: vi.fn().mockResolvedValue(true),
+      currentBaseUrl: vi.fn().mockResolvedValue('https://api.fichit.es'),
       createCompany: vi.fn(),
       syncEmployee: vi.fn().mockResolvedValue({ created: false, employee: { id: 'e_1' } }),
       openEmployeeSession: vi.fn().mockResolvedValue({ access_token: 'jwt', refresh_token: 'r' }),
@@ -232,8 +233,7 @@ describe('FichitSync handover', () => {
 
       expect(api.openEmployeeSession).toHaveBeenCalledWith('c_1', 'e_1');
       expect(handover).toMatchObject({
-        baseUrl: 'https://api.fichit.es',
-        companyId: 'c_1',
+          companyId: 'c_1',
         employeeId: 'e_1',
       });
     });
@@ -275,7 +275,8 @@ describe('FichitSync shifts', () => {
 
   beforeEach(() => {
     api = {
-      enabled: true,
+      isEnabled: vi.fn().mockResolvedValue(true),
+      currentBaseUrl: vi.fn().mockResolvedValue('https://api.fichit.es'),
       createShift: vi.fn().mockResolvedValue({ id: 'fs_1' }),
       deleteShift: vi.fn(),
       createCompany: vi.fn(),

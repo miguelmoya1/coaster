@@ -6,6 +6,18 @@ import { Injectable } from '@nestjs/common';
 export class FichitRepository {
   constructor(private readonly _db: DbService) {}
 
+  public async fichitSettings() {
+    return this._db.dbFichitSettings.findUnique({ where: { id: 'fichit' } });
+  }
+
+  public async saveFichitSettings(apiUrl: string | null, apiKeyCipher: string | null, updatedById: string) {
+    await this._db.dbFichitSettings.upsert({
+      where: { id: 'fichit' },
+      create: { id: 'fichit', apiUrl, apiKeyCipher, updatedById },
+      update: { apiUrl, apiKeyCipher, updatedById },
+    });
+  }
+
   public async establishment(establishmentId: EstablishmentId) {
     return this._db.dbEstablishment.findUnique({
       where: { id: establishmentId },

@@ -44,6 +44,7 @@ describe('FichitTimeSheet', () => {
       voidPunch: vi.fn(),
     };
     sync = {
+      enabled: vi.fn().mockResolvedValue(true),
       ensureCompany: vi.fn().mockResolvedValue('c_1'),
       ensureEmployee: vi.fn().mockResolvedValue('e_1'),
     };

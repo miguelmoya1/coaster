@@ -1,14 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ConfigService } from '@nestjs/config';
 import { FichitApi, FichitError } from './fichit-api.service';
+import type { FichitSettings } from './fichit-settings.service';
 
-const config = (values: Record<string, string>) =>
-  ({ get: (key: string) => values[key] }) as unknown as ConfigService;
+const settings = (apiUrl: string, apiKey: string) =>
+  ({ current: async () => ({ apiUrl: apiUrl.replace(/\/+$/, ''), apiKey }) }) as unknown as FichitSettings;
 
-const configured = {
-  FICHIT_API_URL: 'https://api.fichit.es/',
-  FICHIT_API_KEY: 'fk_una_clave',
-};
+const configured = settings('https://api.fichit.es/', 'fk_una_clave');
 
 describe('FichitApi', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -21,17 +18,17 @@ describe('FichitApi', () => {
   const ok = (body: unknown, status = 200) =>
     ({ ok: true, status, text: async () => JSON.stringify(body) }) as Response;
 
-  it('is disabled without a url or a key, so Coaster works with no Fichit in front', () => {
-    expect(new FichitApi(config({})).enabled).toBe(false);
-    expect(new FichitApi(config({ FICHIT_API_URL: 'https://api.fichit.es' })).enabled).toBe(false);
-    expect(new FichitApi(config({ FICHIT_API_KEY: 'fk_1' })).enabled).toBe(false);
-    expect(new FichitApi(config(configured)).enabled).toBe(true);
+  it('is disabled without a url or a key, so Coaster works with no Fichit in front', async () => {
+    expect(await new FichitApi(settings('', '')).isEnabled()).toBe(false);
+    expect(await new FichitApi(settings('https://api.fichit.es', '')).isEnabled()).toBe(false);
+    expect(await new FichitApi(settings('', 'fk_1')).isEnabled()).toBe(false);
+    expect(await new FichitApi(configured).isEnabled()).toBe(true);
   });
 
   it('sends the establishment id as the external id, which is what makes a retry safe', async () => {
     fetchMock.mockResolvedValue(ok({ existing: false, company: { id: 'c_1' } }, 201));
 
-    await new FichitApi(config(configured)).createCompany({
+    await new FichitApi(configured).createCompany({
       externalId: 'est_1',
       name: 'Bar Pepe',
       taxId: null,
@@ -48,7 +45,7 @@ describe('FichitApi', () => {
   it('names the company it acts on when syncing an employee', async () => {
     fetchMock.mockResolvedValue(ok({ created: true, employee: { id: 'e_1' } }, 201));
 
-    await new FichitApi(config(configured)).syncEmployee('c_1', {
+    await new FichitApi(configured).syncEmployee('c_1', {
       externalId: 'usr_1',
       fullName: 'Ana García',
       email: 'ana@ejemplo.es',
@@ -62,7 +59,7 @@ describe('FichitApi', () => {
     fetchMock.mockRejectedValue(new Error('ECONNREFUSED'));
 
     await expect(
-      new FichitApi(config(configured)).listCompanies(),
+      new FichitApi(configured).listCompanies(),
     ).rejects.toMatchObject({ status: 0, code: 'UNREACHABLE' });
   });
 
@@ -74,7 +71,7 @@ describe('FichitApi', () => {
       text: async () => JSON.stringify({ error: { code: 'not_found', message: 'empresa no encontrada' } }),
     } as Response);
 
-    const failure = await new FichitApi(config(configured))
+    const failure = await new FichitApi(configured)
       .syncEmployee('c_1', { externalId: 'usr_1', fullName: 'Ana' })
       .catch((error: unknown) => error);
 
@@ -86,7 +83,7 @@ describe('FichitApi', () => {
     fetchMock.mockResolvedValue({ ok: true, status: 204 } as Response);
 
     await expect(
-      new FichitApi(config(configured)).deactivateEmployee('c_1', 'e_1'),
+      new FichitApi(configured).deactivateEmployee('c_1', 'e_1'),
     ).resolves.toBeUndefined();
   });
 });
