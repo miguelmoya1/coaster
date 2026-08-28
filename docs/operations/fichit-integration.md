@@ -42,9 +42,9 @@ SETTINGS_ENCRYPTION_KEY=...        # openssl rand -base64 32
 base de datos y manda sobre el entorno:
 
 ```
-GET    /admin/fichit    { enabled, apiUrl, hasApiKey, storedInDatabase, updatedAt }
-PUT    /admin/fichit    { apiUrl, apiKey }
-DELETE /admin/fichit    vuelve al entorno
+GET    /api/v1/admin/fichit    { enabled, apiUrl, hasApiKey, storedInDatabase, updatedAt }
+PUT    /api/v1/admin/fichit    { apiUrl, apiKey }
+DELETE /api/v1/admin/fichit    vuelve al entorno
 ```
 
 Rotar la clave es entrar, pegar la nueva y guardar: surte efecto en la siguiente petición, sin
@@ -133,7 +133,7 @@ knows about (`404`) counts as already retired; any other failure is raised so th
 2. Put `FICHIT_API_URL` and `FICHIT_API_KEY` on the Cloud Run service for that environment.
 3. Add the environment's web origins to Fichit's `FICHIT_CORS_ORIGINS`, or the browser will refuse
    the punch before it leaves.
-4. Deploy, then `POST /admin/fichit/backfill` and read the report.
+4. Deploy, then `POST /api/v1/admin/fichit/backfill` and read the report.
 5. Check the numbers against `GET /api/v1/platform/partners/{id}` in Fichit's panel: the count of
    companies and active employees should match what Coaster has.
 6. Clock in from one venue and check the mark landed in Fichit.
@@ -155,7 +155,7 @@ From the worker's browser to Fichit, without passing through Coaster's server. I
 its customers keep meeting their legal duty — which is the whole reason this moved out.
 
 ```
-POST /establishments/:id/time-entries/session   → { baseUrl, companyId, employeeId, session }
+POST /api/v1/establishments/:id/time-entries/session   → { baseUrl, companyId, employeeId, session }
 ```
 
 Coaster mints an **employee** session with its partner key and hands it over; the browser then talks
@@ -180,14 +180,14 @@ checks its own permissions and then calls Fichit with the partner key. **It stor
 maps Fichit's report into the shape the screens already draw and passes it on.
 
 ```
-GET  /establishments/:id/time-entries?from&to[&userId]   the team's days
-GET  /establishments/:id/time-entries/me?from&to         your own
-GET  /establishments/:id/time-entries/punches?from&to    the marks behind them
-GET  /establishments/:id/time-entries/export?from&to     CSV for an inspection
-GET  /establishments/:id/time-entries/integrity          the chain, as Fichit verified it
-POST /establishments/:id/time-entries                    a mark someone forgot
-POST /establishments/:id/time-entries/:punchId/amend
-POST /establishments/:id/time-entries/:punchId/void
+GET  /api/v1/establishments/:id/time-entries?from&to[&userId]   the team's days
+GET  /api/v1/establishments/:id/time-entries/me?from&to         your own
+GET  /api/v1/establishments/:id/time-entries/punches?from&to    the marks behind them
+GET  /api/v1/establishments/:id/time-entries/export?from&to     CSV for an inspection
+GET  /api/v1/establishments/:id/time-entries/integrity          the chain, as Fichit verified it
+POST /api/v1/establishments/:id/time-entries                    a mark someone forgot
+POST /api/v1/establishments/:id/time-entries/:punchId/amend
+POST /api/v1/establishments/:id/time-entries/:punchId/void
 ```
 
 **Why not hand the browser a Fichit admin session too?** Because a Fichit admin session grants
