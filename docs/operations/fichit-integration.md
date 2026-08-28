@@ -102,8 +102,8 @@ so that calling them again on a half-linked record finishes the job. That is wha
 and it is why there is no separate reconciliation logic to keep in step with the creation logic.
 
 ```
-POST /admin/fichit/backfill    → { companies, employees, failed }
-GET  /admin/fichit             → { enabled }
+POST /api/v1/admin/fichit/backfill   → { companies, employees, failed }
+GET  /api/v1/admin/fichit            → { enabled }
 ```
 
 The same endpoint does the **initial** load: establishments that existed before any of this get
