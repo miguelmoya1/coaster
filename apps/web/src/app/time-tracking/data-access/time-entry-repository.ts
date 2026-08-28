@@ -26,7 +26,6 @@ export class TimeEntryRepository {
     export: (establishmentId: EstablishmentId, from: string, to: string, userId?: UserId) =>
       `/establishments/${establishmentId}/time-entries/export?${range(from, to, userId)}`,
     integrity: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/time-entries/integrity`,
-    clock: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/time-entries/clock`,
     create: (establishmentId: EstablishmentId) => `/establishments/${establishmentId}/time-entries`,
     amend: (establishmentId: EstablishmentId, entryId: TimeEntryId) =>
       `/establishments/${establishmentId}/time-entries/${entryId}/amend`,
