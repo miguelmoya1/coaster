@@ -300,7 +300,8 @@
       "role_label": "Role",
       "role_hint_owner": "Full control of the establishment, billing and members included.",
       "role_hint_manager": "Runs catalog, shifts and the printer, but not billing or members.",
-      "role_hint_staff": "Works the floor: orders, payments, tables and stock."
+      "role_hint_staff": "Works the floor: orders, payments, tables and stock.",
+      "extra_seat": "You already fill the {{included}} seats your plan includes. This employee adds {{price}} a month, and will show up on your next invoice."
     },
     "staff": {
       "description": "{{count}} team members",
@@ -894,6 +895,7 @@
   "PRINT_JOB_NOT_FOUND": "The requested print job does not exist.",
   "PRINT_JOB_FAILED": "The ticket could not be printed.",
   "PRINT_JOB_TIMEOUT": "The printer did not respond in time.",
+  "STRIPE_SUBSCRIPTION_SEATS_UPDATE_FAILED": "The number of seats on your subscription could not be updated. Please try again.",
   "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "The subscription could not be cancelled. Please try again.",
   "menu": {
     "title": "Public menu",

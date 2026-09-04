@@ -4,14 +4,16 @@ import { MatButton } from '@angular/material/button';
 import type { EstablishmentRole as EstablishmentRoleType, InviteEstablishmentMemberDto } from '@coaster/common';
 import { EstablishmentRole } from '@coaster/common';
 import { handleErrorFormField } from '@coaster/core';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { MembersStore } from '@coaster/establishment-members';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Field } from '../../../../../../components/field/field';
 import { CoasterInput } from '../../../../../../components/field/input.directive';
+import { PricePipe } from '../../../../pipes/price/price';
 
 @Component({
   selector: 'coaster-invite-member-form',
-  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput],
+  imports: [FormRoot, FormField, MatButton, TranslatePipe, Field, CoasterInput, PricePipe],
   template: `
     <form [formRoot]="form">
       <div class="flex flex-col gap-2 mb-6">
@@ -60,6 +62,17 @@ import { CoasterInput } from '../../../../../../components/field/input.directive
         </p>
       </fieldset>
 
+      @if (extraSeat(); as seat) {
+        <p class="flex items-start gap-2 mt-4 p-3 rounded-2xl bg-primary/5 text-xs text-on-surface-variant">
+          <span>
+            {{
+              'members.invite.extra_seat'
+                | translate: { included: seat.included, price: seat.extraPriceCents | price }
+            }}
+          </span>
+        </p>
+      }
+
       @if (form().errors().length > 0) {
         <div class="flex flex-col gap-1 mt-1 ml-1" role="alert">
           @for (error of form().errors(); track error) {
@@ -91,6 +104,9 @@ export class InviteMemberForm {
   public readonly invited = output<void>();
 
   readonly #membersStore = inject(MembersStore);
+  readonly #subscriptionStore = inject(EstablishmentSubscriptionStore);
+
+  protected readonly extraSeat = this.#subscriptionStore.extraSeatNotice;
 
   protected readonly assignableRoles = Object.values(EstablishmentRole);
   protected readonly selectedRole = signal<EstablishmentRoleType>(EstablishmentRole.STAFF);

@@ -300,7 +300,8 @@
       "role_label": "Rol",
       "role_hint_owner": "Control total del establecimiento, incluida la facturación y los miembros.",
       "role_hint_manager": "Gestiona catálogo, turnos e impresora, pero no la facturación ni los miembros.",
-      "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock."
+      "role_hint_staff": "Opera la sala: pedidos, cobros, mesas y stock.",
+      "extra_seat": "Ya ocupas las {{included}} plazas que incluye tu cuota. Este empleado suma {{price}} al mes, y aparecerá en tu próxima factura."
     },
     "staff": {
       "description": "{{count}} miembros del equipo",
@@ -894,6 +895,7 @@
   "PRINT_JOB_NOT_FOUND": "El trabajo de impresión solicitado no existe.",
   "PRINT_JOB_FAILED": "No se pudo imprimir el ticket.",
   "PRINT_JOB_TIMEOUT": "La impresora no respondió a tiempo.",
+  "STRIPE_SUBSCRIPTION_SEATS_UPDATE_FAILED": "No se pudo actualizar el número de plazas de tu suscripción. Inténtalo de nuevo.",
   "STRIPE_SUBSCRIPTION_CANCEL_FAILED": "No se pudo cancelar la suscripción. Inténtalo de nuevo.",
   "menu": {
     "title": "Carta pública",

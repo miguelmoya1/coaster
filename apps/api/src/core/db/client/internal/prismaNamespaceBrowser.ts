@@ -405,6 +405,7 @@ export const DbEstablishmentSubscriptionScalarFieldEnum = {
   currentPeriodEnd: 'currentPeriodEnd',
   trialEndsAt: 'trialEndsAt',
   canceledAt: 'canceledAt',
+  seats: 'seats',
   manualPlan: 'manualPlan',
   manualGrantExpiresAt: 'manualGrantExpiresAt',
   manualGrantReason: 'manualGrantReason',

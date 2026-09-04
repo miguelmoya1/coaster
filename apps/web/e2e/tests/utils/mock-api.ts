@@ -219,6 +219,28 @@ export async function setupMockApi(page: Page) {
       await route.fallback();
     }
   });
+
+  await page.route('**/api/v1/establishments/*/establishment-subscription/seats', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
+    } else if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ used: 3, billed: 3, included: 10, extraPriceCents: 200 }),
+      });
+    } else {
+      await route.fallback();
+    }
+  });
 }
 
 /**

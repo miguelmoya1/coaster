@@ -18,10 +18,58 @@ describe('StripeApi', () => {
     clientMock = {
       checkout: { sessions: { create: vi.fn() } },
       billingPortal: { sessions: { create: vi.fn() } },
-      subscriptions: { retrieve: vi.fn() },
+      subscriptions: { retrieve: vi.fn(), update: vi.fn() },
     };
 
     stripeApi = new StripeApi({ client: clientMock } as unknown as StripeClient);
+  });
+
+  describe('updateSubscriptionSeats', () => {
+    const subscriptionOn = (priceId: string, quantity: number) => ({
+      id: 'sub_1',
+      items: { data: [{ id: 'si_1', quantity, price: { id: priceId } }] },
+    });
+
+    it('should leave a subscription on another price alone, since a quantity there multiplies a flat fee', async () => {
+      clientMock.subscriptions.retrieve.mockResolvedValue(subscriptionOn('price_flat_legacy', 1));
+
+      await expect(stripeApi.updateSubscriptionSeats('sub_1', 12, 'price_per_seat')).resolves.toBe(false);
+      expect(clientMock.subscriptions.update).not.toHaveBeenCalled();
+    });
+
+    it('should not call Stripe when the quantity already matches', async () => {
+      clientMock.subscriptions.retrieve.mockResolvedValue(subscriptionOn('price_per_seat', 7));
+
+      await expect(stripeApi.updateSubscriptionSeats('sub_1', 7, 'price_per_seat')).resolves.toBe(false);
+      expect(clientMock.subscriptions.update).not.toHaveBeenCalled();
+    });
+
+    it('should move the item quantity and let the difference land on the next invoice', async () => {
+      clientMock.subscriptions.retrieve.mockResolvedValue(subscriptionOn('price_per_seat', 7));
+      clientMock.subscriptions.update.mockResolvedValue({});
+
+      await expect(stripeApi.updateSubscriptionSeats('sub_1', 12, 'price_per_seat')).resolves.toBe(true);
+      expect(clientMock.subscriptions.update).toHaveBeenCalledWith('sub_1', {
+        items: [{ id: 'si_1', quantity: 12 }],
+        proration_behavior: 'create_prorations',
+      });
+    });
+
+    it('should do nothing when the subscription is gone', async () => {
+      clientMock.subscriptions.retrieve.mockRejectedValue(resourceMissing('subscription', 'sub_1'));
+
+      await expect(stripeApi.updateSubscriptionSeats('sub_1', 12, 'price_per_seat')).resolves.toBe(false);
+      expect(clientMock.subscriptions.update).not.toHaveBeenCalled();
+    });
+
+    it('should raise an application error when Stripe refuses the update', async () => {
+      clientMock.subscriptions.retrieve.mockResolvedValue(subscriptionOn('price_per_seat', 7));
+      clientMock.subscriptions.update.mockRejectedValue(new Error('card_declined'));
+
+      await expect(stripeApi.updateSubscriptionSeats('sub_1', 12, 'price_per_seat')).rejects.toThrow(
+        new InternalServerErrorException(ErrorCodes.STRIPE_SUBSCRIPTION_SEATS_UPDATE_FAILED),
+      );
+    });
   });
 
   describe('createCheckoutSession', () => {

@@ -4,6 +4,7 @@ import type {
   EstablishmentSubscription,
   CreateCheckoutSessionResponse,
   CreateCustomerPortalSessionResponse,
+  SubscriptionSeats,
 } from '@coaster/common';
 import { EstablishmentPermission, SubscriptionPlan } from '@coaster/common';
 import { EstablishmentPermissions, EstablishmentPermissionsGuard } from '@coaster/core';
@@ -11,7 +12,7 @@ import { Body, Controller, Get, Logger, Param, Post, UseGuards } from '@nestjs/c
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCheckoutSessionCommand, CreateCustomerPortalSessionCommand } from '../commands';
 import { CreateCheckoutSessionDto, CreateCustomerPortalSessionDto } from '../dto';
-import { FindEstablishmentSubscriptionQuery } from '../queries';
+import { FindEstablishmentSubscriptionQuery, GetSubscriptionSeatsQuery } from '../queries';
 
 @Controller('establishments/:establishmentId/establishment-subscription')
 @UseGuards(FirebaseAuthGuard, EstablishmentPermissionsGuard)
@@ -31,6 +32,12 @@ export class EstablishmentSubscriptionController {
       `[GET /establishments/${establishmentId}/establishment-subscription] Fetching establishment subscription from read repo`,
     );
     return await this._queryBus.execute(new FindEstablishmentSubscriptionQuery(establishmentId));
+  }
+
+  @Get('seats')
+  async getSubscriptionSeats(@Param('establishmentId') establishmentId: EstablishmentId): Promise<SubscriptionSeats> {
+    this._logger.debug(`[GET /establishments/${establishmentId}/establishment-subscription/seats] Counting seats`);
+    return await this._queryBus.execute(new GetSubscriptionSeatsQuery(establishmentId));
   }
 
   @Post('checkout-session')

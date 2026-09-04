@@ -37,6 +37,13 @@ export interface EstablishmentSubscription {
   updatedAt: string;
 }
 
+export interface SubscriptionSeats {
+  used: number;
+  billed: number;
+  included: number;
+  extraPriceCents: number;
+}
+
 export interface CreateCheckoutSessionDto {
   plan: Exclude<SubscriptionPlan, 'FREE'>;
 }

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentRole } from '@coaster/common';
 import { MembersStore } from '@coaster/establishment-members';
+import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -37,6 +38,11 @@ describe('Staff', () => {
     confirm: vi.fn(),
   };
 
+  const subscriptionStoreMock = {
+    isReadOnly: signal(false),
+    reloadSeats: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Staff],
@@ -46,6 +52,7 @@ describe('Staff', () => {
         { provide: MembersStore, useValue: membersStoreMock },
         { provide: MyMemberStore, useValue: myMemberStoreMock },
         { provide: ConfirmationDialog, useValue: confirmationDialogMock },
+        { provide: EstablishmentSubscriptionStore, useValue: subscriptionStoreMock },
       ],
     }).compileComponents();
 

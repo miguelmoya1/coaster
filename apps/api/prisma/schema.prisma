@@ -549,6 +549,7 @@ model DbEstablishmentSubscription {
   currentPeriodEnd     DateTime?
   trialEndsAt          DateTime?
   canceledAt           DateTime?
+  seats                Int                  @default(1)
   manualPlan           DbSubscriptionPlan?
   manualGrantExpiresAt DateTime?
   manualGrantReason    String?

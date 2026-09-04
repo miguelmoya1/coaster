@@ -20,8 +20,18 @@ export type DbEstablishmentSubscriptionModel = runtime.Types.Result.DefaultSelec
 
 export type AggregateDbEstablishmentSubscription = {
   _count: DbEstablishmentSubscriptionCountAggregateOutputType | null
+  _avg: DbEstablishmentSubscriptionAvgAggregateOutputType | null
+  _sum: DbEstablishmentSubscriptionSumAggregateOutputType | null
   _min: DbEstablishmentSubscriptionMinAggregateOutputType | null
   _max: DbEstablishmentSubscriptionMaxAggregateOutputType | null
+}
+
+export type DbEstablishmentSubscriptionAvgAggregateOutputType = {
+  seats: number | null
+}
+
+export type DbEstablishmentSubscriptionSumAggregateOutputType = {
+  seats: number | null
 }
 
 export type DbEstablishmentSubscriptionMinAggregateOutputType = {
@@ -35,6 +45,7 @@ export type DbEstablishmentSubscriptionMinAggregateOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  seats: number | null
   manualPlan: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt: Date | null
   manualGrantReason: string | null
@@ -55,6 +66,7 @@ export type DbEstablishmentSubscriptionMaxAggregateOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  seats: number | null
   manualPlan: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt: Date | null
   manualGrantReason: string | null
@@ -75,6 +87,7 @@ export type DbEstablishmentSubscriptionCountAggregateOutputType = {
   currentPeriodEnd: number
   trialEndsAt: number
   canceledAt: number
+  seats: number
   manualPlan: number
   manualGrantExpiresAt: number
   manualGrantReason: number
@@ -85,6 +98,14 @@ export type DbEstablishmentSubscriptionCountAggregateOutputType = {
   _all: number
 }
 
+
+export type DbEstablishmentSubscriptionAvgAggregateInputType = {
+  seats?: true
+}
+
+export type DbEstablishmentSubscriptionSumAggregateInputType = {
+  seats?: true
+}
 
 export type DbEstablishmentSubscriptionMinAggregateInputType = {
   id?: true
@@ -97,6 +118,7 @@ export type DbEstablishmentSubscriptionMinAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  seats?: true
   manualPlan?: true
   manualGrantExpiresAt?: true
   manualGrantReason?: true
@@ -117,6 +139,7 @@ export type DbEstablishmentSubscriptionMaxAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  seats?: true
   manualPlan?: true
   manualGrantExpiresAt?: true
   manualGrantReason?: true
@@ -137,6 +160,7 @@ export type DbEstablishmentSubscriptionCountAggregateInputType = {
   currentPeriodEnd?: true
   trialEndsAt?: true
   canceledAt?: true
+  seats?: true
   manualPlan?: true
   manualGrantExpiresAt?: true
   manualGrantReason?: true
@@ -185,6 +209,18 @@ export type DbEstablishmentSubscriptionAggregateArgs<ExtArgs extends runtime.Typ
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DbEstablishmentSubscriptionAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DbEstablishmentSubscriptionSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DbEstablishmentSubscriptionMinAggregateInputType
@@ -215,6 +251,8 @@ export type DbEstablishmentSubscriptionGroupByArgs<ExtArgs extends runtime.Types
   take?: number
   skip?: number
   _count?: DbEstablishmentSubscriptionCountAggregateInputType | true
+  _avg?: DbEstablishmentSubscriptionAvgAggregateInputType
+  _sum?: DbEstablishmentSubscriptionSumAggregateInputType
   _min?: DbEstablishmentSubscriptionMinAggregateInputType
   _max?: DbEstablishmentSubscriptionMaxAggregateInputType
 }
@@ -230,6 +268,7 @@ export type DbEstablishmentSubscriptionGroupByOutputType = {
   currentPeriodEnd: Date | null
   trialEndsAt: Date | null
   canceledAt: Date | null
+  seats: number
   manualPlan: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt: Date | null
   manualGrantReason: string | null
@@ -238,6 +277,8 @@ export type DbEstablishmentSubscriptionGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: DbEstablishmentSubscriptionCountAggregateOutputType | null
+  _avg: DbEstablishmentSubscriptionAvgAggregateOutputType | null
+  _sum: DbEstablishmentSubscriptionSumAggregateOutputType | null
   _min: DbEstablishmentSubscriptionMinAggregateOutputType | null
   _max: DbEstablishmentSubscriptionMaxAggregateOutputType | null
 }
@@ -271,6 +312,7 @@ export type DbEstablishmentSubscriptionWhereInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
+  seats?: Prisma.IntFilter<"DbEstablishmentSubscription"> | number
   manualPlan?: Prisma.EnumDbSubscriptionPlanNullableFilter<"DbEstablishmentSubscription"> | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   manualGrantReason?: Prisma.StringNullableFilter<"DbEstablishmentSubscription"> | string | null
@@ -292,6 +334,7 @@ export type DbEstablishmentSubscriptionOrderByWithRelationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  seats?: Prisma.SortOrder
   manualPlan?: Prisma.SortOrderInput | Prisma.SortOrder
   manualGrantExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   manualGrantReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -316,6 +359,7 @@ export type DbEstablishmentSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
+  seats?: Prisma.IntFilter<"DbEstablishmentSubscription"> | number
   manualPlan?: Prisma.EnumDbSubscriptionPlanNullableFilter<"DbEstablishmentSubscription"> | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.DateTimeNullableFilter<"DbEstablishmentSubscription"> | Date | string | null
   manualGrantReason?: Prisma.StringNullableFilter<"DbEstablishmentSubscription"> | string | null
@@ -337,6 +381,7 @@ export type DbEstablishmentSubscriptionOrderByWithAggregationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   canceledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  seats?: Prisma.SortOrder
   manualPlan?: Prisma.SortOrderInput | Prisma.SortOrder
   manualGrantExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   manualGrantReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -345,8 +390,10 @@ export type DbEstablishmentSubscriptionOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DbEstablishmentSubscriptionCountOrderByAggregateInput
+  _avg?: Prisma.DbEstablishmentSubscriptionAvgOrderByAggregateInput
   _max?: Prisma.DbEstablishmentSubscriptionMaxOrderByAggregateInput
   _min?: Prisma.DbEstablishmentSubscriptionMinOrderByAggregateInput
+  _sum?: Prisma.DbEstablishmentSubscriptionSumOrderByAggregateInput
 }
 
 export type DbEstablishmentSubscriptionScalarWhereWithAggregatesInput = {
@@ -363,6 +410,7 @@ export type DbEstablishmentSubscriptionScalarWhereWithAggregatesInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | Date | string | null
   canceledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | Date | string | null
+  seats?: Prisma.IntWithAggregatesFilter<"DbEstablishmentSubscription"> | number
   manualPlan?: Prisma.EnumDbSubscriptionPlanNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | Date | string | null
   manualGrantReason?: Prisma.StringNullableWithAggregatesFilter<"DbEstablishmentSubscription"> | string | null
@@ -382,6 +430,7 @@ export type DbEstablishmentSubscriptionCreateInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  seats?: number
   manualPlan?: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Date | string | null
   manualGrantReason?: string | null
@@ -403,6 +452,7 @@ export type DbEstablishmentSubscriptionUncheckedCreateInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  seats?: number
   manualPlan?: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Date | string | null
   manualGrantReason?: string | null
@@ -422,6 +472,7 @@ export type DbEstablishmentSubscriptionUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -443,6 +494,7 @@ export type DbEstablishmentSubscriptionUncheckedUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -463,6 +515,7 @@ export type DbEstablishmentSubscriptionCreateManyInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  seats?: number
   manualPlan?: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Date | string | null
   manualGrantReason?: string | null
@@ -482,6 +535,7 @@ export type DbEstablishmentSubscriptionUpdateManyMutationInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -502,6 +556,7 @@ export type DbEstablishmentSubscriptionUncheckedUpdateManyInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -527,6 +582,7 @@ export type DbEstablishmentSubscriptionCountOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  seats?: Prisma.SortOrder
   manualPlan?: Prisma.SortOrder
   manualGrantExpiresAt?: Prisma.SortOrder
   manualGrantReason?: Prisma.SortOrder
@@ -534,6 +590,10 @@ export type DbEstablishmentSubscriptionCountOrderByAggregateInput = {
   manualGrantedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type DbEstablishmentSubscriptionAvgOrderByAggregateInput = {
+  seats?: Prisma.SortOrder
 }
 
 export type DbEstablishmentSubscriptionMaxOrderByAggregateInput = {
@@ -547,6 +607,7 @@ export type DbEstablishmentSubscriptionMaxOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  seats?: Prisma.SortOrder
   manualPlan?: Prisma.SortOrder
   manualGrantExpiresAt?: Prisma.SortOrder
   manualGrantReason?: Prisma.SortOrder
@@ -567,6 +628,7 @@ export type DbEstablishmentSubscriptionMinOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   canceledAt?: Prisma.SortOrder
+  seats?: Prisma.SortOrder
   manualPlan?: Prisma.SortOrder
   manualGrantExpiresAt?: Prisma.SortOrder
   manualGrantReason?: Prisma.SortOrder
@@ -574,6 +636,10 @@ export type DbEstablishmentSubscriptionMinOrderByAggregateInput = {
   manualGrantedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type DbEstablishmentSubscriptionSumOrderByAggregateInput = {
+  seats?: Prisma.SortOrder
 }
 
 export type DbEstablishmentSubscriptionCreateNestedOneWithoutEstablishmentInput = {
@@ -630,6 +696,7 @@ export type DbEstablishmentSubscriptionCreateWithoutEstablishmentInput = {
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  seats?: number
   manualPlan?: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Date | string | null
   manualGrantReason?: string | null
@@ -649,6 +716,7 @@ export type DbEstablishmentSubscriptionUncheckedCreateWithoutEstablishmentInput 
   currentPeriodEnd?: Date | string | null
   trialEndsAt?: Date | string | null
   canceledAt?: Date | string | null
+  seats?: number
   manualPlan?: $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Date | string | null
   manualGrantReason?: string | null
@@ -684,6 +752,7 @@ export type DbEstablishmentSubscriptionUpdateWithoutEstablishmentInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -703,6 +772,7 @@ export type DbEstablishmentSubscriptionUncheckedUpdateWithoutEstablishmentInput 
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   canceledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  seats?: Prisma.IntFieldUpdateOperationsInput | number
   manualPlan?: Prisma.NullableEnumDbSubscriptionPlanFieldUpdateOperationsInput | $Enums.DbSubscriptionPlan | null
   manualGrantExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   manualGrantReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -725,6 +795,7 @@ export type DbEstablishmentSubscriptionSelect<ExtArgs extends runtime.Types.Exte
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  seats?: boolean
   manualPlan?: boolean
   manualGrantExpiresAt?: boolean
   manualGrantReason?: boolean
@@ -746,6 +817,7 @@ export type DbEstablishmentSubscriptionSelectCreateManyAndReturn<ExtArgs extends
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  seats?: boolean
   manualPlan?: boolean
   manualGrantExpiresAt?: boolean
   manualGrantReason?: boolean
@@ -767,6 +839,7 @@ export type DbEstablishmentSubscriptionSelectUpdateManyAndReturn<ExtArgs extends
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  seats?: boolean
   manualPlan?: boolean
   manualGrantExpiresAt?: boolean
   manualGrantReason?: boolean
@@ -788,6 +861,7 @@ export type DbEstablishmentSubscriptionSelectScalar = {
   currentPeriodEnd?: boolean
   trialEndsAt?: boolean
   canceledAt?: boolean
+  seats?: boolean
   manualPlan?: boolean
   manualGrantExpiresAt?: boolean
   manualGrantReason?: boolean
@@ -797,7 +871,7 @@ export type DbEstablishmentSubscriptionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DbEstablishmentSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "canceledAt" | "manualPlan" | "manualGrantExpiresAt" | "manualGrantReason" | "manualGrantedById" | "manualGrantedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishmentSubscription"]>
+export type DbEstablishmentSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "establishmentId" | "plan" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "canceledAt" | "seats" | "manualPlan" | "manualGrantExpiresAt" | "manualGrantReason" | "manualGrantedById" | "manualGrantedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dbEstablishmentSubscription"]>
 export type DbEstablishmentSubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   establishment?: boolean | Prisma.DbEstablishmentDefaultArgs<ExtArgs>
 }
@@ -824,6 +898,7 @@ export type $DbEstablishmentSubscriptionPayload<ExtArgs extends runtime.Types.Ex
     currentPeriodEnd: Date | null
     trialEndsAt: Date | null
     canceledAt: Date | null
+    seats: number
     manualPlan: $Enums.DbSubscriptionPlan | null
     manualGrantExpiresAt: Date | null
     manualGrantReason: string | null
@@ -1265,6 +1340,7 @@ export interface DbEstablishmentSubscriptionFieldRefs {
   readonly currentPeriodEnd: Prisma.FieldRef<"DbEstablishmentSubscription", 'DateTime'>
   readonly trialEndsAt: Prisma.FieldRef<"DbEstablishmentSubscription", 'DateTime'>
   readonly canceledAt: Prisma.FieldRef<"DbEstablishmentSubscription", 'DateTime'>
+  readonly seats: Prisma.FieldRef<"DbEstablishmentSubscription", 'Int'>
   readonly manualPlan: Prisma.FieldRef<"DbEstablishmentSubscription", 'DbSubscriptionPlan'>
   readonly manualGrantExpiresAt: Prisma.FieldRef<"DbEstablishmentSubscription", 'DateTime'>
   readonly manualGrantReason: Prisma.FieldRef<"DbEstablishmentSubscription", 'String'>

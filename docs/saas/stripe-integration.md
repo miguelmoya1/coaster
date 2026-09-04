@@ -39,6 +39,7 @@ layer existed and was removed — it only forwarded events to a single place.
 - `POST /api/v1/establishments/:establishmentId/establishment-subscription/checkout-session`
 - `POST /api/v1/establishments/:establishmentId/establishment-subscription/customer-portal-session`
 - `GET  /api/v1/establishments/:establishmentId/establishment-subscription`
+- `GET  /api/v1/establishments/:establishmentId/establishment-subscription/seats`
 - `POST /api/v1/stripe/webhook`
 
 ## Webhook security and idempotency
@@ -88,14 +89,49 @@ somebody notices.
 
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_PRO` — the price new checkouts are sold at
+- `STRIPE_PRICE_PRO` — the price new checkouts are sold at, and **the only price seats are ever pushed to**
 - `STRIPE_PRICE_PRO_LEGACY` — optional, comma separated: prices sold before it that still count as Pro
+- `PRO_INCLUDED_SEATS` — how many staff the flat fee covers, for display only (default 10)
+- `PRO_EXTRA_SEAT_PRICE_CENTS` — what one seat beyond that costs, for display only (default 200)
 - `FRONTEND_URL`
+
+## Seats
+
+The Pro price is **graduated**: one tier with a `flat_amount` covering the first `PRO_INCLUDED_SEATS`
+staff, and a second tier charging `unit_amount` for each one beyond. The subscription item's
+`quantity` is the number of active members of the venue, and Stripe does the arithmetic — there is
+no second line item and no per-seat price of our own.
+
+That means **`quantity` means something different on the current price than on any older one**. A
+legacy Pro price is flat and licensed: a quantity of 12 there charges twelve times the monthly fee.
+`StripeApi.updateSubscriptionSeats` therefore looks the item up by price id and refuses to touch a
+subscription that has no item on `STRIPE_PRICE_PRO`. Never widen that: seats are only ever pushed to
+the price they are billed at.
+
+The count is `EstablishmentMember` rows that are `active` and not soft-deleted, owner included, with
+a floor of one. `SyncSubscriptionSeatsHandler` compares it against the `seats` column — the last
+quantity Stripe reported — and only calls Stripe when they differ. It runs on `MemberInvitedEvent`
+and `MemberRemovedEvent`, and the `seats` column itself is written from the webhook like every other
+column of that table.
+
+Changes are `create_prorations`: adding a seat mid-period does not charge anything now, it lands
+prorated on the next invoice. That is what the invite dialog tells the owner before they confirm.
+Nothing is ever blocked for being over the allowance.
+
+If the Stripe call fails, the handler logs an error and gives up rather than failing the invitation —
+the member already exists. Nothing retries it, so the venue keeps being billed the old number of
+seats until the next staff change, and that log line is the only notice. `PRO_INCLUDED_SEATS` and
+`PRO_EXTRA_SEAT_PRICE_CENTS` mirror the Stripe tiers for the copy shown to the owner; the money
+itself comes from the tiers, so drift there is a wrong label, never a wrong charge.
+
+A venue still on a legacy flat price is shown the allowance too, which is meaningless for it. That
+is left alone deliberately: the legacy set is closed, and it is a label, not a charge.
 
 ## Tax
 
 The Pro price is **tax exclusive**: Checkout runs with `automatic_tax`, asks for a billing address
-and offers a tax id field, and Stripe adds the VAT of the customer's country on top of the 19,99 €.
+and offers a tax id field, and Stripe adds the VAT of the customer's country on top of the tiered
+total — the 19,99 € flat tier plus whatever the seats beyond the allowance come to.
 Stripe Tax has to be active and registered in the dashboard — separately in test and in live mode —
 or `checkout.sessions.create` fails outright.
 
@@ -103,6 +139,10 @@ Raising the price means creating a new one in Stripe, never editing the old: a p
 once a subscription points at it. Move `STRIPE_PRICE_PRO` to the new id and push the old one into
 `STRIPE_PRICE_PRO_LEGACY`, or every subscriber still on it is projected as `FREE` the next time a
 webhook mentions their subscription, and loses Pro without anybody touching their account.
+
+Changing the allowance or what an extra seat costs is the same operation — the tiers live on the
+price and a price is immutable — so move `PRO_INCLUDED_SEATS` and `PRO_EXTRA_SEAT_PRICE_CENTS` in
+the same breath as `STRIPE_PRICE_PRO`. Subscribers on the old price keep the tiers they bought.
 
 ## Handled events
 

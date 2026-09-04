@@ -16,6 +16,8 @@ export class EstablishmentSubscriptionRepository {
   public readonly routes = {
     getSubscription: (establishmentId: EstablishmentId) =>
       `/establishments/${establishmentId}/establishment-subscription`,
+    getSeats: (establishmentId: EstablishmentId) =>
+      `/establishments/${establishmentId}/establishment-subscription/seats`,
     createCheckoutSession: (establishmentId: EstablishmentId) =>
       `/establishments/${establishmentId}/establishment-subscription/checkout-session`,
     createCustomerPortalSession: (establishmentId: EstablishmentId) =>

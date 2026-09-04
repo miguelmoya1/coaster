@@ -1,10 +1,11 @@
 import { httpResource } from '@angular/common/http';
 import { computed, effect, inject, Service, signal } from '@angular/core';
-import type { EstablishmentId } from '@coaster/common';
+import type { EstablishmentId, SubscriptionSeats as SubscriptionSeatsInfo } from '@coaster/common';
 import { SubscriptionPlan, SubscriptionStatus } from '@coaster/common';
 import { Realtime } from '@coaster/core';
 import { establishmentSubscriptionMapper } from '../mappers/establishment-subscription.mapper';
 import { EstablishmentSubscription } from '../services/establishment-subscription';
+import { SubscriptionSeats } from '../services/subscription-seats';
 import { CreateCheckoutSession } from '../services/create-checkout-session';
 import { CreateCustomerPortalSession } from '../services/create-customer-portal-session';
 
@@ -20,6 +21,7 @@ export class EstablishmentSubscriptionStore {
   readonly #currentEstablishmentId = signal<EstablishmentId | undefined>(undefined);
   readonly #isOpeningBillingPortal = signal(false);
   readonly #establishmentSubscription = inject(EstablishmentSubscription);
+  readonly #subscriptionSeats = inject(SubscriptionSeats);
   readonly #createCustomerPortalSession = inject(CreateCustomerPortalSession);
   readonly #createCheckoutSession = inject(CreateCheckoutSession);
   readonly #realtime = inject(Realtime);
@@ -33,7 +35,22 @@ export class EstablishmentSubscriptionStore {
     },
   );
 
+  readonly #seatsResource = httpResource<SubscriptionSeatsInfo>(() =>
+    this.#subscriptionSeats.execute(this.#currentEstablishmentId()),
+  );
+
   public readonly subscription = this.#subscriptionResource.asReadonly();
+  public readonly seats = this.#seatsResource.asReadonly();
+
+  readonly #currentSeats = computed(() =>
+    this.#seatsResource.hasValue() ? this.#seatsResource.value() : undefined,
+  );
+
+  public readonly extraSeatNotice = computed(() => {
+    const seats = this.#currentSeats();
+
+    return seats && seats.used >= seats.included ? seats : undefined;
+  });
 
   readonly #currentSubscription = computed(() =>
     this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
@@ -123,6 +140,10 @@ export class EstablishmentSubscriptionStore {
 
   public reloadSubscription() {
     this.#subscriptionResource.reload();
+  }
+
+  public reloadSeats() {
+    this.#seatsResource.reload();
   }
 
   public async createCustomerPortalSession(): Promise<string | undefined> {

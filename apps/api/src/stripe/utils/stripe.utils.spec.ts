@@ -3,7 +3,16 @@ import { DbSubscriptionPlan, DbSubscriptionStatus } from '@coaster/core/db';
 import { InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createIntegrationIdentifier, describeStripeError, getPriceId, toDbPlan, toDbStatus } from './stripe.utils';
+import {
+  createIntegrationIdentifier,
+  describeStripeError,
+  getExtraSeatPriceCents,
+  getIncludedSeats,
+  getPriceId,
+  toDbPlan,
+  toDbStatus,
+  toSubscriptionSnapshot,
+} from './stripe.utils';
 
 describe('stripe.utils', () => {
   let configServiceMock: any;
@@ -110,6 +119,60 @@ describe('stripe.utils', () => {
     it('should keep the coaster_subscription_ shape', () => {
       expect(createIntegrationIdentifier('seed')).toMatch(/^coaster_subscription_[a-z]{8}$/);
       expect(createIntegrationIdentifier()).toMatch(/^coaster_subscription_[a-z]{8}$/);
+    });
+  });
+
+  describe('seat allowance', () => {
+    const withEnv = (env: Record<string, string | undefined>) => ({
+      get: vi.fn().mockImplementation((key: string) => env[key]),
+    });
+
+    it('should fall back to ten included seats at two euros each when nothing is configured', () => {
+      const config = withEnv({}) as any;
+
+      expect(getIncludedSeats(config)).toBe(10);
+      expect(getExtraSeatPriceCents(config)).toBe(200);
+    });
+
+    it('should read the configured values, which arrive from the environment as strings', () => {
+      const config = withEnv({ PRO_INCLUDED_SEATS: '5', PRO_EXTRA_SEAT_PRICE_CENTS: '300' }) as any;
+
+      expect(getIncludedSeats(config)).toBe(5);
+      expect(getExtraSeatPriceCents(config)).toBe(300);
+    });
+
+    it('should ignore a value that is not a positive whole number rather than bill from it', () => {
+      const config = withEnv({ PRO_INCLUDED_SEATS: '', PRO_EXTRA_SEAT_PRICE_CENTS: 'gratis' }) as any;
+
+      expect(getIncludedSeats(config)).toBe(10);
+      expect(getExtraSeatPriceCents(config)).toBe(200);
+    });
+  });
+
+  describe('toSubscriptionSnapshot', () => {
+    const subscriptionWith = (item: Record<string, unknown>) =>
+      ({
+        id: 'sub_1',
+        status: 'active',
+        items: { data: [item] },
+      }) as unknown as Stripe.Subscription;
+
+    it('should carry the item quantity across as the seats being billed', () => {
+      const snapshot = toSubscriptionSnapshot(
+        subscriptionWith({ quantity: 12, price: { id: 'price_pro_123' } }),
+        configServiceMock,
+      );
+
+      expect(snapshot.seats).toBe(12);
+    });
+
+    it('should read a subscription without a quantity as one seat', () => {
+      const snapshot = toSubscriptionSnapshot(
+        subscriptionWith({ price: { id: 'price_pro_123' } }),
+        configServiceMock,
+      );
+
+      expect(snapshot.seats).toBe(1);
     });
   });
 
