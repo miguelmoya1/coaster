@@ -28,8 +28,9 @@ In the [Stripe Dashboard](https://dashboard.stripe.com/), in **Test mode**:
 3. Copy the generated price id (`price_...`).
 
 The quantity on that price is the venue's headcount, so the tiers are what actually charges the
-supplement — `PRO_INCLUDED_SEATS` and `PRO_EXTRA_SEAT_PRICE_CENTS` only mirror them for the copy the
-owner reads. Keep the three in step.
+supplement — the three `PRO_*` variables only mirror them for the copy the owner reads, and the
+public landing repeats them again in its own code. Keep all of them in step; the rundown of which
+surface reads what is in [Stripe integration](stripe-integration.md).
 
 ### 2. Enable the Customer Portal
 
@@ -43,6 +44,7 @@ In `apps/api/.env` (copy `.env_example` if it does not exist):
 ```env
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_PRICE_PRO="price_..."
+PRO_BASE_PRICE_CENTS="1999"
 PRO_INCLUDED_SEATS="10"
 PRO_EXTRA_SEAT_PRICE_CENTS="200"
 FRONTEND_URL="http://localhost:4200"
@@ -132,6 +134,7 @@ Open the endpoint and reveal its **signing secret** (`whsec_...`).
 ```env
 STRIPE_SECRET_KEY="sk_live_..."
 STRIPE_PRICE_PRO="price_..."
+PRO_BASE_PRICE_CENTS="1999"
 PRO_INCLUDED_SEATS="10"
 PRO_EXTRA_SEAT_PRICE_CENTS="200"
 STRIPE_WEBHOOK_SECRET="whsec_..."

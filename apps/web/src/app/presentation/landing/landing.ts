@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
+import { MoneyFormatterService } from '@coaster/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface ModuleCard {
@@ -15,6 +16,10 @@ interface Step {
   titleKey: string;
   descKey: string;
 }
+
+const BASE_PRICE_CENTS = 1999;
+const INCLUDED_SEATS = 10;
+const EXTRA_SEAT_PRICE_CENTS = 200;
 
 @Component({
   selector: 'coaster-landing',
@@ -180,16 +185,50 @@ interface Step {
               <p class="text-sm text-slate-300 leading-relaxed">{{ 'landing.pricing.trial_desc' | translate }}</p>
             </div>
 
-            <div class="flex items-baseline gap-2 border-t border-white/10 pt-6">
-              <span class="text-sm text-slate-400">{{ 'landing.pricing.then' | translate }}</span>
-              <span class="text-3xl sm:text-4xl font-black tabular-nums text-primary">
-                {{ 'landing.pricing.price' | translate }}
-              </span>
-              <span class="text-sm text-slate-400">{{ 'landing.pricing.period' | translate }}</span>
-              <span class="text-sm font-semibold text-slate-300">{{ 'landing.pricing.tax' | translate }}</span>
+            <div class="border-t border-white/10 pt-6 flex flex-col gap-2">
+              <div class="flex items-baseline gap-2 flex-wrap">
+                <span class="text-sm text-slate-400">{{ 'landing.pricing.then' | translate }}</span>
+                <span class="text-3xl sm:text-4xl font-black tabular-nums text-primary">
+                  {{ 'landing.pricing.price' | translate }}
+                </span>
+                <span class="text-sm text-slate-400">{{ 'landing.pricing.period' | translate }}</span>
+                <span class="text-sm font-semibold text-slate-300">{{ 'landing.pricing.tax' | translate }}</span>
+              </div>
+
+              <p class="text-sm font-semibold text-white">{{ 'landing.pricing.included_seats' | translate }}</p>
+              <p class="text-xs text-slate-400">{{ 'landing.pricing.price_note' | translate }}</p>
             </div>
 
-            <p class="-mt-4 text-xs text-slate-400">{{ 'landing.pricing.price_note' | translate }}</p>
+            <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-2">
+              <p class="text-sm font-semibold text-white">{{ 'landing.pricing.extra_title' | translate }}</p>
+              <p class="text-sm text-slate-300 leading-relaxed">{{ 'landing.pricing.extra_desc' | translate }}</p>
+
+              <table class="mt-1 w-full text-sm tabular-nums">
+                <caption class="sr-only">{{ 'landing.pricing.extra_table_caption' | translate }}</caption>
+                <thead>
+                  <tr class="text-xs uppercase tracking-wide text-slate-400">
+                    <th scope="col" class="text-left font-semibold py-1">
+                      {{ 'landing.pricing.extra_col_staff' | translate }}
+                    </th>
+                    <th scope="col" class="text-right font-semibold py-1">
+                      {{ 'landing.pricing.extra_col_price' | translate }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of priceExamples; track row.staff) {
+                    <tr class="border-t border-white/5">
+                      <th scope="row" class="text-left font-normal text-slate-300 py-1.5">
+                        {{ 'landing.pricing.extra_row_staff' | translate: { count: row.staff } }}
+                      </th>
+                      <td class="text-right font-semibold text-white py-1.5">{{ row.price }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+
+              <p class="text-xs text-slate-400">{{ 'landing.pricing.extra_note' | translate }}</p>
+            </div>
 
             <ul class="flex flex-col gap-2 text-sm text-slate-300">
               @for (feature of planFeatures; track feature) {
@@ -269,6 +308,13 @@ export default class Landing {
     { titleKey: 'landing.how.step2_title', descKey: 'landing.how.step2_desc' },
     { titleKey: 'landing.how.step3_title', descKey: 'landing.how.step3_desc' },
   ];
+
+  readonly #money = inject(MoneyFormatterService);
+
+  protected readonly priceExamples = [5, 10, 12, 20].map((staff) => ({
+    staff,
+    price: this.#money.format(BASE_PRICE_CENTS + Math.max(0, staff - INCLUDED_SEATS) * EXTRA_SEAT_PRICE_CENTS),
+  }));
 
   protected readonly planFeatures = [
     'landing.pricing.feature1',

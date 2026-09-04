@@ -41,6 +41,7 @@ export interface SubscriptionSeats {
   used: number;
   billed: number;
   included: number;
+  basePriceCents: number;
   extraPriceCents: number;
 }
 

@@ -24,7 +24,7 @@ describe('GetSubscriptionSeatsHandler (establishment-subscription)', () => {
   it('should report the staff in the venue apart from the seats Stripe is charging for', async () => {
     const seats = await handler.execute(new GetSubscriptionSeatsQuery(establishmentId));
 
-    expect(seats).toEqual({ used: 7, billed: 5, included: 10, extraPriceCents: 200 });
+    expect(seats).toEqual({ used: 7, billed: 5, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
   });
 
   it('should report nothing billed for an establishment that never subscribed', async () => {

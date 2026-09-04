@@ -91,6 +91,7 @@ somebody notices.
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRICE_PRO` — the price new checkouts are sold at, and **the only price seats are ever pushed to**
 - `STRIPE_PRICE_PRO_LEGACY` — optional, comma separated: prices sold before it that still count as Pro
+- `PRO_BASE_PRICE_CENTS` — the flat tier, for display only (default 1999)
 - `PRO_INCLUDED_SEATS` — how many staff the flat fee covers, for display only (default 10)
 - `PRO_EXTRA_SEAT_PRICE_CENTS` — what one seat beyond that costs, for display only (default 200)
 - `FRONTEND_URL`
@@ -126,6 +127,23 @@ itself comes from the tiers, so drift there is a wrong label, never a wrong char
 
 A venue still on a legacy flat price is shown the allowance too, which is meaningless for it. That
 is left alone deliberately: the legacy set is closed, and it is a label, not a charge.
+
+## Where the price is written down for a human to read
+
+The tiers in Stripe are what charges. Three surfaces repeat them, and they are the places to change
+when the price moves:
+
+| Surface | Where the numbers come from |
+| :--- | :--- |
+| The plan dialog and the staff list, inside the app | `GET …/establishment-subscription/seats`, i.e. the three `PRO_*` variables |
+| The invite dialog's warning | the same endpoint |
+| The public landing at `/` | hardcoded — `BASE_PRICE_CENTS` and friends in `landing.ts`, plus `landing.pricing.*` in the i18n files |
+
+The landing is static because it is served to people who have no establishment and no token, so
+there is nothing to ask the API about. It is the one that goes stale silently, and the one a
+customer reads before deciding, so change it first. `landing.spec.ts` pins the four amounts in its
+table against the arithmetic, which catches a table edited by hand but not a price changed in
+Stripe alone.
 
 ## Tax
 

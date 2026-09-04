@@ -43,7 +43,7 @@ describe('PosCart', () => {
   describe('collapsed bar', () => {
     it('should show the total units and amount without the item list', () => {
       expect(query('[data-testid="cart-toggle"]').textContent).toContain('3');
-      expect(fixture.nativeElement.textContent).toContain('€6.50');
+      expect(fixture.nativeElement.textContent).toContain('6,50\u00A0€');
       expect(query('[data-testid="item-notes-btn"]')).toBeNull();
     });
 

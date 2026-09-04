@@ -5,6 +5,7 @@ import { MyMemberStore } from '@coaster/establishment-members';
 import { EstablishmentRole } from '@coaster/common';
 import { MembersStore } from '@coaster/establishment-members';
 import { EstablishmentSubscriptionStore } from '@coaster/establishment-subscription';
+
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfirmationDialog } from '../../../../components/confirm-dialog/confirmation-dialog.service';
@@ -38,12 +39,28 @@ describe('Staff', () => {
     confirm: vi.fn(),
   };
 
+  const seatSummary = signal<
+    | {
+        used: number;
+        billed: number;
+        included: number;
+        basePriceCents: number;
+        extraPriceCents: number;
+        extraSeats: number;
+        monthlyTotalCents: number;
+      }
+    | undefined
+  >(undefined);
+
   const subscriptionStoreMock = {
     isReadOnly: signal(false),
     reloadSeats: vi.fn(),
+    seatSummary,
   };
 
   beforeEach(async () => {
+    seatSummary.set(undefined);
+
     await TestBed.configureTestingModule({
       imports: [Staff],
       providers: [
@@ -66,6 +83,45 @@ describe('Staff', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('the seat counter', () => {
+    it('should say nothing until the seats are known', () => {
+      expect(fixture.nativeElement.textContent).not.toContain('members.staff.seats_used');
+    });
+
+    it('should show the plan a venue inside its allowance is paying', async () => {
+      seatSummary.set({
+        used: 4,
+        billed: 4,
+        included: 10,
+        basePriceCents: 1999,
+        extraPriceCents: 200,
+        extraSeats: 0,
+        monthlyTotalCents: 1999,
+      });
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.textContent).toContain('members.staff.seats_used');
+      expect(fixture.nativeElement.textContent).toContain('members.staff.seats_within');
+      expect(component['seats']()?.monthlyTotal).toBe('19,99\u00A0€');
+    });
+
+    it('should price the staff a venue has beyond the allowance', async () => {
+      seatSummary.set({
+        used: 14,
+        billed: 14,
+        included: 10,
+        basePriceCents: 1999,
+        extraPriceCents: 200,
+        extraSeats: 4,
+        monthlyTotalCents: 2799,
+      });
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.textContent).toContain('members.staff.seats_over');
+      expect(component['seats']()?.monthlyTotal).toBe('27,99\u00A0€');
+    });
   });
 
   describe('establishmentId input', () => {

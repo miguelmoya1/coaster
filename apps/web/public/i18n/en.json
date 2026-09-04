@@ -306,7 +306,10 @@
     "staff": {
       "description": "{{count}} team members",
       "no_members": "No members in the team",
-      "title": "Staff Roster"
+      "title": "Staff Roster",
+      "seats_used": "{{used}} of {{included}} included seats",
+      "seats_within": "Your plan: {{total}} a month + VAT",
+      "seats_over": "{{extra}} beyond the included ones · {{total}} a month + VAT"
     },
     "change_role": "Change role",
     "role_dialog": {
@@ -585,7 +588,7 @@
     "activate_pro_subtitle": "Get full access to all advanced Coaster Pro features",
     "manage_billing": "Manage subscription and invoices",
     "monthly_title": "Coaster Pro Plan",
-    "monthly_subtitle": "Full access to all features without limits",
+    "monthly_subtitle": "Every feature, with no cap on orders or employees",
     "monthly_feat_1": "Full access to Pro features",
     "monthly_feat_2": "Order and inventory management",
     "continue_to_checkout": "Continue to checkout",
@@ -619,7 +622,13 @@
     },
     "renews_on": "Renews on {{date}}",
     "cancels_on": "Cancels on {{date}}",
-    "action_unavailable": "Action unavailable: subscription or trial has ended"
+    "action_unavailable": "Action unavailable: subscription or trial has ended",
+    "seats": {
+      "your_staff": "Your team: {{count}} people",
+      "breakdown_within": "Flat price up to {{included}} employees. Past that, {{each}} a month each.",
+      "breakdown_over": "{{base}} for the first {{included}} + {{extra}} × {{each}} for the ones beyond.",
+      "tax_note": "VAT on top. If your team changes, the difference is settled on the next invoice."
+    }
   },
   "landing": {
     "nav": {
@@ -665,7 +674,7 @@
     "pricing": {
       "tag": "Pricing",
       "title": "Try it for 14 days. No card.",
-      "subtitle": "One plan, everything included. If it fits, you stay; if not, you pay nothing.",
+      "subtitle": "One plan, everything included. A flat price up to 10 employees, and if you are more, you know beforehand.",
       "trial_badge": "14 days free",
       "trial_title": "The full thing",
       "trial_desc": "You get everything from minute one: time tracking, orders and inventory. We do not ask for a card to start.",
@@ -677,9 +686,17 @@
       "feature1": "Time tracking with an export for inspections",
       "feature2": "Orders, payments and printing, unlimited",
       "feature3": "Inventory with stock alerts",
-      "feature4": "Unlimited team and users",
+      "feature4": "No cap on employees: 10 included, then €2 a month each",
       "cta": "Start the 14 days",
-      "note": "Cancel whenever. If you stop paying we delete nothing: you keep access to read your history and your working-time records."
+      "note": "Cancel whenever. If you stop paying we delete nothing: you keep access to read your history and your working-time records.",
+      "included_seats": "Up to 10 employees included at that price",
+      "extra_title": "More than 10 of you?",
+      "extra_desc": "Every employee past the tenth adds €2 a month. Nothing is ever blocked: add whoever you need, and you see what it adds before confirming.",
+      "extra_table_caption": "Monthly price by number of employees",
+      "extra_col_staff": "Employees",
+      "extra_col_price": "Per month",
+      "extra_row_staff": "{{count}} employees",
+      "extra_note": "Amounts exclude VAT. It counts the staff registered in the app, yourself included."
     },
     "cta": {
       "title": "Shall we start?",

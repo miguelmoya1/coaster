@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
 import type { Subscription } from 'stripe';
 
+const DEFAULT_BASE_PRICE_CENTS = 1999;
 const DEFAULT_INCLUDED_SEATS = 10;
 const DEFAULT_EXTRA_SEAT_PRICE_CENTS = 200;
 
@@ -65,6 +66,10 @@ export function getProPriceIds(configService: ConfigService): string[] {
     .flatMap((value) => (value ?? '').split(','))
     .map((value) => value.trim())
     .filter(Boolean);
+}
+
+export function getBasePriceCents(configService: ConfigService): number {
+  return readPositiveInt(configService.get<string>('PRO_BASE_PRICE_CENTS'), DEFAULT_BASE_PRICE_CENTS);
 }
 
 export function getIncludedSeats(configService: ConfigService): number {

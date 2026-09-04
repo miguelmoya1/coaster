@@ -114,7 +114,13 @@ describe('EstablishmentSubscriptionStore', () => {
   });
 
   describe('extraSeatNotice', () => {
-    const loadSeats = async (seats: { used: number; billed: number; included: number; extraPriceCents: number }) => {
+    const loadSeats = async (seats: {
+      used: number;
+      billed: number;
+      included: number;
+      basePriceCents: number;
+      extraPriceCents: number;
+    }) => {
       seatsEnabled.set(true);
       store.setEstablishmentId(establishmentId);
       TestBed.tick();
@@ -127,19 +133,31 @@ describe('EstablishmentSubscriptionStore', () => {
     };
 
     it('should stay quiet while the venue still has room in its allowance', async () => {
-      await loadSeats({ used: 7, billed: 7, included: 10, extraPriceCents: 200 });
+      await loadSeats({ used: 7, billed: 7, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
       expect(store.extraSeatNotice()).toBeUndefined();
     });
 
     it('should warn once the allowance is full, since the next hire is the one that costs', async () => {
-      await loadSeats({ used: 10, billed: 10, included: 10, extraPriceCents: 200 });
+      await loadSeats({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
-      expect(store.extraSeatNotice()).toEqual({ used: 10, billed: 10, included: 10, extraPriceCents: 200 });
+      expect(store.extraSeatNotice()).toEqual({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+    });
+
+    it('should add up the flat price plus the seats beyond the allowance', async () => {
+      await loadSeats({ used: 14, billed: 14, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.seatSummary()).toMatchObject({ extraSeats: 4, monthlyTotalCents: 2799 });
+    });
+
+    it('should charge nothing extra to a venue inside the allowance', async () => {
+      await loadSeats({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
+
+      expect(store.seatSummary()).toMatchObject({ extraSeats: 0, monthlyTotalCents: 1999 });
     });
 
     it('should keep warning a venue already past the allowance', async () => {
-      await loadSeats({ used: 14, billed: 14, included: 10, extraPriceCents: 200 });
+      await loadSeats({ used: 14, billed: 14, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
 
       expect(store.extraSeatNotice()?.included).toBe(10);
     });

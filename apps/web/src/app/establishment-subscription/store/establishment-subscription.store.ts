@@ -52,6 +52,22 @@ export class EstablishmentSubscriptionStore {
     return seats && seats.used >= seats.included ? seats : undefined;
   });
 
+  public readonly seatSummary = computed(() => {
+    const seats = this.#currentSeats();
+
+    if (!seats) {
+      return undefined;
+    }
+
+    const extraSeats = Math.max(0, seats.used - seats.included);
+
+    return {
+      ...seats,
+      extraSeats,
+      monthlyTotalCents: seats.basePriceCents + extraSeats * seats.extraPriceCents,
+    };
+  });
+
   readonly #currentSubscription = computed(() =>
     this.#subscriptionResource.hasValue() ? this.#subscriptionResource.value() : undefined,
   );

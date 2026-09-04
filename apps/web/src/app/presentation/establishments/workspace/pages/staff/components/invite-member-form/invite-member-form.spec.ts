@@ -11,7 +11,7 @@ describe('InviteMemberForm', () => {
   let fixture: ComponentFixture<InviteMemberForm>;
 
   const extraSeatNotice = signal<
-    { used: number; billed: number; included: number; extraPriceCents: number } | undefined
+    { used: number; billed: number; included: number; basePriceCents: number; extraPriceCents: number } | undefined
   >(undefined);
 
   beforeEach(async () => {
@@ -48,7 +48,7 @@ describe('InviteMemberForm', () => {
     });
 
     it('should warn before inviting the employee that goes over the allowance', () => {
-      extraSeatNotice.set({ used: 10, billed: 10, included: 10, extraPriceCents: 200 });
+      extraSeatNotice.set({ used: 10, billed: 10, included: 10, basePriceCents: 1999, extraPriceCents: 200 });
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain('members.invite.extra_seat');

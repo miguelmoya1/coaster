@@ -4,6 +4,24 @@
     [subtitle]="'members.staff.description' | translate: { count: totalMembers() }"
   />
 
+  @if (seats(); as summary) {
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 mb-4 px-4 py-3 rounded-2xl bg-surface-container border border-outline-variant"
+    >
+      <span class="text-sm text-on-surface">
+        {{ 'members.staff.seats_used' | translate: { used: summary.used, included: summary.included } }}
+      </span>
+
+      <span class="text-xs text-on-surface-variant tabular-nums">
+        @if (summary.extraSeats > 0) {
+          {{ 'members.staff.seats_over' | translate: { extra: summary.extraSeats, total: summary.monthlyTotal } }}
+        } @else {
+          {{ 'members.staff.seats_within' | translate: { total: summary.monthlyTotal } }}
+        }
+      </span>
+    </div>
+  }
+
   @if (membersLoading()) {
     <coaster-loading />
   }

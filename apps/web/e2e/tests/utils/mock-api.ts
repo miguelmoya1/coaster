@@ -235,7 +235,7 @@ export async function setupMockApi(page: Page) {
         status: 200,
         contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ used: 3, billed: 3, included: 10, extraPriceCents: 200 }),
+        body: JSON.stringify({ used: 3, billed: 3, included: 10, basePriceCents: 1999, extraPriceCents: 200 }),
       });
     } else {
       await route.fallback();

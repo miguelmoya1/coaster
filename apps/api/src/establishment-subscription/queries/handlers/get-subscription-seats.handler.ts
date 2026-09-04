@@ -1,5 +1,5 @@
 import type { SubscriptionSeats } from '@coaster/common';
-import { getExtraSeatPriceCents, getIncludedSeats } from '@coaster/stripe';
+import { getBasePriceCents, getExtraSeatPriceCents, getIncludedSeats } from '@coaster/stripe';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
 import { EstablishmentSubscriptionReadRepository } from '../../data-access/establishment-subscription.read.repository';
@@ -23,6 +23,7 @@ export class GetSubscriptionSeatsHandler implements IQueryHandler<GetSubscriptio
       used,
       billed: subscription?.seats ?? 0,
       included: getIncludedSeats(this._configService),
+      basePriceCents: getBasePriceCents(this._configService),
       extraPriceCents: getExtraSeatPriceCents(this._configService),
     };
   }

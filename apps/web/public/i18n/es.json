@@ -306,7 +306,10 @@
     "staff": {
       "description": "{{count}} miembros del equipo",
       "no_members": "No hay miembros en el equipo",
-      "title": "Equipo"
+      "title": "Equipo",
+      "seats_used": "{{used}} de {{included}} plazas incluidas",
+      "seats_within": "Tu cuota: {{total}} al mes + IVA",
+      "seats_over": "{{extra}} por encima de las incluidas · {{total}} al mes + IVA"
     },
     "change_role": "Cambiar rol",
     "role_dialog": {
@@ -585,7 +588,7 @@
     "activate_pro_subtitle": "Obtén acceso completo a todas las funcionalidades de Coaster Pro",
     "manage_billing": "Gestionar suscripción y facturas",
     "monthly_title": "Plan Coaster Pro",
-    "monthly_subtitle": "Acceso completo a todas las funciones sin límites",
+    "monthly_subtitle": "Todas las funciones, sin límite de comandas ni de empleados",
     "monthly_feat_1": "Acceso completo a funciones Pro",
     "monthly_feat_2": "Gestión de comandas e inventario",
     "continue_to_checkout": "Continuar al checkout",
@@ -619,7 +622,13 @@
     },
     "renews_on": "Se renovará el {{date}}",
     "cancels_on": "Se cancelará el {{date}}",
-    "action_unavailable": "Acción no disponible: suscripción o prueba finalizada"
+    "action_unavailable": "Acción no disponible: suscripción o prueba finalizada",
+    "seats": {
+      "your_staff": "Tu equipo: {{count}} personas",
+      "breakdown_within": "Precio fijo: hasta {{included}} empleados. A partir de ahí, {{each}} al mes por cada uno.",
+      "breakdown_over": "{{base}} por los primeros {{included}} + {{extra}} × {{each}} por los que pasan de ahí.",
+      "tax_note": "IVA aparte. Si cambia tu equipo, la diferencia se ajusta en la factura siguiente."
+    }
   },
   "landing": {
     "nav": {
@@ -665,7 +674,7 @@
     "pricing": {
       "tag": "Precios",
       "title": "Pruébalo 14 días. Sin tarjeta.",
-      "subtitle": "Un solo plan, con todo incluido. Si te encaja, sigues; si no, no pagas nada.",
+      "subtitle": "Un solo plan, con todo incluido. Precio fijo hasta 10 empleados; si sois más, lo sabes de antemano.",
       "trial_badge": "14 días gratis",
       "trial_title": "Prueba completa",
       "trial_desc": "Desde el minuto uno tienes todo: control horario, comandas e inventario. No pedimos tarjeta para empezar.",
@@ -677,9 +686,17 @@
       "feature1": "Control horario con exportación para inspección",
       "feature2": "Comandas, cobros e impresión sin límite",
       "feature3": "Inventario con alertas de stock",
-      "feature4": "Equipo y usuarios sin límite",
+      "feature4": "Sin tope de empleados: 10 incluidos y 2 € al mes por cada uno más",
       "cta": "Empezar los 14 días",
-      "note": "Cancela cuando quieras. Si dejas de pagar no borramos nada: mantienes el acceso para consultar tu historial y tus registros de jornada."
+      "note": "Cancela cuando quieras. Si dejas de pagar no borramos nada: mantienes el acceso para consultar tu historial y tus registros de jornada.",
+      "included_seats": "Hasta 10 empleados incluidos en ese precio",
+      "extra_title": "¿Sois más de 10?",
+      "extra_desc": "Cada empleado a partir del undécimo suma 2 € al mes. Nunca se bloquea nada: das de alta a quien necesites y ves lo que sube antes de confirmarlo.",
+      "extra_table_caption": "Cuota mensual según el número de empleados",
+      "extra_col_staff": "Empleados",
+      "extra_col_price": "Al mes",
+      "extra_row_staff": "{{count}} empleados",
+      "extra_note": "Importes sin IVA. Cuenta el personal dado de alta en la aplicación, incluido tú."
     },
     "cta": {
       "title": "¿Empezamos?",
